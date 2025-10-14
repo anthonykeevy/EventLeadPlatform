@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # MailHog - Local Email Testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"  # SMTP port (for sending)
+      - "8025:8025"  # HTTP port (web UI)
+    container_name: eventlead-mailhog
+    restart: unless-stopped
+
+# Optional: SQL Server in Docker (uncomment if not using local SQL Server)
+# sqlserver:
+#   image: mcr.microsoft.com/mssql/server:2022-latest
+#   environment:
+#     - ACCEPT_EULA=Y
+#     - SA_PASSWORD=YourStrong!Passw0rd123
+#     - MSSQL_PID=Developer
+#   ports:
+#     - "1433:1433"
+#   container_name: eventlead-sqlserver
+#   volumes:
+#     - sqlserver-data:/var/opt/mssql
+#   restart: unless-stopped
+
+# volumes:
+#   sqlserver-data:
+

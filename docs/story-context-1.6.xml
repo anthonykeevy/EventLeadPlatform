@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context>
+  <metadata>
+    <epic-id>1</epic-id>
+    <story-id>6</story-id>
+    <story-title>Invitation Acceptance and User Onboarding</story-title>
+    <story-status>Draft</story-status>
+    <created-date>2025-10-13</created-date>
+    <context-version>1.0</context-version>
+  </metadata>
+
+  <user-story>
+    <as-a>user who has received a team invitation</as-a>
+    <i-want>to accept the invitation and complete my user onboarding</i-want>
+    <so-that>I can join the company team and access the EventLead Platform</so-that>
+  </user-story>
+
+  <acceptance-criteria>
+    <criterion id="AC-6.1">User can access invitation via secure token link from email</criterion>
+    <criterion id="AC-6.2">System validates invitation token and checks expiration</criterion>
+    <criterion id="AC-6.3">System displays invitation details (company name, inviter, role)</criterion>
+    <criterion id="AC-6.4">User can accept or decline the invitation</criterion>
+    <criterion id="AC-6.5">System creates UserCompany relationship with assigned role upon acceptance</criterion>
+    <criterion id="AC-6.6">System redirects accepted users to simplified onboarding flow</criterion>
+    <criterion id="AC-6.7">Simplified Onboarding: User enters first name, last name, role title, phone</criterion>
+    <criterion id="AC-6.8">System validates required fields and Australian phone format</criterion>
+    <criterion id="AC-6.9">System saves user details and completes onboarding</criterion>
+    <criterion id="AC-6.10">System redirects to dashboard upon completion</criterion>
+    <criterion id="AC-6.11">System logs all invitation acceptance activities</criterion>
+    <criterion id="AC-6.12">System handles expired or invalid invitation tokens gracefully</criterion>
+    <criterion id="AC-6.13">User can only accept invitation once (prevents duplicate acceptance)</criterion>
+  </acceptance-criteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="AC-6: Invitation Acceptance">
+        <snippet>AC-6.1: User can access invitation via secure token link from email
+AC-6.2: System validates invitation token and checks expiration
+AC-6.3: System displays invitation details (company name, inviter, role)
+AC-6.4: User can accept or decline the invitation
+AC-6.5: System creates UserCompany relationship with assigned role upon acceptance
+AC-6.6: System redirects accepted users to simplified onboarding flow
+AC-6.7: Simplified Onboarding: User enters first name, last name, role title, phone
+AC-6.8: System validates required fields and Australian phone format
+AC-6.9: System saves user details and completes onboarding
+AC-6.10: System redirects to dashboard upon completion</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file path="backend/modules/team/router.py" kind="file" symbol="team_router" lines="0" reason="Team router - needs invitation acceptance endpoint"/>
+      <file path="backend/modules/team/service.py" kind="file" symbol="team_service" lines="0" reason="Team service - needs invitation acceptance business logic"/>
+      <file path="backend/modules/users/router.py" kind="file" symbol="users_router" lines="0" reason="Users router - needs simplified onboarding endpoint for invited users"/>
+      <file path="frontend/src/features/auth/components/InvitationAcceptance.tsx" kind="file" symbol="invitation_acceptance" lines="0" reason="Invitation acceptance component - needs invitation details display and accept/decline"/>
+      <file path="frontend/src/features/onboarding/components/InvitedUserOnboarding.tsx" kind="file" symbol="invited_user_onboarding" lines="0" reason="Invited user onboarding component - needs simplified onboarding form"/>
+    </code>
+
+    <dependencies>
+      <ecosystem name="python">
+        <package name="fastapi" version="0.115.7" purpose="Web framework for invitation acceptance endpoints"/>
+        <package name="sqlalchemy" version="2.0.40" purpose="ORM for UserCompany relationship creation"/>
+        <package name="pydantic" version="2.10.6" purpose="Request/response validation for invitation acceptance"/>
+      </ecosystem>
+      <ecosystem name="node">
+        <package name="react" version="18.2.0" purpose="Frontend UI framework"/>
+        <package name="react-hook-form" version="7.48.2" purpose="Form handling for simplified onboarding"/>
+        <package name="axios" version="1.6.2" purpose="HTTP client for invitation acceptance API calls"/>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface name="invitation_acceptance_endpoint" kind="REST API" signature="POST /api/team/invitations/accept" path="backend/modules/team/router.py">
+      <description>Endpoint for accepting team invitations with token validation</description>
+    </interface>
+    <interface name="simplified_onboarding_endpoint" kind="REST API" signature="POST /api/users/onboarding/invited-user" path="backend/modules/users/router.py">
+      <description>Endpoint for simplified onboarding for invited users</description>
+    </interface>
+    <interface name="invitation_acceptance_component" kind="React Component" signature="InvitationAcceptance" path="frontend/src/features/auth/components/InvitationAcceptance.tsx">
+      <description>React component for invitation acceptance with details display</description>
+    </interface>
+    <interface name="invited_user_onboarding_component" kind="React Component" signature="InvitedUserOnboarding" path="frontend/src/features/onboarding/components/InvitedUserOnboarding.tsx">
+      <description>React component for simplified onboarding for invited users</description>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint type="security">Secure Token Validation: Cryptographically secure token validation with expiration</constraint>
+    <constraint type="user-experience">Simplified Onboarding: Streamlined onboarding flow for invited users</constraint>
+    <constraint type="security">Single-use Tokens: Invitation tokens invalidated after acceptance</constraint>
+    <constraint type="architecture">Multi-tenant Integration: UserCompany relationship creation for company access</constraint>
+    <constraint type="audit">Activity Logging: Comprehensive audit trail for invitation acceptance</constraint>
+    <constraint type="testing">Unit Tests: 80%+ coverage for invitation acceptance module using pytest</constraint>
+    <constraint type="testing">Integration Tests: Complete invitation acceptance flow using TestClient</constraint>
+    <constraint type="testing">E2E Tests: Browser invitation acceptance and onboarding using Playwright</constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Testing follows pytest framework for backend unit tests, React Testing Library for frontend component tests, and Playwright for E2E testing.
+      Unit tests require 80%+ coverage for invitation acceptance module. Integration tests cover complete invitation acceptance flow using FastAPI TestClient.
+      E2E tests use Playwright for browser invitation acceptance and simplified onboarding scenarios.
+    </standards>
+    <locations>
+      <location>backend/tests/</location>
+      <location>frontend/src/**/*.test.tsx</location>
+      <location>tests/e2e/</location>
+    </locations>
+    <ideas>
+      <test ac-id="AC-6.1" type="e2e" description="Test invitation access via secure token link"/>
+      <test ac-id="AC-6.2" type="unit" description="Test invitation token validation and expiration"/>
+      <test ac-id="AC-6.3" type="unit" description="Test invitation details display (company, inviter, role)"/>
+      <test ac-id="AC-6.4" type="unit" description="Test invitation accept/decline functionality"/>
+      <test ac-id="AC-6.5" type="integration" description="Test UserCompany relationship creation upon acceptance"/>
+      <test ac-id="AC-6.6" type="integration" description="Test redirect to simplified onboarding after acceptance"/>
+      <test ac-id="AC-6.7" type="unit" description="Test simplified onboarding form with required fields"/>
+      <test ac-id="AC-6.8" type="unit" description="Test Australian phone format validation"/>
+      <test ac-id="AC-6.9" type="integration" description="Test user details save and onboarding completion"/>
+      <test ac-id="AC-6.10" type="e2e" description="Test redirect to dashboard after onboarding completion"/>
+      <test ac-id="AC-6.11" type="unit" description="Test invitation acceptance activity logging"/>
+      <test ac-id="AC-6.12" type="unit" description="Test expired/invalid token handling"/>
+      <test ac-id="AC-6.13" type="unit" description="Test duplicate acceptance prevention"/>
+    </ideas>
+  </tests>
+</story-context>

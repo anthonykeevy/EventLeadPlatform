@@ -1,0 +1,33 @@
+# Cursor Rules for EventLead Platform
+
+## PowerShell Commands
+- NEVER use `&&` in PowerShell commands - it's not valid syntax
+- Use `;` for command chaining in PowerShell instead of `&&`
+- Always test PowerShell scripts before providing them to users
+- Use proper PowerShell syntax for all commands
+
+## Testing Requirements
+- ALWAYS test any scripts, configurations, or code before providing them
+- Verify commands work in the target environment (PowerShell on Windows)
+- Test file paths and directory structures before referencing them
+- Validate that all dependencies and prerequisites are met
+
+## Code Quality
+- Ensure all provided code is syntactically correct for the target environment
+- Test scripts in the actual project directory structure
+- Verify file permissions and access rights
+- Check that all referenced files and directories exist
+
+## PowerShell Best Practices
+- Use `Get-ChildItem` instead of `ls` for consistency
+- Use `Test-Path` for file/directory existence checks
+- Use proper PowerShell parameter syntax
+- Avoid mixing Unix and PowerShell command syntax
+
+## Service Management
+- When asked to start services, use the automated scripts in the scripts/ directory
+- Use `.\scripts\start-services-clean.ps1` to start all services
+- Use `.\scripts\simple-monitor.ps1` to check service status
+- Use `.\scripts\view-logs.ps1` to view service logs
+- Reference `docs/SERVICE-MANAGEMENT-GUIDE.md` for detailed instructions
+- Always test PowerShell scripts before providing them to users

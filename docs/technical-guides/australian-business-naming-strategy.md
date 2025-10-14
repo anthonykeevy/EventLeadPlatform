@@ -368,3 +368,5 @@ WHERE bd.ABN IS NOT NULL;
 
 *Solomon - SQL Standards Sage* 📜  
 *"Handle Australian business names with the precision they deserve!"*
+
+

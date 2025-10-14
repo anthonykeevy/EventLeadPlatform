@@ -201,3 +201,5 @@ Tax Invoice Generation:
 
 *Dimitri - Data Domain Architect* 🔍  
 *"Clean architecture: EventLead as Company #1, customers start from #2"*
+
+

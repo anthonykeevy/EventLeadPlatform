@@ -7,6 +7,12 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:auth": "vitest run **/auth/**/*.test.*",
+    "test:unit": "vitest run --reporter=verbose",
+    "test:component": "vitest run **/components/**/*.test.* **/features/**/*.test.*",
+    "test:watch": "vitest --watch",
     "lint": "eslint src --ext ts,tsx"
   },
   "dependencies": {

@@ -610,3 +610,5 @@ WHERE CountryCode = 'AU'
 *Dimitri - Data Domain Architect* 🔍  
 *"Phone validation: regex patterns done right"*
 
+
+

@@ -326,3 +326,5 @@ Start with **Option A** (price parity) for simplicity. Monitor conversion rates,
 *Dimitri - Data Domain Architect* 🔍  
 *"Currency is just another domain - design it right once"*
 
+
+

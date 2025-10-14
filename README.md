@@ -60,22 +60,42 @@ Beautiful, branded lead collection forms for events. Drag-and-drop form builder 
 
 ## 🚀 Quick Start
 
-### 1. Start Backend
+### Automated Service Management
+```powershell
+# Start all services and check dependencies
+.\scripts\start-services-clean.ps1
+
+# Monitor service status
+.\scripts\simple-monitor.ps1
+
+# View service logs
+.\scripts\view-logs.ps1 -Service all
+```
+
+### Manual Service Startup
+
+#### 1. Start MailHog (Email Testing)
+```powershell
+docker-compose up mailhog -d
+```
+MailHog runs at: http://localhost:8025
+
+#### 2. Start Backend
 ```powershell
 cd backend
-.\venv\Scripts\Activate.ps1
-python main.py
+.\venv\Scripts\activate
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 Backend runs at: http://localhost:8000
 
-### 2. Start Frontend (New Terminal)
+#### 3. Start Frontend (New Terminal)
 ```powershell
 cd frontend
 npm run dev
 ```
 Frontend runs at: http://localhost:3000
 
-### 3. Access Services
+### Service URLs
 - **Frontend:** http://localhost:3000
 - **API Docs:** http://localhost:8000/docs (Swagger UI)
 - **MailHog:** http://localhost:8025 (Email testing)

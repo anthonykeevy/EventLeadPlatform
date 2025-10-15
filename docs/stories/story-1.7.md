@@ -28,13 +28,13 @@ so that **users can only access resources and perform actions appropriate to the
   - [ ] Implement comprehensive error responses (401, 403)
   - [ ] Add middleware logging for security monitoring
 
-- [ ] **Role-based Permission System** (AC: 7.3, 7.4, 7.5)
-  - [ ] Create role permission definitions and mappings
-  - [ ] Implement Company Admin permission set (full company access)
-  - [ ] Implement Company User permission set (limited company access)
-  - [ ] Implement System Admin permission set (platform-wide access)
-  - [ ] Create permission checking utilities and decorators
-  - [ ] Add role-based endpoint protection
+- [ ] **RBAC Decorators Using Permission Service** (AC: 7.3, 7.4, 7.5)
+  - [ ] Import `PermissionService` from `backend/modules/permissions/service.py` (Story 1.8)
+  - [ ] Create `@require_permission(permission)` decorator using `PermissionService.has_permission()`
+  - [ ] Create `@require_role(role)` decorator for role-level checks
+  - [ ] Create `@require_company_access` decorator for company isolation
+  - [ ] Document how to use decorators in service layer and API endpoints
+  - [ ] Add role-based endpoint protection using new decorators
 
 - [ ] **Multi-tenant Data Isolation** (AC: 7.4, 7.5)
   - [ ] Implement company_id filtering for all company-specific resources
@@ -45,9 +45,9 @@ so that **users can only access resources and perform actions appropriate to the
 
 - [ ] **Frontend Authorization Context** (AC: 7.3, 7.4, 7.5)
   - [ ] Update `frontend/features/auth/contexts/AuthContext.tsx` with role information
-  - [ ] Implement role-based UI component rendering
-  - [ ] Add permission checking utilities for frontend components
-  - [ ] Implement role-based navigation and menu items
+  - [ ] Use `usePermissions()` hook from Story 1.8 for permission checks
+  - [ ] Implement role-based UI component rendering using `PermissionGate` component
+  - [ ] Implement role-based navigation and menu items using `hasPermission()` checks
   - [ ] Add user role display and management
 
 - [ ] **Protected Route Implementation** (AC: 7.3, 7.6, 7.7)
@@ -135,6 +135,21 @@ Billing                 | ✅           | ✅            | ❌
 - **Security Requirements**: [Source: docs/tech-spec-epic-1.md#Security]
 - **JWT Implementation**: [Source: docs/tech-spec-epic-1.md#JWT-Token-Management]
 - **UX Requirements**: [Source: docs/tech-spec-epic-1.md#UX-Design-Specifications]
+
+## Dependencies
+
+**Critical:** This story depends on Story 1.8 (Role Management) being completed first.
+
+### From Story 1.8:
+- `backend/modules/permissions/service.py` - PermissionService class
+- `backend/modules/permissions/service.py` - Permission enum
+- `frontend/src/hooks/usePermissions.ts` - usePermissions hook
+- `frontend/src/components/PermissionGate.tsx` - PermissionGate component
+
+**Implementation Order:**
+1. ✅ Story 1.8 must be completed first (provides permission abstraction layer)
+2. ➡️ Story 1.7 implements RBAC decorators using PermissionService
+3. ➡️ Stories 1.5 & 1.6 use decorators from Story 1.7
 
 ## Dev Agent Record
 

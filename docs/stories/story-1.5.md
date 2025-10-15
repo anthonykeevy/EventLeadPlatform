@@ -66,10 +66,12 @@ so that **I can build a collaborative team for event lead generation and managem
   - [ ] Add invitation cleanup for expired tokens
 
 - [ ] **RBAC Integration** (AC: 5.1, 5.6, 5.7, 5.8)
-  - [ ] Implement Company Admin role verification for invitation management
-  - [ ] Add role-based access control for team management features
+  - [ ] Use `@require_permission("users:invite")` decorator on invitation creation endpoint
+  - [ ] Use `@require_permission("users:manage")` decorator on invitation management endpoints
+  - [ ] Use `hasPermission("users:invite")` in frontend team management components
+  - [ ] Use `PermissionGate` component to show/hide invitation UI elements
   - [ ] Implement company isolation for invitation management
-  - [ ] Add permission checks for invitation operations
+  - [ ] Add permission checks for all invitation operations
 
 - [ ] **Database Schema Implementation** (AC: 5.3, 5.9)
   - [ ] Create invitations table with proper constraints
@@ -142,6 +144,22 @@ so that **I can build a collaborative team for event lead generation and managem
 - **Email Service**: [Source: docs/tech-spec-epic-1.md#Email-Service-Integration]
 - **UX Requirements**: [Source: docs/tech-spec-epic-1.md#UX-Design-Specifications]
 - **Application Configuration**: [Source: docs/tech-spec-epic-1.md#Application-Specification-System]
+
+## Dependencies
+
+**Critical:** This story depends on Stories 1.7 and 1.8 being completed first.
+
+### From Story 1.8 (Role Management):
+- Permission abstraction layer (PermissionService and usePermissions hook)
+
+### From Story 1.7 (RBAC Middleware):
+- `@require_permission` decorator for endpoint protection
+- RBAC middleware for authorization checks
+
+**Implementation Order:**
+1. ✅ Story 1.8 must be completed first (provides permission abstraction)
+2. ✅ Story 1.7 must be completed first (provides RBAC decorators)
+3. ➡️ Story 1.5 uses decorators and hooks for team invitation features
 
 ## Dev Agent Record
 

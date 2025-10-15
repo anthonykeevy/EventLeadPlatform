@@ -110,6 +110,210 @@ This epic implements components across all three architecture tiers as defined i
 | `frontend/features/ux/hooks/useAutoSave.tsx` | Auto-save functionality with visual feedback | Form data, save interval | Auto-save state, last saved | Frontend UX |
 | `frontend/features/ux/hooks/useKeyboardNavigation.tsx` | Keyboard navigation and accessibility hooks | Navigation targets | Keyboard event handlers | Frontend UX |
 
+### Permission Service Architecture (Future-Proof Design)
+
+To enable future migration to granular permission-based access control (PBAC) without major refactoring, the platform implements a permission abstraction layer starting in Story 1.8. This design allows evolution from role-based access control (RBAC) to PBAC with minimal code changes.
+
+#### Backend Permission Service (Python)
+
+**Module:** `backend/modules/permissions/service.py`
+
+**Purpose:** Centralized permission checking that abstracts the underlying implementation (role flags today, Permission table in future)
+
+**Public API (Stable - Never Changes):**
+```python
+class PermissionService:
+    def has_permission(
+        self, 
+        user_id: int, 
+        permission: Permission, 
+        company_id: Optional[int] = None
+    ) -> bool:
+        """
+        Check if user has permission (with optional company scope).
+        
+        TODAY: Maps permission to role flags (e.g., Permission.EVENTS_CREATE → role.can_manage_events)
+        FUTURE: Queries Permission database table
+        
+        This signature is stable and will not change during PBAC migration.
+        """
+        
+    def get_user_permissions(
+        self, 
+        user_id: int, 
+        company_id: Optional[int] = None
+    ) -> List[Permission]:
+        """
+        Get all permissions for a user (with optional company scope).
+        
+        TODAY: Derives permissions from role flags
+        FUTURE: Queries Permission table directly
+        
+        Returns: List of Permission enum values
+        """
+```
+
+**Permission Enum (Comprehensive):**
+```python
+class Permission(str, Enum):
+    # Company Management
+    COMPANY_SETTINGS_VIEW = "company:settings:view"
+    COMPANY_SETTINGS_EDIT = "company:settings:edit"
+    COMPANY_BILLING_VIEW = "company:billing:view"
+    COMPANY_BILLING_EDIT = "company:billing:edit"
+    
+    # User Management
+    USERS_VIEW = "users:view"
+    USERS_INVITE = "users:invite"
+    USERS_EDIT = "users:edit"
+    USERS_DELETE = "users:delete"
+    USERS_ASSIGN_ROLES = "users:assign_roles"
+    
+    # Event Management
+    EVENTS_VIEW = "events:view"
+    EVENTS_CREATE = "events:create"
+    EVENTS_EDIT = "events:edit"
+    EVENTS_DELETE = "events:delete"
+    EVENTS_PUBLISH = "events:publish"
+    
+    # Form Management
+    FORMS_VIEW = "forms:view"
+    FORMS_CREATE = "forms:create"
+    FORMS_EDIT = "forms:edit"
+    FORMS_DELETE = "forms:delete"
+    
+    # Data & Reports
+    DATA_EXPORT = "data:export"
+    REPORTS_VIEW = "reports:view"
+    REPORTS_CREATE = "reports:create"
+    ANALYTICS_VIEW = "analytics:view"
+```
+
+**Implementation (Phase 1 - Role Flags):**
+```python
+# Story 1.8 implementation maps permissions to role flags
+def has_permission(self, user_id, permission, company_id):
+    role = self._get_company_role(user_id, company_id)
+    
+    permission_map = {
+        Permission.EVENTS_CREATE: role.can_manage_events,
+        Permission.EVENTS_EDIT: role.can_manage_events,
+        Permission.DATA_EXPORT: role.can_export_data,
+        Permission.USERS_INVITE: role.can_manage_users,
+        # ... complete mapping
+    }
+    
+    return permission_map.get(permission, False)
+```
+
+**Implementation (Phase 2 - Year 2-3, Permission Table):**
+```python
+# Future migration: Only this implementation changes, public API stays same
+def has_permission(self, user_id, permission, company_id):
+    return db.query(Permission).join(
+        RolePermission
+    ).filter(
+        UserCompany.user_id == user_id,
+        UserCompany.company_id == company_id,
+        Permission.code == permission
+    ).first() is not None
+```
+
+#### Frontend Permission Hook (TypeScript/React)
+
+**Module:** `frontend/src/hooks/usePermissions.ts`
+
+**Purpose:** React hook that provides permission checking for UI components
+
+**Public API (Stable - Never Changes):**
+```typescript
+export type Permission = 
+  | 'company:settings:view'
+  | 'company:settings:edit'
+  | 'users:invite'
+  | 'events:create'
+  | 'data:export'
+  // ... complete list matching backend
+
+interface PermissionContext {
+  hasPermission: (permission: Permission) => boolean;
+  hasAnyPermission: (permissions: Permission[]) => boolean;
+  hasAllPermissions: (permissions: Permission[]) => boolean;
+  permissions: Permission[]; // Full list for debugging
+}
+
+export function usePermissions(companyId?: number): PermissionContext {
+  // TODAY: Derives permissions from user.company_role flags
+  // FUTURE: Uses user.permissions array from API
+  
+  // Public API never changes, only internal implementation
+}
+```
+
+**Usage in Components (Never Changes):**
+```typescript
+function EventDashboard() {
+  const { hasPermission } = usePermissions();
+  
+  return (
+    <div>
+      {hasPermission('events:create') && <CreateEventButton />}
+      
+      <PermissionGate permission="data:export">
+        <ExportButton />
+      </PermissionGate>
+    </div>
+  );
+}
+```
+
+#### Migration Path (Year 2-3)
+
+When the platform needs granular permissions (enterprise clients, custom roles), the migration is localized:
+
+**Database Changes:**
+```sql
+-- Add Permission table
+CREATE TABLE [Permission] (
+    PermissionID BIGINT PRIMARY KEY,
+    PermissionCode NVARCHAR(50), -- 'events:create'
+    PermissionName NVARCHAR(100),
+    Category NVARCHAR(50),
+    ...
+);
+
+-- Add RolePermission junction table
+CREATE TABLE [RolePermission] (
+    UserCompanyRoleID BIGINT,
+    PermissionID BIGINT,
+    ...
+);
+```
+
+**Backend Changes (2 files):**
+1. `backend/modules/permissions/service.py` - Update private methods only
+2. `backend/routes/auth.py` - Change API response to include permissions list
+
+**Frontend Changes (1 file):**
+1. `frontend/src/hooks/usePermissions.ts` - Update implementation (10 lines)
+
+**Application Code Changes:**
+- **Zero component changes** (all use `hasPermission()` abstraction)
+- **Zero service changes** (all use `PermissionService` abstraction)
+- **Zero test changes** (test against stable API)
+
+**Estimated Migration Effort:** 2-3 weeks (vs. 8-12 weeks without abstraction)
+
+#### Design Principles
+
+1. **Stable Public APIs:** `has_permission()` signature never changes
+2. **Implementation Hiding:** Private methods can change freely
+3. **Permission Thinking:** Even with roles, think in terms of permissions
+4. **Future-Ready:** Design assumes evolution to PBAC
+5. **Zero Breaking Changes:** Migration is internal implementation change
+
+This architecture is implemented in Story 1.8 (Role Management) and used by Stories 1.5-1.7 (Team features and RBAC middleware).
+
 ### Data Models and Contracts
 
 **Database Schema Design (Dimitri's Domain Analysis)**

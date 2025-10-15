@@ -144,6 +144,23 @@ so that **I can join the company team and access the EventLead Platform**.
 - **UX Requirements**: [Source: docs/tech-spec-epic-1.md#UX-Design-Specifications]
 - **Database Schema**: [Source: docs/tech-spec-epic-1.md#Database-Schema-Implementation]
 
+## Dependencies
+
+**Critical:** This story depends on Stories 1.5 and 1.8 being completed first.
+
+### From Story 1.5 (Team Invitation Management):
+- Invitation system and token management
+- Invitation creation and email flow
+
+### From Story 1.8 (Role Management):
+- Role assignment logic for accepted invitations
+- UserCompany relationship with role assignment
+
+**Implementation Order:**
+1. ✅ Story 1.8 must be completed first (provides role assignment logic)
+2. ✅ Story 1.5 must be completed first (provides invitation system)
+3. ➡️ Story 1.6 implements invitation acceptance and role assignment
+
 ## Dev Agent Record
 
 ### Context Reference

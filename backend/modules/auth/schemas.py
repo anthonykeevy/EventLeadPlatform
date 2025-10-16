@@ -179,3 +179,60 @@ class ErrorResponse(BaseModel):
             }
         }
 
+
+# ============================================================================
+# Password Reset Schemas
+# ============================================================================
+
+class PasswordResetRequestSchema(BaseModel):
+    """Request schema for password reset initiation"""
+    email: EmailStr = Field(..., description="User's email address")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "email": "john.doe@example.com"
+            }
+        }
+
+
+class PasswordResetRequestResponse(BaseModel):
+    """Response schema for password reset request"""
+    success: bool = Field(..., description="Whether request was processed")
+    message: str = Field(..., description="Human-readable message")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "message": "If the email exists, a password reset link has been sent."
+            }
+        }
+
+
+class PasswordResetConfirmSchema(BaseModel):
+    """Request schema for password reset confirmation"""
+    token: str = Field(..., description="Password reset token from email")
+    new_password: str = Field(..., min_length=8, max_length=128, description="New password")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "token": "abc123def456",
+                "new_password": "MyNewSecureP@ss123"
+            }
+        }
+
+
+class PasswordResetConfirmResponse(BaseModel):
+    """Response schema for password reset confirmation"""
+    success: bool = Field(..., description="Whether password was reset")
+    message: str = Field(..., description="Human-readable message")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "message": "Password reset successfully. You can now log in with your new password."
+            }
+        }

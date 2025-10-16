@@ -312,6 +312,42 @@ class EmailService:
             db.close()
 
 
+    async def send_password_reset_email(
+        self,
+        to: str,
+        user_name: str,
+        reset_link: str
+    ) -> bool:
+        """
+        Send password reset email with reset link.
+        
+        Args:
+            to: Recipient email address
+            user_name: User's name for personalization
+            reset_link: Password reset URL with token
+            
+        Returns:
+            True if email sent successfully, False otherwise
+            
+        Example:
+            email_service = get_email_service()
+            await email_service.send_password_reset_email(
+                to="user@example.com",
+                user_name="John Doe",
+                reset_link="https://app.example.com/reset-password?token=abc123"
+            )
+        """
+        return await self.send_email(
+            to=to,
+            subject="Reset Your Password",
+            template_name="password_reset",
+            template_vars={
+                "user_name": user_name,
+                "reset_link": reset_link
+            }
+        )
+
+
 def get_email_service() -> EmailService:
     """
     Factory function to create configured EmailService.

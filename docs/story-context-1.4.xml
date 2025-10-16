@@ -1,0 +1,109 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Password Reset Flow</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.4.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.4.1" priority="high">
+      <statement>Public password reset request endpoint accepts email address</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/auth/password-reset/request accepts email; always returns success (no information leakage)</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.2" priority="high">
+      <statement>Password reset token generated and stored (valid 1 hour)</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Token created in ref.Token with TokenType='PASSWORD_RESET', 1-hour expiry, IsUsed=false</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.3" priority="high">
+      <statement>Password reset email sent automatically</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Email logged to log.EmailDelivery; email appears in MailHog with reset link</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.4" priority="critical">
+      <statement>Email does not reveal whether account exists (security)</statement>
+      <validation>
+        <method>Security Test</method>
+        <success_condition>Same success response for existing and non-existing emails; timing attack mitigation</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.5" priority="high">
+      <statement>Public password reset confirmation endpoint validates token</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/auth/password-reset/confirm validates token existence, expiry, used status</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.6" priority="high">
+      <statement>New password validated for strength (same rules as signup)</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Password validation enforces 8+ chars, uppercase, lowercase, number, special char</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.7" priority="critical">
+      <statement>Password updated with bcrypt hash</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>User.PasswordHash updated with new bcrypt hash; old password no longer works</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.8" priority="high">
+      <statement>Token marked as used after successful reset</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Token.IsUsed=true, UsedDate set; token cannot be reused</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.9" priority="medium">
+      <statement>All password reset events logged to log.AuthEvent</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>PASSWORD_RESET_REQUESTED, PASSWORD_RESET_COMPLETED, PASSWORD_RESET_FAILED events logged</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.4.10" priority="high">
+      <statement>User can only use token once within 1-hour window</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Token works once; subsequent use returns error; expired token (>1 hour) returns error</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.1</id>
+      <description>User Signup - Provides users for password reset</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.2</id>
+      <description>Login & JWT - Password reset allows re-login</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 0.3</id>
+      <description>Email Service - Sends password reset emails</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="security">
+      CRITICAL: Never reveal whether an email exists in the system. Always return "If the email exists, a reset link has been sent" regardless. This prevents email enumeration attacks. Implement rate limiting to prevent abuse.
+    </note>
+    <note type="implementation">
+      When generating a new password reset token, invalidate any existing unused PASSWORD_RESET tokens for that user to prevent multiple active reset links.
+    </note>
+  </notes>
+</story-context>
+

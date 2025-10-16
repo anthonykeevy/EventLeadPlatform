@@ -1,0 +1,46 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Welcome to EventLead Platform{% endblock %}
+
+{% block content %}
+<h1>Welcome to EventLead, {{ user_name }}!</h1>
+
+<p>Congratulations! Your account has been successfully created and verified.</p>
+
+<p>EventLead is your complete event lead management solution. Here's what you can do:</p>
+
+<h2>🎯 Capture Leads</h2>
+<p>Create custom forms and QR codes to capture attendee information at your events.</p>
+
+<h2>📊 Track Performance</h2>
+<p>Get real-time analytics and insights on your event performance and lead quality.</p>
+
+<h2>👥 Collaborate</h2>
+<p>Invite team members and work together to manage events and follow up with leads.</p>
+
+<h2>🚀 Get Started</h2>
+<p>Ready to create your first event? Click the button below to get started:</p>
+
+<div class="button-container">
+    <a href="{{ dashboard_url | default('https://app.eventlead.com/dashboard') }}" class="button">Go to Dashboard</a>
+</div>
+
+<div class="info-box">
+    <h3 style="margin-top: 0;">Quick Start Guide</h3>
+    <ol style="margin: 10px 0 0; padding-left: 20px;">
+        <li>Set up your company profile</li>
+        <li>Create your first event</li>
+        <li>Design your lead capture form</li>
+        <li>Generate your event QR code</li>
+        <li>Start capturing leads!</li>
+    </ol>
+</div>
+
+<p>Need help getting started? Check out our <a href="{{ docs_url | default('https://docs.eventlead.com') }}" style="color: #0066cc;">documentation</a> or <a href="{{ support_url | default('https://support.eventlead.com') }}" style="color: #0066cc;">contact our support team</a>.</p>
+
+<p>We're here to help you succeed!</p>
+
+<p>Best regards,<br>
+The EventLead Team</p>
+{% endblock %}
+

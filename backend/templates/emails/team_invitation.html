@@ -1,0 +1,43 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Team Invitation - EventLead Platform{% endblock %}
+
+{% block content %}
+<h1>You've Been Invited to Join a Team!</h1>
+
+<p>Hi {{ invitee_name | default('there') }},</p>
+
+<p><strong>{{ inviter_name }}</strong> has invited you to join <strong>{{ company_name }}</strong> on EventLead Platform.</p>
+
+<p>As a team member, you'll be able to:</p>
+<ul>
+    <li>Collaborate on event management</li>
+    <li>Access shared lead data</li>
+    <li>View team performance metrics</li>
+    <li>Work together with {{ team_size | default('your') }} team members</li>
+</ul>
+
+<p>Click the button below to accept the invitation and get started:</p>
+
+<div class="button-container">
+    <a href="{{ invitation_url }}" class="button">Accept Invitation</a>
+</div>
+
+<p>Or copy and paste this link into your browser:</p>
+<p style="word-break: break-all; color: #0066cc; font-size: 14px;">{{ invitation_url }}</p>
+
+<div class="info-box">
+    <p style="margin: 0;"><strong>Role:</strong> You're being invited as a <strong>{{ role_name | default('Team Member') }}</strong></p>
+    <p style="margin: 10px 0 0;"><strong>Note:</strong> This invitation will expire in {{ expiry_days | default(7) }} days.</p>
+</div>
+
+<div class="warning-box">
+    <p style="margin: 0;">If you weren't expecting this invitation or don't want to join this team, you can safely ignore this email.</p>
+</div>
+
+<p>We're excited to have you join the team!</p>
+
+<p>Best regards,<br>
+The EventLead Team</p>
+{% endblock %}
+

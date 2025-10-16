@@ -1,0 +1,486 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>0</epicId>
+    <storyId>3</storyId>
+    <title>Email Service Foundation</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-0.3.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-0.3.1" priority="high">
+      <statement>Email service abstraction supports multiple providers (MailHog dev, production SMTP)</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>EmailService initializes with MailHogProvider or SMTPProvider based on EMAIL_PROVIDER env variable</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.2" priority="high">
+      <statement>All email deliveries automatically logged to log.EmailDelivery table</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Every send_email() call creates log.EmailDelivery record with status (PENDING, SENT, FAILED)</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.3" priority="high">
+      <statement>Email templates support HTML with variable substitution</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Jinja2 templates render with variables correctly; missing variables raise clear errors</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.4" priority="medium">
+      <statement>Base email layout includes branding and responsive design</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>Base layout includes logo, brand colors, footer, and renders correctly on mobile devices</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.5" priority="high">
+      <statement>Email sending is asynchronous and non-blocking</statement>
+      <validation>
+        <method>Performance Test</method>
+        <success_condition>API returns immediately; emails sent in background via FastAPI BackgroundTasks</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.6" priority="medium">
+      <statement>Failed email deliveries retry with exponential backoff</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Transient failures retry 5 times with exponential backoff (1s, 2s, 4s, 8s, 16s); permanent failures don't retry</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.7" priority="high">
+      <statement>MailHog configured for development environment</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Emails sent via EmailService appear in MailHog UI at http://localhost:8025</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.8" priority="high">
+      <statement>Email service integrated with logging middleware (uses RequestID)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Email logs include RequestID from request context; can correlate with API logs</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.9" priority="low">
+      <statement>Email preview capability for development/testing</statement>
+      <validation>
+        <method>Manual Test</method>
+        <success_condition>Dev endpoint GET /api/dev/emails/preview/{template} renders template without sending</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.3.10" priority="high">
+      <statement>Comprehensive error handling with detailed failure reasons</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Connection failures, auth errors, invalid emails logged with clear error messages</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <artifacts>
+    <artifact type="service">
+      <path>backend/services/__init__.py</path>
+      <description>Package initialization for services</description>
+    </artifact>
+    <artifact type="service">
+      <path>backend/services/email_service.py</path>
+      <description>EmailService class with provider abstraction, template rendering, automatic logging, and retry logic</description>
+    </artifact>
+    <artifact type="service">
+      <path>backend/services/email_logger.py</path>
+      <description>Email delivery logging functions - log to log.EmailDelivery table</description>
+    </artifact>
+    <artifact type="service">
+      <path>backend/services/email_retry.py</path>
+      <description>Email retry logic with exponential backoff</description>
+    </artifact>
+    <artifact type="service">
+      <path>backend/services/email_preview.py</path>
+      <description>Email preview capability for development</description>
+    </artifact>
+    <artifact type="provider">
+      <path>backend/services/email_providers/__init__.py</path>
+      <description>Email providers package initialization</description>
+    </artifact>
+    <artifact type="provider">
+      <path>backend/services/email_providers/mailhog.py</path>
+      <description>MailHogProvider - Development email provider using MailHog SMTP</description>
+    </artifact>
+    <artifact type="provider">
+      <path>backend/services/email_providers/smtp.py</path>
+      <description>SMTPProvider - Production email provider with TLS and authentication</description>
+    </artifact>
+    <artifact type="config">
+      <path>backend/config/__init__.py</path>
+      <description>Configuration package initialization</description>
+    </artifact>
+    <artifact type="config">
+      <path>backend/config/email.py</path>
+      <description>EmailConfig dataclass and get_email_service() factory function</description>
+    </artifact>
+    <artifact type="template">
+      <path>backend/templates/emails/layouts/base.html</path>
+      <description>Base email layout with branding, responsive design, header, footer</description>
+    </artifact>
+    <artifact type="template">
+      <path>backend/templates/emails/email_verification.html</path>
+      <description>Email verification template (placeholder for Story 1.1)</description>
+    </artifact>
+    <artifact type="template">
+      <path>backend/templates/emails/password_reset.html</path>
+      <description>Password reset template (placeholder for Story 1.4)</description>
+    </artifact>
+    <artifact type="template">
+      <path>backend/templates/emails/team_invitation.html</path>
+      <description>Team invitation template (placeholder for Story 1.6)</description>
+    </artifact>
+    <artifact type="config">
+      <path>docker-compose.yml</path>
+      <description>Updated with MailHog service configuration</description>
+    </artifact>
+    <artifact type="config">
+      <path>env.example</path>
+      <description>Updated with email configuration environment variables</description>
+    </artifact>
+    <artifact type="test">
+      <path>backend/tests/test_email_service.py</path>
+      <description>Unit tests for EmailService - provider selection, sending, logging</description>
+    </artifact>
+    <artifact type="test">
+      <path>backend/tests/test_email_templates.py</path>
+      <description>Unit tests for email template rendering with Jinja2</description>
+    </artifact>
+    <artifact type="test">
+      <path>backend/tests/test_email_integration.py</path>
+      <description>Integration tests for end-to-end email sending with MailHog</description>
+    </artifact>
+    <artifact type="documentation">
+      <path>docs/technical-guides/email-service-guide.md</path>
+      <description>Technical documentation for email service architecture and template guide</description>
+    </artifact>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architectural" priority="high">
+      <description>Use provider pattern for email backends (MailHog, SMTP, future: SendGrid, AWS SES)</description>
+      <rationale>Allows switching email providers without changing application code</rationale>
+    </constraint>
+    <constraint type="performance" priority="high">
+      <description>Email sending must be asynchronous and non-blocking</description>
+      <rationale>Email delivery can take 1-5 seconds; cannot block API responses</rationale>
+    </constraint>
+    <constraint type="reliability" priority="high">
+      <description>All email attempts must be logged regardless of success/failure</description>
+      <rationale>Required for debugging, compliance, and customer support</rationale>
+    </constraint>
+    <constraint type="technical" priority="high">
+      <description>Integrate with request context from Story 0.2 (RequestID, UserID, CompanyID)</description>
+      <rationale>Enables correlation between API requests and email deliveries</rationale>
+    </constraint>
+    <constraint type="technical" priority="medium">
+      <description>Templates must be mobile-responsive</description>
+      <rationale>Over 50% of emails opened on mobile devices</rationale>
+    </constraint>
+    <constraint type="security" priority="medium">
+      <description>Never log email content in plaintext (only metadata)</description>
+      <rationale>Email content may contain sensitive user data</rationale>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface type="database_table">
+      <name>log.EmailDelivery</name>
+      <description>Stores all email delivery attempts with status tracking</description>
+      <source>Story 0.1 - Already created</source>
+      <fields>
+        <field name="EmailDeliveryID" type="int" required="true">Primary key</field>
+        <field name="RequestID" type="uniqueidentifier" required="false">Correlation to API request</field>
+        <field name="RecipientEmail" type="varchar(255)" required="true">Email recipient</field>
+        <field name="Subject" type="nvarchar(500)" required="true">Email subject line</field>
+        <field name="TemplateName" type="varchar(100)" required="true">Template used (e.g., "email_verification")</field>
+        <field name="DeliveryStatus" type="varchar(20)" required="true">PENDING, SENT, FAILED</field>
+        <field name="ErrorMessage" type="nvarchar(max)" required="false">Error details if failed</field>
+        <field name="SentDate" type="datetime2" required="false">When email was sent (UTC)</field>
+        <field name="UserID" type="int" required="false">FK to dbo.User (if available)</field>
+        <field name="CompanyID" type="int" required="false">FK to dbo.Company (if available)</field>
+        <field name="CreatedDate" type="datetime2" required="true">Log created timestamp (UTC)</field>
+        <field name="UpdatedDate" type="datetime2" required="true">Log updated timestamp (UTC)</field>
+      </fields>
+    </interface>
+    <interface type="service">
+      <name>EmailService</name>
+      <description>Main email service with provider abstraction</description>
+      <operations>
+        <operation name="send_email">
+          <input>to (str), subject (str), template_name (str), template_vars (Dict), from_email (str?)</input>
+          <output>bool (True if sent successfully)</output>
+          <side_effects>Renders template, sends email via provider, logs to log.EmailDelivery</side_effects>
+        </operation>
+        <operation name="send_email_async">
+          <input>Same as send_email</input>
+          <output>None (runs in background)</output>
+          <side_effects>Queues email for background sending via FastAPI BackgroundTasks</side_effects>
+        </operation>
+      </operations>
+    </interface>
+    <interface type="provider">
+      <name>EmailProvider (Abstract)</name>
+      <description>Abstract base class for email providers</description>
+      <operations>
+        <operation name="send">
+          <input>to (str), subject (str), html_body (str), from_email (str?)</input>
+          <output>bool (True if sent successfully)</output>
+          <side_effects>Sends email via provider-specific method</side_effects>
+        </operation>
+      </operations>
+    </interface>
+    <interface type="provider">
+      <name>MailHogProvider</name>
+      <description>MailHog email provider for development</description>
+      <operations>
+        <operation name="send">
+          <input>to (str), subject (str), html_body (str), from_email (str?)</input>
+          <output>bool (True if sent successfully)</output>
+          <side_effects>Sends email to MailHog via SMTP (localhost:1025)</side_effects>
+        </operation>
+      </operations>
+    </interface>
+    <interface type="provider">
+      <name>SMTPProvider</name>
+      <description>SMTP email provider for production</description>
+      <operations>
+        <operation name="send">
+          <input>to (str), subject (str), html_body (str), from_email (str?)</input>
+          <output>bool (True if sent successfully)</output>
+          <side_effects>Sends email via SMTP with TLS and authentication</side_effects>
+        </operation>
+      </operations>
+    </interface>
+    <interface type="config">
+      <name>EmailConfig</name>
+      <description>Email configuration loaded from environment variables</description>
+      <operations>
+        <operation name="from_env">
+          <input>None</input>
+          <output>EmailConfig instance</output>
+          <side_effects>Loads configuration from environment variables; validates required fields</side_effects>
+        </operation>
+      </operations>
+    </interface>
+    <interface type="factory">
+      <name>get_email_service</name>
+      <description>Factory function to create configured EmailService</description>
+      <operations>
+        <operation name="get_email_service">
+          <input>None</input>
+          <output>EmailService instance</output>
+          <side_effects>Loads config, creates appropriate provider, returns EmailService</side_effects>
+        </operation>
+      </operations>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <test id="TEST-0.3.1" type="unit" priority="high">
+      <name>Test EmailService provider selection</name>
+      <setup>Set EMAIL_PROVIDER env variable to "mailhog" and "smtp"</setup>
+      <execution>Call get_email_service() and verify provider type</execution>
+      <assertions>
+        <assert>When EMAIL_PROVIDER=mailhog, returns MailHogProvider</assert>
+        <assert>When EMAIL_PROVIDER=smtp, returns SMTPProvider</assert>
+        <assert>Missing required SMTP config raises ValueError</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.2" type="unit" priority="high">
+      <name>Test email template rendering</name>
+      <setup>Create test template with variables</setup>
+      <execution>Render template with Jinja2</execution>
+      <assertions>
+        <assert>Variables substituted correctly</assert>
+        <assert>Missing variables raise TemplateError</assert>
+        <assert>HTML output is valid</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.3" type="unit" priority="high">
+      <name>Test email delivery logging</name>
+      <setup>Mock email provider</setup>
+      <execution>Send email and query log.EmailDelivery</execution>
+      <assertions>
+        <assert>Record created with status "PENDING" before send</assert>
+        <assert>Record updated to "SENT" after successful send</assert>
+        <assert>Record updated to "FAILED" with error message on failure</assert>
+        <assert>RequestID, UserID, CompanyID captured from request context</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.4" type="unit" priority="medium">
+      <name>Test retry logic with exponential backoff</name>
+      <setup>Mock provider that fails N times then succeeds</setup>
+      <execution>Send email and monitor retry attempts</execution>
+      <assertions>
+        <assert>Transient failures retry up to 5 times</assert>
+        <assert>Retry delays are 1s, 2s, 4s, 8s, 16s (exponential backoff)</assert>
+        <assert>Permanent failures don't retry</assert>
+        <assert>Each retry attempt logged</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.5" type="integration" priority="high">
+      <name>Test end-to-end email sending with MailHog</name>
+      <setup>Start MailHog container, configure EmailService</setup>
+      <execution>Send test email via EmailService</execution>
+      <assertions>
+        <assert>Email appears in MailHog UI (http://localhost:8025)</assert>
+        <assert>Subject, recipient, HTML body correct</assert>
+        <assert>Email logged to log.EmailDelivery with status "SENT"</assert>
+        <assert>API returns immediately (async sending works)</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.6" type="integration" priority="high">
+      <name>Test email service with request context</name>
+      <setup>Create test API endpoint that sends email</setup>
+      <execution>Call endpoint with authentication</execution>
+      <assertions>
+        <assert>Email log includes RequestID from request context</assert>
+        <assert>Email log includes UserID from JWT</assert>
+        <assert>Email log includes CompanyID from JWT</assert>
+        <assert>Can correlate log.ApiRequest with log.EmailDelivery via RequestID</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.7" type="unit" priority="medium">
+      <name>Test MailHog provider connection</name>
+      <setup>MailHog running on localhost:1025</setup>
+      <execution>Send email via MailHogProvider.send()</execution>
+      <assertions>
+        <assert>Connection succeeds</assert>
+        <assert>Email sent successfully (returns True)</assert>
+        <assert>Email appears in MailHog</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.8" type="mock" priority="high">
+      <name>Test SMTP provider without real emails</name>
+      <setup>Mock SMTP server</setup>
+      <execution>Send email via SMTPProvider.send()</execution>
+      <assertions>
+        <assert>Authentication attempted with username/password</assert>
+        <assert>TLS/SSL used if configured</assert>
+        <assert>MIME message formatted correctly</assert>
+        <assert>Auth failures raise PermanentEmailError</assert>
+        <assert>Connection failures raise TransientEmailError</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.9" type="unit" priority="low">
+      <name>Test email preview endpoint</name>
+      <setup>Create dev endpoint for email preview</setup>
+      <execution>GET /api/dev/emails/preview/email_verification</execution>
+      <assertions>
+        <assert>Returns rendered HTML</assert>
+        <assert>No email actually sent</assert>
+        <assert>Endpoint only available in development</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.10" type="integration" priority="medium">
+      <name>Test email sending in background task</name>
+      <setup>Create endpoint with BackgroundTasks</setup>
+      <execution>Call endpoint and measure response time</execution>
+      <assertions>
+        <assert>API returns in &lt; 100ms (before email sent)</assert>
+        <assert>Email delivered successfully in background</assert>
+        <assert>Background task failure doesn't crash application</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.3.11" type="visual" priority="low">
+      <name>Test responsive email design</name>
+      <setup>Render base.html template</setup>
+      <execution>View in desktop and mobile browsers</execution>
+      <assertions>
+        <assert>Layout adapts to mobile screen sizes</assert>
+        <assert>Buttons are tappable on mobile</assert>
+        <assert>Text is readable without zooming</assert>
+        <assert>Logo and branding display correctly</assert>
+      </assertions>
+    </test>
+  </tests>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 0.1</id>
+      <description>Database Models - Provides log.EmailDelivery table</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 0.2</id>
+      <description>Automated Logging - Provides request context (RequestID, UserID, CompanyID)</description>
+    </dependency>
+    <dependency type="package" status="existing">
+      <name>FastAPI</name>
+      <version>Latest stable</version>
+      <usage>BackgroundTasks for async email sending</usage>
+    </dependency>
+    <dependency type="package" status="existing">
+      <name>Jinja2</name>
+      <version>Latest stable</version>
+      <usage>Email template rendering</usage>
+    </dependency>
+    <dependency type="package" status="builtin">
+      <name>smtplib</name>
+      <version>Built-in (Python 3.x)</version>
+      <usage>SMTP email sending</usage>
+    </dependency>
+    <dependency type="package" status="builtin">
+      <name>email.mime</name>
+      <version>Built-in (Python 3.x)</version>
+      <usage>MIME message construction</usage>
+    </dependency>
+    <dependency type="service" status="required">
+      <name>MailHog</name>
+      <version>Latest stable</version>
+      <usage>Development email testing (SMTP + UI)</usage>
+      <setup>Docker container via docker-compose.yml</setup>
+    </dependency>
+  </dependencies>
+
+  <risks>
+    <risk severity="high" likelihood="medium">
+      <description>Email delivery failures could go unnoticed if logging doesn't work</description>
+      <mitigation>Comprehensive logging with status tracking; monitor log.EmailDelivery for FAILED status; alerts for high failure rates</mitigation>
+    </risk>
+    <risk severity="medium" likelihood="low">
+      <description>SMTP authentication failures in production</description>
+      <mitigation>Validate SMTP configuration on startup; clear error messages; test with real SMTP provider before production</mitigation>
+    </risk>
+    <risk severity="medium" likelihood="medium">
+      <description>Email templates might break with missing variables</description>
+      <mitigation>Jinja2 strict mode raises errors for undefined variables; comprehensive template tests; document required variables</mitigation>
+    </risk>
+    <risk severity="low" likelihood="low">
+      <description>MailHog might not be running in dev environment</description>
+      <mitigation>Clear error message if connection fails; document MailHog setup in docker-compose.yml; provide setup script</mitigation>
+    </risk>
+    <risk severity="high" likelihood="low">
+      <description>Background task failures could lose emails</description>
+      <mitigation>Log all email attempts before sending; retry logic with exponential backoff; monitor FAILED emails; consider message queue (Redis/RabbitMQ) for critical emails in future</mitigation>
+    </risk>
+  </risks>
+
+  <notes>
+    <note type="architecture">
+      The email service uses the provider pattern to abstract email backends. This allows switching from MailHog (dev) to SMTP (prod) to SendGrid/AWS SES (future) without changing application code. The EmailService class handles logging, retry logic, and template rendering, while providers only handle the actual sending.
+    </note>
+    <note type="future">
+      Future enhancements: (1) Add SendGrid provider for better deliverability, (2) Add email queue (Redis/RabbitMQ) for high-volume scenarios, (3) Add email analytics (open rates, click rates), (4) Add attachment support, (5) Add plain-text fallback for HTML emails, (6) Add unsubscribe management.
+    </note>
+    <note type="testing">
+      MailHog is essential for development testing. It captures all outgoing emails so developers can verify email content, styling, and links without sending real emails. Access the MailHog UI at http://localhost:8025 to view all sent emails.
+    </note>
+    <note type="integration">
+      This story integrates with Story 0.2 (logging infrastructure) by using the request context to capture RequestID, UserID, and CompanyID. This enables correlating email deliveries with API requests for debugging and support.
+    </note>
+    <note type="templates">
+      Base email templates are created as placeholders in this story. They will be fully implemented in their respective stories: email_verification (Story 1.1), password_reset (Story 1.4), team_invitation (Story 1.6). This allows the email infrastructure to be tested independently.
+    </note>
+  </notes>
+</story-context>
+

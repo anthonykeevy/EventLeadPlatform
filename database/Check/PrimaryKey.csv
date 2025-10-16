@@ -1,0 +1,15 @@
+﻿ABRSearchCache,"SearchType, SearchKey, ResultIndex",ABRSearchCacheID,VIOLATION: Does not follow [TableName]ID pattern
+ApplicationSpecification,SpecificationID,ApplicationSpecificationID,VIOLATION: Does not follow [TableName]ID pattern
+CompanyBillingDetails,CompanyID,CompanyBillingDetailsID,VIOLATION: Does not follow [TableName]ID pattern
+CompanyCustomerDetails,CompanyID,CompanyCustomerDetailsID,VIOLATION: Does not follow [TableName]ID pattern
+CompanyOrganizerDetails,CompanyID,CompanyOrganizerDetailsID,VIOLATION: Does not follow [TableName]ID pattern
+CompanyRelationship,RelationshipID,CompanyRelationshipID,VIOLATION: Does not follow [TableName]ID pattern
+CompanySwitchRequest,RequestID,CompanySwitchRequestID,VIOLATION: Does not follow [TableName]ID pattern
+CountryApplicationSpecification,"CountryID, SpecificationID",CountryApplicationSpecificationID,VIOLATION: Does not follow [TableName]ID pattern
+CountryWebProperties,CountryID,CountryWebPropertiesID,VIOLATION: Does not follow [TableName]ID pattern
+EnvironmentApplicationSpecification,"EnvironmentID, SpecificationID",EnvironmentApplicationSpecificationID,VIOLATION: Does not follow [TableName]ID pattern
+InvitationStatus,StatusCode,InvitationStatusID,VIOLATION: Does not follow [TableName]ID pattern
+LookupTableWebProperties,TableName,LookupTableWebPropertiesID,VIOLATION: Does not follow [TableName]ID pattern
+LookupValueWebProperties,"TableName, ValueCode",LookupValueWebPropertiesID,VIOLATION: Does not follow [TableName]ID pattern
+UserStatus,StatusCode,UserStatusID,VIOLATION: Does not follow [TableName]ID pattern
+ValidationRule,RuleID,ValidationRuleID,VIOLATION: Does not follow [TableName]ID pattern

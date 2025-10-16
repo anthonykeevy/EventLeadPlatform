@@ -1,0 +1,21 @@
+﻿dbo.ABRSearchCache,"SearchType, SearchKey, ResultIndex",VIOLATION
+dbo.ApplicationSpecification,SpecificationID,PARTIAL
+dbo.Company,CompanyID,COMPLIANT
+dbo.CompanyBillingDetails,CompanyID,PARTIAL
+dbo.CompanyCustomerDetails,CompanyID,PARTIAL
+dbo.CompanyOrganizerDetails,CompanyID,PARTIAL
+dbo.CompanyRelationship,RelationshipID,PARTIAL
+dbo.CompanySwitchRequest,RequestID,PARTIAL
+dbo.Country,CountryID,COMPLIANT
+dbo.CountryApplicationSpecification,"CountryID, SpecificationID",PARTIAL
+dbo.CountryWebProperties,CountryID,PARTIAL
+dbo.EnvironmentApplicationSpecification,"EnvironmentID, SpecificationID",PARTIAL
+dbo.Invitation,InvitationID,COMPLIANT
+dbo.InvitationStatus,StatusCode,VIOLATION
+dbo.Language,LanguageID,COMPLIANT
+dbo.LookupTableWebProperties,TableName,VIOLATION
+dbo.LookupValueWebProperties,"TableName, ValueCode",VIOLATION
+dbo.User,UserID,COMPLIANT
+dbo.UserCompany,UserCompanyID,COMPLIANT
+dbo.UserStatus,StatusCode,VIOLATION
+dbo.ValidationRule,RuleID,PARTIAL

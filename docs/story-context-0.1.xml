@@ -1,0 +1,165 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>0</epicId>
+    <storyId>1</storyId>
+    <title>Database Models & Core Infrastructure</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-0.1.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>all SQLAlchemy models and core infrastructure components in place</iWant>
+    <soThat>I can build authentication and business logic features on a solid foundation</soThat>
+    <tasks>
+      - Database Connection & Session Management
+      - Security Utilities Foundation (password hashing, token generation)
+      - Reference Table Models (13 tables in ref schema)
+      - Core Business Models (9 tables in dbo schema)
+      - Configuration Models (2 tables in config schema)
+      - Audit Models (4 tables in audit schema)
+      - Log Models (4 tables in log schema)
+      - Cache Models (1 table in cache schema)
+      - Base Pydantic Schemas
+      - Model Registration & Imports
+      - Integration Testing
+      - Documentation
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criteria id="AC-0.1.1">All SQLAlchemy models created for Epic 1 tables (User, Company, UserCompany, tokens, log tables, ref tables)</criteria>
+    <criteria id="AC-0.1.2">Models follow Solomon standards (PascalCase, audit columns, proper relationships)</criteria>
+    <criteria id="AC-0.1.3">Database connection and session management working (backend/common/database.py)</criteria>
+    <criteria id="AC-0.1.4">Security utilities implemented (bcrypt password hashing, token generation)</criteria>
+    <criteria id="AC-0.1.5">Base Pydantic schemas created for common patterns</criteria>
+    <criteria id="AC-0.1.6">All models can successfully query existing database tables</criteria>
+    <criteria id="AC-0.1.7">Models include proper indexes and foreign key relationships</criteria>
+    <criteria id="AC-0.1.8">Type hints and docstrings present for all public APIs</criteria>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/database/schema-reference/dbo-schema.md" title="dbo Schema - Core Business Entities" section="Complete">
+        Comprehensive DDL and documentation for all 9 core business tables (User, Company, UserCompany, CompanyCustomerDetails, CompanyBillingDetails, CompanyOrganizerDetails, UserInvitation, UserEmailVerificationToken, UserPasswordResetToken). Includes field definitions, foreign key relationships, indexes, unique constraints, and audit columns.
+      </doc>
+      <doc path="docs/database/schema-reference/ref-schema.md" title="ref Schema - Reference/Lookup Data" section="Complete">
+        Complete reference for all 13 lookup tables with standard pattern documentation. Includes Country, Language, Industry, UserStatus, UserInvitationStatus, UserRole, UserCompanyRole, UserCompanyStatus, SettingCategory, SettingType, RuleType, CustomerTier, JoinedVia. Includes seed data examples.
+      </doc>
+      <doc path="docs/database/schema-reference/config-schema.md" title="config Schema - Configuration" section="Complete">
+        Documentation for AppSetting and ValidationRule tables with country-specific configuration patterns.
+      </doc>
+      <doc path="docs/database/schema-reference/audit-schema.md" title="audit Schema - Compliance Audit Trail" section="Complete">
+        Documentation for ActivityLog, User (audit), Company (audit), and Role (audit) tables for compliance tracking.
+      </doc>
+      <doc path="docs/database/schema-reference/log-schema.md" title="log Schema - Technical Logging" section="Complete">
+        Documentation for ApiRequest, AuthEvent, ApplicationError, and EmailDelivery tables for operational logging.
+      </doc>
+      <doc path="docs/database/schema-reference/cache-schema.md" title="cache Schema - API Cache" section="Complete">
+        Documentation for ABRSearch cache table for ABR API response caching.
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification: Authentication & Onboarding" section="Implementation Standards (lines 3150-3390)">
+        Comprehensive implementation standards including SQLAlchemy patterns, naming conventions (PascalCase for tables/columns), security standards (bcrypt cost factor 12), and backend architecture patterns.
+      </doc>
+      <doc path="docs/architecture/decisions/ADR-003-naming-convention-strategy.md" title="ADR-003: Naming Convention Strategy" section="Complete">
+        Decision record for PascalCase database naming conventions matching C# standards for Solomon validator compliance.
+      </doc>
+      <doc path="docs/technical-guides/backend-quick-reference.md" title="Backend Quick Reference" section="Module Structure">
+        Backend module organization patterns and SQLAlchemy best practices.
+      </doc>
+      <doc path="docs/technical-guides/database-quick-reference.md" title="Database Quick Reference" section="Schema Organization">
+        Quick reference for all 34 tables across 6 schemas with ERD and table relationships.
+      </doc>
+    </docs>
+    <code>
+      <item path="backend/common/database.py" kind="module" symbol="get_db" lines="33-48" reason="Existing database connection and session management - REUSE this pattern, verify configuration">
+        Provides SQLAlchemy engine configuration, SessionLocal factory, Base declarative class, and get_db() dependency function for FastAPI. Pool settings: pool_pre_ping=True, pool_recycle=3600. Connection string from DATABASE_URL env var.
+      </item>
+      <item path="backend/models/user.py" kind="model" symbol="User" lines="16-101" reason="Example model showing PARTIAL pattern - needs updating to match Solomon standards">
+        Existing User model demonstrates SQLAlchemy pattern but uses mixed casing and incomplete foreign keys. Reference for __tablename__, Column types, audit fields pattern, but needs refactoring to match PascalCase naming and proper FK relationships to ref tables.
+      </item>
+      <item path="backend/tests/conftest.py" kind="test-config" symbol="pytest fixtures" lines="1-229" reason="Comprehensive pytest configuration with test database fixtures, mocking patterns, and test data factories">
+        Provides test_db fixture (in-memory SQLite), client fixture with dependency override, sample data factories (UserFactory, CompanyFactory), mock email service, and utility assertion functions. Pattern to follow for model integration tests.
+      </item>
+      <item path="backend/migrations/versions/002_epic1_complete_schema.py" kind="migration" symbol="upgrade" lines="66-950" reason="Authoritative DDL source for all 34 tables - use this as PRIMARY REFERENCE for table structure">
+        Complete migration with CREATE TABLE statements for all Epic 1 tables. Shows exact column definitions, data types, constraints, indexes, foreign keys, and default values as implemented in database. THIS IS THE SOURCE OF TRUTH for model field definitions.
+      </item>
+    </code>
+    <dependencies>
+      <python>
+        <package name="sqlalchemy" version="2.0.40">ORM and database toolkit</package>
+        <package name="pyodbc" version="5.2.0">MS SQL Server driver</package>
+        <package name="fastapi" version="0.115.7">Web framework for dependency injection</package>
+        <package name="pydantic" version="2.10.6">Data validation and schemas</package>
+        <package name="pydantic[email]" version="2.10.6">Email validation</package>
+        <package name="passlib[bcrypt]" version="1.7.4">Password hashing utilities</package>
+        <package name="bcrypt" version="4.2.1">Bcrypt algorithm implementation</package>
+        <package name="pytest" version="8.3.5">Testing framework</package>
+        <package name="pytest-asyncio" version="0.25.3">Async test support</package>
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="naming">All table names MUST use PascalCase (User, Company, UserCompany) - Solomon standard</constraint>
+    <constraint type="naming">All column names MUST use PascalCase (UserID, FirstName, EmailVerified) - Solomon standard</constraint>
+    <constraint type="naming">Primary keys MUST follow [TableName]ID pattern (UserID, CompanyID)</constraint>
+    <constraint type="naming">Foreign keys MUST follow [ReferencedTable]ID pattern (UserID in UserCompany, CompanyID in User)</constraint>
+    <constraint type="naming">Indexes MUST follow IX_TableName_ColumnName pattern</constraint>
+    <constraint type="naming">Constraints MUST use PK_, FK_, UQ_, CK_, DF_ prefixes</constraint>
+    <constraint type="audit">All business tables MUST include audit columns: CreatedDate, CreatedBy, UpdatedDate, UpdatedBy, IsDeleted, DeletedDate, DeletedBy</constraint>
+    <constraint type="timestamp">All timestamps MUST use DATETIME2 with UTC (GETUTCDATE() default in SQL Server)</constraint>
+    <constraint type="security">Password hashing MUST use bcrypt with cost factor 12</constraint>
+    <constraint type="security">Token generation MUST use secrets.token_urlsafe(32) for cryptographic security (256 bits)</constraint>
+    <constraint type="security">NEVER log passwords, tokens, or sensitive data</constraint>
+    <constraint type="architecture">SQLAlchemy 2.0+ style using Session and select() patterns</constraint>
+    <constraint type="architecture">Connection pooling enabled: pool_pre_ping=True, pool_recycle=3600</constraint>
+    <constraint type="architecture">Session per request via FastAPI dependency injection (get_db)</constraint>
+    <constraint type="testing">Use pytest with test database fixtures (in-memory SQLite for unit, actual DB for integration)</constraint>
+    <constraint type="testing">All tests must rollback transactions (no persistent test data)</constraint>
+    <constraint type="schema">Models must define __table_args__ = {"schema": "dbo|ref|config|audit|log|cache"} for multi-schema support</constraint>
+    <constraint type="migration">DO NOT modify database schema - migration 002_epic1_complete_schema.py already created all tables</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="get_db" kind="dependency" signature="def get_db() -> Generator[Session, None, None]" path="backend/common/database.py">
+      FastAPI dependency function that yields a database session. Use with Depends(get_db) in route handlers. Session automatically closed after request.
+    </interface>
+    <interface name="Base" kind="declarative_base" signature="Base = declarative_base()" path="backend/common/database.py">
+      SQLAlchemy declarative base class. All models must inherit from Base to register with SQLAlchemy metadata.
+    </interface>
+    <interface name="engine" kind="sqlalchemy_engine" signature="engine = create_engine(...)" path="backend/common/database.py">
+      Configured SQLAlchemy engine with connection pooling. Used for raw SQL execution when needed.
+    </interface>
+    <interface name="SessionLocal" kind="session_factory" signature="SessionLocal = sessionmaker(...)" path="backend/common/database.py">
+      Session factory for creating database sessions outside of FastAPI requests (e.g., background tasks, scripts).
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use pytest with conftest.py fixtures. For model tests: test_db fixture provides in-memory SQLite for fast unit tests. For integration tests: use actual EventLeadPlatform database with transaction rollback. Test coverage target: 80%+ for all models. Follow existing patterns in backend/tests/conftest.py for test data factories and assertion utilities.
+    </standards>
+    <locations>
+      backend/tests/ - All test files
+      backend/tests/conftest.py - Pytest configuration and fixtures
+      backend/tests/models/ - Model-specific tests (create this directory)
+    </locations>
+    <ideas>
+      <test id="AC-0.1.1" description="Test all 34 models can be imported without circular dependency errors" />
+      <test id="AC-0.1.2" description="Test User model: PascalCase columns, audit fields have defaults, foreign keys to ref tables work" />
+      <test id="AC-0.1.2" description="Test Company model: ABR fields present, hierarchical relationship (ParentCompanyID) works" />
+      <test id="AC-0.1.2" description="Test UserCompany model: composite unique constraint (UserID, CompanyID), foreign keys to User, Company, ref tables" />
+      <test id="AC-0.1.3" description="Test database connection: engine configuration, SessionLocal factory, get_db dependency yields session" />
+      <test id="AC-0.1.4" description="Test password hashing: produces bcrypt format $2b$12$, verification works, timing attack resistant" />
+      <test id="AC-0.1.4" description="Test token generation: uniqueness (100 tokens all unique), length (32 chars), cryptographic security" />
+      <test id="AC-0.1.6" description="Integration test: Query User table retrieves existing records from database" />
+      <test id="AC-0.1.6" description="Integration test: Query all ref tables retrieves seed data (Country: AU, UserStatus: 4 records, etc.)" />
+      <test id="AC-0.1.7" description="Test joins: User -> UserCompany -> Company query with all relationships works" />
+      <test id="AC-0.1.7" description="Test indexes exist: verify IX_User_Email, IX_UserCompany_UserID, IX_Company_CompanyID" />
+    </ideas>
+  </tests>
+</story-context>
+

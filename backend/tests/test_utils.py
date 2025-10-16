@@ -1,241 +1,328 @@
 """
-Test utilities and helpers for EventLead Platform tests
+Multi-Tenant Testing Utilities
+Helpers for creating test data and scenarios for multi-tenant tests
 """
-import pytest
-from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
-import json
-import hashlib
+from sqlalchemy.orm import Session
+from typing import Optional
 import secrets
 
-class TestDataFactory:
-    """Factory for creating test data."""
-    
-    @staticmethod
-    def create_user_data(**overrides) -> Dict[str, Any]:
-        """Create user data with optional overrides."""
-        default_data = {
-            "email": f"test{secrets.token_hex(4)}@example.com",
-            "password": "TestPassword123!",
-            "first_name": "Test",
-            "last_name": "User",
-            "phone": "+61412345678"
-        }
-        default_data.update(overrides)
-        return default_data
-    
-    @staticmethod
-    def create_company_data(**overrides) -> Dict[str, Any]:
-        """Create company data with optional overrides."""
-        default_data = {
-            "company_name": f"Test Company {secrets.token_hex(4)} Pty Ltd",
-            "abn": f"{secrets.randbelow(90000000000) + 10000000000}",  # Valid ABN range
-            "industry": "Technology",
-            "address": "123 Test Street, Test City, NSW 2000",
-            "phone": "+61234567890",
-            "website": "https://testcompany.com"
-        }
-        default_data.update(overrides)
-        return default_data
-    
-    @staticmethod
-    def create_event_data(**overrides) -> Dict[str, Any]:
-        """Create event data with optional overrides."""
-        default_data = {
-            "event_name": f"Test Event {secrets.token_hex(4)}",
-            "description": "Test event description",
-            "start_date": (datetime.now() + timedelta(days=30)).isoformat(),
-            "end_date": (datetime.now() + timedelta(days=31)).isoformat(),
-            "location": "Test Venue, Test City",
-            "max_attendees": 100
-        }
-        default_data.update(overrides)
-        return default_data
+from models.user import User
+from models.company import Company
+from models.user_company import UserCompany
+from models.user_invitation import UserInvitation
+from models.ref.user_status import UserStatus
+from models.ref.user_company_status import UserCompanyStatus
+from models.ref.user_company_role import UserCompanyRole
+from models.ref.user_invitation_status import UserInvitationStatus
+from models.ref.joined_via import JoinedVia
+from common.security import hash_password
+from modules.auth.jwt_service import create_access_token
 
-class TestAssertions:
-    """Custom assertions for tests."""
+
+def create_test_company(
+    db: Session,
+    company_name: str,
+    abn: str = "53004085616",
+    trading_name: Optional[str] = None
+) -> Company:
+    """
+    Create a test company.
     
-    @staticmethod
-    def assert_user_created(response_data: Dict[str, Any], expected_email: str):
-        """Assert that user was created successfully."""
-        assert "user_id" in response_data
-        assert "email" in response_data
-        assert response_data["email"] == expected_email
-        assert "email_verified" in response_data
-        assert response_data["email_verified"] is False
-        assert "created_date" in response_data
-    
-    @staticmethod
-    def assert_email_verification_sent(response_data: Dict[str, Any]):
-        """Assert that email verification was sent."""
-        assert "message" in response_data
-        assert "verification_sent" in response_data
-        assert response_data["verification_sent"] is True
-    
-    @staticmethod
-    def assert_login_successful(response_data: Dict[str, Any]):
-        """Assert that login was successful."""
-        assert "access_token" in response_data
-        assert "refresh_token" in response_data
-        assert "token_type" in response_data
-        assert response_data["token_type"] == "bearer"
-        assert len(response_data["access_token"]) > 0
-        assert len(response_data["refresh_token"]) > 0
-    
-    @staticmethod
-    def assert_login_failed(response_data: Dict[str, Any], expected_error: Optional[str] = None):
-        """Assert that login failed."""
-        assert "detail" in response_data
-        if expected_error:
-            assert expected_error.lower() in response_data["detail"].lower()
-    
-    @staticmethod
-    def assert_validation_error(response_data: Dict[str, Any], field_name: str):
-        """Assert that validation error occurred for specific field."""
-        assert "detail" in response_data
-        assert isinstance(response_data["detail"], list)
+    Args:
+        db: Database session
+        company_name: Company name
+        abn: Australian Business Number (valid by default)
+        trading_name: Optional trading name
         
-        field_errors = [error for error in response_data["detail"] if field_name in error.get("loc", [])]
-        assert len(field_errors) > 0
+    Returns:
+        Created Company object
+    """
+    company = Company(
+        CompanyName=company_name,
+        CompanyTradingName=trading_name or company_name,
+        ABN=abn,
+        IsActive=True,
+        CreatedDate=datetime.utcnow(),
+        UpdatedDate=datetime.utcnow(),
+        IsDeleted=False
+    )
+    db.add(company)
+    db.commit()
+    db.refresh(company)
+    return company
+
+
+def create_test_user(
+    db: Session,
+    email: str,
+    company_id: Optional[int] = None,
+    role_code: str = "company_user",
+    first_name: str = "Test",
+    last_name: str = "User",
+    password: str = "TestP@ssw0rd123",
+    is_active: bool = True,
+    email_verified: bool = True,
+    onboarding_complete: bool = False,
+    is_primary_company: bool = True
+) -> User:
+    """
+    Create a test user with optional company relationship.
     
-    @staticmethod
-    def assert_security_headers(headers: Dict[str, str]):
-        """Assert that security headers are present."""
-        required_headers = [
-            "x-content-type-options",
-            "x-frame-options",
-            "x-xss-protection"
-        ]
+    Args:
+        db: Database session
+        email: User email
+        company_id: Optional company ID to associate user with
+        role_code: Role code (company_admin, company_user)
+        first_name: User first name
+        last_name: User last name
+        password: User password
+        is_active: Whether user is active
+        email_verified: Whether email is verified
+        onboarding_complete: Whether onboarding is complete
+        is_primary_company: Whether this is user's primary company
         
-        for header in required_headers:
-            assert header in headers, f"Missing security header: {header}"
+    Returns:
+        Created User object
+    """
+    # Get active status
+    active_status = db.query(UserStatus).filter(
+        UserStatus.StatusName == "Active" if is_active else "Inactive"
+    ).first()
+    
+    # Create user
+    user = User(
+        Email=email,
+        PasswordHash=hash_password(password),
+        FirstName=first_name,
+        LastName=last_name,
+        EmailVerified=email_verified,
+        IsActive=is_active,
+        UserStatusID=active_status.UserStatusID if active_status else None,
+        OnboardingComplete=onboarding_complete,
+        OnboardingStep=3 if onboarding_complete else 1,
+        CreatedDate=datetime.utcnow(),
+        UpdatedDate=datetime.utcnow(),
+        IsDeleted=False
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    
+    # Create UserCompany relationship if company_id provided
+    if company_id:
+        # Get role
+        role = db.query(UserCompanyRole).filter(
+            UserCompanyRole.RoleCode == role_code
+        ).first()
+        
+        # Get active status
+        uc_active_status = db.query(UserCompanyStatus).filter(
+            UserCompanyStatus.StatusCode == "active"
+        ).first()
+        
+        # Get joined_via
+        joined_via = db.query(JoinedVia).filter(
+            JoinedVia.MethodCode == "signup"
+        ).first()
+        
+        # Create UserCompany
+        user_company = UserCompany(
+            UserID=user.UserID,
+            CompanyID=company_id,
+            UserCompanyRoleID=role.UserCompanyRoleID if role else None,
+            StatusID=uc_active_status.UserCompanyStatusID if uc_active_status else None,
+            IsPrimaryCompany=is_primary_company,
+            JoinedDate=datetime.utcnow(),
+            JoinedViaID=joined_via.JoinedViaID if joined_via else None,
+            CreatedBy=user.UserID,
+            CreatedDate=datetime.utcnow(),
+            UpdatedBy=user.UserID,
+            UpdatedDate=datetime.utcnow(),
+            IsDeleted=False
+        )
+        db.add(user_company)
+        db.commit()
+    
+    return user
 
-class TestHelpers:
-    """Helper functions for tests."""
-    
-    @staticmethod
-    def generate_test_email(prefix: str = "test") -> str:
-        """Generate a unique test email address."""
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        random_suffix = secrets.token_hex(4)
-        return f"{prefix}_{timestamp}_{random_suffix}@example.com"
-    
-    @staticmethod
-    def generate_test_token(length: int = 32) -> str:
-        """Generate a test token."""
-        return secrets.token_urlsafe(length)
-    
-    @staticmethod
-    def hash_password(password: str) -> str:
-        """Hash a password for testing."""
-        return hashlib.sha256(password.encode()).hexdigest()
-    
-    @staticmethod
-    def create_auth_headers(access_token: str) -> Dict[str, str]:
-        """Create authorization headers."""
-        return {"Authorization": f"Bearer {access_token}"}
-    
-    @staticmethod
-    def extract_user_id_from_response(response_data: Dict[str, Any]) -> str:
-        """Extract user ID from API response."""
-        assert "user_id" in response_data
-        return response_data["user_id"]
-    
-    @staticmethod
-    def extract_token_from_response(response_data: Dict[str, Any], token_type: str = "access_token") -> str:
-        """Extract token from API response."""
-        assert token_type in response_data
-        return response_data[token_type]
 
-class MockData:
-    """Mock data for testing."""
+def create_test_token(
+    user_id: int,
+    email: str,
+    role: Optional[str] = None,
+    company_id: Optional[int] = None
+) -> str:
+    """
+    Create a test JWT token for a user.
     
-    VALID_ABNS = [
-        "12345678901",
-        "98765432109",
-        "11223344556"
-    ]
-    
-    INVALID_ABNS = [
-        "1234567890",    # Too short
-        "123456789012",  # Too long
-        "abcdefghijk",   # Non-numeric
-        "00000000000",   # All zeros
-        ""               # Empty
-    ]
-    
-    VALID_EMAILS = [
-        "test@example.com",
-        "user.name@domain.co.uk",
-        "test+tag@example.org",
-        "123@test.com"
-    ]
-    
-    INVALID_EMAILS = [
-        "invalid-email",
-        "@example.com",
-        "test@",
-        "test..test@example.com",
-        "test@example",
-        ""
-    ]
-    
-    WEAK_PASSWORDS = [
-        "123",           # Too short
-        "password",      # No numbers, no special chars
-        "12345678",      # Only numbers
-        "Password",      # No numbers, no special chars
-        "password123",   # No special chars, no uppercase
-    ]
-    
-    STRONG_PASSWORDS = [
-        "Password123!",
-        "MySecure@Pass1",
-        "Test123$Password",
-        "StrongP@ssw0rd"
-    ]
-    
-    SQL_INJECTION_ATTEMPTS = [
-        "'; DROP TABLE users; --",
-        "' OR '1'='1",
-        "'; INSERT INTO users VALUES ('hacker', 'password'); --",
-        "' UNION SELECT * FROM users --"
-    ]
-    
-    XSS_ATTEMPTS = [
-        "<script>alert('xss')</script>",
-        "javascript:alert('xss')",
-        "<img src=x onerror=alert('xss')>",
-        "<svg onload=alert('xss')>"
-    ]
+    Args:
+        user_id: User ID
+        email: User email
+        role: Optional role code
+        company_id: Optional company ID
+        
+    Returns:
+        JWT access token string
+    """
+    return create_access_token(
+        user_id=user_id,
+        email=email,
+        role=role,
+        company_id=company_id
+    )
 
-class TestConstants:
-    """Test constants."""
+
+def create_test_invitation(
+    db: Session,
+    company_id: int,
+    invited_by: int,
+    email: str,
+    role_code: str = "company_user",
+    expires_in_days: int = 7,
+    status_code: str = "pending"
+) -> UserInvitation:
+    """
+    Create a test invitation.
     
-    # HTTP Status Codes
-    OK = 200
-    CREATED = 201
-    BAD_REQUEST = 400
-    UNAUTHORIZED = 401
-    FORBIDDEN = 403
-    NOT_FOUND = 404
-    CONFLICT = 409
-    UNPROCESSABLE_ENTITY = 422
-    TOO_MANY_REQUESTS = 429
-    INTERNAL_SERVER_ERROR = 500
+    Args:
+        db: Database session
+        company_id: Company ID
+        invited_by: User ID of inviter
+        email: Email address to invite
+        role_code: Role code for invitation
+        expires_in_days: Days until invitation expires
+        status_code: Invitation status
+        
+    Returns:
+        Created UserInvitation object
+    """
+    # Get role
+    role = db.query(UserCompanyRole).filter(
+        UserCompanyRole.RoleCode == role_code
+    ).first()
     
-    # Test Timeouts
-    DEFAULT_TIMEOUT = 30
-    LONG_TIMEOUT = 60
+    # Get status
+    inv_status = db.query(UserInvitationStatus).filter(
+        UserInvitationStatus.StatusCode == status_code
+    ).first()
     
-    # Test Data Limits
-    MAX_EMAIL_LENGTH = 100
-    MAX_PASSWORD_LENGTH = 128
-    MIN_PASSWORD_LENGTH = 8
-    MAX_NAME_LENGTH = 100
+    # Generate token
+    invitation_token = secrets.token_urlsafe(32)
     
-    # Token Expiration Times
-    EMAIL_VERIFICATION_EXPIRY_HOURS = 24
-    PASSWORD_RESET_EXPIRY_HOURS = 1
-    ACCESS_TOKEN_EXPIRY_MINUTES = 15
-    REFRESH_TOKEN_EXPIRY_DAYS = 7
+    invitation = UserInvitation(
+        CompanyID=company_id,
+        Email=email,
+        UserCompanyRoleID=role.UserCompanyRoleID if role else None,
+        InvitedBy=invited_by,
+        InvitedAt=datetime.utcnow(),
+        ExpiresAt=datetime.utcnow() + timedelta(days=expires_in_days),
+        InvitationToken=invitation_token,
+        StatusID=inv_status.UserInvitationStatusID if inv_status else None,
+        CreatedDate=datetime.utcnow(),
+        CreatedBy=invited_by,
+        UpdatedDate=datetime.utcnow(),
+        UpdatedBy=invited_by,
+        IsDeleted=False
+    )
+    db.add(invitation)
+    db.commit()
+    db.refresh(invitation)
+    return invitation
+
+
+class MultiTenantTestScenario:
+    """
+    Helper class for creating multi-tenant test scenarios.
+    
+    Creates two companies with different users and data,
+    making it easy to test data isolation.
+    """
+    
+    def __init__(self, db: Session):
+        self.db = db
+        
+        # Company A
+        self.company_a = create_test_company(db, "Company A Pty Ltd", "53004085616")
+        self.admin_a = create_test_user(
+            db,
+            "admin_a@company-a.com",
+            self.company_a.CompanyID,
+            role_code="company_admin",
+            first_name="Admin",
+            last_name="A",
+            onboarding_complete=True
+        )
+        self.user_a = create_test_user(
+            db,
+            "user_a@company-a.com",
+            self.company_a.CompanyID,
+            role_code="company_user",
+            first_name="User",
+            last_name="A",
+            onboarding_complete=True
+        )
+        self.token_admin_a = create_test_token(
+            int(self.admin_a.UserID),  # type: ignore
+            str(self.admin_a.Email),  # type: ignore
+            "company_admin",
+            int(self.company_a.CompanyID)  # type: ignore
+        )
+        self.token_user_a = create_test_token(
+            int(self.user_a.UserID),  # type: ignore
+            str(self.user_a.Email),  # type: ignore
+            "company_user",
+            int(self.company_a.CompanyID)  # type: ignore
+        )
+        
+        # Company B
+        self.company_b = create_test_company(db, "Company B Pty Ltd", "51824753556")
+        self.admin_b = create_test_user(
+            db,
+            "admin_b@company-b.com",
+            self.company_b.CompanyID,
+            role_code="company_admin",
+            first_name="Admin",
+            last_name="B",
+            onboarding_complete=True
+        )
+        self.user_b = create_test_user(
+            db,
+            "user_b@company-b.com",
+            self.company_b.CompanyID,
+            role_code="company_user",
+            first_name="User",
+            last_name="B",
+            onboarding_complete=True
+        )
+        self.token_admin_b = create_test_token(
+            int(self.admin_b.UserID),  # type: ignore
+            str(self.admin_b.Email),  # type: ignore
+            "company_admin",
+            int(self.company_b.CompanyID)  # type: ignore
+        )
+        self.token_user_b = create_test_token(
+            int(self.user_b.UserID),  # type: ignore
+            str(self.user_b.Email),  # type: ignore
+            "company_user",
+            int(self.company_b.CompanyID)  # type: ignore
+        )
+    
+    def cleanup(self):
+        """Clean up test data"""
+        # Note: In practice, tests should run in transactions that rollback
+        # But this is here for completeness
+        pass
+
+
+def get_auth_headers(token: str) -> dict:
+    """
+    Get authorization headers for test requests.
+    
+    Args:
+        token: JWT access token
+        
+    Returns:
+        Dict with Authorization header
+    """
+    return {"Authorization": f"Bearer {token}"}

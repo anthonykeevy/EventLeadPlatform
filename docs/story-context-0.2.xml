@@ -1,0 +1,384 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>0</epicId>
+    <storyId>2</storyId>
+    <title>Automated Logging Infrastructure</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-0.2.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-0.2.1" priority="high">
+      <statement>API request logging middleware captures 100% of requests automatically</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>All request types (GET, POST, PUT, DELETE, PATCH) are logged without manual code</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.2" priority="high">
+      <statement>All API requests logged to log.ApiRequest table with timing and context</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Every API call creates a record in log.ApiRequest with Method, Path, StatusCode, DurationMs, UserID, CompanyID, IPAddress, UserAgent</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.3" priority="high">
+      <statement>Global exception handler catches all unhandled errors</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Throwing any exception in endpoint results in logged error and standardized error response</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.4" priority="high">
+      <statement>All errors logged to log.ApplicationError table with stack traces</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Every unhandled exception creates a record in log.ApplicationError with ErrorType, ErrorMessage, StackTrace, RequestID, context</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.5" priority="high">
+      <statement>Request ID (correlation ID) generated for each request and included in all logs</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Unique RequestID (UUID4) generated, added to response header X-Request-ID, and present in all log records</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.6" priority="medium">
+      <statement>User context (UserID, CompanyID) extracted from JWT and included in logs (when authenticated)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Authenticated requests include UserID and CompanyID in log records; anonymous requests have NULL values</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.7" priority="high">
+      <statement>Middleware and handler registered in main.py application startup</statement>
+      <validation>
+        <method>Code Review</method>
+        <success_condition>RequestLoggingMiddleware and global_exception_handler registered in main.py; application starts successfully</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.8" priority="high">
+      <statement>No manual logging required in endpoint handlers (fully automatic)</statement>
+      <validation>
+        <method>Code Review</method>
+        <success_condition>Zero logger.info() or logger.error() calls in endpoint handlers; all logging handled by middleware</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.9" priority="critical">
+      <statement>Sensitive data (passwords, tokens) never logged</statement>
+      <validation>
+        <method>Security Test</method>
+        <success_condition>Log records never contain password, token, secret, or apiKey values; filtered to [REDACTED]</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-0.2.10" priority="medium">
+      <statement>Logging adds negligible latency (< 5ms per request)</statement>
+      <validation>
+        <method>Performance Test</method>
+        <success_condition>Middleware overhead measured at &lt; 5ms per request under normal load (100+ req/sec)</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <artifacts>
+    <artifact type="middleware">
+      <path>backend/middleware/__init__.py</path>
+      <description>Package initialization for middleware components</description>
+    </artifact>
+    <artifact type="middleware">
+      <path>backend/middleware/request_logger.py</path>
+      <description>RequestLoggingMiddleware - Automatic API request logging with timing, context, and RequestID generation</description>
+    </artifact>
+    <artifact type="middleware">
+      <path>backend/middleware/exception_handler.py</path>
+      <description>Global exception handler - Catches all unhandled exceptions and logs to log.ApplicationError</description>
+    </artifact>
+    <artifact type="utility">
+      <path>backend/common/request_context.py</path>
+      <description>Request context manager using contextvars - Makes RequestID, UserID, CompanyID accessible throughout request lifecycle</description>
+    </artifact>
+    <artifact type="utility">
+      <path>backend/common/log_filters.py</path>
+      <description>Sensitive data filtering utilities - Sanitizes passwords, tokens, secrets from log output</description>
+    </artifact>
+    <artifact type="utility">
+      <path>backend/common/logger.py</path>
+      <description>Structured logging utilities - Configures Python logging with RequestID inclusion</description>
+    </artifact>
+    <artifact type="config">
+      <path>backend/main.py</path>
+      <description>Updated to register RequestLoggingMiddleware and global exception handler</description>
+    </artifact>
+    <artifact type="test">
+      <path>backend/tests/test_request_logging.py</path>
+      <description>Unit tests for RequestLoggingMiddleware - Tests request capture, timing, context extraction</description>
+    </artifact>
+    <artifact type="test">
+      <path>backend/tests/test_exception_handler.py</path>
+      <description>Unit tests for global exception handler - Tests error capture, stack traces, user-friendly responses</description>
+    </artifact>
+    <artifact type="test">
+      <path>backend/tests/test_log_filters.py</path>
+      <description>Security tests for sensitive data filtering - Validates passwords/tokens never logged</description>
+    </artifact>
+    <artifact type="test">
+      <path>backend/tests/test_logging_integration.py</path>
+      <description>Integration tests for complete logging flow - End-to-end request and error logging with database</description>
+    </artifact>
+    <artifact type="documentation">
+      <path>docs/technical-guides/logging-architecture.md</path>
+      <description>Technical documentation for logging architecture and troubleshooting guide</description>
+    </artifact>
+  </artifacts>
+
+  <constraints>
+    <constraint type="performance" priority="high">
+      <description>Logging must add &lt; 5ms latency per request</description>
+      <rationale>Cannot impact user experience; use background tasks for database writes</rationale>
+    </constraint>
+    <constraint type="security" priority="critical">
+      <description>Never log passwords, JWT tokens, API keys, or secrets</description>
+      <rationale>Compliance and security requirement; implement comprehensive filtering</rationale>
+    </constraint>
+    <constraint type="architectural" priority="high">
+      <description>Zero manual logging code in endpoint handlers</description>
+      <rationale>Middleware handles everything automatically; keeps business logic clean</rationale>
+    </constraint>
+    <constraint type="technical" priority="high">
+      <description>Use Python contextvars for request context (not thread locals)</description>
+      <rationale>FastAPI uses async/await; thread locals don't work with asyncio</rationale>
+    </constraint>
+    <constraint type="technical" priority="medium">
+      <description>RequestID must be included in response headers</description>
+      <rationale>Allows clients to correlate errors with support tickets</rationale>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface type="database_table">
+      <name>log.ApiRequest</name>
+      <description>Stores all API request logs with timing and context</description>
+      <source>Story 0.1 - Already created</source>
+      <fields>
+        <field name="ApiRequestID" type="int" required="true">Primary key</field>
+        <field name="RequestID" type="uniqueidentifier" required="true">Correlation ID (UUID4)</field>
+        <field name="Method" type="varchar(10)" required="true">HTTP method (GET, POST, etc.)</field>
+        <field name="Path" type="varchar(500)" required="true">Request path</field>
+        <field name="QueryParams" type="nvarchar(max)" required="false">Query string</field>
+        <field name="StatusCode" type="int" required="true">HTTP response status</field>
+        <field name="DurationMs" type="int" required="true">Request duration in milliseconds</field>
+        <field name="UserID" type="int" required="false">FK to dbo.User (if authenticated)</field>
+        <field name="CompanyID" type="int" required="false">FK to dbo.Company (if authenticated)</field>
+        <field name="IPAddress" type="varchar(45)" required="false">Client IP address</field>
+        <field name="UserAgent" type="nvarchar(500)" required="false">Client user agent</field>
+        <field name="CreatedDate" type="datetime2" required="true">Log timestamp (UTC)</field>
+      </fields>
+    </interface>
+    <interface type="database_table">
+      <name>log.ApplicationError</name>
+      <description>Stores all unhandled exceptions with stack traces</description>
+      <source>Story 0.1 - Already created</source>
+      <fields>
+        <field name="ApplicationErrorID" type="int" required="true">Primary key</field>
+        <field name="RequestID" type="uniqueidentifier" required="false">Correlation to ApiRequest</field>
+        <field name="ErrorType" type="varchar(255)" required="true">Exception class name</field>
+        <field name="ErrorMessage" type="nvarchar(max)" required="true">Exception message</field>
+        <field name="StackTrace" type="nvarchar(max)" required="false">Full stack trace</field>
+        <field name="Severity" type="varchar(20)" required="true">ERROR or CRITICAL</field>
+        <field name="Path" type="varchar(500)" required="false">Request path where error occurred</field>
+        <field name="Method" type="varchar(10)" required="false">HTTP method</field>
+        <field name="UserID" type="int" required="false">FK to dbo.User (if authenticated)</field>
+        <field name="CompanyID" type="int" required="false">FK to dbo.Company (if authenticated)</field>
+        <field name="IPAddress" type="varchar(45)" required="false">Client IP address</field>
+        <field name="UserAgent" type="nvarchar(500)" required="false">Client user agent</field>
+        <field name="AdditionalData" type="nvarchar(max)" required="false">Extra context (JSON)</field>
+        <field name="CreatedDate" type="datetime2" required="true">Error timestamp (UTC)</field>
+      </fields>
+    </interface>
+    <interface type="middleware">
+      <name>RequestLoggingMiddleware</name>
+      <description>FastAPI middleware for automatic request logging</description>
+      <operations>
+        <operation name="dispatch">
+          <input>request (Request), call_next (Callable)</input>
+          <output>Response with X-Request-ID header</output>
+          <side_effects>Creates log.ApiRequest record in database</side_effects>
+        </operation>
+      </operations>
+    </interface>
+    <interface type="exception_handler">
+      <name>global_exception_handler</name>
+      <description>FastAPI exception handler for all unhandled errors</description>
+      <operations>
+        <operation name="handle">
+          <input>request (Request), exc (Exception)</input>
+          <output>JSONResponse with ErrorResponse schema</output>
+          <side_effects>Creates log.ApplicationError record in database</side_effects>
+        </operation>
+      </operations>
+    </interface>
+    <interface type="context_manager">
+      <name>request_context</name>
+      <description>Request-scoped context using contextvars</description>
+      <operations>
+        <operation name="set_request_context">
+          <input>request_id (str), user_id (int?), company_id (int?), ip_address (str?), user_agent (str?)</input>
+          <output>None</output>
+          <side_effects>Sets contextvars for current async context</side_effects>
+        </operation>
+        <operation name="get_current_request_context">
+          <input>None</input>
+          <output>RequestContext dataclass</output>
+          <side_effects>None</side_effects>
+        </operation>
+      </operations>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <test id="TEST-0.2.1" type="unit" priority="high">
+      <name>Test RequestLoggingMiddleware captures request details</name>
+      <setup>Mock FastAPI application with middleware</setup>
+      <execution>Make GET, POST, PUT, DELETE requests</execution>
+      <assertions>
+        <assert>RequestID generated for each request (UUID4 format)</assert>
+        <assert>Method, Path, StatusCode captured correctly</assert>
+        <assert>DurationMs calculated and non-negative</assert>
+        <assert>IPAddress and UserAgent extracted from request</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.2.2" type="unit" priority="high">
+      <name>Test global exception handler catches errors</name>
+      <setup>Mock endpoint that raises various exceptions</setup>
+      <execution>Call endpoint and verify exception handling</execution>
+      <assertions>
+        <assert>Exception caught and logged to log.ApplicationError</assert>
+        <assert>ErrorType, ErrorMessage, StackTrace captured</assert>
+        <assert>Client receives user-friendly ErrorResponse</assert>
+        <assert>Status code 500 returned</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.2.3" type="security" priority="critical">
+      <name>Test sensitive data never logged</name>
+      <setup>Create request with password in body and JWT in header</setup>
+      <execution>Log request and query database</execution>
+      <assertions>
+        <assert>Password field shows [REDACTED] in logs</assert>
+        <assert>Authorization header not logged</assert>
+        <assert>Token query params filtered</assert>
+        <assert>No passwords/tokens in log.ApiRequest or log.ApplicationError</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.2.4" type="integration" priority="high">
+      <name>Test end-to-end request logging with database</name>
+      <setup>Real database connection, FastAPI test client</setup>
+      <execution>Make authenticated and anonymous requests</execution>
+      <assertions>
+        <assert>All requests logged to log.ApiRequest table</assert>
+        <assert>Authenticated requests include UserID and CompanyID</assert>
+        <assert>Anonymous requests have NULL UserID and CompanyID</assert>
+        <assert>RequestID in response header matches database</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.2.5" type="integration" priority="high">
+      <name>Test error logging correlates with request logging</name>
+      <setup>Endpoint that throws exception after processing</setup>
+      <execution>Call endpoint and verify both logs created</execution>
+      <assertions>
+        <assert>log.ApiRequest record created with RequestID</assert>
+        <assert>log.ApplicationError record created with same RequestID</assert>
+        <assert>Can join tables on RequestID to correlate request with error</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.2.6" type="performance" priority="medium">
+      <name>Test logging adds minimal latency</name>
+      <setup>Benchmark endpoint with and without logging</setup>
+      <execution>Measure response time difference</execution>
+      <assertions>
+        <assert>Logging adds &lt; 5ms per request on average</assert>
+        <assert>99th percentile latency &lt; 10ms</assert>
+        <assert>Background tasks don't block response</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.2.7" type="unit" priority="high">
+      <name>Test request context isolation</name>
+      <setup>Simulate concurrent requests with different RequestIDs</setup>
+      <execution>Verify context doesn't leak between requests</execution>
+      <assertions>
+        <assert>Each request has unique RequestID</assert>
+        <assert>Concurrent requests don't mix UserID/CompanyID</assert>
+        <assert>Context cleared after request completes</assert>
+      </assertions>
+    </test>
+    <test id="TEST-0.2.8" type="integration" priority="medium">
+      <name>Test high-volume request handling</name>
+      <setup>Load test with 100+ concurrent requests/second</setup>
+      <execution>Monitor logging performance and database</execution>
+      <assertions>
+        <assert>All requests logged successfully</assert>
+        <assert>No database connection pool exhaustion</assert>
+        <assert>Logging doesn't cause request failures</assert>
+        <assert>Average latency remains &lt; 5ms</assert>
+      </assertions>
+    </test>
+  </tests>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 0.1</id>
+      <description>Database Models & Core Infrastructure - Provides log.ApiRequest and log.ApplicationError tables</description>
+    </dependency>
+    <dependency type="package" status="existing">
+      <name>FastAPI</name>
+      <version>Latest stable</version>
+      <usage>Middleware and exception handler framework</usage>
+    </dependency>
+    <dependency type="package" status="existing">
+      <name>SQLAlchemy</name>
+      <version>Latest stable</version>
+      <usage>Database ORM for logging tables</usage>
+    </dependency>
+    <dependency type="package" status="existing">
+      <name>contextvars</name>
+      <version>Built-in (Python 3.7+)</version>
+      <usage>Request-scoped context management</usage>
+    </dependency>
+  </dependencies>
+
+  <risks>
+    <risk severity="high" likelihood="medium">
+      <description>Logging database writes could block requests if not async</description>
+      <mitigation>Use FastAPI BackgroundTasks for non-blocking writes; test performance early</mitigation>
+    </risk>
+    <risk severity="critical" likelihood="low">
+      <description>Sensitive data (passwords, tokens) accidentally logged</description>
+      <mitigation>Comprehensive filtering with regex patterns; security tests validate no leaks</mitigation>
+    </risk>
+    <risk severity="medium" likelihood="low">
+      <description>High volume logging could exhaust database connections</description>
+      <mitigation>Configure connection pooling; batch logging for high-volume scenarios; monitor pool usage</mitigation>
+    </risk>
+    <risk severity="medium" likelihood="medium">
+      <description>Stack traces might contain sensitive data in error messages</description>
+      <mitigation>Apply filtering to stack traces; review error messages for secrets</mitigation>
+    </risk>
+  </risks>
+
+  <notes>
+    <note type="architecture">
+      This story establishes the foundation for zero-touch operational visibility. Developers never write logging code in endpoints - the middleware handles everything automatically. This pattern will be used throughout all future stories.
+    </note>
+    <note type="security">
+      Sensitive data filtering is CRITICAL. Test thoroughly with various input types (request bodies, headers, query params, error messages, stack traces). Consider using allowlist approach (only log known-safe fields) for extra security.
+    </note>
+    <note type="performance">
+      Background tasks are essential for non-blocking logging. If performance tests show issues, consider: (1) Batch logging for high-volume endpoints, (2) Redis queue for async processing, (3) Sampling for very high-traffic endpoints.
+    </note>
+    <note type="future">
+      Story 1.2 (JWT tokens) will add user context extraction. Story 1.3 (RBAC middleware) will update request context with user/company IDs. This story prepares the infrastructure for those additions.
+    </note>
+  </notes>
+</story-context>
+

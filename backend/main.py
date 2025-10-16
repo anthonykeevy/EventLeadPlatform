@@ -8,10 +8,19 @@ load_dotenv()  # Load environment variables from .env file
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import routers
-from modules.auth.router import router as auth_router
-from modules.companies.router import router as companies_router
-from modules.team.router import router as team_router
+# Import middleware and exception handlers
+from middleware import RequestLoggingMiddleware, global_exception_handler
+from common.logger import configure_logging
+
+# Import routers (these will be created in future stories)
+# For now, using placeholder since routes don't exist yet
+has_routers = False
+auth_router = None  # type: ignore
+companies_router = None  # type: ignore
+team_router = None  # type: ignore
+
+# Configure application-wide logging
+configure_logging(log_level="INFO")
 
 app = FastAPI(
     title="EventLead Platform API",
@@ -21,7 +30,14 @@ app = FastAPI(
     redoc_url="/redoc",  # ReDoc
 )
 
-# CORS middleware (allow frontend to call backend)
+# Register global exception handler FIRST (catches all unhandled errors)
+app.add_exception_handler(Exception, global_exception_handler)
+
+# Add middleware (LIFO order - last added runs first)
+# 1. Request logging middleware (logs all requests automatically)
+app.add_middleware(RequestLoggingMiddleware)
+
+# 2. CORS middleware (allow frontend to call backend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -33,10 +49,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(auth_router)
-app.include_router(companies_router)
-app.include_router(team_router)
+# Include routers (only if they exist)
+if has_routers:
+    app.include_router(auth_router)
+    app.include_router(companies_router)
+    app.include_router(team_router)
 
 @app.get("/")
 async def root():

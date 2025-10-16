@@ -78,7 +78,7 @@ export const createMockEvent = (overrides = {}) => ({
 })
 
 // Mock API responses
-export const createMockApiResponse = <T>(data: T, status = 200) => ({
+export const createMockApiResponse = <T,>(data: T, status = 200) => ({
   data,
   status,
   statusText: 'OK',
@@ -97,7 +97,7 @@ export const createMockErrorResponse = (message: string, status = 400) => ({
 })
 
 // Mock fetch responses
-export const mockFetchSuccess = <T>(data: T, status = 200) => {
+export const mockFetchSuccess = <T,>(data: T, status = 200) => {
   return vi.fn().mockResolvedValue({
     ok: true,
     status,
@@ -164,7 +164,7 @@ export const fillFormField = async (
 }
 
 export const submitForm = async (
-  getByRole: (role: string) => HTMLElement
+  getByRole: (role: string, options?: any) => HTMLElement
 ) => {
   const submitButton = getByRole('button', { name: /submit|sign up|log in|verify/i })
   await userEvent.click(submitButton)
@@ -172,19 +172,19 @@ export const submitForm = async (
 }
 
 // Wait utilities
-export const waitForApiCall = async (mockFn: ReturnType<typeof vi.fn>) => {
+export const waitForApiCall = async (mockFn: any) => {
   await waitFor(() => {
     expect(mockFn).toHaveBeenCalled()
   })
 }
 
-export const waitForErrorMessage = async (getByText: (text: string) => HTMLElement) => {
+export const waitForErrorMessage = async (getByText: (text: RegExp | string) => HTMLElement) => {
   await waitFor(() => {
     expect(getByText(/error|invalid|required/i)).toBeInTheDocument()
   })
 }
 
-export const waitForSuccessMessage = async (getByText: (text: string) => HTMLElement) => {
+export const waitForSuccessMessage = async (getByText: (text: RegExp | string) => HTMLElement) => {
   await waitFor(() => {
     expect(getByText(/success|verified|sent/i)).toBeInTheDocument()
   })

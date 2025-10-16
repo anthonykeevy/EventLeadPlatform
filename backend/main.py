@@ -2,6 +2,9 @@
 EventLead Platform - FastAPI Backend
 Main application entry point
 """
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

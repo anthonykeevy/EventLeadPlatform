@@ -1015,7 +1015,7 @@ Forms:
 All data exchanged in JSON (text format for structured data):
 ```json
 {
-  "eventID": 123,
+  "eventId": 123,
   "eventName": "Tech Summit 2026",
   "eventStartDate": "2026-01-15T09:00:00Z",
   "location": "Sydney Convention Centre",
@@ -3627,7 +3627,7 @@ Database (Event table)
 Audit Service (log action)
   ↓ INSERT INTO ActivityLog (user created event)
 Response to Frontend
-  ↓ {eventID, eventName, createdAt}
+  ↓ {eventId, eventName, createdAt}
 Frontend Updates UI
   ↓ Adds event to events list
 ```
@@ -4458,13 +4458,13 @@ Form:
   "response": {
     "status": 201,
     "body": {
-      "eventID": 123,
+      "eventId": 123,
       "eventName": "Tech Summit 2026"
     }
   },
   "user": {
-    "userID": 456,
-    "companyID": 789,
+    "userId": 456,
+    "companyId": 789,
     "role": "company_admin"
   },
   "performance": {
@@ -6337,15 +6337,617 @@ DeletedDate DATETIME2 NULL
 DeletedBy BIGINT NULL  -- FK to User.UserID
 ```
 
+**7. SQL Server Schemas (Logical Organization):**
+- ✅ Use schemas to organize tables by purpose (NOT just default `dbo`)
+- ✅ Schema names: lowercase, single word (`dbo`, `log`, `audit`, `ref`, `config`, `cache`)
+- ✅ Table reference: `[SchemaName].[TableName]` (e.g., `log.ApiRequest`, `ref.Country`)
+- ✅ Schemas provide: logical organization, security boundaries, lifecycle management
+
 ---
 
-**Complete Database Schema:** 13 core tables designed:
-- User, Company, Event, Form, Submission (core entities)
-- Image, Payment, Invoice, Invitation, PublishRequest (supporting)
-- ActivityLog (audit trail), Template (platform-wide)
-- EmailVerificationToken, PasswordResetToken (auth support)
+### Schema Organization Strategy
 
-**All tables follow your enterprise standards:** PascalCase, NVARCHAR text, UTC timestamps, audit columns, soft deletes, multi-tenant CompanyID, Row-Level Security enforcement.
+**Why Use Schemas?**
+- **Clarity:** Instantly understand table purpose from schema name
+- **Security:** Grant permissions at schema level (not table-by-table)
+- **Lifecycle:** Different retention policies per schema (logs vs business data)
+- **Maintenance:** Easier backups, archiving, and operations
+- **Self-Documenting:** Queries reveal data type (business vs logging vs reference)
+
+---
+
+#### Schema Definitions
+
+**1. `dbo` Schema - Core Business Entities**
+- **Purpose:** Primary business data customers pay for
+- **Retention:** Permanent (soft delete only, never hard delete)
+- **Backup Priority:** CRITICAL (hourly backups)
+- **Write Volume:** Medium
+- **Tables:**
+  - `dbo.User` - User accounts
+  - `dbo.Company` - Company profiles
+  - `dbo.CompanyCustomerDetails` - Customer-specific company data
+  - `dbo.CompanyBillingDetails` - Billing information
+  - `dbo.CompanyOrganizerDetails` - Organizer-specific company data
+  - `dbo.Event` - Events (domain features)
+  - `dbo.Form` - Form builder designs
+  - `dbo.Submission` - Lead capture data
+  - `dbo.Image` - Uploaded images
+  - `dbo.Payment` - Payment transactions
+  - `dbo.Invoice` - Billing invoices
+  - `dbo.Invitation` - Team invitations
+  - `dbo.UserCompany` - User-company relationships
+  - `dbo.EmailVerificationToken` - Email verification tokens
+  - `dbo.PasswordResetToken` - Password reset tokens
+
+---
+
+**2. `log` Schema - Technical Logging**
+- **Purpose:** Application logging for debugging, monitoring, diagnostics
+- **Retention:** 90 days, then archive or delete
+- **Backup Priority:** MEDIUM (can be rebuilt from application logs)
+- **Write Volume:** VERY HIGH (every API request logged)
+- **Tables:**
+  - `log.ApiRequest` - HTTP request/response logging
+  - `log.AuthEvent` - Authentication events (login, logout, token refresh)
+  - `log.ApplicationError` - Application errors and exceptions
+  - `log.Performance` - Slow query tracking, operation timing
+  - `log.EmailDelivery` - Email delivery tracking
+  - `log.WebSocketConnection` - WebSocket connection events (future)
+
+**Characteristics:**
+- High write volume (every request)
+- Rarely queried (only for debugging)
+- Can be on separate filegroup (different disk for I/O performance)
+- Simpler indexes (optimized for writes)
+
+---
+
+**3. `ref` Schema - Reference/Lookup Data**
+- **Purpose:** Static or slowly-changing reference data
+- **Retention:** Permanent
+- **Backup Priority:** MEDIUM (changes rarely)
+- **Write Volume:** VERY LOW (admin changes only)
+- **Tables:**
+  - `ref.Country` - Country lookup
+  - `ref.Language` - Language lookup
+  - `ref.Industry` - Industry lookup
+  - `ref.UserRole` - User role definitions (if table-based, otherwise enum in code)
+  - `ref.InvitationStatus` - Invitation status lookup (if table-based)
+  - `ref.UserStatus` - User status lookup (if table-based)
+
+**Characteristics:**
+- Very low write volume
+- High read volume (every query)
+- Excellent candidate for in-memory caching
+- Small tables (10-1000 rows max)
+
+---
+
+**4. `audit` Schema - Compliance Audit Trail** *(Added Epic 2+)*
+- **Purpose:** Immutable audit trail for compliance (who did what when)
+- **Retention:** 7 years (regulatory compliance)
+- **Backup Priority:** CRITICAL (legal/compliance requirement)
+- **Write Volume:** Medium (business actions only, not every API call)
+- **Tables:**
+  - `audit.ActivityLog` - All user actions (CRUD operations)
+  - `audit.User` - User record changes (before/after snapshots)
+  - `audit.Company` - Company record changes
+  - `audit.Form` - Form design changes
+  - `audit.Role` - RBAC role changes
+
+**Characteristics:**
+- Append-only (NEVER update or delete)
+- Queried for compliance reports
+- May need legal hold capability
+- Different from logging (compliance vs debugging)
+
+---
+
+**5. `config` Schema - Configuration Management** *(Added Epic 1)*
+- **Purpose:** Runtime application configuration
+- **Retention:** Permanent with change history
+- **Backup Priority:** HIGH (critical for app behavior)
+- **Write Volume:** VERY LOW (admin changes only)
+- **Tables:**
+  - `config.AppSetting` - Runtime business rules
+  - `config.ValidationRule` - Country-specific validation
+  - `config.FeatureFlag` - Feature toggles (future)
+  - `config.PricingTier` - Subscription pricing (future)
+
+**Characteristics:**
+- Critical for application behavior
+- Changes require careful audit trail
+- Cached in application layer
+- Admin-only modifications
+
+---
+
+**6. `cache` Schema - External API Cache** *(Added Epic 3+)*
+- **Purpose:** Cache for external API results (safe to delete/rebuild)
+- **Retention:** 30-90 days, then delete
+- **Backup Priority:** LOW (can be rebuilt from source API)
+- **Write Volume:** Medium
+- **Tables:**
+  - `cache.ABRSearch` - ABR API lookup cache
+  - `cache.Geocoding` - Address geocoding cache (future)
+  - `cache.EmailValidation` - Email validation cache (future)
+
+**Characteristics:**
+- Can be truncated without data loss
+- Improves performance but not critical
+- May not need full audit columns
+
+---
+
+#### Schema Organization Summary Table
+
+| Schema | Purpose | Retention | Backup | Write Volume | Example Tables |
+|--------|---------|-----------|--------|--------------|----------------|
+| **dbo** | Core business data | Permanent | CRITICAL | Medium | User, Company, Form, Submission |
+| **log** | Technical logging | 90 days | MEDIUM | Very High | ApiRequest, AuthEvent, ApplicationError |
+| **ref** | Reference data | Permanent | MEDIUM | Very Low | Country, Language, Industry |
+| **audit** | Compliance trail | 7 years | CRITICAL | Medium | ActivityLog, User changes, Role changes |
+| **config** | Runtime config | Permanent | HIGH | Very Low | AppSetting, ValidationRule, FeatureFlag |
+| **cache** | External API cache | 30-90 days | LOW | Medium | ABRSearch, Geocoding |
+
+---
+
+#### SQLAlchemy Schema Configuration
+
+**Models must specify schema:**
+```python
+# Core business entity (dbo schema)
+class User(Base):
+    __tablename__ = 'User'
+    __table_args__ = {'schema': 'dbo'}
+    
+    UserID = Column(BIGINT, primary_key=True)
+    Email = Column(NVARCHAR(255), nullable=False)
+    # ... columns
+
+# Logging table (log schema)
+class ApiRequest(Base):
+    __tablename__ = 'ApiRequest'
+    __table_args__ = {'schema': 'log'}
+    
+    ApiRequestID = Column(BIGINT, primary_key=True)
+    RequestPath = Column(NVARCHAR(500), nullable=False)
+    # ... columns
+
+# Reference data (ref schema)
+class Country(Base):
+    __tablename__ = 'Country'
+    __table_args__ = {'schema': 'ref'}
+    
+    CountryID = Column(BIGINT, primary_key=True)
+    CountryName = Column(NVARCHAR(100), nullable=False)
+    # ... columns
+
+# Configuration (config schema)
+class AppSetting(Base):
+    __tablename__ = 'AppSetting'
+    __table_args__ = {'schema': 'config'}
+    
+    AppSettingID = Column(BIGINT, primary_key=True)
+    SettingKey = Column(NVARCHAR(100), nullable=False)
+    # ... columns
+```
+
+---
+
+#### Alembic Migration Schema Support
+
+**Create schema first:**
+```python
+def upgrade():
+    # Create schemas (only once, in initial migration)
+    op.execute("CREATE SCHEMA log;")
+    op.execute("CREATE SCHEMA ref;")
+    op.execute("CREATE SCHEMA config;")
+    
+    # Create tables in appropriate schemas
+    op.create_table(
+        'ApiRequest',
+        sa.Column('ApiRequestID', sa.BIGINT(), nullable=False),
+        sa.Column('RequestPath', sa.NVARCHAR(500), nullable=False),
+        # ... columns
+        sa.PrimaryKeyConstraint('ApiRequestID'),
+        schema='log'  # Specify schema here
+    )
+    
+    op.create_table(
+        'Country',
+        sa.Column('CountryID', sa.BIGINT(), nullable=False),
+        sa.Column('CountryName', sa.NVARCHAR(100), nullable=False),
+        # ... columns
+        schema='ref'
+    )
+```
+
+---
+
+#### Cross-Schema Foreign Keys
+
+**Tables can reference across schemas:**
+```sql
+-- log.ApiRequest references dbo.User
+CREATE TABLE [log].[ApiRequest] (
+    ApiRequestID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    UserID BIGINT NULL,  -- FK to dbo.User
+    RequestPath NVARCHAR(500) NOT NULL,
+    -- ... columns
+    CONSTRAINT FK_ApiRequest_User 
+        FOREIGN KEY (UserID) REFERENCES [dbo].[User](UserID)
+);
+
+-- config.ValidationRule references ref.Country
+CREATE TABLE [config].[ValidationRule] (
+    ValidationRuleID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    CountryID BIGINT NOT NULL,  -- FK to ref.Country
+    RuleType NVARCHAR(50) NOT NULL,
+    -- ... columns
+    CONSTRAINT FK_ValidationRule_Country 
+        FOREIGN KEY (CountryID) REFERENCES [ref].[Country](CountryID)
+);
+```
+
+---
+
+#### Query Examples with Schemas
+
+**Self-documenting queries:**
+```sql
+-- Query business data with logging
+SELECT 
+    u.Email,
+    ar.RequestPath,
+    ar.StatusCode,
+    ar.CreatedDate
+FROM dbo.User u  -- Business entity
+INNER JOIN log.ApiRequest ar ON ar.UserID = u.UserID  -- Logging data
+WHERE ar.CreatedDate > GETUTCDATE() - 1;
+
+-- Query with reference data
+SELECT 
+    u.FirstName,
+    u.LastName,
+    c.CompanyName,
+    ctry.CountryName
+FROM dbo.User u  -- Business entity
+INNER JOIN dbo.Company c ON c.CompanyID = u.CompanyID  -- Business entity
+INNER JOIN ref.Country ctry ON ctry.CountryID = c.CountryID  -- Reference data
+WHERE u.IsDeleted = 0;
+```
+
+---
+
+**Complete Database Schema:** Core tables organized by schema:
+
+**`dbo` Schema (Core Business):**
+- User, UserCompany - User accounts and relationships
+- Company, CompanyCustomerDetails, CompanyBillingDetails, CompanyOrganizerDetails
+- Event - Domain features
+- Form, Submission, FormField - Form builder & lead capture
+- Image, Payment, Invoice, Invitation, PublishRequest
+- EmailVerificationToken, PasswordResetToken
+
+**`log` Schema (Technical Logging):**
+- ApiRequest, AuthEvent, ApplicationError, Performance, EmailDelivery, WebSocketConnection
+
+**`ref` Schema (Reference/Lookup):**
+- Country, Language, Industry
+- UserRole, InvitationStatus, UserStatus (if table-based)
+
+**`audit` Schema (Compliance Trail):**
+- ActivityLog, User, Company, Form, Role (audit history tables)
+
+**`config` Schema (Configuration):**
+- AppSetting, ValidationRule
+- FeatureFlag, PricingTier (future)
+
+**`cache` Schema (External API Cache):**
+- ABRSearch, Geocoding, EmailValidation (future)
+
+**All tables follow enterprise standards:** PascalCase, NVARCHAR text, UTC timestamps, audit columns, soft deletes, multi-tenant CompanyID, Row-Level Security enforcement.
+
+---
+
+### Configuration Management Architecture
+
+**Design Philosophy:**
+- **Right-Sized for Current Needs:** Only what authentication & onboarding requires
+- **Clear Separation:** Database for business rules, `.env` for infrastructure secrets, code for static logic
+- **Runtime Flexibility:** Change business rules without code deployment
+- **Standards Compliant:** All tables follow [TableName]ID pattern and Solomon's standards
+- **Type-Safe:** Service layer provides type conversion and defaults
+
+---
+
+#### Configuration Distribution Strategy
+
+**Configuration belongs in THREE places:**
+
+**1. `.env` Files (Infrastructure & Secrets)**
+- Database connection strings
+- JWT secret keys (NEVER in database)
+- API keys (email service, payment gateway)
+- Environment identifiers (development, staging, production)
+- Frontend URLs (environment-specific)
+
+**Example `.env`:**
+```env
+# Environment
+ENVIRONMENT=development
+
+# Database
+DATABASE_URL=mssql+pyodbc://localhost/EventLeadPlatform?driver=ODBC+Driver+18...
+
+# JWT Secrets (from Azure Key Vault)
+JWT_SECRET_KEY=<secret>
+JWT_ALGORITHM=HS256
+
+# Email Service
+EMAIL_API_KEY=<from Key Vault>
+EMAIL_FROM_ADDRESS=noreply@eventlead.com
+
+# Frontend
+FRONTEND_URL=https://app.eventlead.com
+```
+
+**2. Database Tables (Runtime Business Rules)**
+- JWT token expiry times (changeable without deployment)
+- Password validation rules
+- Email verification token expiry
+- Team invitation expiry
+- Country-specific validation rules (phone, postal code, tax ID)
+- Test threshold settings (preview tests required)
+
+**Example: AppSetting Table**
+- `jwt_access_token_expiry_minutes` → 15 minutes
+- `password_min_length` → 8 characters
+- `email_verification_token_expiry_hours` → 24 hours
+- `invitation_token_expiry_days` → 7 days
+
+**3. Code Constants (Static Logic)**
+- Enum definitions (UserRole, InvitationStatus, UserStatus)
+- Physical limits (max file upload size, max form fields)
+- Default fallback values
+- Regex patterns (email format validation)
+
+---
+
+#### AppSetting Table (Runtime Business Rules)
+
+**Purpose:** Store runtime-changeable application settings
+
+**Schema:** `config.AppSetting` (config schema for configuration tables)
+
+**Table Definition:**
+```sql
+CREATE TABLE [config].[AppSetting] (
+    AppSettingID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    SettingKey NVARCHAR(100) NOT NULL UNIQUE,
+    SettingValue NVARCHAR(MAX) NOT NULL,
+    SettingCategory NVARCHAR(50) NOT NULL,  -- 'authentication', 'validation', 'email'
+    SettingType NVARCHAR(20) NOT NULL,      -- 'integer', 'boolean', 'string', 'json'
+    Description NVARCHAR(500) NOT NULL,
+    DefaultValue NVARCHAR(MAX) NOT NULL,
+    IsActive BIT NOT NULL DEFAULT 1,
+    SortOrder INT NOT NULL DEFAULT 999,
+    -- Standard audit columns
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CreatedBy BIGINT NULL,
+    UpdatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedBy BIGINT NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    DeletedDate DATETIME2 NULL,
+    DeletedBy BIGINT NULL,
+    CONSTRAINT FK_AppSetting_CreatedBy FOREIGN KEY (CreatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_AppSetting_UpdatedBy FOREIGN KEY (UpdatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_AppSetting_DeletedBy FOREIGN KEY (DeletedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT CK_AppSetting_SettingType CHECK (SettingType IN ('integer', 'boolean', 'string', 'json', 'decimal')),
+    CONSTRAINT CK_AppSetting_Category CHECK (SettingCategory IN ('authentication', 'validation', 'email', 'invitation', 'security'))
+);
+```
+
+**Epic 1 Settings:**
+| SettingKey | Value | Category | Type | Purpose |
+|------------|-------|----------|------|---------|
+| `jwt_access_token_expiry_minutes` | 15 | authentication | integer | JWT access token expiry |
+| `jwt_refresh_token_expiry_days` | 7 | authentication | integer | JWT refresh token expiry |
+| `password_min_length` | 8 | authentication | integer | Minimum password length |
+| `max_failed_login_attempts` | 5 | security | integer | Login attempts before lockout |
+| `account_lockout_minutes` | 15 | security | integer | Account lockout duration |
+| `email_verification_token_expiry_hours` | 24 | validation | integer | Email verification expiry |
+| `password_reset_token_expiry_hours` | 1 | validation | integer | Password reset expiry |
+| `invitation_token_expiry_days` | 7 | invitation | integer | Team invitation expiry |
+
+---
+
+#### ValidationRule Table (Country-Specific Validation)
+
+**Purpose:** Store country-specific validation rules for phone numbers, postal codes, tax IDs
+
+**Schema:** `config.ValidationRule` (config schema for configuration tables)
+
+**Table Definition:**
+```sql
+CREATE TABLE [config].[ValidationRule] (
+    ValidationRuleID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    CountryID BIGINT NOT NULL,
+    RuleType NVARCHAR(50) NOT NULL,         -- 'phone', 'postal_code', 'tax_id'
+    RuleName NVARCHAR(100) NOT NULL,
+    ValidationPattern NVARCHAR(500) NOT NULL,  -- Regex pattern
+    ErrorMessage NVARCHAR(200) NOT NULL,
+    MinLength INT NULL,
+    MaxLength INT NULL,
+    ExampleValue NVARCHAR(100) NULL,
+    SortOrder INT NOT NULL DEFAULT 999,
+    IsActive BIT NOT NULL DEFAULT 1,
+    -- Standard audit columns
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CreatedBy BIGINT NULL,
+    UpdatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedBy BIGINT NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    DeletedDate DATETIME2 NULL,
+    DeletedBy BIGINT NULL,
+    CONSTRAINT FK_ValidationRule_Country FOREIGN KEY (CountryID) REFERENCES [ref].[Country](CountryID),
+    CONSTRAINT FK_ValidationRule_CreatedBy FOREIGN KEY (CreatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_ValidationRule_UpdatedBy FOREIGN KEY (UpdatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_ValidationRule_DeletedBy FOREIGN KEY (DeletedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT CK_ValidationRule_RuleType CHECK (RuleType IN ('phone', 'postal_code', 'tax_id', 'email', 'address'))
+);
+```
+
+**Australia Examples (CountryID = 1):**
+| RuleType | RuleName | ValidationPattern | ErrorMessage |
+|----------|----------|-------------------|--------------|
+| phone | Australian Mobile | `^\+61[4-5][0-9]{8}$` | Mobile must be +61 followed by 4 or 5 and 8 digits |
+| phone | Australian Landline | `^\+61[2-8][0-9]{8}$` | Landline must be +61 followed by area code |
+| postal_code | Australian Postcode | `^[0-9]{4}$` | Postcode must be 4 digits |
+| tax_id | Australian ABN | `^[0-9]{11}$` | ABN must be 11 digits |
+
+---
+
+#### Configuration Service (Backend)
+
+**Purpose:** Centralized service for retrieving configuration with type conversion and caching
+
+**File:** `backend/common/config_service.py`
+
+**Key Features:**
+- In-memory caching for performance
+- Type conversion (string → integer/boolean/json)
+- Fallback to code defaults
+- Type-safe convenience methods
+
+**Example Usage:**
+```python
+from backend.common.config_service import ConfigurationService
+
+# In authentication endpoint
+config = ConfigurationService(db)
+jwt_expiry = config.get_jwt_access_expiry_minutes()  # Returns 15 (integer)
+
+# In password validation
+min_length = config.get_password_min_length()  # Returns 8 (integer)
+if len(password) < min_length:
+    raise ValueError(f"Password must be at least {min_length} characters")
+
+# Country-specific validation
+rules = config.get_validation_rules(country_id=1, rule_type='phone')
+for rule in rules:
+    if re.match(rule.ValidationPattern, phone):
+        return True  # Valid
+```
+
+---
+
+#### Configuration API Endpoints
+
+**Get Application Configuration:**
+```
+GET /api/config
+Response: {
+  passwordMinLength: 8,
+  jwtAccessExpiryMinutes: 15,
+  emailVerificationExpiryHours: 24,
+  invitationExpiryDays: 7
+}
+```
+
+**Get Country-Specific Validation Rules:**
+```
+GET /api/config/validation-rules?country_id=1&rule_type=phone
+Response: [
+  {
+    ruleType: "phone",
+    ruleName: "Australian Mobile",
+    validationPattern: "^\\+61[4-5][0-9]{8}$",
+    errorMessage: "Mobile must be +61 followed by 4 or 5 and 8 digits",
+    exampleValue: "+61412345678"
+  }
+]
+```
+
+---
+
+#### Frontend Configuration Hooks
+
+**File:** `frontend/src/hooks/useAppConfig.ts`
+
+**React Query Hooks:**
+```typescript
+// Get application settings
+const { config } = useAppConfig();
+// Returns: { passwordMinLength: 8, jwtAccessExpiryMinutes: 15, ... }
+
+// Get country validation rules
+const { rules } = useValidationRules(countryId, 'phone');
+// Returns: [{ ruleName: "Australian Mobile", validationPattern: "...", ... }]
+```
+
+**Usage in Components:**
+```typescript
+const SignupForm = () => {
+  const { config } = useAppConfig();
+  
+  return (
+    <input 
+      type="password"
+      minLength={config?.passwordMinLength || 8}
+      placeholder={`Password (min ${config?.passwordMinLength || 8} characters)`}
+    />
+  );
+};
+```
+
+---
+
+#### Configuration Design Benefits
+
+**1. Right-Sized for Epic 1:**
+- Only what authentication & onboarding needs
+- No speculative future features
+- Simple single-table queries (no complex hierarchy)
+
+**2. Standards Compliant:**
+- AppSettingID (follows [TableName]ID pattern) ✅
+- ValidationRuleID (follows [TableName]ID pattern) ✅
+- Full audit trail (CreatedBy, UpdatedBy, IsDeleted) ✅
+- NVARCHAR for all text ✅
+
+**3. Clear for Developers:**
+- Obvious where configuration belongs (`.env` vs database vs code)
+- Type-safe service methods with descriptive names
+- No confusion about resolution order (single source of truth)
+
+**4. Runtime Flexibility:**
+- Change JWT expiry without code deployment
+- Update password rules via database
+- Add new country validation rules without code changes
+
+**5. Performance:**
+- In-memory caching in backend service
+- React Query caching in frontend (5-10 minute stale time)
+- Single table queries (no joins required)
+
+---
+
+**Configuration Evolution Path:**
+
+**Epic 1 (Current):**
+- AppSetting: Simple key-value for runtime settings
+- ValidationRule: Country-specific validation
+
+**Future Epics (When Needed):**
+- **Epic 3 (Feature Flags):** Add `FeatureFlag` table for gradual rollouts
+- **Epic 4 (Pricing Tiers):** Add `PricingTier` table for subscription plans
+- **Epic 9+ (Enterprise):** Add per-tenant configuration overrides
+
+**Key Principle:** Start simple, add complexity only when requirements demand it.
 
 ---
 
@@ -6566,7 +7168,7 @@ POST   /api/forms/{id}/apply-template - Apply template to form
 ```json
 // Single resource
 {
-  "formID": 123,
+  "formId": 123,
   "formName": "Lead Capture",
   "status": "published",
   "createdDate": "2025-10-12T14:23:45Z"
@@ -6575,8 +7177,8 @@ POST   /api/forms/{id}/apply-template - Apply template to form
 // List response (paginated)
 {
   "data": [
-    {formID: 123, ...},
-    {formID: 124, ...}
+    {"formId": 123, "formName": "..."},
+    {"formId": 124, "formName": "..."}
   ],
   "total": 45,
   "page": 1,
@@ -6911,6 +7513,1113 @@ async def websocket_analytics(
 - Interactive testing (send requests from browser)
 - Always up-to-date (generated from code)
 - No manual documentation needed
+
+---
+
+## Backend Abstraction Layer Architecture
+
+This section defines the critical abstraction layer that isolates database naming conventions from frontend code, enabling independent evolution of each layer while maintaining type safety and developer productivity.
+
+### Design Philosophy
+
+**Core Principle:** Each layer of the application stack should use its native naming convention, with automatic transformation between layers.
+
+```
+Database (SQL Server)    →    Backend (Python)    →    Frontend (TypeScript)
+PascalCase               →    snake_case          →    camelCase
+UserID                   →    user_id             →    userId
+FirstName                →    first_name          →    firstName
+CompanyName              →    company_name        →    companyName
+```
+
+**Why This Matters:**
+- ✅ **Database refactoring never breaks frontend** - Change column names without touching frontend code
+- ✅ **Each layer uses its own convention** - SQL Server standards, Python PEP 8, JavaScript conventions
+- ✅ **Type-safe at every layer** - SQLAlchemy ORM + Pydantic validation + TypeScript types
+- ✅ **Clean separation of concerns** - Clear boundaries between persistence, business logic, and presentation
+- ✅ **Better developer experience** - No mixing of naming conventions in any single file
+
+---
+
+### The Problem Without Abstraction
+
+**Without proper abstraction:**
+
+```python
+# BAD: Database naming leaked into API response
+@router.get("/api/users/{id}")
+def get_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.UserID == id).first()
+    return {
+        "UserID": user.UserID,           # ❌ SQL naming in JSON response
+        "FirstName": user.FirstName,     # ❌ Frontend gets PascalCase
+        "EmailAddress": user.Email       # ❌ Tight coupling to database
+    }
+```
+
+```typescript
+// BAD: Frontend coupled to database schema
+const userName = user.FirstName + " " + user.LastName;  // ❌ SQL naming in JavaScript
+const email = user.EmailAddress;                         // ❌ Inconsistent with JS conventions
+
+// If you rename database column, frontend breaks! 🚨
+```
+
+**Problems:**
+- ❌ Frontend tightly coupled to database schema
+- ❌ Database refactoring requires frontend changes
+- ❌ Inconsistent naming conventions across codebase
+- ❌ Violates separation of concerns principle
+- ❌ Poor developer experience (cognitive load of switching conventions)
+
+---
+
+### The Solution: 3-Layer Abstraction
+
+**Layer 1: SQLAlchemy Models (Database → Python)**
+
+Map SQL Server columns (PascalCase) to Python properties (snake_case):
+
+```python
+# backend/models/user.py
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class User(Base):
+    """
+    SQLAlchemy model - Maps SQL Server columns to Python properties
+    Database columns: PascalCase (UserID, FirstName)
+    Python properties: snake_case (user_id, first_name)
+    """
+    __tablename__ = 'User'
+    __table_args__ = {'schema': 'dbo'}
+    
+    # Column name mapping: python_property = Column('SQLServerColumnName', ...)
+    user_id = Column('UserID', BigInteger, primary_key=True, autoincrement=True)
+    email = Column('Email', String(255), nullable=False, unique=True)
+    password_hash = Column('PasswordHash', String(500), nullable=False)
+    
+    # Profile fields
+    first_name = Column('FirstName', String(100), nullable=False)
+    last_name = Column('LastName', String(100), nullable=False)
+    phone = Column('Phone', String(20), nullable=True)
+    role_title = Column('RoleTitle', String(100), nullable=True)
+    profile_picture_url = Column('ProfilePictureUrl', String(500), nullable=True)
+    timezone_identifier = Column('TimezoneIdentifier', String(50), nullable=False, default='Australia/Sydney')
+    
+    # Status & account state
+    status_id = Column('StatusID', BigInteger, nullable=False)
+    is_email_verified = Column('IsEmailVerified', Boolean, nullable=False, default=False)
+    email_verified_at = Column('EmailVerifiedAt', DateTime, nullable=True)
+    is_locked = Column('IsLocked', Boolean, nullable=False, default=False)
+    locked_until = Column('LockedUntil', DateTime, nullable=True)
+    
+    # Session management
+    session_token = Column('SessionToken', String(255), nullable=True)
+    access_token_version = Column('AccessTokenVersion', Integer, nullable=False, default=1)
+    refresh_token_version = Column('RefreshTokenVersion', Integer, nullable=False, default=1)
+    
+    # Audit trail
+    created_date = Column('CreatedDate', DateTime, nullable=False, default=datetime.utcnow)
+    created_by = Column('CreatedBy', BigInteger, nullable=True)
+    updated_date = Column('UpdatedDate', DateTime, nullable=False, default=datetime.utcnow)
+    updated_by = Column('UpdatedBy', BigInteger, nullable=True)
+    is_deleted = Column('IsDeleted', Boolean, nullable=False, default=False)
+    deleted_date = Column('DeletedDate', DateTime, nullable=True)
+    deleted_by = Column('DeletedBy', BigInteger, nullable=True)
+```
+
+**Key Benefits:**
+- Python code uses Pythonic `user.user_id`, `user.first_name` (snake_case)
+- Database stores in `UserID`, `FirstName` columns (PascalCase)
+- SQLAlchemy handles translation automatically
+- No SQL naming conventions visible in Python code
+
+---
+
+**Layer 2: Pydantic Schemas (Python → JSON API)**
+
+Auto-convert Python properties (snake_case) to JSON fields (camelCase):
+
+```python
+# backend/modules/auth/schemas.py
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from datetime import datetime
+from typing import Optional
+
+def to_camel_case(string: str) -> str:
+    """Convert snake_case to camelCase"""
+    components = string.split('_')
+    return components[0] + ''.join(x.capitalize() for x in components[1:])
+
+# Reusable config for all schemas
+CamelCaseConfig = ConfigDict(
+    alias_generator=to_camel_case,
+    populate_by_name=True,  # Allow both camelCase and snake_case
+    from_attributes=True    # Allow ORM model conversion
+)
+
+class UserResponse(BaseModel):
+    """API Response Schema - Outputs camelCase for frontend"""
+    model_config = CamelCaseConfig
+    
+    # Define fields in Python snake_case
+    # API outputs them in camelCase automatically
+    user_id: int = Field(..., description="Unique user identifier")
+    email: EmailStr = Field(..., description="User email address")
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    phone: Optional[str] = Field(None, max_length=20)
+    role_title: Optional[str] = Field(None, max_length=100)
+    profile_picture_url: Optional[str] = Field(None, max_length=500)
+    timezone_identifier: str = Field(default='Australia/Sydney')
+    
+    is_email_verified: bool = Field(..., description="Email verification status")
+    email_verified_at: Optional[datetime] = None
+    is_locked: bool = Field(..., description="Account lock status")
+    
+    onboarding_complete: bool
+    onboarding_step: int = Field(..., ge=1)
+    
+    created_date: datetime
+    last_login_date: Optional[datetime] = None
+
+
+class UserCreateRequest(BaseModel):
+    """API Request Schema - Accepts camelCase from frontend"""
+    model_config = CamelCaseConfig
+    
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=100)
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    phone: Optional[str] = Field(None, max_length=20)
+    timezone_identifier: str = Field(default='Australia/Sydney')
+
+
+class UserUpdateRequest(BaseModel):
+    """API Update Schema - Partial updates with camelCase"""
+    model_config = CamelCaseConfig
+    
+    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    phone: Optional[str] = Field(None, max_length=20)
+    role_title: Optional[str] = Field(None, max_length=100)
+    profile_picture_url: Optional[str] = Field(None, max_length=500)
+    timezone_identifier: Optional[str] = None
+```
+
+**API Response Example:**
+```json
+{
+  "userId": 123,
+  "email": "john@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "isEmailVerified": true,
+  "emailVerifiedAt": "2025-10-16T10:30:00Z",
+  "onboardingComplete": true,
+  "createdDate": "2025-10-01T08:15:00Z"
+}
+```
+
+**Key Benefits:**
+- Frontend receives camelCase (JavaScript convention)
+- Python code still uses snake_case (PEP 8 convention)
+- Automatic conversion via `alias_generator`
+- Type safety with Pydantic validation
+
+---
+
+**Layer 3: Service Layer (Business Logic)**
+
+Clean Python code with snake_case throughout:
+
+```python
+# backend/modules/auth/service.py
+from sqlalchemy.orm import Session
+from backend.models.user import User
+from backend.modules.auth.schemas import UserResponse, UserCreateRequest
+from backend.common.security import hash_password
+from datetime import datetime
+from typing import Optional
+
+class UserService:
+    """Service layer - Business logic with Pythonic naming"""
+    
+    @staticmethod
+    def create_user(db: Session, user_data: UserCreateRequest) -> UserResponse:
+        """Create new user - Notice clean Python naming throughout"""
+        # Hash password
+        password_hash = hash_password(user_data.password)
+        
+        # Create SQLAlchemy model (Python snake_case)
+        new_user = User(
+            email=user_data.email,
+            password_hash=password_hash,
+            first_name=user_data.first_name,      # ✅ Python snake_case
+            last_name=user_data.last_name,
+            phone=user_data.phone,
+            timezone_identifier=user_data.timezone_identifier,
+            status_id=2,  # 'pending' status
+            is_email_verified=False,
+            onboarding_complete=False,
+            onboarding_step=1,
+            created_date=datetime.utcnow()
+        )
+        
+        # Save to database (SQLAlchemy maps to PascalCase columns)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        # Return Pydantic schema (converts to camelCase for API)
+        return UserResponse.model_validate(new_user)
+    
+    @staticmethod
+    def get_user_by_id(db: Session, user_id: int) -> Optional[UserResponse]:
+        """Get user by ID - Notice Python naming in code"""
+        user = db.query(User).filter(User.user_id == user_id).first()
+        
+        if user:
+            return UserResponse.model_validate(user)
+        return None
+    
+    @staticmethod
+    def update_user(db: Session, user_id: int, user_data: UserUpdateRequest) -> Optional[UserResponse]:
+        """Update user - Notice Python naming throughout"""
+        user = db.query(User).filter(User.user_id == user_id).first()
+        
+        if not user:
+            return None
+        
+        # Update fields (Python snake_case)
+        update_data = user_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(user, field, value)
+        
+        user.updated_date = datetime.utcnow()
+        
+        db.commit()
+        db.refresh(user)
+        
+        return UserResponse.model_validate(user)
+```
+
+**Key Benefits:**
+- All Python code uses snake_case (PEP 8)
+- No SQL naming conventions visible
+- Clean, Pythonic code
+- Database mapping handled by SQLAlchemy layer
+
+---
+
+**Layer 4: API Router (HTTP Endpoints)**
+
+```python
+# backend/modules/auth/router.py
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from backend.common.database import get_db
+from backend.modules.auth.schemas import UserResponse, UserCreateRequest, UserUpdateRequest
+from backend.modules.auth.service import UserService
+
+router = APIRouter(prefix="/api/v1/users", tags=["users"])
+
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
+    """
+    Create new user
+    
+    Request (camelCase from frontend):
+    {
+      "email": "john@example.com",
+      "password": "SecurePass123!",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phone": "+61412345678",
+      "timezoneIdentifier": "Australia/Sydney"
+    }
+    
+    Response (camelCase to frontend):
+    {
+      "userId": 123,
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "isEmailVerified": false,
+      "onboardingComplete": false,
+      "createdDate": "2025-10-16T10:30:00Z"
+    }
+    """
+    return UserService.create_user(db, user_data)
+
+
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    """Get user by ID - Returns camelCase to frontend"""
+    user = UserService.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user
+
+
+@router.patch("/{user_id}", response_model=UserResponse)
+def update_user(user_id: int, user_data: UserUpdateRequest, db: Session = Depends(get_db)):
+    """Update user profile - Accepts camelCase from frontend"""
+    user = UserService.update_user(db, user_id, user_data)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user
+```
+
+---
+
+### Frontend Consumption
+
+**TypeScript Types (Auto-generated from Pydantic):**
+
+```typescript
+// frontend/src/types/user.ts
+/**
+ * User type - camelCase (JavaScript convention)
+ * Matches backend UserResponse schema
+ */
+export interface User {
+  userId: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+  roleTitle: string | null;
+  profilePictureUrl: string | null;
+  timezoneIdentifier: string;
+  isEmailVerified: boolean;
+  emailVerifiedAt: string | null;
+  isLocked: boolean;
+  lockedUntil: string | null;
+  onboardingComplete: boolean;
+  onboardingStep: number;
+  createdDate: string;
+  lastLoginDate: string | null;
+}
+
+export interface CreateUserRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  timezoneIdentifier?: string;
+}
+
+export interface UpdateUserRequest {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  roleTitle?: string;
+  profilePictureUrl?: string;
+  timezoneIdentifier?: string;
+}
+```
+
+**React Component:**
+
+```typescript
+// frontend/src/features/auth/UserProfile.tsx
+import React, { useEffect, useState } from 'react';
+import { User } from '@/types/user';
+import { api } from '@/lib/api';
+
+export const UserProfile: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  
+  useEffect(() => {
+    // Fetch user from API (receives camelCase)
+    api.get<User>('/api/v1/users/123')
+      .then(response => {
+        setUser(response.data);
+        
+        // Notice: Clean JavaScript naming, no SQL conventions!
+        console.log('User ID:', response.data.userId);
+        console.log('Full Name:', `${response.data.firstName} ${response.data.lastName}`);
+        console.log('Email Verified:', response.data.isEmailVerified);
+      });
+  }, []);
+  
+  if (!user) return <div>Loading...</div>;
+  
+  return (
+    <div className="profile-card">
+      <img src={user.profilePictureUrl || '/default-avatar.png'} alt="Profile" />
+      
+      <h2>{user.firstName} {user.lastName}</h2>
+      
+      {user.roleTitle && <p className="role-title">{user.roleTitle}</p>}
+      
+      <p className="email">{user.email}</p>
+      
+      {user.isEmailVerified ? (
+        <span className="badge badge-success">✓ Email Verified</span>
+      ) : (
+        <span className="badge badge-warning">⚠ Email Not Verified</span>
+      )}
+      
+      <div className="onboarding-progress">
+        <p>Onboarding: Step {user.onboardingStep}</p>
+        {user.onboardingComplete && <span>✅ Complete</span>}
+      </div>
+    </div>
+  );
+};
+```
+
+---
+
+### Data Flow Summary
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                   DATA TRANSFORMATION FLOW                        │
+└──────────────────────────────────────────────────────────────────┘
+
+Database (SQL Server):
+  Column: UserID (PascalCase)
+  Storage: BIGINT IDENTITY(1,1)
+      ↓
+SQLAlchemy Model (Python):
+  Property: user_id (snake_case)
+  Mapping: user_id = Column('UserID', BigInteger)
+  Code: user = db.query(User).filter(User.user_id == 123).first()
+      ↓
+Service Layer (Python):
+  Variable: user.user_id (snake_case)
+  Code: new_user = User(first_name=data.first_name, ...)
+      ↓
+Pydantic Schema (JSON API):
+  Field: userId (camelCase)
+  Alias: alias_generator converts snake_case → camelCase
+  Response: {"userId": 123, "firstName": "John"}
+      ↓
+Frontend (TypeScript):
+  Property: user.userId (camelCase)
+  Code: console.log(user.userId, user.firstName)
+```
+
+---
+
+### Benefits of This Architecture
+
+**1. Separation of Concerns**
+- ✅ Database schema changes don't affect frontend
+- ✅ Each layer uses its own naming convention
+- ✅ Clear boundaries between persistence, logic, and presentation
+
+**2. Flexibility**
+- ✅ Rename database columns without breaking frontend
+- ✅ Change API response format without database migration
+- ✅ Support multiple API versions with different naming
+
+**3. Developer Experience**
+- ✅ Backend developers use Pythonic snake_case
+- ✅ Frontend developers use JavaScript camelCase
+- ✅ Database follows SQL Server standards (PascalCase)
+- ✅ No mixing of conventions in any single layer
+
+**4. Maintainability**
+- ✅ Each layer is independently testable
+- ✅ Clear transformation rules at layer boundaries
+- ✅ Type safety at every layer (SQLAlchemy + Pydantic + TypeScript)
+
+**5. Compliance with Standards**
+- ✅ Database: SQL Server naming standards (Anthony's rules - PascalCase)
+- ✅ Python: PEP 8 naming conventions (snake_case)
+- ✅ JavaScript/TypeScript: Industry standard (camelCase)
+- ✅ REST API: JSON convention (camelCase)
+
+---
+
+### Implementation Checklist
+
+**For Each Database Table:**
+
+1. **Create SQLAlchemy model** with column name mapping
+   ```python
+   user_id = Column('UserID', BigInteger, primary_key=True)
+   first_name = Column('FirstName', String(100), nullable=False)
+   is_email_verified = Column('IsEmailVerified', Boolean, default=False)
+   ```
+
+2. **Create Pydantic response schema** with camelCase alias
+   ```python
+   class UserResponse(BaseModel):
+       model_config = CamelCaseConfig
+       user_id: int      # API outputs: "userId"
+       first_name: str   # API outputs: "firstName"
+   ```
+
+3. **Create Pydantic request schema** for API input
+   ```python
+   class UserCreateRequest(BaseModel):
+       model_config = CamelCaseConfig
+       email: EmailStr
+       first_name: str  # API accepts: "firstName"
+   ```
+
+4. **Create service layer methods** with Python naming
+   ```python
+   def create_user(db: Session, user_data: UserCreateRequest) -> UserResponse:
+       new_user = User(first_name=user_data.first_name)
+       # All code uses snake_case
+   ```
+
+5. **Create API routes** with proper response models
+   ```python
+   @router.post("/users", response_model=UserResponse)
+   def create_user(user_data: UserCreateRequest):
+       return UserService.create_user(db, user_data)
+   ```
+
+6. **Generate TypeScript types** from Pydantic schemas
+   ```bash
+   # Use pydantic2ts or similar tool
+   pydantic2ts --module backend.modules.auth.schemas --output frontend/src/types/
+   ```
+
+---
+
+### Naming Convention Reference
+
+| Layer | Convention | Example | When to Use |
+|-------|-----------|---------|-------------|
+| **SQL Server** | PascalCase | `UserID`, `FirstName`, `CompanyName` | Table/column definitions, constraints |
+| **SQLAlchemy** | snake_case | `user_id`, `first_name`, `company_name` | Python model properties, queries |
+| **Pydantic** | snake_case | `user_id: int`, `first_name: str` | Schema field definitions (internal) |
+| **JSON API** | camelCase | `{"userId": 123, "firstName": "John"}` | API request/response bodies |
+| **TypeScript** | camelCase | `user.userId`, `user.firstName` | Frontend code, React components |
+| **URL Params** | kebab-case | `/api/users/user-id` | REST API endpoints (optional) |
+
+---
+
+## Security Architecture
+
+This section defines the comprehensive security strategy for EventLeadPlatform, covering authentication, authorization, session management, data protection, and threat mitigation.
+
+### Security Design Philosophy
+
+**Core Principles:**
+1. **Defense in Depth:** Multiple layers of security (application, middleware, database)
+2. **Least Privilege:** Users only access what they need for their role
+3. **Secure by Default:** Security controls enabled out of the box
+4. **Fail Securely:** Security failures deny access, not grant it
+5. **Audit Everything:** Complete trail of authentication and authorization events
+
+---
+
+### Authentication & Session Management
+
+**JWT-Based Authentication:**
+
+**Token Strategy:**
+```
+Access Token:  Short-lived (15 minutes), used for API requests
+Refresh Token: Long-lived (7 days), used to get new access tokens
+Session Token: User-specific, invalidates all tokens when rotated
+```
+
+**Token Structure:**
+```json
+// Access Token (JWT)
+{
+  "sub": 123,                    // User ID (subject)
+  "company_id": 456,              // Current company
+  "role": "company_admin",        // User role for authorization
+  "email": "user@example.com",
+  "session_token": "abc123...",   // Current session identifier
+  "token_version": 1,             // Token version for invalidation
+  "exp": 1697865600,              // Expiration (15 minutes from now)
+  "iat": 1697862000               // Issued at timestamp
+}
+```
+
+**Session Management Features:**
+
+**1. Token Versioning (Logout All Devices)**
+```python
+# Stored in User table
+class User:
+    session_token: str                    # Current session identifier
+    access_token_version: int = 1         // Increment to invalidate all access tokens
+    refresh_token_version: int = 1        // Increment to invalidate all refresh tokens
+
+# Token validation
+def validate_token(token: str, user: User) -> bool:
+    claims = jwt.decode(token)
+    
+    # Check session token matches current session
+    if claims['session_token'] != user.session_token:
+        return False  # User logged out or password reset
+    
+    # Check token version matches current version
+    if claims['token_version'] != user.access_token_version:
+        return False  # All tokens invalidated (security event)
+    
+    return True
+```
+
+**Use Cases:**
+- **Password Reset:** Increment `session_token` + both version numbers → All devices logged out
+- **Logout All Devices:** User clicks "Log out everywhere" → Increment `session_token`
+- **Security Event:** Suspicious activity detected → Increment `access_token_version`
+
+**2. Email Verification**
+```sql
+-- EmailVerificationToken table
+CREATE TABLE [dbo].[UserEmailVerificationToken] (
+    UserEmailVerificationTokenID BIGINT PRIMARY KEY,
+    UserID BIGINT NOT NULL,
+    Token NVARCHAR(500) NOT NULL UNIQUE,  -- Cryptographically secure random token
+    ExpiresAt DATETIME2 NOT NULL,         -- 24-hour expiry
+    IsUsed BIT NOT NULL DEFAULT 0,
+    UsedAt DATETIME2 NULL,
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+);
+```
+
+**Flow:**
+1. User signs up → `IsEmailVerified = false`
+2. System generates secure token, sends email
+3. User clicks link → Token validated → `IsEmailVerified = true`
+4. User can now login
+
+**3. Password Reset**
+```sql
+-- PasswordResetToken table
+CREATE TABLE [dbo].[UserPasswordResetToken] (
+    UserPasswordResetTokenID BIGINT PRIMARY KEY,
+    UserID BIGINT NOT NULL,
+    Token NVARCHAR(500) NOT NULL UNIQUE,  -- Cryptographically secure
+    ExpiresAt DATETIME2 NOT NULL,         -- 1-hour expiry (shorter than email verification)
+    IsUsed BIT NOT NULL DEFAULT 0,
+    UsedAt DATETIME2 NULL,
+    IPAddress NVARCHAR(50) NULL,          -- Track where reset was requested
+    UserAgent NVARCHAR(500) NULL,         -- Track device/browser
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+);
+```
+
+**Flow:**
+1. User forgets password → Requests reset
+2. System generates secure token (1-hour expiry), sends email
+3. User clicks link → Provides new password
+4. System validates token → Updates password → Increments `session_token` → All devices logged out
+
+---
+
+### Authorization & Role-Based Access Control (RBAC)
+
+**Three-Role System:**
+
+| Role | Scope | Capabilities | Implementation |
+|------|-------|--------------|----------------|
+| **System Admin** | Platform-wide | Manage all companies, access all data, configure system | `User.UserRoleID` (system-level role) |
+| **Company Admin** | Single company | Manage company, invite users, publish forms, view all company data | `UserCompany.UserCompanyRoleID = 'company_admin'` |
+| **Company User** | Single company | Create forms, request publish approval, view own data | `UserCompany.UserCompanyRoleID = 'company_user'` |
+
+**Authorization Middleware:**
+```python
+# FastAPI dependency
+def require_role(required_role: str):
+    async def dependency(current_user: User = Depends(get_current_user)):
+        # Extract role from JWT token (already validated)
+        if current_user.role != required_role and current_user.role != "system_admin":
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+        return current_user
+    return dependency
+
+# Usage
+@router.post("/api/team/invite")
+async def invite_user(
+    invitation_data: InvitationRequest,
+    current_user: User = Depends(require_role("company_admin"))  # Only admins can invite
+):
+    # ... invitation logic
+```
+
+**Multi-Tenant Data Isolation:**
+```python
+# EVERY query automatically filtered by company
+async def get_current_company(current_user: User = Depends(get_current_user)) -> int:
+    return current_user.company_id  # From JWT token
+
+@router.get("/api/forms")
+async def list_forms(
+    company_id: int = Depends(get_current_company),
+    db: Session = Depends(get_db)
+):
+    # Automatic company filtering
+    forms = db.query(Form).filter(Form.company_id == company_id).all()
+    return forms
+```
+
+**Database-Level Security (SQL Server Row-Level Security):**
+```sql
+-- Create security function (checks session context)
+CREATE FUNCTION dbo.fn_TenantAccessPredicate(@CompanyID BIGINT)
+RETURNS TABLE
+AS RETURN
+    SELECT 1 AS AccessAllowed
+    WHERE @CompanyID = CAST(SESSION_CONTEXT(N'CompanyID') AS BIGINT)
+    OR CAST(SESSION_CONTEXT(N'Role') AS NVARCHAR(50)) = 'system_admin';
+
+-- Apply security policy to Form table
+CREATE SECURITY POLICY FormSecurityPolicy
+ADD FILTER PREDICATE dbo.fn_TenantAccessPredicate(CompanyID)
+ON dbo.Form
+WITH (STATE = ON);
+```
+
+**Defense in Depth:**
+- Layer 1: Application (FastAPI dependency injection)
+- Layer 2: ORM (SQLAlchemy automatic filtering)
+- Layer 3: Database (SQL Server RLS policies)
+
+---
+
+### Password Security
+
+**Password Policies:**
+- Minimum length: 8 characters (configurable via `AppSetting`)
+- Character requirements (configurable):
+  - Uppercase letter (optional)
+  - Lowercase letter (optional)
+  - Number (optional)
+  - Special character (optional)
+- No common passwords (e.g., "password123")
+- Password history: Cannot reuse last 3 passwords (future enhancement)
+
+**Password Hashing:**
+```python
+# bcrypt with salt rounds = 12
+import bcrypt
+
+def hash_password(plain_password: str) -> str:
+    """Hash password using bcrypt (industry standard)"""
+    salt = bcrypt.gensalt(rounds=12)  # Higher = more secure, slower
+    hashed = bcrypt.hashpw(plain_password.encode('utf-8'), salt)
+    return hashed.decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password against hash"""
+    return bcrypt.checkpw(
+        plain_password.encode('utf-8'),
+        hashed_password.encode('utf-8')
+    )
+```
+
+**Why bcrypt?**
+- ✅ Designed for password hashing (slow by design)
+- ✅ Built-in salt generation
+- ✅ Adaptive (can increase rounds as hardware improves)
+- ✅ Industry standard (OWASP recommended)
+
+**Failed Login Protection:**
+```python
+# Track failed attempts in User table
+class User:
+    failed_login_attempts: int = 0
+    locked_until: datetime | None = None
+    is_locked: bool = False
+
+# Login logic
+async def login(email: str, password: str):
+    user = await get_user_by_email(email)
+    
+    # Check if account is locked
+    if user.is_locked and user.locked_until > datetime.utcnow():
+        raise HTTPException(status_code=423, detail="Account locked. Try again later.")
+    
+    # Verify password
+    if not verify_password(password, user.password_hash):
+        # Increment failed attempts
+        user.failed_login_attempts += 1
+        
+        # Lock after 5 failed attempts
+        if user.failed_login_attempts >= 5:
+            user.is_locked = True
+            user.locked_until = datetime.utcnow() + timedelta(minutes=15)
+            await send_security_alert(user.email, "Account locked due to failed login attempts")
+        
+        await db.commit()
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Successful login - reset counter
+    user.failed_login_attempts = 0
+    user.is_locked = False
+    user.locked_until = None
+    await db.commit()
+    
+    return generate_tokens(user)
+```
+
+---
+
+### API Security
+
+**Rate Limiting:**
+```python
+# Rate limit configuration (per IP address)
+RATE_LIMITS = {
+    "/api/auth/login": "5/minute",         # Max 5 login attempts per minute
+    "/api/auth/signup": "3/hour",          # Max 3 signups per hour
+    "/api/auth/forgot-password": "3/hour", # Max 3 password reset requests per hour
+    "/api/*": "100/minute"                 # General API limit
+}
+
+# Implementation using SlowAPI (FastAPI middleware)
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+
+@router.post("/api/auth/login")
+@limiter.limit("5/minute")
+async def login(request: Request, credentials: LoginRequest):
+    # ... login logic
+```
+
+**CORS (Cross-Origin Resource Sharing):**
+```python
+# Production configuration
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://app.eventlead.com",      # Production frontend
+        "https://forms.eventlead.com"     # Public form hosting
+    ],
+    allow_credentials=True,               # Allow cookies/auth headers
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
+    expose_headers=["X-Total-Count"],     # For pagination
+    max_age=3600                          // Cache preflight requests
+)
+
+# Development configuration
+if settings.ENVIRONMENT == "development":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],  # Vite dev server
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
+```
+
+**SQL Injection Prevention:**
+```python
+# ✅ CORRECT: Parameterized queries (SQLAlchemy ORM)
+user = db.query(User).filter(User.email == user_email).first()
+
+# ✅ CORRECT: Parameterized raw SQL
+result = db.execute(
+    text("SELECT * FROM User WHERE Email = :email"),
+    {"email": user_email}
+)
+
+# ❌ WRONG: String concatenation (SQL injection risk)
+query = f"SELECT * FROM User WHERE Email = '{user_email}'"  # NEVER DO THIS
+```
+
+**Input Validation:**
+```python
+# Pydantic models enforce validation
+class SignupRequest(BaseModel):
+    email: EmailStr                                   # Valid email format
+    password: str = Field(min_length=8, max_length=100)
+    first_name: str = Field(min_length=1, max_length=100)
+    last_name: str = Field(min_length=1, max_length=100)
+    
+    @validator('email')
+    def email_must_not_be_temp(cls, v):
+        """Reject temporary email providers"""
+        temp_domains = ['tempmail.com', 'guerrillamail.com']
+        if any(domain in v for domain in temp_domains):
+            raise ValueError('Temporary email addresses not allowed')
+        return v
+```
+
+---
+
+### Data Protection
+
+**Encryption:**
+
+**1. Data in Transit (TLS/HTTPS)**
+- All API requests over HTTPS (TLS 1.2+)
+- HTTP Strict Transport Security (HSTS) header
+- Azure Front Door or CloudFlare for TLS termination
+
+**2. Data at Rest**
+- Database: Transparent Data Encryption (TDE) in SQL Server
+- File Storage: Azure Blob Storage encryption (Microsoft-managed keys)
+- Backups: Encrypted before upload to backup storage
+
+**3. Sensitive Data**
+```python
+# Password hashing (bcrypt)
+password_hash = bcrypt.hashpw(plain_password, salt)
+
+# JWT tokens (HMAC-SHA256 signature)
+token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+# IP address hashing (privacy compliance)
+hashed_ip = hashlib.sha256(ip_address.encode()).hexdigest()[:16]
+```
+
+**Audit Trail:**
+```sql
+-- ActivityLog tracks all user actions
+CREATE TABLE [audit].[ActivityLog] (
+    ActivityLogID BIGINT PRIMARY KEY,
+    UserID BIGINT NOT NULL,
+    CompanyID BIGINT NOT NULL,
+    Action NVARCHAR(100) NOT NULL,       -- 'user.login', 'form.publish', 'team.invite'
+    EntityType NVARCHAR(50) NULL,        -- 'Form', 'User', 'Company'
+    EntityID BIGINT NULL,                -- ID of affected entity
+    IPAddress NVARCHAR(50) NOT NULL,     -- Hashed IP for privacy
+    UserAgent NVARCHAR(500) NULL,        -- Browser/device info
+    RequestID NVARCHAR(100) NULL,        -- Correlation ID for debugging
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+);
+```
+
+**Compliance:**
+- ✅ GDPR (EU): Right to access, right to erasure, data portability
+- ✅ Australian Privacy Principles: Consent, security, access, correction
+- ✅ Data retention: 7 years for audit logs (compliance requirement)
+
+---
+
+### Threat Mitigation
+
+**Common Threats & Mitigations:**
+
+| Threat | Mitigation | Implementation |
+|--------|-----------|----------------|
+| **SQL Injection** | Parameterized queries | SQLAlchemy ORM (never raw SQL string concatenation) |
+| **XSS (Cross-Site Scripting)** | Input sanitization, CSP headers | React escapes by default, Content-Security-Policy header |
+| **CSRF (Cross-Site Request Forgery)** | JWT tokens in headers (not cookies) | Authorization: Bearer token (not cookie-based auth) |
+| **Brute Force Login** | Rate limiting + account lockout | 5 attempts → 15-minute lockout + rate limit (5/minute) |
+| **Session Hijacking** | Short-lived tokens + HTTPS only | 15-minute access tokens, secure transport |
+| **Privilege Escalation** | RBAC + multi-layer authorization | FastAPI dependencies + SQL RLS + audit logging |
+| **Data Breach** | Multi-tenant isolation + RLS | Company filtering at every layer + database policies |
+| **DDoS** | Rate limiting + CDN | CloudFlare/Azure Front Door + API rate limits |
+
+**Security Headers:**
+```python
+# FastAPI middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    
+    # Prevent clickjacking
+    response.headers["X-Frame-Options"] = "DENY"
+    
+    # Prevent MIME sniffing
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    
+    # XSS protection
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    
+    # Content Security Policy
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: https:;"
+    )
+    
+    # HSTS (force HTTPS)
+    if request.url.scheme == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    
+    return response
+```
+
+---
+
+### Security Monitoring & Incident Response
+
+**Logging Security Events:**
+```python
+# Log all authentication events
+logger.info(
+    "auth.login.success",
+    user_id=user.user_id,
+    company_id=user.company_id,
+    ip_address=hashed_ip,
+    user_agent=request.headers.get("User-Agent")
+)
+
+logger.warning(
+    "auth.login.failed",
+    email=email,
+    ip_address=hashed_ip,
+    reason="invalid_password",
+    failed_attempts=user.failed_login_attempts
+)
+
+logger.critical(
+    "auth.account.locked",
+    user_id=user.user_id,
+    failed_attempts=5,
+    locked_until=user.locked_until
+)
+```
+
+**Alerting:**
+- Failed login spike (>10 failures in 1 minute) → Alert security team
+- Account lockout → Email user + security team
+- Suspicious activity (multiple IP addresses, unusual access patterns) → Flag for review
+- Database query performance degradation → May indicate SQL injection attempt
+
+**Incident Response:**
+1. **Detection:** Automated alerts + log monitoring
+2. **Containment:** Lock affected accounts, revoke tokens
+3. **Investigation:** Analyze logs, identify scope
+4. **Recovery:** Reset credentials, patch vulnerabilities
+5. **Post-Mortem:** Document incident, update security controls
+
+---
+
+### Security Checklist (Development)
+
+**Every API Endpoint MUST:**
+- [ ] Require authentication (JWT token validation)
+- [ ] Enforce authorization (role check)
+- [ ] Filter by `CompanyID` (multi-tenant isolation)
+- [ ] Validate input (Pydantic schemas)
+- [ ] Use parameterized queries (no raw SQL)
+- [ ] Log security events (authentication, authorization failures)
+- [ ] Return appropriate HTTP status codes (401, 403, 404)
+- [ ] Not expose sensitive data in error messages
+
+**Every Database Table MUST:**
+- [ ] Have `CompanyID` column (if tenant-specific)
+- [ ] Have audit columns (`CreatedDate`, `CreatedBy`, etc.)
+- [ ] Use soft delete (`IsDeleted` flag, not hard delete)
+- [ ] Have appropriate indexes (performance)
+- [ ] Enforce referential integrity (foreign keys)
 
 ---
 

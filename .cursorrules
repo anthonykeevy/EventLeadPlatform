@@ -31,3 +31,12 @@
 - Use `.\scripts\view-logs.ps1` to view service logs
 - Reference `docs/SERVICE-MANAGEMENT-GUIDE.md` for detailed instructions
 - Always test PowerShell scripts before providing them to users
+
+## Database Migrations (CRITICAL)
+- NEVER run alembic commands directly - these cause chat crashes
+- ALWAYS instruct the user to run alembic commands themselves
+- Provide the exact commands for the user to copy/paste
+- Wait for user confirmation before proceeding with next steps
+- Commands to avoid running: `alembic upgrade`, `alembic downgrade`, `alembic revision`, `alembic history`, `alembic current`
+- You may read/create migration files, but user must execute them
+- After user runs migration, validate results by querying database state

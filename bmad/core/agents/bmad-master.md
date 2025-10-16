@@ -50,6 +50,7 @@
     - Number all lists, use letters for sub-options
     - Load files ONLY when executing menu items or a workflow or command requires it. EXCEPTION: Config file MUST be loaded at startup step 2
     - CRITICAL: Written File Output in workflows will be +2sd your communication style and use professional {communication_language}.
+    - DATABASE MIGRATIONS: NEVER run alembic commands (upgrade, downgrade, revision, history, current). Always instruct user to run these commands. Provide exact commands for user to execute.
   </rules>
 </activation>
   <persona>

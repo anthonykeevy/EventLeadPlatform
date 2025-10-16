@@ -575,290 +575,507 @@ const CompanySwitcher = () => {
 };
 ```
 
-#### **Application Specification System (NEW)**
+#### **Configuration Management (Simplified for Epic 1)**
 
-**Business Requirement:**
-- **Zero Hard-Coding**: All application parameters stored in database
-- **Multi-Level Configuration**: Global, Country, and Environment-specific settings
-- **Runtime Configuration**: Changes without code deployment
-- **Audit Trail**: Track all configuration changes
-- **Environment Support**: Dev, Staging, Production configurations
+**Design Philosophy:**
+- **Right-Sized for Epic 1**: Only what authentication & onboarding actually needs
+- **Database for Business Rules**: Runtime-changeable values (JWT expiry, password rules, token expiry)
+- **`.env` for Infrastructure**: Secrets and environment-specific config (database URL, API keys)
+- **Code for Static Logic**: Enums, physical limits, default fallbacks
+- **Clear Separation**: Developers know exactly where configuration belongs
 
-**Option 1: Hierarchical Application Specification (Recommended)**
+**Configuration Distribution:**
 
-```sql
--- Global Application Parameters (applies everywhere)
-CREATE TABLE [ApplicationSpecification] (
-    SpecificationID BIGINT IDENTITY(1,1) PRIMARY KEY,
-    Category NVARCHAR(100) NOT NULL,              -- 'authentication', 'validation', 'business_rules'
-    ParameterName NVARCHAR(200) NOT NULL,         -- 'password_min_length', 'jwt_expiry_minutes'
-    ParameterValue NVARCHAR(MAX) NOT NULL,        -- '8', '15', '{"enabled": true, "retries": 3}'
-    DataType NVARCHAR(50) NOT NULL,               -- 'string', 'integer', 'boolean', 'json', 'decimal'
-    Description NVARCHAR(500) NOT NULL,           -- Human-readable description
-    IsActive BIT NOT NULL DEFAULT 1,              -- Enable/disable parameter
-    SortOrder INT NOT NULL DEFAULT 999,           -- Display order
-    -- ... audit trail fields
-    CONSTRAINT UK_ApplicationSpecification_Category_Parameter 
-        UNIQUE (Category, ParameterName)
-);
-
--- Country-Specific Parameters (overrides global)
-CREATE TABLE [CountryApplicationSpecification] (
-    CountrySpecificationID BIGINT IDENTITY(1,1) PRIMARY KEY,
-    CountryID BIGINT NOT NULL,
-    Category NVARCHAR(100) NOT NULL,              -- Same categories as global
-    ParameterName NVARCHAR(200) NOT NULL,         -- Same parameter names as global
-    ParameterValue NVARCHAR(MAX) NOT NULL,        -- Country-specific value
-    DataType NVARCHAR(50) NOT NULL,               -- Same data types as global
-    Description NVARCHAR(500) NULL,               -- Country-specific description
-    IsActive BIT NOT NULL DEFAULT 1,
-    SortOrder INT NOT NULL DEFAULT 999,
-    -- ... audit trail fields
-    CONSTRAINT FK_CountryApplicationSpecification_Country 
-        FOREIGN KEY (CountryID) REFERENCES [Country](CountryID),
-    CONSTRAINT UK_CountryApplicationSpecification_Country_Category_Parameter 
-        UNIQUE (CountryID, Category, ParameterName)
-);
-
--- Environment-Specific Parameters (overrides country and global)
-CREATE TABLE [EnvironmentApplicationSpecification] (
-    EnvironmentSpecificationID BIGINT IDENTITY(1,1) PRIMARY KEY,
-    EnvironmentName NVARCHAR(50) NOT NULL,        -- 'development', 'staging', 'production'
-    CountryID BIGINT NULL,                        -- NULL = applies to all countries
-    Category NVARCHAR(100) NOT NULL,
-    ParameterName NVARCHAR(200) NOT NULL,
-    ParameterValue NVARCHAR(MAX) NOT NULL,
-    DataType NVARCHAR(50) NOT NULL,
-    Description NVARCHAR(500) NULL,
-    IsActive BIT NOT NULL DEFAULT 1,
-    SortOrder INT NOT NULL DEFAULT 999,
-    -- ... audit trail fields
-    CONSTRAINT FK_EnvironmentApplicationSpecification_Country 
-        FOREIGN KEY (CountryID) REFERENCES [Country](CountryID),
-    CONSTRAINT UK_EnvironmentApplicationSpecification_Environment_Country_Category_Parameter 
-        UNIQUE (EnvironmentName, ISNULL(CountryID, 0), Category, ParameterName)
-);
 ```
+.env (Infrastructure)          AppSetting (Business Rules)      Code (Static Logic)
+├─ JWT_SECRET_KEY             ├─ JWT expiry times              ├─ UserRole enum
+├─ DATABASE_URL               ├─ Password min length           ├─ InvitationStatus enum
+├─ EMAIL_API_KEY              ├─ Token expiry times            ├─ Default constants
+├─ FRONTEND_URL               └─ Test threshold                └─ Email regex patterns
+└─ ENVIRONMENT (dev/prod)
 
-**Resolution Priority (Highest to Lowest):**
-1. **Environment + Country** (most specific)
-2. **Environment + Global** (environment override)
-3. **Country** (country override)
-4. **Global** (default fallback)
+ValidationRule (Country-Specific)
+├─ Phone format validation
+├─ Postal code format
+└─ ABN/ACN validation
+```
 
 ---
 
-## **Application Specification Service Implementation**
+### **Table 1: AppSetting (Runtime Business Rules)**
+
+**Purpose:** Store runtime-changeable application settings for Epic 1
+
+**Schema:** `config.AppSetting` (config schema for configuration tables)
+
+**Table Definition:**
+```sql
+CREATE TABLE [config].[AppSetting] (
+    AppSettingID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    
+    -- Setting identification
+    SettingKey NVARCHAR(100) NOT NULL UNIQUE,         -- 'jwt_access_token_expiry_minutes'
+    SettingValue NVARCHAR(MAX) NOT NULL,              -- '15'
+    
+    -- Setting metadata
+    SettingCategory NVARCHAR(50) NOT NULL,            -- 'authentication', 'validation', 'email'
+    SettingType NVARCHAR(20) NOT NULL,                -- 'integer', 'boolean', 'string', 'json'
+    Description NVARCHAR(500) NOT NULL,               -- Human-readable description
+    
+    -- Default and validation
+    DefaultValue NVARCHAR(MAX) NOT NULL,              -- Fallback if setting deleted
+    IsActive BIT NOT NULL DEFAULT 1,                  -- Enable/disable setting
+    
+    -- Display order for admin UI
+    SortOrder INT NOT NULL DEFAULT 999,
+    
+    -- Audit trail (Solomon's standards)
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CreatedBy BIGINT NULL,
+    UpdatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedBy BIGINT NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    DeletedDate DATETIME2 NULL,
+    DeletedBy BIGINT NULL,
+    
+    -- Constraints
+    CONSTRAINT FK_AppSetting_CreatedBy FOREIGN KEY (CreatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_AppSetting_UpdatedBy FOREIGN KEY (UpdatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_AppSetting_DeletedBy FOREIGN KEY (DeletedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT CK_AppSetting_SettingType CHECK (SettingType IN ('integer', 'boolean', 'string', 'json', 'decimal')),
+    CONSTRAINT CK_AppSetting_Category CHECK (SettingCategory IN ('authentication', 'validation', 'email', 'invitation', 'security'))
+);
+
+-- Indexes for performance
+CREATE INDEX IX_AppSetting_Category ON [AppSetting](SettingCategory) WHERE IsDeleted = 0;
+CREATE INDEX IX_AppSetting_IsActive ON [AppSetting](IsActive) WHERE IsDeleted = 0;
+```
+
+---
+
+### **Table 2: ValidationRule (Country-Specific Validation)**
+
+**Purpose:** Store country-specific validation rules (phone, postal code, ABN)
+
+**Schema:** `config.ValidationRule` (config schema for configuration tables)
+
+**Table Definition:**
+```sql
+CREATE TABLE [config].[ValidationRule] (
+    ValidationRuleID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    
+    -- Rule identification
+    CountryID BIGINT NOT NULL,                        -- References Country table
+    RuleType NVARCHAR(50) NOT NULL,                   -- 'phone', 'postal_code', 'tax_id'
+    RuleName NVARCHAR(100) NOT NULL,                  -- 'Australian Mobile Phone'
+    
+    -- Validation pattern
+    ValidationPattern NVARCHAR(500) NOT NULL,         -- Regex: '^\+61[0-9]{9}$'
+    ErrorMessage NVARCHAR(200) NOT NULL,              -- 'Phone must be +61 followed by 9 digits'
+    
+    -- Validation constraints
+    MinLength INT NULL,                               -- Minimum length (phone: 11)
+    MaxLength INT NULL,                               -- Maximum length (phone: 13)
+    ExampleValue NVARCHAR(100) NULL,                  -- '+61412345678'
+    
+    -- Rule precedence and status
+    SortOrder INT NOT NULL DEFAULT 999,               -- Rule precedence (lowest first)
+    IsActive BIT NOT NULL DEFAULT 1,                  -- Enable/disable rule
+    
+    -- Audit trail (Solomon's standards)
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CreatedBy BIGINT NULL,
+    UpdatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedBy BIGINT NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    DeletedDate DATETIME2 NULL,
+    DeletedBy BIGINT NULL,
+    
+    -- Constraints
+    CONSTRAINT FK_ValidationRule_Country FOREIGN KEY (CountryID) REFERENCES [ref].[Country](CountryID),
+    CONSTRAINT FK_ValidationRule_CreatedBy FOREIGN KEY (CreatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_ValidationRule_UpdatedBy FOREIGN KEY (UpdatedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_ValidationRule_DeletedBy FOREIGN KEY (DeletedBy) REFERENCES [dbo].[User](UserID),
+    CONSTRAINT CK_ValidationRule_RuleType CHECK (RuleType IN ('phone', 'postal_code', 'tax_id', 'email', 'address')),
+    CONSTRAINT CK_ValidationRule_MinLength CHECK (MinLength IS NULL OR MinLength > 0),
+    CONSTRAINT CK_ValidationRule_MaxLength CHECK (MaxLength IS NULL OR MaxLength > 0),
+    CONSTRAINT CK_ValidationRule_LengthRange CHECK (MinLength IS NULL OR MaxLength IS NULL OR MinLength <= MaxLength)
+);
+
+-- Indexes for performance
+CREATE INDEX IX_ValidationRule_Country_Type ON [ValidationRule](CountryID, RuleType) WHERE IsDeleted = 0 AND IsActive = 1;
+CREATE INDEX IX_ValidationRule_SortOrder ON [ValidationRule](SortOrder) WHERE IsDeleted = 0 AND IsActive = 1;
+```
+
+---
+
+### **Configuration Service Implementation**
+
+**Backend Service:** `backend/common/config_service.py`
 
 ```python
-class ApplicationSpecificationService:
-    def __init__(self, environment: str = "production"):
-        self.environment = environment
-        self.cache = {}  # In-memory cache for performance
+from typing import Any, Dict, List
+from sqlalchemy.orm import Session
+from backend.models.app_setting import AppSetting
+from backend.models.validation_rule import ValidationRule
+from backend.common.constants import (
+    DEFAULT_JWT_ACCESS_EXPIRY_MINUTES,
+    DEFAULT_JWT_REFRESH_EXPIRY_DAYS,
+    DEFAULT_PASSWORD_MIN_LENGTH
+)
+
+class ConfigurationService:
+    """
+    Centralized configuration service for Epic 1.
+    Retrieves settings from database with fallback to code defaults.
+    """
     
-    async def get_parameter(self, category: str, parameter_name: str, 
-                          country_id: int = None) -> Any:
-        """Get parameter value with proper resolution priority"""
+    def __init__(self, db: Session):
+        self.db = db
+        self._cache: Dict[str, Any] = {}
+    
+    def get_setting(self, setting_key: str, default: Any = None) -> Any:
+        """Get application setting value with type conversion"""
         
-        cache_key = f"{self.environment}:{country_id}:{category}:{parameter_name}"
-        if cache_key in self.cache:
-            return self.cache[cache_key]
+        # Check cache first
+        if setting_key in self._cache:
+            return self._cache[setting_key]
         
-        # Priority 1: Environment + Country specific
-        if country_id:
-            env_country_value = await self._get_environment_country_parameter(
-                category, parameter_name, country_id
-            )
-            if env_country_value is not None:
-                self.cache[cache_key] = env_country_value
-                return env_country_value
+        # Query database
+        setting = self.db.query(AppSetting).filter(
+            AppSetting.SettingKey == setting_key,
+            AppSetting.IsActive == True,
+            AppSetting.IsDeleted == False
+        ).first()
         
-        # Priority 2: Environment + Global
-        env_global_value = await self._get_environment_global_parameter(
-            category, parameter_name
+        if setting:
+            # Type conversion
+            value = self._convert_value(setting.SettingValue, setting.SettingType)
+            self._cache[setting_key] = value
+            return value
+        
+        # Fallback to default
+        return default
+    
+    def _convert_value(self, value: str, setting_type: str) -> Any:
+        """Convert string value to appropriate type"""
+        if setting_type == 'integer':
+            return int(value)
+        elif setting_type == 'boolean':
+            return value.lower() in ('true', '1', 'yes')
+        elif setting_type == 'decimal':
+            return float(value)
+        elif setting_type == 'json':
+            import json
+            return json.loads(value)
+        else:  # string
+            return value
+    
+    # === Convenience Methods for Epic 1 ===
+    
+    def get_jwt_access_expiry_minutes(self) -> int:
+        """JWT access token expiry (default: 15 minutes)"""
+        return self.get_setting(
+            'jwt_access_token_expiry_minutes',
+            DEFAULT_JWT_ACCESS_EXPIRY_MINUTES
         )
-        if env_global_value is not None:
-            self.cache[cache_key] = env_global_value
-            return env_global_value
-        
-        # Priority 3: Country specific
-        if country_id:
-            country_value = await self._get_country_parameter(
-                category, parameter_name, country_id
-            )
-            if country_value is not None:
-                self.cache[cache_key] = country_value
-                return country_value
-        
-        # Priority 4: Global default
-        global_value = await self._get_global_parameter(category, parameter_name)
-        if global_value is not None:
-            self.cache[cache_key] = global_value
-            return global_value
-        
-        raise ValueError(f"Parameter not found: {category}.{parameter_name}")
     
-    async def get_authentication_config(self, country_id: int = None) -> Dict:
-        """Get all authentication parameters for a country"""
-        return {
-            'password_min_length': await self.get_parameter('authentication', 'password_min_length', country_id),
-            'password_require_special_chars': await self.get_parameter('authentication', 'password_require_special_chars', country_id),
-            'jwt_access_token_expiry_minutes': await self.get_parameter('authentication', 'jwt_access_token_expiry_minutes', country_id),
-            'jwt_refresh_token_expiry_days': await self.get_parameter('authentication', 'jwt_refresh_token_expiry_days', country_id),
-            'max_failed_login_attempts': await self.get_parameter('authentication', 'max_failed_login_attempts', country_id),
-            'account_lockout_minutes': await self.get_parameter('authentication', 'account_lockout_minutes', country_id),
-        }
+    def get_jwt_refresh_expiry_days(self) -> int:
+        """JWT refresh token expiry (default: 7 days)"""
+        return self.get_setting(
+            'jwt_refresh_token_expiry_days',
+            DEFAULT_JWT_REFRESH_EXPIRY_DAYS
+        )
     
-    async def get_validation_config(self, country_id: int = None) -> Dict:
-        """Get all validation parameters for a country"""
-        return {
-            'email_verification_expiry_hours': await self.get_parameter('validation', 'email_verification_expiry_hours', country_id),
-            'password_reset_expiry_hours': await self.get_parameter('validation', 'password_reset_expiry_hours', country_id),
-            'invitation_expiry_days': await self.get_parameter('validation', 'invitation_expiry_days', country_id),
-            'company_name_min_length': await self.get_parameter('validation', 'company_name_min_length', country_id),
-            'company_name_max_length': await self.get_parameter('validation', 'company_name_max_length', country_id),
-        }
+    def get_password_min_length(self) -> int:
+        """Minimum password length (default: 8)"""
+        return self.get_setting(
+            'password_min_length',
+            DEFAULT_PASSWORD_MIN_LENGTH
+        )
     
-    async def get_business_rules_config(self, country_id: int = None) -> Dict:
-        """Get all business rules for a country"""
-        return {
-            'default_test_threshold': await self.get_parameter('business_rules', 'default_test_threshold', country_id),
-            'free_tier_max_events': await self.get_parameter('business_rules', 'free_tier_max_events', country_id),
-            'free_tier_max_users': await self.get_parameter('business_rules', 'free_tier_max_users', country_id),
-            'abn_cache_ttl_days': await self.get_parameter('business_rules', 'abn_cache_ttl_days', country_id),
-            'max_invitations_per_day': await self.get_parameter('business_rules', 'max_invitations_per_day', country_id),
-        }
+    def get_max_failed_login_attempts(self) -> int:
+        """Max failed login attempts before lockout (default: 5)"""
+        return self.get_setting('max_failed_login_attempts', 5)
     
-    async def invalidate_cache(self, category: str = None, parameter_name: str = None):
-        """Invalidate cache when parameters are updated"""
-        if category and parameter_name:
-            # Invalidate specific parameter
-            keys_to_remove = [key for key in self.cache.keys() 
-                            if f"{category}:{parameter_name}" in key]
-        else:
-            # Invalidate all cache
-            keys_to_remove = list(self.cache.keys())
+    def get_account_lockout_minutes(self) -> int:
+        """Account lockout duration (default: 15 minutes)"""
+        return self.get_setting('account_lockout_minutes', 15)
+    
+    def get_email_verification_expiry_hours(self) -> int:
+        """Email verification token expiry (default: 24 hours)"""
+        return self.get_setting('email_verification_token_expiry_hours', 24)
+    
+    def get_password_reset_expiry_hours(self) -> int:
+        """Password reset token expiry (default: 1 hour)"""
+        return self.get_setting('password_reset_token_expiry_hours', 1)
+    
+    def get_invitation_expiry_days(self) -> int:
+        """Team invitation expiry (default: 7 days)"""
+        return self.get_setting('invitation_token_expiry_days', 7)
+    
+    def get_validation_rules(self, country_id: int, rule_type: str) -> List:
+        """Get validation rules for country and type"""
         
-        for key in keys_to_remove:
-            del self.cache[key]
+        cache_key = f"validation_{country_id}_{rule_type}"
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+        
+        rules = self.db.query(ValidationRule).filter(
+            ValidationRule.CountryID == country_id,
+            ValidationRule.RuleType == rule_type,
+            ValidationRule.IsActive == True,
+            ValidationRule.IsDeleted == False
+        ).order_by(ValidationRule.SortOrder).all()
+        
+        self._cache[cache_key] = rules
+        return rules
+    
+    def invalidate_cache(self):
+        """Invalidate cache when settings updated"""
+        self._cache.clear()
 ```
 
 ---
 
-## **Sample Configuration Data**
+### **Seed Data for Epic 1**
 
 ```sql
--- Global Default Parameters
-INSERT INTO [ApplicationSpecification] (Category, ParameterName, ParameterValue, DataType, Description) VALUES
--- Authentication
-('authentication', 'password_min_length', '8', 'integer', 'Minimum password length'),
-('authentication', 'password_require_special_chars', 'true', 'boolean', 'Require special characters in password'),
-('authentication', 'jwt_access_token_expiry_minutes', '15', 'integer', 'JWT access token expiry in minutes'),
-('authentication', 'jwt_refresh_token_expiry_days', '7', 'integer', 'JWT refresh token expiry in days'),
-('authentication', 'max_failed_login_attempts', '5', 'integer', 'Max failed login attempts before lockout'),
-('authentication', 'account_lockout_minutes', '15', 'integer', 'Account lockout duration in minutes'),
+-- Epic 1 Required Settings
+INSERT INTO [config].[AppSetting] (SettingKey, SettingValue, SettingCategory, SettingType, DefaultValue, Description, SortOrder) VALUES
 
--- Validation
-('validation', 'email_verification_expiry_hours', '24', 'integer', 'Email verification token expiry in hours'),
-('validation', 'password_reset_expiry_hours', '1', 'integer', 'Password reset token expiry in hours'),
-('validation', 'invitation_expiry_days', '7', 'integer', 'Team invitation expiry in days'),
-('validation', 'company_name_min_length', '2', 'integer', 'Minimum company name length'),
-('validation', 'company_name_max_length', '200', 'integer', 'Maximum company name length'),
+-- Authentication Settings
+('jwt_access_token_expiry_minutes', '15', 'authentication', 'integer', '15', 'JWT access token expiry in minutes', 10),
+('jwt_refresh_token_expiry_days', '7', 'authentication', 'integer', '7', 'JWT refresh token expiry in days', 20),
+('password_min_length', '8', 'authentication', 'integer', '8', 'Minimum password length', 30),
+('max_failed_login_attempts', '5', 'security', 'integer', '5', 'Max failed login attempts before lockout', 40),
+('account_lockout_minutes', '15', 'security', 'integer', '15', 'Account lockout duration in minutes', 50),
 
--- Business Rules
-('business_rules', 'default_test_threshold', '5', 'integer', 'Default preview tests required before publish'),
-('business_rules', 'free_tier_max_events', '10', 'integer', 'Maximum events for free tier'),
-('business_rules', 'free_tier_max_users', '5', 'integer', 'Maximum users for free tier'),
-('business_rules', 'abn_cache_ttl_days', '30', 'integer', 'ABN lookup cache TTL in days'),
-('business_rules', 'max_invitations_per_day', '50', 'integer', 'Maximum invitations per company per day');
+-- Token Expiry Settings
+('email_verification_token_expiry_hours', '24', 'validation', 'integer', '24', 'Email verification token expiry in hours', 60),
+('password_reset_token_expiry_hours', '1', 'validation', 'integer', '1', 'Password reset token expiry in hours', 70),
+('invitation_token_expiry_days', '7', 'invitation', 'integer', '7', 'Team invitation expiry in days', 80),
 
--- Australia-Specific Overrides
-INSERT INTO [CountryApplicationSpecification] (CountryID, Category, ParameterName, ParameterValue, DataType, Description) VALUES
--- Australia uses AU CountryID = 1
-(1, 'validation', 'company_name_min_length', '3', 'integer', 'Australia requires longer company names'),
-(1, 'business_rules', 'abn_cache_ttl_days', '30', 'integer', 'ABR API allows 30-day caching for Australia');
+-- Email Settings
+('email_retry_attempts', '3', 'email', 'integer', '3', 'Max email delivery retry attempts', 90),
+('welcome_email_enabled', 'true', 'email', 'boolean', 'true', 'Send welcome email after onboarding', 100),
+
+-- Validation Settings
+('company_name_min_length', '2', 'validation', 'integer', '2', 'Minimum company name length', 110),
+('company_name_max_length', '200', 'validation', 'integer', '200', 'Maximum company name length', 120);
+
+-- Australia Validation Rules (Assuming CountryID = 1)
+INSERT INTO [config].[ValidationRule] (CountryID, RuleType, RuleName, ValidationPattern, ErrorMessage, MinLength, MaxLength, ExampleValue, SortOrder) VALUES
+(1, 'phone', 'Australian Mobile', '^\+61[4-5][0-9]{8}$', 'Mobile phone must be +61 followed by 4 or 5 and 8 digits', 12, 12, '+61412345678', 10),
+(1, 'phone', 'Australian Landline', '^\+61[2-8][0-9]{8}$', 'Landline must be +61 followed by area code and 8 digits', 12, 12, '+61298765432', 20),
+(1, 'postal_code', 'Australian Postcode', '^[0-9]{4}$', 'Postcode must be 4 digits', 4, 4, '2000', 10),
+(1, 'tax_id', 'Australian ABN', '^[0-9]{11}$', 'ABN must be 11 digits', 11, 11, '12345678901', 10);
 ```
 
 ---
 
-## **Usage in Application Code**
+### **Usage in Application Code**
 
 ```python
-# Instead of hard-coded values
-# password_min_length = 8  # HARD-CODED ❌
+# Example: JWT Token Generation
+from backend.common.config_service import ConfigurationService
 
-# Use configuration service
-config_service = ApplicationSpecificationService(environment="production")
+def generate_access_token(user_id: int, db: Session) -> str:
+    config = ConfigurationService(db)
+    
+    # Get expiry from database (or default if not set)
+    expiry_minutes = config.get_jwt_access_expiry_minutes()
+    
+    # Generate JWT token
+    expires_at = datetime.utcnow() + timedelta(minutes=expiry_minutes)
+    token = jwt.encode(
+        {"user_id": user_id, "exp": expires_at},
+        JWT_SECRET_KEY,  # From .env
+        algorithm=JWT_ALGORITHM  # From .env
+    )
+    
+    return token
 
-# Authentication validation
-auth_config = await config_service.get_authentication_config(country_id=1)
-password_min_length = auth_config['password_min_length']  # From database ✅
+# Example: Password Validation
+def validate_password(password: str, db: Session) -> bool:
+    config = ConfigurationService(db)
+    
+    # Get min length from database
+    min_length = config.get_password_min_length()
+    
+    if len(password) < min_length:
+        raise ValueError(f"Password must be at least {min_length} characters")
+    
+    return True
 
-# JWT token generation
-jwt_config = await config_service.get_authentication_config(country_id=1)
-access_token_expiry = jwt_config['jwt_access_token_expiry_minutes']
-
-# Business rules
-business_config = await config_service.get_business_rules_config(country_id=1)
-max_events = business_config['free_tier_max_events']
+# Example: Phone Number Validation
+def validate_phone(phone: str, country_id: int, db: Session) -> bool:
+    config = ConfigurationService(db)
+    
+    # Get country-specific validation rules
+    rules = config.get_validation_rules(country_id, 'phone')
+    
+    for rule in rules:
+        if re.match(rule.ValidationPattern, phone):
+            return True  # Valid
+    
+    # No rules matched
+    if rules:
+        raise ValueError(rules[0].ErrorMessage)
+    else:
+        raise ValueError("Invalid phone format")
 ```
 
 ---
 
-## **Frontend Configuration Hook**
+### **Frontend Configuration Hook**
+
+**File:** `frontend/src/hooks/useAppConfig.ts`
 
 ```typescript
-const useApplicationConfig = (countryId?: number) => {
-  const [config, setConfig] = useState({});
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+
+interface AppConfig {
+  passwordMinLength: number;
+  jwtAccessExpiryMinutes: number;
+  emailVerificationExpiryHours: number;
+  invitationExpiryDays: number;
+}
+
+interface ValidationRule {
+  ruleType: string;
+  ruleName: string;
+  validationPattern: string;
+  errorMessage: string;
+  exampleValue: string;
+}
+
+export const useAppConfig = () => {
+  const { data: config, isLoading } = useQuery({
+    queryKey: ['app-config'],
+    queryFn: async () => {
+      const response = await axios.get<AppConfig>('/api/config');
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
   
-  useEffect(() => {
-    const loadConfig = async () => {
-      const response = await fetch(`/api/config?country_id=${countryId || ''}`);
-      const configData = await response.json();
-      setConfig(configData);
-    };
-    
-    loadConfig();
-  }, [countryId]);
+  return { config, isLoading };
+};
+
+export const useValidationRules = (countryId: number, ruleType: string) => {
+  const { data: rules, isLoading } = useQuery({
+    queryKey: ['validation-rules', countryId, ruleType],
+    queryFn: async () => {
+      const response = await axios.get<ValidationRule[]>(
+        `/api/config/validation-rules?country_id=${countryId}&rule_type=${ruleType}`
+      );
+      return response.data;
+    },
+    enabled: !!countryId,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
   
-  const getConfig = (category: string, parameter: string) => {
-    return config[category]?.[parameter];
-  };
-  
-  return { config, getConfig };
+  return { rules, isLoading };
 };
 
 // Usage in components
-const SignupForm = ({ countryId }) => {
-  const { getConfig } = useApplicationConfig(countryId);
-  
-  const passwordMinLength = getConfig('authentication', 'password_min_length') || 8;
-  const requireSpecialChars = getConfig('authentication', 'password_require_special_chars') || true;
+const SignupForm = () => {
+  const { config } = useAppConfig();
   
   return (
     <input 
       type="password"
-      minLength={passwordMinLength}
-      pattern={requireSpecialChars ? ".*[!@#$%^&*].*" : ".*"}
-      placeholder={`Password (min ${passwordMinLength} chars${requireSpecialChars ? ', special chars required' : ''})`}
+      minLength={config?.passwordMinLength || 8}
+      placeholder={`Password (min ${config?.passwordMinLength || 8} characters)`}
     />
   );
+};
+
+const PhoneInput = ({ countryId }: { countryId: number }) => {
+  const { rules } = useValidationRules(countryId, 'phone');
+  
+  const validatePhone = (value: string) => {
+    if (!rules) return true;
+    
+    for (const rule of rules) {
+      if (new RegExp(rule.validationPattern).test(value)) {
+        return true;
+      }
+    }
+    
+    return rules[0]?.errorMessage || 'Invalid phone format';
+  };
+  
+  return <input type="tel" onBlur={(e) => validatePhone(e.target.value)} />;
 };
 ```
 
 ---
 
-## **Recommendation: Option 1 (Hierarchical)**
+### **Configuration for .env Files**
 
-I recommend **Option 1** because it provides:
+**What belongs in `.env` (Infrastructure & Secrets):**
 
-1. **Maximum Flexibility**: Global → Country → Environment overrides
-2. **Environment Support**: Different configs for Dev/Staging/Production
-3. **Future-Proof**: Can add more hierarchy levels if needed
-4. **Clear Resolution**: Explicit priority order
-5. **Performance**: Caching and efficient lookups
+```env
+# Environment
+ENVIRONMENT=development  # development, staging, production
 
-This system will **completely eliminate hard-coding** and provide the flexibility you need for international expansion and business rule changes without code deployments.
+# Database
+DATABASE_URL=mssql+pyodbc://localhost/EventLeadPlatform?driver=ODBC+Driver+18...
+
+# JWT Secrets (NEVER in database)
+JWT_SECRET_KEY=<from Azure Key Vault>
+JWT_ALGORITHM=HS256
+
+# Email Service (Infrastructure)
+EMAIL_SERVICE_URL=<Azure Communication Services endpoint>
+EMAIL_API_KEY=<from Azure Key Vault>
+EMAIL_FROM_ADDRESS=noreply@eventlead.com
+EMAIL_FROM_NAME=EventLead Platform
+
+# Frontend URL (Environment-specific)
+FRONTEND_URL=https://app.eventlead.com  # Changes per environment
+
+# Azure Services
+KEY_VAULT_URL=https://eventlead-kv.vault.azure.net/
+APPINSIGHTS_INSTRUMENTATION_KEY=<from Key Vault>
+
+# Development Tools (Dev only)
+DEBUG=True
+MAILHOG_HOST=localhost  # Local email testing
+```
+
+---
+
+### **Benefits of Simplified Design**
+
+1. **Right-Sized for Epic 1:**
+   - Only what authentication & onboarding needs
+   - No speculative future features
+   - Can add complexity in future epics when needed
+
+2. **Clear for Developers:**
+   - Single `AppSetting` table query (no complex resolution)
+   - Clear separation: `.env` for infrastructure, database for business rules
+   - Type-safe convenience methods (`get_jwt_access_expiry_minutes()`)
+
+3. **Standards Compliant:**
+   - All tables follow [TableName]ID pattern ✅
+   - Full audit trail (CreatedBy, UpdatedBy, IsDeleted) ✅
+   - Proper foreign key constraints ✅
+   - Solomon-approved design ✅
+
+4. **Performance:**
+   - Single table query vs 3-4 table joins
+   - In-memory caching in service layer
+   - Frontend caching with React Query
+
+5. **Maintainability:**
+   - Easy to understand for new developers
+   - Less code to test and debug
+   - Clear ownership: What belongs where?
 
 #### **International Foundation & Web Properties (NEW)**
 
@@ -2958,6 +3175,1135 @@ export const useAccessibility = () => {
   return { announceToScreenReader, trapFocus };
 };
 ```
+
+---
+
+## Implementation Standards
+
+This section defines mandatory implementation patterns, templates, and standards for Epic 1 development. All developers MUST follow these standards to ensure consistency, maintainability, and compliance with architectural decisions.
+
+### Architecture Overview
+
+**3-Layer Abstraction Pattern:**
+```
+Database (SQL Server)  →  Backend (Python)  →  Frontend (TypeScript)
+PascalCase                snake_case           camelCase
+UserID                    user_id              userId
+FirstName                 first_name           firstName
+```
+
+**Key Architectural Decisions:**
+- **ADR-001:** 6-schema database organization (`dbo`, `ref`, `config`, `log`, `audit`, `cache`)
+- **ADR-002:** 3-layer backend abstraction (SQLAlchemy + Pydantic + Service)
+- **ADR-003:** Layer-specific naming conventions (PascalCase → snake_case → camelCase)
+- **ADR-004:** Reference tables for all enum-like fields (data integrity + extensibility)
+
+**Full Documentation:** `docs/architecture/decisions/`
+
+---
+
+### Naming Conventions
+
+| Layer | Convention | Examples | When to Use |
+|-------|-----------|----------|-------------|
+| **Database** | PascalCase | `UserID`, `FirstName`, `IsActive` | Tables, columns, constraints |
+| **Python Variables** | snake_case | `user_id`, `first_name`, `is_active` | Variables, functions |
+| **Python Classes** | PascalCase | `User`, `UserService` | Classes, models |
+| **JSON API** | camelCase | `userId`, `firstName`, `isActive` | API request/response |
+| **TypeScript** | camelCase | `userId`, `firstName` | Frontend code |
+| **Files** | snake_case | `user_service.py` | Python files |
+
+**Detailed Guide:** `docs/architecture/decisions/ADR-003-naming-convention-strategy.md`
+
+---
+
+### SQLAlchemy Model Template
+
+**File Location:** `backend/models/{entity_name}.py`
+
+**Template:**
+```python
+# backend/models/user.py
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, Integer
+from sqlalchemy.orm import relationship
+from backend.common.database import Base
+from datetime import datetime
+
+class User(Base):
+    """
+    User account model
+    
+    Database table: dbo.User
+    Primary key: UserID
+    Schema: PascalCase columns → snake_case properties
+    """
+    __tablename__ = 'User'
+    __table_args__ = {'schema': 'dbo'}
+    
+    # Primary Key
+    user_id = Column('UserID', BigInteger, primary_key=True, autoincrement=True)
+    
+    # Business Fields
+    email = Column('Email', String(255), nullable=False, unique=True)
+    password_hash = Column('PasswordHash', String(500), nullable=False)
+    first_name = Column('FirstName', String(100), nullable=False)
+    last_name = Column('LastName', String(100), nullable=False)
+    phone = Column('Phone', String(20), nullable=True)
+    
+    # Foreign Keys
+    status_id = Column('StatusID', BigInteger, nullable=False)
+    user_role_id = Column('UserRoleID', BigInteger, nullable=False)
+    country_id = Column('CountryID', BigInteger, nullable=True)
+    
+    # Boolean Flags
+    is_email_verified = Column('IsEmailVerified', Boolean, nullable=False, default=False)
+    is_locked = Column('IsLocked', Boolean, nullable=False, default=False)
+    
+    # Timestamps
+    email_verified_at = Column('EmailVerifiedAt', DateTime, nullable=True)
+    last_login_date = Column('LastLoginDate', DateTime, nullable=True)
+    
+    # Audit Trail (REQUIRED for all tables)
+    created_date = Column('CreatedDate', DateTime, nullable=False, default=datetime.utcnow)
+    created_by = Column('CreatedBy', BigInteger, nullable=True)
+    updated_date = Column('UpdatedDate', DateTime, nullable=False, default=datetime.utcnow)
+    updated_by = Column('UpdatedBy', BigInteger, nullable=True)
+    
+    # Soft Delete (REQUIRED for all tables)
+    is_deleted = Column('IsDeleted', Boolean, nullable=False, default=False)
+    deleted_date = Column('DeletedDate', DateTime, nullable=True)
+    deleted_by = Column('DeletedBy', BigInteger, nullable=True)
+    
+    # Relationships (optional, for complex queries)
+    # status = relationship('UserStatus', foreign_keys=[status_id])
+```
+
+**Checklist:**
+- [ ] `__tablename__` matches database table name (PascalCase)
+- [ ] `__table_args__` specifies correct schema
+- [ ] All columns use explicit name mapping: `python_name = Column('SQLColumnName', ...)`
+- [ ] All boolean columns use `Is` or `Has` prefix in database
+- [ ] All tables include audit trail columns (CreatedDate, CreatedBy, etc.)
+- [ ] All tables include soft delete columns (IsDeleted, DeletedDate, etc.)
+- [ ] Foreign keys follow `[ReferencedTable]ID` pattern
+
+---
+
+### Pydantic Schema Template
+
+**File Location:** `backend/modules/{module}/schemas.py`
+
+**Template:**
+```python
+# backend/modules/auth/schemas.py
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from backend.common.schemas import CamelCaseConfig
+from datetime import datetime
+from typing import Optional
+
+class UserResponse(BaseModel):
+    """
+    API Response Schema - User details
+    
+    Outputs camelCase for frontend consumption
+    Auto-converts via CamelCaseConfig
+    """
+    model_config = CamelCaseConfig
+    
+    # All fields in snake_case (Python convention)
+    # Pydantic converts to camelCase in JSON automatically
+    user_id: int = Field(..., description="Unique user identifier")
+    email: EmailStr = Field(..., description="User email address")
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    phone: Optional[str] = Field(None, max_length=20)
+    is_email_verified: bool
+    created_date: datetime
+
+
+class UserCreateRequest(BaseModel):
+    """
+    API Request Schema - Create user
+    
+    Accepts camelCase from frontend
+    Validates input before processing
+    """
+    model_config = CamelCaseConfig
+    
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=100, description="User password (min 8 chars)")
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    phone: Optional[str] = Field(None, max_length=20)
+
+
+class UserUpdateRequest(BaseModel):
+    """
+    API Request Schema - Update user
+    
+    All fields optional (partial update)
+    """
+    model_config = CamelCaseConfig
+    
+    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    phone: Optional[str] = Field(None, max_length=20)
+```
+
+**Checklist:**
+- [ ] All schemas use `CamelCaseConfig` (auto-converts to camelCase)
+- [ ] Response schemas include `description` for documentation
+- [ ] Request schemas include validation constraints (min_length, max_length, regex)
+- [ ] All fields use snake_case (Python convention)
+- [ ] Optional fields use `Optional[Type]` with `Field(None, ...)`
+
+---
+
+### Service Layer Template
+
+**File Location:** `backend/modules/{module}/service.py`
+
+**Template:**
+```python
+# backend/modules/auth/service.py
+from sqlalchemy.orm import Session
+from backend.models.user import User
+from backend.modules.auth.schemas import UserResponse, UserCreateRequest, UserUpdateRequest
+from backend.common.security import hash_password, verify_password
+from fastapi import HTTPException
+from datetime import datetime
+from typing import Optional
+
+class UserService:
+    """
+    User service - Business logic for user management
+    
+    All methods are static (no instance state)
+    Uses snake_case throughout (Python convention)
+    """
+    
+    @staticmethod
+    def create_user(db: Session, user_data: UserCreateRequest) -> UserResponse:
+        """
+        Create new user account
+        
+        Args:
+            db: Database session
+            user_data: User creation data (validated)
+        
+        Returns:
+            UserResponse: Created user (camelCase for API)
+        
+        Raises:
+            HTTPException: If email already exists
+        """
+        # Check for duplicate email
+        existing = db.query(User).filter(User.email == user_data.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Hash password
+        password_hash = hash_password(user_data.password)
+        
+        # Create user (Python snake_case)
+        new_user = User(
+            email=user_data.email,
+            password_hash=password_hash,
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
+            phone=user_data.phone,
+            status_id=2,  # 'pending' status
+            user_role_id=2,  # 'company_user' role
+            is_email_verified=False,
+            created_date=datetime.utcnow()
+        )
+        
+        # Save to database
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        # Return Pydantic schema (converts to camelCase)
+        return UserResponse.model_validate(new_user)
+    
+    @staticmethod
+    def get_user_by_id(db: Session, user_id: int) -> Optional[UserResponse]:
+        """Get user by ID"""
+        user = db.query(User).filter(
+            User.user_id == user_id,
+            User.is_deleted == False  # Respect soft delete
+        ).first()
+        
+        if user:
+            return UserResponse.model_validate(user)
+        return None
+    
+    @staticmethod
+    def update_user(db: Session, user_id: int, user_data: UserUpdateRequest, updated_by: int) -> Optional[UserResponse]:
+        """Update user profile"""
+        user = db.query(User).filter(
+            User.user_id == user_id,
+            User.is_deleted == False
+        ).first()
+        
+        if not user:
+            return None
+        
+        # Update fields (only provided fields)
+        update_data = user_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(user, field, value)
+        
+        # Update audit trail
+        user.updated_date = datetime.utcnow()
+        user.updated_by = updated_by
+        
+        db.commit()
+        db.refresh(user)
+        
+        return UserResponse.model_validate(user)
+```
+
+**Checklist:**
+- [ ] All methods are `@staticmethod` (no instance state)
+- [ ] All database queries use snake_case (Python convention)
+- [ ] All queries filter by `is_deleted == False` (respect soft delete)
+- [ ] All create operations set `created_date = datetime.utcnow()`
+- [ ] All update operations set `updated_date = datetime.utcnow()` and `updated_by`
+- [ ] All methods return Pydantic schemas (auto-converts to camelCase)
+- [ ] Duplicate checks before creating unique records
+- [ ] Clear error messages in HTTPException
+
+---
+
+### API Router Template
+
+**File Location:** `backend/modules/{module}/router.py`
+
+**Template:**
+```python
+# backend/modules/auth/router.py
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from backend.common.database import get_db
+from backend.common.dependencies import get_current_user, require_role
+from backend.modules.auth.schemas import UserResponse, UserCreateRequest, UserUpdateRequest
+from backend.modules.auth.service import UserService
+from backend.models.user import User
+
+router = APIRouter(prefix="/api/v1/users", tags=["users"])
+
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
+    """
+    Create new user account
+    
+    Request Body (camelCase from frontend):
+    ```json
+    {
+      "email": "john@example.com",
+      "password": "SecurePass123!",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phone": "+61412345678"
+    }
+    ```
+    
+    Response (camelCase to frontend):
+    ```json
+    {
+      "userId": 123,
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "isEmailVerified": false,
+      "createdDate": "2025-10-16T10:30:00Z"
+    }
+    ```
+    """
+    return UserService.create_user(db, user_data)
+
+
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)  # Require authentication
+):
+    """Get user by ID (authenticated users only)"""
+    user = UserService.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.patch("/{user_id}", response_model=UserResponse)
+def update_user(
+    user_id: int,
+    user_data: UserUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update user profile (authenticated users only)"""
+    # Authorization: Users can only update their own profile (or admins)
+    if user_id != current_user.user_id and current_user.user_role_id != 1:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    user = UserService.update_user(db, user_id, user_data, current_user.user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("system_admin"))  # Admin only
+):
+    """Soft delete user (admin only)"""
+    success = UserService.soft_delete_user(db, user_id, current_user.user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
+    return None  # 204 No Content
+```
+
+**Checklist:**
+- [ ] Router uses `APIRouter` with `prefix` and `tags`
+- [ ] All endpoints specify `response_model` (Pydantic schema)
+- [ ] POST endpoints use `status_code=status.HTTP_201_CREATED`
+- [ ] DELETE endpoints use `status_code=status.HTTP_204_NO_CONTENT`
+- [ ] All endpoints include docstrings with example JSON
+- [ ] Protected endpoints use `Depends(get_current_user)` or `Depends(require_role(...))`
+- [ ] Authorization checks before sensitive operations
+- [ ] Appropriate HTTP status codes (401, 403, 404, 409, 422, 500)
+
+---
+
+### Multi-Tenant Security Pattern (CRITICAL)
+
+**Every query accessing tenant-specific data MUST filter by `CompanyID`:**
+
+```python
+# ✅ CORRECT: Multi-tenant safe
+@router.get("/api/forms")
+async def list_forms(
+    company_id: int = Depends(get_current_company),
+    db: Session = Depends(get_db)
+):
+    forms = db.query(Form).filter(
+        Form.company_id == company_id,  # ✅ Tenant filter
+        Form.is_deleted == False
+    ).all()
+    return forms
+
+
+# ❌ WRONG: Security breach (returns ALL companies' data)
+@router.get("/api/forms")
+async def list_forms(db: Session = Depends(get_db)):
+    forms = db.query(Form).all()  # ❌ No tenant filter
+    return forms
+```
+
+**Multi-Tenant Tables (MUST filter by CompanyID):**
+- `UserCompany`
+- `UserInvitation`
+- `Company` (when user is not system_admin)
+- `CompanyCustomerDetails`
+- `CompanyBillingDetails`
+- `CompanyOrganizerDetails`
+
+**Tenant-Agnostic Tables (No CompanyID filter):**
+- `User` (global user accounts)
+- All `ref.*` tables (reference data)
+- All `config.*` tables (global configuration)
+
+**Detailed Guide:** `docs/solution-architecture.md` (Multi-Tenant Security section)
+
+---
+
+### Error Handling Standards
+
+**HTTP Status Codes:**
+
+| Code | Use Case | Example |
+|------|----------|---------|
+| **200 OK** | Successful GET, PUT, PATCH | User retrieved, profile updated |
+| **201 Created** | Successful POST (resource created) | User created, company created |
+| **204 No Content** | Successful DELETE (no response body) | User deleted |
+| **400 Bad Request** | Validation error, malformed request | Invalid email format, missing required field |
+| **401 Unauthorized** | Missing or invalid JWT token | No Authorization header, expired token |
+| **403 Forbidden** | Valid token, insufficient permissions | User trying to access admin endpoint |
+| **404 Not Found** | Resource doesn't exist | User ID not found, company not found |
+| **409 Conflict** | Business rule violation | Email already registered, duplicate entry |
+| **422 Unprocessable** | Semantic error (valid request, can't process) | Password too weak, invalid ABN checksum |
+| **500 Internal Server Error** | Unhandled exception | Database connection failure, unexpected error |
+
+**Error Response Format:**
+```json
+{
+  "error": "Validation failed",
+  "message": "Email address is already registered",
+  "code": "DUPLICATE_EMAIL",
+  "details": {
+    "field": "email",
+    "value": "john@example.com"
+  },
+  "requestId": "req-abc123"
+}
+```
+
+---
+
+### Logging & Audit Trail
+
+**Activity Logging (Business Actions):**
+```python
+from backend.models.activity_log import ActivityLog
+
+# Log significant business actions
+def log_activity(
+    db: Session,
+    user_id: int,
+    company_id: int,
+    action: str,
+    entity_type: str,
+    entity_id: int,
+    old_value: dict = None,
+    new_value: dict = None
+):
+    log_entry = ActivityLog(
+        user_id=user_id,
+        company_id=company_id,
+        action=action,  # e.g., 'user.created', 'form.published'
+        entity_type=entity_type,
+        entity_id=entity_id,
+        old_value=json.dumps(old_value) if old_value else None,
+        new_value=json.dumps(new_value) if new_value else None,
+        created_date=datetime.utcnow()
+    )
+    db.add(log_entry)
+    db.commit()
+```
+
+**Actions to Log:**
+- User authentication (login, logout, failed login)
+- User account changes (created, updated, deleted)
+- Role changes (promoted to admin, role changed)
+- Company actions (created, updated, profile changed)
+- Team actions (invitation sent, accepted, cancelled)
+
+---
+
+### Security Checklist (Every Endpoint)
+
+**Every API endpoint MUST:**
+- [ ] Require authentication (JWT token via `Depends(get_current_user)`)
+- [ ] Enforce authorization (role check via `Depends(require_role(...))`)
+- [ ] Filter by `CompanyID` for tenant-specific data
+- [ ] Validate input (Pydantic schema with constraints)
+- [ ] Use parameterized queries (SQLAlchemy ORM, not raw SQL)
+- [ ] Log security events (auth table, audit table)
+- [ ] Return appropriate HTTP status codes (401, 403, 404)
+- [ ] Not expose sensitive data in error messages (no stack traces in production)
+- [ ] Respect soft delete (filter by `is_deleted == False`)
+- [ ] Update audit trail (set `updated_date`, `updated_by`)
+
+---
+
+### Automated Logging Patterns
+
+**Philosophy:** Logging should be **automatic, not manual**. Developers should focus on business logic, not remembering to log.
+
+**Implementation Strategy:**
+- Use **middleware** for universal logging (API requests)
+- Use **exception handlers** for error logging
+- Use **service wrappers** for operation logging (email, external APIs)
+- Use **centralized services** for domain-specific logging (auth events)
+
+---
+
+#### 1. API Request Logging (Middleware - 100% Automatic)
+
+**Pattern:** FastAPI middleware logs EVERY request/response automatically
+
+**Implementation:**
+```python
+# backend/common/middleware/request_logging.py
+from fastapi import Request
+from sqlalchemy.orm import Session
+from backend.models.log.api_request import ApiRequest
+from backend.common.database import get_db
+from datetime import datetime
+import uuid
+import time
+
+async def log_request_middleware(request: Request, call_next):
+    """
+    Automatically log every API request/response
+    
+    Developers: NO manual logging needed!
+    """
+    # Generate unique request ID for correlation
+    request_id = str(uuid.uuid4())
+    request.state.request_id = request_id
+    
+    # Extract user context (if authenticated)
+    user_id = getattr(request.state, 'user', None)
+    user_id = user_id.user_id if user_id else None
+    company_id = getattr(request.state, 'user', None)
+    company_id = company_id.company_id if company_id else None
+    
+    # Start timer
+    start_time = time.time()
+    
+    # Execute request
+    response = await call_next(request)
+    
+    # Calculate duration
+    duration_ms = int((time.time() - start_time) * 1000)
+    
+    # Log to database (async, non-blocking)
+    db: Session = next(get_db())
+    try:
+        log_entry = ApiRequest(
+            request_id=request_id,
+            method=request.method,
+            path=str(request.url.path),
+            query_params=str(request.url.query) if request.url.query else None,
+            status_code=response.status_code,
+            duration_ms=duration_ms,
+            user_id=user_id,
+            company_id=company_id,
+            ip_address=hash_ip(request.client.host),
+            user_agent=request.headers.get('User-Agent'),
+            created_date=datetime.utcnow()
+        )
+        db.add(log_entry)
+        db.commit()
+    except Exception as e:
+        # Never let logging break the request
+        print(f"Logging failed: {e}")
+    finally:
+        db.close()
+    
+    # Add request ID to response header (for debugging)
+    response.headers['X-Request-ID'] = request_id
+    
+    return response
+```
+
+**Register Middleware:**
+```python
+# backend/main.py
+from backend.common.middleware.request_logging import log_request_middleware
+
+app = FastAPI()
+app.middleware("http")(log_request_middleware)  # Logs EVERY request
+```
+
+**Benefits:**
+- ✅ **100% coverage** - No endpoint forgotten
+- ✅ **Zero manual work** - Developers don't touch logging code
+- ✅ **Request correlation** - RequestID links logs across tables
+- ✅ **Performance tracking** - Duration captured for every endpoint
+
+---
+
+#### 2. Auth Event Logging (Centralized Service)
+
+**Pattern:** Single service handles ALL auth event logging
+
+**Implementation:**
+```python
+# backend/modules/auth/logging_service.py
+from sqlalchemy.orm import Session
+from backend.models.log.auth_event import AuthEvent
+from datetime import datetime
+from typing import Optional
+
+class AuthLoggingService:
+    """Centralized auth event logging - ensures consistency"""
+    
+    @staticmethod
+    def log_login_success(
+        db: Session,
+        user_id: int,
+        email: str,
+        ip_address: str,
+        user_agent: str,
+        request_id: str
+    ):
+        """Log successful login"""
+        log_entry = AuthEvent(
+            event_type='login.success',
+            user_id=user_id,
+            email=email,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            request_id=request_id,
+            created_date=datetime.utcnow()
+        )
+        db.add(log_entry)
+        db.commit()
+    
+    @staticmethod
+    def log_login_failed(
+        db: Session,
+        email: str,
+        reason: str,
+        ip_address: str,
+        user_agent: str,
+        request_id: str
+    ):
+        """Log failed login attempt"""
+        log_entry = AuthEvent(
+            event_type='login.failed',
+            user_id=None,
+            email=email,
+            reason=reason,  # "Invalid password", "Account locked"
+            ip_address=ip_address,
+            user_agent=user_agent,
+            request_id=request_id,
+            created_date=datetime.utcnow()
+        )
+        db.add(log_entry)
+        db.commit()
+    
+    @staticmethod
+    def log_logout(db: Session, user_id: int, email: str, ip_address: str, request_id: str):
+        """Log logout"""
+        log_entry = AuthEvent(
+            event_type='logout',
+            user_id=user_id,
+            email=email,
+            ip_address=ip_address,
+            request_id=request_id,
+            created_date=datetime.utcnow()
+        )
+        db.add(log_entry)
+        db.commit()
+    
+    @staticmethod
+    def log_password_reset_requested(
+        db: Session, user_id: int, email: str, ip_address: str, request_id: str
+    ):
+        """Log password reset request"""
+        log_entry = AuthEvent(
+            event_type='password.reset.requested',
+            user_id=user_id,
+            email=email,
+            ip_address=ip_address,
+            request_id=request_id,
+            created_date=datetime.utcnow()
+        )
+        db.add(log_entry)
+        db.commit()
+    
+    @staticmethod
+    def log_account_locked(
+        db: Session, user_id: int, email: str, reason: str, ip_address: str, request_id: str
+    ):
+        """Log account lockout"""
+        log_entry = AuthEvent(
+            event_type='account.locked',
+            user_id=user_id,
+            email=email,
+            reason=reason,
+            ip_address=ip_address,
+            request_id=request_id,
+            created_date=datetime.utcnow()
+        )
+        db.add(log_entry)
+        db.commit()
+```
+
+**Usage:**
+```python
+# backend/modules/auth/service.py
+from backend.modules.auth.logging_service import AuthLoggingService
+
+class AuthService:
+    @staticmethod
+    def login(db: Session, email: str, password: str, request: Request):
+        user = db.query(User).filter(User.email == email).first()
+        
+        if not user or not verify_password(password, user.password_hash):
+            # ✅ Centralized logging
+            AuthLoggingService.log_login_failed(
+                db, email, "Invalid password",
+                hash_ip(request.client.host),
+                request.headers.get('User-Agent'),
+                request.state.request_id
+            )
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        # ✅ Centralized logging
+        AuthLoggingService.log_login_success(
+            db, user.user_id, user.email,
+            hash_ip(request.client.host),
+            request.headers.get('User-Agent'),
+            request.state.request_id
+        )
+        
+        return generate_tokens(user)
+```
+
+**Benefits:**
+- ✅ **Consistent format** - All auth events use same structure
+- ✅ **Type-safe** - Method signatures enforce required fields
+- ✅ **Single update point** - Change logging logic in one place
+- ✅ **Easy to extend** - Add new event types as static methods
+
+---
+
+#### 3. Application Error Logging (Exception Handler - 100% Automatic)
+
+**Pattern:** Global exception handler catches ALL unhandled errors
+
+**Implementation:**
+```python
+# backend/common/exception_handlers.py
+from fastapi import Request, HTTPException
+from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+from backend.models.log.application_error import ApplicationError
+from backend.common.database import get_db
+from datetime import datetime
+import traceback
+
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Catch ALL unhandled exceptions
+    
+    Developers: NO try/catch needed everywhere!
+    """
+    # Extract user context
+    user_id = getattr(request.state, 'user', None)
+    user_id = user_id.user_id if user_id else None
+    company_id = getattr(request.state, 'user', None)
+    company_id = company_id.company_id if company_id else None
+    
+    # Determine severity
+    if isinstance(exc, HTTPException):
+        severity = 'warning' if exc.status_code < 500 else 'error'
+        error_type = 'HTTPException'
+        error_message = exc.detail
+        status_code = exc.status_code
+    else:
+        severity = 'critical'
+        error_type = exc.__class__.__name__
+        error_message = str(exc)
+        status_code = 500
+    
+    # Get stack trace
+    stack_trace = traceback.format_exc()
+    
+    # Log to database
+    db: Session = next(get_db())
+    try:
+        log_entry = ApplicationError(
+            error_type=error_type,
+            error_message=error_message,
+            stack_trace=stack_trace,
+            severity=severity,
+            request_id=getattr(request.state, 'request_id', None),
+            path=str(request.url.path),
+            method=request.method,
+            user_id=user_id,
+            company_id=company_id,
+            ip_address=hash_ip(request.client.host),
+            user_agent=request.headers.get('User-Agent'),
+            created_date=datetime.utcnow()
+        )
+        db.add(log_entry)
+        db.commit()
+        
+        # Alert for critical errors
+        if severity == 'critical':
+            send_slack_alert(
+                channel='#production-alerts',
+                message=f"🚨 Critical Error: {error_message}",
+                error_id=log_entry.application_error_id
+            )
+    except Exception as logging_error:
+        print(f"Error logging failed: {logging_error}")
+    finally:
+        db.close()
+    
+    # Return error response
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "error": error_type,
+            "message": error_message if status_code < 500 else "Internal server error",
+            "requestId": getattr(request.state, 'request_id', None)
+        }
+    )
+```
+
+**Register Exception Handler:**
+```python
+# backend/main.py
+from backend.common.exception_handlers import global_exception_handler
+
+app = FastAPI()
+app.add_exception_handler(Exception, global_exception_handler)  # Catch ALL errors
+```
+
+**Benefits:**
+- ✅ **100% error coverage** - No unhandled exceptions escape
+- ✅ **Automatic alerting** - Critical errors notify team via Slack
+- ✅ **Full stack traces** - Easy debugging with context
+- ✅ **Clean code** - No try/catch boilerplate needed
+
+---
+
+#### 4. Email Logging (Service Wrapper - Automatic)
+
+**Pattern:** Email service that logs ALL email operations
+
+**Implementation:**
+```python
+# backend/common/email_service.py
+from sqlalchemy.orm import Session
+from backend.models.log.email_delivery import EmailDelivery
+from datetime import datetime
+from typing import Optional
+
+class EmailService:
+    """Email service with automatic logging"""
+    
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def send_email(
+        self,
+        recipient_email: str,
+        subject: str,
+        template_id: str,
+        email_type: str,
+        user_id: Optional[int] = None,
+        company_id: Optional[int] = None,
+        template_data: dict = None
+    ) -> bool:
+        """
+        Send email with automatic logging
+        
+        Returns: True if sent successfully, False otherwise
+        """
+        # Create log entry (status: pending)
+        log_entry = EmailDelivery(
+            email_type=email_type,
+            recipient_email=hash_email(recipient_email),
+            subject=subject,
+            template_id=template_id,
+            status='pending',
+            user_id=user_id,
+            company_id=company_id,
+            created_date=datetime.utcnow()
+        )
+        self.db.add(log_entry)
+        self.db.commit()
+        self.db.refresh(log_entry)
+        
+        try:
+            # Send via provider (SendGrid, Azure Communications)
+            provider_response = send_via_provider(
+                to=recipient_email,
+                subject=subject,
+                template_id=template_id,
+                data=template_data
+            )
+            
+            # Update log entry (status: sent)
+            log_entry.status = 'sent'
+            log_entry.provider_message_id = provider_response.message_id
+            log_entry.sent_at = datetime.utcnow()
+            self.db.commit()
+            
+            return True
+            
+        except Exception as e:
+            # Update log entry (status: failed)
+            log_entry.status = 'failed'
+            log_entry.error_message = str(e)
+            self.db.commit()
+            return False
+    
+    def send_verification_email(self, user_id: int, email: str, token: str):
+        """Send email verification (automatically logged)"""
+        return self.send_email(
+            recipient_email=email,
+            subject="Verify your email address",
+            template_id="email_verification",
+            email_type="verification",
+            user_id=user_id,
+            template_data={"token": token, "verify_url": f"/verify?token={token}"}
+        )
+    
+    def send_password_reset_email(self, user_id: int, email: str, token: str):
+        """Send password reset email (automatically logged)"""
+        return self.send_email(
+            recipient_email=email,
+            subject="Reset your password",
+            template_id="password_reset",
+            email_type="password_reset",
+            user_id=user_id,
+            template_data={"token": token, "reset_url": f"/reset-password?token={token}"}
+        )
+    
+    def send_invitation_email(
+        self, company_id: int, email: str, token: str, inviter_name: str
+    ):
+        """Send team invitation (automatically logged)"""
+        return self.send_email(
+            recipient_email=email,
+            subject=f"{inviter_name} invited you to join their team",
+            template_id="team_invitation",
+            email_type="invitation",
+            company_id=company_id,
+            template_data={
+                "token": token,
+                "inviter_name": inviter_name,
+                "accept_url": f"/accept-invitation?token={token}"
+            }
+        )
+```
+
+**Usage:**
+```python
+# backend/modules/auth/service.py
+from backend.common.email_service import EmailService
+
+class AuthService:
+    @staticmethod
+    def signup(db: Session, user_data: UserCreateRequest):
+        # Create user
+        new_user = create_user(db, user_data)
+        
+        # Generate verification token
+        token = generate_verification_token(new_user.user_id)
+        
+        # ✅ Send email (automatically logged)
+        email_service = EmailService(db)
+        email_service.send_verification_email(
+            user_id=new_user.user_id,
+            email=new_user.email,
+            token=token
+        )
+        
+        return new_user
+```
+
+**Benefits:**
+- ✅ **Every email logged** - Status tracked (pending, sent, failed, bounced)
+- ✅ **Delivery tracking** - Provider message IDs captured
+- ✅ **Failure handling** - Failed emails logged with error messages
+- ✅ **Analytics ready** - Email delivery rates, bounce rates
+
+---
+
+#### Logging Coverage Summary
+
+| Log Type | Pattern | Coverage | Developer Action Required |
+|----------|---------|----------|---------------------------|
+| **API Requests** | Middleware | 100% automatic | ❌ None - fully automatic |
+| **Auth Events** | Centralized Service | 100% of auth actions | ⚠️ Call `AuthLoggingService.log_*()` |
+| **Application Errors** | Exception Handler | 100% automatic | ❌ None - fully automatic |
+| **Email Delivery** | Service Wrapper | 100% of emails | ⚠️ Use `EmailService.send_*()` |
+
+---
+
+#### Implementation Checklist
+
+**Story 1.1 (User Signup):**
+- [ ] Create `backend/common/middleware/request_logging.py`
+- [ ] Register middleware in `backend/main.py`
+- [ ] Create `backend/common/exception_handlers.py`
+- [ ] Register exception handler in `backend/main.py`
+- [ ] Test: Verify ApiRequest table populated for signup endpoint
+- [ ] Test: Verify ApplicationError table populated for unhandled errors
+
+**Story 1.2 (Email Verification):**
+- [ ] Create `backend/common/email_service.py`
+- [ ] Implement `send_verification_email()` method
+- [ ] Update signup flow to use EmailService
+- [ ] Test: Verify EmailDelivery table populated
+
+**Story 1.3 (Login):**
+- [ ] Create `backend/modules/auth/logging_service.py`
+- [ ] Implement all auth event logging methods
+- [ ] Update login flow to use AuthLoggingService
+- [ ] Test: Verify AuthEvent table populated for login attempts
+
+---
+
+### Testing Requirements
+
+**Unit Tests (pytest):**
+```python
+# backend/tests/test_user_service.py
+def test_create_user_success(db_session):
+    user_data = UserCreateRequest(
+        email="test@example.com",
+        password="SecurePass123!",
+        first_name="Test",
+        last_name="User"
+    )
+    
+    result = UserService.create_user(db_session, user_data)
+    
+    assert result.email == "test@example.com"
+    assert result.first_name == "Test"
+    assert result.is_email_verified == False
+
+def test_create_user_duplicate_email(db_session):
+    # Create first user
+    user_data = UserCreateRequest(
+        email="duplicate@example.com",
+        password="Pass123!",
+        first_name="First",
+        last_name="User"
+    )
+    UserService.create_user(db_session, user_data)
+    
+    # Try to create duplicate
+    with pytest.raises(HTTPException) as exc_info:
+        UserService.create_user(db_session, user_data)
+    
+    assert exc_info.value.status_code == 400
+    assert "already registered" in exc_info.value.detail.lower()
+```
+
+**Coverage Target:** 80%+ for all service layers
+
+---
+
+### Quick Reference Links
+
+**Architecture Documentation:**
+- Solution Architecture: `docs/solution-architecture.md`
+- Backend Abstraction Layer: `docs/technical-guides/backend-database-abstraction-layer.md`
+- Backend Quick Reference: `docs/technical-guides/backend-quick-reference.md`
+- Database Quick Reference: `docs/technical-guides/database-quick-reference.md`
+
+**Architectural Decisions:**
+- ADR-001: Database Schema Organization
+- ADR-002: Backend Abstraction Layer Design
+- ADR-003: Naming Convention Strategy
+- ADR-004: Database Normalization for Enum-Like Fields
+
+**Database Documentation:**
+- Rebuild Plan Summary: `docs/database/REBUILD-PLAN-SUMMARY.md`
+- dbo Schema (Core Business): `docs/database/schema-reference/dbo-schema.md`
+- ref Schema (Reference Data): `docs/database/schema-reference/ref-schema.md`
+- config Schema (Configuration): `docs/database/schema-reference/config-schema.md`
+- audit Schema (Compliance): `docs/database/schema-reference/audit-schema.md`
+- log Schema (Technical Logs): `docs/database/schema-reference/log-schema.md`
+- cache Schema (API Cache): `docs/database/schema-reference/cache-schema.md`
+
+---
 
 ## Test Strategy Summary
 

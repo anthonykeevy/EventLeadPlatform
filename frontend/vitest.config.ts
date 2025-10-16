@@ -56,13 +56,7 @@ export default defineConfig({
     restoreMocks: true,
     
     // Reporter configuration
-    reporter: ['verbose', 'html'],
-    
-    // Output directory for test results
-    outputFile: {
-      html: './test-results/index.html',
-      json: './test-results/results.json'
-    },
+    reporter: ['verbose'],
     
     // Global test configuration
     globals: true,

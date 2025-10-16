@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { Routes, Route, Link } from 'react-router-dom'
+import { SignupForm, EmailVerification, LoginForm } from './features/auth'
 
 interface HealthStatus {
   status: string
@@ -6,7 +8,7 @@ interface HealthStatus {
   environment: string
 }
 
-function App() {
+function HomePage() {
   const [apiStatus, setApiStatus] = useState<'loading' | 'connected' | 'error'>('loading')
   const [healthData, setHealthData] = useState<HealthStatus | null>(null)
 
@@ -83,17 +85,25 @@ function App() {
             )}
           </div>
 
-          {/* Next Steps */}
+          {/* Authentication Links - Story 1.1 */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h2 className="font-semibold text-blue-900 mb-2">
-              📋 Next Steps
+            <h2 className="font-semibold text-blue-900 mb-3">
+              🔐 Story 1.1: User Signup & Email Verification
             </h2>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>1. Create EventLeadPlatform database in SQL Server</li>
-              <li>2. Configure .env.local with database connection</li>
-              <li>3. Setup Alembic for database migrations</li>
-              <li>4. Start Epic 1: Authentication & Onboarding</li>
-            </ul>
+            <div className="space-y-2">
+              <Link 
+                to="/signup" 
+                className="block w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-center font-medium"
+              >
+                Sign Up
+              </Link>
+              <Link 
+                to="/login" 
+                className="block w-full py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-center font-medium"
+              >
+                Log In
+              </Link>
+            </div>
           </div>
 
           {/* Useful Links */}
@@ -115,6 +125,17 @@ function App() {
         </div>
       </div>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/signup" element={<SignupForm />} />
+      <Route path="/login" element={<LoginForm />} />
+      <Route path="/verify-email" element={<EmailVerification />} />
+    </Routes>
   )
 }
 

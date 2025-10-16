@@ -71,7 +71,7 @@ async def health_check():
 async def test_database():
     """Test database connection"""
     try:
-        import pyodbc
+        import pyodbc  # type: ignore
         # Try to connect to SQL Server
         conn_str = (
             "Driver={ODBC Driver 18 for SQL Server};"

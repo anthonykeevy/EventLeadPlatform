@@ -1,4 +1,6 @@
 """
 Common utilities for EventLead Platform
 """
-__all__ = []
+from typing import List
+
+__all__: List[str] = []

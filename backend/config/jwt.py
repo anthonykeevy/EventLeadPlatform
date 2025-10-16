@@ -9,12 +9,12 @@ from typing import Optional
 class JWTConfig:
     """JWT configuration settings"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         # Load JWT secret (CRITICAL: Must be set in production)
         self.SECRET_KEY: str = os.getenv(
             "JWT_SECRET_KEY",
             "dev-secret-key-change-in-production-min-32-chars"
-        )
+        ) or "dev-secret-key-change-in-production-min-32-chars"
         
         # Validate secret key length
         if len(self.SECRET_KEY) < 32:
@@ -24,14 +24,14 @@ class JWTConfig:
             )
         
         # JWT algorithm
-        self.ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+        self.ALGORITHM: str = os.getenv("JWT_ALGORITHM") or "HS256"
         
         # Token expiry settings
         self.ACCESS_TOKEN_EXPIRE_MINUTES: int = int(
-            os.getenv("JWT_EXPIRATION_MINUTES", "60")
+            os.getenv("JWT_EXPIRATION_MINUTES") or "60"
         )
         self.REFRESH_TOKEN_EXPIRE_DAYS: int = int(
-            os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7")
+            os.getenv("REFRESH_TOKEN_EXPIRE_DAYS") or "7"
         )
     
     def validate(self) -> None:

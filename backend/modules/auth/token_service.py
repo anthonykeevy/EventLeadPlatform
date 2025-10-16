@@ -1,6 +1,6 @@
 """
 Token Service Module
-Handles generation and validation of authentication tokens (email verification, password reset, etc.)
+Handles generation and validation of authentication tokens (email verification, password reset, refresh tokens, etc.)
 """
 import secrets
 from datetime import datetime, timedelta
@@ -8,6 +8,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from models.user_email_verification_token import UserEmailVerificationToken
+from models.user_refresh_token import UserRefreshToken
 
 
 def generate_verification_token(db: Session, user_id: int, expiry_hours: int = 24) -> str:
@@ -123,6 +124,151 @@ def invalidate_user_verification_tokens(
     for token in tokens:
         token.IsUsed = True
         token.UsedAt = datetime.utcnow()
+    
+    db.commit()
+    
+    return len(tokens)
+
+
+# ============================================================================
+# Refresh Token Functions
+# ============================================================================
+
+def store_refresh_token(
+    db: Session,
+    user_id: int,
+    token_value: str,
+    expiry_days: int = 7
+) -> UserRefreshToken:
+    """
+    Store JWT refresh token in database.
+    
+    Args:
+        db: Database session
+        user_id: ID of user the token belongs to
+        token_value: JWT refresh token string
+        expiry_days: Token expiry time in days (default 7)
+        
+    Returns:
+        Created UserRefreshToken record
+    """
+    expires_at = datetime.utcnow() + timedelta(days=expiry_days)
+    
+    token = UserRefreshToken(
+        UserID=user_id,
+        Token=token_value,
+        ExpiresAt=expires_at,
+        IsUsed=False,
+        IsRevoked=False,
+        CreatedDate=datetime.utcnow()
+    )
+    
+    db.add(token)
+    db.commit()
+    db.refresh(token)
+    
+    return token
+
+
+def validate_refresh_token(
+    db: Session,
+    token_value: str
+) -> Optional[UserRefreshToken]:
+    """
+    Validate refresh token and return token record if valid.
+    
+    Args:
+        db: Database session
+        token_value: JWT refresh token string to validate
+        
+    Returns:
+        Token record if valid, None otherwise
+        
+    Validation Rules:
+        - Token must exist in database
+        - Token must not be expired (ExpiresAt > now)
+        - Token must not be used (IsUsed = false)
+        - Token must not be revoked (IsRevoked = false)
+    """
+    token = db.query(UserRefreshToken).filter(
+        UserRefreshToken.Token == token_value
+    ).first()
+    
+    if not token:
+        return None
+    
+    # Check expiry
+    if token.ExpiresAt < datetime.utcnow():
+        return None
+    
+    # Check if already used
+    if token.IsUsed:
+        return None
+    
+    # Check if revoked
+    if token.IsRevoked:
+        return None
+    
+    return token
+
+
+def mark_refresh_token_used(
+    db: Session,
+    token: UserRefreshToken
+) -> None:
+    """
+    Mark refresh token as used (for one-time use policy).
+    
+    Args:
+        db: Database session
+        token: Token record to mark as used
+    """
+    token.IsUsed = True
+    token.UsedAt = datetime.utcnow()
+    db.commit()
+
+
+def revoke_refresh_token(
+    db: Session,
+    token: UserRefreshToken
+) -> None:
+    """
+    Manually revoke a refresh token (for security - e.g., logout).
+    
+    Args:
+        db: Database session
+        token: Token record to revoke
+    """
+    token.IsRevoked = True
+    token.RevokedAt = datetime.utcnow()
+    db.commit()
+
+
+def revoke_all_user_refresh_tokens(
+    db: Session,
+    user_id: int
+) -> int:
+    """
+    Revoke all active refresh tokens for a user.
+    Useful for "logout from all devices" functionality.
+    
+    Args:
+        db: Database session
+        user_id: User ID to revoke tokens for
+        
+    Returns:
+        Number of tokens revoked
+    """
+    tokens = db.query(UserRefreshToken).filter(
+        UserRefreshToken.UserID == user_id,
+        UserRefreshToken.IsRevoked == False,
+        UserRefreshToken.ExpiresAt > datetime.utcnow()
+    ).all()
+    
+    now = datetime.utcnow()
+    for token in tokens:
+        token.IsRevoked = True
+        token.RevokedAt = now
     
     db.commit()
     

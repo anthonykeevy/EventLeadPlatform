@@ -14,10 +14,31 @@ from modules.auth.schemas import (
     SignupResponse,
     VerifyEmailRequest,
     VerifyEmailResponse,
+    LoginRequest,
+    LoginResponse,
+    RefreshRequest,
+    RefreshResponse,
     ErrorResponse
 )
 from modules.auth.user_service import create_user, verify_user_email, get_user_by_email
-from modules.auth.token_service import generate_verification_token, validate_token, mark_token_used
+from modules.auth.token_service import (
+    generate_verification_token,
+    validate_token,
+    mark_token_used,
+    store_refresh_token,
+    validate_refresh_token,
+    mark_refresh_token_used
+)
+from modules.auth.jwt_service import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    verify_token_type,
+    extract_user_id
+)
+from common.security import verify_password
+from models.user_company import UserCompany
+from jose import JWTError  # type: ignore
 from modules.auth.audit_service import (
     log_auth_event,
     log_user_creation,
@@ -289,6 +310,324 @@ async def verify_email(
 
 
 # ============================================================================
+# Login Endpoint
+# ============================================================================
+
+@router.post(
+    "/login",
+    response_model=LoginResponse,
+    responses={
+        200: {"description": "Login successful, tokens returned"},
+        401: {"model": ErrorResponse, "description": "Invalid credentials"},
+        403: {"model": ErrorResponse, "description": "Account not verified or inactive"},
+        500: {"model": ErrorResponse, "description": "Internal server error"}
+    }
+)
+async def login(
+    request_data: LoginRequest,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    **Public endpoint for user login.**
+    
+    Authenticates user and returns JWT access and refresh tokens.
+    
+    **Flow:**
+    1. Find user by email
+    2. Verify password with bcrypt (timing-safe)
+    3. Check EmailVerified = true
+    4. Check IsActive = true
+    5. Get user's role and company (if exists)
+    6. Generate JWT access token (1 hour expiry)
+    7. Generate JWT refresh token (7 days expiry)
+    8. Store refresh token in database
+    9. Log login event
+    10. Return both tokens
+    
+    **Security:**
+    - Timing-safe password comparison
+    - Same error message for invalid email/password (prevents email enumeration)
+    - Separate errors for unverified/inactive accounts
+    - Login events logged for audit trail
+    
+    **Tokens:**
+    - Access token: Short-lived (1 hour), used for API requests
+    - Refresh token: Long-lived (7 days), used to get new access tokens
+    """
+    try:
+        # 1. Find user by email
+        user = get_user_by_email(db, request_data.email)
+        
+        # 2. Verify password (timing-safe comparison)
+        # Use same error for invalid email/password to prevent email enumeration
+        if not user or not verify_password(request_data.password, user.PasswordHash):
+            log_auth_event(
+                db=db,
+                user_id=user.UserID if user else None,
+                event_type="LOGIN_FAILED",
+                success=False,
+                details={"reason": "Invalid credentials", "email": request_data.email},
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent")
+            )
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+        
+        # 3. Check email verified
+        if not user.EmailVerified:
+            log_auth_event(
+                db=db,
+                user_id=user.UserID,
+                event_type="LOGIN_FAILED",
+                success=False,
+                details={"reason": "Email not verified"},
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent")
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Please verify your email before logging in. Check your inbox for the verification link."
+            )
+        
+        # 4. Check account active
+        if not user.IsActive:
+            log_auth_event(
+                db=db,
+                user_id=user.UserID,
+                event_type="LOGIN_FAILED",
+                success=False,
+                details={"reason": "Account inactive"},
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent")
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your account has been deactivated. Please contact support."
+            )
+        
+        # 5. Get user's role and company (if exists)
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == user.UserID,
+            UserCompany.IsPrimaryCompany == True
+        ).first()
+        
+        # If no primary company, get any active company
+        if not user_company:
+            user_company = db.query(UserCompany).filter(
+                UserCompany.UserID == user.UserID
+            ).first()
+        
+        # Extract role and company_id
+        role = None
+        company_id = None
+        if user_company:
+            # Get role name from UserCompanyRole
+            if user_company.user_company_role:
+                role = user_company.user_company_role.RoleName
+            company_id = user_company.CompanyID
+        
+        # 6. Generate tokens
+        access_token = create_access_token(
+            user_id=user.UserID,
+            email=user.Email,
+            role=role,
+            company_id=company_id
+        )
+        
+        refresh_token = create_refresh_token(user_id=user.UserID)
+        
+        # 7. Store refresh token in database
+        store_refresh_token(db, user.UserID, refresh_token, expiry_days=7)
+        
+        # 8. Log success
+        log_auth_event(
+            db=db,
+            user_id=user.UserID,
+            event_type="LOGIN_SUCCESS",
+            success=True,
+            details={"email": user.Email, "has_company": company_id is not None},
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent")
+        )
+        
+        logger.info(f"User login successful: UserID={user.UserID}, Email={user.Email}")
+        
+        # 9. Return tokens
+        return LoginResponse(
+            success=True,
+            message="Login successful",
+            data={
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "token_type": "bearer",
+                "expires_in": 3600  # 1 hour in seconds
+            }
+        )
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during login. Please try again later."
+        )
+
+
+# ============================================================================
+# Token Refresh Endpoint
+# ============================================================================
+
+@router.post(
+    "/refresh",
+    response_model=RefreshResponse,
+    responses={
+        200: {"description": "Token refreshed successfully"},
+        401: {"model": ErrorResponse, "description": "Invalid or expired refresh token"},
+        500: {"model": ErrorResponse, "description": "Internal server error"}
+    }
+)
+async def refresh_token_endpoint(
+    request_data: RefreshRequest,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    **Public endpoint for token refresh.**
+    
+    Exchanges refresh token for a new access token.
+    
+    **Flow:**
+    1. Decode and verify refresh token JWT
+    2. Verify token type is "refresh"
+    3. Validate token exists in database
+    4. Check token not expired, not used, not revoked
+    5. Get fresh user data and company/role
+    6. Generate new access token
+    7. Log refresh event
+    8. Return new access token
+    
+    **Security:**
+    - Refresh tokens are stored in database (can be revoked)
+    - Tokens validated for expiry and usage
+    - Fresh user data fetched (reflects permission changes)
+    
+    **Note:**
+    - Refresh token is NOT marked as used (can be reused until expiry)
+    - For one-time use policy, uncomment mark_refresh_token_used()
+    """
+    try:
+        # 1. Decode refresh token JWT
+        try:
+            payload = decode_token(request_data.refresh_token)
+        except JWTError as e:
+            logger.warning(f"Invalid refresh token JWT: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired refresh token"
+            )
+        
+        # 2. Verify token type
+        if not verify_token_type(payload, "refresh"):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type. Expected refresh token."
+            )
+        
+        # 3. Validate token in database
+        token_record = validate_refresh_token(db, request_data.refresh_token)
+        
+        if not token_record:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired refresh token"
+            )
+        
+        # 4. Get fresh user data
+        user_id = extract_user_id(payload)
+        user = get_user_by_email(db, payload["email"]) if "email" in payload else None
+        
+        if not user or user.UserID != user_id:
+            # Fallback: get user by ID
+            from modules.auth.user_service import get_user_by_id
+            user = get_user_by_id(db, user_id)
+        
+        if not user or not user.IsActive or not user.EmailVerified:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found, inactive, or email not verified"
+            )
+        
+        # 5. Get updated role/company info
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == user.UserID,
+            UserCompany.IsPrimaryCompany == True
+        ).first()
+        
+        if not user_company:
+            user_company = db.query(UserCompany).filter(
+                UserCompany.UserID == user.UserID
+            ).first()
+        
+        role = None
+        company_id = None
+        if user_company:
+            if user_company.user_company_role:
+                role = user_company.user_company_role.RoleName
+            company_id = user_company.CompanyID
+        
+        # 6. Generate new access token
+        access_token = create_access_token(
+            user_id=user.UserID,
+            email=user.Email,
+            role=role,
+            company_id=company_id
+        )
+        
+        # 7. Optional: Mark refresh token as used (one-time use policy)
+        # Uncomment if you want refresh tokens to be single-use:
+        # mark_refresh_token_used(db, token_record)
+        
+        # 8. Log refresh event
+        log_auth_event(
+            db=db,
+            user_id=user.UserID,
+            event_type="TOKEN_REFRESH",
+            success=True,
+            details={"email": user.Email},
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent")
+        )
+        
+        logger.info(f"Token refresh successful: UserID={user.UserID}")
+        
+        # 9. Return new access token
+        return RefreshResponse(
+            success=True,
+            message="Token refreshed successfully",
+            data={
+                "access_token": access_token,
+                "token_type": "bearer",
+                "expires_in": 3600
+            }
+        )
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        logger.error(f"Token refresh error: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during token refresh. Please try again later."
+        )
+
+
+# ============================================================================
 # Health Check (for testing router is registered)
 # ============================================================================
 
@@ -302,6 +641,11 @@ async def auth_health():
     return {
         "status": "healthy",
         "module": "authentication",
-        "endpoints": ["/api/auth/signup", "/api/auth/verify-email"]
+        "endpoints": [
+            "/api/auth/signup",
+            "/api/auth/verify-email",
+            "/api/auth/login",
+            "/api/auth/refresh"
+        ]
     }
 

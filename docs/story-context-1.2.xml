@@ -1,0 +1,109 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Login & JWT Tokens</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.2.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.2.1" priority="high">
+      <statement>Public login endpoint accepts email and password</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/auth/login with valid credentials returns tokens</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.2" priority="critical">
+      <statement>Password verified using bcrypt comparison</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>verify_password function uses timing-safe bcrypt comparison; correct password passes, wrong password fails</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.3" priority="high">
+      <statement>Login only succeeds if EmailVerified = true and IsActive = true</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Unverified user returns 403; inactive user returns 403; verified active user succeeds</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.4" priority="high">
+      <statement>JWT access token generated with 1-hour expiry</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Access token decoded successfully; exp claim = iat + 3600 seconds; type='access'</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.5" priority="high">
+      <statement>JWT refresh token generated with 7-day expiry</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Refresh token decoded successfully; exp claim = iat + 7 days; type='refresh'</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.6" priority="high">
+      <statement>JWT payload includes: user_id, email, role (if UserCompany exists), company_id (if UserCompany exists)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Token payload contains sub (user_id), email; if user has company: includes role and company_id; if no company: omits role and company_id</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.7" priority="high">
+      <statement>Refresh token stored in ref.Token table</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Token record created with TokenType='REFRESH_TOKEN', 7-day expiry, linked to UserID</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.8" priority="high">
+      <statement>Token refresh endpoint validates refresh token and issues new access token</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/auth/refresh with valid refresh token returns new access token; expired/invalid tokens return 401</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.9" priority="medium">
+      <statement>Login event logged to log.AuthEvent</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>LOGIN_SUCCESS event logged with UserID, RequestID, timestamp</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.2.10" priority="medium">
+      <statement>Failed login attempts logged with reason (invalid email, wrong password, unverified email)</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>LOGIN_FAILED events logged with reason in details; no information leakage (same error for invalid email/password)</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.1</id>
+      <description>User Signup - Provides verified users for login</description>
+    </dependency>
+    <dependency type="package" status="required">
+      <name>PyJWT</name>
+      <version>2.x</version>
+      <usage>JWT token creation and validation</usage>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="security">
+      JWT secret MUST be cryptographically secure and at least 32 characters. Use environment variable JWT_SECRET. Never commit secrets to git. Implement rate limiting on login endpoint to prevent brute force attacks.
+    </note>
+    <note type="architecture">
+      JWT tokens are stateless (server doesn't store them), but refresh tokens ARE stored in database for revocation capability. This hybrid approach provides security and flexibility.
+    </note>
+    <note type="integration">
+      JWT payload structure is critical - it determines what's available in protected endpoints. The role and company_id fields enable multi-tenant RBAC without additional database queries.
+    </note>
+  </notes>
+</story-context>
+

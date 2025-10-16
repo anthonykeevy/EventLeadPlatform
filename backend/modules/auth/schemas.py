@@ -82,6 +82,81 @@ class VerifyEmailResponse(BaseModel):
 
 
 # ============================================================================
+# Login Schemas
+# ============================================================================
+
+class LoginRequest(BaseModel):
+    """Request schema for user login"""
+    email: EmailStr = Field(..., description="User's email address")
+    password: str = Field(..., min_length=1, description="User's password")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "email": "john.doe@example.com",
+                "password": "MySecureP@ss123"
+            }
+        }
+
+
+class LoginResponse(BaseModel):
+    """Response schema for successful login"""
+    success: bool = Field(..., description="Whether login was successful")
+    message: str = Field(..., description="Human-readable message")
+    data: Optional[Dict[str, Any]] = Field(None, description="Login data including tokens")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "message": "Login successful",
+                "data": {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "token_type": "bearer",
+                    "expires_in": 3600
+                }
+            }
+        }
+
+
+# ============================================================================
+# Token Refresh Schemas
+# ============================================================================
+
+class RefreshRequest(BaseModel):
+    """Request schema for token refresh"""
+    refresh_token: str = Field(..., min_length=10, description="JWT refresh token")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            }
+        }
+
+
+class RefreshResponse(BaseModel):
+    """Response schema for token refresh"""
+    success: bool = Field(..., description="Whether refresh was successful")
+    message: str = Field(..., description="Human-readable message")
+    data: Optional[Dict[str, Any]] = Field(None, description="New access token data")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "message": "Token refreshed successfully",
+                "data": {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "token_type": "bearer",
+                    "expires_in": 3600
+                }
+            }
+        }
+
+
+# ============================================================================
 # Error Response Schema
 # ============================================================================
 

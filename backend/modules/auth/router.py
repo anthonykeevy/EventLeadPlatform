@@ -778,21 +778,21 @@ async def password_reset_confirm(
             )
         
         # 2. Validate new password strength
-        password_validation = validate_password_strength(request_data.new_password)
-        if not password_validation["valid"]:
+        password_errors = validate_password_strength(request_data.new_password)
+        if password_errors:
             log_auth_event(
                 db=db,
                 user_id=token.UserID,
                 event_type="PASSWORD_RESET_FAILED",
                 success=False,
-                details={"reason": "Weak password", "errors": password_validation["errors"]},
+                details={"reason": "Weak password", "errors": password_errors},
                 ip_address=request.client.host if request.client else None,
                 user_agent=request.headers.get("user-agent")
             )
             
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Password does not meet security requirements: {', '.join(password_validation['errors'])}"
+                detail=f"Password does not meet security requirements: {', '.join(password_errors)}"
             )
         
         # 3. Get user

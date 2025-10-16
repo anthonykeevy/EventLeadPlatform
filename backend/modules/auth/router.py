@@ -7,6 +7,7 @@ import logging
 from datetime import datetime
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status, Request
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from common.database import get_db
 from common.password_validator import validate_password_strength
@@ -25,7 +26,9 @@ from modules.auth.schemas import (
     PasswordResetConfirmResponse,
     ErrorResponse
 )
-from modules.auth.user_service import create_user, verify_user_email, get_user_by_email
+from modules.auth.user_service import (
+    create_user, verify_user_email, get_user_by_email, create_user_with_invitation
+)
 from modules.auth.token_service import (
     generate_verification_token,
     validate_token,
@@ -47,6 +50,7 @@ from modules.auth.jwt_service import (
 )
 from common.security import verify_password, hash_password
 from models.user_company import UserCompany
+from models.ref.user_company_role import UserCompanyRole
 from jose import JWTError  # type: ignore
 from modules.auth.audit_service import (
     log_auth_event,
@@ -88,8 +92,9 @@ async def signup(
     **Public endpoint for user signup.**
     
     Creates a new user account with email verification required.
+    Supports invitation-based signup for team members.
     
-    **Flow:**
+    **Standard Flow:**
     1. Validate email uniqueness
     2. Validate password strength
     3. Hash password with bcrypt
@@ -99,19 +104,107 @@ async def signup(
     7. Log auth event
     8. Return success response
     
+    **Invitation Flow (AC-1.7.5, AC-1.7.6):**
+    1. Validate invitation token
+    2. Verify email matches invitation
+    3. Create user (immediately activated)
+    4. Create UserCompany relationship
+    5. Mark invitation as accepted
+    6. Issue JWT with role and company_id
+    7. Return success with access token
+    
     **Password Requirements:**
     - Minimum 8 characters
     - At least one uppercase letter
     - At least one lowercase letter
     - At least one number
     - At least one special character
-    
-    **After Signup:**
-    - User receives verification email
-    - User must click link in email to activate account
-    - Unverified users cannot log in
     """
     try:
+        # Check if this is invitation-based signup (AC-1.7.5, AC-1.7.6)
+        if request_data.invitation_token:
+            # 1. Validate password strength
+            password_errors = validate_password_strength(request_data.password)
+            if password_errors:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Password does not meet security requirements: {'; '.join(password_errors)}"
+                )
+            
+            # 2. Create user with invitation (auto-accepts invitation)
+            user, invitation, user_company = await create_user_with_invitation(
+                db=db,
+                email=request_data.email,
+                password=request_data.password,
+                first_name=request_data.first_name,
+                last_name=request_data.last_name,
+                invitation_token=request_data.invitation_token
+            )
+            
+            logger.info(
+                f"User created with invitation: UserID={user.UserID}, "
+                f"CompanyID={user_company.CompanyID}, InvitationID={invitation.UserInvitationID}"
+            )
+            
+            # 3. Get role for JWT
+            role = db.execute(
+                select(UserCompanyRole).where(
+                    UserCompanyRole.UserCompanyRoleID == user_company.UserCompanyRoleID
+                )
+            ).scalar_one()
+            
+            # 4. Issue JWT with role and company_id (AC-1.7.8)
+            access_token = create_access_token(
+                user_id=int(user.UserID),  # type: ignore
+                email=str(user.Email),  # type: ignore
+                role=str(role.RoleCode),  # type: ignore
+                company_id=int(user_company.CompanyID)  # type: ignore
+            )
+            
+            refresh_token = create_refresh_token(
+                user_id=int(user.UserID)  # type: ignore
+            )
+            
+            # 5. Store refresh token
+            store_refresh_token(db, int(user.UserID), refresh_token)  # type: ignore
+            
+            # 6. Log auth event
+            log_auth_event(
+                db=db,
+                user_id=int(user.UserID),  # type: ignore
+                event_type="SIGNUP_WITH_INVITATION",
+                success=True,
+                details={
+                    "email": str(user.Email),  # type: ignore
+                    "first_name": str(user.FirstName),  # type: ignore
+                    "last_name": str(user.LastName),  # type: ignore
+                    "company_id": int(user_company.CompanyID),  # type: ignore
+                    "role": str(role.RoleCode)  # type: ignore
+                },
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent")
+            )
+            
+            logger.info(
+                f"Invitation signup complete: UserID={user.UserID}, JWT issued, "
+                f"onboarding skipped"
+            )
+            
+            # 7. Return success with access token (no email verification needed)
+            return SignupResponse(
+                success=True,
+                message="Signup successful! You can now access your team.",
+                data={
+                    "user_id": int(user.UserID),  # type: ignore
+                    "email": str(user.Email),  # type: ignore
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                    "company_id": int(user_company.CompanyID),  # type: ignore
+                    "role": str(role.RoleCode)  # type: ignore
+                }
+            )
+        
+        # Standard signup flow (no invitation)
         # 1. Check email uniqueness
         existing_user = get_user_by_email(db, request_data.email)
         if existing_user:

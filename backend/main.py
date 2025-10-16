@@ -16,6 +16,7 @@ from common.logger import configure_logging
 from modules.auth import auth_router
 from modules.users.router import router as users_router
 from modules.companies.router import router as companies_router
+from modules.invitations.router import router as invitations_router
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -54,6 +55,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(companies_router)
+app.include_router(invitations_router)
 
 @app.get("/")
 async def root():

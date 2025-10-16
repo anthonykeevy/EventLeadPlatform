@@ -1,0 +1,119 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>8</storyId>
+    <title>Multi-Tenant Data Isolation & Testing</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.8.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.8.1" priority="critical">
+      <statement>All company-scoped queries filter by company_id from JWT</statement>
+      <validation>
+        <method>Code Review + Integration Test</method>
+        <success_condition>All endpoints querying company-scoped resources filter by current_user.company_id; no queries omit company filtering</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.2" priority="critical">
+      <statement>Users cannot access other companies' data</statement>
+      <validation>
+        <method>Security Test</method>
+        <success_condition>User A from Company A cannot access Company B's events, forms, leads, or any company-scoped resource</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.3" priority="high">
+      <statement>Company admins can only manage their own company</statement>
+      <validation>
+        <method>Security Test</method>
+        <success_condition>Company A admin cannot invite users to Company B; cannot update Company B settings</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.4" priority="high">
+      <statement>Company users can only view their own company's data</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Company user can view own company's events; cannot view other companies' events even if they know IDs</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.5" priority="high">
+      <statement>Role requirements enforced on all protected endpoints</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>All @require_role decorators enforced; company_user cannot access company_admin endpoints</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.6" priority="high">
+      <statement>Comprehensive test suite validates data isolation</statement>
+      <validation>
+        <method>Test Coverage</method>
+        <success_condition>Test suite includes multi-tenant scenarios for all company-scoped endpoints; 100% coverage of data isolation paths</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.7" priority="critical">
+      <statement>Security tests verify users cannot bypass multi-tenancy</statement>
+      <validation>
+        <method>Security Test</method>
+        <success_condition>Tests verify: JWT forgery prevented, company_id manipulation blocked, direct resource ID access blocked, role escalation prevented</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.8" priority="medium">
+      <statement>Performance tests verify filtering doesn't impact queries</statement>
+      <validation>
+        <method>Performance Test</method>
+        <success_condition>Company filtering adds <10ms overhead; database indexes used correctly; query plans optimized</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.9" priority="high">
+      <statement>Database helper functions enforce company filtering</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>filter_by_company() helper automatically adds company_id filter; helper used consistently</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.8.10" priority="medium">
+      <statement>Audit logs capture all cross-company access attempts</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Failed access attempts logged with attempted company_id vs user's actual company_id; suspicious patterns detectable</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.3</id>
+      <description>RBAC Middleware - Provides authentication and authorization foundation</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.5</id>
+      <description>First-Time Onboarding - Creates companies and company admins</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.6</id>
+      <description>Team Invitation System - Creates team members with different roles</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.7</id>
+      <description>Invited User Acceptance - Enables multi-company users</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="critical">
+      This is the final validation story for Epic 1. It ensures the entire authentication and authorization system works correctly and securely. All previous stories must be complete before this one.
+    </note>
+    <note type="security">
+      Security testing is paramount. Test scenarios: (1) JWT forgery attempts, (2) Company_id manipulation in requests, (3) Direct resource access via IDs, (4) Role escalation attempts, (5) SQL injection with company filters. All must be prevented.
+    </note>
+    <note type="implementation">
+      Create comprehensive test utilities: create_test_company(), create_test_user(), create_test_data(). These make it easy to create multi-tenant test scenarios and should be reusable for future feature tests.
+    </note>
+    <note type="performance">
+      Ensure database indexes exist on CompanyID columns for all company-scoped tables. Monitor query plans to verify indexes are used. Company filtering should add minimal overhead (<10ms).
+    </note>
+  </notes>
+</story-context>
+

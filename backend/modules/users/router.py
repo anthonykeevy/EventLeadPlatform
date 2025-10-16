@@ -4,10 +4,19 @@ Endpoints for user profile management
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import select
+from typing import List
 
 from common.database import get_db
 from modules.auth.dependencies import get_current_user
 from modules.auth.models import CurrentUser
+from modules.auth.jwt_service import create_access_token, create_refresh_token
+from models.company import Company
+from models.ref.user_company_role import UserCompanyRole
+from modules.invitations.schemas import (
+    SwitchCompanyRequest, SwitchCompanyResponse, UserCompanyInfo
+)
+from modules.invitations.service import switch_company, get_user_companies
 from .schemas import UpdateUserDetailsSchema, UpdateUserDetailsResponse, UserProfileResponse
 from .service import update_user_details, get_user_profile
 from common.logger import get_logger
@@ -113,5 +122,136 @@ async def get_my_profile(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get user profile"
+        )
+
+
+# ============================================================================
+# Multi-Company Support Endpoints (Story 1.7)
+# ============================================================================
+
+@router.get(
+    "/me/companies",
+    response_model=List[UserCompanyInfo],
+    summary="List user's companies",
+    description="Get all companies the user belongs to"
+)
+async def list_my_companies(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> List[UserCompanyInfo]:
+    """
+    List all companies user belongs to (AC-1.7.9).
+    
+    Returns all active company memberships with role information.
+    """
+    try:
+        user_companies = await get_user_companies(db, current_user.user_id)
+        
+        result = []
+        for uc in user_companies:
+            # Get company
+            company = db.execute(
+                select(Company).where(Company.CompanyID == uc.CompanyID)
+            ).scalar_one()
+            
+            # Get role
+            role = db.execute(
+                select(UserCompanyRole).where(
+                    UserCompanyRole.UserCompanyRoleID == uc.UserCompanyRoleID
+                )
+            ).scalar_one()
+            
+            result.append(UserCompanyInfo(
+                company_id=int(uc.CompanyID),  # type: ignore
+                company_name=str(company.CompanyName),  # type: ignore
+                role=str(role.RoleCode),  # type: ignore
+                is_primary=bool(uc.IsPrimaryCompany),  # type: ignore
+                joined_at=uc.JoinedDate  # type: ignore
+            ))
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error listing companies: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to list companies"
+        )
+
+
+@router.post(
+    "/me/switch-company",
+    response_model=SwitchCompanyResponse,
+    summary="Switch active company",
+    description="Switch to a different company the user belongs to"
+)
+async def switch_active_company(
+    request: SwitchCompanyRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> SwitchCompanyResponse:
+    """
+    Switch user's active company context (AC-1.7.9).
+    
+    Issues new JWT with updated company_id and corresponding role.
+    """
+    try:
+        # Switch company
+        user_company = await switch_company(
+            db=db,
+            user_id=current_user.user_id,
+            target_company_id=request.company_id
+        )
+        
+        # Get company
+        company = db.execute(
+            select(Company).where(Company.CompanyID == user_company.CompanyID)
+        ).scalar_one()
+        
+        # Get role
+        role = db.execute(
+            select(UserCompanyRole).where(
+                UserCompanyRole.UserCompanyRoleID == user_company.UserCompanyRoleID
+            )
+        ).scalar_one()
+        
+        # Issue new JWT with new company context
+        access_token = create_access_token(
+            user_id=current_user.user_id,
+            email=current_user.email,
+            role=str(role.RoleCode),  # type: ignore
+            company_id=int(user_company.CompanyID)  # type: ignore
+        )
+        
+        refresh_token = create_refresh_token(
+            user_id=current_user.user_id
+        )
+        
+        logger.info(
+            f"Company switched: UserID={current_user.user_id}, "
+            f"CompanyID={user_company.CompanyID}, Role={role.RoleCode}"
+        )
+        
+        return SwitchCompanyResponse(
+            success=True,
+            message=f"Switched to {company.CompanyName}",
+            company_id=int(user_company.CompanyID),  # type: ignore
+            company_name=str(company.CompanyName),  # type: ignore
+            role=str(role.RoleCode),  # type: ignore
+            access_token=access_token,
+            refresh_token=refresh_token
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid company switch: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Error switching company: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to switch company"
         )
 

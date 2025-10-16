@@ -1,0 +1,112 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>7</storyId>
+    <title>Invited User Acceptance & Onboarding</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.7.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.7.1" priority="high">
+      <statement>Public endpoint to view invitation details (by token)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET /api/invitations/{token} returns company name, role, inviter name; does not expose sensitive data</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.2" priority="medium">
+      <statement>Invitation details include company name, role, inviter name</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Response includes company name, invited role, inviter full name, expiry date</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.3" priority="high">
+      <statement>Protected endpoint to accept invitation (requires authentication)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/invitations/{token}/accept requires valid JWT; unauthenticated request returns 401</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.4" priority="high">
+      <statement>If invitee has account: Create UserCompany relationship with invited role</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>UserCompany record created with invited role; user can now access company resources</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.5" priority="high">
+      <statement>If invitee is new: Redirect to signup with invitation token</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET /api/invitations/{token} indicates no account exists; frontend redirects to signup with token</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.6" priority="high">
+      <statement>After signup, automatically accept invitation</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Signup with invitation_token parameter creates User and UserCompany atomically; invitation marked accepted</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.7" priority="high">
+      <statement>Invitation token marked as used after acceptance</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Invitation status updated to 'accepted'; token marked IsUsed=true; cannot be used again</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.8" priority="high">
+      <statement>JWT refreshed to include new role and company_id</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>After acceptance, new JWT issued with updated role and company_id in payload</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.9" priority="high">
+      <statement>User can belong to multiple companies (UserCompany records)</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>User can have multiple active UserCompany records; one per company they belong to</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.7.10" priority="medium">
+      <statement>All acceptance events logged to audit tables</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Invitation acceptance logged; UserCompany creation logged; company switching logged</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.6</id>
+      <description>Team Invitation System - Provides invitations to accept</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.1</id>
+      <description>User Signup - New users signup with invitation token</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.2</id>
+      <description>Login & JWT - JWT refreshed after acceptance</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="flow">
+      Two flows: (1) Existing user: View invitation → Accept → UserCompany created → New JWT issued. (2) New user: View invitation → Signup with token → Email verification → Auto-accept → User + UserCompany created → JWT with role/company.
+    </note>
+    <note type="multi-tenancy">
+      This story establishes multi-company support. Users can belong to multiple companies via multiple UserCompany records. JWT contains one company at a time; users can switch companies via dedicated endpoint.
+    </note>
+    <note type="integration">
+      Company switching endpoint: POST /api/users/me/switch-company validates user belongs to target company, issues new JWT with new company_id and corresponding role.
+    </note>
+  </notes>
+</story-context>
+

@@ -1,0 +1,109 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>6</storyId>
+    <title>Team Invitation System</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.6.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.6.1" priority="high">
+      <statement>Protected endpoint for sending invitations (requires company_admin role)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/companies/{company_id}/invite requires company_admin role; company_user receives 403</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.2" priority="high">
+      <statement>Invitation created with email, role, and company association</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Invitation record created in ref.Invitation with email, role, CompanyID, InvitedByUserID</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.3" priority="high">
+      <statement>Invitation token generated (valid 7 days)</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Token created in ref.Token with TokenType='TEAM_INVITATION', 7-day expiry, linked to Invitation</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.4" priority="high">
+      <statement>Team invitation email sent automatically</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Email logged to log.EmailDelivery; email contains invitation link with token</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.5" priority="high">
+      <statement>Cannot invite email that already belongs to company</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Invitation for existing company member returns 400 error</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.6" priority="high">
+      <statement>Admin can specify role (company_admin or company_user)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Invitation accepts role parameter; validates against allowed roles</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.7" priority="medium">
+      <statement>Admin can resend invitation if pending</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/companies/{id}/invitations/{id}/resend extends expiry, resends email; only works for pending invitations</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.8" priority="medium">
+      <statement>Admin can cancel pending invitation</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>DELETE /api/companies/{id}/invitations/{id} marks invitation as cancelled, invalidates token</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.9" priority="medium">
+      <statement>Admin can view all company invitations (pending, accepted, expired)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET /api/companies/{id}/invitations returns all invitations; supports status filtering and pagination</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.6.10" priority="medium">
+      <statement>All invitation events logged to audit tables</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Invitation sent, resent, cancelled events logged; includes InvitedByUserID, RecipientEmail</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.3</id>
+      <description>RBAC Middleware - Required for role-based endpoint protection</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.5</id>
+      <description>First-Time Onboarding - Companies must exist before invitations</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 0.3</id>
+      <description>Email Service - Sends team invitation emails</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="integration">
+      This story establishes the invitation mechanism. Story 1.7 handles the acceptance flow. Invitations can be sent before invitee has an account (they'll signup with invitation token).
+    </note>
+    <note type="security">
+      Only company_admin can send invitations. Verify admin belongs to the company in invitation endpoint. Do not allow inviting to different companies.
+    </note>
+  </notes>
+</story-context>
+

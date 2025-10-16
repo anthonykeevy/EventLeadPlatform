@@ -16,6 +16,7 @@ class SignupRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=128, description="User's password")
     first_name: str = Field(..., min_length=1, max_length=50, description="User's first name")
     last_name: str = Field(..., min_length=1, max_length=50, description="User's last name")
+    invitation_token: Optional[str] = Field(None, description="Optional invitation token for team signup")
     
     class Config:
         json_schema_extra = {
@@ -23,7 +24,8 @@ class SignupRequest(BaseModel):
                 "email": "john.doe@example.com",
                 "password": "MySecureP@ss123",
                 "first_name": "John",
-                "last_name": "Doe"
+                "last_name": "Doe",
+                "invitation_token": "abc123xyz789"
             }
         }
 

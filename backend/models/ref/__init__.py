@@ -5,6 +5,7 @@ Lookup/reference data tables for the application
 from models.ref.country import Country
 from models.ref.language import Language
 from models.ref.industry import Industry
+from models.ref.timezone import Timezone
 from models.ref.user_status import UserStatus
 from models.ref.user_invitation_status import UserInvitationStatus
 from models.ref.user_role import UserRole
@@ -20,6 +21,7 @@ __all__ = [
     "Country",
     "Language",
     "Industry",
+    "Timezone",
     "UserStatus",
     "UserInvitationStatus",
     "UserRole",

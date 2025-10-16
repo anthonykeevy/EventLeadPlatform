@@ -1,0 +1,109 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>5</storyId>
+    <title>First-Time User Onboarding</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.5.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.5.1" priority="high">
+      <statement>Protected endpoint for completing user details (requires authentication)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/users/me/details requires valid JWT; unauthenticated request returns 401</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.2" priority="high">
+      <statement>User can update: phone number, timezone, profile information</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>User details updated in database; phone and timezone validated</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.3" priority="high">
+      <statement>Protected endpoint for creating first company (requires authentication)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/companies requires valid JWT; creates company record</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.4" priority="high">
+      <statement>Company created with name, ABN/ACN, address details</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Company record created with all provided details; ABN/ACN validated if provided</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.5" priority="critical">
+      <statement>UserCompany relationship created with role = "company_admin"</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>UserCompany record created linking user to company with Role='company_admin', IsActive=true</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.6" priority="high">
+      <statement>JWT refreshed to include role and company_id</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>New access token returned with role='company_admin' and company_id in payload</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.7" priority="medium">
+      <statement>All operations logged to audit tables</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>User updates logged to audit.UserAudit; company creation logged to audit.CompanyAudit</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.8" priority="high">
+      <statement>User cannot create company if already has active company</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>User with existing active company receives 400 error when attempting to create another</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.9" priority="medium">
+      <statement>ABN/ACN validation (optional, Australian format)</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Valid ABN (11 digits with checksum) and ACN (9 digits with checksum) accepted; invalid rejected</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.5.10" priority="medium">
+      <statement>Timezone validation against ref.Timezone table</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Only valid TimezoneID from ref.Timezone accepted; invalid timezone returns 400</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.1</id>
+      <description>User Signup - Provides verified users for onboarding</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.2</id>
+      <description>Login & JWT - Users must be authenticated for onboarding</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.3</id>
+      <description>RBAC Middleware - Protected endpoints require authentication</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="flow">
+      Onboarding sequence: (1) User signs up and verifies email, (2) User logs in (JWT has no role/company), (3) User updates profile, (4) User creates company, (5) UserCompany created with role='company_admin', (6) New JWT issued with role and company_id, (7) User can now access company-admin endpoints.
+    </note>
+    <note type="integration">
+      After company creation, immediately issue new JWT with updated role and company_id. This allows seamless transition to company-scoped endpoints without requiring re-login.
+    </note>
+  </notes>
+</story-context>
+

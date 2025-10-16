@@ -12,12 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from middleware import RequestLoggingMiddleware, global_exception_handler
 from common.logger import configure_logging
 
-# Import routers (these will be created in future stories)
-# For now, using placeholder since routes don't exist yet
-has_routers = False
-auth_router = None  # type: ignore
-companies_router = None  # type: ignore
-team_router = None  # type: ignore
+# Import routers
+from modules.auth import auth_router
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -49,11 +45,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers (only if they exist)
-if has_routers:
-    app.include_router(auth_router)
-    app.include_router(companies_router)
-    app.include_router(team_router)
+# Include routers
+app.include_router(auth_router)
 
 @app.get("/")
 async def root():

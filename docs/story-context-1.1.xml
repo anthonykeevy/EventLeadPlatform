@@ -1,0 +1,112 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>User Signup & Email Verification</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.1.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.1.1" priority="high">
+      <statement>Public signup endpoint accepts email, password, first name, last name</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/auth/signup with valid data creates user and returns success</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.2" priority="high">
+      <statement>Password meets security requirements (min 8 chars, uppercase, lowercase, number, special char)</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Password validation function enforces all requirements; weak passwords rejected</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.3" priority="high">
+      <statement>Email uniqueness validated (no duplicate accounts)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Duplicate email returns 400 error; existing user not overwritten</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.4" priority="critical">
+      <statement>Password hashed with bcrypt before storage</statement>
+      <validation>
+        <method>Unit Test + Database Query</method>
+        <success_condition>PasswordHash in database never contains plaintext; bcrypt hash format verified</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.5" priority="high">
+      <statement>User created with EmailVerified = false, IsActive = false</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>New user record has EmailVerified=false and IsActive=false</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.6" priority="high">
+      <statement>Email verification token generated and stored in ref.Token table</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Token record created with TokenType='EMAIL_VERIFICATION', 24-hour expiry, IsUsed=false</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.7" priority="high">
+      <statement>Verification email sent automatically using email service (Story 0.3)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Email logged to log.EmailDelivery; email appears in MailHog (dev); signup returns immediately (async)</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.8" priority="high">
+      <statement>Public verification endpoint validates token and activates account</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/auth/verify-email with valid token sets EmailVerified=true, IsActive=true, marks token as used</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.9" priority="high">
+      <statement>Token expiry enforced (24 hours from creation)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Expired token (>24 hours old) returns 400 error; account not activated</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.1.10" priority="medium">
+      <statement>All signup and verification events logged to audit.UserAudit and log.AuthEvent</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>SIGNUP and EMAIL_VERIFICATION events logged with UserID, RequestID, timestamp</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 0.1</id>
+      <description>Database Models - Provides User, Token, UserStatus, UserAudit, AuthEvent tables</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 0.2</id>
+      <description>Automated Logging - Provides request context and auth event logging</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 0.3</id>
+      <description>Email Service - Provides email sending with templates and logging</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="security">
+      Password strength validation is critical. Use comprehensive regex patterns and consider implementing password strength meter on frontend. Never store passwords in plaintext. Use bcrypt with cost factor 12 minimum.
+    </note>
+    <note type="integration">
+      This story establishes the foundation for user authentication. The email verification flow is critical for security - unverified users cannot log in (checked in Story 1.2).
+    </note>
+    <note type="future">
+      Future enhancements: (1) Add password strength meter on frontend, (2) Implement "resend verification email" endpoint, (3) Add SMS verification as alternative, (4) Implement social OAuth (Google, Microsoft).
+    </note>
+  </notes>
+</story-context>
+

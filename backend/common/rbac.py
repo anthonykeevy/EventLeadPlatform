@@ -184,3 +184,42 @@ def require_company_access(user: CurrentUser, company_id: int) -> None:
             detail="Access denied. You do not have permission to access this company's resources."
         )
 
+
+def require_company_admin_for_company(user: CurrentUser, company_id: int) -> None:
+    """
+    Require user to be company admin AND belong to specific company.
+    
+    Combines role check and company membership check for admin-only
+    company operations (like sending invitations).
+    
+    Args:
+        user: CurrentUser instance
+        company_id: Required company ID
+        
+    Raises:
+        HTTPException: 403 if not admin or doesn't belong to company
+        
+    Example:
+        @router.post("/companies/{company_id}/invite")
+        async def invite_user(
+            company_id: int,
+            current_user: CurrentUser = Depends(get_current_user)
+        ):
+            require_company_admin_for_company(current_user, company_id)
+            # Proceed with invitation
+            pass
+    """
+    # Check role
+    if not is_company_admin(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This action requires company_admin role"
+        )
+    
+    # Check company membership
+    if not belongs_to_company(user, company_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this company"
+        )
+

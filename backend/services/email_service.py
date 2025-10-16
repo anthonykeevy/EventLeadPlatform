@@ -346,6 +346,57 @@ class EmailService:
                 "reset_link": reset_link
             }
         )
+    
+    async def send_team_invitation_email(
+        self,
+        to: str,
+        invitee_name: str,
+        inviter_name: str,
+        company_name: str,
+        role_name: str,
+        invitation_url: str,
+        expiry_days: int = 7
+    ) -> bool:
+        """
+        Send team invitation email with invitation link.
+        
+        Args:
+            to: Recipient email address
+            invitee_name: Name of person being invited
+            inviter_name: Name of person sending invitation
+            company_name: Company name
+            role_name: Role being assigned
+            invitation_url: Invitation acceptance URL with token
+            expiry_days: Days until invitation expires
+            
+        Returns:
+            True if email sent successfully, False otherwise
+            
+        Example:
+            email_service = get_email_service()
+            await email_service.send_team_invitation_email(
+                to="jane@example.com",
+                invitee_name="Jane Smith",
+                inviter_name="John Doe",
+                company_name="Acme Events",
+                role_name="Team Member",
+                invitation_url="https://app.example.com/invitations/accept?token=abc123",
+                expiry_days=7
+            )
+        """
+        return await self.send_email(
+            to=to,
+            subject=f"{inviter_name} invited you to join {company_name}",
+            template_name="team_invitation",
+            template_vars={
+                "invitee_name": invitee_name,
+                "inviter_name": inviter_name,
+                "company_name": company_name,
+                "role_name": role_name,
+                "invitation_url": invitation_url,
+                "expiry_days": expiry_days
+            }
+        )
 
 
 def get_email_service() -> EmailService:

@@ -4,7 +4,7 @@ Tests JWT token creation, decoding, and validation
 """
 import pytest
 from datetime import datetime, timedelta
-from jose import jwt, JWTError
+from jose import jwt, JWTError  # type: ignore
 
 from modules.auth.jwt_service import (
     create_access_token,

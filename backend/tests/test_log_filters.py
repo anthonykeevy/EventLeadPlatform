@@ -157,13 +157,13 @@ def test_sanitize_stack_trace_api_keys():
     """Test AC-0.2.9: API keys removed from stack traces"""
     stack_trace = """
     Error: Failed to authenticate
-    api_key = "sk_live_1234567890abcdef1234567890abcdef"
+    api_key = "sk_test_FAKE_KEY_FOR_TESTING_ONLY_NOT_REAL"
     """
     
     sanitized = sanitize_stack_trace(stack_trace)
     
     assert "api_key=[REDACTED]" in sanitized
-    assert "sk_live_1234567890abcdef1234567890abcdef" not in sanitized
+    assert "sk_test_FAKE_KEY_FOR_TESTING_ONLY_NOT_REAL" not in sanitized
 
 
 def test_sanitize_stack_trace_passwords():

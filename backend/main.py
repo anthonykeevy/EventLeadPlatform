@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import middleware and exception handlers
-from middleware import RequestLoggingMiddleware, global_exception_handler
+from middleware import RequestLoggingMiddleware, JWTAuthMiddleware, global_exception_handler
 from common.logger import configure_logging
 
 # Import routers
@@ -33,7 +33,10 @@ app.add_exception_handler(Exception, global_exception_handler)
 # 1. Request logging middleware (logs all requests automatically)
 app.add_middleware(RequestLoggingMiddleware)
 
-# 2. CORS middleware (allow frontend to call backend)
+# 2. JWT authentication middleware (validates tokens and injects current user)
+app.add_middleware(JWTAuthMiddleware)
+
+# 3. CORS middleware (allow frontend to call backend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

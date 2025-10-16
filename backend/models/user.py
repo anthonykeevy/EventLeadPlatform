@@ -4,7 +4,7 @@ Core user entity with authentication and profile information
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from backend.common.database import Base
+from common.database import Base
 
 
 class User(Base):

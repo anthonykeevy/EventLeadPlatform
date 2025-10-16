@@ -4,7 +4,7 @@ Audit trail for role changes (system and company roles)
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from backend.common.database import Base
+from common.database import Base
 
 
 class RoleAudit(Base):

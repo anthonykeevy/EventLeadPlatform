@@ -6,7 +6,7 @@ This module exports all models and ensures they are registered with SQLAlchemy B
 Import from this module to ensure proper model discovery and relationship resolution.
 
 Usage:
-    from backend.models import User, Company, UserCompany
+    from models import User, Company, UserCompany
     
 Organization:
     - ref: Reference/lookup tables (13 models)
@@ -137,7 +137,7 @@ def validate_models() -> None:
     Raises:
         RuntimeError: If models are not properly registered
     """
-    from backend.common.database import Base
+    from common.database import Base
     
     expected_count = 33
     actual_count = len(__all__)

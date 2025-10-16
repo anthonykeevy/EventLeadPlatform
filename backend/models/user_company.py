@@ -4,7 +4,7 @@ Junction table linking users to companies with roles and status
 """
 from sqlalchemy import Column, BigInteger, Boolean, DateTime, String, func, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
-from backend.common.database import Base
+from common.database import Base
 
 
 class UserCompany(Base):

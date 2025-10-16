@@ -4,7 +4,7 @@ Event organizer-specific details for companies (1-to-1 with Company)
 """
 from sqlalchemy import Column, BigInteger, String, Integer, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from backend.common.database import Base
+from common.database import Base
 
 
 class CompanyOrganizerDetails(Base):

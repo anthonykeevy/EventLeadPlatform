@@ -15,7 +15,8 @@ from datetime import datetime, timedelta
 # Import your FastAPI app and database models
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+# Add project root to path (not backend/) to support 'backend.' prefix imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from main import app
 from backend.common.database import Base, get_db

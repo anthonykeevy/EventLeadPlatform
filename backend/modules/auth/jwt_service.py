@@ -54,7 +54,7 @@ def create_access_token(
     expire = now + timedelta(minutes=get_access_token_expire_minutes(db))
     
     payload: Dict[str, Any] = {
-        "sub": user_id,
+        "sub": str(user_id),  # JWT spec requires 'sub' to be a string
         "email": email,
         "type": "access",
         "exp": expire,
@@ -95,7 +95,7 @@ def create_refresh_token(db: Session, user_id: int) -> str:
     expire = now + timedelta(days=get_refresh_token_expire_days(db))
     
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),  # JWT spec requires 'sub' to be a string
         "type": "refresh",
         "exp": expire,
         "iat": now

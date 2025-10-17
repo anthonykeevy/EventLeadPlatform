@@ -1,0 +1,110 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>13</storyId>
+    <title>Configuration Service Implementation (Simplified Design)</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.13.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.13.1" priority="critical">
+      <statement>AppSetting table stores runtime-changeable configuration</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Settings stored with key, value, type, category, description; IsActive and IsDeleted flags work</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.2" priority="high">
+      <statement>Configuration API returns all active settings</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET /api/config/settings returns settings grouped by category; only active, non-deleted settings returned</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.3" priority="high">
+      <statement>Single setting API returns by key</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET /api/config/settings/jwt_access_token_expiry returns single setting with value, type, description</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.4" priority="critical">
+      <statement>Settings cached for 5 minutes (TTL)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Settings cached in Redis; cache expires after 5 minutes; changes effective within 5 minutes</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.5" priority="high">
+      <statement>Setting types enforced (integer, boolean, string, json, decimal)</statement>
+      <validation>
+        <method>Unit Test</method>
+        <success_condition>Type validation on insert/update; type conversion on retrieval; invalid types rejected</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.6" priority="medium">
+      <statement>ValidationRule table stores country-specific validation rules</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Rules stored with country code, field type, regex pattern, error message, example format</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.7" priority="high">
+      <statement>Validation rules API returns filtered by country</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET /api/config/validation-rules?country=AU returns Australian rules only; cached for 5 minutes</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.8" priority="medium">
+      <statement>Settings organized by category for management</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Categories: authentication, validation, email, invitation, security; grouped in API response</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.9" priority="high">
+      <statement>Default values provided for all settings</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>DefaultValue field populated for all settings; fallback if setting deleted or invalid</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.13.10" priority="medium">
+      <statement>Settings changes logged to audit trail</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>UpdatedBy and UpdatedDate tracked; audit log captures old/new values (Epic 2 admin UI)</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 0.1</id>
+      <description>Database Models - Provides AppSetting and ValidationRule tables</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="architecture">
+      Simplified design (AppSetting + ValidationRule) replaces over-engineered ApplicationSpecification hierarchy. See EPIC-1-DATABASE-CONFIGURATION-REDESIGN.md for rationale. No environment-specific or country-specific overrides in Epic 1 (YAGNI principle).
+    </note>
+    <note type="implementation">
+      Use Redis for caching (5-minute TTL). Cache key: `config:settings:all` and `config:settings:{key}`. Invalidate cache on setting updates (Epic 2 admin UI). Parse JSON settings using json.loads(). Type conversion: integer → int(), boolean → bool(), decimal → Decimal().
+    </note>
+    <note type="security">
+      Sensitive settings (API keys, secrets) should NOT be stored in AppSetting table. Use environment variables for secrets. AppSetting for business rules only (JWT expiry, password rules, validation patterns).
+    </note>
+    <note type="epic2">
+      Admin UI for managing settings deferred to Epic 2. In Epic 1, settings managed via database inserts/updates. Epic 2 will add: (1) Admin panel for settings, (2) Validation on setting updates, (3) Audit trail UI, (4) Bulk import/export.
+    </note>
+    <note type="example_settings">
+      Example settings: jwt_access_token_expiry (15 minutes), jwt_refresh_token_expiry (7 days), password_min_length (8), password_require_uppercase (true), invitation_expiry_hours (168), email_verification_expiry_hours (24).
+    </note>
+  </notes>
+</story-context>
+

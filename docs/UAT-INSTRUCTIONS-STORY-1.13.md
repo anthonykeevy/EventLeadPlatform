@@ -31,8 +31,17 @@
 
 ### 1. Start Services
 ```powershell
-cd backend
+# From project root directory (C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform)
 .\scripts\start-services-clean.ps1
+
+# Then start backend (in same or new terminal)
+cd backend
+.\venv\Scripts\activate
+python -m uvicorn main:app --reload
+
+# Then start frontend (in new terminal)
+cd frontend
+npm run dev
 ```
 
 ### 2. Verify Services

@@ -12,9 +12,9 @@ from sqlalchemy import and_
 import json
 import logging
 
-from backend.models.config.app_setting import AppSetting
-from backend.models.ref import SettingCategory, SettingType
-from backend.common.constants import (
+from models.config.app_setting import AppSetting
+from models.ref import SettingCategory, SettingType
+from common.constants import (
     DEFAULT_JWT_ACCESS_EXPIRY_MINUTES,
     DEFAULT_JWT_REFRESH_EXPIRY_DAYS,
     DEFAULT_PASSWORD_MIN_LENGTH,

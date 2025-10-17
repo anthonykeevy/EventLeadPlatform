@@ -11,10 +11,10 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.background import BackgroundTask
 from sqlalchemy.orm import Session
 
-from backend.common.database import SessionLocal
-from backend.common.request_context import set_request_context, clear_request_context
-from backend.common.log_filters import sanitize_query_params
-from backend.models.log.api_request import ApiRequest
+from common.database import SessionLocal
+from common.request_context import set_request_context, clear_request_context
+from common.log_filters import sanitize_query_params
+from models.log.api_request import ApiRequest
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):

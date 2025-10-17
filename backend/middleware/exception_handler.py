@@ -9,10 +9,10 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from backend.common.database import SessionLocal
-from backend.common.request_context import get_current_request_context
-from backend.common.log_filters import sanitize_stack_trace
-from backend.models.log.application_error import ApplicationError
+from common.database import SessionLocal
+from common.request_context import get_current_request_context
+from common.log_filters import sanitize_stack_trace
+from models.log.application_error import ApplicationError
 
 
 async def global_exception_handler(

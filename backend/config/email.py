@@ -87,3 +87,4 @@ class EmailConfig:
         
         return config
 
+

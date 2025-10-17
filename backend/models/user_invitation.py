@@ -4,7 +4,7 @@ Team member invitations for companies
 """
 from sqlalchemy import Column, BigInteger, String, Integer, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class UserInvitation(Base):

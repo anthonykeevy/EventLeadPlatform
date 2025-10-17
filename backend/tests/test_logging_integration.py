@@ -293,3 +293,4 @@ def test_logging_performance(app_with_logging):
     finally:
         db.close()
 
+

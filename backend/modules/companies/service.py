@@ -7,17 +7,17 @@ from sqlalchemy import select
 from typing import Optional, Tuple
 from datetime import datetime
 
-from models.company import Company
-from models.user_company import UserCompany
-from models.user import User
-from models.ref.user_company_role import UserCompanyRole
-from models.ref.user_company_status import UserCompanyStatus
-from models.ref.joined_via import JoinedVia
-from models.ref.country import Country
-from models.ref.industry import Industry
-from models.audit.company_audit import CompanyAudit
-from common.validators import validate_australian_business_number
-from common.logger import get_logger
+from backend.models.company import Company
+from backend.models.user_company import UserCompany
+from backend.models.user import User
+from backend.models.ref.user_company_role import UserCompanyRole
+from backend.models.ref.user_company_status import UserCompanyStatus
+from backend.models.ref.joined_via import JoinedVia
+from backend.models.ref.country import Country
+from backend.models.ref.industry import Industry
+from backend.models.audit.company_audit import CompanyAudit
+from backend.common.validators import validate_australian_business_number
+from backend.common.logger import get_logger
 
 logger = get_logger(__name__)
 

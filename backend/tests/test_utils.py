@@ -7,17 +7,17 @@ from sqlalchemy.orm import Session
 from typing import Optional
 import secrets
 
-from models.user import User
-from models.company import Company
-from models.user_company import UserCompany
-from models.user_invitation import UserInvitation
-from models.ref.user_status import UserStatus
-from models.ref.user_company_status import UserCompanyStatus
-from models.ref.user_company_role import UserCompanyRole
-from models.ref.user_invitation_status import UserInvitationStatus
-from models.ref.joined_via import JoinedVia
-from common.security import hash_password
-from modules.auth.jwt_service import create_access_token
+from backend.models.user import User
+from backend.models.company import Company
+from backend.models.user_company import UserCompany
+from backend.models.user_invitation import UserInvitation
+from backend.models.ref.user_status import UserStatus
+from backend.models.ref.user_company_status import UserCompanyStatus
+from backend.models.ref.user_company_role import UserCompanyRole
+from backend.models.ref.user_invitation_status import UserInvitationStatus
+from backend.models.ref.joined_via import JoinedVia
+from backend.common.security import hash_password
+from backend.modules.auth.jwt_service import create_access_token
 
 
 def create_test_company(

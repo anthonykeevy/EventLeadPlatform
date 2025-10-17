@@ -4,7 +4,7 @@ Subscription tiers for customers
 """
 from sqlalchemy import Column, BigInteger, String, Numeric, Boolean, Integer, DateTime, func
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class CustomerTier(Base):

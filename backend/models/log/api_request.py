@@ -4,7 +4,7 @@ API request logging for performance monitoring and debugging
 """
 from sqlalchemy import Column, BigInteger, String, Integer, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class ApiRequest(Base):

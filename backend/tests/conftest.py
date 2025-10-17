@@ -18,14 +18,14 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main import app
-from common.database import Base, get_db
-from models.user import User  # Import to register model with Base
+from backend.common.database import Base, get_db
+from backend.models.user import User  # Import to register model with Base
 
 # Test database configuration
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL", 
-    "sqlite:///./test_eventlead.db"
-)
+# For Story 1.13 integration tests, we need SQL Server (not SQLite) 
+# due to schema support (config.AppSetting, ref.SettingCategory, etc.)
+TEST_DATABASE_URL = os.getenv("DATABASE_URL")  # Use actual database
+USE_REAL_DB = TEST_DATABASE_URL and "mssql" in TEST_DATABASE_URL.lower()
 
 @pytest.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
@@ -36,26 +36,41 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 
 @pytest.fixture(scope="function")
 def test_db():
-    """Create a test database for each test function."""
-    # Create in-memory SQLite database for testing
-    engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
+    """
+    Create a test database for each test function.
     
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
-    
-    # Create session
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    session = TestingSessionLocal()
-    
-    try:
-        yield session
-    finally:
-        session.close()
-        Base.metadata.drop_all(bind=engine)
+    For Story 1.13 tests that require SQL Server schemas (config.*, ref.*),
+    this will use the actual database connection from DATABASE_URL.
+    For other tests, it falls back to in-memory SQLite.
+    """
+    if USE_REAL_DB:
+        # Use actual SQL Server database for schema-dependent tests
+        from common.database import engine as prod_engine, SessionLocal
+        session = SessionLocal()
+        try:
+            yield session
+        finally:
+            session.close()
+    else:
+        # Create in-memory SQLite database for testing
+        engine = create_engine(
+            "sqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        
+        # Create all tables
+        Base.metadata.create_all(bind=engine)
+        
+        # Create session
+        TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        session = TestingSessionLocal()
+        
+        try:
+            yield session
+        finally:
+            session.close()
+            Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(scope="function")
 def client(test_db) -> TestClient:

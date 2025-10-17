@@ -3,7 +3,7 @@ Timezone Reference Model (ref.Timezone)
 IANA timezone identifiers for user and company localization
 """
 from sqlalchemy import Column, BigInteger, String, Integer, DateTime, func
-from common.database import Base
+from backend.common.database import Base
 
 
 class Timezone(Base):

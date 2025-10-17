@@ -137,7 +137,7 @@ def validate_models() -> None:
     Raises:
         RuntimeError: If models are not properly registered
     """
-    from common.database import Base
+    from backend.common.database import Base
     
     expected_count = 33
     actual_count = len(__all__)

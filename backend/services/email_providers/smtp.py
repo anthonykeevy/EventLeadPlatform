@@ -129,3 +129,4 @@ class SMTPProvider(EmailProvider):
         except Exception as e:
             raise TransientEmailError(f"Unexpected error sending email: {str(e)}")
 
+

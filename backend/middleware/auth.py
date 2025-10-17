@@ -9,9 +9,9 @@ from fastapi import HTTPException, status
 from jose import JWTError  # type: ignore
 from typing import Callable
 
-from modules.auth.jwt_service import decode_token
-from modules.auth.models import CurrentUser
-from common.request_context import update_request_context
+from backend.modules.auth.jwt_service import decode_token
+from backend.modules.auth.models import CurrentUser
+from backend.common.request_context import update_request_context
 
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):

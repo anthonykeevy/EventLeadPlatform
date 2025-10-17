@@ -1,10 +1,13 @@
 """
 JWT Service Module
 Handles JWT token creation, validation, and decoding
+
+Updated for Story 1.13: Token expiry times now read from database (ConfigurationService)
 """
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from jose import jwt, JWTError  # type: ignore
+from sqlalchemy.orm import Session
 
 from config.jwt import (
     get_secret_key,
@@ -15,15 +18,19 @@ from config.jwt import (
 
 
 def create_access_token(
+    db: Session,
     user_id: int,
     email: str,
     role: Optional[str] = None,
     company_id: Optional[int] = None
 ) -> str:
     """
-    Create JWT access token with 1-hour expiry.
+    Create JWT access token with configurable expiry (default: 15 minutes).
+    
+    Story 1.13: Expiry time read from database (config.AppSetting: ACCESS_TOKEN_EXPIRY_MINUTES)
     
     Args:
+        db: Database session (for ConfigurationService)
         user_id: User ID (becomes 'sub' claim)
         email: User email address
         role: User role from UserCompany (optional)
@@ -44,7 +51,7 @@ def create_access_token(
         }
     """
     now = datetime.utcnow()
-    expire = now + timedelta(minutes=get_access_token_expire_minutes())
+    expire = now + timedelta(minutes=get_access_token_expire_minutes(db))
     
     payload: Dict[str, Any] = {
         "sub": user_id,
@@ -63,11 +70,14 @@ def create_access_token(
     return jwt.encode(payload, get_secret_key(), algorithm=get_algorithm())
 
 
-def create_refresh_token(user_id: int) -> str:
+def create_refresh_token(db: Session, user_id: int) -> str:
     """
-    Create JWT refresh token with 7-day expiry.
+    Create JWT refresh token with configurable expiry (default: 7 days).
+    
+    Story 1.13: Expiry time read from database (config.AppSetting: REFRESH_TOKEN_EXPIRY_DAYS)
     
     Args:
+        db: Database session (for ConfigurationService)
         user_id: User ID (becomes 'sub' claim)
         
     Returns:
@@ -82,7 +92,7 @@ def create_refresh_token(user_id: int) -> str:
         }
     """
     now = datetime.utcnow()
-    expire = now + timedelta(days=get_refresh_token_expire_days())
+    expire = now + timedelta(days=get_refresh_token_expire_days(db))
     
     payload = {
         "sub": user_id,

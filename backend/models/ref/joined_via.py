@@ -4,7 +4,7 @@ Methods by which users join companies
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, func
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class JoinedVia(Base):

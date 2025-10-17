@@ -17,6 +17,7 @@ from modules.auth import auth_router
 from modules.users.router import router as users_router
 from modules.companies.router import router as companies_router
 from modules.invitations.router import router as invitations_router
+from modules.config.router import router as config_router, admin_router as config_admin_router
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -56,6 +57,8 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(companies_router)
 app.include_router(invitations_router)
+app.include_router(config_router)  # Story 1.13: Public configuration
+app.include_router(config_admin_router)  # Story 1.13: Admin configuration management
 
 @app.get("/")
 async def root():

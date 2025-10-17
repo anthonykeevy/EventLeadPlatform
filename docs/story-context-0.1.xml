@@ -3,7 +3,8 @@
     <epicId>0</epicId>
     <storyId>1</storyId>
     <title>Database Models & Core Infrastructure</title>
-    <status>Approved</status>
+    <status>Complete</status>
+    <completedAt>2025-10-17</completedAt>
     <generatedAt>2025-10-16</generatedAt>
     <generator>BMAD Story Context Workflow</generator>
     <sourceStoryPath>docs/stories/story-0.1.md</sourceStoryPath>

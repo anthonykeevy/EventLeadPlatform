@@ -4,7 +4,7 @@ Billing and payment details for companies (1-to-1 with Company)
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class CompanyBillingDetails(Base):

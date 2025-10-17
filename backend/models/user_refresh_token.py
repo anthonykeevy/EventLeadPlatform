@@ -4,7 +4,7 @@ Tokens for JWT refresh token workflow
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class UserRefreshToken(Base):
@@ -61,4 +61,5 @@ class UserRefreshToken(Base):
     
     def __repr__(self) -> str:
         return f"<UserRefreshToken(UserID={self.UserID}, IsUsed={self.IsUsed}, IsRevoked={self.IsRevoked}, ExpiresAt='{self.ExpiresAt}')>"
+
 

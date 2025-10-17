@@ -4,7 +4,7 @@ Field-level audit trail for Company table changes
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class CompanyAudit(Base):

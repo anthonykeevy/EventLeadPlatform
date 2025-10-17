@@ -4,7 +4,7 @@ Core user entity with authentication and profile information
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class User(Base):
@@ -108,10 +108,11 @@ class User(Base):
     preferred_language = relationship("Language", back_populates="users", foreign_keys=[PreferredLanguageID])
     user_role = relationship("UserRole", back_populates="users", foreign_keys=[UserRoleID])
     
-    companies = relationship("UserCompany", back_populates="user")
+    companies = relationship("UserCompany", back_populates="user", foreign_keys="[UserCompany.UserID]")
     invitations_sent = relationship("UserInvitation", back_populates="invited_by_user", foreign_keys="[UserInvitation.InvitedBy]")
     verification_tokens = relationship("UserEmailVerificationToken", back_populates="user")
     password_reset_tokens = relationship("UserPasswordResetToken", back_populates="user")
+    refresh_tokens = relationship("UserRefreshToken", back_populates="user")
     
     activity_logs = relationship("ActivityLog", back_populates="user", foreign_keys="[ActivityLog.UserID]")
     auth_events = relationship("AuthEvent", back_populates="user")

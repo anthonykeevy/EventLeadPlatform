@@ -9,9 +9,9 @@ from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status, 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from common.database import get_db
-from common.password_validator import validate_password_strength
-from modules.auth.schemas import (
+from backend.common.database import get_db
+from backend.common.password_validator import validate_password_strength
+from backend.modules.auth.schemas import (
     SignupRequest,
     SignupResponse,
     VerifyEmailRequest,
@@ -26,10 +26,10 @@ from modules.auth.schemas import (
     PasswordResetConfirmResponse,
     ErrorResponse
 )
-from modules.auth.user_service import (
+from backend.modules.auth.user_service import (
     create_user, verify_user_email, get_user_by_email, create_user_with_invitation
 )
-from modules.auth.token_service import (
+from backend.modules.auth.token_service import (
     generate_verification_token,
     validate_token,
     mark_token_used,
@@ -41,23 +41,23 @@ from modules.auth.token_service import (
     mark_password_reset_token_used,
     invalidate_user_password_reset_tokens
 )
-from modules.auth.jwt_service import (
+from backend.modules.auth.jwt_service import (
     create_access_token,
     create_refresh_token,
     decode_token,
     verify_token_type,
     extract_user_id
 )
-from common.security import verify_password, hash_password
-from models.user_company import UserCompany
-from models.ref.user_company_role import UserCompanyRole
+from backend.common.security import verify_password, hash_password
+from backend.models.user_company import UserCompany
+from backend.models.ref.user_company_role import UserCompanyRole
 from jose import JWTError  # type: ignore
-from modules.auth.audit_service import (
+from backend.modules.auth.audit_service import (
     log_auth_event,
     log_user_creation,
     log_email_verification
 )
-from services.email_service import get_email_service
+from backend.services.email_service import get_email_service
 
 logger = logging.getLogger(__name__)
 

@@ -126,3 +126,4 @@ class MailHogProvider(EmailProvider):
         except Exception as e:
             raise TransientEmailError(f"MailHog connection failed: {str(e)}")
 
+

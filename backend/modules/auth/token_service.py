@@ -1,25 +1,29 @@
 """
 Token Service Module
 Handles generation and validation of authentication tokens (email verification, password reset, refresh tokens, etc.)
+
+Updated for Story 1.13: Token expiry times now read from database (ConfigurationService)
 """
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from models.user_email_verification_token import UserEmailVerificationToken
-from models.user_refresh_token import UserRefreshToken
-from models.user_password_reset_token import UserPasswordResetToken
+from backend.models.user_email_verification_token import UserEmailVerificationToken
+from backend.models.user_refresh_token import UserRefreshToken
+from backend.models.user_password_reset_token import UserPasswordResetToken
+from backend.common.config_service import ConfigurationService
 
 
-def generate_verification_token(db: Session, user_id: int, expiry_hours: int = 24) -> str:
+def generate_verification_token(db: Session, user_id: int) -> str:
     """
     Generate and store email verification token.
+    
+    Story 1.13: Expiry time read from database (config.AppSetting: EMAIL_VERIFICATION_EXPIRY_HOURS)
     
     Args:
         db: Database session
         user_id: ID of user to generate token for
-        expiry_hours: Token expiry time in hours (default 24)
         
     Returns:
         Cryptographically secure token string
@@ -29,6 +33,10 @@ def generate_verification_token(db: Session, user_id: int, expiry_hours: int = 2
         - 32 bytes = 43 base64 characters
         - Tokens are single-use and have expiration
     """
+    # Get expiry from configuration service
+    config = ConfigurationService(db)
+    expiry_hours = config.get_email_verification_expiry_hours()
+    
     # Generate cryptographically secure token (32 bytes = 43 URL-safe chars)
     token_value = secrets.token_urlsafe(32)
     
@@ -135,14 +143,15 @@ def invalidate_user_verification_tokens(
 # Password Reset Token Functions
 # ============================================================================
 
-def generate_password_reset_token(db: Session, user_id: int, expiry_hours: int = 1) -> str:
+def generate_password_reset_token(db: Session, user_id: int) -> str:
     """
     Generate and store password reset token.
+    
+    Story 1.13: Expiry time read from database (config.AppSetting: PASSWORD_RESET_EXPIRY_HOURS)
     
     Args:
         db: Database session
         user_id: ID of user to generate token for
-        expiry_hours: Token expiry time in hours (default 1)
         
     Returns:
         Cryptographically secure token string
@@ -150,16 +159,20 @@ def generate_password_reset_token(db: Session, user_id: int, expiry_hours: int =
     Security Notes:
         - Uses secrets.token_urlsafe() for cryptographic randomness
         - 32 bytes = 43 base64 characters
-        - Tokens are single-use and expire after 1 hour
+        - Tokens are single-use and expire after configurable time (default 1 hour)
         - Invalidates any existing unused password reset tokens
     """
     # Invalidate any existing unused password reset tokens for this user
     invalidate_user_password_reset_tokens(db, user_id)
     
+    # Get expiry from configuration service
+    config = ConfigurationService(db)
+    expiry_hours = config.get_password_reset_expiry_hours()
+    
     # Generate cryptographically secure token (32 bytes = 43 URL-safe chars)
     token_value = secrets.token_urlsafe(32)
     
-    # Calculate expiry time (1 hour for security)
+    # Calculate expiry time
     expires_at = datetime.utcnow() + timedelta(hours=expiry_hours)
     
     # Create token record
@@ -269,21 +282,25 @@ def invalidate_user_password_reset_tokens(
 def store_refresh_token(
     db: Session,
     user_id: int,
-    token_value: str,
-    expiry_days: int = 7
+    token_value: str
 ) -> UserRefreshToken:
     """
     Store JWT refresh token in database.
+    
+    Story 1.13: Expiry time read from database (config.AppSetting: REFRESH_TOKEN_EXPIRY_DAYS)
     
     Args:
         db: Database session
         user_id: ID of user the token belongs to
         token_value: JWT refresh token string
-        expiry_days: Token expiry time in days (default 7)
         
     Returns:
         Created UserRefreshToken record
     """
+    # Get expiry from configuration service
+    config = ConfigurationService(db)
+    expiry_days = config.get_jwt_refresh_expiry_days()
+    
     expires_at = datetime.utcnow() + timedelta(days=expiry_days)
     
     token = UserRefreshToken(

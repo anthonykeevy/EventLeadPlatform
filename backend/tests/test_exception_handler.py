@@ -190,3 +190,4 @@ def test_global_exception_handler_handles_database_error_gracefully(app_with_exc
         assert response.status_code == 500
         assert mock_db.rollback.called
 
+

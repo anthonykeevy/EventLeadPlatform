@@ -4,7 +4,7 @@ Cache for Australian Business Register (ABR) API search results
 """
 from sqlalchemy import Column, BigInteger, String, Integer, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from common.database import Base
+from backend.common.database import Base
 
 
 class ABRSearch(Base):

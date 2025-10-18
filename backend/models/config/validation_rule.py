@@ -22,6 +22,9 @@ class ValidationRule(Base):
         ValidationPattern: Regex pattern for validation
         ValidationMessage: Error message when validation fails
         Description: Human-readable description of the rule
+        MinLength: Minimum length constraint (quick validation before regex)
+        MaxLength: Maximum length constraint (quick validation before regex)
+        ExampleValue: Example valid value for user guidance
         IsActive: Whether rule is active
         Priority: Priority when multiple rules match (higher = higher priority)
     """
@@ -44,6 +47,11 @@ class ValidationRule(Base):
     # Foreign Keys
     RuleTypeID = Column(BigInteger, ForeignKey('ref.RuleType.RuleTypeID'), nullable=False, index=True)
     CountryID = Column(BigInteger, ForeignKey('ref.Country.CountryID'), nullable=True, index=True)
+    
+    # Validation Constraints (Story 1.12 enhancement)
+    MinLength = Column(Integer, nullable=True)
+    MaxLength = Column(Integer, nullable=True)
+    ExampleValue = Column(String(100), nullable=True)
     
     # Status and Priority
     IsActive = Column(Boolean, nullable=False, default=True, index=True)

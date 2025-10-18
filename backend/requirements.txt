@@ -17,6 +17,9 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.2.1
 
+# Validation & International  
+phonenumbers==8.13.47
+
 # HTTP & External APIs
 httpx==0.28.1
 stripe==12.5.0

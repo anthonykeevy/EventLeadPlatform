@@ -1,11 +1,12 @@
 # Story 1.13: Configuration Service Implementation (Simplified Design)
 
-**Status:** ✅ Complete  
+**Status:** ✅ Backend Complete, 🟡 UAT Deferred  
 **Priority:** Critical  
 **Actual Lines:** ~1,700 (production) + ~770 (tests)  
 **Dependencies:** Story 0.1 (Database Models), Story 1.12 (ValidationRule table)  
 **Completed:** October 17, 2025  
-**Tests:** Backend 21/21 (100%), Frontend 14/14 (100%)
+**Tests:** Backend 21/21 (100%), Frontend 14/14 (100%)  
+**UAT Status:** Deferred to Story 1.10 (requires auth UI implementation)
 
 ---
 
@@ -751,6 +752,64 @@ ValidationRule (Country-Specific - Story 1.12)
 - If frontend doesn't sync: Fix frontend caching or polling
 - If admin cannot change: Simplify admin interface
 - If validation doesn't work: Improve validation logic
+
+---
+
+## User Acceptance Testing (UAT)
+
+**UAT Status:** 🟡 **Deferred to Story 1.10**
+
+### Reason for Deferral
+
+Full UAT scenarios for Story 1.13 require:
+- ✅ Backend configuration service (Complete)
+- ✅ Public `/api/config` endpoint (Complete & Verified)
+- ❌ Authentication UI (signup/login screens) - **Not yet implemented**
+- ❌ Admin UI interface - **Not yet implemented**
+- ❌ User session management - **Required for admin endpoints**
+
+**Decision:** Rather than create temporary test accounts or bypass authentication for UAT, we will defer comprehensive UAT testing until Story 1.10 (Enhanced ABR Search Implementation), which will require a complete authentication flow and admin interface.
+
+### What Was Validated (October 18, 2025)
+
+✅ **Backend Functionality:**
+- Configuration service starts successfully
+- Public endpoint responds: `GET http://localhost:8000/api/config`
+- Returns correct configuration values (12 core settings)
+- Integration tests: 21/21 passing (100%)
+- Database schema: Verified correct (test records cleaned up)
+
+✅ **Frontend Integration:**
+- Frontend builds and starts successfully
+- Config hook implemented and tested
+- Frontend tests: 14/14 passing (100%)
+
+### UAT Scenarios to Execute in Story 1.10
+
+The following scenarios from `docs/UAT-INSTRUCTIONS-STORY-1.13.md` will be executed when auth UI is available:
+
+1. **Scenario 1:** Admin Changes JWT Token Expiry (Runtime Configuration Changes)
+2. **Scenario 2:** Admin Changes Password Minimum Length (Validation Rules)
+3. **Scenario 3:** Configuration Fallback on Database Unavailable (Resilience)
+4. **Scenario 4:** Configuration Changes Are Audited (Compliance)
+5. **Scenario 5:** Frontend Receives Configuration Updates (User Experience)
+6. **Scenario 6:** Multiple Configuration Changes (Concurrency)
+7. **Scenario 7:** Invalid Configuration Rejected (Data Integrity)
+
+### Success Criteria Met (Backend)
+
+✅ All acceptance criteria for Story 1.13 backend implementation are met:
+- AC-1.13.1: AppSetting table ✅
+- AC-1.13.2: Required settings (12 core settings) ✅
+- AC-1.13.3: ConfigurationService implementation ✅
+- AC-1.13.4: Type conversion ✅
+- AC-1.13.5: Code defaults fallback ✅
+- AC-1.13.6: Service integration (JWT, Password, Token) ✅
+- AC-1.13.7: Public config API endpoint ✅
+- AC-1.13.8: Admin config endpoints ✅
+- AC-1.13.9: Frontend configuration hook ✅
+
+**Full UAT Instructions:** See `docs/UAT-INSTRUCTIONS-STORY-1.13.md`
 
 ---
 

@@ -8,15 +8,15 @@ from sqlalchemy import select, and_, func
 from typing import Optional, List, Tuple
 from datetime import datetime, timedelta
 
-from backend.models.user_invitation import UserInvitation
-from backend.models.user import User
-from backend.models.user_company import UserCompany
-from backend.models.company import Company
-from backend.models.ref.user_invitation_status import UserInvitationStatus
-from backend.models.ref.user_company_role import UserCompanyRole
-from backend.models.ref.user_company_status import UserCompanyStatus
-from backend.models.audit.activity_log import ActivityLog
-from backend.common.logger import get_logger
+from models.user_invitation import UserInvitation
+from models.user import User
+from models.user_company import UserCompany
+from models.company import Company
+from models.ref.user_invitation_status import UserInvitationStatus
+from models.ref.user_company_role import UserCompanyRole
+from models.ref.user_company_status import UserCompanyStatus
+from models.audit.activity_log import ActivityLog
+from common.logger import get_logger
 import json
 
 logger = get_logger(__name__)

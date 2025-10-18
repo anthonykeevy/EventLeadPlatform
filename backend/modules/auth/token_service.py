@@ -9,10 +9,10 @@ from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from backend.models.user_email_verification_token import UserEmailVerificationToken
-from backend.models.user_refresh_token import UserRefreshToken
-from backend.models.user_password_reset_token import UserPasswordResetToken
-from backend.common.config_service import ConfigurationService
+from models.user_email_verification_token import UserEmailVerificationToken
+from models.user_refresh_token import UserRefreshToken
+from models.user_password_reset_token import UserPasswordResetToken
+from common.config_service import ConfigurationService
 
 
 def generate_verification_token(db: Session, user_id: int) -> str:

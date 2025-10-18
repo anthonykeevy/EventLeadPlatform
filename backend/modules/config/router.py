@@ -23,7 +23,7 @@ from modules.config.schemas import (
     CacheInvalidationResponse,
 )
 # from modules.auth.dependencies import require_role  # TODO: Uncomment when auth is integrated
-# from backend.common.constants import UserRole  # TODO: Uncomment when auth is integrated
+# from common.constants import UserRole  # TODO: Uncomment when auth is integrated
 
 
 router = APIRouter(prefix="/api/config", tags=["Configuration"])

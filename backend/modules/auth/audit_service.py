@@ -7,9 +7,9 @@ from typing import Optional, Dict, Any
 import json
 from sqlalchemy.orm import Session
 
-from backend.models.log.auth_event import AuthEvent
-from backend.models.audit.user_audit import UserAudit
-from backend.common.request_context import get_current_request_context
+from models.log.auth_event import AuthEvent
+from models.audit.user_audit import UserAudit
+from common.request_context import get_current_request_context
 
 
 def log_auth_event(

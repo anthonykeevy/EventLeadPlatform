@@ -8,12 +8,12 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound, UndefinedError
 
-from backend.common.database import SessionLocal
-from backend.common.request_context import get_current_request_context
-from backend.models.log.email_delivery import EmailDelivery
-from backend.services.email_providers import EmailProvider, MailHogProvider, SMTPProvider
-from backend.services.email_providers.mailhog import TransientEmailError, PermanentEmailError
-from backend.config.email import EmailConfig
+from common.database import SessionLocal
+from common.request_context import get_current_request_context
+from models.log.email_delivery import EmailDelivery
+from services.email_providers import EmailProvider, MailHogProvider, SMTPProvider
+from services.email_providers.mailhog import TransientEmailError, PermanentEmailError
+from config.email import EmailConfig
 
 
 class EmailService:

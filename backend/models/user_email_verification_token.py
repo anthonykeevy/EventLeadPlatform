@@ -4,7 +4,7 @@ Tokens for email verification workflow
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-from backend.common.database import Base
+from common.database import Base
 
 
 class UserEmailVerificationToken(Base):

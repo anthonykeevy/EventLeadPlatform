@@ -4,7 +4,7 @@ Country-specific validation rules for form fields
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, func, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
-from backend.common.database import Base
+from common.database import Base
 
 
 class ValidationRule(Base):

@@ -8,16 +8,16 @@ from typing import Optional, Tuple
 from datetime import datetime
 import json
 
-from backend.models.user_invitation import UserInvitation
-from backend.models.user import User
-from backend.models.user_company import UserCompany
-from backend.models.company import Company
-from backend.models.ref.user_company_role import UserCompanyRole
-from backend.models.ref.user_company_status import UserCompanyStatus
-from backend.models.ref.user_invitation_status import UserInvitationStatus
-from backend.models.ref.joined_via import JoinedVia
-from backend.models.audit.activity_log import ActivityLog
-from backend.common.logger import get_logger
+from models.user_invitation import UserInvitation
+from models.user import User
+from models.user_company import UserCompany
+from models.company import Company
+from models.ref.user_company_role import UserCompanyRole
+from models.ref.user_company_status import UserCompanyStatus
+from models.ref.user_invitation_status import UserInvitationStatus
+from models.ref.joined_via import JoinedVia
+from models.audit.activity_log import ActivityLog
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 

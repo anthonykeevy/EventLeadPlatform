@@ -7,19 +7,19 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import List
 
-from backend.common.database import get_db
-from backend.modules.auth.dependencies import get_current_user
-from backend.modules.auth.models import CurrentUser
-from backend.modules.auth.jwt_service import create_access_token, create_refresh_token
-from backend.models.company import Company
-from backend.models.ref.user_company_role import UserCompanyRole
-from backend.modules.invitations.schemas import (
+from common.database import get_db
+from modules.auth.dependencies import get_current_user
+from modules.auth.models import CurrentUser
+from modules.auth.jwt_service import create_access_token, create_refresh_token
+from models.company import Company
+from models.ref.user_company_role import UserCompanyRole
+from modules.invitations.schemas import (
     SwitchCompanyRequest, SwitchCompanyResponse, UserCompanyInfo
 )
-from backend.modules.invitations.service import switch_company, get_user_companies
+from modules.invitations.service import switch_company, get_user_companies
 from .schemas import UpdateUserDetailsSchema, UpdateUserDetailsResponse, UserProfileResponse
 from .service import update_user_details, get_user_profile
-from backend.common.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 

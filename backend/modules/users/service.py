@@ -7,10 +7,10 @@ from sqlalchemy import select
 from typing import Optional
 from datetime import datetime
 
-from backend.models.user import User
-from backend.models.ref.timezone import Timezone
-from backend.models.audit.user_audit import UserAudit
-from backend.common.logger import get_logger
+from models.user import User
+from models.ref.timezone import Timezone
+from models.audit.user_audit import UserAudit
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -8,16 +8,16 @@ from sqlalchemy import select
 from typing import Optional
 import os
 
-from backend.common.database import get_db
-from backend.modules.auth.dependencies import get_current_user
-from backend.modules.auth.models import CurrentUser
-from backend.modules.auth.jwt_service import create_access_token, create_refresh_token
-from backend.common.rbac import require_company_admin_for_company
-from backend.models.user import User
-from backend.models.company import Company
-from backend.models.ref.user_company_role import UserCompanyRole
-from backend.models.ref.user_invitation_status import UserInvitationStatus
-from backend.services.email_service import get_email_service
+from common.database import get_db
+from modules.auth.dependencies import get_current_user
+from modules.auth.models import CurrentUser
+from modules.auth.jwt_service import create_access_token, create_refresh_token
+from common.rbac import require_company_admin_for_company
+from models.user import User
+from models.company import Company
+from models.ref.user_company_role import UserCompanyRole
+from models.ref.user_invitation_status import UserInvitationStatus
+from services.email_service import get_email_service
 from .schemas import (
     CreateCompanySchema, CreateCompanyResponse,
     SendInvitationSchema, SendInvitationResponse,
@@ -30,7 +30,7 @@ from .invitation_service import (
     list_company_invitations, get_invitation_details,
     INVITATION_EXPIRY_DAYS
 )
-from backend.common.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 

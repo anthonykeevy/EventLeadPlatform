@@ -73,7 +73,7 @@ except Exception as e:
 # Test 3: Verify SQLAlchemy registration
 print("\n[Test 3] Verifying SQLAlchemy registration...")
 try:
-    from backend.common.database import Base
+    from common.database import Base
     
     table_count = len(Base.metadata.tables)
     if table_count > 0:
@@ -144,7 +144,7 @@ except AssertionError as e:
 # Test 8: Test security utilities
 print("\n[Test 8] Testing security utilities...")
 try:
-    from backend.common.security import hash_password, verify_password, generate_secure_token
+    from common.security import hash_password, verify_password, generate_secure_token
     
     # Test password hashing
     password = "TestPassword123!"

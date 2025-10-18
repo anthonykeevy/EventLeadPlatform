@@ -4,7 +4,7 @@ Countries supported by the platform with currency, tax, and integration config
 """
 from sqlalchemy import Column, BigInteger, String, Numeric, Boolean, Integer, DateTime, func
 from sqlalchemy.orm import relationship
-from backend.common.database import Base
+from common.database import Base
 
 
 class Country(Base):

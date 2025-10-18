@@ -32,7 +32,7 @@ try:
     print("✓ Key models import successfully")
     
     # Check SQLAlchemy registration
-    from backend.common.database import Base
+    from common.database import Base
     table_count = len(Base.metadata.tables)
     print(f"✓ SQLAlchemy registered {table_count} tables")
     

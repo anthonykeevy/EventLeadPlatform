@@ -5,7 +5,7 @@ Business logic for team member invitations
 import secrets
 from sqlalchemy.orm import Session
 from sqlalchemy import select, and_, func
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 from datetime import datetime, timedelta
 
 from models.user_invitation import UserInvitation
@@ -15,6 +15,7 @@ from models.company import Company
 from models.ref.user_invitation_status import UserInvitationStatus
 from models.ref.user_company_role import UserCompanyRole
 from models.ref.user_company_status import UserCompanyStatus
+from models.ref.joined_via import JoinedVia
 from models.audit.activity_log import ActivityLog
 from common.logger import get_logger
 import json
@@ -34,6 +35,75 @@ def generate_invitation_token() -> str:
         URL-safe token string (64 characters)
     """
     return secrets.token_urlsafe(48)  # 64 characters when base64 encoded
+
+
+async def invite_member(
+    db: Session,
+    company_id: int,
+    invited_by_user_id: int,
+    email: str,
+    first_name: str,
+    last_name: str,
+    role_code: str
+) -> Union[UserInvitation, UserCompany]:
+    """
+    Invites a member to a company. Handles both new and existing users.
+
+    AC-1.11.5: Cross-Company Invitation Support
+    - If user exists but is not in the company, creates a UserCompany record directly.
+    - If user is new, creates a standard UserInvitation.
+    """
+    # Validate role
+    if role_code not in ALLOWED_INVITATION_ROLES:
+        raise ValueError(f"Invalid role. Must be one of: {', '.join(ALLOWED_INVITATION_ROLES)}")
+
+    # Check if user is already an active member of the company
+    if await check_email_in_company(db, company_id, email):
+        raise ValueError("This email already belongs to the company")
+
+    # Check if a user account already exists with this email
+    existing_user = db.execute(select(User).where(User.Email == email)).scalar_one_or_none()
+
+    if existing_user:
+        # User exists, but is not in this company. Add them directly.
+        logger.info(f"Invited user {email} already exists (UserID: {existing_user.UserID}). Adding directly to company {company_id}.")
+
+        # Get role and status IDs
+        role = db.execute(select(UserCompanyRole).where(UserCompanyRole.RoleCode == role_code)).scalar_one()
+        active_status = db.execute(select(UserCompanyStatus).where(UserCompanyStatus.StatusCode == "active")).scalar_one()
+        joined_via_invitation = db.execute(select(JoinedVia).where(JoinedVia.MethodCode == "invitation")).scalar_one()
+
+        if not all([role, active_status, joined_via_invitation]):
+            raise RuntimeError("Core reference data (role, status, or joined_via) is missing.")
+
+        # Create the UserCompany link
+        new_user_company = UserCompany(
+            UserID=existing_user.UserID,
+            CompanyID=company_id,
+            UserCompanyRoleID=role.UserCompanyRoleID,
+            StatusID=active_status.UserCompanyStatusID,
+            IsPrimaryCompany=False, # Never set as primary on invite
+            JoinedViaID=joined_via_invitation.JoinedViaID,
+            InvitedBy=invited_by_user_id,
+            InvitedDate=datetime.utcnow(),
+            CreatedBy=invited_by_user_id,
+            UpdatedBy=invited_by_user_id,
+        )
+        db.add(new_user_company)
+        db.commit()
+        db.refresh(new_user_company)
+        
+        # Log event
+        # TODO: Add to audit log service
+        logger.info(f"Existing user {existing_user.UserID} added to company {company_id} via cross-company invitation.")
+        
+        return new_user_company
+    else:
+        # User does not exist. Create a standard invitation.
+        logger.info(f"Invited user {email} is new. Creating standard invitation.")
+        return await send_invitation(
+            db, company_id, invited_by_user_id, email, first_name, last_name, role_code
+        )
 
 
 async def check_email_in_company(db: Session, company_id: int, email: str) -> bool:

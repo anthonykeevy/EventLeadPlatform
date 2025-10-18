@@ -6,7 +6,7 @@ automatic logging, and retry logic
 import asyncio
 from typing import Dict, Any, Optional
 from datetime import datetime
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound, UndefinedError
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound, UndefinedError, StrictUndefined
 
 from common.database import SessionLocal
 from common.request_context import get_current_request_context
@@ -48,7 +48,7 @@ class EmailService:
         self.template_env = Environment(
             loader=FileSystemLoader("backend/templates/emails"),
             autoescape=True,  # Auto-escape HTML for security
-            undefined=UndefinedError  # Raise error for undefined variables
+            undefined=StrictUndefined  # Raise error for undefined variables
         )
     
     async def send_email(
@@ -395,6 +395,31 @@ class EmailService:
                 "role_name": role_name,
                 "invitation_url": invitation_url,
                 "expiry_days": expiry_days
+            }
+        )
+
+    async def send_added_to_company_email(
+        self,
+        to: str,
+        invitee_name: str,
+        inviter_name: str,
+        company_name: str,
+        role_name: str,
+        dashboard_url: str
+    ) -> bool:
+        """
+        Notify an existing user that they've been added to a new company.
+        """
+        return await self.send_email(
+            to=to,
+            subject=f"You've been added to {company_name}",
+            template_name="added_to_company",
+            template_vars={
+                "invitee_name": invitee_name,
+                "inviter_name": inviter_name,
+                "company_name": company_name,
+                "role_name": role_name,
+                "dashboard_url": dashboard_url
             }
         )
 

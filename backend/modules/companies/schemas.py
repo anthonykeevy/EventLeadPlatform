@@ -2,8 +2,8 @@
 Company Management Schemas
 Pydantic models for company requests/responses
 """
-from pydantic import BaseModel, Field, EmailStr
-from typing import Optional, List
+from pydantic import BaseModel, Field, EmailStr, validator
+from typing import Optional, List, Any, Dict, Union
 from datetime import datetime
 
 
@@ -116,8 +116,8 @@ class SendInvitationResponse(BaseModel):
     """Response schema for sending invitation"""
     success: bool = Field(..., description="Whether invitation was sent")
     message: str = Field(..., description="Human-readable message")
-    invitation_id: int = Field(..., description="Created invitation ID")
-    expires_at: datetime = Field(..., description="When invitation expires")
+    invitation_id: Optional[int] = Field(None, description="Created invitation ID (None for existing users)")
+    expires_at: Optional[datetime] = Field(None, description="When invitation expires (None for existing users)")
     
     class Config:
         json_schema_extra = {
@@ -222,4 +222,237 @@ class CancelInvitationResponse(BaseModel):
                 "invitation_id": 123
             }
         }
+
+
+# ============================================================================
+# ABR Smart Search Schemas (Story 1.10)
+# ============================================================================
+
+class SmartSearchRequest(BaseModel):
+    """
+    Request schema for smart company search
+    
+    Story 1.10: Enhanced ABR Search Implementation
+    AC-1.10.1: Smart Search Auto-Detection
+    """
+    query: str = Field(
+        ..., 
+        min_length=2, 
+        max_length=255,
+        description="Search query (ABN, ACN, or company name)"
+    )
+    max_results: Optional[int] = Field(
+        10,
+        ge=1,
+        le=200,
+        description="Maximum number of results (1-200, default: 10)"
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "query": "Atlassian",
+                "max_results": 10
+            }
+        }
+
+
+class CompanySearchResult(BaseModel):
+    """
+    Individual company search result
+    
+    Story 1.10: AC-1.10.6: Rich Search Results Display
+    """
+    company_name: str = Field(..., description="Company legal name")
+    abn: Optional[str] = Field(None, description="Australian Business Number (11 digits)")
+    abn_formatted: Optional[str] = Field(None, description="ABN with spaces (12 345 678 901)")
+    gst_registered: Optional[bool] = Field(None, description="GST registration status")
+    entity_type: Optional[str] = Field(None, description="Entity type (e.g., 'Australian Private Company')")
+    business_address: Optional[str] = Field(None, description="Primary business address")
+    status: Optional[str] = Field(None, description="Entity status (Active, Cancelled, etc.)")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "company_name": "Atlassian Pty Ltd",
+                "abn": "53102443916",
+                "abn_formatted": "53 102 443 916",
+                "gst_registered": True,
+                "entity_type": "Australian Private Company",
+                "business_address": "341 George Street, Sydney NSW 2000",
+                "status": "Active"
+            }
+        }
+
+
+class SmartSearchResponse(BaseModel):
+    """
+    Response schema for smart company search
+    
+    Story 1.10: AC-1.10.4: Company Name Search Implementation
+    """
+    search_type: str = Field(..., description="Detected search type (ABN, ACN, Name)")
+    query: str = Field(..., description="Original search query")
+    results: List[CompanySearchResult] = Field(..., description="Search results")
+    result_count: int = Field(..., description="Number of results returned")
+    cached: bool = Field(..., description="Whether results were served from cache")
+    response_time_ms: int = Field(..., description="Response time in milliseconds")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "search_type": "Name",
+                "query": "Atlassian",
+                "results": [
+                    {
+                        "company_name": "Atlassian Pty Ltd",
+                        "abn": "53102443916",
+                        "abn_formatted": "53 102 443 916",
+                        "gst_registered": True,
+                        "entity_type": "Australian Private Company",
+                        "business_address": "341 George Street, Sydney NSW 2000",
+                        "status": "Active"
+                    }
+                ],
+                "result_count": 1,
+                "cached": False,
+                "response_time_ms": 1250
+            }
+        }
+
+
+class SearchErrorResponse(BaseModel):
+    """Error response schema for search failures"""
+    error: str = Field(..., description="Error code")
+    message: str = Field(..., description="User-friendly error message")
+    fallback_url: Optional[str] = Field(None, description="Manual entry fallback URL")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "error": "ABR_API_TIMEOUT",
+                "message": "Search is taking longer than expected. Try again or enter details manually.",
+                "fallback_url": "/companies/manual-entry"
+            }
+        }
+
+
+class CacheStatisticsResponse(BaseModel):
+    """
+    Response schema for cache statistics (admin only)
+    
+    Story 1.10: AC-1.10.9: Cache Cleanup & Maintenance
+    AC-1.10.11: Success Rate Metrics
+    """
+    total_cached_searches: int = Field(..., description="Total unique searches cached")
+    total_cache_entries: int = Field(..., description="Total cache entries (including multiple results)")
+    active_cache_entries: int = Field(..., description="Active (non-expired) cache entries")
+    expired_entries: int = Field(..., description="Expired cache entries")
+    cache_hit_rate_percent: float = Field(..., description="Cache hit rate percentage")
+    total_cache_hits: int = Field(..., description="Total cache hits")
+    average_hits_per_search: float = Field(..., description="Average hits per search")
+    popular_searches: List[Dict[str, Any]] = Field(..., description="Top 10 popular searches")
+    search_type_distribution: Dict[str, Dict[str, int]] = Field(..., description="Search type statistics")
+    estimated_api_cost_savings_percent: float = Field(..., description="Estimated API cost savings")
+    cache_ttl_days: int = Field(..., description="Cache TTL in days")
+    generated_at: str = Field(..., description="Statistics generation timestamp")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "total_cached_searches": 1500,
+                "total_cache_entries": 3200,
+                "active_cache_entries": 2800,
+                "expired_entries": 400,
+                "cache_hit_rate_percent": 42.5,
+                "total_cache_hits": 8500,
+                "average_hits_per_search": 5.7,
+                "popular_searches": [
+                    {
+                        "search_type": "Name",
+                        "search_key": "atlassian",
+                        "hit_count": 45,
+                        "last_hit": "2025-10-18T10:30:00Z"
+                    }
+                ],
+                "search_type_distribution": {
+                    "ABN": {"unique_searches": 500, "total_hits": 2000},
+                    "ACN": {"unique_searches": 200, "total_hits": 800},
+                    "Name": {"unique_searches": 800, "total_hits": 5700}
+                },
+                "estimated_api_cost_savings_percent": 40.0,
+                "cache_ttl_days": 30,
+                "generated_at": "2025-10-18T12:00:00Z"
+            }
+        }
+
+
+# ============================================================================
+# Schemas for Company Relationships (Story 1.11)
+# ============================================================================
+
+class CreateRelationshipRequest(BaseModel):
+    related_company_id: int = Field(..., description="The ID of the company to establish a relationship with.")
+    relationship_type: str = Field(..., description="The type of relationship (e.g., 'branch', 'subsidiary', 'partner').")
+    
+    @validator('relationship_type')
+    def validate_relationship_type(cls, v):
+        allowed_types = {'branch', 'subsidiary', 'partner'}
+        if v not in allowed_types:
+            raise ValueError(f"relationship_type must be one of {allowed_types}")
+        return v
+
+class RelationshipResponse(BaseModel):
+    relationship_id: int
+    parent_company_id: int
+    child_company_id: int
+    relationship_type: str
+    status: str
+    established_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class CreateRelationshipResponse(BaseModel):
+    success: bool
+    message: str
+    relationship: RelationshipResponse
+
+
+# ============================================================================
+# Schemas for Access Requests (Story 1.11)
+# ============================================================================
+
+class CreateAccessRequestSchema(BaseModel):
+    reason: Optional[str] = Field(None, max_length=500, description="Optional reason for the access request.")
+
+class AccessRequestResponse(BaseModel):
+    request_id: int = Field(alias="CompanySwitchRequestID")
+    user_id: int = Field(alias="UserID")
+    to_company_id: int = Field(alias="ToCompanyID")
+    status: Union[str, int] = Field(alias="StatusID")  # Can be int (FK) or str (will be populated in router)
+    requested_at: datetime = Field(alias="RequestedAt")
+    reason: Optional[str] = Field(default=None, alias="Reason")
+
+    model_config = {"from_attributes": True, "populate_by_name": True}
+
+class CreateAccessRequestResponse(BaseModel):
+    success: bool
+    message: str
+    request: AccessRequestResponse
+
+class RejectAccessRequestSchema(BaseModel):
+    reason: Optional[str] = Field(None, max_length=500, description="Optional reason for rejecting the request.")
+
+
+class UpdateRelationshipStatusRequest(BaseModel):
+    status: str = Field(..., description="The new status for the relationship ('active', 'suspended', 'terminated').")
+    reason: Optional[str] = Field(None, max_length=500, description="Optional reason for the status change, for audit purposes.")
+
+    @validator('status')
+    def validate_status(cls, v):
+        allowed_statuses = {'active', 'suspended', 'terminated'}
+        if v not in allowed_statuses:
+            raise ValueError(f"status must be one of {allowed_statuses}")
+        return v
 

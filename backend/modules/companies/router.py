@@ -5,7 +5,7 @@ Endpoints for company creation and management
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from typing import Optional
+from typing import Optional, List
 import os
 
 from common.database import get_db
@@ -22,15 +22,33 @@ from .schemas import (
     CreateCompanySchema, CreateCompanyResponse,
     SendInvitationSchema, SendInvitationResponse,
     ListInvitationsResponse, InvitationDetails,
-    ResendInvitationResponse, CancelInvitationResponse
+    ResendInvitationResponse, CancelInvitationResponse,
+    SmartSearchRequest, SmartSearchResponse, SearchErrorResponse,
+    CompanySearchResult, CacheStatisticsResponse,
+    CreateRelationshipRequest, CreateRelationshipResponse, RelationshipResponse,
+    CreateAccessRequestSchema, CreateAccessRequestResponse, AccessRequestResponse,
+    RejectAccessRequestSchema, UpdateRelationshipStatusRequest
 )
 from .service import create_company
 from .invitation_service import (
-    send_invitation, resend_invitation, cancel_invitation,
+    invite_member, resend_invitation, cancel_invitation,
     list_company_invitations, get_invitation_details,
     INVITATION_EXPIRY_DAYS
 )
+from .abr_client import get_abr_client, ABRClientError, ABRTimeoutError, ABRValidationError, ABRAuthenticationError
+from .cache_service import get_cache_service
+from .relationship_service import RelationshipService
+from .access_request_service import AccessRequestService
 from common.logger import get_logger
+import time
+import re
+from models.user_invitation import UserInvitation
+from models.user_company import UserCompany
+from models.company_relationship import CompanyRelationship
+from models.ref.company_relationship_type import CompanyRelationshipType
+from models.company_switch_request import CompanySwitchRequest
+from models.ref.company_switch_request_status import CompanySwitchRequestStatus
+
 
 logger = get_logger(__name__)
 
@@ -92,7 +110,8 @@ async def create_first_company(
         )
         
         refresh_token = create_refresh_token(
-            user_id=current_user.user_id
+            user_id=current_user.user_id,
+            db=db
         )
         
         logger.info(
@@ -142,24 +161,16 @@ async def send_team_invitation(
     db: Session = Depends(get_db)
 ) -> SendInvitationResponse:
     """
-    Send team invitation (AC-1.6.1, AC-1.6.2, AC-1.6.3, AC-1.6.4, AC-1.6.5, AC-1.6.6).
+    Send team invitation, supporting both new and existing users.
     
-    Requires company_admin role and membership in the company.
-    
-    Process:
-    1. Verify admin belongs to company
-    2. Validate role is allowed
-    3. Check email not already in company
-    4. Create invitation with 7-day expiry token
-    5. Send invitation email
-    6. Log to audit
+    AC-1.6 (Invitations), AC-1.11.5 (Cross-Company)
     """
     try:
-        # Verify user is company admin for this company (AC-1.6.1)
+        # Verify user is company admin for this company
         require_company_admin_for_company(current_user, company_id)
         
-        # Send invitation
-        invitation = await send_invitation(
+        # Use the new invite_member service function
+        result = await invite_member(
             db=db,
             company_id=company_id,
             invited_by_user_id=current_user.user_id,
@@ -169,45 +180,49 @@ async def send_team_invitation(
             role_code=request.role
         )
         
-        # Get company and inviter details for email
-        company = db.execute(
-            select(Company).where(Company.CompanyID == company_id)
-        ).scalar_one()
-        
-        inviter = db.execute(
-            select(User).where(User.UserID == current_user.user_id)
-        ).scalar_one()
-        
-        role = db.execute(
-            select(UserCompanyRole).where(UserCompanyRole.RoleCode == request.role)
-        ).scalar_one()
-        
-        # Build invitation URL (AC-1.6.4)
-        invitation_url = f"{FRONTEND_URL}/invitations/accept?token={invitation.InvitationToken}"
-        
-        # Send invitation email (AC-1.6.4)
+        # Get common details for email
+        company = db.get(Company, company_id)
+        inviter = db.get(User, current_user.user_id)
+        role = db.execute(select(UserCompanyRole).where(UserCompanyRole.RoleCode == request.role)).scalar_one()
         email_service = get_email_service()
-        await email_service.send_team_invitation_email(
-            to=request.email,
-            invitee_name=f"{request.first_name} {request.last_name}",
-            inviter_name=f"{inviter.FirstName} {inviter.LastName}",
-            company_name=str(company.CompanyName),
-            role_name=str(role.RoleName),  # type: ignore
-            invitation_url=invitation_url,
-            expiry_days=INVITATION_EXPIRY_DAYS
-        )
-        
-        logger.info(
-            f"Team invitation sent: UserInvitationID={invitation.UserInvitationID}, "
-            f"Email={request.email}, CompanyID={company_id}, InvitedBy={current_user.user_id}"
-        )
-        
-        return SendInvitationResponse(
-            success=True,
-            message="Invitation sent successfully",
-            invitation_id=int(invitation.UserInvitationID),  # type: ignore
-            expires_at=invitation.ExpiresAt  # type: ignore
-        )
+
+        if isinstance(result, UserInvitation):
+            # Case 1: New user was invited, send standard invitation email
+            invitation_url = f"{FRONTEND_URL}/invitations/accept?token={result.InvitationToken}"
+            await email_service.send_team_invitation_email(
+                to=request.email,
+                invitee_name=f"{request.first_name} {request.last_name}",
+                inviter_name=f"{inviter.FirstName} {inviter.LastName}",
+                company_name=company.CompanyName,
+                role_name=role.RoleName,
+                invitation_url=invitation_url,
+                expiry_days=INVITATION_EXPIRY_DAYS
+            )
+            logger.info(f"Standard team invitation sent: UserInvitationID={result.UserInvitationID}")
+            return SendInvitationResponse(
+                success=True,
+                message="Invitation sent successfully to new user.",
+                invitation_id=result.UserInvitationID,
+                expires_at=result.ExpiresAt
+            )
+        elif isinstance(result, UserCompany):
+            # Case 2: Existing user was added directly, send a notification email
+            dashboard_url = f"{FRONTEND_URL}/dashboard"
+            await email_service.send_added_to_company_email(
+                to=request.email,
+                invitee_name=f"{request.first_name} {request.last_name}",
+                inviter_name=f"{inviter.FirstName} {inviter.LastName}",
+                company_name=company.CompanyName,
+                role_name=role.RoleName,
+                dashboard_url=dashboard_url
+            )
+            logger.info(f"Existing user added to company: UserID={result.UserID}, CompanyID={company_id}")
+            return SendInvitationResponse(
+                success=True,
+                message="Existing user has been added to the company.",
+                invitation_id=None, # No invitation record was created
+                expires_at=None
+            )
         
     except ValueError as e:
         logger.warning(f"Invalid invitation request: {str(e)}")
@@ -459,5 +474,556 @@ async def cancel_team_invitation(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to cancel invitation"
+        )
+
+
+# ============================================================================
+# Company Relationship Endpoints (Story 1.11)
+# ============================================================================
+
+@router.post(
+    "/{company_id}/relationships",
+    response_model=CreateRelationshipResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Establish a company relationship",
+    description="Create a relationship (e.g., branch, subsidiary, partner) with another company. Requires company_admin role."
+)
+async def create_company_relationship(
+    company_id: int,
+    request: CreateRelationshipRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> CreateRelationshipResponse:
+    """
+    Establish a relationship between the given company and another one.
+
+    AC-1.11.6: Company Relationship Establishment
+    - Only `company_admin` can create relationships.
+    - Validates user is an admin of the establishing company (`company_id`).
+    - Validates `related_company_id` exists.
+    - Prevents duplicate or circular relationships.
+    - Logs the relationship creation event.
+    """
+    try:
+        # AC-1.11.6: Verify user is company admin for the establishing company
+        require_company_admin_for_company(current_user, company_id)
+
+        # Verify the related company exists
+        related_company = db.get(Company, request.related_company_id)
+        if not related_company:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Company with ID {request.related_company_id} not found."
+            )
+
+        # Establish the relationship via the service
+        relationship_service = RelationshipService(db)
+        
+        user = db.get(User, current_user.user_id)
+        if not user:
+            # This should ideally not happen if JWT is valid
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found.")
+
+        new_relationship = relationship_service.create_relationship(
+            parent_id=company_id,
+            child_id=request.related_company_id,
+            relationship_type_name=request.relationship_type,
+            established_by_user=user
+        )
+
+        # Prepare and return the response
+        response_data = RelationshipResponse(
+            relationship_id=new_relationship.RelationshipID,
+            parent_company_id=new_relationship.ParentCompanyID,
+            child_company_id=new_relationship.ChildCompanyID,
+            relationship_type=request.relationship_type, # Use the name for the response
+            status=new_relationship.Status,
+            established_at=new_relationship.EstablishedAt
+        )
+
+        logger.info(
+            f"Company relationship created: ParentID={company_id}, "
+            f"ChildID={request.related_company_id}, Type={request.relationship_type}, "
+            f"EstablishedBy={current_user.user_id}"
+        )
+
+        return CreateRelationshipResponse(
+            success=True,
+            message="Company relationship established successfully.",
+            relationship=response_data
+        )
+
+    except ValueError as e:
+        logger.warning(f"Invalid relationship request: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating company relationship: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create company relationship."
+        )
+
+
+@router.patch(
+    "/{company_id}/relationships/{relationship_id}",
+    response_model=RelationshipResponse,
+    summary="Update a company relationship status",
+    description="Updates the status of a relationship to 'active', 'suspended', or 'terminated'. Requires company_admin role."
+)
+async def update_company_relationship_status(
+    company_id: int,
+    relationship_id: int,
+    request: UpdateRelationshipStatusRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> RelationshipResponse:
+    """
+    Updates a relationship's status.
+    - User must be an admin of one of the companies in the relationship.
+    """
+    try:
+        relationship_service = RelationshipService(db)
+        relationship = relationship_service.db.get(CompanyRelationship, relationship_id)
+
+        if not relationship:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Relationship not found.")
+
+        # Authorize: user must be an admin of either the parent or child company
+        if not (
+            current_user.company_id == relationship.ParentCompanyID or
+            current_user.company_id == relationship.ChildCompanyID
+        ) or current_user.role != 'company_admin':
+             # A more robust check would verify the user's role in *that specific company*
+             # The require_company_admin_for_company only checks against the path {company_id}
+             # For now, we check if they are an admin of either company involved.
+            parent_admin = db.execute(select(UserCompany).where(UserCompany.UserID == current_user.user_id, UserCompany.CompanyID == relationship.ParentCompanyID, UserCompany.UserCompanyRoleID == 1)).scalar_one_or_none()
+            child_admin = db.execute(select(UserCompany).where(UserCompany.UserID == current_user.user_id, UserCompany.CompanyID == relationship.ChildCompanyID, UserCompany.UserCompanyRoleID == 1)).scalar_one_or_none()
+            if not (parent_admin or child_admin):
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to modify this relationship.")
+
+        user = db.get(User, current_user.user_id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found.")
+
+        updated_relationship = relationship_service.update_relationship_status(
+            relationship_id=relationship_id,
+            status=request.status,
+            updated_by_user=user
+        )
+        
+        rel_type = db.get(CompanyRelationshipType, updated_relationship.RelationshipTypeID)
+
+        return RelationshipResponse(
+            relationship_id=updated_relationship.RelationshipID,
+            parent_company_id=updated_relationship.ParentCompanyID,
+            child_company_id=updated_relationship.ChildCompanyID,
+            relationship_type=rel_type.TypeName,
+            status=updated_relationship.Status,
+            established_at=updated_relationship.EstablishedAt
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating relationship status: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update relationship.")
+
+
+# ============================================================================
+# Access Request Endpoints (Story 1.11)
+# ============================================================================
+
+@router.post(
+    "/{company_id}/access-requests",
+    response_model=CreateAccessRequestResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Request access to a company",
+    description="Allows an authenticated user to request access to a company they are not a member of."
+)
+async def request_company_access(
+    company_id: int,
+    request: CreateAccessRequestSchema,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """AC-1.11.7: Access Request Flow"""
+    try:
+        service = AccessRequestService(db)
+        new_request = service.create_access_request(
+            user_id=current_user.user_id,
+            target_company_id=company_id,
+            reason=request.reason
+        )
+        # TODO: Send notification email to all company admins
+        
+        response_request = AccessRequestResponse.model_validate(new_request)
+        response_request.status = 'pending' # We know this from the create logic
+
+        return CreateAccessRequestResponse(
+            success=True,
+            message="Access request submitted successfully. You will be notified upon review.",
+            request=response_request
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating access request: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not submit access request.")
+
+@router.get(
+    "/{company_id}/access-requests",
+    response_model=List[AccessRequestResponse],
+    summary="List pending access requests for a company",
+    description="For company admins. Retrieves a list of all pending access requests for their company."
+)
+async def list_pending_requests(
+    company_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """AC-1.11.7: Access Request Flow"""
+    require_company_admin_for_company(current_user, company_id)
+    service = AccessRequestService(db)
+    requests = service.get_pending_access_requests(company_id=company_id)
+    
+    response_list = []
+    for req in requests:
+        res = AccessRequestResponse.model_validate(req)
+        res.status = req.status.StatusName
+        response_list.append(res)
+    return response_list
+
+@router.post(
+    "/{company_id}/access-requests/{request_id}/approve",
+    response_model=AccessRequestResponse,
+    summary="Approve an access request",
+    description="For company admins. Approves a pending request, granting the user access to the company."
+)
+async def approve_request(
+    company_id: int,
+    request_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """AC-1.11.7: Access Request Flow"""
+    require_company_admin_for_company(current_user, company_id)
+    service = AccessRequestService(db)
+    try:
+        updated_request = service.approve_access_request(
+            request_id=request_id,
+            approved_by_user_id=current_user.user_id
+        )
+        response = AccessRequestResponse.model_validate(updated_request)
+        response.status = updated_request.status.StatusName
+        return response
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error approving access request {request_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not approve access request.")
+
+@router.post(
+    "/{company_id}/access-requests/{request_id}/reject",
+    response_model=AccessRequestResponse,
+    summary="Reject an access request",
+    description="For company admins. Rejects a pending access request."
+)
+async def reject_request(
+    company_id: int,
+    request_id: int,
+    request: RejectAccessRequestSchema,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """AC-1.11.7: Access Request Flow"""
+    require_company_admin_for_company(current_user, company_id)
+    service = AccessRequestService(db)
+    try:
+        updated_request = service.reject_access_request(
+            request_id=request_id,
+            rejected_by_user_id=current_user.user_id,
+            reason=request.reason
+        )
+        response = AccessRequestResponse.model_validate(updated_request)
+        response.status = updated_request.status.StatusName
+        return response
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error rejecting access request {request_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not reject access request.")
+
+
+# ============================================================================
+# ABR Smart Search Endpoints (Story 1.10)
+# ============================================================================
+
+def detect_search_type(query: str) -> str:
+    """
+    Auto-detect search type based on query format
+    
+    Story 1.10: AC-1.10.1: Smart Search Auto-Detection
+    """
+    # Remove spaces and special characters for digit detection
+    normalized = re.sub(r'[^\w]', '', query.strip())
+    
+    if normalized.isdigit():
+        if len(normalized) == 11:
+            return "ABN"
+        elif len(normalized) == 9:
+            return "ACN"
+    
+    return "Name"
+
+
+@router.post(
+    "/smart-search",
+    response_model=SmartSearchResponse,
+    responses={
+        400: {"model": SearchErrorResponse},
+        408: {"model": SearchErrorResponse},
+        500: {"model": SearchErrorResponse}
+    },
+    summary="Smart company search",
+    description="Search for companies by ABN, ACN, or name with auto-detection and caching"
+)
+async def smart_company_search(
+    request: SmartSearchRequest,
+    current_user: Optional[CurrentUser] = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> SmartSearchResponse:
+    """
+    Smart company search with auto-detection and enterprise caching
+    
+    Story 1.10: Enhanced ABR Search Implementation
+    AC-1.10.1: Smart Search Auto-Detection
+    AC-1.10.2: ABN Search Implementation
+    AC-1.10.3: ACN Search Implementation
+    AC-1.10.4: Company Name Search Implementation
+    AC-1.10.8: Enterprise-Grade Caching
+    
+    Features:
+    - Automatic search type detection (ABN/ACN/Name)
+    - Enterprise-grade caching (30-day TTL)
+    - Rich search results with company details
+    - ~90% search success rate
+    - 300x faster cached results (~5ms vs 500-2000ms)
+    
+    No authentication required (public endpoint).
+    """
+    start_time = time.time()
+    
+    try:
+        # Auto-detect search type
+        search_type = detect_search_type(request.query)
+        
+        logger.info(
+            f"Smart search request: query='{request.query}', "
+            f"detected_type={search_type}, max_results={request.max_results}"
+        )
+        
+        # Get services
+        cache_service = get_cache_service()
+        abr_client = get_abr_client()
+        
+        # Check cache first (AC-1.10.8)
+        cached_results = await cache_service.get_cached_search(
+            db=db,
+            search_type=search_type,
+            search_value=request.query
+        )
+        
+        if cached_results:
+            # Cache hit - return cached results
+            response_time_ms = int((time.time() - start_time) * 1000)
+            
+            # Convert to CompanySearchResult objects
+            results = [CompanySearchResult(**result) for result in cached_results]
+            
+            logger.info(
+                f"Cache hit: {search_type} search for '{request.query}' "
+                f"returned {len(results)} results in {response_time_ms}ms"
+            )
+            
+            return SmartSearchResponse(
+                search_type=search_type,
+                query=request.query,
+                results=results[:request.max_results],  # Respect max_results limit
+                result_count=len(results[:request.max_results]),
+                cached=True,
+                response_time_ms=response_time_ms
+            )
+        
+        # Cache miss - call ABR API
+        logger.debug(f"Cache miss: calling ABR API for {search_type} search")
+        
+        try:
+            if search_type == "ABN":
+                # ABN search (AC-1.10.2)
+                result = await abr_client.search_by_abn(request.query)
+                api_results = [result] if result else []
+                
+            elif search_type == "ACN":
+                # ACN search (AC-1.10.3)
+                result = await abr_client.search_by_acn(request.query)
+                api_results = [result] if result else []
+                
+            else:
+                # Name search (AC-1.10.4)
+                api_results = await abr_client.search_by_name(
+                    request.query, 
+                    max_results=request.max_results or 10
+                )
+            
+            # Cache the results
+            if api_results:
+                await cache_service.cache_search_result(
+                    db=db,
+                    search_type=search_type,
+                    search_value=request.query,
+                    results=api_results,
+                    user_id=current_user.user_id if current_user else None
+                )
+            
+            # Convert to response format
+            response_time_ms = int((time.time() - start_time) * 1000)
+            results = [CompanySearchResult(**result) for result in api_results]
+            
+            logger.info(
+                f"ABR API search complete: {search_type} search for '{request.query}' "
+                f"returned {len(results)} results in {response_time_ms}ms"
+            )
+            
+            return SmartSearchResponse(
+                search_type=search_type,
+                query=request.query,
+                results=results[:request.max_results],
+                result_count=len(results[:request.max_results]),
+                cached=False,
+                response_time_ms=response_time_ms
+            )
+            
+        except ABRValidationError as e:
+            logger.warning(f"ABR validation error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "error": "INVALID_SEARCH_FORMAT",
+                    "message": str(e),
+                    "fallback_url": "/companies/manual-entry"
+                }
+            )
+            
+        except ABRTimeoutError as e:
+            logger.warning(f"ABR API timeout: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_408_REQUEST_TIMEOUT,
+                detail={
+                    "error": "ABR_API_TIMEOUT", 
+                    "message": "Search is taking longer than expected. Try again or enter details manually.",
+                    "fallback_url": "/companies/manual-entry"
+                }
+            )
+            
+        except ABRAuthenticationError as e:
+            logger.error(f"ABR authentication error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "error": "ABR_API_CONFIG_ERROR",
+                    "message": "Unable to search ABR. Please enter your company details manually.",
+                    "fallback_url": "/companies/manual-entry"
+                }
+            )
+            
+        except ABRClientError as e:
+            logger.error(f"ABR client error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "error": "ABR_API_ERROR",
+                    "message": "Unable to search ABR. Please check your internet connection and try again.",
+                    "fallback_url": "/companies/manual-entry"
+                }
+            )
+    
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+        
+    except Exception as e:
+        logger.error(f"Unexpected error in smart search: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "SEARCH_ERROR",
+                "message": "An unexpected error occurred. Please try again or enter details manually.",
+                "fallback_url": "/companies/manual-entry"
+            }
+        )
+
+
+@router.get(
+    "/cache-statistics",
+    response_model=CacheStatisticsResponse,
+    summary="Get cache statistics (admin only)",
+    description="Get ABR search cache performance statistics and analytics"
+)
+async def get_cache_statistics(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> CacheStatisticsResponse:
+    """
+    Get cache performance statistics and analytics
+    
+    Story 1.10: AC-1.10.9: Cache Cleanup & Maintenance
+    AC-1.10.11: Success Rate Metrics
+    
+    Requires system_admin role for access.
+    
+    Returns:
+    - Cache hit rates and performance metrics
+    - Popular searches and usage patterns
+    - API cost savings estimation
+    - Search type distribution
+    """
+    try:
+        # Check for system_admin role (admin only endpoint)
+        if not current_user.role or current_user.role != "system_admin":
+            logger.warning(
+                f"Unauthorized cache statistics access attempt: "
+                f"user_id={current_user.user_id}, role={current_user.role}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. System admin role required."
+            )
+        
+        # Get cache statistics
+        cache_service = get_cache_service()
+        stats = await cache_service.get_cache_statistics(db)
+        
+        logger.info(
+            f"Cache statistics retrieved by admin: user_id={current_user.user_id}, "
+            f"total_searches={stats.get('total_cached_searches', 0)}"
+        )
+        
+        return CacheStatisticsResponse(**stats)
+        
+    except HTTPException:
+        raise
+        
+    except Exception as e:
+        logger.error(f"Error retrieving cache statistics: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve cache statistics"
         )
 

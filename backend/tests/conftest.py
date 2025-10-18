@@ -14,13 +14,30 @@ from datetime import datetime, timedelta
 
 # Import your FastAPI app and database models
 import sys
-import os
-# Add project root to path (not backend/) to support 'backend.' prefix imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from fastapi import FastAPI
 
+# Add backend directory to path for consistent imports
+backend_dir = os.path.dirname(os.path.dirname(__file__))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
+# Import app and models - this will register all models with Base
 from main import app
-from backend.common.database import Base, get_db
-from backend.models.user import User  # Import to register model with Base
+from common.database import Base, get_db
+# Import models module to ensure all models are registered
+import models
+from modules.users.router import router as users_router
+from modules.companies.router import router as companies_router
+from modules.auth.router import router as auth_router
+# Import other routers as needed for tests...
+
+def create_test_app():
+    test_app = FastAPI()
+    test_app.include_router(auth_router)
+    test_app.include_router(users_router)
+    test_app.include_router(companies_router)
+    # Add other routers here
+    return test_app
 
 # Test database configuration
 # For Story 1.13 integration tests, we need SQL Server (not SQLite) 
@@ -237,6 +254,56 @@ def assert_login_failed(response_data: dict, expected_error: Optional[str] = Non
     assert "detail" in response_data
     if expected_error:
         assert expected_error in response_data["detail"]
+
+# Fixtures for Story 1.11 tests
+@pytest.fixture(scope="function")
+def db_session(test_db):
+    """Alias for test_db to match Story 1.11 test expectations."""
+    return test_db
+
+@pytest.fixture
+def test_user(test_db):
+    """Create a test user for Story 1.11 tests."""
+    from models.user import User
+    from models.ref.user_status import UserStatus
+    
+    # Get the 'active' StatusID from the database
+    active_status = test_db.query(UserStatus).filter_by(StatusCode='active').first()
+    if not active_status:
+        # If status doesn't exist, create it for testing
+        active_status = UserStatus(
+            StatusCode='active',
+            StatusName='Active',
+            Description='User account is active and can log in normally',
+            AllowLogin=True,
+            IsActive=True,
+            SortOrder=1
+        )
+        test_db.add(active_status)
+        test_db.commit()
+        test_db.refresh(active_status)
+    
+    # Check if user already exists
+    existing_user = test_db.query(User).filter_by(Email="testuser@example.com").first()
+    if existing_user:
+        # Clean up existing user's companies to ensure clean state
+        from models.user_company import UserCompany
+        test_db.query(UserCompany).filter_by(UserID=existing_user.UserID).delete()
+        test_db.commit()
+        return existing_user
+    
+    user = User(
+        Email="testuser@example.com",
+        PasswordHash="$2b$12$dummyhash",
+        FirstName="Test",
+        LastName="User",
+        StatusID=active_status.UserStatusID,
+        IsEmailVerified=True
+    )
+    test_db.add(user)
+    test_db.commit()
+    test_db.refresh(user)
+    return user
 
 # Test markers for different test types
 pytestmark = [

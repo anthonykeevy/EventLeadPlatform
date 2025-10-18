@@ -10,15 +10,14 @@ from typing import List
 from common.database import get_db
 from modules.auth.dependencies import get_current_user
 from modules.auth.models import CurrentUser
-from modules.auth.jwt_service import create_access_token, create_refresh_token
 from models.company import Company
 from models.ref.user_company_role import UserCompanyRole
-from modules.invitations.schemas import (
-    SwitchCompanyRequest, SwitchCompanyResponse, UserCompanyInfo
+from schemas.user import (
+    UpdateUserDetailsSchema, UpdateUserDetailsResponse, UserProfileResponse,
+    SwitchCompanyRequest, SwitchCompanyResponse, UserCompanyInfo, RelationshipInfo
 )
-from modules.invitations.service import switch_company, get_user_companies
-from .schemas import UpdateUserDetailsSchema, UpdateUserDetailsResponse, UserProfileResponse
-from .service import update_user_details, get_user_profile
+from .service import update_user_details, get_user_profile, get_user_companies_with_relationship_context
+from .switch_service import CompanySwitchService
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -133,46 +132,42 @@ async def get_my_profile(
     "/me/companies",
     response_model=List[UserCompanyInfo],
     summary="List user's companies",
-    description="Get all companies the user belongs to"
+    description="Get all companies the user belongs to, including relationship context."
 )
 async def list_my_companies(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> List[UserCompanyInfo]:
     """
-    List all companies user belongs to (AC-1.7.9).
-    
-    Returns all active company memberships with role information.
+    List all companies user belongs to, enriched with relationship context.
+    AC-1.11.1, AC-1.11.3, AC-1.11.8
     """
     try:
-        user_companies = await get_user_companies(db, current_user.user_id)
+        enriched_companies = await get_user_companies_with_relationship_context(db, current_user.user_id)
         
         result = []
-        for uc in user_companies:
-            # Get company
-            company = db.execute(
-                select(Company).where(Company.CompanyID == uc.CompanyID)
-            ).scalar_one()
-            
-            # Get role
-            role = db.execute(
-                select(UserCompanyRole).where(
-                    UserCompanyRole.UserCompanyRoleID == uc.UserCompanyRoleID
-                )
-            ).scalar_one()
-            
+        for item in enriched_companies:
+            uc = item['user_company']
+            company = db.get(Company, uc.CompanyID)
+            role = db.get(UserCompanyRole, uc.UserCompanyRoleID)
+
+            relationship_info = None
+            if item.get('relationship'):
+                relationship_info = RelationshipInfo(**item['relationship'])
+
             result.append(UserCompanyInfo(
-                company_id=int(uc.CompanyID),  # type: ignore
-                company_name=str(company.CompanyName),  # type: ignore
-                role=str(role.RoleCode),  # type: ignore
-                is_primary=bool(uc.IsPrimaryCompany),  # type: ignore
-                joined_at=uc.JoinedDate  # type: ignore
+                company_id=uc.CompanyID,
+                company_name=company.CompanyName,
+                role=role.RoleCode,
+                is_primary=uc.IsPrimaryCompany,
+                joined_at=uc.JoinedDate,
+                relationship=relationship_info
             ))
         
         return result
         
     except Exception as e:
-        logger.error(f"Error listing companies: {str(e)}", exc_info=True)
+        logger.error(f"Error listing user's companies: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to list companies"
@@ -191,56 +186,19 @@ async def switch_active_company(
     db: Session = Depends(get_db)
 ) -> SwitchCompanyResponse:
     """
-    Switch user's active company context (AC-1.7.9).
+    Switch user's active company context (AC-1.11.4).
     
     Issues new JWT with updated company_id and corresponding role.
     """
     try:
-        # Switch company
-        user_company = await switch_company(
-            db=db,
+        switch_service = CompanySwitchService(db)
+        
+        result = switch_service.switch_company(
             user_id=current_user.user_id,
             target_company_id=request.company_id
         )
         
-        # Get company
-        company = db.execute(
-            select(Company).where(Company.CompanyID == user_company.CompanyID)
-        ).scalar_one()
-        
-        # Get role
-        role = db.execute(
-            select(UserCompanyRole).where(
-                UserCompanyRole.UserCompanyRoleID == user_company.UserCompanyRoleID
-            )
-        ).scalar_one()
-        
-        # Issue new JWT with new company context
-        access_token = create_access_token(
-            user_id=current_user.user_id,
-            email=current_user.email,
-            role=str(role.RoleCode),  # type: ignore
-            company_id=int(user_company.CompanyID)  # type: ignore
-        )
-        
-        refresh_token = create_refresh_token(
-            user_id=current_user.user_id
-        )
-        
-        logger.info(
-            f"Company switched: UserID={current_user.user_id}, "
-            f"CompanyID={user_company.CompanyID}, Role={role.RoleCode}"
-        )
-        
-        return SwitchCompanyResponse(
-            success=True,
-            message=f"Switched to {company.CompanyName}",
-            company_id=int(user_company.CompanyID),  # type: ignore
-            company_name=str(company.CompanyName),  # type: ignore
-            role=str(role.RoleCode),  # type: ignore
-            access_token=access_token,
-            refresh_token=refresh_token
-        )
+        return SwitchCompanyResponse(**result)
         
     except ValueError as e:
         logger.warning(f"Invalid company switch: {str(e)}")

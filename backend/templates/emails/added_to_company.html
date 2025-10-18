@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You've Been Added to a New Company</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #333;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse; border: 1px solid #cccccc;">
+        <tr>
+            <td align="center" bgcolor="#007bff" style="padding: 40px 0 30px 0; color: #ffffff; font-size: 28px; font-weight: bold;">
+                Welcome to a New Team!
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#ffffff" style="padding: 40px 30px 40px 30px;">
+                <h1 style="font-size: 24px; margin: 0;">Hi {{ invitee_name }},</h1>
+                <p style="margin: 20px 0 30px 0; font-size: 16px; line-height: 1.5;">
+                    Great news! <strong>{{ inviter_name }}</strong> has added you to the <strong>{{ company_name }}</strong> team on EventLead Platform with the role of <strong>{{ role_name }}</strong>.
+                </p>
+                <p style="font-size: 16px; line-height: 1.5;">
+                    Because you already have an account, there's no need to accept an invitation. You can access your new company right away.
+                </p>
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                        <td align="center" style="padding: 20px 0 30px 0;">
+                            <a href="{{ dashboard_url }}" style="background-color: #28a745; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold;">Go to Your Dashboard</a>
+                        </td>
+                    </tr>
+                </table>
+                <p style="font-size: 16px; line-height: 1.5;">
+                    You can switch between your companies at any time using the company switcher in the main navigation.
+                </p>
+                <p style="margin-top: 30px; font-size: 14px; color: #777777;">
+                    If you were not expecting this, please contact our support team.
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#f4f4f4" style="padding: 30px 30px 30px 30px; text-align: center; font-size: 12px; color: #777777;">
+                &copy; 2025 EventLead Platform. All rights reserved.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

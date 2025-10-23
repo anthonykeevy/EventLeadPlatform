@@ -1,19 +1,31 @@
 /**
- * Auth Features - Placeholder/Stub
- * TODO: Implement actual auth components from Epic 1 stories
+ * Auth Features - Story 1.9
+ * Frontend Authentication - Signup & Login Pages
  */
-import React from 'react'
 
-// Placeholder components until auth features are fully implemented
-export const SignupForm = () => {
-  return <div>Signup Form (To be implemented)</div>
-}
+// Components
+export { SignupForm } from './components/SignupForm'
+export { LoginForm } from './components/LoginForm'
+export { AuthLayout } from './components/AuthLayout'
+export { PasswordStrength } from './components/PasswordStrength'
 
-export const EmailVerification = () => {
-  return <div>Email Verification (To be implemented)</div>
-}
+// Context & Hooks
+export { AuthProvider, useAuth } from './context/AuthContext'
+export { useAuthPageRedirect, useRequireAuth } from './hooks/useAuthRedirect'
 
-export const LoginForm = () => {
-  return <div>Login Form (To be implemented)</div>
-}
+// Types
+export type { User, AuthState, LoginCredentials, SignupData, TokenResponse, AuthError } from './types/auth.types'
+
+// API
+export * as authApi from './api/authApi'
+
+// Utils
+export * as tokenStorage from './utils/tokenStorage'
+
+// Email Verification Page (Story 1.1 Frontend Component - Added 2025-10-21)
+export { EmailVerificationPage as EmailVerification } from './pages/EmailVerificationPage'
+
+// Password Reset Pages (Story 1.15 - Added 2025-10-22)
+export { PasswordResetRequest } from './pages/PasswordResetRequest'
+export { PasswordResetConfirm } from './pages/PasswordResetConfirm'
 

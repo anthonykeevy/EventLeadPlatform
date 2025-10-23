@@ -45,8 +45,11 @@ class EmailService:
         self.config = config
         
         # Initialize Jinja2 template environment
+        # Use path relative to this file's location
+        import os
+        template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates", "emails")
         self.template_env = Environment(
-            loader=FileSystemLoader("backend/templates/emails"),
+            loader=FileSystemLoader(template_dir),
             autoescape=True,  # Auto-escape HTML for security
             undefined=StrictUndefined  # Raise error for undefined variables
         )
@@ -343,7 +346,8 @@ class EmailService:
             template_name="password_reset",
             template_vars={
                 "user_name": user_name,
-                "reset_link": reset_link
+                "reset_url": reset_link,
+                "support_email": "support@eventlead.com"
             }
         )
     

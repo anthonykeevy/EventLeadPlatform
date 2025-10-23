@@ -6,11 +6,13 @@ import os
 import logging
 from datetime import datetime
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from common.database import get_db
 from common.password_validator import validate_password_strength
+from modules.auth.dependencies import get_current_user, CurrentUser
 from modules.auth.schemas import (
     SignupRequest,
     SignupResponse,
@@ -49,6 +51,7 @@ from modules.auth.jwt_service import (
     extract_user_id
 )
 from common.security import verify_password, hash_password
+from models.user import User
 from models.user_company import UserCompany
 from models.ref.user_company_role import UserCompanyRole
 from jose import JWTError  # type: ignore
@@ -58,6 +61,7 @@ from modules.auth.audit_service import (
     log_email_verification
 )
 from services.email_service import get_email_service
+from common.auth_event_decorator import log_auth_attempts
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +86,7 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
         500: {"model": ErrorResponse, "description": "Internal server error"}
     }
 )
+@log_auth_attempts("SIGNUP", "SIGNUP_FAILED")  # Story 0.2: Automatic auth event logging
 async def signup(
     request_data: SignupRequest,
     background_tasks: BackgroundTasks,
@@ -98,7 +103,7 @@ async def signup(
     1. Validate email uniqueness
     2. Validate password strength
     3. Hash password with bcrypt
-    4. Create user (EmailVerified=false, IsActive=false)
+    4. Create user (IsEmailVerified=false, IsActive=false)
     5. Generate verification token
     6. Send verification email (async)
     7. Log auth event
@@ -119,128 +124,106 @@ async def signup(
     - At least one lowercase letter
     - At least one number
     - At least one special character
+    
+    **Automatic Logging (Story 0.2):**
+    - Success/failure automatically logged to log.AuthEvent
+    - Errors automatically logged to log.ApplicationError
+    - No manual logging code needed
     """
-    try:
-        # Check if this is invitation-based signup (AC-1.7.5, AC-1.7.6)
-        if request_data.invitation_token:
-            # 1. Validate password strength
-            password_errors = validate_password_strength(request_data.password)
-            if password_errors:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Password does not meet security requirements: {'; '.join(password_errors)}"
-                )
-            
-            # 2. Create user with invitation (auto-accepts invitation)
-            user, invitation, user_company = await create_user_with_invitation(
-                db=db,
-                email=request_data.email,
-                password=request_data.password,
-                first_name=request_data.first_name,
-                last_name=request_data.last_name,
-                invitation_token=request_data.invitation_token
-            )
-            
-            logger.info(
-                f"User created with invitation: UserID={user.UserID}, "
-                f"CompanyID={user_company.CompanyID}, InvitationID={invitation.UserInvitationID}"
-            )
-            
-            # 3. Get role for JWT
-            role = db.execute(
-                select(UserCompanyRole).where(
-                    UserCompanyRole.UserCompanyRoleID == user_company.UserCompanyRoleID
-                )
-            ).scalar_one()
-            
-            # 4. Issue JWT with role and company_id (AC-1.7.8)
-            access_token = create_access_token(
-                user_id=int(user.UserID),  # type: ignore
-                email=str(user.Email),  # type: ignore
-                role=str(role.RoleCode),  # type: ignore
-                company_id=int(user_company.CompanyID)  # type: ignore
-            )
-            
-            refresh_token = create_refresh_token(
-                user_id=int(user.UserID)  # type: ignore
-            )
-            
-            # 5. Store refresh token
-            store_refresh_token(db, int(user.UserID), refresh_token)  # type: ignore
-            
-            # 6. Log auth event
-            log_auth_event(
-                db=db,
-                user_id=int(user.UserID),  # type: ignore
-                event_type="SIGNUP_WITH_INVITATION",
-                success=True,
-                details={
-                    "email": str(user.Email),  # type: ignore
-                    "first_name": str(user.FirstName),  # type: ignore
-                    "last_name": str(user.LastName),  # type: ignore
-                    "company_id": int(user_company.CompanyID),  # type: ignore
-                    "role": str(role.RoleCode)  # type: ignore
-                },
-                ip_address=request.client.host if request.client else None,
-                user_agent=request.headers.get("user-agent")
-            )
-            
-            logger.info(
-                f"Invitation signup complete: UserID={user.UserID}, JWT issued, "
-                f"onboarding skipped"
-            )
-            
-            # 7. Return success with access token (no email verification needed)
-            return SignupResponse(
-                success=True,
-                message="Signup successful! You can now access your team.",
-                data={
-                    "user_id": int(user.UserID),  # type: ignore
-                    "email": str(user.Email),  # type: ignore
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                    "company_id": int(user_company.CompanyID),  # type: ignore
-                    "role": str(role.RoleCode)  # type: ignore
-                }
-            )
-        
-        # Standard signup flow (no invitation)
-        # 1. Check email uniqueness
-        existing_user = get_user_by_email(db, request_data.email)
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered. Please use a different email or try logging in."
-            )
-        
-        # 2. Validate password strength
-        password_errors = validate_password_strength(request_data.password)
+    # Check if this is invitation-based signup (AC-1.7.5, AC-1.7.6)
+    if request_data.invitation_token:
+        # 1. Validate password strength
+        password_errors = validate_password_strength(db, request_data.password)
         if password_errors:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Password does not meet security requirements: {'; '.join(password_errors)}"
             )
         
-        # 3. Create user
-        user = create_user(
+        # 2. Create user with invitation (auto-accepts invitation)
+        user, invitation, user_company = await create_user_with_invitation(
             db=db,
             email=request_data.email,
             password=request_data.password,
             first_name=request_data.first_name,
-            last_name=request_data.last_name
+            last_name=request_data.last_name,
+            invitation_token=request_data.invitation_token
         )
         
-        logger.info(f"User created successfully: UserID={user.UserID}, Email={user.Email}")
+        # 3. Get role for JWT
+        role = db.execute(
+            select(UserCompanyRole).where(
+                UserCompanyRole.UserCompanyRoleID == user_company.UserCompanyRoleID
+            )
+        ).scalar_one()
         
-        # 4. Generate verification token
-        token = generate_verification_token(db, user.UserID, expiry_hours=24)
+        # 4. Issue JWT with role and company_id (AC-1.7.8)
+        access_token = create_access_token(
+            db=db,
+            user_id=int(user.UserID),  # type: ignore
+            email=str(user.Email),  # type: ignore
+            role=str(role.RoleCode),  # type: ignore
+            company_id=int(user_company.CompanyID)  # type: ignore
+        )
         
-        # 5. Send verification email (async, non-blocking)
+        refresh_token = create_refresh_token(
+            db=db,
+            user_id=int(user.UserID)  # type: ignore
+        )
+        
+        # 5. Store refresh token
+        store_refresh_token(db, int(user.UserID), refresh_token)  # type: ignore
+        
+        # 6. Return success with access token (no email verification needed)
+        return SignupResponse(
+            success=True,
+            message="Signup successful! You can now access your team.",
+            data={
+                "user_id": int(user.UserID),  # type: ignore
+                "email": str(user.Email),  # type: ignore
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "company_id": int(user_company.CompanyID),  # type: ignore
+                "role": str(role.RoleCode)  # type: ignore
+            }
+        )
+    
+    # Standard signup flow (no invitation)
+    # 1. Check email uniqueness
+    existing_user = get_user_by_email(db, request_data.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered. Please use a different email or try logging in."
+        )
+    
+    # 2. Validate password strength
+    password_errors = validate_password_strength(db, request_data.password)
+    if password_errors:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Password does not meet security requirements: {'; '.join(password_errors)}"
+        )
+    
+    # 3. Create user (don't commit yet - transactional with email send)
+    user = create_user(
+        db=db,
+        email=request_data.email,
+        password=request_data.password,
+        first_name=request_data.first_name,
+        last_name=request_data.last_name,
+        auto_commit=False  # We'll commit after email sends
+    )
+    
+    try:
+        # 4. Generate verification token (don't commit yet)
+        token = generate_verification_token(db, user.UserID, auto_commit=False)
+        
+        # 5. Send verification email (synchronous - must succeed before commit)
         email_service = get_email_service()
         verification_url = f"{FRONTEND_URL}/verify-email?token={token}"
         
-        background_tasks.add_task(
-            email_service.send_email,
+        await email_service.send_email(
             to=user.Email,
             subject="Verify Your Email - EventLead Platform",
             template_name="email_verification",
@@ -250,50 +233,35 @@ async def signup(
                 "expiry_hours": 24,
                 "unsubscribe_url": f"{FRONTEND_URL}/unsubscribe",
                 "support_url": f"{FRONTEND_URL}/support"
-            },
-            email_type="email_verification",
-            user_id=user.UserID
-        )
-        
-        # 6. Log auth event
-        log_auth_event(
-            db=db,
-            user_id=user.UserID,
-            event_type="SIGNUP",
-            success=True,
-            details={
-                "email": user.Email,
-                "first_name": user.FirstName,
-                "last_name": user.LastName
-            },
-            ip_address=request.client.host if request.client else None,
-            user_agent=request.headers.get("user-agent")
-        )
-        
-        # 7. Log user creation audit
-        log_user_creation(db, user.UserID, user.Email)
-        
-        logger.info(f"Signup complete: UserID={user.UserID}, verification email queued")
-        
-        # 8. Return success response
-        return SignupResponse(
-            success=True,
-            message="Signup successful! Please check your email to verify your account.",
-            data={
-                "user_id": user.UserID,
-                "email": user.Email
             }
         )
         
-    except HTTPException:
-        # Re-raise HTTP exceptions (validation errors)
-        raise
-    except Exception as e:
-        logger.error(f"Signup error: {str(e)}", exc_info=True)
+        # 6. Log user creation audit (still part of transaction)
+        log_user_creation(db, user.UserID, user.Email)
+        
+        # 7. Email sent successfully - commit the transaction
+        db.commit()
+        db.refresh(user)
+        
+    except Exception as error:
+        # Email send or audit failed - rollback everything
+        db.rollback()
+        error_details = f"{type(error).__name__}: {str(error)}"
+        logger.error(f"Signup failed for {request_data.email}: {error_details}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during signup. Please try again later."
+            detail="Failed to send verification email. Please try again later or contact support."
         )
+    
+    # 7. Return success response
+    return SignupResponse(
+        success=True,
+        message="Signup successful! Please check your email to verify your account.",
+        data={
+            "user_id": user.UserID,
+            "email": user.Email
+        }
+    )
 
 
 # ============================================================================
@@ -324,7 +292,7 @@ async def verify_email(
     1. Find token in database
     2. Validate token (not expired, not used)
     3. Find associated user
-    4. Activate user (EmailVerified=true, IsActive=true)
+    4. Activate user (IsEmailVerified=true, IsActive=true)
     5. Mark token as used
     6. Log verification event
     7. Return success response
@@ -425,6 +393,7 @@ async def verify_email(
         500: {"model": ErrorResponse, "description": "Internal server error"}
     }
 )
+@log_auth_attempts("LOGIN_SUCCESS", "LOGIN_FAILED")  # Story 0.2: Automatic auth event logging
 async def login(
     request_data: LoginRequest,
     request: Request,
@@ -438,7 +407,7 @@ async def login(
     **Flow:**
     1. Find user by email
     2. Verify password with bcrypt (timing-safe)
-    3. Check EmailVerified = true
+    3. Check IsEmailVerified = true
     4. Check IsActive = true
     5. Get user's role and company (if exists)
     6. Generate JWT access token (1 hour expiry)
@@ -456,128 +425,148 @@ async def login(
     **Tokens:**
     - Access token: Short-lived (1 hour), used for API requests
     - Refresh token: Long-lived (7 days), used to get new access tokens
+    
+    **Automatic Logging (Story 0.2):**
+    - Success/failure automatically logged to log.AuthEvent
+    - Errors automatically logged to log.ApplicationError
+    - No manual logging code needed
     """
-    try:
-        # 1. Find user by email
-        user = get_user_by_email(db, request_data.email)
-        
-        # 2. Verify password (timing-safe comparison)
-        # Use same error for invalid email/password to prevent email enumeration
-        if not user or not verify_password(request_data.password, user.PasswordHash):
-            log_auth_event(
-                db=db,
-                user_id=user.UserID if user else None,
-                event_type="LOGIN_FAILED",
-                success=False,
-                details={"reason": "Invalid credentials", "email": request_data.email},
-                ip_address=request.client.host if request.client else None,
-                user_agent=request.headers.get("user-agent")
-            )
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password"
-            )
-        
-        # 3. Check email verified
-        if not user.EmailVerified:
-            log_auth_event(
-                db=db,
-                user_id=user.UserID,
-                event_type="LOGIN_FAILED",
-                success=False,
-                details={"reason": "Email not verified"},
-                ip_address=request.client.host if request.client else None,
-                user_agent=request.headers.get("user-agent")
-            )
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Please verify your email before logging in. Check your inbox for the verification link."
-            )
-        
-        # 4. Check account active
-        if not user.IsActive:
-            log_auth_event(
-                db=db,
-                user_id=user.UserID,
-                event_type="LOGIN_FAILED",
-                success=False,
-                details={"reason": "Account inactive"},
-                ip_address=request.client.host if request.client else None,
-                user_agent=request.headers.get("user-agent")
-            )
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Your account has been deactivated. Please contact support."
-            )
-        
-        # 5. Get user's role and company (if exists)
-        user_company = db.query(UserCompany).filter(
-            UserCompany.UserID == user.UserID,
-            UserCompany.IsPrimaryCompany == True
-        ).first()
-        
-        # If no primary company, get any active company
-        if not user_company:
-            user_company = db.query(UserCompany).filter(
-                UserCompany.UserID == user.UserID
-            ).first()
-        
-        # Extract role and company_id
-        role = None
-        company_id = None
-        if user_company:
-            # Get role name from UserCompanyRole
-            if user_company.user_company_role:
-                role = user_company.user_company_role.RoleName
-            company_id = user_company.CompanyID
-        
-        # 6. Generate tokens
-        access_token = create_access_token(
-            user_id=user.UserID,
-            email=user.Email,
-            role=role,
-            company_id=company_id
-        )
-        
-        refresh_token = create_refresh_token(user_id=user.UserID)
-        
-        # 7. Store refresh token in database
-        store_refresh_token(db, user.UserID, refresh_token, expiry_days=7)
-        
-        # 8. Log success
-        log_auth_event(
-            db=db,
-            user_id=user.UserID,
-            event_type="LOGIN_SUCCESS",
-            success=True,
-            details={"email": user.Email, "has_company": company_id is not None},
-            ip_address=request.client.host if request.client else None,
-            user_agent=request.headers.get("user-agent")
-        )
-        
-        logger.info(f"User login successful: UserID={user.UserID}, Email={user.Email}")
-        
-        # 9. Return tokens
-        return LoginResponse(
-            success=True,
-            message="Login successful",
-            data={
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-                "token_type": "bearer",
-                "expires_in": 3600  # 1 hour in seconds
-            }
-        )
-        
-    except HTTPException:
-        # Re-raise HTTP exceptions
-        raise
-    except Exception as e:
-        logger.error(f"Login error: {str(e)}", exc_info=True)
+    # 1. Find user by email
+    user = get_user_by_email(db, request_data.email)
+    
+    # 2. Verify password (timing-safe comparison)
+    # Use same error for invalid email/password to prevent email enumeration
+    if not user or not verify_password(request_data.password, user.PasswordHash):
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during login. Please try again later."
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
         )
+    
+    # 3. Check email verified
+    if not user.IsEmailVerified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before logging in. Check your inbox for the verification link."
+        )
+    
+    # 4. Check account active (via StatusID relationship)
+    if user.status and user.status.StatusName not in ["Active"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account has been deactivated. Please contact support."
+        )
+    
+    # 5. Get user's role and company (if exists)
+    user_company = db.query(UserCompany).filter(
+        UserCompany.UserID == user.UserID,
+        UserCompany.IsPrimaryCompany == True
+    ).first()
+    
+    # If no primary company, get any active company
+    if not user_company:
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == user.UserID
+        ).first()
+    
+    # Extract role and company_id
+    role = None
+    company_id = None
+    if user_company:
+        # Get role name from UserCompanyRole relationship
+        if user_company.role:
+            role = user_company.role.RoleName
+        company_id = user_company.CompanyID
+    
+    # 6. Generate tokens
+    access_token = create_access_token(
+        db=db,
+        user_id=user.UserID,
+        email=user.Email,
+        role=role,
+        company_id=company_id
+    )
+    
+    refresh_token = create_refresh_token(db=db, user_id=user.UserID)
+    
+    # 7. Store refresh token in database (expiry read from config per Story 1.13)
+    store_refresh_token(db, user.UserID, refresh_token)
+    
+    # 8. Return tokens with user details (for frontend AuthContext)
+    # Return dict directly (FastAPI will serialize, no Pydantic validation)
+    return JSONResponse(
+        status_code=200,
+        content={
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "expires_in": 3600,
+            "user": {
+                "user_id": user.UserID,
+                "email": user.Email,
+                "first_name": user.FirstName,
+                "last_name": user.LastName,
+                "onboarding_complete": user.OnboardingComplete,
+                "role": role,
+                "company_id": company_id
+            }
+        }
+    )
+
+
+# ============================================================================
+# Get Current User Endpoint
+# ============================================================================
+
+@router.get(
+    "/me",
+    summary="Get current user",
+    description="Get current authenticated user details",
+    tags=["Authentication"],
+)
+async def get_current_user_endpoint(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Get current authenticated user details.
+    Requires valid JWT access token.
+    """
+    # Get fresh user data from database
+    user = db.query(User).filter(User.UserID == current_user.user_id).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Get user's company and role (if exists)
+    user_company = db.query(UserCompany).filter(
+        UserCompany.UserID == user.UserID,
+        UserCompany.IsPrimaryCompany == True
+    ).first()
+    
+    role = None
+    company_id = None
+    if user_company:
+        if user_company.role:
+            role = user_company.role.RoleName
+        company_id = user_company.CompanyID
+    
+    # Return user details
+    return JSONResponse(
+        status_code=200,
+        content={
+            "user_id": user.UserID,
+            "email": user.Email,
+            "first_name": user.FirstName,
+            "last_name": user.LastName,
+            "onboarding_complete": user.OnboardingComplete,
+            "role": role,
+            "company_id": company_id
+        }
+    )
 
 
 # ============================================================================
@@ -658,7 +647,7 @@ async def refresh_token_endpoint(
             from modules.auth.user_service import get_user_by_id
             user = get_user_by_id(db, user_id)
         
-        if not user or not user.IsActive or not user.EmailVerified:
+        if not user or not user.IsEmailVerified or (user.status and user.status.StatusName not in ["Active"]):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User not found, inactive, or email not verified"
@@ -678,12 +667,13 @@ async def refresh_token_endpoint(
         role = None
         company_id = None
         if user_company:
-            if user_company.user_company_role:
-                role = user_company.user_company_role.RoleName
+            if user_company.role:
+                role = user_company.role.RoleName
             company_id = user_company.CompanyID
         
         # 6. Generate new access token
         access_token = create_access_token(
+            db=db,
             user_id=user.UserID,
             email=user.Email,
             role=role,
@@ -776,7 +766,7 @@ async def password_reset_request(
             
             # Get frontend URL for reset link
             frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-            reset_link = f"{frontend_url}/reset-password?token={token}"
+            reset_link = f"{frontend_url}/reset-password/confirm?token={token}"
             
             # Send password reset email (async in background)
             background_tasks.add_task(
@@ -815,6 +805,35 @@ async def password_reset_request(
             success=True,
             message="If the email exists, a password reset link has been sent."
         )
+
+
+@router.get(
+    "/password-reset/validate/{token}",
+    status_code=status.HTTP_200_OK,
+    tags=["Authentication"],
+    summary="Validate password reset token",
+    description="Check if a password reset token is valid (not expired, not used)"
+)
+async def validate_reset_token(
+    token: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Validate password reset token without using it.
+    
+    Returns:
+        200: Token is valid
+        400: Token is invalid, expired, or already used
+    """
+    token_obj = validate_password_reset_token(db, token)
+    
+    if not token_obj:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired password reset token"
+        )
+    
+    return {"valid": True, "message": "Token is valid"}
 
 
 @router.post(
@@ -871,7 +890,7 @@ async def password_reset_confirm(
             )
         
         # 2. Validate new password strength
-        password_errors = validate_password_strength(request_data.new_password)
+        password_errors = validate_password_strength(db, request_data.new_password)
         if password_errors:
             log_auth_event(
                 db=db,

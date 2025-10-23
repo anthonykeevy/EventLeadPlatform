@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
-import { SignupForm, EmailVerification, LoginForm } from './features/auth'
+import { SignupForm, EmailVerification, LoginForm, AuthProvider, PasswordResetRequest, PasswordResetConfirm } from './features/auth'
+import { DashboardPage } from './features/dashboard'
 
 interface HealthStatus {
   status: string
@@ -130,12 +131,17 @@ function HomePage() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/signup" element={<SignupForm />} />
-      <Route path="/login" element={<LoginForm />} />
-      <Route path="/verify-email" element={<EmailVerification />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/reset-password" element={<PasswordResetRequest />} />
+        <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+      </Routes>
+    </AuthProvider>
   )
 }
 

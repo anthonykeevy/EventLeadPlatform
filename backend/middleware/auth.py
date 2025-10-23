@@ -40,6 +40,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         "/api/auth/verify-email",
         "/api/auth/refresh",
         "/api/auth/password-reset/request",
+        "/api/auth/password-reset/validate",  # Token validation (Story 1.15)
         "/api/auth/password-reset/confirm",
         "/docs",
         "/openapi.json",
@@ -139,10 +140,14 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         )
         
         # Update request context for logging (Story 0.2 integration)
-        update_request_context(
-            user_id=user_id,
-            company_id=company_id
-        )
+        try:
+            update_request_context(
+                user_id=user_id,
+                company_id=company_id
+            )
+        except RuntimeError:
+            # Request context not yet initialized - that's okay, not critical for auth
+            pass
         
         # Continue to endpoint
         response = await call_next(request)
@@ -158,5 +163,17 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         Returns:
             True if path is public, False otherwise
         """
-        return any(path.startswith(public_path) for public_path in self.PUBLIC_PATHS)
+        # Special case: exact match for root path
+        if path == "/" or path == "":
+            return True
+        
+        # For other paths, check if they start with any public path
+        # But exclude root "/" from the list to avoid matching everything
+        for public_path in self.PUBLIC_PATHS:
+            if public_path == "/":
+                continue  # Already handled above
+            if path.startswith(public_path):
+                return True
+        
+        return False
 

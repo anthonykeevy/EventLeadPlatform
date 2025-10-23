@@ -1,6 +1,6 @@
 # Story 1.4: Password Reset Flow
 
-Status: Ready for Review
+Status: ✅ Complete (Bug Fix Applied 2025-10-22)
 
 ## Story
 
@@ -182,6 +182,55 @@ All tasks completed successfully. Implemented secure password reset flow with to
 - Password strength validation tests
 - Single-use token enforcement tests
 
+### Bug Fix (2025-10-22)
+
+**Issue Found During Story 1.15 UAT:**
+- Password reset emails were not being sent to MailHog
+- Backend returned success but email silently failed in background task
+
+**Root Cause:**
+Two bugs in Story 1.4 backend implementation:
+
+**Bug #1:** Template variable mismatch in `backend/services/email_service.py`
+- Template `password_reset.html` expects `reset_url` but service passed `reset_link`
+- Template expects `support_email` but service didn't pass it
+
+**Bug #2:** Wrong frontend URL in `backend/modules/auth/router.py`
+- Email link went to `/reset-password?token=...` (request page)
+- Should go to `/reset-password/confirm?token=...` (confirmation page)
+
+**Fix Applied:**
+```python
+# Bug #1: backend/services/email_service.py - send_password_reset_email()
+template_vars={
+    "user_name": user_name,
+    "reset_url": reset_link,              # ✅ Fixed: was "reset_link"
+    "support_email": "support@eventlead.com"  # ✅ Added: was missing
+}
+
+# Bug #2: backend/modules/auth/router.py - password_reset_request()
+reset_link = f"{frontend_url}/reset-password/confirm?token={token}"  # ✅ Fixed: was "/reset-password"
+
+# Bug #3: backend/middleware/auth.py - Token validation not public
+PUBLIC_PATHS = [
+    ...
+    "/api/auth/password-reset/validate",  # ✅ Added: was missing (returned 401)
+    ...
+]
+```
+
+**Testing Gap Identified:**
+- Story 1.4 UAT tested API responses (200 OK) but did NOT verify emails in MailHog
+- Background task failures are silent (no HTTP error returned)
+- **Enhancement:** Future email feature UATs must check MailHog, not just API responses
+
+**Verification:**
+- ✅ Password reset email now appears in MailHog
+- ✅ Email contains correct reset link with token
+- ✅ End-to-end flow tested with Story 1.15 frontend
+
+---
+
 ### File List
 
 **Created:**
@@ -190,6 +239,7 @@ All tasks completed successfully. Implemented secure password reset flow with to
 **Modified:**
 - `backend/modules/auth/schemas.py` - Added 4 password reset schemas
 - `backend/modules/auth/token_service.py` - Added 4 password reset token functions
-- `backend/modules/auth/router.py` - Added 2 password reset endpoints, added datetime import
-- `backend/services/email_service.py` - Added send_password_reset_email() method
+- `backend/modules/auth/router.py` - Added 2 password reset endpoints + validation endpoint (Bug fix 2025-10-22)
+- `backend/services/email_service.py` - Added send_password_reset_email() method (Bug fix 2025-10-22: template variables)
+- `backend/middleware/auth.py` - Added validation endpoint to PUBLIC_PATHS (Bug fix 2025-10-22)
 

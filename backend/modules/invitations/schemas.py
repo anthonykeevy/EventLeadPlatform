@@ -94,22 +94,3 @@ class SwitchCompanyResponse(BaseModel):
         }
 
 
-class UserCompanyInfo(BaseModel):
-    """Information about user's company membership"""
-    company_id: int
-    company_name: str
-    role: str
-    is_primary: bool
-    joined_at: datetime
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "company_id": 456,
-                "company_name": "Acme Events Pty Ltd",
-                "role": "company_admin",
-                "is_primary": True,
-                "joined_at": "2025-10-16T10:30:00Z"
-            }
-        }
-

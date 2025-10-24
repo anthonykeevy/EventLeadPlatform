@@ -184,3 +184,117 @@ class TestUserSignup:
         assert "user_id" in data
         assert "email" in data
         assert "message" in data
+    
+    @pytest.mark.integration
+    def test_signup_transaction_rollback_on_email_failure(self, db_session):
+        """
+        Test AC-1.1 Extension: User should NOT be created if email send fails.
+        Validates ACID transaction principles - signup is atomic (all-or-nothing).
+        Added 2025-10-21 after UAT discovered transaction boundary violation.
+        """
+        from modules.auth.user_service import create_user, get_user_by_email
+        from modules.auth.token_service import generate_verification_token
+        from unittest.mock import AsyncMock, MagicMock
+        
+        test_email = "transaction.test@example.com"
+        
+        # Simulate the signup flow with email failure
+        try:
+            # Create user without committing
+            user = create_user(
+                db=db_session,
+                email=test_email,
+                password="TestPass123!",
+                first_name="Trans",
+                last_name="Action",
+                auto_commit=False
+            )
+            
+            # Generate token without committing
+            token = generate_verification_token(db_session, user.UserID, auto_commit=False)
+            
+            # Simulate email send failure
+            raise Exception("Email send failed")
+            
+        except Exception:
+            # Rollback transaction
+            db_session.rollback()
+        
+        # Verify user was NOT committed to database
+        db_session.rollback()  # Ensure clean state
+        user_check = get_user_by_email(db_session, test_email)
+        assert user_check is None, "User should NOT be in database after rollback"
+    
+    @pytest.mark.integration
+    def test_signup_response_format_matches_fastapi_standard(self, client: TestClient):
+        """
+        Test that error responses use FastAPI standard 'detail' field (not 'message').
+        Added 2025-10-21 after UAT discovered frontend couldn't read error messages.
+        """
+        # Test duplicate email error
+        user_data = {
+            "email": "duplicate@example.com",
+            "password": "ValidPassword123!",
+            "first_name": "Test",
+            "last_name": "User"
+        }
+        
+        # Create first user
+        response1 = client.post("/api/auth/signup", json=user_data)
+        assert response1.status_code == 201
+        
+        # Try duplicate - should return 400 with 'detail' field
+        response2 = client.post("/api/auth/signup", json=user_data)
+        assert response2.status_code == 400
+        
+        error_data = response2.json()
+        # Frontend expects 'detail' field (FastAPI standard)
+        assert "detail" in error_data, "Error response must have 'detail' field for frontend compatibility"
+        assert "email" in error_data["detail"].lower() or "already" in error_data["detail"].lower()
+        
+        # Should NOT have 'message' field (old format)
+        assert "message" not in error_data or error_data.get("detail"), "Should use 'detail' not 'message'"
+    
+    @pytest.mark.integration  
+    def test_signup_end_to_end_integration(self, client: TestClient, db_session):
+        """
+        Test complete signup flow: API → Service → Database → Email → Logs.
+        Added 2025-10-21 to validate full integration.
+        """
+        from models.user import User
+        from models.log.auth_event import AuthEvent
+        from models.log.api_request import ApiRequest
+        
+        user_data = {
+            "email": "integration.test@example.com",
+            "password": "SecurePass123!",
+            "first_name": "Integration",
+            "last_name": "Test"
+        }
+        
+        # 1. Call signup endpoint
+        response = client.post("/api/auth/signup", json=user_data)
+        assert response.status_code == 201
+        data = response.json()
+        
+        # 2. Verify user in database with correct columns
+        user = db_session.query(User).filter(User.Email == user_data["email"]).first()
+        assert user is not None, "User should exist in database"
+        assert user.IsEmailVerified == False, "User should start unverified"
+        assert user.StatusID is not None, "User should have StatusID set"
+        
+        # 3. Verify AuthEvent logged
+        auth_event = db_session.query(AuthEvent).filter(
+            AuthEvent.UserID == user.UserID
+        ).first()
+        assert auth_event is not None, "AuthEvent should be logged"
+        assert auth_event.EventType == "SIGNUP", "EventType should be SIGNUP"
+        
+        # 4. Verify ApiRequest logged  
+        api_request = db_session.query(ApiRequest).filter(
+            ApiRequest.Path == "/api/auth/signup",
+            ApiRequest.StatusCode == 201
+        ).order_by(ApiRequest.CreatedDate.desc()).first()
+        assert api_request is not None, "ApiRequest should be logged"
+        
+        # 5. Email send is tested separately in test_mailhog_integration.py

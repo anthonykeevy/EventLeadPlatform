@@ -64,12 +64,14 @@ async def update_my_details(
         
     except ValueError as e:
         logger.warning(f"Invalid user details update: {str(e)}")
+        db.rollback()  # Rollback on validation error
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
     except Exception as e:
         logger.error(f"Error updating user details: {str(e)}", exc_info=True)
+        db.rollback()  # Rollback on any error
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update user details"

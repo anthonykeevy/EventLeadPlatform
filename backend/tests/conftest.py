@@ -1,20 +1,17 @@
 """
 Pytest configuration and fixtures for EventLead Platform
 """
-import pytest
 import asyncio
-from typing import AsyncGenerator, Generator, Optional
+import os
+import sys
+from typing import Generator, Optional
+
+import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-import os
-import tempfile
-from datetime import datetime, timedelta
-
-# Import your FastAPI app and database models
-import sys
-from fastapi import FastAPI
 
 # Add backend directory to path for consistent imports
 backend_dir = os.path.dirname(os.path.dirname(__file__))
@@ -24,8 +21,6 @@ if backend_dir not in sys.path:
 # Import app and models - this will register all models with Base
 from main import app
 from common.database import Base, get_db
-# Import models module to ensure all models are registered
-import models
 from modules.users.router import router as users_router
 from modules.companies.router import router as companies_router
 from modules.auth.router import router as auth_router
@@ -63,7 +58,7 @@ def test_db():
     """
     if USE_REAL_DB:
         # Use actual SQL Server database for schema-dependent tests
-        from common.database import engine as prod_engine, SessionLocal
+        from common.database import SessionLocal
         session = SessionLocal()
         try:
             yield session
@@ -91,7 +86,7 @@ def test_db():
             Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(scope="function")
-def client(test_db) -> TestClient:
+def client(test_db) -> Generator[TestClient, None, None]:
     """Create a test client with database dependency override."""
     def override_get_db():
         try:

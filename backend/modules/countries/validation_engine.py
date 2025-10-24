@@ -21,8 +21,11 @@ class ValidationResult(BaseModel):
     """Result of field validation"""
     is_valid: bool
     error_message: Optional[str] = None
-    formatted_value: Optional[str] = None
+    formatted_value: Optional[str] = None  # International format for storage
+    display_value: Optional[str] = None  # Local format for display (Story 1.20)
     matched_rule: Optional[str] = None
+    display_format: Optional[str] = None  # Pattern like '04XX XXX XXX'
+    spacing_pattern: Optional[str] = None  # How to space digits
 
 
 class ValidationEngine:
@@ -66,8 +69,8 @@ class ValidationEngine:
             # No rules defined - use basic validation
             return self._basic_validation(rule_type, value)
         
-        # Apply rules in priority order (lowest Priority first)  
-        for rule in sorted(rules, key=lambda r: getattr(r, 'Priority', 0) or 0):
+        # Apply rules in precedence order (lowest SortOrder first)  
+        for rule in sorted(rules, key=lambda r: getattr(r, 'SortOrder', 999)):
             if not getattr(rule, 'IsActive', True):
                 continue
                 
@@ -79,8 +82,8 @@ class ValidationEngine:
             if max_length and len(value) > max_length:
                 continue
             
-            # Apply rule-specific validation
-            result = self._apply_rule_validation(rule, value)
+            # Apply rule-specific validation (pass country_id for normalization)
+            result = self._apply_rule_validation(rule, value, country_id)
             if result.is_valid:
                 return result
         
@@ -101,7 +104,8 @@ class ValidationEngine:
         """
         Get validation rules for country and type with caching.
         
-        Returns rules sorted by Priority (ascending - lower numbers first).
+        Returns rules sorted by SortOrder (ascending - lower numbers first).
+        Story 1.20: Standardized to SortOrder from Priority.
         """
         cache_key = f"validation_{country_id}_{rule_type}"
         
@@ -117,7 +121,7 @@ class ValidationEngine:
             RuleType.TypeCode == rule_type,
             ValidationRule.IsActive,
             ~ValidationRule.IsDeleted
-        ).order_by(ValidationRule.Priority).all()
+        ).order_by(ValidationRule.SortOrder).all()  # Story 1.20: Use SortOrder not Priority
         
         # Cache results
         self._cache[cache_key] = rules
@@ -125,7 +129,7 @@ class ValidationEngine:
         
         return rules
     
-    def _apply_rule_validation(self, rule: ValidationRule, value: str) -> ValidationResult:
+    def _apply_rule_validation(self, rule: ValidationRule, value: str, country_id: int) -> ValidationResult:
         """Apply specific validation rule with appropriate algorithm"""
         
         rule_key = getattr(rule, 'RuleKey', '')
@@ -139,9 +143,9 @@ class ValidationEngine:
         if rule_key == 'ACN_FORMAT':
             return self._validate_australian_acn(value)
         
-        # Phone number validation using python-phonenumbers
+        # Phone number validation (Story 1.20: pass country_id for normalization)
         if 'phone' in rule_key.lower():
-            return self._validate_phone_number(value, rule)
+            return self._validate_phone_number(value, rule, country_id)
         
         # Standard regex validation
         try:
@@ -225,47 +229,167 @@ class ValidationEngine:
             matched_rule='ACN_FORMAT'
         )
     
-    def _validate_phone_number(self, phone: str, rule: ValidationRule) -> ValidationResult:
+    def _validate_phone_number(self, phone: str, rule: ValidationRule, country_id: int) -> ValidationResult:
         """
-        Validate phone number using python-phonenumbers library.
+        Validate phone number with support for multiple formats.
         
-        Supports both domestic (04...) and international (+61...) formats.
+        Story 1.20: Supports all countries with country-specific normalization.
+        Auto-normalizes to international format for storage.
+        
+        Args:
+            phone: Phone number to validate
+            rule: ValidationRule being applied
+            country_id: Country ID for correct prefix normalization
         """
-        try:
-            # Try to parse as international number first
-            parsed_phone = phonenumbers.parse(phone, "AU")
-            
-            # Check if it's a valid Australian number
-            if phonenumbers.is_valid_number(parsed_phone):
-                # Format in international format
-                formatted = phonenumbers.format_number(parsed_phone, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
-                
-                # Apply regex pattern check for specific validation (mobile vs landline)
-                pattern = getattr(rule, 'ValidationPattern', '')
-                if pattern and re.match(pattern, formatted):
-                    return ValidationResult(
-                        is_valid=True,
-                        formatted_value=formatted,
-                        matched_rule=getattr(rule, 'RuleKey', '')
-                    )
-            
-        except Exception:  # phonenumbers.NumberParseException or AttributeError if phonenumbers is None
-            pass
+        # Strip spaces, dashes, parentheses
+        cleaned_phone = re.sub(r'[\s\-\(\)]', '', phone)
         
-        # Fallback: try regex validation directly
+        # Get the regex pattern for this rule
         pattern = getattr(rule, 'ValidationPattern', '')
-        if pattern and re.match(pattern, phone):
+        
+        # Check if the cleaned phone matches the rule's pattern
+        if pattern and re.match(pattern, cleaned_phone):
+            # Phone matches! Now normalize to international format with correct country prefix
+            normalized = self._normalize_phone_by_country(cleaned_phone, country_id)
+            
+            # Calculate display value (Story 1.20)
+            display_val = self._get_display_value(normalized, rule)
+            
             return ValidationResult(
                 is_valid=True,
-                formatted_value=phone,
-                matched_rule=getattr(rule, 'RuleKey', '')
+                formatted_value=normalized,
+                display_value=display_val,
+                matched_rule=getattr(rule, 'RuleKey', ''),
+                display_format=getattr(rule, 'DisplayFormat', None),
+                spacing_pattern=getattr(rule, 'SpacingPattern', None)
             )
         
+        # Pattern didn't match - return error with example
         example = f" Try: {getattr(rule, 'ExampleValue', '')}" if getattr(rule, 'ExampleValue', '') else ""
         return ValidationResult(
             is_valid=False,
             error_message=f"{getattr(rule, 'ValidationMessage', 'Invalid format')}.{example}"
         )
+    
+    def _normalize_phone_by_country(self, phone: str, country_id: int) -> str:
+        """
+        Normalize phone numbers to international format based on country.
+        
+        Story 1.20: Country-aware normalization for all supported countries.
+        
+        Args:
+            phone: Phone number in local or international format
+            country_id: Country ID (1=AU, 14=NZ, 15=US, 16=GB, 17=CA)
+            
+        Returns:
+            Phone in international format with country prefix
+        """
+        # Already in international format
+        if phone.startswith('+'):
+            return phone
+        
+        # Australia (ID=1): 04... → +614..., 02... → +612...
+        if country_id == 1:
+            if phone.startswith('0'):
+                return '+61' + phone[1:]
+            if phone.startswith('1'):  # 1800, 1300
+                return '+61' + phone
+        
+        # New Zealand (ID=14): 0... → +64...
+        elif country_id == 14:
+            if phone.startswith('0'):
+                return '+64' + phone[1:]
+        
+        # USA (ID=15): 10 digits → +1...
+        elif country_id == 15:
+            if len(phone) == 10 and not phone.startswith('+'):
+                return '+1' + phone
+        
+        # UK (ID=16): 0... → +44...
+        elif country_id == 16:
+            if phone.startswith('0'):
+                return '+44' + phone[1:]
+        
+        # Canada (ID=17): 10 digits → +1...
+        elif country_id == 17:
+            if len(phone) == 10 and not phone.startswith('+'):
+                return '+1' + phone
+        
+        # Fallback: return as-is
+        return phone
+    
+    def _normalize_australian_phone(self, phone: str) -> str:
+        """
+        Normalize Australian phone numbers to international format.
+        
+        Story 1.20: Comprehensive normalization for all Australian formats.
+        
+        Rules:
+        - 04XXXXXXXX → +614XXXXXXXX (mobile)
+        - 02XXXXXXXX → +612XXXXXXXX (NSW/ACT landline)
+        - 03XXXXXXXX → +613XXXXXXXX (VIC/TAS landline)
+        - 07XXXXXXXX → +617XXXXXXXX (QLD landline)
+        - 08XXXXXXXX → +618XXXXXXXX (SA/WA/NT landline)
+        - 1800XXXXXX → +611800XXXXXX (toll-free)
+        - 1300XXXXXX → +611300XXXXXX (local rate)
+        - 13XXXX → +6113XXXX (short code)
+        - +61... → +61... (already normalized)
+        """
+        # Already in international format
+        if phone.startswith('+61'):
+            return phone
+        
+        # Local format starting with 0 (mobile/landline)
+        if phone.startswith('0'):
+            return '+61' + phone[1:]  # Replace leading 0 with +61
+        
+        # Business numbers (1800, 1300, 13)
+        if phone.startswith('1'):
+            return '+61' + phone  # Prepend +61
+        
+        # Fallback: return as-is (shouldn't happen with proper validation)
+        return phone
+    
+    def _get_display_value(self, international_value: str, rule: ValidationRule) -> str:
+        """
+        Convert international format to local display format.
+        
+        Story 1.20: Shows users their familiar local format (builds trust).
+        - +61412345678 → 0412345678 (Australian sees local format)
+        - +14155551234 → 4155551234 (American sees local format)
+        
+        Args:
+            international_value: Phone in international format (+61...)
+            rule: ValidationRule with StripPrefix and DisplayFormat
+            
+        Returns:
+            Phone in local display format
+        """
+        strip_prefix = getattr(rule, 'StripPrefix', False)
+        
+        if not strip_prefix:
+            # Don't strip (e.g., UK already uses local format)
+            return international_value
+        
+        # Strip international prefix based on pattern
+        # Australian: +61... → 0...
+        if international_value.startswith('+61'):
+            return '0' + international_value[3:]  # +61412345678 → 0412345678
+        
+        # New Zealand: +64... → 0...
+        if international_value.startswith('+64'):
+            return '0' + international_value[3:]
+        
+        # USA/Canada: +1... → just the 10 digits
+        if international_value.startswith('+1'):
+            return international_value[2:]  # +14155551234 → 4155551234
+        
+        # UK: +44... → 0...
+        if international_value.startswith('+44'):
+            return '0' + international_value[3:]
+        
+        # Fallback: return as-is
+        return international_value
     
     def _format_value(self, rule: ValidationRule, value: str) -> str:
         """Format value according to rule type"""
@@ -306,8 +430,11 @@ class ValidationEngine:
                     error_message="Invalid email format. Try: user@example.com"
                 )
         
-        # For other types, assume valid if not empty
-        return ValidationResult(is_valid=True, formatted_value=value)
+        # Story 1.20 Fix: Don't assume valid - return error if no rules defined
+        return ValidationResult(
+            is_valid=False,
+            error_message=f"No validation rules configured for {rule_type}. Please contact support."
+        )
     
     def _is_cache_valid(self, cache_key: str) -> bool:
         """Check if cached data is still valid (within TTL)"""

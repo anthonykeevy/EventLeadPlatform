@@ -53,9 +53,16 @@ class ValidationRule(Base):
     MaxLength = Column(Integer, nullable=True)
     ExampleValue = Column(String(100), nullable=True)
     
+    # Display Formatting (Story 1.20 enhancement)
+    DisplayFormat = Column(String(100), nullable=True)  # e.g., '04XX XXX XXX'
+    DisplayExample = Column(String(100), nullable=True)  # e.g., '0412 345 678'
+    StripPrefix = Column(Boolean, nullable=False, default=False)  # Remove +61 for display
+    SpacingPattern = Column(String(50), nullable=True)  # e.g., 'XXXX XXX XXX'
+    
     # Status and Priority
     IsActive = Column(Boolean, nullable=False, default=True, index=True)
     Priority = Column(Integer, nullable=False, default=0)
+    SortOrder = Column(Integer, nullable=False, default=999)  # Standardized ordering (Story 1.20)
     
     # Audit Columns
     CreatedDate = Column(DateTime, nullable=False, server_default=func.getutcdate())

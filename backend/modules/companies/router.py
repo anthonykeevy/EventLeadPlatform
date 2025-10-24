@@ -3,6 +3,7 @@ Company Management Router
 Endpoints for company creation and management
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import Optional, List
@@ -87,7 +88,7 @@ async def create_first_company(
     Returns new access token and refresh token with updated claims.
     """
     try:
-        # Create company and user-company relationship
+        # Create company and user-company relationship (NOT committed yet)
         company, user_company = await create_company(
             db=db,
             user_id=current_user.user_id,
@@ -102,7 +103,9 @@ async def create_first_company(
         )
         
         # Issue new JWT with role and company_id (AC-1.5.6)
+        # This happens BEFORE commit so we can rollback if it fails
         access_token = create_access_token(
+            db=db,
             user_id=current_user.user_id,
             email=current_user.email,
             role="company_admin",
@@ -110,12 +113,17 @@ async def create_first_company(
         )
         
         refresh_token = create_refresh_token(
-            user_id=current_user.user_id,
-            db=db
+            db=db,
+            user_id=current_user.user_id
         )
         
+        # Only commit if EVERYTHING above succeeded
+        db.commit()
+        db.refresh(company)
+        db.refresh(user_company)
+        
         logger.info(
-            f"Company created and JWT issued: UserID={current_user.user_id}, "
+            f"✅ Company created and committed: UserID={current_user.user_id}, "
             f"CompanyID={company.CompanyID}, Role=company_admin"
         )
         
@@ -131,12 +139,14 @@ async def create_first_company(
         
     except ValueError as e:
         logger.warning(f"Invalid company creation request: {str(e)}")
+        db.rollback()  # Rollback on validation error
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
     except Exception as e:
         logger.error(f"Error creating company: {str(e)}", exc_info=True)
+        db.rollback()  # CRITICAL: Rollback ALL changes on error
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create company"
@@ -1027,3 +1037,73 @@ async def get_cache_statistics(
             detail="Failed to retrieve cache statistics"
         )
 
+
+# ============================================================================
+# Team Management - Story 1.18
+# ============================================================================
+
+@router.get(
+    "/{company_id}/users",
+    summary="Get company team members",
+    description="Get list of users for a specific company (Story 1.18: Team panel)"
+)
+async def get_company_users(
+    company_id: int,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Get all users for a specific company.
+    AC-1.18.7: Team management panel shows users for clicked company.
+    """
+    from models.user_company import UserCompany
+    from models.user import User
+    
+    # Verify current user has access to this company
+    user_company = db.query(UserCompany).filter(
+        UserCompany.UserID == current_user.user_id,
+        UserCompany.CompanyID == company_id
+    ).first()
+    
+    if not user_company:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this company"
+        )
+    
+    # Get all users for this company
+    company_users = db.query(UserCompany).filter(
+        UserCompany.CompanyID == company_id
+    ).all()
+    
+    users_list = []
+    for uc in company_users:
+        user = db.query(User).filter(User.UserID == uc.UserID).first()
+        if user:
+            # Get role name
+            role_name = "Company User"
+            if uc.role:
+                role_name = uc.role.RoleName
+            
+            # Get status
+            user_status = "Active"
+            if user.status:
+                user_status = user.status.StatusName
+            
+            users_list.append({
+                "userId": user.UserID,
+                "email": user.Email,
+                "firstName": user.FirstName,
+                "lastName": user.LastName,
+                "role": role_name,
+                "status": user_status
+            })
+    
+    return JSONResponse(
+        status_code=200,
+        content={
+            "companyId": company_id,
+            "companyName": "Company Name",  # TODO: Get from Company table
+            "users": users_list
+        }
+    )

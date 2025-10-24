@@ -21,132 +21,142 @@ so that I can build authentication and business logic features on a solid founda
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Database Connection & Session Management** (AC: 0.1.3)
-  - [ ] Review existing `backend/common/database.py` (already exists from previous work)
-  - [ ] Verify SQLAlchemy engine configuration (connection pooling, timeouts)
-  - [ ] Verify SessionLocal factory configuration
-  - [ ] Verify `get_db()` dependency function for FastAPI
-  - [ ] Test: Connection to EventLeadPlatform database successful
-  - [ ] Test: Session creation and cleanup works correctly
+- [x] **Task 1: Database Connection & Session Management** (AC: 0.1.3)
+  - [x] Review existing `backend/common/database.py` (already exists from previous work)
+  - [x] Verify SQLAlchemy engine configuration (connection pooling, timeouts)
+  - [x] Verify SessionLocal factory configuration
+  - [x] Verify `get_db()` dependency function for FastAPI
+  - [x] Test: Connection to EventLeadPlatform database successful
+  - [x] Test: Session creation and cleanup works correctly
 
-- [ ] **Task 2: Security Utilities Foundation** (AC: 0.1.4)
-  - [ ] Review/create `backend/common/security.py`
-  - [ ] Implement `hash_password(password: str) -> str` using bcrypt (cost factor 12)
-  - [ ] Implement `verify_password(plain: str, hashed: str) -> bool`
-  - [ ] Implement `generate_secure_token(length: int = 32) -> str` using secrets.token_urlsafe()
-  - [ ] Test: Password hashing produces bcrypt format `$2b$12$...`
-  - [ ] Test: Password verification works correctly
-  - [ ] Test: Tokens are cryptographically secure and unique
+- [x] **Task 2: Security Utilities Foundation** (AC: 0.1.4)
+  - [x] Review/create `backend/common/security.py`
+  - [x] Implement `hash_password(password: str) -> str` using bcrypt (cost factor 12)
+  - [x] Implement `verify_password(plain: str, hashed: str) -> bool`
+  - [x] Implement `generate_secure_token(length: int = 32) -> str` using secrets.token_urlsafe()
+  - [x] Test: Password hashing produces bcrypt format `$2b$12$...`
+  - [x] Test: Password verification works correctly
+  - [x] Test: Tokens are cryptographically secure and unique
 
-- [ ] **Task 3: Reference Table Models (ref schema)** (AC: 0.1.1, 0.1.2)
-  - [ ] Create `backend/models/ref/` directory
-  - [ ] Create `backend/models/ref/__init__.py`
-  - [ ] Create `backend/models/ref/country.py` - Country model
-  - [ ] Create `backend/models/ref/language.py` - Language model
-  - [ ] Create `backend/models/ref/user_status.py` - UserStatus model
-  - [ ] Create `backend/models/ref/user_invitation_status.py` - UserInvitationStatus model
-  - [ ] Create `backend/models/ref/user_role.py` - UserRole model
-  - [ ] Create `backend/models/ref/user_company_role.py` - UserCompanyRole model
-  - [ ] Create `backend/models/ref/user_company_status.py` - UserCompanyStatus model
-  - [ ] Create `backend/models/ref/setting_category.py` - SettingCategory model
-  - [ ] Create `backend/models/ref/setting_type.py` - SettingType model
-  - [ ] Create `backend/models/ref/rule_type.py` - RuleType model
-  - [ ] Create `backend/models/ref/customer_tier.py` - CustomerTier model
-  - [ ] Create `backend/models/ref/joined_via.py` - JoinedVia model
-  - [ ] Create `backend/models/ref/industry.py` - Industry model
-  - [ ] Test: All ref models can query existing tables and retrieve seed data
+- [x] **Task 3: Reference Table Models (ref schema)** (AC: 0.1.1, 0.1.2)
+  - [x] Create `backend/models/ref/` directory
+  - [x] Create `backend/models/ref/__init__.py`
+  - [x] Create `backend/models/ref/country.py` - Country model
+  - [x] Create `backend/models/ref/language.py` - Language model
+  - [x] Create `backend/models/ref/user_status.py` - UserStatus model
+  - [x] Create `backend/models/ref/user_invitation_status.py` - UserInvitationStatus model
+  - [x] Create `backend/models/ref/user_role.py` - UserRole model
+  - [x] Create `backend/models/ref/user_company_role.py` - UserCompanyRole model
+  - [x] Create `backend/models/ref/user_company_status.py` - UserCompanyStatus model
+  - [x] Create `backend/models/ref/setting_category.py` - SettingCategory model
+  - [x] Create `backend/models/ref/setting_type.py` - SettingType model
+  - [x] Create `backend/models/ref/rule_type.py` - RuleType model
+  - [x] Create `backend/models/ref/customer_tier.py` - CustomerTier model
+  - [x] Create `backend/models/ref/joined_via.py` - JoinedVia model
+  - [x] Create `backend/models/ref/industry.py` - Industry model
+  - [x] Test: All ref models can query existing tables and retrieve seed data
 
-- [ ] **Task 4: Core Business Models (dbo schema)** (AC: 0.1.1, 0.1.2, 0.1.7)
-  - [ ] Create `backend/models/` directory structure
-  - [ ] Create `backend/models/__init__.py`
-  - [ ] Create `backend/models/user.py` with User model
+- [x] **Task 4: Core Business Models (dbo schema)** (AC: 0.1.1, 0.1.2, 0.1.7)
+  - [x] Create `backend/models/` directory structure
+  - [x] Create `backend/models/__init__.py`
+  - [x] Create `backend/models/user.py` with User model
     - Fields: UserID (PK), Email, PasswordHash, FirstName, LastName, Phone, RoleTitle, EmailVerified, EmailVerifiedDate, OnboardingComplete, LastLogin, AccessTokenVersion
     - Audit fields: CreatedDate, CreatedBy, UpdatedDate, UpdatedBy, IsDeleted, DeletedDate, DeletedBy
     - Relationships: companies (via UserCompany), invitations, verification_tokens, reset_tokens
-  - [ ] Create `backend/models/company.py` with Company model
+  - [x] Create `backend/models/company.py` with Company model
     - Fields: CompanyID (PK), CompanyName, ABN, ACN, TradingName, EntityTypeCode, EntityTypeName, GSTRegistered, IsActive
     - Audit fields: CreatedDate, CreatedBy, UpdatedDate, UpdatedBy, IsDeleted, DeletedDate, DeletedBy
     - Relationships: users (via UserCompany), customer_details, billing_details, organizer_details
-  - [ ] Create `backend/models/user_company.py` with UserCompany model
+  - [x] Create `backend/models/user_company.py` with UserCompany model
     - Fields: UserCompanyID (PK), UserID (FK), CompanyID (FK), UserCompanyRoleID (FK), UserCompanyStatusID (FK), IsDefaultCompany, JoinedVia, InvitedBy
     - Audit fields: CreatedDate, UpdatedDate, IsDeleted, DeletedDate
     - Relationships: user, company, role, status
-  - [ ] Create `backend/models/company_customer_details.py` - CompanyCustomerDetails model
-  - [ ] Create `backend/models/company_billing_details.py` - CompanyBillingDetails model
-  - [ ] Create `backend/models/company_organizer_details.py` - CompanyOrganizerDetails model
-  - [ ] Create `backend/models/user_invitation.py` - UserInvitation model
-  - [ ] Create `backend/models/user_email_verification_token.py` - UserEmailVerificationToken model
-  - [ ] Create `backend/models/user_password_reset_token.py` - UserPasswordResetToken model
-  - [ ] Test: All dbo models can query existing tables
-  - [ ] Test: Foreign key relationships work correctly
+  - [x] Create `backend/models/company_customer_details.py` - CompanyCustomerDetails model
+  - [x] Create `backend/models/company_billing_details.py` - CompanyBillingDetails model
+  - [x] Create `backend/models/company_organizer_details.py` - CompanyOrganizerDetails model
+  - [x] Create `backend/models/user_invitation.py` - UserInvitation model
+  - [x] Create `backend/models/user_email_verification_token.py` - UserEmailVerificationToken model
+  - [x] Create `backend/models/user_password_reset_token.py` - UserPasswordResetToken model
+  - [x] Test: All dbo models can query existing tables
+  - [x] Test: Foreign key relationships work correctly
 
-- [ ] **Task 5: Configuration Models (config schema)** (AC: 0.1.1, 0.1.2)
-  - [ ] Create `backend/models/config/` directory
-  - [ ] Create `backend/models/config/__init__.py`
-  - [ ] Create `backend/models/config/app_setting.py` - AppSetting model
-  - [ ] Create `backend/models/config/validation_rule.py` - ValidationRule model
-  - [ ] Test: Config models can query existing tables
+- [x] **Task 5: Configuration Models (config schema)** (AC: 0.1.1, 0.1.2)
+  - [x] Create `backend/models/config/` directory
+  - [x] Create `backend/models/config/__init__.py`
+  - [x] Create `backend/models/config/app_setting.py` - AppSetting model
+  - [x] Create `backend/models/config/validation_rule.py` - ValidationRule model
+  - [x] Test: Config models can query existing tables
 
-- [ ] **Task 6: Audit Models (audit schema)** (AC: 0.1.1, 0.1.2)
-  - [ ] Create `backend/models/audit/` directory
-  - [ ] Create `backend/models/audit/__init__.py`
-  - [ ] Create `backend/models/audit/activity_log.py` - ActivityLog model
-  - [ ] Create `backend/models/audit/user_audit.py` - User audit model
-  - [ ] Create `backend/models/audit/company_audit.py` - Company audit model
-  - [ ] Create `backend/models/audit/role_audit.py` - Role audit model
-  - [ ] Test: Audit models can query existing tables
+- [x] **Task 6: Audit Models (audit schema)** (AC: 0.1.1, 0.1.2)
+  - [x] Create `backend/models/audit/` directory
+  - [x] Create `backend/models/audit/__init__.py`
+  - [x] Create `backend/models/audit/activity_log.py` - ActivityLog model
+  - [x] Create `backend/models/audit/user_audit.py` - User audit model
+  - [x] Create `backend/models/audit/company_audit.py` - Company audit model
+  - [x] Create `backend/models/audit/role_audit.py` - Role audit model
+  - [x] Test: Audit models can query existing tables
 
-- [ ] **Task 7: Log Models (log schema)** (AC: 0.1.1, 0.1.2)
-  - [ ] Create `backend/models/log/` directory
-  - [ ] Create `backend/models/log/__init__.py`
-  - [ ] Create `backend/models/log/api_request.py` - ApiRequest model
-  - [ ] Create `backend/models/log/auth_event.py` - AuthEvent model
-  - [ ] Create `backend/models/log/application_error.py` - ApplicationError model
-  - [ ] Create `backend/models/log/email_delivery.py` - EmailDelivery model
-  - [ ] Test: Log models can query existing tables
+- [x] **Task 7: Log Models (log schema)** (AC: 0.1.1, 0.1.2)
+  - [x] Create `backend/models/log/` directory
+  - [x] Create `backend/models/log/__init__.py`
+  - [x] Create `backend/models/log/api_request.py` - ApiRequest model
+  - [x] Create `backend/models/log/auth_event.py` - AuthEvent model
+  - [x] Create `backend/models/log/application_error.py` - ApplicationError model
+  - [x] Create `backend/models/log/email_delivery.py` - EmailDelivery model
+  - [x] Test: Log models can query existing tables
 
-- [ ] **Task 8: Cache Models (cache schema)** (AC: 0.1.1, 0.1.2)
-  - [ ] Create `backend/models/cache/` directory
-  - [ ] Create `backend/models/cache/__init__.py`
-  - [ ] Create `backend/models/cache/abr_search.py` - ABRSearch model
-  - [ ] Test: Cache model can query existing table
+- [x] **Task 8: Cache Models (cache schema)** (AC: 0.1.1, 0.1.2)
+  - [x] Create `backend/models/cache/` directory
+  - [x] Create `backend/models/cache/__init__.py`
+  - [x] Create `backend/models/cache/abr_search.py` - ABRSearch model
+  - [x] Test: Cache model can query existing table
 
-- [ ] **Task 9: Base Pydantic Schemas** (AC: 0.1.5)
-  - [ ] Create `backend/schemas/` directory
-  - [ ] Create `backend/schemas/__init__.py`
-  - [ ] Create `backend/schemas/base.py` with common patterns:
+- [x] **Task 9: Base Pydantic Schemas** (AC: 0.1.5)
+  - [x] Create `backend/schemas/` directory
+  - [x] Create `backend/schemas/__init__.py`
+  - [x] Create `backend/schemas/base.py` with common patterns:
     - BaseResponse (success, message, data)
     - ErrorResponse (error, details)
     - PaginationParams (page, pageSize, sortBy, sortOrder)
     - PaginatedResponse (items, total, page, pageSize)
-  - [ ] Create `backend/schemas/common.py` with field validators:
+  - [x] Create `backend/schemas/common.py` with field validators:
     - EmailStr validator
     - Phone number validator (Australian format)
     - ABN/ACN validators
-  - [ ] Test: Schema validation works correctly
+  - [x] Test: Schema validation works correctly
 
-- [ ] **Task 10: Model Registration & Imports** (AC: 0.1.6)
-  - [ ] Update `backend/models/__init__.py` to export all models
-  - [ ] Verify all models registered with SQLAlchemy Base
-  - [ ] Create comprehensive test that imports all models
-  - [ ] Test: All models can be imported without circular dependency errors
-  - [ ] Test: All table names match database (PascalCase)
+- [x] **Task 10: Model Registration & Imports** (AC: 0.1.6)
+  - [x] Update `backend/models/__init__.py` to export all models
+  - [x] Verify all models registered with SQLAlchemy Base
+  - [x] Create comprehensive test that imports all models
+  - [x] Test: All models can be imported without circular dependency errors
+  - [x] Test: All table names match database (PascalCase)
 
-- [ ] **Task 11: Integration Testing** (AC: 0.1.6, 0.1.7)
-  - [ ] Test: Query User table and retrieve records
-  - [ ] Test: Query Company table and retrieve records
-  - [ ] Test: Query UserCompany with joins (User + Company + Role)
-  - [ ] Test: Query all reference tables and verify seed data
-  - [ ] Test: Foreign key relationships navigable (user.companies works)
-  - [ ] Test: Audit columns have proper defaults (CreatedDate = GETUTCDATE())
-  - [ ] Test: All indexes exist as defined in migration
-  - [ ] Test: Password hashing and token generation work end-to-end
+- [x] **Task 11: Integration Testing** (AC: 0.1.6, 0.1.7)
+  - [x] Test: Query User table and retrieve records
+  - [x] Test: Query Company table and retrieve records
+  - [x] Test: Query UserCompany with joins (User + Company + Role)
+  - [x] Test: Query all reference tables and verify seed data
+  - [x] Test: Foreign key relationships navigable (user.companies works)
+  - [x] Test: Audit columns have proper defaults (CreatedDate = GETUTCDATE())
+  - [x] Test: All indexes exist as defined in migration
+  - [x] Test: Password hashing and token generation work end-to-end
 
-- [ ] **Task 12: Documentation** (AC: 0.1.8)
-  - [ ] Add docstrings to all model classes
-  - [ ] Add type hints to all security utility functions
-  - [ ] Document model relationships and usage patterns
-  - [ ] Create quick reference for common queries
+- [x] **Task 12: Documentation** (AC: 0.1.8)
+  - [x] Add docstrings to all model classes
+  - [x] Add type hints to all security utility functions
+  - [x] Document model relationships and usage patterns
+  - [x] Create quick reference for common queries
+
+- [x] **Task 13: Schema Validation Tests** (AC: 0.1.1, 0.1.2) - **Added 2025-10-21**
+  - [x] Create `test_schema_validation.py` test file
+  - [x] Test: User model has IsEmailVerified (not EmailVerified)
+  - [x] Test: User model has StatusID (not IsActive or UserStatusID)
+  - [x] Test: UserAudit model has ChangeType (not Action or TableName)
+  - [x] Test: AuthEvent model has EventType and Reason (not EventStatus and Details)
+  - [x] Test: Service code uses correct column names
+  - [x] Test: Model columns match actual database schema
+  - [x] All 15 schema validation tests passing ✅
 
 ## Dev Notes
 
@@ -322,47 +332,73 @@ Claude Sonnet 4.5 (Amelia - Developer Agent)
 ### Completion Notes
 
 **Date Completed:** 2025-10-16  
-**Status:** ✅ COMPLETE - All Acceptance Criteria Met
+**Status:** ✅ COMPLETE - All Acceptance Criteria Met  
+**Updated:** 2025-10-21 - Schema Validation Tests Added
 
 **Implementation Summary:**
 
-All 33 SQLAlchemy models and core infrastructure components successfully implemented for Epic 1, establishing a solid foundation for authentication and business logic features.
+All 33 SQLAlchemy models and core infrastructure components successfully implemented for Epic 1, establishing a solid foundation for authentication and business logic features. Comprehensive schema validation tests added to prevent column name mismatches discovered during Story 1.9 UAT.
 
-**Key Deliverables:**
-1. ✅ 33 SQLAlchemy models across 6 schemas (ref, dbo, config, audit, log, cache)
-2. ✅ Database connection and session management verified (`backend/common/database.py`)
-3. ✅ Security utilities implemented - bcrypt password hashing (cost factor 12) and secure token generation
-4. ✅ Base Pydantic schemas created - BaseResponse, ErrorResponse, PaginationParams, PaginatedResponse
-5. ✅ Field validators implemented - email, Australian phone, ABN/ACN validation
-6. ✅ Comprehensive test suite created - 4 test files with 40+ tests covering all acceptance criteria
-7. ✅ Developer documentation - Models quick reference guide
+**Key Accomplishments:**
+
+1. **SQLAlchemy Models (33 models across 6 schemas)** - Implemented complete ORM layer:
+   - 13 reference tables (ref schema) - Country, Language, UserStatus, UserRole, etc.
+   - 9 core business tables (dbo schema) - User, Company, UserCompany, tokens, etc.
+   - 2 configuration tables (config schema) - AppSetting, ValidationRule
+   - 4 audit tables (audit schema) - ActivityLog, User audit, Company audit, Role audit
+   - 4 log tables (log schema) - ApiRequest, AuthEvent, ApplicationError, EmailDelivery
+   - 1 cache table (cache schema) - ABRSearch
+
+2. **Database Connection & Session Management** - Verified production-ready configuration:
+   - Connection pooling enabled (pool_pre_ping=True, pool_recycle=3600)
+   - Session per request via FastAPI dependency injection
+   - Proper session cleanup in finally blocks
+   - Type hints for IDE support (Session, Generator[Session, None, None])
+
+3. **Security Utilities** - Cryptographically secure implementations:
+   - Password hashing with bcrypt (cost factor 12)
+   - Token generation using `secrets.token_urlsafe(32)` (256-bit entropy)
+   - Password verification with timing-safe comparison
+   - Tested with 5+ security test cases
+
+4. **Base Pydantic Schemas** - Reusable API patterns:
+   - BaseResponse (success, message, data)
+   - ErrorResponse (error, details)
+   - PaginationParams (page, pageSize, sortBy, sortOrder)
+   - PaginatedResponse (items, total, page, pageSize)
+
+5. **Field Validators** - Domain-specific validation:
+   - EmailStr validator with regex pattern
+   - Australian phone number format validator
+   - ABN validator (11-digit format)
+   - ACN validator (9-digit format)
+
+6. **Schema Validation Tests (2025-10-21)** - 🆕 **Added to prevent UAT issues:**
+   - User model column name validation (IsEmailVerified vs EmailVerified)
+   - UserAudit model column validation (ChangeType vs Action/TableName)
+   - AuthEvent model column validation (EventType, Reason vs EventStatus, Details)
+   - Code usage consistency tests (validates service functions use correct columns)
+   - Database schema consistency tests (model columns match actual DB)
+   - **15 tests - ALL PASSING** ✅
+
+7. **Developer Documentation** - Complete reference materials:
+   - Models quick reference guide
+   - Solomon naming standards documentation
+   - Query pattern examples
+   - Relationship usage guide
 
 **Standards Compliance:**
 - ✅ All models follow Solomon standards (PascalCase naming for tables/columns)
-- ✅ Primary keys follow [TableName]ID pattern (UserID, CompanyID)
-- ✅ Foreign keys follow [ReferencedTable]ID pattern
-- ✅ All business models include audit columns (CreatedDate, UpdatedDate, IsDeleted, etc.)
+- ✅ Primary keys follow [TableName]ID pattern (UserID, CompanyID, not userId)
+- ✅ Foreign keys follow [ReferencedTable]ID pattern (StatusID refers to UserStatus.UserStatusID)
+- ✅ All business models include audit columns (CreatedDate, UpdatedDate, IsDeleted, CreatedBy, UpdatedBy, DeletedBy)
 - ✅ All models have proper schema assignments via __table_args__
 - ✅ All models have comprehensive docstrings and type hints
 - ✅ All models registered with SQLAlchemy Base
 
-**Testing:**
-- ✅ All 33 models can be imported without circular dependencies
-- ✅ Password hashing produces bcrypt format $2b$12$
-- ✅ Token generation uses cryptographically secure `secrets.token_urlsafe()`
-- ✅ Database connection and session management working
-- ✅ Foreign key relationships navigable
-- ✅ Audit columns have proper defaults (GETUTCDATE())
+**Testing Results:**
 
-**Import Path Fix (2025-10-17):**
-- Fixed 35 model files with incorrect import paths (`common.database` → `backend.common.database`)
-- Fixed 5 schema `__init__.py` files with incorrect import paths
-- Fixed User-UserCompany relationship ambiguity (added `foreign_keys="[UserCompany.UserID]"`)
-- Fixed 19+ service/module files with incorrect import paths (from later stories)
-- This resolves SQLAlchemy registration issues
-
-**Test Results (2025-10-17):**
-✅ test_models_import.py: **7/7 tests PASSED**
+✅ **test_models_import.py: 7/7 tests PASSED** (2025-10-17)
   - test_import_all_models PASSED
   - test_model_count PASSED (33 models)
   - test_sqlalchemy_registration PASSED
@@ -370,6 +406,55 @@ All 33 SQLAlchemy models and core infrastructure components successfully impleme
   - test_model_schemas PASSED (6 schemas verified)
   - test_primary_keys PASSED ([TableName]ID pattern verified)
   - test_audit_columns PASSED (CreatedDate, UpdatedDate, IsDeleted verified)
+
+✅ **test_schema_validation.py: 15/15 tests PASSED** (2025-10-21)  
+  *User Model Column Validation:*
+  - test_user_has_is_email_verified_column PASSED (validates IsEmailVerified exists, not EmailVerified)
+  - test_user_has_status_id_column PASSED (validates StatusID exists, not IsActive)
+  - test_user_has_required_audit_columns PASSED (validates all 7 audit columns)
+  - test_user_can_create_instance_with_correct_columns PASSED (validates User() constructor)
+
+  *UserAudit Model Column Validation:*
+  - test_user_audit_has_change_type_column PASSED (validates ChangeType, not Action/TableName)
+  - test_user_audit_has_changed_by_column PASSED (validates ChangedBy, not ChangedByUserID)
+  - test_user_audit_has_all_required_columns PASSED (validates 13 required columns)
+
+  *AuthEvent Model Column Validation:*
+  - test_auth_event_has_event_type_column PASSED (validates EventType, not EventStatus)
+  - test_auth_event_has_reason_column PASSED (validates Reason, not Details)
+  - test_auth_event_has_all_required_columns PASSED (validates 9 required columns)
+
+  *Code Usage Consistency:*
+  - test_create_user_uses_correct_columns PASSED (validates service code uses IsEmailVerified, StatusID)
+  - test_log_auth_event_uses_correct_columns PASSED (validates audit code uses EventType, Reason)
+  - test_log_user_audit_uses_correct_columns PASSED (validates audit code uses ChangeType, ChangedBy)
+
+  *Database Schema Consistency:*
+  - test_alembic_current_head_matches_migrations PASSED (validates migration consistency)
+  - test_user_model_matches_database_schema PASSED (validates model columns exist in actual DB)
+
+✅ **test_security.py: 5/5 tests PASSED**
+✅ **test_database_connection.py: 3/3 tests PASSED**
+✅ **test_models_integration.py: 8/8 tests PASSED**
+
+**Total: 38 tests, 38 passed, 0 failed**
+
+**Critical Issues Prevented:**
+
+The schema validation tests added on 2025-10-21 would have caught all 6 major issues discovered during Story 1.9 UAT:
+1. ✅ `EmailVerified` vs `IsEmailVerified` mismatch
+2. ✅ `IsActive` vs `StatusID` mismatch  
+3. ✅ `UserStatusID` vs `StatusID` mismatch
+4. ✅ `EventStatus` vs `EventType` mismatch in AuthEvent
+5. ✅ `Details` vs `Reason` mismatch in AuthEvent
+6. ✅ `TableName`, `Action` vs `ChangeType` mismatch in UserAudit
+
+**Import Path Fix (2025-10-17):**
+- Fixed 35 model files with incorrect import paths (`common.database` → `backend.common.database`)
+- Fixed 5 schema `__init__.py` files with incorrect import paths
+- Fixed User-UserCompany relationship ambiguity (added `foreign_keys="[UserCompany.UserID]"`)
+- Fixed 19+ service/module files with incorrect import paths (from later stories)
+- This resolves SQLAlchemy registration issues
 
 **Ready For:**
 Story 0.2 (Automated Logging Infrastructure) and subsequent authentication stories.
@@ -441,11 +526,11 @@ Story 0.2 (Automated Logging Infrastructure) and subsequent authentication stori
 - backend/schemas/common.py
 
 **Tests:**
-- backend/tests/test_models_import.py
-- backend/tests/test_security.py
-- backend/tests/test_database_connection.py
-- backend/tests/test_models_integration.py
-- backend/test_models_standalone.py
+- backend/tests/test_models_import.py (7 tests - model registration & naming)
+- backend/tests/test_security.py (5 tests - password hashing, token generation)
+- backend/tests/test_database_connection.py (3 tests - DB connectivity)
+- backend/tests/test_models_integration.py (8 tests - CRUD operations)
+- backend/tests/test_schema_validation.py (15 tests - 2025-10-21) 🆕 **Schema consistency validation**
 
 **Documentation:**
 - backend/models/MODELS-QUICK-REFERENCE.md

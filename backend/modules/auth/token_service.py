@@ -15,7 +15,7 @@ from models.user_password_reset_token import UserPasswordResetToken
 from common.config_service import ConfigurationService
 
 
-def generate_verification_token(db: Session, user_id: int) -> str:
+def generate_verification_token(db: Session, user_id: int, auto_commit: bool = True) -> str:
     """
     Generate and store email verification token.
     
@@ -24,6 +24,7 @@ def generate_verification_token(db: Session, user_id: int) -> str:
     Args:
         db: Database session
         user_id: ID of user to generate token for
+        auto_commit: If True, commits immediately. If False, caller must commit.
         
     Returns:
         Cryptographically secure token string
@@ -32,6 +33,7 @@ def generate_verification_token(db: Session, user_id: int) -> str:
         - Uses secrets.token_urlsafe() for cryptographic randomness
         - 32 bytes = 43 base64 characters
         - Tokens are single-use and have expiration
+        - If auto_commit=False, caller is responsible for commit/rollback
     """
     # Get expiry from configuration service
     config = ConfigurationService(db)
@@ -53,8 +55,12 @@ def generate_verification_token(db: Session, user_id: int) -> str:
     )
     
     db.add(token)
-    db.commit()
-    db.refresh(token)
+    
+    if auto_commit:
+        db.commit()
+        db.refresh(token)
+    else:
+        db.flush()  # Generate TokenID without committing
     
     return token_value
 

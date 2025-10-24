@@ -128,23 +128,32 @@ async def create_company(
     db.flush()  # Get CompanyID
     
     # Log company creation to audit (AC-1.5.7)
-    company_audit = CompanyAudit(
-        CompanyID=company.CompanyID,
-        Action="CREATE",
-        OldValue=None,
-        NewValue=str({
-            "CompanyName": company_name,
-            "ABN": abn,
-            "ACN": acn,
-            "CountryID": country_id,
-            "IndustryID": industry_id
-        }),
-        ChangedBy=user_id,
-        ChangeDate=datetime.utcnow(),
-        IPAddress=None,
-        UserAgent=None
-    )
-    db.add(company_audit)
+    # Log company creation to audit table (field-level tracking)
+    # Create audit entries for each field being set during company creation
+    user = db.get(User, user_id)
+    company_fields = {
+        "CompanyName": company_name,
+        "ABN": abn,
+        "ACN": acn,
+        "CountryID": country_id,
+        "IndustryID": industry_id
+    }
+    
+    for field_name, field_value in company_fields.items():
+        if field_value is not None:  # Only log fields that have values
+            audit_entry = CompanyAudit(
+                CompanyID=company.CompanyID,
+                FieldName=field_name,
+                OldValue=None,  # No old value for creation
+                NewValue=str(field_value),
+                ChangeType="INSERT",
+                ChangeReason="Company created during onboarding",
+                ChangedBy=user_id,
+                ChangedByEmail=user.Email if user else None,
+                IPAddress=None,  # TODO: Get from request context
+                UserAgent=None   # TODO: Get from request context
+            )
+            db.add(audit_entry)
     
     # Get company_admin role
     admin_role = db.execute(
@@ -198,12 +207,12 @@ async def create_company(
         user.UpdatedDate = datetime.utcnow()  # type: ignore
         user.UpdatedBy = user_id  # type: ignore
     
-    db.commit()
-    db.refresh(company)
-    db.refresh(user_company)
+    # DON'T COMMIT YET - let the router commit after JWT creation succeeds
+    # This ensures if JWT creation fails, we can rollback the whole transaction
+    db.flush()  # Flush to get IDs, but don't commit
     
     logger.info(
-        f"Company created: CompanyID={company.CompanyID}, UserID={user_id}, "
+        f"Company prepared (not committed yet): CompanyID={company.CompanyID}, UserID={user_id}, "
         f"Role=company_admin, ABN={abn}, ACN={acn}"
     )
     

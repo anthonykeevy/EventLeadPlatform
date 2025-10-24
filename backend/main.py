@@ -5,7 +5,7 @@ Main application entry point
 from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from .env file
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import middleware and exception handlers
@@ -19,6 +19,7 @@ from modules.companies.router import router as companies_router
 from modules.invitations.router import router as invitations_router
 from modules.config.router import router as config_router, admin_router as config_admin_router
 from modules.countries.router import router as countries_router
+from modules.dashboard.router import router as dashboard_router
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -32,7 +33,9 @@ app = FastAPI(
 )
 
 # Register global exception handler FIRST (catches all unhandled errors)
+# Story 0.2: Automatic error logging - catches ALL exceptions including HTTPException
 app.add_exception_handler(Exception, global_exception_handler)
+app.add_exception_handler(HTTPException, global_exception_handler)  # Catches 4xx/5xx errors
 
 # Add middleware (LIFO order - last added runs first)
 # 1. Request logging middleware (logs all requests automatically)
@@ -61,6 +64,7 @@ app.include_router(invitations_router)
 app.include_router(config_router)  # Story 1.13: Public configuration
 app.include_router(config_admin_router)  # Story 1.13: Admin configuration management
 app.include_router(countries_router)  # Story 1.12: Country validation
+app.include_router(dashboard_router)  # Story 1.18: Dashboard KPIs
 
 @app.get("/")
 async def root():

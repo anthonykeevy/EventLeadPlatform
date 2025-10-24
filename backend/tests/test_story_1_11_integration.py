@@ -182,10 +182,10 @@ def authenticated_user_two_companies(db_session: Session):
     from modules.auth.jwt_service import create_access_token
     token = create_access_token(
         db=db_session,
-        user_id=user.UserID,
-        email=user.Email,
+        user_id=user.UserID,  # type: ignore
+        email=user.Email,  # type: ignore
         role='company_admin',
-        company_id=company1.CompanyID
+        company_id=company1.CompanyID  # type: ignore
     )
     
     return {
@@ -295,6 +295,7 @@ class TestCrossCompanyInvitationFlow:
         onboarding_via = db_session.query(JoinedVia).filter_by(MethodCode='signup').first()
         if not onboarding_via:
             onboarding_via = test_helpers["signup_via"]
+        assert onboarding_via is not None, "signup via not found"
         
         # Existing user's company
         existing_company = test_helpers["create_company"]("Existing Company", existing_user.UserID)
@@ -680,6 +681,7 @@ class TestEndToEndMultiCompanyScenario:
             UserID=user.UserID,
             CompanyID=company_b.CompanyID
         ).first()
+        assert uc_b_updated is not None, "UserCompany record not found"
         assert uc_b_updated.IsPrimaryCompany is True
         
         # Switch back to Company A

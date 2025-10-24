@@ -1,10 +1,12 @@
 """
-Test suite for user login functionality - Story 1.1
+Test suite for user login functionality - Story 1.2
 Tests AC-1.8: User cannot log in until email is verified
+Tests added 2025-10-21: Column name validation, status checks
 """
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch
+from sqlalchemy.orm import Session
 
 class TestUserLogin:
     """Test user login functionality."""
@@ -201,3 +203,104 @@ class TestUserLogin:
         assert "x-content-type-options" in headers
         assert "x-frame-options" in headers
         assert "x-xss-protection" in headers
+    
+    @pytest.mark.integration
+    def test_login_checks_is_email_verified_column(self, db_session):
+        """
+        Test that login endpoint checks IsEmailVerified (not EmailVerified).
+        Added 2025-10-21 after UAT discovered column name mismatch.
+        """
+        from models.user import User
+        from models.ref.user_status import UserStatus
+        from common.security import hash_password
+        
+        # Create a user with IsEmailVerified=False
+        pending_status = db_session.query(UserStatus).filter(
+            UserStatus.StatusName == "Pending Verification"
+        ).first()
+        
+        user = User(
+            Email="unverified.test@example.com",
+            PasswordHash=hash_password("TestPass123!"),
+            FirstName="Test",
+            LastName="User",
+            IsEmailVerified=False,  # Explicitly not verified
+            StatusID=pending_status.UserStatusID if pending_status else 1
+        )
+        db_session.add(user)
+        db_session.commit()
+        
+        # Verify the column is correctly named
+        assert hasattr(user, 'IsEmailVerified'), "User should have IsEmailVerified attribute"
+        assert user.IsEmailVerified == False, "User should be unverified"
+    
+    @pytest.mark.integration
+    def test_login_checks_status_id_column(self, db_session):
+        """
+        Test that login endpoint checks StatusID (not IsActive).
+        Added 2025-10-21 after UAT discovered column name mismatch.
+        """
+        from models.user import User
+        from models.ref.user_status import UserStatus
+        from common.security import hash_password
+        
+        # Get valid status
+        active_status = db_session.query(UserStatus).filter(
+            UserStatus.StatusName == "Active"
+        ).first()
+        
+        # Create a verified user with StatusID
+        user = User(
+            Email="status.test@example.com",
+            PasswordHash=hash_password("TestPass123!"),
+            FirstName="Test",
+            LastName="User",
+            IsEmailVerified=True,
+            StatusID=active_status.UserStatusID if active_status else 1
+        )
+        db_session.add(user)
+        db_session.commit()
+        
+        # Verify the column is correctly named
+        assert hasattr(user, 'StatusID'), "User should have StatusID attribute"
+        assert not hasattr(user, 'IsActive'), "User should NOT have IsActive attribute"
+        assert user.StatusID is not None, "User should have StatusID set"
+    
+    @pytest.mark.integration
+    def test_login_validates_user_status_not_is_active(self, client: TestClient, db_session):
+        """
+        Test that login validates via user.status relationship (not user.IsActive).
+        Added 2025-10-21 after UAT discovered incorrect status check.
+        """
+        from models.user import User
+        from models.ref.user_status import UserStatus
+        from common.security import hash_password
+        
+        # Create verified user with "Inactive" status
+        inactive_status = db_session.query(UserStatus).filter(
+            UserStatus.StatusName == "Inactive"
+        ).first()
+        
+        if inactive_status:
+            user = User(
+                Email="inactive.user@example.com",
+                PasswordHash=hash_password("TestPass123!"),
+                FirstName="Inactive",
+                LastName="User",
+                IsEmailVerified=True,  # Email verified
+                StatusID=inactive_status.UserStatusID  # But status is Inactive
+            )
+            db_session.add(user)
+            db_session.commit()
+            
+            # Try to login - should fail due to inactive status
+            login_data = {
+                "email": "inactive.user@example.com",
+                "password": "TestPass123!"
+            }
+            
+            login_response = client.post("/api/auth/login", json=login_data)
+            
+            # Should fail with 403 (account inactive)
+            assert login_response.status_code == 403
+            assert "detail" in login_response.json()

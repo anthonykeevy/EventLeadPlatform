@@ -27,7 +27,8 @@ def create_user(
     email: str,
     password: str,
     first_name: str,
-    last_name: str
+    last_name: str,
+    auto_commit: bool = True
 ) -> User:
     """
     Create new user with hashed password.
@@ -39,14 +40,15 @@ def create_user(
         password: Plain text password (will be hashed)
         first_name: User's first name
         last_name: User's last name
+        auto_commit: If True, commits immediately. If False, caller must commit.
         
     Returns:
         Created User object
         
     Security Notes:
         - Password is hashed with bcrypt (cost factor 12)
-        - User starts with EmailVerified=false, IsActive=false
-        - User status set to "Pending Verification"
+        - User starts with IsEmailVerified=false, StatusID="Pending Verification"
+        - If auto_commit=False, caller is responsible for commit/rollback
     """
     # Hash password
     hashed_password = hash_password(password)
@@ -62,17 +64,20 @@ def create_user(
         PasswordHash=hashed_password,
         FirstName=first_name,
         LastName=last_name,
-        EmailVerified=False,
-        IsActive=False,
-        UserStatusID=pending_status.UserStatusID if pending_status else None,
+        IsEmailVerified=False,
+        StatusID=pending_status.UserStatusID if pending_status else None,
         CreatedDate=datetime.utcnow(),
         UpdatedDate=datetime.utcnow(),
         IsDeleted=False
     )
     
     db.add(user)
-    db.commit()
-    db.refresh(user)
+    
+    if auto_commit:
+        db.commit()
+        db.refresh(user)
+    else:
+        db.flush()  # Get UserID without committing
     
     return user
 
@@ -89,9 +94,8 @@ def verify_user_email(db: Session, user_id: int) -> User:
         Updated User object
         
     Changes:
-        - EmailVerified set to True
-        - IsActive set to True
-        - UserStatusID updated to "Active"
+        - IsEmailVerified set to True
+        - StatusID updated to "Active" status
     """
     # Find user
     user = db.query(User).filter(User.UserID == user_id).first()
@@ -105,9 +109,8 @@ def verify_user_email(db: Session, user_id: int) -> User:
     ).first()
     
     # Update user
-    user.EmailVerified = True  # type: ignore
-    user.IsActive = True  # type: ignore
-    user.UserStatusID = active_status.UserStatusID if active_status else user.UserStatusID  # type: ignore
+    user.IsEmailVerified = True  # type: ignore
+    user.StatusID = active_status.UserStatusID if active_status else user.StatusID  # type: ignore
     user.UpdatedDate = datetime.utcnow()  # type: ignore
     
     db.commit()
@@ -236,9 +239,8 @@ async def create_user_with_invitation(
         PasswordHash=hashed_password,
         FirstName=first_name,
         LastName=last_name,
-        EmailVerified=True,  # Auto-verify invited users
-        IsActive=True,  # Immediately active
-        UserStatusID=active_status.UserStatusID,
+        IsEmailVerified=True,  # Auto-verify invited users
+        StatusID=active_status.UserStatusID,  # Immediately active
         OnboardingComplete=True,  # Skip onboarding (joining existing company)
         OnboardingStep=3,  # Mark as complete
         CreatedDate=datetime.utcnow(),

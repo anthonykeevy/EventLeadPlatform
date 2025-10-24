@@ -1,0 +1,118 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>16</storyId>
+    <title>Frontend Team Management UI</title>
+    <status>Ready</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.16.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.16.1" priority="critical">
+      <statement>Team panel opens from user icon in company header</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User clicks 👥 icon in company container header → Panel slides in from right → Shows user list for THAT specific company</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.2" priority="high">
+      <statement>Team panel displays all users for selected company</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Panel shows: name, email, role, status (Active/Pending); pending invitations visible; sorted by role then name</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.3" priority="critical">
+      <statement>Company Admin sees invite button and edit options</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Admin sees [+ Invite User] button; sees [Edit] buttons next to users with equal or lower roles; can click to modify</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.4" priority="high">
+      <statement>Company User sees read-only team list</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Non-admin sees user list; NO invite button; NO edit buttons; helpful message: "Contact admin to manage team"</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.5" priority="critical">
+      <statement>Invitation modal opens from invite button</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>Admin clicks [+ Invite User] → Modal opens → Form with email, first name, last name, role → Submit sends invitation</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.6" priority="high">
+      <statement>Role editing modal opens from edit button</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>Admin clicks [Edit] on user → Modal opens → Dropdown shows roles equal or lower than admin's role → Can change role → Submit updates</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.7" priority="high">
+      <statement>Role restrictions enforced in UI and backend</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Company Admin cannot edit System Admin; Company User cannot edit anyone; role dropdown only shows allowed roles</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.8" priority="medium">
+      <statement>Pending invitations show status and resend option</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Pending invitations show: email, sent date, [Resend] button; clicking resend sends new email; confirmation message shown</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.9" priority="high">
+      <statement>Team panel is contextual to each company</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User clicks 👥 in Company A header → Sees Company A team; clicks 👥 in Company B header → Sees Company B team (different users)</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.16.10" priority="medium">
+      <statement>Smooth animations and loading states</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>Panel slides in smoothly (250ms); user list loads with skeleton; submit buttons show spinner; transitions polished</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 1.6</id>
+      <description>Team Invitation System (Backend) - Provides invitation API</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 1.7</id>
+      <description>Invited User Acceptance (Backend) - Provides acceptance API</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.18</id>
+      <description>Dashboard Framework - Provides company containers with user icon in header</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="ux">
+      Team management in company header (user icon 👥) is contextual and intuitive. User expects team management to be "inside" the company, not a separate page. Each company has its own team panel, reinforcing multi-tenancy mental model.
+    </note>
+    <note type="implementation">
+      Use Radix UI Dialog for modals (accessible by default). Panel slides in from right (CSS translate). Fetch team members when panel opens (lazy load). Use @tanstack/react-query for caching (invalidate on invite/edit/resend). Role dropdown filtered by current user's role.
+    </note>
+    <note type="integration">
+      Integrated with Story 1.18 (Dashboard Framework). Company container header includes user icon. Clicking icon triggers team panel. Panel fetches `/api/companies/{companyId}/users` endpoint.
+    </note>
+    <note type="accessibility">
+      Panel traps focus when open. ESC key closes panel. Screen reader announces "Team management panel opened for [Company Name]". ARIA labels on all buttons. Keyboard navigation works (Tab, Enter, Escape).
+    </note>
+    <note type="epic2">
+      User removal (deleting team members) deferred to Epic 2. Epic 1 allows: invite, edit roles, resend invitations. Epic 2 adds: remove users, transfer admin, bulk invitations, CSV import.
+    </note>
+  </notes>
+</story-context>
+

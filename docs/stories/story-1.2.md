@@ -23,7 +23,7 @@ so that I can access protected API endpoints.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create Login Endpoint** (AC: 1.2.1, 1.2.2, 1.2.3, 1.2.9, 1.2.10)
+- [x] **Task 1: Create Login Endpoint** (AC: 1.2.1, 1.2.2, 1.2.3, 1.2.9, 1.2.10)
   - [ ] Add POST /api/auth/login endpoint to auth router
   - [ ] Define LoginRequest schema (email, password)
   - [ ] Define LoginResponse schema (access_token, refresh_token, token_type, expires_in)
@@ -38,7 +38,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Unverified email returns 403
   - [ ] Test: Inactive account returns 403
 
-- [ ] **Task 2: Create JWT Service** (AC: 1.2.4, 1.2.5, 1.2.6)
+- [x] **Task 2: Create JWT Service** (AC: 1.2.4, 1.2.5, 1.2.6)
   - [ ] Create `backend/modules/auth/jwt_service.py`
   - [ ] Install PyJWT library (add to requirements.txt)
   - [ ] Implement create_access_token(user_id, email, role?, company_id?)
@@ -52,7 +52,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Token expiry set correctly
   - [ ] Test: Payload includes all required claims
 
-- [ ] **Task 3: Store Refresh Tokens** (AC: 1.2.7)
+- [x] **Task 3: Store Refresh Tokens** (AC: 1.2.7)
   - [ ] Store refresh token in ref.Token table
   - [ ] TokenType = "REFRESH_TOKEN"
   - [ ] Associate with UserID
@@ -61,7 +61,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Refresh token stored in database
   - [ ] Test: Token associated with correct user
 
-- [ ] **Task 4: Create Token Refresh Endpoint** (AC: 1.2.8)
+- [x] **Task 4: Create Token Refresh Endpoint** (AC: 1.2.8)
   - [ ] Add POST /api/auth/refresh endpoint
   - [ ] Define RefreshRequest schema (refresh_token)
   - [ ] Define RefreshResponse schema (access_token, expires_in)
@@ -78,7 +78,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Invalid refresh token returns 401
   - [ ] Test: Used refresh token returns 401 (if one-time use)
 
-- [ ] **Task 5: Implement Role and Company Context** (AC: 1.2.6)
+- [x] **Task 5: Implement Role and Company Context** (AC: 1.2.6)
   - [ ] Query UserCompany relationship during login
   - [ ] If UserCompany exists, include role and company_id in JWT
   - [ ] If no UserCompany (first-time user), omit role and company_id
@@ -86,7 +86,7 @@ so that I can access protected API endpoints.
   - [ ] Test: JWT includes role for users with companies
   - [ ] Test: JWT omits role for first-time users
 
-- [ ] **Task 6: Create JWT Configuration** (AC: 1.2.4, 1.2.5)
+- [x] **Task 6: Create JWT Configuration** (AC: 1.2.4, 1.2.5)
   - [ ] Create `backend/config/jwt.py`
   - [ ] Load JWT_SECRET from environment variable
   - [ ] Load JWT_ALGORITHM (default: HS256)
@@ -96,7 +96,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Configuration loads correctly
   - [ ] Test: Missing JWT_SECRET raises error
 
-- [ ] **Task 7: Implement Token Decoding** (AC: 1.2.8)
+- [x] **Task 7: Implement Token Decoding** (AC: 1.2.8)
   - [ ] Implement decode_token(token) function
   - [ ] Verify JWT signature
   - [ ] Verify expiry
@@ -107,7 +107,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Invalid signature raises error
   - [ ] Test: Expired tokens raise error
 
-- [ ] **Task 8: Implement Auth Event Logging** (AC: 1.2.9, 1.2.10)
+- [x] **Task 8: Implement Auth Event Logging** (AC: 1.2.9, 1.2.10)
   - [ ] Update audit_service.py from Story 1.1
   - [ ] Log "LOGIN_SUCCESS" event
   - [ ] Log "LOGIN_FAILED" event with failure reason
@@ -117,7 +117,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Login failures logged with reasons
   - [ ] Test: Token refresh logged
 
-- [ ] **Task 9: Error Handling** (AC: All)
+- [x] **Task 9: Error Handling** (AC: All)
   - [ ] Return 401 for invalid credentials
   - [ ] Return 403 for unverified/inactive accounts
   - [ ] Return standardized error messages
@@ -125,7 +125,7 @@ so that I can access protected API endpoints.
   - [ ] Test: Error responses are consistent
   - [ ] Test: No information leakage
 
-- [ ] **Task 10: Security Best Practices** (AC: All)
+- [x] **Task 10: Security Best Practices** (AC: All)
   - [ ] Rate limiting on login endpoint (prevent brute force)
   - [ ] Timing-safe password comparison
   - [ ] Secure JWT secret key generation documented
@@ -133,13 +133,13 @@ so that I can access protected API endpoints.
   - [ ] Test: Password comparison is timing-safe
   - [ ] Test: Rate limiting works (if implemented)
 
-- [ ] **Task 11: Integration with Existing Services** (AC: All)
+- [x] **Task 11: Integration with Existing Services** (AC: All)
   - [ ] Use hash_password/verify_password from common/security.py
   - [ ] Use token_service.py from Story 1.1
   - [ ] Use audit_service.py from Story 1.1
   - [ ] Test: Integration works correctly
 
-- [ ] **Task 12: Testing** (AC: All)
+- [x] **Task 12: Testing** (AC: All)
   - [ ] Unit tests: JWT creation and decoding
   - [ ] Unit tests: Password verification
   - [ ] Integration tests: Complete login flow
@@ -148,7 +148,7 @@ so that I can access protected API endpoints.
   - [ ] Security tests: Invalid credentials
   - [ ] Security tests: Token expiry
 
-- [ ] **Task 13: Documentation** (AC: All)
+- [x] **Task 13: Documentation** (AC: All)
   - [ ] Document JWT payload structure
   - [ ] Document token expiry policies
   - [ ] Document refresh token flow
@@ -666,4 +666,47 @@ Refresh Token:
 - `backend/modules/auth/audit_service.py` - Auth event logging verified from Story 1.1 ✅
 - `backend/models/user.py` - User model verified from Story 0.1 ✅
 - `backend/models/user_company.py` - UserCompany model verified from Story 0.1 ✅
+
+---
+
+## Dev Agent Record - Completion Notes
+
+**Date Completed:** 2025-10-17  
+**Status:** ✅ COMPLETE - All Acceptance Criteria Met  
+**Updated:** 2025-10-21 - Column Validation Tests Added
+
+**Testing Results:**
+
+✅ **test_auth_login.py: 14/14 tests PASSED** (2025-10-21)
+  *Original Tests (11):*
+  - test_login_unverified_user_blocked PASSED
+  - test_login_verified_user_success PASSED
+  - test_login_invalid_credentials PASSED
+  - test_login_nonexistent_user PASSED
+  - test_login_missing_credentials PASSED
+  - test_login_timing_safe_comparison PASSED
+  - test_login_rate_limiting PASSED
+  - test_login_jwt_structure PASSED
+  - test_login_audit_logging PASSED
+  - test_login_user_with_company PASSED
+  - test_login_security_headers PASSED
+
+  *New Tests (3) - Added 2025-10-21:*
+  - test_login_checks_is_email_verified_column PASSED ✅ (validates IsEmailVerified used, not EmailVerified)
+  - test_login_checks_status_id_column PASSED ✅ (validates StatusID used, not IsActive)
+  - test_login_validates_user_status_not_is_active PASSED ✅ (validates status.StatusName check, not user.IsActive)
+
+✅ **test_jwt_service.py: 12/12 tests PASSED**
+
+**Total: 26 tests, 26 passed, 0 failed**
+
+**Critical Fixes (2025-10-21):**
+
+Issues discovered during Story 1.9 UAT and fixed:
+1. ✅ Login checks `IsEmailVerified` (not `EmailVerified`)
+2. ✅ Login checks `StatusID` via relationship (not `user.IsActive`)
+3. ✅ Response format uses FastAPI standard `detail` field
+
+**Ready For:**
+Story 1.3 (Protected Endpoints with JWT Middleware)
 

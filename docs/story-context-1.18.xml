@@ -1,0 +1,132 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>18</storyId>
+    <title>Dashboard Framework & Container System</title>
+    <status>Ready</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.18.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.18.1" priority="critical">
+      <statement>Dashboard displays all user's companies with hierarchical structure</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User logs in → Dashboard shows all companies; parent-child relationships displayed; unlimited depth supported</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.2" priority="critical">
+      <statement>Unlimited hierarchy with sliding window (5-level display)</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Database supports unlimited depth; UI displays 5 levels at a time; clicking deep company shifts window; breadcrumbs show full path</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.3" priority="high">
+      <statement>Company container is recursive component</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Same CompanyContainer component used for all levels; depth prop increments; styling adjusts by depth (indentation)</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.4" priority="critical">
+      <statement>Company switching by clicking containers</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User clicks company container → Becomes active (highlighted) → KPIs update → No page reload → Context switches <3 seconds</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.5" priority="high">
+      <statement>Breadcrumb navigation shows full path (clickable)</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Breadcrumbs always visible; show full path (Dashboard > Company A > ... > Company C); clicking jumps to that level</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.6" priority="high">
+      <statement>"..." indicators for hidden levels above/below</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>If levels hidden above, show "... 🏢 Company"; if below, show "🏢 Company ..."; clicking scrolls window</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.7" priority="critical">
+      <statement>User icon in company header opens team panel</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User clicks 👥 icon in company header → Team panel slides in → Shows users for THAT company → Contextual to each company</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.8" priority="high">
+      <statement>KPI components update based on selected company</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>KPI cards show: Total Forms, Total Leads, Active Events; data updates when company switches (<1 second); smooth transitions</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.9" priority="high">
+      <statement>Empty states for dashboard and companies</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Before onboarding: empty dashboard, "Let's get you set up!"; after onboarding: "Create your first event!" with CTA</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.10" priority="medium">
+      <statement>Expand/collapse containers to show/hide children</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Clicking [▼] expands container (shows children/events); clicking [▲] collapses; state persists during session</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.11" priority="high">
+      <statement>Responsive design (mobile, tablet, desktop)</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>Desktop: multi-column KPIs, full containers; tablet: 2-column KPIs; mobile: single-column, accordion-style containers</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.18.12" priority="high">
+      <statement>Performance: Dashboard loads within 3 seconds</statement>
+      <validation>
+        <method>Performance Test</method>
+        <success_condition>Initial load <3s; company switch KPI update <1s; smooth animations 60fps; lazy load events/forms on expand</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.9</id>
+      <description>Frontend Authentication - Provides auth context and protected routes</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.11</id>
+      <description>Company Switching (Backend) - Provides hierarchical companies API and switch API</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.16</id>
+      <description>Team Management UI - Provides team panel triggered from user icon</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="architecture">
+      Dashboard is central hub (not just a page). Container architecture enables intuitive navigation. Company switching happens by clicking containers (no separate dropdown). Team management is contextual (user icon in company header).
+    </note>
+    <note type="sliding_window">
+      Sliding window solves UI challenge of unlimited hierarchy. Database: unlimited depth. UI: 5 levels visible at a time. Window shifts when user clicks deep. Breadcrumbs show full path (always visible). "..." indicators show hidden levels. Brilliant UX pattern!
+    </note>
+    <note type="implementation">
+      Use recursive component (CompanyContainer calls itself for children). Calculate visible window on company selection (sliding algorithm). Store full path in state for breadcrumbs. Use @tanstack/react-query for caching companies (5-minute TTL). Lazy load events/forms when container expands.
+    </note>
+    <note type="epic2_scope">
+      Epic 1: View hierarchy, switch companies, team management. Epic 2: Add companies, edit hierarchy, billing, company settings. Billing hierarchy (head office pays for branches) deferred to Epic 2.
+    </note>
+    <note type="integration">
+      Onboarding modal (Story 1.14) integrated here. On first login, dashboard loads empty → Modal pops up → After completion, modal closes → Company appears on dashboard. Seamless transition.
+    </note>
+  </notes>
+</story-context>
+

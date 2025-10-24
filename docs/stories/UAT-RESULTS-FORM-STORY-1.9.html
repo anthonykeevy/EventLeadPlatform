@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAT Results Form - Story 1.9</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #0EA5E9;
+        }
+
+        .section.hidden {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        label.required::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #0EA5E9;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            background: #f1f5f9;
+            border-color: #0EA5E9;
+        }
+
+        .radio-option input[type="radio"],
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .rating-option {
+            flex: 1;
+            min-width: 60px;
+            padding: 12px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .rating-option:hover {
+            background: #f1f5f9;
+            border-color: #0EA5E9;
+        }
+
+        .rating-option.selected {
+            background: #0EA5E9;
+            color: white;
+            border-color: #0EA5E9;
+        }
+
+        .rating-option input[type="radio"] {
+            display: none;
+        }
+
+        .credentials-box {
+            background: #fff7ed;
+            border: 2px solid #fb923c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .credentials-box h3 {
+            color: #9a3412;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .credentials-box p {
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
+            color: #7c2d12;
+        }
+
+        .instructions-box {
+            background: #ecfdf5;
+            border: 2px solid #34d399;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .instructions-box h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions-box ol {
+            margin-left: 20px;
+            color: #064e3b;
+        }
+
+        .instructions-box li {
+            margin-bottom: 8px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #0EA5E9;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0284C7;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0EA5E9 0%, #10b981 100%);
+            transition: width 0.5s ease;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #065f46;
+        }
+
+        .success-message h2 {
+            margin-bottom: 10px;
+            color: #047857;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 15px;
+            color: #991b1b;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #1e40af;
+        }
+
+        .timer {
+            display: inline-block;
+            background: #fef3c7;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+            button {
+                display: none;
+            }
+        }
+
+        .scenario-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scenario-card:hover {
+            border-color: #0EA5E9;
+            background: #f8fafc;
+        }
+
+        .scenario-card.selected {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .scenario-card h4 {
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .scenario-card p {
+            color: #64748b;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 UAT Results Form</h1>
+            <p>Story 1.9 - Frontend Authentication - Signup & Login Pages</p>
+            <div class="timer" id="sessionTimer">Session Time: 00:00:00</div>
+        </div>
+
+        <div class="form-content">
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+
+            <form id="uatForm">
+                <!-- Section 1: Tester Information -->
+                <div class="section" id="section1">
+                    <h2 class="section-title">👤 Tester Information</h2>
+                    
+                    <div class="field-group">
+                        <label for="tester" class="required">Select Your Tester ID</label>
+                        <select id="tester" name="tester" required>
+                            <option value="">-- Select Tester --</option>
+                            <option value="Tester 1">Tester 1 - Sarah Johnson (Happy Paths)</option>
+                            <option value="Tester 2">Tester 2 - Michael Chen (Error Paths)</option>
+                            <option value="Tester 3">Tester 3 - Lisa Martinez (Mobile/A11y)</option>
+                        </select>
+                    </div>
+
+                    <div id="testerDetails" class="hidden">
+                        <div class="credentials-box">
+                            <h3>🔑 Your Test Credentials</h3>
+                            <p><strong>Email:</strong> <span id="testerEmail"></span></p>
+                            <p><strong>Password:</strong> <span id="testerPassword"></span></p>
+                            <p><strong>First Name:</strong> <span id="testerFirstName"></span></p>
+                            <p><strong>Last Name:</strong> <span id="testerLastName"></span></p>
+                        </div>
+
+                        <div class="info-box">
+                            <strong>📋 Your Assigned Scenarios:</strong>
+                            <p id="assignedScenarios"></p>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="device" class="required">Testing Device</label>
+                        <select id="device" name="device" required>
+                            <option value="">-- Select Device --</option>
+                            <option value="Desktop - Windows">Desktop - Windows</option>
+                            <option value="Desktop - Mac">Desktop - Mac</option>
+                            <option value="Mobile - iPhone">Mobile - iPhone</option>
+                            <option value="Mobile - Android">Mobile - Android</option>
+                            <option value="Tablet - iPad">Tablet - iPad</option>
+                            <option value="Browser DevTools Mobile Emulation">Browser DevTools Mobile Emulation</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="browser" class="required">Browser</label>
+                        <select id="browser" name="browser" required>
+                            <option value="">-- Select Browser --</option>
+                            <option value="Chrome">Chrome</option>
+                            <option value="Firefox">Firefox</option>
+                            <option value="Safari">Safari</option>
+                            <option value="Edge">Edge</option>
+                        </select>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn-primary" onclick="nextSection(2)">Next: Select Scenario →</button>
+                    </div>
+                </div>
+
+                <!-- Section 2: Scenario Selection -->
+                <div class="section hidden" id="section2">
+                    <h2 class="section-title">📝 Select Test Scenario</h2>
+                    
+                    <div id="scenarioList"></div>
+
+                    <input type="hidden" id="selectedScenario" name="scenario">
+
+                    <div class="button-group">
+                        <button type="button" class="btn-secondary" onclick="prevSection(1)">← Back</button>
+                        <button type="button" class="btn-primary" onclick="startScenario()">Start Test →</button>
+                    </div>
+                </div>
+
+                <!-- Section 3: Test Execution -->
+                <div class="section hidden" id="section3">
+                    <h2 class="section-title" id="scenarioTitle">Test Execution</h2>
+
+                    <div class="instructions-box" id="instructionsBox"></div>
+
+                    <div class="field-group">
+                        <label class="required">Start Time</label>
+                        <input type="text" id="startTime" name="startTime" readonly>
+                    </div>
+
+                    <!-- Dynamic test fields will be inserted here -->
+                    <div id="dynamicFields"></div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn-secondary" onclick="prevSection(2)">← Back</button>
+                        <button type="button" class="btn-primary" onclick="nextSection(4)">Next: Results →</button>
+                    </div>
+                </div>
+
+                <!-- Section 4: Results & Feedback -->
+                <div class="section hidden" id="section4">
+                    <h2 class="section-title">📊 Test Results & Feedback</h2>
+
+                    <div class="field-group">
+                        <label class="required">End Time</label>
+                        <input type="text" id="endTime" name="endTime" readonly>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="required">Time to Complete (seconds)</label>
+                        <input type="number" id="duration" name="duration" readonly>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="required">Did this scenario PASS?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="pass_fail" value="PASS" required>
+                                <span>✅ PASS - All steps completed successfully</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="pass_fail" value="FAIL">
+                                <span>❌ FAIL - Issues found that block completion</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="pass_fail" value="PARTIAL">
+                                <span>⚠️ PARTIAL - Mostly works but has minor issues</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Overall Experience Rating</label>
+                        <div class="rating-group">
+                            <label class="rating-option">
+                                <input type="radio" name="ux_rating" value="1">
+                                <span>1 - Poor</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="ux_rating" value="2">
+                                <span>2 - Fair</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="ux_rating" value="3">
+                                <span>3 - Good</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="ux_rating" value="4">
+                                <span>4 - Great</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="ux_rating" value="5">
+                                <span>5 - Excellent</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Issues Found (describe any problems)</label>
+                        <textarea id="issues_found" name="issues_found" placeholder="Describe any bugs, errors, or confusing parts you encountered..."></textarea>
+                    </div>
+
+                    <div class="field-group">
+                        <label>What Worked Well?</label>
+                        <textarea id="positive_feedback" name="positive_feedback" placeholder="What did you like about this feature?"></textarea>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Suggestions for Improvement</label>
+                        <textarea id="suggestions" name="suggestions" placeholder="How could this be better?"></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn-secondary" onclick="prevSection(3)">← Back</button>
+                        <button type="button" class="btn-primary" onclick="nextSection(5)">Next: Database Verification →</button>
+                    </div>
+                </div>
+
+                <!-- Section 5: Database Verification -->
+                <div class="section hidden" id="section5">
+                    <h2 class="section-title">🗄️ Database Verification</h2>
+
+                    <div class="instructions-box">
+                        <h3>Instructions:</h3>
+                        <p>Open SQL Server Management Studio (SSMS) and run the verification queries below.</p>
+                    </div>
+
+                    <div id="databaseQueries"></div>
+
+                    <div class="field-group">
+                        <label class="required">Database Verification Status</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="db_verification" value="PASS" required>
+                                <span>✅ PASS - All database checks passed</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="db_verification" value="FAIL">
+                                <span>❌ FAIL - Database issues found</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="db_verification" value="SKIPPED">
+                                <span>⏭️ SKIPPED - Did not verify database</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Database Verification Notes</label>
+                        <textarea id="db_notes" name="db_notes" placeholder="Describe what you found in the database..."></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn-secondary" onclick="prevSection(4)">← Back</button>
+                        <button type="submit" class="btn-success">✓ Submit Results</button>
+                    </div>
+                </div>
+
+                <!-- Section 6: Success -->
+                <div class="section hidden" id="section6">
+                    <div class="success-message">
+                        <h2>✅ Results Submitted Successfully!</h2>
+                        <p>Your UAT results have been recorded.</p>
+                        <p><strong>Next Steps:</strong></p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ Download your results using the button below</li>
+                            <li>✓ Test another scenario (if assigned)</li>
+                            <li>✓ Or close this form</li>
+                        </ul>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn-primary" onclick="downloadCSV()">📥 Download CSV Results</button>
+                        <button type="button" class="btn-secondary" onclick="resetForm()">🔄 Test Another Scenario</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Test Data
+        const testerData = {
+            'Tester 1': {
+                email: 'tester1.newuser@eventlead-uat.com',
+                password: 'Tester1Pass!2025',
+                firstName: 'Sarah',
+                lastName: 'Johnson',
+                scenarios: ['Scenario 1: New User Signup', 'Scenario 3: Login Valid', 'Scenario 6: Password Toggle', 'Scenario 8: Forgot Password', 'Scenario 9: Navigation']
+            },
+            'Tester 2': {
+                email: 'tester2.errors@eventlead-uat.com',
+                password: 'Tester2Pass!2025',
+                firstName: 'Michael',
+                lastName: 'Chen',
+                scenarios: ['Scenario 2: Duplicate Email', 'Scenario 4: Invalid Login', 'Scenario 5: Unverified Email', 'Scenario 7: Remember Me']
+            },
+            'Tester 3': {
+                email: 'tester3.mobile@eventlead-uat.com',
+                password: 'Tester3Pass!2025',
+                firstName: 'Lisa',
+                lastName: 'Martinez',
+                scenarios: ['Scenario 10: Redirect Authenticated', 'Scenario 11: Mobile Responsiveness', 'Scenario 12: Accessibility']
+            }
+        };
+
+        const scenarioDetails = {
+            'Scenario 1: New User Signup': {
+                title: 'Scenario 1: New User Signup (Happy Path)',
+                instructions: [
+                    'Navigate to http://localhost:5173',
+                    'Click "Sign Up" button',
+                    'Fill in all fields with your test credentials',
+                    'Observe password strength indicator',
+                    'Click "Sign Up" button',
+                    'Verify success message appears',
+                    'Check MailHog (http://localhost:8025) for verification email'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'signup_form_rendered', label: 'Signup form rendered with all 4 fields'},
+                    {type: 'checkbox', name: 'validation_realtime', label: 'Real-time validation works (errors appear as you type)'},
+                    {type: 'checkbox', name: 'password_strength', label: 'Password strength indicator displays correctly'},
+                    {type: 'checkbox', name: 'submit_enabled', label: 'Submit button enables when form valid'},
+                    {type: 'checkbox', name: 'success_message', label: 'Success message displays "Check your email"'},
+                    {type: 'checkbox', name: 'email_received', label: 'Verification email received in MailHog'}
+                ],
+                dbQuery: `SELECT UserID, Email, FirstName, LastName, EmailVerified, IsActive, CreatedDate
+FROM dbo.[User]
+WHERE Email = 'YOUR_TEST_EMAIL';
+-- Expected: EmailVerified = 0, IsActive = 1`
+            },
+            'Scenario 2: Duplicate Email': {
+                title: 'Scenario 2: Signup with Duplicate Email (Error Path)',
+                instructions: [
+                    'PREREQUISITE: Tester 1 must complete Scenario 1 first',
+                    'Navigate to http://localhost:5173/signup',
+                    'Fill form with YOUR details but use Tester 1 email: tester1.newuser@eventlead-uat.com',
+                    'Click "Sign Up"',
+                    'Verify error message appears',
+                    'Verify you can retry with different email'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'error_displayed', label: 'Error message displayed clearly'},
+                    {type: 'text', name: 'error_text', label: 'Exact error message text'},
+                    {type: 'checkbox', name: 'error_user_friendly', label: 'Error message is user-friendly (no technical jargon)'},
+                    {type: 'checkbox', name: 'form_remains', label: 'Form remains visible (not replaced with success screen)'},
+                    {type: 'checkbox', name: 'can_retry', label: 'Can correct email and retry'}
+                ],
+                dbQuery: `SELECT COUNT(*) AS UserCount
+FROM dbo.[User]
+WHERE Email = 'tester1.newuser@eventlead-uat.com';
+-- Expected: 1 (only Tester 1's account, no duplicate created)`
+            },
+            'Scenario 3: Login Valid': {
+                title: 'Scenario 3: Login with Valid Credentials (Happy Path)',
+                instructions: [
+                    'PREREQUISITE: Complete Scenario 1 first, then run this SQL to verify email:',
+                    "UPDATE dbo.[User] SET EmailVerified = 1 WHERE Email = 'YOUR_EMAIL';",
+                    'Navigate to http://localhost:5173/login',
+                    'Enter your email and password',
+                    'Click "Log In"',
+                    'Verify redirect to dashboard or onboarding'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'login_form_rendered', label: 'Login form rendered correctly'},
+                    {type: 'checkbox', name: 'credentials_accepted', label: 'Valid credentials accepted'},
+                    {type: 'checkbox', name: 'redirect_occurred', label: 'Redirected after successful login'},
+                    {type: 'text', name: 'redirect_destination', label: 'Redirected to which page?'},
+                    {type: 'checkbox', name: 'session_persists', label: 'After page refresh (F5), still logged in'}
+                ],
+                dbQuery: `SELECT RefreshTokenID, UserID, ExpiresAt, RevokedAt, CreatedDate
+FROM dbo.UserRefreshToken
+WHERE UserID = (SELECT UserID FROM dbo.[User] WHERE Email = 'YOUR_EMAIL')
+ORDER BY CreatedDate DESC;
+-- Expected: New refresh token created`
+            },
+            'Scenario 4: Invalid Login': {
+                title: 'Scenario 4: Login with Invalid Credentials (Error Path)',
+                instructions: [
+                    'PREREQUISITE: Create your account first (Scenario 1)',
+                    'Navigate to http://localhost:5173/login',
+                    'Enter correct email but WRONG password: WrongPassword123!',
+                    'Click "Log In"',
+                    'Verify error message appears',
+                    'Try 2 more times with wrong password'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'error_displayed', label: 'Error message displayed'},
+                    {type: 'text', name: 'error_text', label: 'Exact error message text'},
+                    {type: 'checkbox', name: 'no_token_stored', label: 'No JWT token stored in browser (check DevTools)'},
+                    {type: 'checkbox', name: 'can_retry', label: 'Can retry immediately (no lockout)'},
+                    {type: 'checkbox', name: 'security_preserved', label: 'Error does not reveal if email exists'}
+                ],
+                dbQuery: `SELECT TOP 10 Path, StatusCode, CreatedDate
+FROM log.ApiRequest
+WHERE Path LIKE '%/api/auth/login%' AND StatusCode != 200
+ORDER BY CreatedDate DESC;
+-- Expected: Failed login attempts logged with StatusCode = 401`
+            },
+            'Scenario 5: Unverified Email': {
+                title: 'Scenario 5: Login with Unverified Email (Error Path)',
+                instructions: [
+                    'PREREQUISITE: Have UAT lead create unverified test account in database',
+                    'Credentials: unverified@eventlead-uat.com / Unverified1!',
+                    'Navigate to http://localhost:5173/login',
+                    'Enter unverified account credentials',
+                    'Click "Log In"',
+                    'Verify error message about email verification'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'error_displayed', label: 'Error message displayed'},
+                    {type: 'text', name: 'error_text', label: 'Exact error message text'},
+                    {type: 'checkbox', name: 'mentions_verification', label: 'Error mentions email verification'},
+                    {type: 'checkbox', name: 'no_login', label: 'Did not login successfully'}
+                ],
+                dbQuery: `SELECT Email, EmailVerified FROM dbo.[User] WHERE Email = 'unverified@eventlead-uat.com';
+-- Expected: EmailVerified = 0`
+            },
+            'Scenario 6: Password Toggle': {
+                title: 'Scenario 6: Password Visibility Toggle',
+                instructions: [
+                    'Navigate to http://localhost:5173/signup',
+                    'Type any password in password field',
+                    'Click the eye icon next to password field',
+                    'Observe password visibility changes',
+                    'Click icon again',
+                    'Repeat test on login page'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'icon_visible_signup', label: 'Eye icon visible on signup page'},
+                    {type: 'checkbox', name: 'toggle_works_signup', label: 'Toggle works on signup (shows/hides password)'},
+                    {type: 'checkbox', name: 'icon_visible_login', label: 'Eye icon visible on login page'},
+                    {type: 'checkbox', name: 'toggle_works_login', label: 'Toggle works on login'},
+                    {type: 'checkbox', name: 'default_hidden', label: 'Password is hidden by default'}
+                ],
+                dbQuery: 'N/A - Frontend only test'
+            },
+            'Scenario 7: Remember Me': {
+                title: 'Scenario 7: Remember Me Checkbox',
+                instructions: [
+                    'Navigate to http://localhost:5173/login',
+                    'Observe "Remember me" checkbox',
+                    'Login WITHOUT checking it',
+                    'Refresh page - verify still logged in',
+                    'Logout, login again WITH checkbox checked',
+                    'Refresh page - verify still logged in'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'checkbox_visible', label: 'Remember me checkbox visible'},
+                    {type: 'checkbox', name: 'checkbox_toggles', label: 'Checkbox can be toggled on/off'},
+                    {type: 'text', name: 'behavior_observed', label: 'Describe behavior difference (if any)'}
+                ],
+                dbQuery: 'N/A - Frontend session management test'
+            },
+            'Scenario 8: Forgot Password': {
+                title: 'Scenario 8: Forgot Password Link',
+                instructions: [
+                    'Navigate to http://localhost:5173/login',
+                    'Find "Forgot password?" link',
+                    'Click the link',
+                    'Observe where it navigates to'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'link_visible', label: 'Forgot password link visible'},
+                    {type: 'checkbox', name: 'link_clickable', label: 'Link is clickable'},
+                    {type: 'text', name: 'destination', label: 'Where does it navigate to?'},
+                    {type: 'text', name: 'notes', label: 'Additional notes'}
+                ],
+                dbQuery: 'N/A - Navigation test'
+            },
+            'Scenario 9: Navigation': {
+                title: 'Scenario 9: Navigation Between Auth Pages',
+                instructions: [
+                    'Start at http://localhost:5173',
+                    'Click "Sign Up" → verify at /signup',
+                    'Click "Log In" link at bottom → verify at /login',
+                    'Click "Sign Up" link at bottom → verify at /signup',
+                    'Use browser back button → verify works correctly'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'home_to_signup', label: 'Home → Signup works'},
+                    {type: 'checkbox', name: 'signup_to_login', label: 'Signup → Login link works'},
+                    {type: 'checkbox', name: 'login_to_signup', label: 'Login → Signup link works'},
+                    {type: 'checkbox', name: 'back_button', label: 'Browser back button works'},
+                    {type: 'checkbox', name: 'url_updates', label: 'URL updates correctly in address bar'}
+                ],
+                dbQuery: 'N/A - Frontend routing test'
+            },
+            'Scenario 10: Redirect Authenticated': {
+                title: 'Scenario 10: Redirect Authenticated Users',
+                instructions: [
+                    'Login to your account first',
+                    'While logged in, manually navigate to http://localhost:5173/signup',
+                    'Observe automatic redirect',
+                    'Navigate to http://localhost:5173/login',
+                    'Observe automatic redirect'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'signup_redirects', label: 'Logged-in users redirected away from /signup'},
+                    {type: 'checkbox', name: 'login_redirects', label: 'Logged-in users redirected away from /login'},
+                    {type: 'text', name: 'redirect_destination', label: 'Redirected to which page?'},
+                    {type: 'checkbox', name: 'instant_redirect', label: 'Redirect happens instantly (no flash of login form)'}
+                ],
+                dbQuery: 'N/A - Frontend routing logic test'
+            },
+            'Scenario 11: Mobile Responsiveness': {
+                title: 'Scenario 11: Mobile Responsiveness',
+                instructions: [
+                    'Access http://[your-ip]:5173/signup on mobile device OR use Chrome DevTools mobile mode',
+                    'Complete entire signup flow',
+                    'Complete entire login flow',
+                    'Rate mobile experience'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'no_horizontal_scroll', label: 'No horizontal scrolling required'},
+                    {type: 'checkbox', name: 'text_readable', label: 'Text readable without zooming'},
+                    {type: 'checkbox', name: 'buttons_tappable', label: 'Buttons easy to tap (44px minimum)'},
+                    {type: 'checkbox', name: 'keyboard_correct', label: 'Email field shows email keyboard'},
+                    {type: 'checkbox', name: 'layout_adjusts', label: 'Layout adjusts well to small screen'},
+                    {type: 'rating', name: 'mobile_rating', label: 'Overall mobile experience (1-5)'}
+                ],
+                dbQuery: 'N/A - Mobile UX test'
+            },
+            'Scenario 12: Accessibility': {
+                title: 'Scenario 12: Accessibility Testing',
+                instructions: [
+                    'Navigate to http://localhost:5173/signup',
+                    'Use ONLY keyboard (Tab, Enter) to complete form - no mouse!',
+                    'Turn on screen reader (NVDA or Narrator)',
+                    'Navigate form with screen reader',
+                    'Verify all content is announced'
+                ],
+                fields: [
+                    {type: 'checkbox', name: 'keyboard_nav_works', label: 'Can navigate entire form with Tab key'},
+                    {type: 'checkbox', name: 'focus_visible', label: 'Focus indicator clearly visible'},
+                    {type: 'checkbox', name: 'enter_submits', label: 'Enter key submits form'},
+                    {type: 'checkbox', name: 'screenreader_labels', label: 'Screen reader announces field labels'},
+                    {type: 'checkbox', name: 'screenreader_errors', label: 'Screen reader announces error messages'},
+                    {type: 'text', name: 'accessibility_issues', label: 'Any accessibility issues found?'}
+                ],
+                dbQuery: 'N/A - Accessibility test'
+            }
+        };
+
+        // Session management
+        let startTime = null;
+        let sessionStart = Date.now();
+        let allResults = [];
+
+        // Timer
+        setInterval(() => {
+            const elapsed = Date.now() - sessionStart;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            document.getElementById('sessionTimer').textContent = 
+                `Session Time: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }, 1000);
+
+        // Handle tester selection
+        document.getElementById('tester').addEventListener('change', function() {
+            const tester = this.value;
+            if (tester) {
+                const data = testerData[tester];
+                document.getElementById('testerEmail').textContent = data.email;
+                document.getElementById('testerPassword').textContent = data.password;
+                document.getElementById('testerFirstName').textContent = data.firstName;
+                document.getElementById('testerLastName').textContent = data.lastName;
+                document.getElementById('assignedScenarios').textContent = data.scenarios.join(', ');
+                document.getElementById('testerDetails').classList.remove('hidden');
+                
+                // Populate scenario list
+                const scenarioList = document.getElementById('scenarioList');
+                scenarioList.innerHTML = '';
+                data.scenarios.forEach(scenario => {
+                    const card = document.createElement('div');
+                    card.className = 'scenario-card';
+                    card.innerHTML = `
+                        <h4>${scenario}</h4>
+                        <p>${scenarioDetails[scenario]?.title || ''}</p>
+                    `;
+                    card.onclick = () => selectScenario(scenario, card);
+                    scenarioList.appendChild(card);
+                });
+            }
+        });
+
+        function selectScenario(scenario, card) {
+            // Deselect all
+            document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('selected'));
+            // Select this one
+            card.classList.add('selected');
+            document.getElementById('selectedScenario').value = scenario;
+        }
+
+        function startScenario() {
+            const scenario = document.getElementById('selectedScenario').value;
+            if (!scenario) {
+                alert('Please select a scenario first');
+                return;
+            }
+
+            const details = scenarioDetails[scenario];
+            
+            // Update section 3
+            document.getElementById('scenarioTitle').textContent = details.title;
+            
+            // Instructions
+            const instructionsBox = document.getElementById('instructionsBox');
+            instructionsBox.innerHTML = '<h3>📋 Instructions:</h3><ol>' + 
+                details.instructions.map(i => `<li>${i}</li>`).join('') + 
+                '</ol>';
+            
+            // Dynamic fields
+            const dynamicFields = document.getElementById('dynamicFields');
+            dynamicFields.innerHTML = details.fields.map((field, idx) => {
+                if (field.type === 'checkbox') {
+                    return `
+                        <div class="field-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="field_${idx}" value="yes">
+                                <span>${field.label}</span>
+                            </label>
+                        </div>
+                    `;
+                } else if (field.type === 'text') {
+                    return `
+                        <div class="field-group">
+                            <label>${field.label}</label>
+                            <input type="text" name="field_${idx}" placeholder="${field.label}">
+                        </div>
+                    `;
+                } else if (field.type === 'rating') {
+                    return `
+                        <div class="field-group">
+                            <label>${field.label}</label>
+                            <div class="rating-group">
+                                ${[1,2,3,4,5].map(n => `
+                                    <label class="rating-option">
+                                        <input type="radio" name="field_${idx}" value="${n}">
+                                        <span>${n}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            // Database query
+            const dbQueries = document.getElementById('databaseQueries');
+            dbQueries.innerHTML = `
+                <div class="credentials-box">
+                    <h3>SQL Query to Run:</h3>
+                    <pre style="overflow-x: auto; font-size: 12px;">${details.dbQuery}</pre>
+                </div>
+            `;
+
+            // Set start time
+            startTime = new Date();
+            document.getElementById('startTime').value = startTime.toLocaleTimeString();
+
+            // Rating option interactivity
+            setTimeout(() => {
+                document.querySelectorAll('.rating-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Remove selected from siblings
+                        this.parentElement.querySelectorAll('.rating-option').forEach(o => 
+                            o.classList.remove('selected'));
+                        // Add to this one
+                        this.classList.add('selected');
+                        // Check the radio
+                        this.querySelector('input[type="radio"]').checked = true;
+                    });
+                });
+            }, 100);
+
+            nextSection(3);
+        }
+
+        function nextSection(section) {
+            // Hide all sections
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`section${i}`).classList.add('hidden');
+            }
+            // Show target section
+            document.getElementById(`section${section}`).classList.remove('hidden');
+            
+            // Update progress
+            const progress = (section / 6) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Calculate duration when moving to section 4
+            if (section === 4 && startTime) {
+                const endTime = new Date();
+                document.getElementById('endTime').value = endTime.toLocaleTimeString();
+                const duration = Math.round((endTime - startTime) / 1000);
+                document.getElementById('duration').value = duration;
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function prevSection(section) {
+            nextSection(section);
+        }
+
+        // Form submission
+        document.getElementById('uatForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const result = {
+                timestamp: new Date().toISOString(),
+                session_date: new Date().toLocaleDateString(),
+                session_time: new Date().toLocaleTimeString()
+            };
+            
+            // Convert form data to object
+            for (let [key, value] of formData.entries()) {
+                result[key] = value;
+            }
+
+            // Add checkboxes (they don't appear in FormData if unchecked)
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                result[cb.name] = cb.checked ? 'YES' : 'NO';
+            });
+
+            // Store result
+            allResults.push(result);
+            
+            // Show success
+            nextSection(6);
+        });
+
+        function downloadCSV() {
+            if (allResults.length === 0) {
+                alert('No results to download');
+                return;
+            }
+
+            // Get all unique keys (CSV headers)
+            const allKeys = new Set();
+            allResults.forEach(result => {
+                Object.keys(result).forEach(key => allKeys.add(key));
+            });
+
+            const headers = Array.from(allKeys);
+            
+            // Build CSV
+            let csv = headers.map(h => `"${h}"`).join(',') + '\n';
+            
+            allResults.forEach(result => {
+                const row = headers.map(header => {
+                    const value = result[header] || '';
+                    // Escape quotes and wrap in quotes
+                    return `"${String(value).replace(/"/g, '""')}"`;
+                });
+                csv += row.join(',') + '\n';
+            });
+
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `UAT_Story_1.9_${result[0].tester}_${Date.now()}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function resetForm() {
+            if (confirm('Start a new test? (Previous test data is saved)')) {
+                document.getElementById('uatForm').reset();
+                nextSection(2); // Go back to scenario selection
+            }
+        }
+    </script>
+</body>
+</html>
+

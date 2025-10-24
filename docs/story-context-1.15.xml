@@ -1,0 +1,114 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>15</storyId>
+    <title>Frontend Password Reset Pages</title>
+    <status>Ready</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.15.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.15.1" priority="high">
+      <statement>Password reset request page with email input</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User enters email → Submits → Success message displayed ("Check your email") regardless of email existence (security)</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.2" priority="high">
+      <statement>Email validation on request page</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Invalid email format shows error; valid format enables submit button; real-time validation feedback</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.3" priority="critical">
+      <statement>Reset confirmation page validates token from URL</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User clicks email link → Token extracted from URL → Token validated → Reset form displayed if valid; error if expired/invalid</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.4" priority="high">
+      <statement>New password input with strength indicator</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Password strength shown real-time; requirements checklist displayed; strong password required to submit</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.5" priority="high">
+      <statement>Password confirmation field matches new password</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Mismatch shows error; match enables submit; real-time validation as user types</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.6" priority="critical">
+      <statement>After successful reset, redirect to login with success message</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User resets password → Redirected to login page → Success banner: "Password reset. Please login" → Can log in with new password</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.7" priority="medium">
+      <statement>Token expiry messaging clear and helpful</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Expired token shows: "Reset link expired. Request a new one." with link to request page; not alarming, helpful tone</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.8" priority="high">
+      <statement>Loading states during API calls</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Submit buttons show spinner; forms disabled during API calls; no double submissions</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.9" priority="medium">
+      <statement>Accessible and responsive design</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>Keyboard navigation works; screen reader friendly; mobile responsive; WCAG 2.1 AA compliant</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.15.10" priority="medium">
+      <statement>"Back to login" link on all pages</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Link visible and functional on request page and reset page; returns to login without losing state</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 1.4</id>
+      <description>Password Reset Flow (Backend) - Provides reset request and confirm APIs</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.9</id>
+      <description>Frontend Authentication - Provides auth context and login page routing</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="security">
+      Never reveal if email exists in database (prevents enumeration attacks). Always show "Check your email" message. Token validation happens server-side. Token in URL is one-time use only.
+    </note>
+    <note type="ux">
+      Password reset is high-anxiety moment for users. Use calm, reassuring language. "Don't worry, we'll help you reset your password." Avoid technical jargon. Clear next steps. Success criteria: <2 minutes from request to login.
+    </note>
+    <note type="implementation">
+      Use React Hook Form for form management. Extract token from URL query parameter (?token=xyz). Validate token on page load (API call). If invalid, show error immediately. Password strength uses same component as signup (Story 1.9).
+    </note>
+    <note type="accessibility">
+      Form labels clear and descriptive. Error messages associated with fields (aria-describedby). Focus management (auto-focus email field on request page, new password field on reset page). Keyboard navigation works.
+    </note>
+    <note type="future">
+      Future enhancements: (1) Add "Remember this device" option, (2) Add SMS reset as alternative, (3) Add security questions, (4) Add "Recent reset" cooldown (prevent abuse).
+    </note>
+  </notes>
+</story-context>
+

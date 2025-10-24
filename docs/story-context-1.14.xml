@@ -1,0 +1,130 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>14</storyId>
+    <title>Frontend Onboarding Flow (Modal on Dashboard)</title>
+    <status>Ready</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.14.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.14.1" priority="critical">
+      <statement>Onboarding modal appears on empty dashboard for first-time users</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User logs in → Dashboard loads (empty) → Onboarding modal pops up; cannot dismiss; dashboard visible but dimmed behind modal</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.2" priority="high">
+      <statement>Modal cannot be dismissed until onboarding complete</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>No X button; ESC key disabled; click outside disabled; only way to proceed is complete onboarding</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.3" priority="high">
+      <statement>Step 1 collects user details (name, phone, role)</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>First name, last name pre-filled from signup; phone validated (AU format); role optional; next button enabled when valid</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.4" priority="critical">
+      <statement>Step 2 integrates ABR search for company lookup</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User enters ABN/ACN/name → Search returns results → User selects → Company details auto-fill; manual entry fallback available</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.5" priority="high">
+      <statement>Step 2 collects company details and billing address</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Company name, ABN (validated), address (validated), GST registered (optional); all fields validated before submission</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.6" priority="high">
+      <statement>Progress indicator shows current step (1 of 2, 2 of 2)</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Progress bar or stepper displays; current step highlighted; can navigate back but not forward until valid</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.7" priority="high">
+      <statement>Auto-save prevents data loss</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Form data saved to localStorage every 5 seconds; if user refreshes, data restored; cleared after completion</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.8" priority="critical">
+      <statement>After completion, modal closes and company appears on dashboard</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User submits Step 2 → Modal closes → Dashboard refreshes → Company container appears with empty state</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.9" priority="high">
+      <statement>Responsive design works on mobile, tablet, desktop</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>Modal resizes appropriately; full-width on mobile; 80% width on desktop; forms readable and usable on all devices</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.14.10" priority="medium">
+      <statement>Loading states and error handling</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Submit buttons show spinner; errors displayed user-friendly; network errors handled gracefully; retry options provided</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 1.5</id>
+      <description>First-Time Onboarding (Backend) - Provides onboarding API endpoints</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.9</id>
+      <description>Frontend Authentication - Provides auth context and protected routes</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.10</id>
+      <description>Enhanced ABR Search - Provides company search API</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.12</id>
+      <description>Validation Engine - Provides phone, address, ABN validation</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.13</id>
+      <description>Configuration Service - Provides validation rules</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.18</id>
+      <description>Dashboard Framework - Provides dashboard layout for modal overlay</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="ux">
+      Modal approach (not full-page) provides better UX: User sees dashboard context, understands where they're going. After onboarding, seamless transition (modal closes → company appears). Less disorienting than full-page → redirect.
+    </note>
+    <note type="implementation">
+      Use React Hook Form for form management. Use @tanstack/react-query for API calls. Auto-save to localStorage (key: `onboarding_draft_{userId}`). Modal built with Radix UI (accessible by default). Dashboard opacity: 50% during onboarding (pointer-events-none).
+    </note>
+    <note type="integration">
+      Dashboard layout (Story 1.18) includes onboarding modal trigger. On mount, check user.onboardingComplete. If false, show modal. After completion, refetchCompanies() to load newly created company.
+    </note>
+    <note type="accessibility">
+      Modal must trap focus (Tab cycles within modal). Screen readers announce "Onboarding required" and step progress. ARIA labels on all fields. Keyboard navigation works (Tab, Enter, Escape disabled).
+    </note>
+    <note type="epic2">
+      Adding additional companies deferred to Epic 2. In Epic 1, users create only ONE company (during onboarding). They can join EXISTING companies via invitations (Story 1.7). Epic 2 adds: "Add Company" button in dashboard.
+    </note>
+  </notes>
+</story-context>
+

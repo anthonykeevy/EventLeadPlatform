@@ -1,0 +1,118 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>9</storyId>
+    <title>Frontend Authentication - Signup & Login Pages</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.9.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.9.1" priority="critical">
+      <statement>Signup page accepts email, password, first name, last name with real-time validation</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User can enter details, see validation feedback, submit form successfully</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.2" priority="critical">
+      <statement>Password strength indicator shows real-time feedback</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Indicator shows Weak/Fair/Strong/Very Strong as user types; requirements checklist visible</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.3" priority="high">
+      <statement>Login page accepts email and password with validation</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>User can log in with valid credentials; JWT stored in httpOnly cookie; redirected to dashboard</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.4" priority="critical">
+      <statement>Auth context provides user state and authentication methods</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>useAuth() hook returns user, loading, login(), logout(), signup() functions; state updates correctly</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.5" priority="critical">
+      <statement>Protected routes redirect unauthenticated users to login</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>Accessing /dashboard without auth redirects to /login; after login, redirects back to intended page</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.6" priority="high">
+      <statement>JWT refresh happens automatically before expiry</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Access token refreshed 5 minutes before expiry; user not logged out; refresh transparent</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.7" priority="high">
+      <statement>Email verification flow integrated</statement>
+      <validation>
+        <method>E2E Test</method>
+        <success_condition>After signup, user sees "Check your email" message; clicking verification link activates account; user can log in</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.8" priority="medium">
+      <statement>Error handling for all authentication scenarios</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>User-friendly errors for: invalid credentials, unverified email, expired token, network errors</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.9" priority="medium">
+      <statement>Loading states displayed during authentication</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>Submit buttons show spinner; form disabled during API calls; no double submissions</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.9.10" priority="high">
+      <statement>Responsive design works on mobile, tablet, desktop</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>Forms render correctly on all viewport sizes; touch-friendly targets; proper spacing</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 1.1</id>
+      <description>User Signup & Email Verification - Provides signup API</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 1.2</id>
+      <description>Login & JWT Tokens - Provides login and refresh APIs</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 1.3</id>
+      <description>RBAC Middleware - Provides authorization and protected endpoints</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="security">
+      Store JWT in httpOnly cookies (not localStorage) to prevent XSS attacks. Implement CSRF protection. Never log passwords or tokens to console in production.
+    </note>
+    <note type="ux">
+      Password strength indicator significantly improves signup completion rates. Show clear requirements (min 8 chars, uppercase, lowercase, number, special char). Green checkmarks for met requirements.
+    </note>
+    <note type="implementation">
+      Use React Hook Form for form management (less re-renders). Use @tanstack/react-query for API calls (built-in caching, retry, loading states). Auth context uses React Context API.
+    </note>
+    <note type="accessibility">
+      Ensure WCAG 2.1 AA compliance: keyboard navigation, screen reader support, focus indicators, ARIA labels. Test with screen readers (NVDA, JAWS).
+    </note>
+    <note type="future">
+      Future enhancements: (1) Remember me checkbox, (2) Social OAuth (Google, Microsoft), (3) Two-factor authentication, (4) Passkey support.
+    </note>
+  </notes>
+</story-context>
+

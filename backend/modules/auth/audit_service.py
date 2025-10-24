@@ -14,7 +14,7 @@ from common.request_context import get_current_request_context
 
 def log_auth_event(
     db: Session,
-    user_id: int,
+    user_id: Optional[int],  # Changed to Optional - can be None for failed auth attempts
     event_type: str,
     success: bool = True,
     details: Optional[Dict[str, Any]] = None,
@@ -60,10 +60,10 @@ def log_auth_event(
     auth_event = AuthEvent(
         UserID=user_id,
         EventType=event_type,
-        EventStatus="SUCCESS" if success else "FAILURE",
+        Reason=json.dumps(details) if details else None,  # Store details in Reason field
+        Email=details.get("email") if details else None,  # Extract email if present
         IPAddress=ip_address,
         UserAgent=user_agent,
-        Details=json.dumps(details) if details else None,
         RequestID=request_id,
         CreatedDate=datetime.utcnow()
     )
@@ -78,12 +78,15 @@ def log_auth_event(
 def log_user_audit(
     db: Session,
     user_id: int,
-    table_name: str,
-    action: str,
+    change_type: str,
     field_name: Optional[str] = None,
     old_value: Optional[str] = None,
     new_value: Optional[str] = None,
-    changed_by_user_id: Optional[int] = None
+    change_reason: Optional[str] = None,
+    changed_by_user_id: Optional[int] = None,
+    changed_by_email: Optional[str] = None,
+    ip_address: Optional[str] = None,
+    user_agent: Optional[str] = None
 ) -> UserAudit:
     """
     Log user data changes to audit.UserAudit table.
@@ -91,12 +94,15 @@ def log_user_audit(
     Args:
         db: Database session
         user_id: ID of user being modified
-        table_name: Name of table being modified (e.g., "dbo.User")
-        action: Type of action (INSERT, UPDATE, DELETE)
+        change_type: Type of change (INSERT, UPDATE, DELETE, STATUS_CHANGE, etc.)
         field_name: Name of field being changed (for UPDATE)
         old_value: Previous value (for UPDATE)
         new_value: New value (for INSERT/UPDATE)
+        change_reason: Optional reason for change
         changed_by_user_id: ID of user making the change (optional)
+        changed_by_email: Email of user making the change (optional)
+        ip_address: IP address of change (optional)
+        user_agent: User agent of change (optional)
         
     Returns:
         Created UserAudit record
@@ -105,32 +111,34 @@ def log_user_audit(
         >>> log_user_audit(
         ...     db=db,
         ...     user_id=123,
-        ...     table_name="dbo.User",
-        ...     action="UPDATE",
-        ...     field_name="EmailVerified",
+        ...     change_type="UPDATE",
+        ...     field_name="IsEmailVerified",
         ...     old_value="False",
         ...     new_value="True"
         ... )
     """
     # Try to get request context
-    request_id = None
     try:
         context = get_current_request_context()
-        request_id = context.request_id
         changed_by_user_id = changed_by_user_id or context.user_id
+        ip_address = ip_address or context.ip_address
+        user_agent = user_agent or context.user_agent
     except RuntimeError:
+        # No request context available (e.g., background task)
         pass
     
     # Create audit record
     audit = UserAudit(
         UserID=user_id,
-        TableName=table_name,
-        Action=action,
+        ChangeType=change_type,
         FieldName=field_name,
         OldValue=old_value,
         NewValue=new_value,
-        ChangedByUserID=changed_by_user_id,
-        RequestID=request_id,
+        ChangeReason=change_reason,
+        ChangedBy=changed_by_user_id,
+        ChangedByEmail=changed_by_email,
+        IPAddress=ip_address,
+        UserAgent=user_agent,
         CreatedDate=datetime.utcnow()
     )
     
@@ -153,8 +161,7 @@ def log_user_creation(db: Session, user_id: int, email: str) -> None:
     log_user_audit(
         db=db,
         user_id=user_id,
-        table_name="dbo.User",
-        action="INSERT",
+        change_type="INSERT",
         field_name="Email",
         new_value=email
     )
@@ -162,18 +169,16 @@ def log_user_creation(db: Session, user_id: int, email: str) -> None:
     log_user_audit(
         db=db,
         user_id=user_id,
-        table_name="dbo.User",
-        action="INSERT",
-        field_name="EmailVerified",
+        change_type="INSERT",
+        field_name="IsEmailVerified",
         new_value="False"
     )
     
     log_user_audit(
         db=db,
         user_id=user_id,
-        table_name="dbo.User",
-        action="INSERT",
-        field_name="IsActive",
+        change_type="INSERT",
+        field_name="StatusID",
         new_value="False"
     )
 
@@ -189,9 +194,8 @@ def log_email_verification(db: Session, user_id: int) -> None:
     log_user_audit(
         db=db,
         user_id=user_id,
-        table_name="dbo.User",
-        action="UPDATE",
-        field_name="EmailVerified",
+        change_type="STATUS_CHANGE",
+        field_name="IsEmailVerified",
         old_value="False",
         new_value="True"
     )
@@ -199,9 +203,8 @@ def log_email_verification(db: Session, user_id: int) -> None:
     log_user_audit(
         db=db,
         user_id=user_id,
-        table_name="dbo.User",
-        action="UPDATE",
-        field_name="IsActive",
+        change_type="STATUS_CHANGE",
+        field_name="StatusID",
         old_value="False",
         new_value="True"
     )

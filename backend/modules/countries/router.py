@@ -8,6 +8,7 @@ from typing import List
 
 from common.database import get_db
 from modules.countries.validation_engine import ValidationEngine
+from modules.countries.country_service import get_active_countries
 from modules.countries.schemas import (
     ValidationRequest, 
     ValidationResponse,
@@ -17,6 +18,19 @@ from modules.countries.schemas import (
 )
 
 router = APIRouter(prefix="/api/countries", tags=["countries"])
+
+
+@router.get("", response_model=List[dict])
+def list_countries(db: Session = Depends(get_db)):
+    """
+    Get list of active countries with validation configuration.
+    
+    Story 1.20: Frontend fetches this to dynamically load country options.
+    Returns country metadata including labels for postal codes, tax IDs, states, etc.
+    
+    This ensures frontend CountryIDs always match database, avoiding sync issues.
+    """
+    return get_active_countries(db)
 
 
 @router.post("/{country_id}/validate", response_model=ValidationResponse)
@@ -48,7 +62,10 @@ def validate_field(
             is_valid=result.is_valid,
             error_message=result.error_message,
             formatted_value=result.formatted_value,
-            matched_rule=result.matched_rule
+            display_value=result.display_value,
+            matched_rule=result.matched_rule,
+            display_format=result.display_format,
+            spacing_pattern=result.spacing_pattern
         )
         
     except Exception as e:
@@ -94,7 +111,10 @@ def validate_multiple_fields(
                 is_valid=result.is_valid,
                 error_message=result.error_message,
                 formatted_value=result.formatted_value,
-                matched_rule=result.matched_rule
+                display_value=result.display_value,
+                matched_rule=result.matched_rule,
+                display_format=result.display_format,
+                spacing_pattern=result.spacing_pattern
             )
             if not result.is_valid:
                 all_valid = False
@@ -111,36 +131,42 @@ def validate_multiple_fields(
         )
 
 
-@router.get("/{country_id}/validation-rules/{rule_type}", response_model=List[ValidationRuleResponse])
+@router.get("/{country_id}/validation-rules/{rule_type}", response_model=dict)
 def get_validation_rules(
     country_id: int,
     rule_type: str,
     db: Session = Depends(get_db)
 ):
     """
-    Get all validation rules for a country and rule type.
+    Get validation rules metadata for a country and rule type.
     
-    Useful for frontend to show validation requirements or examples.
+    Story 1.20: Frontend uses this to set input constraints (maxLength, pattern hints).
+    Returns aggregated metadata to ensure frontend rules match backend rules.
     """
     try:
         validation_engine = ValidationEngine(db)
         rules = validation_engine.get_validation_rules(country_id, rule_type)
         
-        response_rules = []
-        for rule in rules:
-            response_rules.append(ValidationRuleResponse(
-                rule_key=getattr(rule, 'RuleKey', ''),
-                rule_type=rule_type,
-                validation_pattern=getattr(rule, 'ValidationPattern', ''),
-                error_message=getattr(rule, 'ValidationMessage', ''),
-                min_length=getattr(rule, 'MinLength', None),
-                max_length=getattr(rule, 'MaxLength', None),
-                example_value=getattr(rule, 'ExampleValue', None),
-                is_active=getattr(rule, 'IsActive', True),
-                priority=getattr(rule, 'Priority', 0)
-            ))
+        if not rules:
+            return {
+                "has_rules": False,
+                "min_length": None,
+                "max_length": None,
+                "example_value": None
+            }
         
-        return response_rules
+        # Aggregate metadata from all rules (use most permissive)
+        max_lengths = [getattr(r, 'MaxLength') for r in rules if getattr(r, 'MaxLength', None)]
+        min_lengths = [getattr(r, 'MinLength') for r in rules if getattr(r, 'MinLength', None)]
+        
+        return {
+            "has_rules": True,
+            "min_length": min(min_lengths) if min_lengths else None,
+            "max_length": max(max_lengths) if max_lengths else None,  # Most permissive
+            "example_value": getattr(rules[0], 'ExampleValue', None),
+            "display_format": getattr(rules[0], 'DisplayFormat', None),
+            "spacing_pattern": getattr(rules[0], 'SpacingPattern', None)
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -179,7 +205,10 @@ def validate_abn(
             is_valid=result.is_valid,
             error_message=result.error_message,
             formatted_value=result.formatted_value,
-            matched_rule=result.matched_rule
+            display_value=result.display_value,
+            matched_rule=result.matched_rule,
+            display_format=result.display_format,
+            spacing_pattern=result.spacing_pattern
         )
         
     except Exception as e:

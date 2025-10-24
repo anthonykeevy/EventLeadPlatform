@@ -1,0 +1,104 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>11</storyId>
+    <title>Branch Company Scenarios & Company Switching</title>
+    <status>Approved</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.11.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.11.1" priority="critical">
+      <statement>Users can belong to multiple companies simultaneously</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>User accepts invitations to Company A and Company B; UserCompanyRelationship records created; user sees both companies</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.11.2" priority="critical">
+      <statement>Hierarchical company relationships supported (unlimited depth)</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>ParentCompanyID field allows infinite nesting; recursive query returns full hierarchy tree</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.11.3" priority="high">
+      <statement>Company switching API updates active company context</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>POST /api/companies/switch updates session; subsequent requests filter by new company; no data leakage</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.11.4" priority="critical">
+      <statement>Dashboard companies API returns unlimited hierarchy</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET /api/dashboard/companies returns nested structure with unlimited depth; parent-child relationships correct</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.11.5" priority="high">
+      <statement>Relationship types distinguish Head Office, Branch, Freelancer</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>RelationshipType field in UserCompanyRelationship accurately reflects user's relationship to company</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.11.6" priority="critical">
+      <statement>Company switching is fast (sub-second)</statement>
+      <validation>
+        <method>Performance Test</method>
+        <success_condition>Switch API responds <1 second; session update <100ms; no database locks</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.11.7" priority="high">
+      <statement>Audit logging tracks company switching</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>All switch events logged to audit.UserAudit with from_company_id and to_company_id</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.11.8" priority="high">
+      <statement>Hierarchy level calculated and returned for UI</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Each company in hierarchy includes hierarchyLevel (0=root, 1=first child, etc.) for UI rendering</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Story 0.1</id>
+      <description>Database Models - Provides UserCompanyRelationship with ParentCompanyID</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 1.3</id>
+      <description>RBAC Middleware - Provides authentication and company filtering</description>
+    </dependency>
+    <dependency type="story" status="completed">
+      <id>Story 1.7</id>
+      <description>Invited User Acceptance - Creates multi-company relationships</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="architecture">
+      Unlimited hierarchy depth supported in database (no constraints). Recursive CTE used for SQL queries. UI displays 5 levels at a time with sliding window (see Story 1.18).
+    </note>
+    <note type="performance">
+      Recursive queries can be expensive. Use WITH RECURSIVE CTE with max depth limit (configurable, default 100). Add index on ParentCompanyID. Cache company hierarchy per user (5-minute TTL).
+    </note>
+    <note type="implementation">
+      Company switching updates user's session/JWT with active_company_id. All subsequent queries filter by this company. Dashboard API returns full hierarchy for rendering (Story 1.18 handles sliding window display).
+    </note>
+    <note type="epic2">
+      Billing hierarchy deferred to Epic 2. In Epic 2, invoices will roll up to Head Office (ParentCompanyID traversal to root). Branch companies publish forms, Head Office pays.
+    </note>
+    <note type="security">
+      Verify user has relationship to target company before allowing switch (prevent company_id manipulation). Log all switch attempts. Rate limit switching (10 switches/minute).
+    </note>
+  </notes>
+</story-context>
+

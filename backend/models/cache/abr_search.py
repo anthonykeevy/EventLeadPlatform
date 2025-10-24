@@ -29,6 +29,8 @@ class ABRSearch(Base):
         FullResponse: Complete API response (JSON)
         SearchDate: Timestamp when search was performed
         ExpiresAt: Timestamp when cache expires
+        HitCount: Number of times this cache entry was accessed (analytics)
+        LastHitAt: Timestamp when cache entry was last accessed (analytics)
         IsDeleted: Soft delete flag
         CreatedDate: Timestamp when cache entry was created
         CreatedBy: User who performed search
@@ -60,6 +62,10 @@ class ABRSearch(Base):
     SearchDate = Column(DateTime, nullable=False, server_default=func.getutcdate())
     ExpiresAt = Column(DateTime, nullable=False, index=True)
     IsDeleted = Column(Boolean, nullable=False, default=False, index=True)
+    
+    # Analytics Fields (Story 1.10 AC-1.10.8, AC-1.10.11)
+    HitCount = Column(Integer, nullable=False, default=0)
+    LastHitAt = Column(DateTime, nullable=True)
     
     # Audit Columns
     CreatedDate = Column(DateTime, nullable=False, server_default=func.getutcdate())

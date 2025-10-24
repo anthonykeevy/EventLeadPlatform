@@ -16,8 +16,11 @@ class ValidationResponse(BaseModel):
     """Response schema for field validation"""
     is_valid: bool = Field(..., description="Whether the value is valid")
     error_message: Optional[str] = Field(None, description="Error message if validation failed")
-    formatted_value: Optional[str] = Field(None, description="Formatted version of the value")
+    formatted_value: Optional[str] = Field(None, description="Formatted version of the value (international format)")
+    display_value: Optional[str] = Field(None, description="Local display format (Story 1.20)")
     matched_rule: Optional[str] = Field(None, description="Rule that matched (for debugging)")
+    display_format: Optional[str] = Field(None, description="Display pattern (e.g., '04XX XXX XXX')")
+    spacing_pattern: Optional[str] = Field(None, description="Spacing pattern for formatting")
 
 
 class MultiFieldValidationRequest(BaseModel):

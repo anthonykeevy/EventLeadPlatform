@@ -1,0 +1,140 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>17</storyId>
+    <title>UX Enhancement & Polish</title>
+    <status>Ready</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-1.17.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-1.17.1" priority="high">
+      <statement>Smooth animations for all transitions (200-300ms)</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>Page transitions, modal open/close, panel slide-in, form submissions all have smooth animations; 60fps performance</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.2" priority="high">
+      <statement>Loading states with skeleton placeholders</statement>
+      <validation>
+        <method>Component Test</method>
+        <success_condition>All data fetching shows skeleton placeholders (not spinners); skeleton matches final content shape; smooth fade-in</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.3" priority="critical">
+      <statement>WCAG 2.1 AA accessibility compliance</statement>
+      <validation>
+        <method>Accessibility Audit</method>
+        <success_condition>Lighthouse accessibility score >95; axe DevTools 0 violations; WAVE tool 0 errors; keyboard navigation works everywhere</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.4" priority="high">
+      <statement>Screen reader support for all interactive elements</statement>
+      <validation>
+        <method>Manual Test (NVDA/JAWS)</method>
+        <success_condition>All buttons, forms, modals, panels announce correctly; navigation landmarks present; focus order logical</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.5" priority="high">
+      <statement>Error handling with user-friendly messages</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>Network errors, validation errors, server errors all show helpful messages; no stack traces; actionable next steps provided</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.6" priority="medium">
+      <statement>Empty states with helpful CTAs</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>All empty states (no companies, no events, no users) show friendly message and clear CTA; not just "No data"</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.7" priority="critical">
+      <statement>Mobile responsive design (320px to 2560px)</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>All pages work on mobile (320px), tablet (768px), desktop (1920px), ultrawide (2560px); no horizontal scroll</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.8" priority="high">
+      <statement>Touch-friendly targets (minimum 44x44px)</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>All buttons, links, inputs meet minimum touch target size; adequate spacing between interactive elements</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.9" priority="high">
+      <statement>Performance optimization (lazy loading, code splitting)</statement>
+      <validation>
+        <method>Performance Test</method>
+        <success_condition>Initial page load <3s (3G); Time to Interactive <5s; Lighthouse performance score >90; code split by route</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.10" priority="medium">
+      <statement>Browser compatibility (Chrome, Firefox, Safari, Edge)</statement>
+      <validation>
+        <method>Cross-Browser Test</method>
+        <success_condition>All features work on Chrome 90+, Firefox 88+, Safari 14+, Edge 90+; no visual regressions</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.11" priority="high">
+      <statement>Focus indicators visible for keyboard navigation</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>All focusable elements show clear focus ring; focus ring contrast ratio >3:1; never hidden with outline:none</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-1.17.12" priority="medium">
+      <statement>Consistent spacing using 4px grid system</statement>
+      <validation>
+        <method>Visual Test</method>
+        <success_condition>All spacing follows 4px grid (4, 8, 12, 16, 20, 24, etc.); consistent margins/padding; Tailwind spacing utilities used</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="ready">
+      <id>Story 1.9</id>
+      <description>Frontend Authentication - Pages to polish</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.14</id>
+      <description>Frontend Onboarding - Modal to polish</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.15</id>
+      <description>Frontend Password Reset - Pages to polish</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.16</id>
+      <description>Frontend Team Management - UI to polish</description>
+    </dependency>
+    <dependency type="story" status="ready">
+      <id>Story 1.18</id>
+      <description>Dashboard Framework - Dashboard to polish</description>
+    </dependency>
+  </dependencies>
+
+  <notes>
+    <note type="implementation">
+      Use Framer Motion for animations (spring physics). Use Tailwind CSS for consistent spacing/colors. Use Radix UI for accessible components. Lazy load routes with React.lazy() and Suspense. Code split by route (React Router 6). Use React Query for caching (reduces API calls).
+    </note>
+    <note type="accessibility">
+      Test with real users who use assistive technology if possible. Use tools: Lighthouse (automated), axe DevTools (automated), WAVE (automated), NVDA (manual), JAWS (manual), VoiceOver (manual). Fix all critical/serious issues. Document known minor issues.
+    </note>
+    <note type="performance">
+      Optimize images (WebP format, lazy loading). Minimize bundle size (tree shaking, compression). Use CDN for static assets. Enable browser caching. Monitor with Lighthouse and Web Vitals. Target: LCP <2.5s, FID <100ms, CLS <0.1.
+    </note>
+    <note type="ux">
+      Micro-interactions matter. Button hover states, focus states, active states. Smooth transitions. Skeleton loaders (not spinners). Optimistic updates where possible. Toast notifications for success/error. Consistent terminology throughout.
+    </note>
+    <note type="testing">
+      Manual testing required for this story. Create testing checklist: (1) Accessibility audit, (2) Mobile responsiveness, (3) Browser compatibility, (4) Performance testing, (5) Screen reader testing. Document results in test report.
+    </note>
+  </notes>
+</story-context>
+

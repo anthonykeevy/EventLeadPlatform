@@ -43,6 +43,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         "/api/auth/password-reset/validate",  # Token validation (Story 1.15)
         "/api/auth/password-reset/confirm",
         "/api/countries",  # Country validation endpoints (Story 1.20)
+        "/api/companies/smart-search",  # ABR search for onboarding (Story 1.19)
         "/docs",
         "/openapi.json",
         "/redoc",

@@ -247,12 +247,26 @@ class ABRClient:
         """Parse single entity response (ABN/ACN search)"""
         results = []
         
-        # Look for business entity in XML
-        business_entity = root.find(".//businessEntity")
+        # Look for business entity in XML (with namespace)
+        # Note: Versioned endpoints use businessEntity202001, businessEntity201408, etc.
+        ns = "{http://abr.business.gov.au/ABRXMLSearch/}"
+        
+        # Try versioned entity tags first (SearchByABNv202001 returns businessEntity202001)
+        business_entity = (
+            root.find(f".//{ns}businessEntity202001") or
+            root.find(f".//{ns}businessEntity201408") or
+            root.find(f".//{ns}businessEntity")
+        )
+        
         if business_entity is not None:
+            logger.debug("Found businessEntity element in ABN/ACN response")
             result = self._extract_entity_details(business_entity)
             if result:
                 results.append(result)
+            else:
+                logger.warning("businessEntity found but failed to extract details")
+        else:
+            logger.warning("No businessEntity element found in ABN/ACN response")
         
         return results
     
@@ -260,48 +274,87 @@ class ABRClient:
         """Parse multiple entity response (name search)"""
         results = []
         
-        # Look for multiple business entities
-        business_entities = root.findall(".//searchResultsList/searchResultsRecord")
+        # ABR XML uses namespaces - use explicit namespace in tag
+        business_entities = root.findall(".//{http://abr.business.gov.au/ABRXMLSearch/}searchResultsRecord")
+        
+        logger.info(f"Found {len(business_entities)} business entities in ABR response")
         
         for entity in business_entities[:10]:  # Limit to top 10 results
             result = self._extract_entity_details(entity)
             if result:
                 results.append(result)
+            else:
+                logger.debug("Skipped entity - missing essential data (ABN or company name)")
         
         return results
     
     def _extract_entity_details(self, entity_element: ET.Element) -> Optional[Dict[str, Any]]:
-        """Extract compAny details from XML entity element"""
+        """Extract company details from XML entity element"""
         try:
             # Extract basic fields with safe XML parsing
             abn = self._get_xml_text(entity_element, ".//ABN/identifierValue")
-            legal_name = self._get_xml_text(entity_element, ".//legalName/fullName")
-            entity_type = self._get_xml_text(entity_element, ".//entityType/entityTypeText")
-            abn_status = self._get_xml_text(entity_element, ".//ABN/entityStatus/entityStatusCode")
+            
+            # Extract ACN (ASICNumber) - for companies only (Story 1.19)
+            acn = self._get_xml_text(entity_element, ".//ASICNumber")
+            
+            # Try multiple locations for company name (different for ABN vs Name search)
+            legal_name = (
+                self._get_xml_text(entity_element, ".//mainName/organisationName") or
+                self._get_xml_text(entity_element, ".//businessName/organisationName") or
+                self._get_xml_text(entity_element, ".//legalName/fullName") or
+                self._get_xml_text(entity_element, ".//legalName/organisationName")
+            )
+            
+            logger.debug(f"Extracted from ABR: ABN={abn}, ACN={acn}, Name={legal_name}")
+            
+            # Entity type - try multiple locations
+            entity_type = (
+                self._get_xml_text(entity_element, ".//entityType/entityDescription") or
+                self._get_xml_text(entity_element, ".//entityType/entityTypeText") or
+                self._get_xml_text(entity_element, ".//entityDescription")
+            )
+            
+            # ABN status - try multiple locations
+            # ABN/ACN search: entityStatus/entityStatusCode (direct child of businessEntity)
+            # Name search: ABN/identifierStatus
+            abn_status = (
+                self._get_xml_text(entity_element, ".//entityStatus/entityStatusCode") or
+                self._get_xml_text(entity_element, ".//ABN/identifierStatus") or
+                self._get_xml_text(entity_element, ".//identifierStatus")
+            )
+            
+            logger.debug(f"Entity type: {entity_type}, ABN status: {abn_status}")
             
             # GST registration
-            gst_element = entity_element.find(".//goodsAndServicesTax")
+            ns = "{http://abr.business.gov.au/ABRXMLSearch/}"
+            gst_element = entity_element.find(f".//{ns}goodsAndServicesTax")
             gst_registered = False
             if gst_element is not None:
                 gst_status = self._get_xml_text(gst_element, "./entityStatus/entityStatusCode")
                 gst_registered = gst_status == "Active"
             
             # Business address
-            address_element = entity_element.find(".//mainBusinessPhysicalAddress")
-            business_address = self._format_address(address_element) if address_element is not None else None
+            address_element = entity_element.find(f".//{ns}mainBusinessPhysicalAddress")
+            if address_element is not None:
+                business_address = self._format_address(address_element)
+                logger.debug(f"Address extracted: {business_address}")
+            else:
+                logger.debug("No mainBusinessPhysicalAddress element found")
+                business_address = None
             
             # Only return result if we have essential data
             if not abn or not legal_name:
                 return None
             
             return {
-                "compAny_name": legal_name,
+                "company_name": legal_name,
                 "abn": abn,
+                "acn": acn,  # Story 1.19: Extract ACN from ASICNumber field
                 "abn_formatted": self._format_abn(abn) if abn else None,
                 "gst_registered": gst_registered,
-                "entity_type": entity_type or "Unknown",
+                "entity_type": entity_type,  # Story 1.19: Return actual entity type or None
                 "business_address": business_address,
-                "status": "Active" if abn_status == "Active" else abn_status or "Unknown"
+                "status": abn_status  # Story 1.19: Return actual status or None
             }
             
         except Exception as e:
@@ -309,8 +362,17 @@ class ABRClient:
             return None
     
     def _get_xml_text(self, element: ET.Element, xpath: str) -> Optional[str]:
-        """Safely get text content from XML element"""
-        found = element.find(xpath)
+        """Safely get text content from XML element with namespace handling"""
+        ns = "{http://abr.business.gov.au/ABRXMLSearch/}"
+        
+        # Build xpath with namespace by replacing each path segment
+        parts = xpath.split('/')
+        xpath_with_ns = '/'.join(
+            f"{ns}{part}" if part and part != '.' and part != '..' else part 
+            for part in parts
+        )
+        
+        found = element.find(xpath_with_ns)
         return found.text.strip() if found is not None and found.text else None
     
     def _format_abn(self, abn: str) -> str:
@@ -324,15 +386,8 @@ class ABRClient:
         try:
             parts = []
             
-            # Street address
-            street = self._get_xml_text(address_element, ".//addressLine")
-            if street:
-                parts.append(street)
-            
-            # Locality (suburb)
-            locality = self._get_xml_text(address_element, ".//localityName")
-            if locality:
-                parts.append(locality)
+            # SimpleProtocol has limited address info (just state and postcode)
+            # Full protocol would have addressLine, localityName, etc.
             
             # State
             state = self._get_xml_text(address_element, ".//stateCode")
@@ -344,9 +399,14 @@ class ABRClient:
             if postcode:
                 parts.append(postcode)
             
-            return ", ".join(parts) if parts else None
+            # If we have state and postcode, format as "STATE POSTCODE"
+            if parts:
+                return " ".join(parts)
             
-        except Exception:
+            return None
+            
+        except Exception as e:
+            logger.debug(f"Address parsing failed: {e}")
             return None
     
     async def search_by_abn(self, abn: str) -> Optional[Dict[str, Any]]:
@@ -404,7 +464,7 @@ class ABRClient:
             "authenticationGuid": self.api_key
         }
         
-        xml_response = await self._make_request("SearchByASICv202001", params)
+        xml_response = await self._make_request("SearchByASICv201408", params)
         results = self._parse_search_result(xml_response, "ACN")
         
         return results[0] if results else None
@@ -431,11 +491,23 @@ class ABRClient:
         
         params = {
             "name": normalized_name,
+            "postcode": "",  # Empty postcode = search all postcodes
+            "legalName": "",  # Empty = search all legal names
+            "tradingName": "",  # Empty = search all trading names
+            "searchWidth": "typical",  # typical | narrow | wide  
+            "NSW": "Y",  # Include all states
+            "SA": "Y",
+            "ACT": "Y",
+            "VIC": "Y",
+            "WA": "Y",
+            "NT": "Y",
+            "QLD": "Y",
+            "TAS": "Y",
             "maxSearchResults": str(min(max_results, 200)),  # ABR API limit
             "authenticationGuid": self.api_key
         }
         
-        xml_response = await self._make_request("ABRSearchByName", params)
+        xml_response = await self._make_request("ABRSearchByNameSimpleProtocol", params)
         results = self._parse_search_result(xml_response, "Name")
         
         # Return up to max_results, sorted by relevance (exact matches first)
@@ -445,19 +517,19 @@ class ABRClient:
     def _sort_name_results(self, results: List[Dict[str, Any]], search_name: str) -> List[Dict[str, Any]]:
         """Sort name search results by relevance"""
         def relevance_score(result: Dict[str, Any]) -> int:
-            compAny_name = result.get("compAny_name", "").lower()
+            company_name = result.get("company_name", "").lower()
             search_lower = search_name.lower()
             
             # Exact match = highest score
-            if compAny_name == search_lower:
+            if company_name == search_lower:
                 return 100
             
             # Starts with search term = high score
-            if compAny_name.startswith(search_lower):
+            if company_name.startswith(search_lower):
                 return 80
             
             # Contains search term = medium score
-            if search_lower in compAny_name:
+            if search_lower in company_name:
                 return 60
             
             # Default score

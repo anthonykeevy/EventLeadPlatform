@@ -31,9 +31,8 @@ export function useAuthPageRedirect() {
       
       if (redirectTo) {
         navigate(redirectTo, { replace: true })
-      } else if (!user.onboarding_complete) {
-        navigate('/onboarding', { replace: true })
       } else {
+        // Always navigate to dashboard (onboarding modal shows if incomplete)
         navigate('/dashboard', { replace: true })
       }
     }
@@ -61,6 +60,7 @@ export function useRequireAuth() {
   
   return { isLoading }
 }
+
 
 
 

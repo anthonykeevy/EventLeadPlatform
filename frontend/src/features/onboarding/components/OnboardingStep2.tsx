@@ -3,13 +3,14 @@
  * AC-1.14.3, AC-1.14.4, AC-1.14.5: Company details with ABR search integration
  */
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-import { Loader2, ArrowLeft, Building2 } from 'lucide-react'
+import { Loader2, ArrowLeft, Building2, Edit } from 'lucide-react'
 import type { OnboardingStep2Data } from '../types/onboarding.types'
 import { getAccessToken, storeTokens } from '../../auth/utils/tokenStorage'
 import { PostalCodeInput, CountrySelector, useCountries } from '../../validation'
 import { getCountryConfig, getStateOptions } from '../../validation/utils/countryConfig'
+import { SmartCompanySearch, parseBusinessAddress, enrichCompanyByABN, type CompanySearchResult } from '../../companies'
 
 interface OnboardingStep2Props {
   initialData: OnboardingStep2Data | null
@@ -22,6 +23,10 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const [companyCountry, setCompanyCountry] = useState<number>(initialCountryId || 1)  // From Step 1 or default
+  const [useManualEntry, setUseManualEntry] = useState(false)  // Toggle between ABR search and manual entry
+  const [abrData, setAbrData] = useState<CompanySearchResult | null>(null)  // Store ABR data for submission
+  const [searchedACN, setSearchedACN] = useState<string | null>(null)  // Store ACN if searched by ACN
+  const [isEnriching, setIsEnriching] = useState(false)  // Loading state for ABN enrichment
   
   // Get country-specific labels and configuration
   const countryConfig = getCountryConfig(companyCountry)
@@ -49,6 +54,62 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
   const postcodeValue = watch('billingPostcode')
   const abnValue = watch('abn')
 
+  // Handle company selection from ABR search (Story 1.19)
+  const handleCompanySelected = useCallback(async (company: CompanySearchResult, searchContext?: {searchType: string, query: string}) => {
+    // If searched by Name, enrich with full ABN details (get entity type, GST, etc.)
+    let enrichedCompany = company
+    if (searchContext?.searchType === 'Name' && company.abn) {
+      setIsEnriching(true)
+      
+      try {
+        const fullDetails = await enrichCompanyByABN(company.abn)
+        if (fullDetails) {
+          enrichedCompany = fullDetails
+        }
+      } finally {
+        setIsEnriching(false)
+      }
+    }
+    
+    // Store enriched ABR data for later submission
+    setAbrData(enrichedCompany)
+    
+    // If searched by ACN, store the ACN value
+    if (searchContext?.searchType === 'ACN') {
+      const cleanACN = searchContext.query.replace(/\s/g, '')
+      setSearchedACN(cleanACN)
+    }
+    
+    // Pre-fill company details (use enriched data if available)
+    setValue('companyName', enrichedCompany.companyName, { shouldValidate: true })
+    if (enrichedCompany.abn) {
+      setValue('abn', enrichedCompany.abn, { shouldValidate: true })
+    }
+    setValue('gstRegistered', enrichedCompany.gstRegistered || false, { shouldValidate: true })
+
+    // Parse and pre-fill billing address (use enriched data if available)
+    if (enrichedCompany.businessAddress) {
+      const addressParts = parseBusinessAddress(enrichedCompany.businessAddress)
+      setValue('billingAddress', addressParts.street, { shouldValidate: true })
+      setValue('billingSuburb', addressParts.suburb, { shouldValidate: true })
+      setValue('billingState', addressParts.state, { shouldValidate: true })
+      setValue('billingPostcode', addressParts.postcode, { shouldValidate: true })
+    }
+
+    // Switch to manual entry mode so user can edit
+    setUseManualEntry(true)
+  }, [setValue])
+
+  // Handle manual entry toggle
+  const handleManualEntry = useCallback(() => {
+    setUseManualEntry(true)
+  }, [])
+
+  // Show ABR search when:
+  // - Country is Australia (hasCompanySearch = true, code = 'AU')
+  // - User hasn't selected manual entry mode
+  const showABRSearch = countryConfig.hasCompanySearch && countryConfig.code === 'AU' && !useManualEntry
+
   const onSubmit = async (data: OnboardingStep2Data) => {
     setIsSubmitting(true)
     setApiError(null)
@@ -72,18 +133,27 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
         body: JSON.stringify({
           company_name: data.companyName,
           abn: cleanedABN,
-          acn: null,
+          acn: abrData?.acn || searchedACN || null,  // Story 1.19: ACN from ABR or search query
           phone: null,
           email: null,
           website: null,
           country_id: companyCountry,  // Story 1.20: User-selected country
-          industry_id: null
+          industry_id: null,
+          // Story 1.19: Include ABR data if available
+          legal_entity_name: abrData?.companyName || null,
+          abn_status: abrData?.status || null,
+          entity_type: abrData?.entityType || null,
+          gst_registered: abrData?.gstRegistered || data.gstRegistered || null
         })
       })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.detail || 'Failed to create company')
+        // Extract the actual error message from the detail
+        const errorMessage = typeof error.detail === 'string' 
+          ? error.detail 
+          : error.detail?.message || error.message || 'Failed to create company'
+        throw new Error(errorMessage)
       }
 
       const result = await response.json()
@@ -131,18 +201,58 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
           </p>
         </div>
 
-        {/* Company Search Note - Conditional based on country */}
-        {countryConfig.hasCompanySearch && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Building2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">{countryConfig.companySearchLabel}</p>
-                <p className="text-blue-700">
-                  Company search integration coming in Story 1.19. For now, please enter details manually.
-                </p>
-              </div>
+        {/* ABR Smart Search - Story 1.19 (Australia only) */}
+        {showABRSearch && (
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-5">
+            <div className="mb-4">
+              <h4 className="text-base font-semibold text-teal-900 mb-1">
+                🔍 Search Australian Business Register
+              </h4>
+              <p className="text-sm text-teal-700">
+                Find your company by ABN, ACN, or company name. We'll automatically fill in your details.
+              </p>
             </div>
+            
+            {isEnriching && (
+              <div className="mb-4 bg-white border border-teal-300 rounded-lg p-3 flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
+                <span className="text-sm text-teal-800">Loading complete company details from ABR...</span>
+              </div>
+            )}
+            
+            <SmartCompanySearch
+              onCompanySelected={handleCompanySelected}
+              onManualEntry={handleManualEntry}
+              autoSelect={true}
+            />
+          </div>
+        )}
+
+        {/* Manual Entry Toggle (when ABR search is showing) */}
+        {showABRSearch && (
+          <div className="text-center -mt-2">
+            <button
+              type="button"
+              onClick={() => setUseManualEntry(true)}
+              className="text-sm text-teal-700 hover:text-teal-800 font-medium underline"
+            >
+              Skip search and enter details manually
+            </button>
+          </div>
+        )}
+
+        {/* Back to Search Link (when in manual entry mode for AU) */}
+        {!showABRSearch && countryConfig.hasCompanySearch && countryConfig.code === 'AU' && (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
+            <p className="text-sm text-gray-700">Entering details manually</p>
+            <button
+              type="button"
+              onClick={() => setUseManualEntry(false)}
+              className="text-sm text-teal-700 hover:text-teal-800 font-medium flex items-center gap-1"
+            >
+              <Building2 className="w-4 h-4" />
+              Search ABR instead
+            </button>
           </div>
         )}
 

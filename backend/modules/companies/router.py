@@ -10,7 +10,7 @@ from typing import Optional, List
 import os
 
 from common.database import get_db
-from modules.auth.dependencies import get_current_user
+from modules.auth.dependencies import get_current_user, get_current_user_optional
 from modules.auth.models import CurrentUser
 from modules.auth.jwt_service import create_access_token, create_refresh_token
 from common.rbac import require_company_admin_for_company
@@ -99,7 +99,11 @@ async def create_first_company(
             email=request.email,
             website=request.website,
             country_id=request.country_id,
-            industry_id=request.industry_id
+            industry_id=request.industry_id,
+            legal_entity_name=request.legal_entity_name,  # Story 1.19: ABR data
+            abn_status=request.abn_status,  # Story 1.19: ABR data
+            entity_type=request.entity_type,  # Story 1.19: ABR data
+            gst_registered=request.gst_registered  # Story 1.19: ABR data
         )
         
         # Issue new JWT with role and company_id (AC-1.5.6)
@@ -144,12 +148,16 @@ async def create_first_company(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is (don't wrap them)
+        db.rollback()
+        raise
     except Exception as e:
         logger.error(f"Error creating company: {str(e)}", exc_info=True)
         db.rollback()  # CRITICAL: Rollback ALL changes on error
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create company"
+            detail=f"Failed to create company: {str(e)}"  # Include error details
         )
 
 
@@ -806,7 +814,7 @@ def detect_search_type(query: str) -> str:
 )
 async def smart_company_search(
     request: SmartSearchRequest,
-    current_user: Optional[CurrentUser] = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ) -> SmartSearchResponse:
     """

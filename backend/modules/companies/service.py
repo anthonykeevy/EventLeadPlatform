@@ -17,6 +17,7 @@ from models.ref.country import Country
 from models.ref.industry import Industry
 from models.audit.company_audit import CompanyAudit
 from common.validators import validate_australian_business_number
+from common.company_verification import verify_email_domain_ownership
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -42,7 +43,7 @@ async def check_user_has_company(db: Session, user_id: int) -> bool:
             UserCompany.IsDeleted == False,
             UserCompanyStatus.StatusCode == "active"
         )
-    ).scalar_one_or_none()
+    ).first()  # Use first() instead of scalar_one_or_none() to handle multiple rows gracefully
     
     return user_company is not None
 
@@ -57,7 +58,11 @@ async def create_company(
     email: Optional[str],
     website: Optional[str],
     country_id: int,
-    industry_id: Optional[int]
+    industry_id: Optional[int],
+    legal_entity_name: Optional[str] = None,
+    abn_status: Optional[str] = None,
+    entity_type: Optional[str] = None,
+    gst_registered: Optional[bool] = None
 ) -> Tuple[Company, UserCompany]:
     """
     Create a new company and assign user as company_admin.
@@ -89,6 +94,137 @@ async def create_company(
     if not is_valid:
         raise ValueError(error_msg)
     
+    # Check for duplicate ABN (Story 1.19)
+    # Business Rule: Only one company per ABN, but allow multiple NULL ABNs
+    if abn:
+        existing_company_row = db.execute(
+            select(Company).where(
+                Company.ABN == abn,
+                Company.IsDeleted == False
+            )
+        ).first()
+        
+        if existing_company_row:
+            existing_company = existing_company_row[0]
+            
+            # Get user email for domain verification
+            user = db.execute(
+                select(User).where(User.UserID == user_id)
+            ).scalar_one_or_none()
+            
+            if not user:
+                raise ValueError("User not found")
+            
+            # Story 1.19: Email domain verification (prevents squatter attacks)
+            # If user's email domain matches company → Auto-join instead of error
+            user_email = str(user.Email) if user.Email else ""
+            company_name = str(existing_company.CompanyName or existing_company.LegalEntityName or "")
+            
+            is_verified, verification_reason = verify_email_domain_ownership(
+                user_email, 
+                company_name
+            )
+            
+            if is_verified:
+                # Auto-join existing company (domain matches - likely legitimate employee)
+                logger.info(
+                    f"Auto-joining user to existing company: UserID={user_id}, "
+                    f"CompanyID={existing_company.CompanyID}, ABN={abn}, "
+                    f"Reason: {verification_reason}"
+                )
+                
+                # Get company_admin role ID
+                admin_role = db.execute(
+                    select(UserCompanyRole).where(UserCompanyRole.RoleName == 'company_admin')
+                ).scalar_one_or_none()
+                
+                if not admin_role:
+                    raise ValueError("company_admin role not found in reference data")
+                
+                # Get active status ID
+                active_status = db.execute(
+                    select(UserCompanyStatus).where(UserCompanyStatus.StatusCode == 'active')
+                ).scalar_one_or_none()
+                
+                if not active_status:
+                    raise ValueError("active status not found in reference data")
+                
+                # Create UserCompany relationship (company already exists)
+                user_company = UserCompany(
+                    UserID=user_id,
+                    CompanyID=existing_company.CompanyID,
+                    UserCompanyRoleID=admin_role.UserCompanyRoleID,
+                    StatusID=active_status.UserCompanyStatusID,
+                    JoinedDate=datetime.utcnow(),
+                    CreatedBy=user_id,
+                    CreatedDate=datetime.utcnow(),
+                    UpdatedBy=user_id,
+                    UpdatedDate=datetime.utcnow(),
+                    IsDeleted=False
+                )
+                db.add(user_company)
+                db.flush()
+                
+                logger.info(
+                    f"User auto-joined existing company via domain verification: "
+                    f"UserID={user_id}, Email={user_email}, CompanyID={existing_company.CompanyID}, "
+                    f"CompanyName={company_name}"
+                )
+                
+                # Return existing company + new user-company relationship
+                return existing_company, user_company
+            else:
+                # Domain doesn't match - prevent squatting
+                logger.warning(
+                    f"Duplicate ABN registration blocked: UserID={user_id}, Email={user_email}, "
+                    f"ABN={abn}, ExistingCompany={company_name}, "
+                    f"Reason: {verification_reason}"
+                )
+                
+                # Get admin contact hints (privacy-safe)
+                # Find all company_admin users for this company
+                admin_hints = db.execute(
+                    select(User.FirstName, User.LastName, User.Email)
+                    .select_from(UserCompany)
+                    .join(User, UserCompany.UserID == User.UserID)
+                    .join(UserCompanyRole, UserCompany.UserCompanyRoleID == UserCompanyRole.UserCompanyRoleID)
+                    .where(
+                        UserCompany.CompanyID == existing_company.CompanyID,
+                        UserCompany.IsDeleted == False,
+                        UserCompanyRole.RoleName == 'company_admin'
+                    )
+                    .limit(3)  # Show up to 3 admins
+                ).fetchall()
+                
+                logger.debug(f"Found {len(admin_hints)} admin(s) for company {existing_company.CompanyID}")
+                
+                # Build helpful contact message
+                admin_count = len(admin_hints)
+                contact_info = ""
+                
+                if admin_count > 0:
+                    # Extract email domain from first admin
+                    email_domain = admin_hints[0][2].split('@')[1] if '@' in admin_hints[0][2] else None
+                    
+                    # Create admin name hints (First name + Last initial)
+                    admin_names = [
+                        f"{admin[0]} {admin[1][0]}." if admin[1] else admin[0]
+                        for admin in admin_hints
+                    ]
+                    
+                    contact_info = f" This company has {admin_count} administrator{'s' if admin_count > 1 else ''}"
+                    if email_domain:
+                        contact_info += f" (contact at @{email_domain})"
+                    if admin_names:
+                        contact_info += f": {', '.join(admin_names[:3])}"
+                    contact_info += "."
+                
+                raise ValueError(
+                    f"A company with ABN {abn} already exists in the system. "
+                    f"Company name: {existing_company.CompanyName}.{contact_info} "
+                    f"Please request access from an existing administrator."
+                )
+    
     # Validate country exists
     country = db.execute(
         select(Country).where(Country.CountryID == country_id)
@@ -116,6 +252,10 @@ async def create_company(
         Website=website,
         CountryID=country_id,
         IndustryID=industry_id,
+        LegalEntityName=legal_entity_name,  # Story 1.19: ABR data
+        ABNStatus=abn_status,  # Story 1.19: ABR data
+        EntityType=entity_type,  # Story 1.19: ABR data
+        GSTRegistered=gst_registered,  # Story 1.19: ABR data
         DisplayNameSource="User",
         IsActive=True,
         CreatedBy=user_id,

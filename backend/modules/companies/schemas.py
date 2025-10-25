@@ -21,6 +21,12 @@ class CreateCompanySchema(BaseModel):
     country_id: int = Field(..., description="Country ID from ref.Country")
     industry_id: Optional[int] = Field(None, description="Industry ID from ref.Industry")
     
+    # ABR Integration Fields (Story 1.19)
+    legal_entity_name: Optional[str] = Field(None, max_length=200, description="Official legal entity name from ABR")
+    abn_status: Optional[str] = Field(None, max_length=20, description="ABN status (Active, Cancelled, etc.)")
+    entity_type: Optional[str] = Field(None, max_length=100, description="Entity type from ABR")
+    gst_registered: Optional[bool] = Field(None, description="GST registration status from ABR")
+    
     class Config:
         json_schema_extra = {
             "example": {
@@ -262,9 +268,11 @@ class CompanySearchResult(BaseModel):
     Individual company search result
     
     Story 1.10: AC-1.10.6: Rich Search Results Display
+    Story 1.19: Enhanced with ACN extraction
     """
     company_name: str = Field(..., description="Company legal name")
     abn: Optional[str] = Field(None, description="Australian Business Number (11 digits)")
+    acn: Optional[str] = Field(None, description="Australian Company Number (9 digits) - from ASICNumber")
     abn_formatted: Optional[str] = Field(None, description="ABN with spaces (12 345 678 901)")
     gst_registered: Optional[bool] = Field(None, description="GST registration status")
     entity_type: Optional[str] = Field(None, description="Entity type (e.g., 'Australian Private Company')")

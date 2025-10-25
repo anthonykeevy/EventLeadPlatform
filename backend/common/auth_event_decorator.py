@@ -188,3 +188,4 @@ def log_auth_attempts(event_type_success: str, event_type_failed: str):
 
 
 
+

@@ -3,10 +3,13 @@
     <epicId>1</epicId>
     <storyId>16</storyId>
     <title>Frontend Team Management UI</title>
-    <status>Ready</status>
+    <status>Complete</status>
     <generatedAt>2025-10-17</generatedAt>
+    <completedAt>2025-10-26</completedAt>
     <generator>BMAD Story Context Workflow</generator>
     <sourceStoryPath>docs/stories/story-1.16.md</sourceStoryPath>
+    <uatStatus>Passed</uatStatus>
+    <uatDate>2025-10-26</uatDate>
   </metadata>
 
   <acceptance_criteria>

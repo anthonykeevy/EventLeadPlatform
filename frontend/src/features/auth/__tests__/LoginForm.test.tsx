@@ -60,7 +60,7 @@ describe('LoginForm Component', () => {
       renderLoginForm()
       
       expect(screen.getByRole('link', { name: /forgot password/i })).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: /forgot password/i })).toHaveAttribute('href', '/forgot-password')
+      expect(screen.getByRole('link', { name: /forgot password/i })).toHaveAttribute('href', '/reset-password')
     })
     
     it('should render link to signup page', () => {
@@ -229,7 +229,7 @@ describe('LoginForm Component', () => {
       await user.click(screen.getByRole('button', { name: /log in/i }))
       
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/onboarding')
+        expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
       })
     })
     

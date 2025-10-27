@@ -5,6 +5,47 @@ Pydantic models for company requests/responses
 from pydantic import BaseModel, Field, EmailStr, validator
 from typing import Optional, List, Any, Dict, Union
 from datetime import datetime
+from enum import Enum
+
+
+# Story 1.16: Team Management Schemas
+
+class EditUserRoleRequest(BaseModel):
+    """Request schema for editing user role (Story 1.16)"""
+    role_code: str = Field(..., description="Role code (company_admin or company_user)")
+    
+    @validator('role_code')
+    def validate_role_code(cls, v):
+        if v not in ['company_admin', 'company_user']:
+            raise ValueError('Role must be company_admin or company_user')
+        return v
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "role_code": "company_admin"
+            }
+        }
+
+
+class EditUserRoleResponse(BaseModel):
+    """Response schema for role edit (Story 1.16)"""
+    success: bool
+    message: str
+    user_id: int
+    company_id: int
+    new_role: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "message": "User role updated successfully",
+                "user_id": 123,
+                "company_id": 456,
+                "new_role": "company_admin"
+            }
+        }
 
 
 class CreateCompanySchema(BaseModel):

@@ -472,9 +472,10 @@ async def login(
     role = None
     company_id = None
     if user_company:
-        # Get role name from UserCompanyRole relationship
+        # Get role CODE from UserCompanyRole relationship (not RoleName)
+        # RBAC checks use role codes: "company_admin", "company_user", "system_admin"
         if user_company.role:
-            role = user_company.role.RoleName
+            role = user_company.role.RoleCode
         company_id = user_company.CompanyID
     
     # 6. Generate tokens
@@ -668,7 +669,8 @@ async def refresh_token_endpoint(
         company_id = None
         if user_company:
             if user_company.role:
-                role = user_company.role.RoleName
+                # Use RoleCode for JWT (RBAC checks use codes, not names)
+                role = user_company.role.RoleCode
             company_id = user_company.CompanyID
         
         # 6. Generate new access token

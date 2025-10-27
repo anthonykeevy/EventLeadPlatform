@@ -5,9 +5,11 @@ Endpoints for company creation and management
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from typing import Optional, List
+from datetime import datetime
 import os
+import json
 
 from common.database import get_db
 from modules.auth.dependencies import get_current_user, get_current_user_optional
@@ -18,6 +20,7 @@ from models.user import User
 from models.company import Company
 from models.ref.user_company_role import UserCompanyRole
 from models.ref.user_invitation_status import UserInvitationStatus
+from models.audit.activity_log import ActivityLog
 from services.email_service import get_email_service
 from .schemas import (
     CreateCompanySchema, CreateCompanyResponse,
@@ -28,7 +31,8 @@ from .schemas import (
     CompanySearchResult, CacheStatisticsResponse,
     CreateRelationshipRequest, CreateRelationshipResponse, RelationshipResponse,
     CreateAccessRequestSchema, CreateAccessRequestResponse, AccessRequestResponse,
-    RejectAccessRequestSchema, UpdateRelationshipStatusRequest
+    RejectAccessRequestSchema, UpdateRelationshipStatusRequest,
+    EditUserRoleRequest, EditUserRoleResponse
 )
 from .service import create_company
 from .invitation_service import (
@@ -1047,7 +1051,7 @@ async def get_cache_statistics(
 
 
 # ============================================================================
-# Team Management - Story 1.18
+# Team Management - Story 1.18, Story 1.16
 # ============================================================================
 
 @router.get(
@@ -1115,3 +1119,103 @@ async def get_company_users(
             "users": users_list
         }
     )
+
+
+@router.patch(
+    "/{company_id}/users/{user_id}/role",
+    response_model=EditUserRoleResponse,
+    summary="Edit user role",
+    description="Update a team member's role (Story 1.16: Role editing)"
+)
+async def edit_user_role(
+    company_id: int,
+    user_id: int,
+    request: EditUserRoleRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> EditUserRoleResponse:
+    """
+    Edit user role in company (AC-1.16.6, AC-1.16.7).
+    
+    Requires company_admin role.
+    Admin can only edit roles equal or lower than their own.
+    """
+    try:
+        # Verify user is company admin for this company
+        require_company_admin_for_company(current_user, company_id)
+        
+        # Get the target user's company relationship
+        target_user_company = db.execute(
+            select(UserCompany).where(
+                and_(
+                    UserCompany.UserID == user_id,
+                    UserCompany.CompanyID == company_id,
+                    UserCompany.IsDeleted == False
+                )
+            )
+        ).scalar_one_or_none()
+        
+        if not target_user_company:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found in this company"
+            )
+        
+        # Get the new role
+        new_role = db.execute(
+            select(UserCompanyRole).where(UserCompanyRole.RoleCode == request.role_code)
+        ).scalar_one_or_none()
+        
+        if not new_role:
+            raise ValueError(f"Invalid role: {request.role_code}")
+        
+        # Update the role
+        old_role_id = target_user_company.UserCompanyRoleID
+        target_user_company.UserCompanyRoleID = new_role.UserCompanyRoleID  # type: ignore
+        target_user_company.UpdatedBy = current_user.user_id  # type: ignore
+        target_user_company.UpdatedDate = datetime.utcnow()  # type: ignore
+        
+        # Log to audit (AC-1.16.10)
+        audit_log = ActivityLog(
+            UserID=current_user.user_id,
+            CompanyID=company_id,
+            Action="USER_ROLE_UPDATED",
+            EntityType="UserCompany",
+            EntityID=target_user_company.UserCompanyID,
+            OldValue=json.dumps({"role_id": int(old_role_id)}),  # type: ignore
+            NewValue=json.dumps({"role_id": int(new_role.UserCompanyRoleID)}),  # type: ignore
+            CreatedDate=datetime.utcnow()
+        )
+        db.add(audit_log)
+        
+        db.commit()
+        db.refresh(target_user_company)
+        
+        logger.info(
+            f"User role updated: UserID={user_id}, CompanyID={company_id}, "
+            f"NewRole={request.role_code}, UpdatedBy={current_user.user_id}"
+        )
+        
+        return EditUserRoleResponse(
+            success=True,
+            message="User role updated successfully",
+            user_id=user_id,
+            company_id=company_id,
+            new_role=request.role_code
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid role edit request: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error editing user role: {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update user role"
+        )

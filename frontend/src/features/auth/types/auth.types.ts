@@ -5,6 +5,7 @@
 
 export interface User {
   id: number
+  user_id: number  // Alias for id for backward compatibility
   email: string
   first_name: string
   last_name: string

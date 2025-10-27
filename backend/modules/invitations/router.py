@@ -63,6 +63,8 @@ async def view_invitation(
             role_name=str(role.RoleName),  # type: ignore
             inviter_name=f"{inviter.FirstName} {inviter.LastName}",
             invited_email=str(invitation.Email),  # type: ignore
+            invited_first_name=str(invitation.FirstName),  # type: ignore
+            invited_last_name=str(invitation.LastName),  # type: ignore
             expires_at=invitation.ExpiresAt,  # type: ignore
             is_expired=bool(is_expired),  # type: ignore
             status=str(inv_status.StatusCode)  # type: ignore

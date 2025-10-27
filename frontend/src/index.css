@@ -2,6 +2,538 @@
 @tailwind components;
 @tailwind utilities;
 
+/* UX Enhancement & Polish - Animation Styles */
+/* Story 1.17: Comprehensive micro-interactions and animations */
+
+/* Base animation utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-fade-out {
+    animation: fadeOut 0.3s ease-in-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-in-up {
+    animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-in-down {
+    animation: slideInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-out-right {
+    animation: slideOutRight 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-out-left {
+    animation: slideOutLeft 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-scale-out {
+    animation: scaleOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s linear infinite;
+  }
+
+  .animate-checkmark {
+    animation: checkmark 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+/* Keyframe definitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0) rotate(45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(45deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+/* Button micro-interactions */
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-blue-600 text-white rounded-md font-medium;
+    @apply transition-all duration-150 ease-out;
+    @apply hover:bg-blue-700 hover:transform hover:scale-105 hover:shadow-lg;
+    @apply active:transform active:scale-95 active:bg-blue-800;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-600 text-white rounded-md font-medium;
+    @apply transition-all duration-150 ease-out;
+    @apply hover:bg-gray-700 hover:transform hover:scale-105 hover:shadow-lg;
+    @apply active:transform active:scale-95 active:bg-gray-800;
+    @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-outline {
+    @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-md font-medium;
+    @apply transition-all duration-150 ease-out;
+    @apply hover:bg-gray-50 hover:border-gray-400 hover:transform hover:scale-105;
+    @apply active:transform active:scale-95 active:bg-gray-100;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 text-gray-700 rounded-md font-medium;
+    @apply transition-all duration-150 ease-out;
+    @apply hover:bg-gray-100 hover:transform hover:scale-105;
+    @apply active:transform active:scale-95 active:bg-gray-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-danger {
+    @apply px-4 py-2 bg-red-600 text-white rounded-md font-medium;
+    @apply transition-all duration-150 ease-out;
+    @apply hover:bg-red-700 hover:transform hover:scale-105 hover:shadow-lg;
+    @apply active:transform active:scale-95 active:bg-red-800;
+    @apply focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+}
+
+/* Form input micro-interactions */
+@layer components {
+  .input-enhanced {
+    @apply w-full px-3 py-2 border rounded-md;
+    @apply transition-all duration-200 ease-in-out;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply hover:border-gray-400;
+    @apply disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed;
+  }
+
+  .input-error {
+    @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+    @apply animate-shake;
+  }
+
+  .input-success {
+    @apply border-green-300 focus:border-green-500 focus:ring-green-500;
+  }
+
+  .input-floating-label {
+    @apply relative;
+  }
+
+  .input-floating-label input {
+    @apply pt-6 pb-2;
+  }
+
+  .input-floating-label label {
+    @apply absolute left-3 transition-all duration-200 ease-in-out pointer-events-none;
+  }
+
+  .input-floating-label label.floating {
+    @apply top-1 text-xs text-gray-500;
+  }
+
+  .input-floating-label label.placeholder {
+    @apply top-2 text-sm text-gray-700;
+  }
+
+  .input-floating-label input:focus + label,
+  .input-floating-label input:not(:placeholder-shown) + label {
+    @apply floating;
+  }
+}
+
+/* Card hover effects */
+@layer components {
+  .card-interactive {
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:transform hover:-translate-y-1 hover:shadow-xl;
+    @apply focus-within:transform focus-within:-translate-y-1 focus-within:shadow-xl;
+  }
+
+  .card-lift {
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:transform hover:scale-105 hover:shadow-lg;
+  }
+
+  .card-glow {
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:shadow-lg hover:shadow-blue-500/25;
+  }
+}
+
+/* Modal animations */
+@layer components {
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50;
+    @apply transition-opacity duration-300 ease-in-out;
+  }
+
+  .modal-overlay.entering {
+    @apply opacity-0;
+  }
+
+  .modal-overlay.entered {
+    @apply opacity-100;
+  }
+
+  .modal-overlay.exiting {
+    @apply opacity-0;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-lg shadow-xl;
+    @apply transition-all duration-300 ease-in-out;
+    @apply transform;
+  }
+
+  .modal-content.entering {
+    @apply scale-95 opacity-0;
+  }
+
+  .modal-content.entered {
+    @apply scale-100 opacity-100;
+  }
+
+  .modal-content.exiting {
+    @apply scale-95 opacity-0;
+  }
+}
+
+/* Toast animations */
+@layer components {
+  .toast-container {
+    @apply fixed top-4 right-4 z-50 space-y-2;
+  }
+
+  .toast {
+    @apply max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto;
+    @apply ring-1 ring-black ring-opacity-5 overflow-hidden;
+    @apply transform transition-all duration-300 ease-in-out;
+  }
+
+  .toast.entering {
+    @apply translate-x-full opacity-0;
+  }
+
+  .toast.entered {
+    @apply translate-x-0 opacity-100;
+  }
+
+  .toast.exiting {
+    @apply translate-x-full opacity-0;
+  }
+}
+
+/* Loading states */
+@layer components {
+  .skeleton {
+    @apply bg-gray-200 rounded animate-pulse;
+  }
+
+  .skeleton-shimmer {
+    @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200;
+    @apply bg-[length:200%_100%] animate-shimmer;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-blue-600;
+  }
+
+  .loading-dots {
+    @apply flex space-x-1;
+  }
+
+  .loading-dots > div {
+    @apply w-2 h-2 bg-gray-400 rounded-full animate-pulse;
+  }
+
+  .loading-dots > div:nth-child(2) {
+    @apply animation-delay-150;
+  }
+
+  .loading-dots > div:nth-child(3) {
+    @apply animation-delay-300;
+  }
+}
+
+/* Progress indicators */
+@layer components {
+  .progress-bar {
+    @apply w-full bg-gray-200 rounded-full overflow-hidden;
+  }
+
+  .progress-bar-fill {
+    @apply h-full bg-blue-500 transition-all duration-300 ease-out;
+  }
+
+  .progress-bar-fill.animated {
+    @apply animate-pulse;
+  }
+
+  .circular-progress {
+    @apply relative inline-flex items-center justify-center;
+  }
+
+  .circular-progress svg {
+    @apply transform -rotate-90;
+  }
+
+  .circular-progress circle {
+    @apply transition-all duration-300 ease-out;
+  }
+}
+
+/* Accessibility improvements */
+@layer utilities {
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden;
+    @apply whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .focus\:not-sr-only:focus {
+    @apply static w-auto h-auto p-4 m-0 overflow-visible;
+    @apply whitespace-normal border;
+    clip: auto;
+  }
+
+  .focus-visible {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  .focus-visible-inset {
+    @apply focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn-primary {
+    @apply border-2 border-blue-800;
+  }
+
+  .btn-secondary {
+    @apply border-2 border-gray-800;
+  }
+
+  .input-enhanced {
+    @apply border-2;
+  }
+
+  .card-interactive {
+    @apply border border-gray-400;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;

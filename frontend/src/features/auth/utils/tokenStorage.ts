@@ -94,8 +94,27 @@ export function clearTokens(): void {
     localStorage.removeItem(ACCESS_TOKEN_KEY)
     localStorage.removeItem(REFRESH_TOKEN_KEY)
     localStorage.removeItem(TOKEN_EXPIRY_KEY)
+    
+    // Trigger storage event for other tabs
+    window.dispatchEvent(new Event('auth-changed'))
   } catch (error) {
     console.error('Failed to clear tokens:', error)
+  }
+}
+
+/**
+ * Clear ALL localStorage (nuclear option for logout)
+ * Story 1.16: Use this on logout to prevent stale data across tabs
+ * Clears everything to ensure complete session cleanup
+ */
+export function clearAllStorage(): void {
+  try {
+    localStorage.clear()
+    
+    // Trigger storage event for other tabs
+    window.dispatchEvent(new Event('auth-changed'))
+  } catch (error) {
+    console.error('Failed to clear localStorage:', error)
   }
 }
 

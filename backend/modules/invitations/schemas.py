@@ -17,6 +17,8 @@ class InvitationDetailsResponse(BaseModel):
     role_name: str = Field(..., description="Role being offered")
     inviter_name: str = Field(..., description="Name of person who sent invitation")
     invited_email: str = Field(..., description="Email address invited")
+    invited_first_name: str = Field(..., description="Invited user's first name")
+    invited_last_name: str = Field(..., description="Invited user's last name")
     expires_at: datetime = Field(..., description="When invitation expires")
     is_expired: bool = Field(..., description="Whether invitation has expired")
     status: str = Field(..., description="Invitation status")

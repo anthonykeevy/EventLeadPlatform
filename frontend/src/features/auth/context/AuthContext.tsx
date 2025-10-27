@@ -1,5 +1,5 @@
 /**
- * Auth Context - Story 1.9 (AC-1.9.3)
+ * Auth Context - Story 1.9 (AC-1.9.3) + Story 1.16 Enhanced
  * React context for global authentication state management
  * 
  * Features:
@@ -9,13 +9,22 @@
  * - Logout functionality (clear tokens, redirect to login)
  * - Persist tokens in localStorage with security considerations
  * - Token expiry handling with automatic refresh
+ * 
+ * Story 1.16 Enhanced Features:
+ * - Graceful multi-tab synchronization (no forced reloads)
+ * - Unsaved work detection and protection
+ * - BroadcastChannel API with localStorage fallback
+ * - Non-blocking auth change notifications
+ * - Offline-ready architecture
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import type { User, AuthState, LoginCredentials, SignupData } from '../types/auth.types'
 import * as authApi from '../api/authApi'
 import * as tokenStorage from '../utils/tokenStorage'
+import { unsavedWorkTracker } from '../../../utils/unsavedWorkTracker'
+import { AuthChangeBanner } from '../../../components/AuthChangeBanner'
 
 interface AuthContextValue extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>
@@ -35,8 +44,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error: null,
   })
   
+  const [authChangeBanner, setAuthChangeBanner] = useState<{
+    show: boolean
+    type: 'logout' | 'login' | 'switch'
+    message: string
+    description?: string
+    newUser?: User | null
+  } | null>(null)
+  
   const navigate = useNavigate()
+  const location = useLocation()
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const broadcastChannelRef = useRef<BroadcastChannel | null>(null)
   
   /**
    * AC-1.9.3: Auto-refresh access token before expiration
@@ -69,9 +88,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
   
   /**
-   * AC-1.9.2: Success - Store JWT tokens and navigate to dashboard/onboarding
-   * If onboarding_complete=false → /onboarding
-   * If onboarding_complete=true → /dashboard
+   * Story 1.16 Enhanced: Graceful logout with unsaved work check
+   */
+  const logout = useCallback(() => {
+    // Check for unsaved work
+    const hasUnsavedWork = unsavedWorkTracker.hasUnsavedWork()
+    
+    if (hasUnsavedWork) {
+      const unsavedCount = unsavedWorkTracker.getUnsavedCount()
+      const summary = unsavedWorkTracker.getSummary()
+      
+      const confirmed = confirm(
+        `You have ${unsavedCount} unsaved item(s):\n\n${summary}\n\nAre you sure you want to logout?`
+      )
+      
+      if (!confirmed) {
+        return // User cancelled logout
+      }
+    }
+    
+    // Proceed with logout
+    performLogout()
+  }, [])
+  
+  /**
+   * Perform actual logout (internal)
+   */
+  const performLogout = useCallback(() => {
+    // Clear refresh timeout
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current)
+    }
+    
+    // Broadcast logout to other tabs
+    broadcastAuthChange({ type: 'LOGOUT' })
+    
+    // Clear ALL localStorage (not just tokens)
+    tokenStorage.clearAllStorage()
+    
+    // Clear unsaved work tracker
+    unsavedWorkTracker.clear()
+    
+    // Reset state
+    setState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    })
+    
+    // Navigate to login (NO RELOAD - just navigate)
+    navigate('/login')
+  }, [navigate])
+  
+  /**
+   * AC-1.9.2: Login - Store tokens and navigate
+   * Story 1.16 Enhanced: Force reload on initial login for clean state
    */
   const login = useCallback(async (credentials: LoginCredentials) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
@@ -81,6 +153,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Store tokens
       tokenStorage.storeTokens(response.access_token, response.refresh_token, 3600)
+      
+      // Broadcast login to other tabs
+      broadcastAuthChange({ 
+        type: 'LOGIN',
+        user: response.user
+      })
       
       // Update state with user
       setState({
@@ -93,9 +171,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Schedule auto-refresh
       scheduleTokenRefresh()
       
-      // Always navigate to dashboard (Story 1.14)
-      // Onboarding modal will appear automatically if onboarding_complete=false
-      navigate('/dashboard')
+      // FORCE RELOAD on initial login to ensure fresh auth state
+      // This is different from cross-tab sync (which is graceful)
+      window.location.href = '/dashboard'
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed'
       setState(prev => ({
@@ -105,11 +183,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }))
       throw error
     }
-  }, [navigate, scheduleTokenRefresh])
+  }, [scheduleTokenRefresh])
   
   /**
-   * AC-1.9.1: Form submission calls POST /api/auth/signup endpoint
-   * Success: Display "Check your email" message with verification instructions
+   * AC-1.9.1: Signup
    */
   const signup = useCallback(async (data: SignupData) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
@@ -124,7 +201,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }))
       
       // Note: Don't auto-login after signup - user must verify email first
-      // Signup success is handled in the component (show success message)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Signup failed'
       setState(prev => ({
@@ -135,30 +211,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error
     }
   }, [])
-  
-  /**
-   * AC-1.9.3: Logout functionality (clear tokens, redirect to login)
-   */
-  const logout = useCallback(() => {
-    // Clear refresh timeout
-    if (refreshTimeoutRef.current) {
-      clearTimeout(refreshTimeoutRef.current)
-    }
-    
-    // Clear tokens
-    tokenStorage.clearTokens()
-    
-    // Reset state
-    setState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
-    })
-    
-    // Redirect to login
-    navigate('/login')
-  }, [navigate])
   
   /**
    * AC-1.9.3: Refresh access token
@@ -187,7 +239,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [logout, scheduleTokenRefresh])
   
   /**
-   * Refresh current user data (after onboarding, profile updates, etc.)
+   * Refresh current user data
    */
   const refreshUser = useCallback(async () => {
     try {
@@ -198,13 +250,108 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }))
     } catch (error) {
       console.error('Failed to refresh user:', error)
-      // Don't logout - just log the error
     }
   }, [])
   
   /**
+   * Broadcast auth change to other tabs
+   */
+  const broadcastAuthChange = useCallback((message: any) => {
+    // Try BroadcastChannel first (modern browsers)
+    if (broadcastChannelRef.current) {
+      try {
+        broadcastChannelRef.current.postMessage(message)
+      } catch (error) {
+        console.error('BroadcastChannel failed:', error)
+      }
+    }
+    
+    // Also update localStorage to trigger storage events (fallback for older browsers)
+    // This is handled automatically by storeTokens/clearTokens
+  }, [])
+  
+  /**
+   * Handle auth change from another tab
+   */
+  const handleAuthChangeFromOtherTab = useCallback((newUser: User | null, changeType: 'login' | 'logout' | 'switch') => {
+    // Check if current tab has unsaved work
+    const hasUnsavedWork = unsavedWorkTracker.hasUnsavedWork()
+    
+    if (hasUnsavedWork) {
+      // DON'T sync immediately - show banner instead
+      const unsavedCount = unsavedWorkTracker.getUnsavedCount()
+      const summary = unsavedWorkTracker.getSummary()
+      
+      setAuthChangeBanner({
+        show: true,
+        type: changeType,
+        message: changeType === 'logout' 
+          ? 'You\'ve been logged out in another tab'
+          : newUser
+          ? `Logged in as ${newUser.email} in another tab`
+          : 'Auth state changed in another tab',
+        description: `You have ${unsavedCount} unsaved item(s): ${summary}. Save your work before syncing.`,
+        newUser
+      })
+    } else {
+      // No unsaved work - safe to sync immediately
+      if (changeType === 'logout') {
+        console.log('🔄 Syncing logout from another tab')
+        setState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null,
+        })
+        navigate('/login')
+      } else if (newUser) {
+        console.log('🔄 Syncing login from another tab')
+        setState({
+          user: newUser,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        })
+        
+        // Only navigate if not already on dashboard
+        if (!location.pathname.startsWith('/dashboard')) {
+          navigate('/dashboard')
+        }
+      }
+    }
+  }, [navigate, location])
+  
+  /**
+   * Handle "Save & Continue" from banner
+   */
+  const handleSaveAndSync = useCallback(async () => {
+    try {
+      // Save all unsaved work
+      await unsavedWorkTracker.saveAll()
+      
+      // Now safe to sync auth state
+      if (authChangeBanner?.type === 'logout') {
+        performLogout()
+      } else if (authChangeBanner?.newUser) {
+        setState({
+          user: authChangeBanner.newUser,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        })
+        navigate('/dashboard')
+      }
+      
+      // Hide banner
+      setAuthChangeBanner(null)
+    } catch (error) {
+      console.error('Failed to save work:', error)
+      alert('Failed to save your work. Please try again or cancel the operation.')
+    }
+  }, [authChangeBanner, navigate])
+  
+  /**
    * Initialize auth state on mount
-   * Check for existing tokens and restore session
    */
   useEffect(() => {
     const initializeAuth = async () => {
@@ -257,6 +404,104 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [scheduleTokenRefresh])
   
+  /**
+   * Story 1.16 Enhanced: Multi-tab synchronization
+   * Uses BroadcastChannel with localStorage fallback
+   */
+  useEffect(() => {
+    // Try to create BroadcastChannel (modern browsers)
+    try {
+      broadcastChannelRef.current = new BroadcastChannel('eventlead_auth')
+      
+      broadcastChannelRef.current.onmessage = (event) => {
+        const { type, user } = event.data
+        
+        switch (type) {
+          case 'LOGIN':
+            handleAuthChangeFromOtherTab(user, 'login')
+            break
+          case 'LOGOUT':
+            handleAuthChangeFromOtherTab(null, 'logout')
+            break
+          case 'SWITCH_COMPANY':
+            // Company switch doesn't require full auth sync
+            // Just refresh user data
+            refreshUser()
+            break
+        }
+      }
+      
+      console.log('✅ BroadcastChannel initialized')
+    } catch (error) {
+      console.log('⚠️ BroadcastChannel not available, using localStorage fallback')
+      broadcastChannelRef.current = null
+    }
+    
+    // Fallback: localStorage events (for older browsers or if BroadcastChannel fails)
+    const handleStorageChange = (e: StorageEvent) => {
+      // Storage event fires when localStorage changes in OTHER tabs
+      if (e.key === 'eventlead_access_token' || e.key === null) {
+        if (!e.newValue) {
+          // Token was removed (logout in another tab)
+          console.log('🔄 Logout detected in another tab (storage event)')
+          handleAuthChangeFromOtherTab(null, 'logout')
+        } else {
+          // Token was added/updated (login in another tab)
+          console.log('🔄 Login detected in another tab (storage event)')
+          
+          // Decode the new token to get user info
+          try {
+            const payload = tokenStorage.decodeJWT(e.newValue)
+            const newUser: User = {
+              id: payload.user_id,
+              user_id: payload.user_id,
+              email: payload.email,
+              first_name: payload.first_name || '',
+              last_name: payload.last_name || '',
+              email_verified: payload.email_verified !== false,
+              is_active: payload.is_active !== false,
+              onboarding_complete: payload.onboarding_complete !== false,
+              created_at: payload.created_at || new Date().toISOString()
+            }
+            handleAuthChangeFromOtherTab(newUser, 'login')
+          } catch (error) {
+            console.error('Failed to decode token from storage event:', error)
+          }
+        }
+      }
+    }
+    
+    // Listen for storage changes from other tabs
+    window.addEventListener('storage', handleStorageChange)
+    
+    return () => {
+      // Cleanup
+      if (broadcastChannelRef.current) {
+        broadcastChannelRef.current.close()
+      }
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [handleAuthChangeFromOtherTab, refreshUser])
+  
+  /**
+   * Setup beforeunload warning if unsaved work exists
+   */
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (unsavedWorkTracker.hasUnsavedWork()) {
+        e.preventDefault()
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?'
+        return e.returnValue
+      }
+    }
+    
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [])
+  
   const value: AuthContextValue = {
     ...state,
     login,
@@ -266,12 +511,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser,
   }
   
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {/* Auth Change Banner */}
+      {authChangeBanner?.show && (
+        <AuthChangeBanner
+          type={authChangeBanner.type}
+          message={authChangeBanner.message}
+          description={authChangeBanner.description}
+          unsavedCount={unsavedWorkTracker.getUnsavedCount()}
+          onSave={handleSaveAndSync}
+          onDismiss={() => setAuthChangeBanner(null)}
+          onProceed={async () => {
+            // Proceed without saving (already confirmed in banner)
+            if (authChangeBanner.type === 'logout') {
+              performLogout()
+            } else if (authChangeBanner.newUser) {
+              setState({
+                user: authChangeBanner.newUser,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              })
+              navigate('/dashboard')
+            }
+            setAuthChangeBanner(null)
+          }}
+          allowContinue={true}
+        />
+      )}
+      
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 /**
  * AC-1.9.3: useAuth() hook for consuming components
- * Provides: user, loading, login(), logout(), signup() functions
  */
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext)
@@ -282,6 +558,3 @@ export function useAuth(): AuthContextValue {
   
   return context
 }
-
-
-

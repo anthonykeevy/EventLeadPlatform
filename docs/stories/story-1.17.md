@@ -1,6 +1,6 @@
 # Story 1.17: UX Enhancement & Polish
 
-**Status:** Ready  
+**Status:** Approved  
 **Priority:** Medium  
 **Estimated Lines:** ~800  
 **Dependencies:** All frontend stories (1.9, 1.14, 1.15, 1.16)

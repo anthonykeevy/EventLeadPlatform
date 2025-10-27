@@ -1,0 +1,111 @@
+[tool.pyright]
+# Pyright configuration for EventLead Platform
+# Custom linting rules for better developer experience
+
+# Include patterns
+include = [
+    "**/*.py"
+]
+
+# Exclude patterns
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/venv",
+    "**/.venv",
+    "**/migrations/versions"
+]
+
+# Type checking mode
+typeCheckingMode = "basic"
+
+# Report options
+reportMissingImports = "warning"
+reportMissingTypeStubs = "none"
+reportUnknownMemberType = "warning"
+reportUnknownArgumentType = "warning"
+reportUnknownVariableType = "warning"
+reportUnknownParameterType = "warning"
+reportMissingParameterType = "warning"
+reportMissingTypeArgument = "warning"
+reportInvalidTypeVarUse = "warning"
+reportCallInDefaultInitializer = "warning"
+reportUnnecessaryIsInstance = "warning"
+reportUnnecessaryCast = "warning"
+reportUnnecessaryComparison = "warning"
+reportUnnecessaryContains = "warning"
+reportAssertAlwaysTrue = "warning"
+reportSelfClsParameterName = "warning"
+reportImplicitStringConcatenation = "warning"
+reportInvalidStringEscapeSequence = "warning"
+reportUnknownLambdaType = "warning"
+reportUnknownMemberType = "warning"
+reportMissingSuperCall = "warning"
+reportUninitializedInstanceVariable = "warning"
+reportInvalidStringEscapeSequence = "warning"
+reportUnknownParameterType = "warning"
+reportUnknownArgumentType = "warning"
+reportUnknownLambdaType = "warning"
+reportUnknownMemberType = "warning"
+reportMissingParameterType = "warning"
+reportMissingTypeArgument = "warning"
+reportInvalidTypeVarUse = "warning"
+reportCallInDefaultInitializer = "warning"
+reportUnnecessaryIsInstance = "warning"
+reportUnnecessaryCast = "warning"
+reportUnnecessaryComparison = "warning"
+reportUnnecessaryContains = "warning"
+reportAssertAlwaysTrue = "warning"
+reportSelfClsParameterName = "warning"
+reportImplicitStringConcatenation = "warning"
+reportInvalidStringEscapeSequence = "warning"
+reportUnknownLambdaType = "warning"
+reportUnknownMemberType = "warning"
+reportMissingSuperCall = "warning"
+reportUninitializedInstanceVariable = "warning"
+
+# SQLAlchemy specific suppressions
+reportIncompatibleMethodOverride = "none"
+reportIncompatibleVariableOverride = "none"
+
+# Custom rules for EventLead Platform
+reportGeneralTypeIssues = "warning"
+reportOptionalSubscript = "warning"
+reportOptionalMemberAccess = "warning"
+reportOptionalCall = "warning"
+reportOptionalIterable = "warning"
+reportOptionalContextManager = "warning"
+reportOptionalOperand = "warning"
+reportTypedDictNotRequiredAccess = "warning"
+reportPrivateImportUsage = "warning"
+reportTypeCommentUsage = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportImplicitOverride = "warning"
+reportShadowedImports = "warning"
+reportUnusedImport = "warning"
+reportUnusedClass = "warning"
+reportUnusedFunction = "warning"
+reportUnusedVariable = "warning"
+reportDuplicateImport = "warning"
+reportWildcardImportFromLibrary = "warning"
+reportAbstractUsage = "warning"
+reportUnsupportedDunderAll = "warning"
+reportUnusedCoroutine = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportImplicitOverride = "warning"
+reportShadowedImports = "warning"
+reportUnusedImport = "warning"
+reportUnusedClass = "warning"
+reportUnusedFunction = "warning"
+reportUnusedVariable = "warning"
+reportDuplicateImport = "warning"
+reportWildcardImportFromLibrary = "warning"
+reportAbstractUsage = "warning"
+reportUnsupportedDunderAll = "warning"
+reportUnusedCoroutine = "warning"
+
+# Performance
+useLibraryCodeForTypes = true
+autoSearchPaths = true
+autoImportCompletions = true
+indexing = true

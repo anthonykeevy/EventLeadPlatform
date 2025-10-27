@@ -29,12 +29,17 @@ Epic 1 Files (READ-ONLY):
 - frontend/features/dashboard/
 - frontend/features/invitations/
 - frontend/features/ux/
-- database/migrations/001_*.py
 - database/migrations/002_*.py
 - database/migrations/003_*.py
 - database/migrations/004_*.py
 - database/migrations/005_*.py
 - database/migrations/006_*.py
+- database/migrations/007_*.py
+- database/migrations/008_*.py
+- database/migrations/009_*.py
+- database/migrations/010_*.py
+- database/migrations/011_*.py
+- database/migrations/012_*.py
 ```
 
 **Update epic status file:**
@@ -56,7 +61,7 @@ Forbidden Zones Created:
 - Company & Multi-Tenant modules  
 - Team Collaboration modules
 - Frontend Auth, Dashboard, Invitations, UX modules
-- Database migrations 001-006
+- Database migrations 002-012 (All Epic 1 migrations)
 
 Allowed Interactions:
 - ✅ Import functions/classes (read-only usage)

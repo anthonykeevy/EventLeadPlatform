@@ -572,12 +572,17 @@ Comprehensive end-to-end testing:
 - `frontend/src/features/ux/` - UX components & utilities
 
 **Database Migrations:**
-- `database/migrations/001_*.py` - Initial schema
-- `database/migrations/002_*.py` - User management
-- `database/migrations/003_*.py` - Company management
-- `database/migrations/004_*.py` - Team collaboration
-- `database/migrations/005_*.py` - Invitation system
-- `database/migrations/006_*.py` - Audit logging
+- `database/migrations/002_*.py` - Epic 1 complete schema
+- `database/migrations/003_*.py` - Validation rule enhancements
+- `database/migrations/004_*.py` - ABR search analytics fields
+- `database/migrations/005_*.py` - Company relationship tables
+- `database/migrations/006_*.py` - Company switch request refactor
+- `database/migrations/007_*.py` - Rename PK for company relationship
+- `database/migrations/008_*.py` - User refresh token table
+- `database/migrations/009_*.py` - Company validation architecture
+- `database/migrations/010_*.py` - Postal codes all countries
+- `database/migrations/011_*.py` - Fix UK display format
+- `database/migrations/012_*.py` - Unique ABN constraint
 
 ### Allowed Interactions:
 - ✅ Import functions/classes (read-only usage)

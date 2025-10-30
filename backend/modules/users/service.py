@@ -8,7 +8,12 @@ from typing import Optional, List
 from datetime import datetime
 
 from models.user import User
+from models.user_industry import UserIndustry
 from models.ref.timezone import Timezone
+from models.ref.theme_preference import ThemePreference
+from models.ref.layout_density import LayoutDensity
+from models.ref.font_size import FontSize
+from models.ref.industry import Industry
 from models.audit.user_audit import UserAudit
 from models.user_company import UserCompany
 from models.ref.user_company_status import UserCompanyStatus
@@ -215,4 +220,350 @@ async def get_user_profile(db: Session, user_id: int) -> Optional[User]:
     return db.execute(
         select(User).where(User.UserID == user_id)
     ).scalar_one_or_none()
+
+
+# ============================================================================
+# Epic 2: Enhanced User Profile Management
+# ============================================================================
+
+async def update_user_profile_enhancements(
+    db: Session,
+    user_id: int,
+    bio: Optional[str] = None,
+    theme_preference_id: Optional[int] = None,
+    layout_density_id: Optional[int] = None,
+    font_size_id: Optional[int] = None
+) -> User:
+    """
+    Update user profile enhancements (Epic 2).
+    
+    Args:
+        db: Database session
+        user_id: User ID to update
+        bio: Professional bio (optional)
+        theme_preference_id: Theme preference ID (optional)
+        layout_density_id: Layout density ID (optional)
+        font_size_id: Font size ID (optional)
+        
+    Returns:
+        Updated User object
+        
+    Raises:
+        ValueError: If user not found or invalid IDs
+    """
+    # Get user
+    user = db.execute(
+        select(User).where(User.UserID == user_id)
+    ).scalar_one_or_none()
+    
+    if not user:
+        raise ValueError(f"User not found: {user_id}")
+    
+    # Validate foreign key references if provided
+    if theme_preference_id is not None:
+        theme = db.get(ThemePreference, theme_preference_id)
+        if not theme:
+            raise ValueError(f"Invalid theme preference ID: {theme_preference_id}")
+    
+    if layout_density_id is not None:
+        density = db.get(LayoutDensity, layout_density_id)
+        if not density:
+            raise ValueError(f"Invalid layout density ID: {layout_density_id}")
+    
+    if font_size_id is not None:
+        font_size = db.get(FontSize, font_size_id)
+        if not font_size:
+            raise ValueError(f"Invalid font size ID: {font_size_id}")
+    
+    # Store old values for audit
+    old_values = {
+        "Bio": user.Bio,
+        "ThemePreferenceID": user.ThemePreferenceID,
+        "LayoutDensityID": user.LayoutDensityID,
+        "FontSizeID": user.FontSizeID
+    }
+    
+    # Update user profile
+    if bio is not None:
+        user.Bio = bio  # type: ignore
+    if theme_preference_id is not None:
+        user.ThemePreferenceID = theme_preference_id  # type: ignore
+    if layout_density_id is not None:
+        user.LayoutDensityID = layout_density_id  # type: ignore
+    if font_size_id is not None:
+        user.FontSizeID = font_size_id  # type: ignore
+    
+    user.UpdatedDate = datetime.utcnow()  # type: ignore
+    user.UpdatedBy = user_id  # type: ignore
+    
+    # Log to audit table
+    changed_fields = []
+    if old_values["Bio"] != bio and bio is not None:
+        changed_fields.append(("Bio", old_values["Bio"], bio))
+    if old_values["ThemePreferenceID"] != theme_preference_id and theme_preference_id is not None:
+        changed_fields.append(("ThemePreferenceID", old_values["ThemePreferenceID"], theme_preference_id))
+    if old_values["LayoutDensityID"] != layout_density_id and layout_density_id is not None:
+        changed_fields.append(("LayoutDensityID", old_values["LayoutDensityID"], layout_density_id))
+    if old_values["FontSizeID"] != font_size_id and font_size_id is not None:
+        changed_fields.append(("FontSizeID", old_values["FontSizeID"], font_size_id))
+    
+    try:
+        for field_name, old_val, new_val in changed_fields:
+            audit_entry = UserAudit(
+                UserID=user_id,
+                FieldName=field_name,
+                OldValue=str(old_val) if old_val is not None else None,
+                NewValue=str(new_val) if new_val is not None else None,
+                ChangeType="UPDATE",
+                ChangeReason="User profile enhancement update",
+                ChangedBy=user_id,
+                ChangedByEmail=user.Email,
+                IPAddress=None,
+                UserAgent=None
+            )
+            db.add(audit_entry)
+        
+        db.commit()
+        db.refresh(user)
+        
+        logger.info(f"User profile enhancements updated: UserID={user_id}")
+        
+        return user
+        
+    except Exception as e:
+        logger.error(f"Error committing profile enhancement update: {str(e)}", exc_info=True)
+        db.rollback()
+        raise
+
+
+async def get_user_industries(db: Session, user_id: int) -> List[UserIndustry]:
+    """
+    Get all active industry associations for a user.
+    
+    Args:
+        db: Database session
+        user_id: User ID
+        
+    Returns:
+        List of UserIndustry records
+    """
+    stmt = select(UserIndustry).where(
+        UserIndustry.UserID == user_id,
+        UserIndustry.IsDeleted == False
+    ).order_by(UserIndustry.IsPrimary.desc(), UserIndustry.SortOrder.asc())
+    
+    return list(db.execute(stmt).scalars().all())
+
+
+async def add_user_industry(
+    db: Session,
+    user_id: int,
+    industry_id: int,
+    is_primary: bool = False,
+    sort_order: Optional[int] = None
+) -> UserIndustry:
+    """
+    Add an industry association to a user.
+    
+    Args:
+        db: Database session
+        user_id: User ID
+        industry_id: Industry ID
+        is_primary: Whether this is the primary industry
+        sort_order: Display order (auto-assigned if not provided)
+        
+    Returns:
+        Created UserIndustry object
+        
+    Raises:
+        ValueError: If user/industry not found, duplicate association, or constraint violation
+    """
+    # Validate user exists
+    user = db.get(User, user_id)
+    if not user:
+        raise ValueError(f"User not found: {user_id}")
+    
+    # Validate industry exists
+    industry = db.get(Industry, industry_id)
+    if not industry:
+        raise ValueError(f"Industry not found: {industry_id}")
+    
+    # Check for duplicate association
+    existing = db.execute(
+        select(UserIndustry).where(
+            UserIndustry.UserID == user_id,
+            UserIndustry.IndustryID == industry_id,
+            UserIndustry.IsDeleted == False
+        )
+    ).scalar_one_or_none()
+    
+    if existing:
+        raise ValueError(f"Industry already associated with user: {industry_id}")
+    
+    # If setting as primary, unset other primary industries
+    if is_primary:
+        other_primary = db.execute(
+            select(UserIndustry).where(
+                UserIndustry.UserID == user_id,
+                UserIndustry.IsPrimary == True,
+                UserIndustry.IsDeleted == False
+            )
+        ).scalars().all()
+        
+        for ui in other_primary:
+            ui.IsPrimary = False  # type: ignore
+            ui.UpdatedDate = datetime.utcnow()  # type: ignore
+            ui.UpdatedBy = user_id  # type: ignore
+            ui.SortOrder = ui.SortOrder + 1 if ui.SortOrder else 1  # type: ignore
+    
+    # Assign sort order
+    if sort_order is None:
+        if is_primary:
+            sort_order = 0
+        else:
+            # Get max sort order and add 1
+            max_sort = db.execute(
+                select(UserIndustry.SortOrder).where(
+                    UserIndustry.UserID == user_id,
+                    UserIndustry.IsDeleted == False
+                ).order_by(UserIndustry.SortOrder.desc())
+            ).scalar()
+            sort_order = (max_sort or 0) + 1 if max_sort else 1
+    
+    # Create UserIndustry record
+    user_industry = UserIndustry(
+        UserID=user_id,
+        IndustryID=industry_id,
+        IsPrimary=is_primary,
+        SortOrder=sort_order,
+        CreatedBy=user_id,
+        UpdatedBy=user_id
+    )
+    
+    try:
+        db.add(user_industry)
+        db.commit()
+        db.refresh(user_industry)
+        
+        logger.info(f"Industry added to user: UserID={user_id}, IndustryID={industry_id}, IsPrimary={is_primary}")
+        
+        return user_industry
+        
+    except Exception as e:
+        logger.error(f"Error adding industry to user: {str(e)}", exc_info=True)
+        db.rollback()
+        raise
+
+
+async def update_user_industry(
+    db: Session,
+    user_industry_id: int,
+    user_id: int,
+    is_primary: Optional[bool] = None,
+    sort_order: Optional[int] = None
+) -> UserIndustry:
+    """
+    Update an existing industry association.
+    
+    Args:
+        db: Database session
+        user_industry_id: UserIndustry ID
+        user_id: User ID (for verification)
+        is_primary: Whether this should be the primary industry
+        sort_order: Display order
+        
+    Returns:
+        Updated UserIndustry object
+        
+    Raises:
+        ValueError: If association not found or constraint violation
+    """
+    # Get association
+    user_industry = db.get(UserIndustry, user_industry_id)
+    if not user_industry:
+        raise ValueError(f"Industry association not found: {user_industry_id}")
+    
+    # Verify ownership
+    if user_industry.UserID != user_id:
+        raise ValueError(f"User does not own this association: {user_industry_id}")
+    
+    # If setting as primary, unset other primary industries
+    if is_primary is not None and is_primary and not user_industry.IsPrimary:
+        other_primary = db.execute(
+            select(UserIndustry).where(
+                UserIndustry.UserID == user_id,
+                UserIndustry.UserIndustryID != user_industry_id,
+                UserIndustry.IsPrimary == True,
+                UserIndustry.IsDeleted == False
+            )
+        ).scalars().all()
+        
+        for ui in other_primary:
+            ui.IsPrimary = False  # type: ignore
+            ui.UpdatedDate = datetime.utcnow()  # type: ignore
+            ui.UpdatedBy = user_id  # type: ignore
+            ui.SortOrder = ui.SortOrder + 1 if ui.SortOrder else 1  # type: ignore
+    
+    # Update fields
+    if is_primary is not None:
+        user_industry.IsPrimary = is_primary  # type: ignore
+        if is_primary:
+            user_industry.SortOrder = 0  # type: ignore
+    if sort_order is not None:
+        user_industry.SortOrder = sort_order  # type: ignore
+    
+    user_industry.UpdatedDate = datetime.utcnow()  # type: ignore
+    user_industry.UpdatedBy = user_id  # type: ignore
+    
+    try:
+        db.commit()
+        db.refresh(user_industry)
+        
+        logger.info(f"Industry association updated: UserIndustryID={user_industry_id}")
+        
+        return user_industry
+        
+    except Exception as e:
+        logger.error(f"Error updating industry association: {str(e)}", exc_info=True)
+        db.rollback()
+        raise
+
+
+async def remove_user_industry(db: Session, user_industry_id: int, user_id: int) -> None:
+    """
+    Remove (soft delete) an industry association.
+    
+    Args:
+        db: Database session
+        user_industry_id: UserIndustry ID
+        user_id: User ID (for verification)
+        
+    Raises:
+        ValueError: If association not found
+    """
+    # Get association
+    user_industry = db.get(UserIndustry, user_industry_id)
+    if not user_industry:
+        raise ValueError(f"Industry association not found: {user_industry_id}")
+    
+    # Verify ownership
+    if user_industry.UserID != user_id:
+        raise ValueError(f"User does not own this association: {user_industry_id}")
+    
+    # Soft delete
+    user_industry.IsDeleted = True  # type: ignore
+    user_industry.DeletedDate = datetime.utcnow()  # type: ignore
+    user_industry.DeletedBy = user_id  # type: ignore
+    user_industry.UpdatedDate = datetime.utcnow()  # type: ignore
+    user_industry.UpdatedBy = user_id  # type: ignore
+    
+    try:
+        db.commit()
+        
+        logger.info(f"Industry association removed: UserIndustryID={user_industry_id}")
+        
+    except Exception as e:
+        logger.error(f"Error removing industry association: {str(e)}", exc_info=True)
+        db.rollback()
+        raise
 

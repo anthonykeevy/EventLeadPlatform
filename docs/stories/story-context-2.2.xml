@@ -1,0 +1,104 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2.2</storyId>
+    <title>Theme System Implementation</title>
+    <status>Draft</status>
+    <generatedAt>2025-01-30T10:30:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-2.2.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to customize my interface theme, layout density, and font size</iWant>
+    <soThat>I can have a personalized experience that matches my preferences and accessibility needs</soThat>
+    <tasks>
+      - Database Schema Implementation (AC: 9)
+      - Backend API Development (AC: 8)
+      - Frontend Theme System (AC: 1, 4, 6)
+      - Layout Density Implementation (AC: 2, 4, 6)
+      - Font Size Implementation (AC: 3, 4, 6)
+      - Cross-Component Integration (AC: 6, 12)
+      - Performance Optimization (AC: 7)
+      - Accessibility Implementation (AC: 10)
+      - Testing and Validation (AC: 1-12)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Theme Selection: Users can select from light, dark, high-contrast, and system themes with immediate visual feedback
+    2. Layout Density Control: Users can choose between compact, comfortable, and spacious layout densities
+    3. Font Size Control: Users can select small, medium, or large font sizes for better readability
+    4. CSS Custom Properties: Theme changes are implemented using CSS custom properties for optimal performance
+    5. Theme Persistence: User theme preferences are saved to the database and restored on login
+    6. Cross-Component Integration: Theme changes apply consistently across all UI components
+    7. Performance Optimization: Theme switching completes in less than 500ms
+    8. Backend API Support: RESTful APIs exist for managing theme preferences
+    9. Database Schema: Reference tables exist for themes, layout densities, and font sizes
+    10. Accessibility Compliance: High-contrast theme meets WCAG 2.1 AA standards
+    11. System Theme Detection: System theme automatically detects and follows OS preference
+    12. Real-time Updates: Theme changes propagate to all open browser tabs/sessions
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Theme System Architecture" snippet="CSS custom properties with React Context + useReducer for state management. Theme provider and selector components with layout density and font size controls." />
+      <doc path="docs/epic2-solution-architecture.md" title="Epic 2 Solution Architecture" section="Theme System Architecture" snippet="Frontend theme implementation using CSS custom properties with Tailwind integration. React Context + useReducer pattern for state management." />
+      <doc path="docs/EPIC-2-STATUS.md" title="Epic 2 Status" section="Performance Trends" snippet="Theme switching target < 500ms. Dashboard load time target < 2 seconds (maintain Epic 1)." />
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="MVP Scope" snippet="Enhanced user experience with theme system, user preferences, and accessibility features." />
+    </docs>
+    <code>
+      <code path="frontend/src/components/user/" kind="directory" symbol="User Components" lines="N/A" reason="Theme-related components will be created here including ThemeSelector, DensitySelector, FontSizeSelector" />
+      <code path="backend/app/services/user_service.py" kind="file" symbol="UserService" lines="N/A" reason="Will be extended with theme preference management methods" />
+      <code path="backend/app/api/v1/user.py" kind="file" symbol="User API" lines="N/A" reason="Will be extended with theme preference endpoints" />
+      <code path="database/schemas/" kind="directory" symbol="Database Schema" lines="N/A" reason="Will contain new reference tables for themes, densities, and font sizes" />
+    </code>
+    <dependencies>
+      <dependency ecosystem="frontend" packages="React 18.2.0, TypeScript 5.2.2, Tailwind CSS 3.3.5, Axios 1.6.2" />
+      <dependency ecosystem="backend" packages="FastAPI 0.115.7, SQLAlchemy 2.0.40, Alembic 1.14.1, Pydantic 2.10.6" />
+      <dependency ecosystem="database" packages="MS SQL Server 2022" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Maintain Epic 1 performance characteristics (dashboard < 2s, theme switching < 500ms)
+    - Preserve all existing Epic 1 functionality without breaking changes
+    - Use CSS custom properties for optimal performance
+    - Implement React Context + useReducer pattern for state management
+    - Follow existing database naming conventions and audit patterns
+    - Ensure WCAG 2.1 AA compliance for accessibility
+    - Support cross-browser compatibility
+    - Implement proper error handling and validation
+  </constraints>
+
+  <interfaces>
+    <interface name="UserService.update_preferences" kind="method" signature="update_preferences(user_id: int, preferences: dict) -> User" path="backend/app/services/user_service.py" />
+    <interface name="User API /users/preferences" kind="endpoint" signature="PUT /api/v1/users/preferences" path="backend/app/api/v1/user.py" />
+    <interface name="ThemeProvider" kind="component" signature="ThemeProvider: React.FC<{ children: React.ReactNode }>" path="frontend/src/components/shared/ThemeProvider.tsx" />
+    <interface name="ThemeSelector" kind="component" signature="ThemeSelector: React.FC" path="frontend/src/components/user/ThemeSelector.tsx" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Frontend testing with React Testing Library for component testing, Vitest for unit testing. Backend testing with pytest and FastAPI TestClient. Integration testing for cross-domain functionality. End-to-end testing for complete user workflows. Performance testing for theme switching speed.
+    </standards>
+    <locations>
+      frontend/src/__tests__/, backend/tests/, docs/stories/UAT-*.md
+    </locations>
+    <ideas>
+      AC1: Test theme selection UI with all four theme options, verify immediate visual feedback
+      AC2: Test layout density selector with three options, verify spacing changes
+      AC3: Test font size selector with three options, verify text size changes
+      AC4: Test CSS custom properties are applied correctly for each theme
+      AC5: Test theme persistence by logging out and back in
+      AC6: Test theme changes across all UI components
+      AC7: Performance test theme switching with timing measurements
+      AC8: Test API endpoints for theme preferences with various inputs
+      AC9: Test database schema with reference data seeding
+      AC10: Test high-contrast theme with accessibility tools
+      AC11: Test system theme detection on different operating systems
+      AC12: Test theme changes propagate across multiple browser tabs
+    </ideas>
+  </tests>
+</story-context>

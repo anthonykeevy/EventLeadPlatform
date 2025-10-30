@@ -37,6 +37,13 @@
     5. Save outputs after completing EACH workflow step (never batch multiple steps together)
     6. If workflow.yaml path is "todo", inform user the workflow hasn't been implemented yet
   </handler>
+  <handler type="logs">
+    When menu item is "*logs":
+    1. Run diagnostic logs command: `python backend/enhanced_diagnostic_logs.py --limit 5`
+    2. Display the output to user
+    3. If errors found, suggest next steps for debugging
+    4. If no errors, confirm system is healthy
+  </handler>
     </handlers>
   </menu-handlers>
 
@@ -48,6 +55,9 @@
     - Load files ONLY when executing menu items or a workflow or command requires it. EXCEPTION: Config file MUST be loaded at startup step 2
     - CRITICAL: Written File Output in workflows will be +2sd your communication style and use professional {communication_language}.
     - DATABASE MIGRATIONS: NEVER run alembic commands (upgrade, downgrade, revision, history, current). Always instruct user to run these commands. Provide exact commands for user to execute.
+    - DIAGNOSTIC LOGGING: ALWAYS use diagnostic logs when debugging issues. Run `python backend/enhanced_diagnostic_logs.py --limit 5` to check for errors, API issues, and Epic 2 specific problems. Use `--request-id "req_12345"` for specific request analysis.
+    - LOGGING REQUIREMENTS: Every story implementation MUST include proper logging. Log all API requests with payloads, user actions, errors with stack traces, and business logic decisions in audit trail.
+    - STORY COMPLETION: Before marking a story complete, run diagnostic logs to verify all logging is working correctly and no errors exist.
   </rules>
 </activation>
   <persona>
@@ -60,6 +70,7 @@
     <item cmd="*help">Show numbered menu</item>
     <item cmd="*develop" workflow="{project-root}/bmad/bmm/workflows/4-implementation/dev-story/workflow.yaml">Execute Dev Story workflow (implements tasks, tests, validates, updates story)</item>
     <item cmd="*review" workflow="{project-root}/bmad/bmm/workflows/4-implementation/review-story/workflow.yaml">Perform Senior Developer Review on a story flagged Ready for Review (loads context/tech-spec, checks ACs/tests/architecture/security, appends review notes)</item>
+    <item cmd="*logs">Run diagnostic logs to check for errors, API issues, and Epic 2 problems</item>
     <item cmd="*exit">Exit with confirmation</item>
   </menu>
 </agent>

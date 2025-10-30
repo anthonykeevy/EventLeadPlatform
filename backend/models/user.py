@@ -66,6 +66,12 @@ class User(Base):
     ProfilePictureUrl = Column(String(500), nullable=True)
     TimezoneIdentifier = Column(String(50), nullable=False, default='Australia/Sydney', index=True)
     
+    # Epic 2: Enhanced Profile
+    Bio = Column(String(500), nullable=True)
+    ThemePreferenceID = Column(BigInteger, ForeignKey('ref.ThemePreference.ThemePreferenceID'), nullable=True, index=True)
+    LayoutDensityID = Column(BigInteger, ForeignKey('ref.LayoutDensity.LayoutDensityID'), nullable=True, index=True)
+    FontSizeID = Column(BigInteger, ForeignKey('ref.FontSize.FontSizeID'), nullable=True, index=True)
+    
     # Status and Verification
     StatusID = Column(BigInteger, ForeignKey('ref.UserStatus.UserStatusID'), nullable=False, index=True)
     IsEmailVerified = Column(Boolean, nullable=False, default=False)
@@ -107,6 +113,12 @@ class User(Base):
     country = relationship("Country", back_populates="users", foreign_keys=[CountryID])
     preferred_language = relationship("Language", back_populates="users", foreign_keys=[PreferredLanguageID])
     user_role = relationship("UserRole", back_populates="users", foreign_keys=[UserRoleID])
+    
+    # Epic 2: Enhanced Profile Relationships
+    theme_preference = relationship("ThemePreference", back_populates="users", foreign_keys=[ThemePreferenceID])
+    layout_density = relationship("LayoutDensity", back_populates="users", foreign_keys=[LayoutDensityID])
+    font_size = relationship("FontSize", back_populates="users", foreign_keys=[FontSizeID])
+    user_industries = relationship("UserIndustry", back_populates="user", foreign_keys="[UserIndustry.UserID]")
     
     companies = relationship("UserCompany", back_populates="user", foreign_keys="[UserCompany.UserID]")
     invitations_sent = relationship("UserInvitation", back_populates="invited_by_user", foreign_keys="[UserInvitation.InvitedBy]")

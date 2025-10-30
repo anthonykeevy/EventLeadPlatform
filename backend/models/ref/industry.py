@@ -43,6 +43,7 @@ class Industry(Base):
     
     # Relationships
     companies = relationship("Company", back_populates="industry")
+    user_industries = relationship("UserIndustry", back_populates="industry", foreign_keys="[UserIndustry.IndustryID]")
     
     def __repr__(self) -> str:
         return f"<Industry(IndustryID={self.IndustryID}, IndustryCode='{self.IndustryCode}', IndustryName='{self.IndustryName}')>"

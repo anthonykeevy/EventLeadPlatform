@@ -3,7 +3,7 @@ User Management Schemas
 Pydantic models for user profile requests/responses
 """
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class UpdateUserDetailsSchema(BaseModel):
@@ -103,3 +103,154 @@ class UserCompanyInfo(BaseModel):
     is_primary: bool
     joined_at: datetime
     relationship: Optional[RelationshipInfo] = None
+
+
+# ============================================================================
+# Epic 2: Enhanced User Profile Schemas
+# ============================================================================
+
+class UserProfileUpdateSchema(BaseModel):
+    """
+    Request schema for updating user profile enhancements (Epic 2).
+    All fields are optional for partial updates.
+    """
+    bio: Optional[str] = Field(None, max_length=500, description="Professional bio/summary")
+    theme_preference_id: Optional[int] = Field(None, description="Theme preference ID")
+    layout_density_id: Optional[int] = Field(None, description="Layout density ID")
+    font_size_id: Optional[int] = Field(None, description="Font size ID")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "bio": "Marketing professional with 10 years of experience",
+                "theme_preference_id": 2,
+                "layout_density_id": 1,
+                "font_size_id": 2
+            }
+        }
+
+
+class ReferenceOptionResponse(BaseModel):
+    """Response schema for reference table options"""
+    id: int = Field(..., description="Option ID")
+    code: str = Field(..., description="Unique code")
+    name: str = Field(..., description="Display name")
+    description: str = Field(..., description="Full description")
+    css_class: str = Field(..., description="CSS class for frontend")
+    base_font_size: Optional[str] = Field(None, description="Base font size (for FontSize only)")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": 2,
+                "code": "dark",
+                "name": "Dark Theme",
+                "description": "Dark interface with dark backgrounds",
+                "css_class": "theme-dark",
+                "base_font_size": None
+            }
+        }
+
+
+class IndustryAssociationSchema(BaseModel):
+    """Request schema for adding/updating industry association"""
+    industry_id: int = Field(..., description="Industry ID")
+    is_primary: bool = Field(default=False, description="Whether this is the primary industry")
+    sort_order: Optional[int] = Field(None, description="Display order (for secondary industries)")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "industry_id": 5,
+                "is_primary": False,
+                "sort_order": 1
+            }
+        }
+
+
+class IndustryAssociationResponse(BaseModel):
+    """Response schema for industry association"""
+    user_industry_id: int = Field(..., description="UserIndustry junction table ID")
+    industry_id: int = Field(..., description="Industry ID")
+    industry_name: str = Field(..., description="Industry name")
+    industry_code: str = Field(..., description="Industry code")
+    is_primary: bool = Field(..., description="Whether this is the primary industry")
+    sort_order: int = Field(..., description="Display order")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_industry_id": 10,
+                "industry_id": 5,
+                "industry_name": "Technology",
+                "industry_code": "tech",
+                "is_primary": False,
+                "sort_order": 1
+            }
+        }
+
+
+class EnhancedUserProfileResponse(BaseModel):
+    """Response schema for enhanced user profile (Epic 2)"""
+    user_id: int
+    email: str
+    first_name: str
+    last_name: str
+    phone: Optional[str]
+    bio: Optional[str]
+    role_title: Optional[str]
+    is_email_verified: bool
+    
+    # Epic 2 Enhanced Fields
+    theme_preference: Optional[ReferenceOptionResponse] = None
+    layout_density: Optional[ReferenceOptionResponse] = None
+    font_size: Optional[ReferenceOptionResponse] = None
+    industries: List[IndustryAssociationResponse] = Field(default_factory=list, description="User's industry associations")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_id": 123,
+                "email": "john.doe@example.com",
+                "first_name": "John",
+                "last_name": "Doe",
+                "phone": "+61412345678",
+                "bio": "Marketing professional",
+                "role_title": "Marketing Manager",
+                "is_email_verified": True,
+                "theme_preference": {
+                    "id": 2,
+                    "code": "dark",
+                    "name": "Dark Theme",
+                    "description": "Dark interface",
+                    "css_class": "theme-dark",
+                    "base_font_size": None
+                },
+                "layout_density": {
+                    "id": 1,
+                    "code": "compact",
+                    "name": "Compact",
+                    "description": "Tight spacing",
+                    "css_class": "layout-compact",
+                    "base_font_size": None
+                },
+                "font_size": {
+                    "id": 2,
+                    "code": "medium",
+                    "name": "Medium",
+                    "description": "Standard text size",
+                    "css_class": "font-medium",
+                    "base_font_size": "16px"
+                },
+                "industries": [
+                    {
+                        "user_industry_id": 10,
+                        "industry_id": 5,
+                        "industry_name": "Technology",
+                        "industry_code": "tech",
+                        "is_primary": True,
+                        "sort_order": 0
+                    }
+                ]
+            }
+        }

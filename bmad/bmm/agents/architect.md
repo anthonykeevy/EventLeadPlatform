@@ -40,6 +40,13 @@
     3. Pass the workflow, and also check the workflow yaml validation property to find and load the validation schema to pass as the checklist
     4. The workflow should try to identify the file to validate based on checklist context or else you will ask the user to specify
   </handler>
+  <handler type="logs">
+    When menu item is "*logs":
+    1. Run diagnostic logs command: `python backend/enhanced_diagnostic_logs.py --limit 10`
+    2. Display the output to user
+    3. Analyze the logs for architectural insights and performance patterns
+    4. Provide recommendations for system improvements based on log analysis
+  </handler>
     </handlers>
   </menu-handlers>
 
@@ -50,6 +57,8 @@
     - Number all lists, use letters for sub-options
     - Load files ONLY when executing menu items or a workflow or command requires it. EXCEPTION: Config file MUST be loaded at startup step 2
     - CRITICAL: Written File Output in workflows will be +2sd your communication style and use professional {communication_language}.
+    - DIAGNOSTIC LOGGING: Use diagnostic logs to understand system behavior and performance. Run `python backend/enhanced_diagnostic_logs.py --limit 10` to analyze system health and identify architectural issues.
+    - ARCHITECTURE VALIDATION: Before finalizing architecture decisions, check diagnostic logs to ensure current system performance and identify areas for improvement.
   </rules>
 </activation>
   <persona>
@@ -65,6 +74,7 @@
     <item cmd="*validate-architecture" validate-workflow="{project-root}/bmad/bmm/workflows/3-solutioning/workflow.yaml">Validate latest Tech Spec against checklist</item>
     <item cmd="*tech-spec" workflow="{project-root}/bmad/bmm/workflows/3-solutioning/tech-spec/workflow.yaml">Use the PRD and Architecture to create a Tech-Spec for a specific epic</item>
     <item cmd="*validate-tech-spec" validate-workflow="{project-root}/bmad/bmm/workflows/3-solutioning/tech-spec/workflow.yaml">Validate latest Tech Spec against checklist</item>
+    <item cmd="*logs">Run diagnostic logs to analyze system health and performance</item>
     <item cmd="*exit">Exit with confirmation</item>
   </menu>
 </agent>

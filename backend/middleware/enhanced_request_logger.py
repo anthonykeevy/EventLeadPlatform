@@ -1,18 +1,17 @@
 """
 Enhanced Request Logging Middleware with Payload Capture
-Implements stream duplication to capture request payloads without consuming the stream
+Implements proper ASGI middleware with stream duplication for payload capture
 """
 import time
 import uuid
 import json
-import asyncio
-from typing import Callable, Optional
+import threading
+from typing import Callable, Optional, Dict, Any
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.background import BackgroundTask
 from starlette.types import ASGIApp, Scope, Receive, Send
 from sqlalchemy.orm import Session
-from io import BytesIO
 
 from common.database import SessionLocal
 from common.request_context import set_request_context, clear_request_context
@@ -25,8 +24,16 @@ class EnhancedRequestLoggingMiddleware:
     """
     ASGI middleware that captures request/response payloads without consuming streams.
     
-    This middleware uses stream duplication to allow both logging and endpoint processing
-    to read the request body without conflicts.
+    This middleware uses proper ASGI stream duplication to allow both logging and 
+    endpoint processing to read the request body without conflicts.
+    
+    Key Features:
+    - Proper ASGI implementation with wrapped_receive/wrapped_send
+    - Accurate timing and status code capture
+    - JWT token extraction for user context
+    - Chunk accumulation for complete request/response bodies
+    - Non-blocking database writes
+    - Comprehensive error handling
     """
     
     def __init__(self, app: ASGIApp):
@@ -43,51 +50,73 @@ class EnhancedRequestLoggingMiddleware:
         # Generate unique RequestID
         request_id = str(uuid.uuid4())
         
-        # Create a custom receive function that duplicates the request body
-        request_body = b""
-        original_receive = receive
+        # Track timing
+        start_time = time.time()
         
-        async def custom_receive():
+        # Track request/response data
+        request_body = b""
+        response_body = b""
+        status_code = 200
+        headers_dict = {}
+        
+        # Create wrapped receive function
+        async def wrapped_receive():
             nonlocal request_body
-            message = await original_receive()
+            message = await receive()
             
             if message["type"] == "http.request":
                 body = message.get("body", b"")
                 request_body += body
                 
-                # Create a new message with the same body for the endpoint
+                # Create new message with same body for endpoint
                 new_message = message.copy()
                 new_message["body"] = body
                 return new_message
             
             return message
         
-        # Wrap the send function to capture response
-        response_body = b""
-        original_send = send
-        
-        async def custom_send(message):
-            nonlocal response_body
-            if message["type"] == "http.response.body":
+        # Create wrapped send function
+        async def wrapped_send(message):
+            nonlocal response_body, status_code, headers_dict
+            
+            if message["type"] == "http.response.start":
+                status_code = message.get("status", 200)
+                headers_list = message.get("headers", [])
+                headers_dict = {key.decode(): value.decode() for key, value in headers_list}
+            
+            elif message["type"] == "http.response.body":
                 body = message.get("body", b"")
                 response_body += body
             
-            await original_send(message)
+            await send(message)
         
         # Process the request
-        await self.app(scope, custom_receive, custom_send)
+        await self.app(scope, wrapped_receive, wrapped_send)
         
-        # Now log the request and response data
-        await self._log_request_response(scope, request_id, request_body, response_body)
+        # Calculate duration
+        duration_ms = int((time.time() - start_time) * 1000)
+        
+        # Log request/response data in background (don't let logging errors affect the request)
+        try:
+            await self._log_request_response(
+                scope, request_id, request_body, response_body, 
+                status_code, duration_ms, headers_dict
+            )
+        except Exception as e:
+            # Log error but don't fail the request
+            print(f"Error in enhanced request logging: {e}")
 
-    async def _log_request_response(self, scope: Scope, request_id: str, request_body: bytes, response_body: bytes):
+    async def _log_request_response(
+        self, scope: Scope, request_id: str, request_body: bytes, 
+        response_body: bytes, status_code: int, duration_ms: int, 
+        headers_dict: Dict[str, str]
+    ):
         """Log the request and response data"""
         try:
             # Extract request details
             method = scope["method"]
             path = scope["path"]
             query_string = scope.get("query_string", b"").decode()
-            headers = dict(scope["headers"])
             
             # Get logging configuration
             config = self._get_logging_config()
@@ -95,7 +124,10 @@ class EnhancedRequestLoggingMiddleware:
             # Extract client info
             client = scope.get("client")
             ip_address = client[0] if client else None
-            user_agent = headers.get(b"user-agent", b"").decode() if b"user-agent" in headers else None
+            user_agent = headers_dict.get("user-agent")
+            
+            # Extract user context from JWT token
+            user_id, company_id = self._extract_user_context(headers_dict)
             
             # Set request context
             set_request_context(
@@ -117,7 +149,7 @@ class EnhancedRequestLoggingMiddleware:
             # Capture headers if enabled
             headers_json = None
             if config["capture_payloads"]:
-                headers_json = self._capture_headers(headers)
+                headers_json = self._capture_headers(headers_dict)
             
             # Prepare log data
             log_data = {
@@ -125,10 +157,10 @@ class EnhancedRequestLoggingMiddleware:
                 "method": method,
                 "path": path,
                 "query_params": sanitize_query_params(query_string) if query_string else None,
-                "status_code": 200,  # We don't have access to status code in ASGI middleware
-                "duration_ms": 0,  # We don't have timing in this approach
-                "user_id": None,  # Would need to be extracted from JWT
-                "company_id": None,  # Would need to be extracted from JWT
+                "status_code": status_code,
+                "duration_ms": duration_ms,
+                "user_id": user_id,
+                "company_id": company_id,
                 "ip_address": ip_address,
                 "user_agent": user_agent,
                 "request_payload": request_payload,
@@ -136,13 +168,45 @@ class EnhancedRequestLoggingMiddleware:
                 "headers": headers_json,
             }
             
-            # Log to database in background
-            await self._log_to_database(log_data)
+            # Log to database in background thread
+            self._log_to_database_async(log_data)
             
         except Exception as e:
             print(f"Error in enhanced request logging: {e}")
         finally:
             clear_request_context()
+
+    def _extract_user_context(self, headers_dict: Dict[str, str]) -> tuple[Optional[int], Optional[int]]:
+        """
+        Extract user_id and company_id from JWT token in Authorization header.
+        
+        Args:
+            headers_dict: Dictionary of request headers
+            
+        Returns:
+            Tuple of (user_id, company_id) or (None, None) if not found/invalid
+        """
+        try:
+            auth_header = headers_dict.get("authorization", "")
+            if not auth_header.startswith("Bearer "):
+                return None, None
+            
+            token = auth_header[7:]  # Remove "Bearer " prefix
+            
+            # Import JWT service and decode token
+            from modules.auth.jwt_service import decode_token
+            payload = decode_token(token)
+            
+            user_id = int(payload["sub"]) if "sub" in payload else None
+            company_id = payload.get("company_id")
+            if company_id:
+                company_id = int(company_id)
+            
+            return user_id, company_id
+            
+        except Exception as e:
+            # Token is invalid or missing - this is normal for unauthenticated requests
+            return None, None
 
     def _get_logging_config(self) -> dict:
         """Get logging configuration with caching"""
@@ -239,15 +303,15 @@ class EnhancedRequestLoggingMiddleware:
             print(f"Error processing response payload: {e}")
             return None
 
-    def _capture_headers(self, headers: dict) -> Optional[str]:
+    def _capture_headers(self, headers_dict: Dict[str, str]) -> Optional[str]:
         """Capture request headers as JSON string"""
         try:
             # Filter out sensitive headers
-            sensitive_headers = {b"authorization", b"cookie", b"x-api-key", b"x-auth-token"}
+            sensitive_headers = {"authorization", "cookie", "x-api-key", "x-auth-token"}
             
             filtered_headers = {
-                key.decode(): value.decode() for key, value in headers.items()
-                if key.lower() not in sensitive_headers
+                name: value for name, value in headers_dict.items()
+                if name.lower() not in sensitive_headers
             }
             
             return json.dumps(filtered_headers, indent=2)
@@ -256,8 +320,8 @@ class EnhancedRequestLoggingMiddleware:
             print(f"Error capturing headers: {e}")
             return None
 
-    async def _log_to_database(self, log_data: dict):
-        """Log to database in background"""
+    def _log_to_database_async(self, log_data: dict):
+        """Log to database in background thread"""
         def log_api_request():
             db: Session = SessionLocal()
             try:
@@ -286,6 +350,6 @@ class EnhancedRequestLoggingMiddleware:
                 db.close()
         
         # Run in background thread
-        import threading
         thread = threading.Thread(target=log_api_request)
+        thread.daemon = True  # Don't prevent app shutdown
         thread.start()

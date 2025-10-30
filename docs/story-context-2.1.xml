@@ -1,0 +1,165 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>User Profile Enhancement</title>
+    <status>Ready</status>
+    <generatedAt>2025-01-15</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-2.1.md</sourceStoryPath>
+  </metadata>
+
+  <acceptance_criteria>
+    <ac id="AC-2.1.1" priority="high">
+      <statement>User table enhanced with Bio field (max 500 characters, nullable)</statement>
+      <validation>
+        <method>Database Query + Integration Test</method>
+        <success_condition>User table has Bio NVARCHAR(500) NULL field; existing users unaffected</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.2" priority="critical">
+      <statement>Three new reference tables created (ThemePreference, LayoutDensity, FontSize) with proper audit columns and seed data</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Three tables created in ref schema with audit columns; seed data inserted correctly</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.3" priority="high">
+      <statement>User table enhanced with foreign keys to ThemePreferenceID, LayoutDensityID, and FontSizeID (all nullable)</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>User table has three new foreign key fields; constraints working correctly</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.4" priority="high">
+      <statement>UserIndustry junction table created supporting multiple industry associations per user</statement>
+      <validation>
+        <method>Database Query + Integration Test</method>
+        <success_condition>UserIndustry table created with proper relationships; multiple industries per user supported</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.5" priority="high">
+      <statement>Only one primary industry allowed per user with proper constraints</statement>
+      <validation>
+        <method>Database Query + Integration Test</method>
+        <success_condition>Check constraint enforced; only one IsPrimary=1 per user; duplicate primary industry rejected</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.6" priority="high">
+      <statement>ThemePreference table seeded with 4 options (light, dark, high-contrast, system) with CSS classes</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Four theme options inserted; CSS classes present; sort order correct</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.7" priority="high">
+      <statement>LayoutDensity table seeded with 3 options (compact, comfortable, spacious) with CSS classes</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Three density options inserted; CSS classes present; sort order correct</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.8" priority="high">
+      <statement>FontSize table seeded with 3 options (small, medium, large) with base font sizes</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Three font size options inserted; base font sizes present (14px, 16px, 18px); sort order correct</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.9" priority="medium">
+      <statement>All new fields include proper indexes for performance optimization</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>Filtered indexes created on foreign key fields; query performance optimized</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.10" priority="high">
+      <statement>Backend API endpoints created for user profile CRUD operations</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET/PUT /api/v1/users/profile endpoints working; auth enforced; validation working</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.11" priority="high">
+      <statement>Industry associations managed through separate endpoints with primary/secondary support</statement>
+      <validation>
+        <method>Integration Test</method>
+        <success_condition>GET/POST/PUT/DELETE /api/v1/users/industries endpoints working; primary/secondary logic enforced</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.12" priority="medium">
+      <statement>Database migration is reversible without data loss</statement>
+      <validation>
+        <method>Database Test</method>
+        <success_condition>Migration rollback succeeds; existing user data preserved; no data loss</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.13" priority="medium">
+      <statement>All changes logged to audit.UserAudit table with complete audit trail</statement>
+      <validation>
+        <method>Database Query</method>
+        <success_condition>All profile updates logged with UserID, RequestID, timestamp; complete audit trail</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.14" priority="critical">
+      <statement>No breaking changes to existing Epic 1 functionality</statement>
+      <validation>
+        <method>Regression Test</method>
+        <success_condition>All Epic 1 endpoints working; existing functionality unaffected; backward compatible</success_condition>
+      </validation>
+    </ac>
+    <ac id="AC-2.1.15" priority="high">
+      <statement>Comprehensive UAT tests validate all profile enhancement features</statement>
+      <validation>
+        <method>UAT Test</method>
+        <success_condition>UAT test guide created; all features tested by user; UAT results documented</success_condition>
+      </validation>
+    </ac>
+  </acceptance_criteria>
+
+  <dependencies>
+    <dependency type="story" status="completed">
+      <id>Epic 1 Complete</id>
+      <description>Epic 1 (Authentication & Onboarding) provides User table, auth middleware, audit logging, and core infrastructure</description>
+    </dependency>
+    <dependency type="document" status="ready">
+      <id>User Domain Epic 2 Analysis</id>
+      <description>docs/data-domains/user-domain-epic2-analysis.md - Comprehensive schema design and requirements</description>
+    </dependency>
+    <dependency type="document" status="ready">
+      <id>Epic 2 Tech Spec</id>
+      <description>docs/tech-spec-epic-2.md - Technical specification for Epic 2 enhancements</description>
+    </dependency>
+  </dependencies>
+
+  <forbidden-zones>
+    <zone>backend/modules/auth/ - Epic 1 COMPLETE - DO NOT MODIFY</zone>
+    <zone>frontend/features/auth/ - Epic 1 COMPLETE - DO NOT MODIFY</zone>
+    <zone>backend/models/user.py - READ ONLY (add fields only, no changes to existing fields)</zone>
+  </forbidden-zones>
+
+  <notes>
+    <note type="security">
+      All user profile endpoints require authentication. Users can only update their own profile. All changes must be logged to audit.UserAudit table with complete context including UserID, RequestID, timestamp, and action details.
+    </note>
+    <note type="integration">
+      This story extends the existing User domain from Epic 1. The new fields (bio, theme preferences, industries) integrate with the existing user profile system. All new fields are nullable for backward compatibility. Reference tables (ThemePreference, LayoutDensity, FontSize) follow Epic 1 patterns with audit columns and seed data.
+    </note>
+    <note type="architecture">
+      Follow 3-layer abstraction pattern: SQLAlchemy models (PascalCase) → Pydantic schemas (camelCase) → API responses (camelCase). Use reference table pattern for preferences to enable frontend testing of all combinations. UserIndustry junction table supports many-to-many relationship with single primary industry constraint.
+    </note>
+    <note type="database">
+      Database migration 013 adds 4 new tables (3 reference tables + 1 junction table) and 4 new fields to User table. All new fields are nullable for backward compatibility. Proper indexes created on foreign keys for performance. Migration is reversible with rollback strategy.
+    </note>
+    <note type="future">
+      Future enhancements: (1) Profile picture upload and management, (2) Social links and contact information, (3) Skills and expertise management, (4) Achievement badges and certifications, (5) User activity timeline.
+    </note>
+    <note type="epic2">
+      Deferred to Epic 2: Theme system implementation (Story 2.2), user preferences UI (Story 2.3), industry management UI (Story 2.3), form builder integration (Epic 3).
+    </note>
+    <note type="ux">
+      Bio field allows users to showcase professional background. Theme preferences enable accessibility and personalization. Layout density and font size options improve user experience for different devices and accessibility needs. Multiple industry support accommodates freelancers and consultants with diverse expertise.
+    </note>
+  </notes>
+</story-context>
+

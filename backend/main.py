@@ -9,7 +9,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import middleware and exception handlers
-from middleware import RequestLoggingMiddleware, JWTAuthMiddleware, global_exception_handler
+from middleware import RequestLoggingMiddleware, EnhancedRequestLoggingMiddleware, BulletproofRequestLoggingMiddleware, JWTAuthMiddleware, global_exception_handler
+from middleware.test_middleware import TestMiddleware
 from common.logger import configure_logging
 
 # Import routers
@@ -38,13 +39,10 @@ app.add_exception_handler(Exception, global_exception_handler)
 app.add_exception_handler(HTTPException, global_exception_handler)  # Catches 4xx/5xx errors
 
 # Add middleware (LIFO order - last added runs first)
-# 1. Request logging middleware (logs all requests automatically)
-app.add_middleware(RequestLoggingMiddleware)
-
-# 2. JWT authentication middleware (validates tokens and injects current user)
+# 1. JWT authentication middleware (validates tokens and injects current user)
 app.add_middleware(JWTAuthMiddleware)
 
-# 3. CORS middleware (allow frontend to call backend)
+# 2. CORS middleware (allow frontend to call backend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -115,13 +113,34 @@ async def test_database():
             "message": str(e)
         }
 
+# 3. Test middleware (simple test)
+print("Registering TestMiddleware...")
+try:
+    app.add_middleware(TestMiddleware)
+    print("TestMiddleware registered successfully")
+except Exception as e:
+    print(f"ERROR registering TestMiddleware: {e}")
+    import traceback
+    print(f"Traceback: {traceback.format_exc()}")
+
+# 4. Bulletproof request logging middleware (guaranteed payload capture)
+# Note: FastAPI add_middleware doesn't support keyword args, so debug is set in the class
+print("Registering BulletproofRequestLoggingMiddleware...")
+try:
+    app.add_middleware(BulletproofRequestLoggingMiddleware)
+    print("BulletproofRequestLoggingMiddleware registered successfully")
+except Exception as e:
+    print(f"ERROR registering BulletproofRequestLoggingMiddleware: {e}")
+    import traceback
+    print(f"Traceback: {traceback.format_exc()}")
+
 if __name__ == "__main__":
     import uvicorn
     
-    print("🚀 Starting EventLead Platform API...")
-    print("📖 API Docs: http://localhost:8000/docs")
-    print("🔍 Health Check: http://localhost:8000/api/health")
-    print("💾 Database Test: http://localhost:8000/api/test-database")
+    print("Starting EventLead Platform API...")
+    print("API Docs: http://localhost:8000/docs")
+    print("Health Check: http://localhost:8000/api/health")
+    print("Database Test: http://localhost:8000/api/test-database")
     print("")
     
     uvicorn.run(

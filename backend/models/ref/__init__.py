@@ -16,6 +16,9 @@ from .setting_type import SettingType
 from .rule_type import RuleType
 from .customer_tier import CustomerTier
 from .joined_via import JoinedVia
+from .theme_preference import ThemePreference
+from .layout_density import LayoutDensity
+from .font_size import FontSize
 
 __all__ = [
     "Country",
@@ -32,5 +35,8 @@ __all__ = [
     "RuleType",
     "CustomerTier",
     "JoinedVia",
+    "ThemePreference",
+    "LayoutDensity",
+    "FontSize",
 ]
 

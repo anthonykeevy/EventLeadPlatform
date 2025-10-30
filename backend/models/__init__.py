@@ -9,26 +9,28 @@ Usage:
     from models import User, Company, UserCompany
     
 Organization:
-    - ref: Reference/lookup tables (13 models)
-    - dbo: Core business entities (9 models)
+    - ref: Reference/lookup tables (16 models - Epic 2: +3)
+    - dbo: Core business entities (10 models - Epic 2: +1)
     - config: Configuration tables (2 models)
     - audit: Audit trail tables (4 models)
     - log: Technical logging tables (4 models)
     - cache: API cache tables (1 model)
     
-Total: 33 models across 6 schemas
+Total: 37 models across 6 schemas (Epic 2: +4 models)
 """
 
 # Core business models (dbo schema)
 from .user import User
 from .company import Company
 from .user_company import UserCompany
+from .user_industry import UserIndustry
 from .company_customer_details import CompanyCustomerDetails
 from .company_billing_details import CompanyBillingDetails
 from .company_organizer_details import CompanyOrganizerDetails
 from .user_invitation import UserInvitation
 from .user_email_verification_token import UserEmailVerificationToken
 from .user_password_reset_token import UserPasswordResetToken
+from .user_refresh_token import UserRefreshToken
 
 # Reference tables (ref schema)
 from .ref import (
@@ -45,6 +47,9 @@ from .ref import (
     RuleType,
     CustomerTier,
     JoinedVia,
+    ThemePreference,
+    LayoutDensity,
+    FontSize,
 )
 
 # Configuration tables (config schema)
@@ -81,12 +86,14 @@ __all__ = [
     "User",
     "Company",
     "UserCompany",
+    "UserIndustry",
     "CompanyCustomerDetails",
     "CompanyBillingDetails",
     "CompanyOrganizerDetails",
     "UserInvitation",
     "UserEmailVerificationToken",
     "UserPasswordResetToken",
+    "UserRefreshToken",
     
     # Reference tables (ref)
     "Country",
@@ -102,6 +109,9 @@ __all__ = [
     "RuleType",
     "CustomerTier",
     "JoinedVia",
+    "ThemePreference",
+    "LayoutDensity",
+    "FontSize",
     
     # Configuration tables (config)
     "AppSetting",
@@ -139,7 +149,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 33
+    expected_count = 37  # Updated for Epic 2: 33 base + 4 new models
     actual_count = len(__all__)
     
     if actual_count != expected_count:

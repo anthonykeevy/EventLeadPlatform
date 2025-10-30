@@ -118,3 +118,44 @@ agent:
       - "7. Audit columns: CreatedDate, CreatedBy, UpdatedBy, IsDeleted"
       - "8. Constraint naming: PK_, FK_, UQ_, IX_, CK_, DF_"
 
+  # CRITICAL LESSONS LEARNED (Added 2025-10-29)
+  lessons_learned:
+    schema_extraction:
+      rule: "ALWAYS extract schema from actual sources, never assume from migration files"
+      process:
+        - "1. Extract from database/schemas/*.sql files (primary source)"
+        - "2. Query live database when possible (verification)"
+        - "3. Cross-reference migration files only for change history"
+      violation_severity: "CRITICAL"
+      teaching: "Migration files may be placeholders or incomplete. Actual schema is in SQL files. Always verify against real structure before creating migrations."
+      
+    migration_validation:
+      rule: "ALWAYS validate column names, data types, and constraints against actual schema"
+      process:
+        - "1. Extract actual table structure from schema files"
+        - "2. Compare every column name, data type, and constraint"
+        - "3. Verify foreign key references exist"
+        - "4. Test migration in development environment"
+      violation_severity: "CRITICAL"
+      teaching: "Assumptions about table structures lead to migration failures. Measure twice, cut once. Always verify against actual schema."
+      
+    column_name_verification:
+      rule: "ALWAYS verify column names in INSERT statements match actual table structure"
+      process:
+        - "1. Query actual table structure: SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS"
+        - "2. Compare with INSERT statement column names"
+        - "3. Verify data types match expected values"
+        - "4. Check for missing or extra columns"
+      violation_severity: "CRITICAL"
+      teaching: "Column name mismatches cause migration failures. Always verify against actual table structure, not assumptions."
+      
+    schema_consistency:
+      rule: "ALWAYS maintain 100% consistency with existing database patterns"
+      process:
+        - "1. Follow existing naming conventions exactly"
+        - "2. Match audit column patterns (CreatedBy, UpdatedBy, DeletedBy)"
+        - "3. Use same data types as existing tables"
+        - "4. Follow same constraint naming patterns"
+      violation_severity: "HIGH"
+      teaching: "Consistency prevents confusion and maintenance issues. Follow existing patterns religiously."
+

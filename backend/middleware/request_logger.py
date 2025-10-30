@@ -75,9 +75,17 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         # Capture request payload if enabled and not excluded
         request_payload = None
         if config["capture_payloads"] and not self._is_endpoint_excluded(request.url.path, config["excluded_endpoints"]):
-            # For now, disable request payload capture to avoid breaking endpoints
-            # TODO: Implement proper stream duplication for payload capture
-            request_payload = None
+            # Store the body in request context for later use
+            if request.method in ["POST", "PUT", "PATCH"]:
+                try:
+                    body = await request.body()
+                    if body:
+                        # Store in request context so endpoints can still access it
+                        request.state._cached_body = body
+                        request_payload = self._process_payload(body, config["max_payload_size_kb"])
+                except Exception as e:
+                    print(f"Error capturing request payload: {e}")
+                    request_payload = None
         
         # Start timing
         start_time = time.time()
@@ -194,33 +202,20 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 return True
         return False
     
-    async def _capture_request_payload(self, request: Request, max_size_kb: int) -> Optional[str]:
+    def _process_payload(self, body: bytes, max_size_kb: int) -> Optional[str]:
         """
-        Capture request payload with size limit and truncation indicator.
-        Uses stream duplication to avoid consuming the request body.
+        Process payload with size limit and truncation indicator.
         
         Args:
-            request: FastAPI request object
+            body: Request body bytes
             max_size_kb: Maximum payload size in KB
             
         Returns:
-            JSON string of request payload or None if not applicable
+            JSON string of payload or None if not applicable
         """
         try:
-            # Only capture for methods that typically have bodies
-            if request.method not in ["POST", "PUT", "PATCH"]:
-                return None
-            
-            # Read request body
-            body = await request.body()
-            
             if not body:
                 return None
-            
-            # Reset the request stream so endpoint can still read it
-            async def receive():
-                return {"type": "http.request", "body": body}
-            request._receive = receive
             
             # Convert to string and check size
             body_str = body.decode('utf-8')
@@ -234,8 +229,23 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 return f"{truncated}... [TRUNCATED - Original size: {len(body_str)} bytes]"
                 
         except Exception as e:
-            print(f"Error capturing request payload: {e}")
+            print(f"Error processing payload: {e}")
             return None
+
+    async def _capture_request_payload(self, request: Request, max_size_kb: int) -> Optional[str]:
+        """
+        Capture request payload with size limit and truncation indicator.
+        This method is kept for compatibility but the main logic is now in dispatch.
+        
+        Args:
+            request: FastAPI request object
+            max_size_kb: Maximum payload size in KB
+            
+        Returns:
+            JSON string of request payload or None if not applicable
+        """
+        # This method is now handled in the main dispatch method
+        return None
     
     async def _capture_response_payload(self, response: Response, max_size_kb: int) -> Optional[str]:
         """

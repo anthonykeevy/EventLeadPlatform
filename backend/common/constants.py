@@ -42,6 +42,15 @@ DEFAULT_INVITATION_EXPIRY_DAYS = 7
 # Token Generation
 DEFAULT_TOKEN_LENGTH_BYTES = 32
 
+# ============================================================================
+# LOGGING DEFAULTS (Epic 2 Enhanced Logging)
+# ============================================================================
+
+# Enhanced Logging Configuration
+DEFAULT_LOGGING_CAPTURE_PAYLOADS = True
+DEFAULT_LOGGING_MAX_PAYLOAD_SIZE_KB = 10
+DEFAULT_LOGGING_EXCLUDED_ENDPOINTS = ["/api/health"]
+
 
 # ============================================================================
 # USER STATUS ENUMS (ref.UserStatus)

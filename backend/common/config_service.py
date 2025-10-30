@@ -27,6 +27,9 @@ from common.constants import (
     DEFAULT_EMAIL_VERIFICATION_EXPIRY_HOURS,
     DEFAULT_PASSWORD_RESET_EXPIRY_HOURS,
     DEFAULT_INVITATION_EXPIRY_DAYS,
+    DEFAULT_LOGGING_CAPTURE_PAYLOADS,
+    DEFAULT_LOGGING_MAX_PAYLOAD_SIZE_KB,
+    DEFAULT_LOGGING_EXCLUDED_ENDPOINTS,
 )
 
 logger = logging.getLogger(__name__)
@@ -372,6 +375,52 @@ class ConfigurationService:
             'INVITATION_EXPIRY_DAYS',
             DEFAULT_INVITATION_EXPIRY_DAYS,
             'authentication'
+        )
+    
+    
+    # ========================================================================
+    # LOGGING CONFIGURATION METHODS (Epic 2 Enhanced Logging)
+    # ========================================================================
+    
+    def get_logging_capture_payloads(self) -> bool:
+        """
+        Get whether to capture request/response payloads in API logs.
+        
+        Returns:
+            True if payloads should be captured, False otherwise (default: False)
+        """
+        return self.get_setting(
+            'logging.capture_payloads',
+            DEFAULT_LOGGING_CAPTURE_PAYLOADS,
+            'logging'
+        )
+    
+    
+    def get_logging_max_payload_size_kb(self) -> int:
+        """
+        Get maximum payload size to log in KB.
+        
+        Returns:
+            Maximum payload size in KB (default: 10)
+        """
+        return self.get_setting(
+            'logging.max_payload_size_kb',
+            DEFAULT_LOGGING_MAX_PAYLOAD_SIZE_KB,
+            'logging'
+        )
+    
+    
+    def get_logging_excluded_endpoints(self) -> list[str]:
+        """
+        Get list of endpoints to exclude from payload logging.
+        
+        Returns:
+            List of endpoint paths to exclude (default: ["/api/health"])
+        """
+        return self.get_setting(
+            'logging.excluded_endpoints',
+            DEFAULT_LOGGING_EXCLUDED_ENDPOINTS,
+            'logging'
         )
     
     

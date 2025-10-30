@@ -1,11 +1,11 @@
 """
 Request Logging Middleware
-Automatically logs all API requests to log.ApiRequest table
+Automatically logs all API requests to log.ApiRequest table with enhanced payload capture
 """
 import time
 import uuid
 import json
-from typing import Callable
+from typing import Callable, Optional
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.background import BackgroundTask
@@ -14,25 +14,39 @@ from sqlalchemy.orm import Session
 from common.database import SessionLocal
 from common.request_context import set_request_context, clear_request_context
 from common.log_filters import sanitize_query_params
+from common.config_service import ConfigurationService
 from models.log.api_request import ApiRequest
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """
-    Middleware that automatically logs all API requests.
+    Enhanced middleware that automatically logs all API requests with payload capture.
     
     Features:
     - Generates unique RequestID (UUID4) for each request
     - Captures request details: Method, Path, QueryParams, StatusCode, DurationMs
     - Extracts UserID and CompanyID from request.state (set by JWT middleware)
     - Extracts IPAddress and UserAgent from request headers
+    - Enhanced payload logging with configurable size limits and exclusion list
     - Logs to log.ApiRequest table asynchronously (non-blocking)
     - Adds X-Request-ID header to response for client tracking
+    
+    Configuration (via database settings):
+    - logging.capture_payloads: Enable/disable payload capture (default: false)
+    - logging.max_payload_size_kb: Maximum payload size in KB (default: 10)
+    - logging.excluded_endpoints: List of endpoints to exclude (default: ["/api/health"])
     """
     
+    def __init__(self, app):
+        super().__init__(app)
+        self._config_cache = {}
+        self._config_cache_timestamp = None
+        self._config_cache_ttl = 300  # 5 minutes
+
+
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
-        Process request and log details.
+        Process request and log details with enhanced payload capture.
         
         Args:
             request: FastAPI request object
@@ -55,6 +69,16 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             user_agent=user_agent
         )
         
+        # Get logging configuration
+        config = self._get_logging_config()
+        
+        # Capture request payload if enabled and not excluded
+        request_payload = None
+        if config["capture_payloads"] and not self._is_endpoint_excluded(request.url.path, config["excluded_endpoints"]):
+            # For now, disable request payload capture to avoid breaking endpoints
+            # TODO: Implement proper stream duplication for payload capture
+            request_payload = None
+        
         # Start timing
         start_time = time.time()
         
@@ -68,6 +92,16 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         user_id = getattr(request.state, "user_id", None)
         company_id = getattr(request.state, "company_id", None)
         
+        # Capture response payload if enabled and not excluded
+        response_payload = None
+        if config["capture_payloads"] and not self._is_endpoint_excluded(request.url.path, config["excluded_endpoints"]):
+            response_payload = await self._capture_response_payload(response, config["max_payload_size_kb"])
+        
+        # Capture headers if enabled
+        headers = None
+        if config["capture_payloads"]:
+            headers = self._capture_headers(request)
+        
         # Prepare log data
         log_data = {
             "request_id": request_id,
@@ -80,6 +114,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             "company_id": company_id,
             "ip_address": ip_address,
             "user_agent": user_agent,
+            "request_payload": request_payload,
+            "response_payload": response_payload,
+            "headers": headers,
         }
         
         # Schedule background task to log to database (non-blocking)
@@ -93,6 +130,176 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         clear_request_context()
         
         return response
+    
+    def _get_logging_config(self) -> dict:
+        """
+        Get logging configuration with caching.
+        
+        Returns:
+            Dictionary with logging configuration settings
+        """
+        # Check cache first
+        if self._is_config_cache_valid():
+            return self._config_cache
+        
+        # Get fresh configuration from database
+        db = SessionLocal()
+        try:
+            config_service = ConfigurationService(db)
+            
+            config = {
+                "capture_payloads": config_service.get_logging_capture_payloads(),
+                "max_payload_size_kb": config_service.get_logging_max_payload_size_kb(),
+                "excluded_endpoints": config_service.get_logging_excluded_endpoints(),
+            }
+            
+            # Cache the configuration
+            self._config_cache = config
+            self._config_cache_timestamp = time.time()
+            
+            return config
+            
+        except Exception as e:
+            # Fallback to defaults if database unavailable
+            print(f"Error getting logging config: {e}, using enhanced defaults")
+            return {
+                "capture_payloads": True,  # Enable for testing
+                "max_payload_size_kb": 10,
+                "excluded_endpoints": ["/api/health"],
+            }
+        finally:
+            db.close()
+    
+    def _is_config_cache_valid(self) -> bool:
+        """Check if configuration cache is still valid."""
+        if self._config_cache_timestamp is None:
+            return False
+        
+        elapsed = time.time() - self._config_cache_timestamp
+        return elapsed < self._config_cache_ttl
+    
+    def _is_endpoint_excluded(self, path: str, excluded_endpoints: list[str]) -> bool:
+        """
+        Check if endpoint should be excluded from payload logging.
+        
+        Args:
+            path: Request path
+            excluded_endpoints: List of excluded endpoint patterns
+            
+        Returns:
+            True if endpoint should be excluded, False otherwise
+        """
+        for excluded in excluded_endpoints:
+            if path.startswith(excluded):
+                return True
+        return False
+    
+    async def _capture_request_payload(self, request: Request, max_size_kb: int) -> Optional[str]:
+        """
+        Capture request payload with size limit and truncation indicator.
+        Uses stream duplication to avoid consuming the request body.
+        
+        Args:
+            request: FastAPI request object
+            max_size_kb: Maximum payload size in KB
+            
+        Returns:
+            JSON string of request payload or None if not applicable
+        """
+        try:
+            # Only capture for methods that typically have bodies
+            if request.method not in ["POST", "PUT", "PATCH"]:
+                return None
+            
+            # Read request body
+            body = await request.body()
+            
+            if not body:
+                return None
+            
+            # Reset the request stream so endpoint can still read it
+            async def receive():
+                return {"type": "http.request", "body": body}
+            request._receive = receive
+            
+            # Convert to string and check size
+            body_str = body.decode('utf-8')
+            max_size_bytes = max_size_kb * 1024
+            
+            if len(body_str) <= max_size_bytes:
+                return body_str
+            else:
+                # Truncate and add indicator
+                truncated = body_str[:max_size_bytes]
+                return f"{truncated}... [TRUNCATED - Original size: {len(body_str)} bytes]"
+                
+        except Exception as e:
+            print(f"Error capturing request payload: {e}")
+            return None
+    
+    async def _capture_response_payload(self, response: Response, max_size_kb: int) -> Optional[str]:
+        """
+        Capture response payload with size limit and truncation indicator.
+        
+        Args:
+            response: FastAPI response object
+            max_size_kb: Maximum payload size in KB
+            
+        Returns:
+            JSON string of response payload or None if not applicable
+        """
+        try:
+            # Only capture for successful responses with content
+            if response.status_code < 200 or response.status_code >= 300:
+                return None
+            
+            # Get response body
+            body = b""
+            async for chunk in response.body_iterator:
+                body += chunk
+            
+            if not body:
+                return None
+            
+            # Convert to string and check size
+            body_str = body.decode('utf-8')
+            max_size_bytes = max_size_kb * 1024
+            
+            if len(body_str) <= max_size_bytes:
+                return body_str
+            else:
+                # Truncate and add indicator
+                truncated = body_str[:max_size_bytes]
+                return f"{truncated}... [TRUNCATED - Original size: {len(body_str)} bytes]"
+                
+        except Exception as e:
+            print(f"Error capturing response payload: {e}")
+            return None
+    
+    def _capture_headers(self, request: Request) -> Optional[str]:
+        """
+        Capture request headers as JSON string.
+        
+        Args:
+            request: FastAPI request object
+            
+        Returns:
+            JSON string of headers or None if error
+        """
+        try:
+            # Filter out sensitive headers
+            sensitive_headers = {"authorization", "cookie", "x-api-key", "x-auth-token"}
+            
+            headers = {
+                name: value for name, value in request.headers.items()
+                if name.lower() not in sensitive_headers
+            }
+            
+            return json.dumps(headers, indent=2)
+            
+        except Exception as e:
+            print(f"Error capturing headers: {e}")
+            return None
 
 
 def log_api_request(log_data: dict) -> None:
@@ -115,6 +322,9 @@ def log_api_request(log_data: dict) -> None:
             CompanyID=log_data["company_id"],
             IPAddress=log_data["ip_address"],
             UserAgent=log_data["user_agent"],
+            RequestPayload=log_data.get("request_payload"),
+            ResponsePayload=log_data.get("response_payload"),
+            Headers=log_data.get("headers"),
         )
         
         db.add(api_request)

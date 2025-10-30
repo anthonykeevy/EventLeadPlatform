@@ -26,6 +26,9 @@ class ApiRequest(Base):
         CompanyID: Foreign key to dbo.Company (nullable)
         IPAddress: Client IP address
         UserAgent: Browser user agent string
+        RequestPayload: Request body payload (JSON-encoded, Epic 2)
+        ResponsePayload: Response body payload (JSON-encoded, Epic 2)
+        Headers: Request headers (JSON-encoded, Epic 2)
         CreatedDate: Timestamp when request was made
     """
     
@@ -52,6 +55,11 @@ class ApiRequest(Base):
     # Security Context
     IPAddress = Column(String(50), nullable=True)
     UserAgent = Column(String(500), nullable=True)
+    
+    # Enhanced Logging (Epic 2)
+    RequestPayload = Column(String(None), nullable=True)  # NVARCHAR(MAX) - JSON
+    ResponsePayload = Column(String(None), nullable=True)  # NVARCHAR(MAX) - JSON
+    Headers = Column(String(None), nullable=True)  # NVARCHAR(MAX) - JSON
     
     # Timestamp
     CreatedDate = Column(DateTime, nullable=False, server_default=func.getutcdate(), index=True)

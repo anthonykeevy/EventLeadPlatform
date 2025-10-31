@@ -5,7 +5,7 @@ Main application entry point with ASGI middleware for payload logging
 from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from .env file
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import enhanced middleware and exception handlers
@@ -88,7 +88,6 @@ async def health_check():
 @app.post("/api/test-payload-capture")
 async def test_payload_endpoint(request: Request):
     """Test endpoint for payload capture verification"""
-    from fastapi import Request
     import json
     
     body = await request.body()

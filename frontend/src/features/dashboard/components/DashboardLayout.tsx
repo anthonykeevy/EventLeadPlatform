@@ -6,9 +6,9 @@
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User as UserIcon } from 'lucide-react'
 import { useAuth } from '../../auth'
 import { OnboardingModal } from '../../onboarding'
+import { UserMenu } from './UserMenu'
 import { KPISection } from './KPISection'
 import { CompanyList } from './CompanyList'
 import { TeamManagementPanel } from './TeamManagementPanel'
@@ -177,10 +177,7 @@ export function DashboardLayout() {
     setTeamPanelCompanyId(null)
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
+  // Remove handleLogout since it's now handled in UserMenu
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -197,21 +194,9 @@ export function DashboardLayout() {
             </div>
 
             {/* User Menu */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <UserIcon className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-700">
-                  {user?.first_name} {user?.last_name}
-                </span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </div>
+            {user && (
+              <UserMenu user={user} />
+            )}
           </div>
         </div>
       </header>

@@ -92,9 +92,15 @@ class DiagnosticLogger:
             """)
             return [dict(row._mapping) for row in conn.execute(query).fetchall()]
     
-    def get_recent_api_requests(self) -> List[Dict]:
+    def get_recent_api_requests(self, path_filter: Optional[str] = None) -> List[Dict]:
         """Get recent API requests with enhanced payload logging"""
         with self.engine.connect() as conn:
+            where_clause = ""
+            params = {}
+            if path_filter:
+                where_clause = "WHERE Path LIKE :path_filter"
+                params = {"path_filter": f"%{path_filter}%"}
+            
             query = text(f"""
                 SELECT TOP {self.limit}
                     ApiRequestID,
@@ -110,6 +116,34 @@ class DiagnosticLogger:
                     Headers,
                     QueryParams
                 FROM log.ApiRequest
+                {where_clause}
+                ORDER BY CreatedDate DESC
+            """)
+            return [dict(row._mapping) for row in conn.execute(query, params).fetchall()]
+    
+    def get_profile_enhancement_requests(self, limit: int = 10) -> List[Dict]:
+        """Get recent profile enhancement requests (theme, layout, font size updates)"""
+        with self.engine.connect() as conn:
+            query = text(f"""
+                SELECT TOP {limit}
+                    ApiRequestID,
+                    Method,
+                    Path,
+                    StatusCode,
+                    DurationMs,
+                    RequestID,
+                    UserID,
+                    CreatedDate,
+                    RequestPayload,
+                    ResponsePayload,
+                    Headers,
+                    QueryParams
+                FROM log.ApiRequest
+                WHERE Path LIKE '%/profile/enhancements%'
+                   OR Path LIKE '%/reference/themes%'
+                   OR Path LIKE '%/reference/layout-densities%'
+                   OR Path LIKE '%/reference/font-sizes%'
+                   OR Path LIKE '%/profile/enhanced%'
                 ORDER BY CreatedDate DESC
             """)
             return [dict(row._mapping) for row in conn.execute(query).fetchall()]
@@ -211,7 +245,13 @@ class DiagnosticLogger:
     def get_performance_metrics(self, hours: int = 24) -> Dict:
         """Get performance metrics for the last N hours"""
         with self.engine.connect() as conn:
-            cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+            # Use timezone-aware datetime (Python 3.11+)
+            try:
+                cutoff_time = datetime.now(datetime.timezone.utc) - timedelta(hours=hours)
+            except AttributeError:
+                # Fallback for older Python versions
+                from datetime import timezone
+                cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
             
             # API Performance
             api_perf = conn.execute(text("""
@@ -280,10 +320,10 @@ class DiagnosticLogger:
             if error.get('StackTrace'):
                 print(f"  Stack Trace: {error['StackTrace'][:200]}...")
     
-    def print_api_requests(self, requests: List[Dict]):
+    def print_api_requests(self, requests: List[Dict], title: str = "RECENT API REQUESTS"):
         """Print formatted API requests with payloads"""
         print("\n" + "=" * 100)
-        print(f"RECENT API REQUESTS (Last {len(requests)})")
+        print(f"{title} (Last {len(requests)})")
         print("=" * 100)
         
         if not requests:
@@ -295,17 +335,34 @@ class DiagnosticLogger:
             print(f"  Status: {req['StatusCode']} | Duration: {req['DurationMs']}ms")
             print(f"  UserID: {req['UserID'] or 'NULL'} | RequestID: {req['RequestID']}")
             
+            # Highlight errors
+            if req.get('StatusCode') and req['StatusCode'] >= 400:
+                print(f"  ⚠️  ERROR: Status {req['StatusCode']}")
+            
             if req.get('RequestPayload'):
-                print(f"  Request Payload: {self.format_json(req['RequestPayload'])}")
+                payload = self.format_json(req['RequestPayload'])
+                print(f"  Request Payload:")
+                print(f"    {payload}")
             
             if req.get('ResponsePayload'):
-                print(f"  Response Payload: {self.format_json(req['ResponsePayload'])}")
+                response = self.format_json(req['ResponsePayload'])
+                print(f"  Response Payload:")
+                print(f"    {response}")
             
+            # Only show headers if they contain interesting info (not all headers for brevity)
             if req.get('Headers'):
-                print(f"  Headers: {self.format_json(req['Headers'])}")
+                headers = json.loads(req['Headers']) if isinstance(req.get('Headers'), str) else req.get('Headers')
+                if isinstance(headers, dict):
+                    # Show only auth header status (for security) and content-type
+                    auth_status = "Present" if headers.get('authorization') else "Missing"
+                    print(f"  Authorization Header: {auth_status}")
+                    if headers.get('content-type'):
+                        print(f"  Content-Type: {headers.get('content-type')}")
             
             if req.get('QueryParams'):
-                print(f"  Query Params: {self.format_json(req['QueryParams'])}")
+                params = self.format_json(req['QueryParams'])
+                if params and params != "NULL":
+                    print(f"  Query Params: {params}")
     
     def print_email_deliveries(self, deliveries: List[Dict]):
         """Print formatted email delivery events"""
@@ -399,7 +456,7 @@ class DiagnosticLogger:
         print(f"  Total Errors: {error_metrics['TotalErrors']}")
         print(f"  Unique Error Types: {error_metrics['UniqueErrorTypes']}")
     
-    def run_full_diagnostic(self, request_id: str = None):
+    def run_full_diagnostic(self, request_id: str = None, show_theme_requests: bool = True):
         """Run complete diagnostic analysis"""
         print("ENHANCED DIAGNOSTIC LOGS - EventLeadPlatform")
         print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -418,6 +475,13 @@ class DiagnosticLogger:
         self.print_auth_events(auth_events)
         self.print_application_errors(app_errors)
         self.print_api_requests(api_requests)
+        
+        # Show theme/profile enhancement requests if requested
+        if show_theme_requests:
+            profile_enhancements = self.get_profile_enhancement_requests(limit=10)
+            if profile_enhancements:
+                self.print_api_requests(profile_enhancements, "PROFILE ENHANCEMENT REQUESTS (Theme/Layout/Font)")
+        
         self.print_email_deliveries(email_deliveries)
         self.print_audit_trail(audit_trail)
         self.print_correlation_analysis(correlation)
@@ -435,14 +499,25 @@ def main():
     parser.add_argument("--limit", "-l", type=int, default=5, help="Number of entries per table (default: 5)")
     parser.add_argument("--request-id", "-r", type=str, help="Specific RequestID to analyze")
     parser.add_argument("--performance-hours", "-p", type=int, default=24, help="Hours for performance metrics (default: 24)")
+    parser.add_argument("--theme-requests", "-t", action="store_true", default=True, help="Show theme/profile enhancement requests (default: True)")
+    parser.add_argument("--no-theme-requests", action="store_false", dest="theme_requests", help="Hide theme/profile enhancement requests")
+    parser.add_argument("--path-filter", type=str, help="Filter API requests by path pattern (e.g., 'enhancements')")
     
     args = parser.parse_args()
     
     try:
         diagnostic = DiagnosticLogger(limit=args.limit)
-        diagnostic.run_full_diagnostic(request_id=args.request_id)
+        
+        # If path filter specified, show filtered requests
+        if args.path_filter:
+            filtered_requests = diagnostic.get_recent_api_requests(path_filter=args.path_filter)
+            diagnostic.print_api_requests(filtered_requests, f"API REQUESTS FILTERED BY: '{args.path_filter}'")
+        else:
+            diagnostic.run_full_diagnostic(request_id=args.request_id, show_theme_requests=args.theme_requests)
     except Exception as e:
         print(f"Error running diagnostic: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -8,8 +8,8 @@ export interface ReferenceOption {
   code: string
   name: string
   description: string
-  cssClass: string
-  baseFontSize?: string | null
+  css_class: string
+  base_font_size?: string | null
 }
 
 export interface IndustryAssociation {

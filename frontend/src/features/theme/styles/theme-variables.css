@@ -1,0 +1,418 @@
+/**
+ * Theme Variables for Epic 2 Story 2.2
+ * CSS custom properties for theme system
+ */
+
+:root {
+  /* Theme Mode Variables */
+  --theme-mode: light;
+  
+  /* Layout Density Variables */
+  --layout-density: comfortable;
+  
+  /* Font Size Variables */
+  --font-size: medium;
+  --base-font-size: 16px;
+  
+  /* Spacing Scale (based on layout density) */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+  
+  /* Font Size Scale */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+  
+  /* Global font size - applied to body */
+  font-size: var(--base-font-size);
+  
+  /* Border Radius Scale */
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.375rem;   /* 6px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+  
+  /* Shadow Scale */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Transition Variables */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+  
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
+
+/* Light Theme (Default) */
+.theme-light {
+  --theme-mode: light;
+  
+  /* Color Palette */
+  --color-primary: 14 165 233;        /* sky-500 */
+  --color-primary-foreground: 255 255 255;
+  --color-secondary: 100 116 139;     /* slate-500 */
+  --color-secondary-foreground: 255 255 255;
+  --color-accent: 236 72 153;         /* pink-500 */
+  --color-accent-foreground: 255 255 255;
+  --color-destructive: 239 68 68;     /* red-500 */
+  --color-destructive-foreground: 255 255 255;
+  --color-success: 34 197 94;         /* green-500 */
+  --color-success-foreground: 255 255 255;
+  --color-warning: 245 158 11;        /* amber-500 */
+  --color-warning-foreground: 0 0 0;
+  --color-info: 59 130 246;           /* blue-500 */
+  --color-info-foreground: 255 255 255;
+  
+  /* Background Colors */
+  --color-background: 255 255 255;    /* white */
+  --color-foreground: 15 23 42;       /* slate-900 */
+  --color-card: 255 255 255;          /* white */
+  --color-card-foreground: 15 23 42;  /* slate-900 */
+  --color-popover: 255 255 255;       /* white */
+  --color-popover-foreground: 15 23 42; /* slate-900 */
+  
+  /* Border Colors */
+  --color-border: 226 232 240;        /* slate-200 */
+  --color-input: 226 232 240;         /* slate-200 */
+  --color-ring: 14 165 233;           /* sky-500 */
+  
+  /* Muted Colors */
+  --color-muted: 248 250 252;         /* slate-50 */
+  --color-muted-foreground: 100 116 139; /* slate-500 */
+  
+  /* Text Colors */
+  --color-text-primary: 15 23 42;     /* slate-900 */
+  --color-text-secondary: 71 85 105;  /* slate-600 */
+  --color-text-tertiary: 100 116 139; /* slate-500 */
+  --color-text-inverse: 255 255 255;  /* white */
+  
+  /* Interactive States */
+  --color-hover: 248 250 252;         /* slate-50 */
+  --color-active: 241 245 249;        /* slate-100 */
+  --color-selected: 219 234 254;      /* blue-100 */
+  --color-focus: 219 234 254;         /* blue-100 */
+  
+  /* Status Colors */
+  --color-success-bg: 240 253 244;    /* green-50 */
+  --color-success-text: 22 101 52;    /* green-800 */
+  --color-warning-bg: 255 251 235;    /* amber-50 */
+  --color-warning-text: 146 64 14;    /* amber-800 */
+  --color-error-bg: 254 242 242;      /* red-50 */
+  --color-error-text: 153 27 27;      /* red-800 */
+  --color-info-bg: 239 246 255;       /* blue-50 */
+  --color-info-text: 30 64 175;       /* blue-800 */
+}
+
+/* Dark Theme */
+.theme-dark {
+  --theme-mode: dark;
+  
+  /* Color Palette */
+  --color-primary: 56 189 248;        /* sky-400 */
+  --color-primary-foreground: 15 23 42;
+  --color-secondary: 148 163 184;     /* slate-400 */
+  --color-secondary-foreground: 15 23 42;
+  --color-accent: 244 114 182;        /* pink-400 */
+  --color-accent-foreground: 15 23 42;
+  --color-destructive: 248 113 113;   /* red-400 */
+  --color-destructive-foreground: 15 23 42;
+  --color-success: 74 222 128;        /* green-400 */
+  --color-success-foreground: 15 23 42;
+  --color-warning: 251 191 36;        /* amber-400 */
+  --color-warning-foreground: 15 23 42;
+  --color-info: 96 165 250;           /* blue-400 */
+  --color-info-foreground: 15 23 42;
+  
+  /* Background Colors */
+  --color-background: 2 6 23;         /* slate-950 */
+  --color-foreground: 248 250 252;    /* slate-50 */
+  --color-card: 15 23 42;             /* slate-900 */
+  --color-card-foreground: 248 250 252; /* slate-50 */
+  --color-popover: 15 23 42;          /* slate-900 */
+  --color-popover-foreground: 248 250 252; /* slate-50 */
+  
+  /* Border Colors */
+  --color-border: 51 65 85;           /* slate-700 */
+  --color-input: 51 65 85;            /* slate-700 */
+  --color-ring: 56 189 248;           /* sky-400 */
+  
+  /* Muted Colors */
+  --color-muted: 30 41 59;            /* slate-800 */
+  --color-muted-foreground: 148 163 184; /* slate-400 */
+  
+  /* Text Colors */
+  --color-text-primary: 248 250 252;  /* slate-50 */
+  --color-text-secondary: 203 213 225; /* slate-300 */
+  --color-text-tertiary: 148 163 184; /* slate-400 */
+  --color-text-inverse: 15 23 42;     /* slate-900 */
+  
+  /* Interactive States */
+  --color-hover: 30 41 59;            /* slate-800 */
+  --color-active: 51 65 85;           /* slate-700 */
+  --color-selected: 30 58 138;        /* blue-800 */
+  --color-focus: 30 58 138;           /* blue-800 */
+  
+  /* Status Colors */
+  --color-success-bg: 22 101 52;      /* green-800 */
+  --color-success-text: 240 253 244;  /* green-50 */
+  --color-warning-bg: 146 64 14;      /* amber-800 */
+  --color-warning-text: 255 251 235;  /* amber-50 */
+  --color-error-bg: 153 27 27;        /* red-800 */
+  --color-error-text: 254 242 242;    /* red-50 */
+  --color-info-bg: 30 64 175;         /* blue-800 */
+  --color-info-text: 239 246 255;     /* blue-50 */
+}
+
+/* High Contrast Theme */
+.theme-high-contrast {
+  --theme-mode: high-contrast;
+  
+  /* High contrast color palette */
+  --color-primary: 0 0 0;             /* black */
+  --color-primary-foreground: 255 255 255;
+  --color-secondary: 128 128 128;     /* gray */
+  --color-secondary-foreground: 255 255 255;
+  --color-accent: 255 0 0;            /* red */
+  --color-accent-foreground: 255 255 255;
+  --color-destructive: 255 0 0;       /* red */
+  --color-destructive-foreground: 255 255 255;
+  --color-success: 0 128 0;           /* green */
+  --color-success-foreground: 255 255 255;
+  --color-warning: 255 165 0;         /* orange */
+  --color-warning-foreground: 0 0 0;
+  --color-info: 0 0 255;              /* blue */
+  --color-info-foreground: 255 255 255;
+  
+  /* Background Colors */
+  --color-background: 255 255 255;    /* white */
+  --color-foreground: 0 0 0;          /* black */
+  --color-card: 255 255 255;          /* white */
+  --color-card-foreground: 0 0 0;     /* black */
+  --color-popover: 255 255 255;       /* white */
+  --color-popover-foreground: 0 0 0;  /* black */
+  
+  /* Border Colors */
+  --color-border: 0 0 0;              /* black */
+  --color-input: 0 0 0;               /* black */
+  --color-ring: 0 0 0;                /* black */
+  
+  /* Muted Colors */
+  --color-muted: 240 240 240;         /* light gray */
+  --color-muted-foreground: 0 0 0;    /* black */
+  
+  /* Text Colors */
+  --color-text-primary: 0 0 0;        /* black */
+  --color-text-secondary: 64 64 64;   /* dark gray */
+  --color-text-tertiary: 128 128 128; /* gray */
+  --color-text-inverse: 255 255 255;  /* white */
+  
+  /* Interactive States */
+  --color-hover: 240 240 240;         /* light gray */
+  --color-active: 220 220 220;        /* lighter gray */
+  --color-selected: 0 0 255;          /* blue */
+  --color-focus: 0 0 255;             /* blue */
+  
+  /* Status Colors */
+  --color-success-bg: 0 128 0;        /* green */
+  --color-success-text: 255 255 255;  /* white */
+  --color-warning-bg: 255 165 0;      /* orange */
+  --color-warning-text: 0 0 0;        /* black */
+  --color-error-bg: 255 0 0;          /* red */
+  --color-error-text: 255 255 255;    /* white */
+  --color-info-bg: 0 0 255;           /* blue */
+  --color-info-text: 255 255 255;     /* white */
+}
+
+/* Layout Density Adjustments */
+.layout-compact {
+  --layout-density: compact;
+  
+  /* Reduced spacing */
+  --spacing-xs: 0.125rem;  /* 2px */
+  --spacing-sm: 0.25rem;   /* 4px */
+  --spacing-md: 0.5rem;    /* 8px */
+  --spacing-lg: 0.75rem;   /* 12px */
+  --spacing-xl: 1rem;      /* 16px */
+  --spacing-2xl: 1.5rem;   /* 24px */
+  --spacing-3xl: 2rem;     /* 32px */
+  
+  /* Reduced border radius */
+  --radius-sm: 0.125rem;   /* 2px */
+  --radius-md: 0.25rem;    /* 4px */
+  --radius-lg: 0.375rem;   /* 6px */
+  --radius-xl: 0.5rem;     /* 8px */
+  --radius-2xl: 0.75rem;   /* 12px */
+}
+
+.layout-comfortable {
+  --layout-density: comfortable;
+  
+  /* Standard spacing (default) */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+  
+  /* Standard border radius (default) */
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.375rem;   /* 6px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+}
+
+.layout-spacious {
+  --layout-density: spacious;
+  
+  /* Increased spacing */
+  --spacing-xs: 0.5rem;    /* 8px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1.5rem;    /* 24px */
+  --spacing-lg: 2rem;      /* 32px */
+  --spacing-xl: 2.5rem;    /* 40px */
+  --spacing-2xl: 3.5rem;   /* 56px */
+  --spacing-3xl: 4.5rem;   /* 72px */
+  
+  /* Increased border radius */
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.25rem;   /* 20px */
+}
+
+/* Font Size Adjustments */
+.font-small {
+  --font-size: small;
+  --base-font-size: 14px;
+  
+  /* Scaled font sizes */
+  --text-xs: 0.625rem;     /* 10px */
+  --text-sm: 0.75rem;      /* 12px */
+  --text-base: 0.875rem;   /* 14px */
+  --text-lg: 1rem;         /* 16px */
+  --text-xl: 1.125rem;     /* 18px */
+  --text-2xl: 1.25rem;     /* 20px */
+  --text-3xl: 1.5rem;      /* 24px */
+  --text-4xl: 1.875rem;    /* 30px */
+}
+
+.font-medium {
+  --font-size: medium;
+  --base-font-size: 16px;
+  
+  /* Standard font sizes (default) */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+}
+
+.font-large {
+  --font-size: large;
+  --base-font-size: 18px;
+  
+  /* Increased font sizes */
+  --text-xs: 0.875rem;     /* 14px */
+  --text-sm: 1rem;         /* 16px */
+  --text-base: 1.125rem;   /* 18px */
+  --text-lg: 1.25rem;      /* 20px */
+  --text-xl: 1.375rem;     /* 22px */
+  --text-2xl: 1.625rem;    /* 26px */
+  --text-3xl: 2rem;        /* 32px */
+  --text-4xl: 2.5rem;      /* 40px */
+}
+
+/* System Theme Detection */
+.theme-system {
+  /* System theme will be applied via JavaScript based on prefers-color-scheme */
+  /* This class is used as a marker for system theme selection */
+}
+
+/* Utility Classes for Theme Colors */
+.text-primary { color: rgb(var(--color-text-primary)); }
+.text-secondary { color: rgb(var(--color-text-secondary)); }
+.text-tertiary { color: rgb(var(--color-text-tertiary)); }
+.text-inverse { color: rgb(var(--color-text-inverse)); }
+
+.bg-primary { background-color: rgb(var(--color-primary)); }
+.bg-secondary { background-color: rgb(var(--color-secondary)); }
+.bg-accent { background-color: rgb(var(--color-accent)); }
+.bg-background { background-color: rgb(var(--color-background)); }
+.bg-card { background-color: rgb(var(--color-card)); }
+
+.border-primary { border-color: rgb(var(--color-border)); }
+.border-input { border-color: rgb(var(--color-input)); }
+
+/* Focus and Selection States */
+.focus-ring:focus {
+  outline: 2px solid rgb(var(--color-ring));
+  outline-offset: 2px;
+}
+
+.selected {
+  background-color: rgb(var(--color-selected));
+}
+
+.hover:hover {
+  background-color: rgb(var(--color-hover));
+}
+
+.active:active {
+  background-color: rgb(var(--color-active));
+}
+
+/* Status Color Utilities */
+.text-success { color: rgb(var(--color-success-text)); }
+.text-warning { color: rgb(var(--color-warning-text)); }
+.text-error { color: rgb(var(--color-error-text)); }
+.text-info { color: rgb(var(--color-info-text)); }
+
+.bg-success { background-color: rgb(var(--color-success-bg)); }
+.bg-warning { background-color: rgb(var(--color-warning-bg)); }
+.bg-error { background-color: rgb(var(--color-error-bg)); }
+.bg-info { background-color: rgb(var(--color-info-bg)); }
+
+/* Animation for theme transitions */
+* {
+  transition: 
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* Disable transitions during theme changes for better performance */
+.theme-changing * {
+  transition: none !important;
+}

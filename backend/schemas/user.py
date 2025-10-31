@@ -2,7 +2,7 @@
 User Management Schemas
 Pydantic models for user profile requests/responses
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -15,14 +15,15 @@ class UpdateUserDetailsSchema(BaseModel):
     timezone_identifier: str = Field(..., min_length=1, max_length=50, description="IANA timezone (e.g., 'Australia/Sydney')")
     role_title: Optional[str] = Field(None, max_length=100, description="Job title/role")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "phone": "+61412345678",
                 "timezone_identifier": "Australia/Sydney",
                 "role_title": "Marketing Manager"
             }
         }
+    )
 
 
 class UpdateUserDetailsResponse(BaseModel):
@@ -31,14 +32,15 @@ class UpdateUserDetailsResponse(BaseModel):
     message: str = Field(..., description="Human-readable message")
     user_id: int = Field(..., description="Updated user ID")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": True,
                 "message": "User details updated successfully",
                 "user_id": 123
             }
         }
+    )
 
 
 class UserProfileResponse(BaseModel):
@@ -54,9 +56,9 @@ class UserProfileResponse(BaseModel):
     onboarding_complete: bool
     onboarding_step: int
     
-    class Config:
-        orm_mode = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,  # Pydantic v2: was 'orm_mode' in v1
+        json_schema_extra={
             "example": {
                 "user_id": 123,
                 "email": "john.doe@example.com",
@@ -70,6 +72,7 @@ class UserProfileResponse(BaseModel):
                 "onboarding_step": 2
             }
         }
+    )
 
 
 # ============================================================================
@@ -113,21 +116,27 @@ class UserProfileUpdateSchema(BaseModel):
     """
     Request schema for updating user profile enhancements (Epic 2).
     All fields are optional for partial updates.
+    Supports both snake_case (backend) and camelCase (frontend) field names.
     """
-    bio: Optional[str] = Field(None, max_length=500, description="Professional bio/summary")
-    theme_preference_id: Optional[int] = Field(None, description="Theme preference ID")
-    layout_density_id: Optional[int] = Field(None, description="Layout density ID")
-    font_size_id: Optional[int] = Field(None, description="Font size ID")
-    
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,  # Pydantic v2: Allow both field name and alias
+        json_schema_extra={
             "example": {
                 "bio": "Marketing professional with 10 years of experience",
                 "theme_preference_id": 2,
+                "themePreferenceId": 2,  # Also show camelCase example
                 "layout_density_id": 1,
-                "font_size_id": 2
+                "layoutDensityId": 1,
+                "font_size_id": 2,
+                "fontSizeId": 2
             }
         }
+    )
+    
+    bio: Optional[str] = Field(None, max_length=500, description="Professional bio/summary")
+    theme_preference_id: Optional[int] = Field(None, alias="themePreferenceId", description="Theme preference ID")
+    layout_density_id: Optional[int] = Field(None, alias="layoutDensityId", description="Layout density ID")
+    font_size_id: Optional[int] = Field(None, alias="fontSizeId", description="Font size ID")
 
 
 class ReferenceOptionResponse(BaseModel):
@@ -139,8 +148,8 @@ class ReferenceOptionResponse(BaseModel):
     css_class: str = Field(..., description="CSS class for frontend")
     base_font_size: Optional[str] = Field(None, description="Base font size (for FontSize only)")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": 2,
                 "code": "dark",
@@ -150,6 +159,7 @@ class ReferenceOptionResponse(BaseModel):
                 "base_font_size": None
             }
         }
+    )
 
 
 class IndustryAssociationSchema(BaseModel):
@@ -158,14 +168,15 @@ class IndustryAssociationSchema(BaseModel):
     is_primary: bool = Field(default=False, description="Whether this is the primary industry")
     sort_order: Optional[int] = Field(None, description="Display order (for secondary industries)")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "industry_id": 5,
                 "is_primary": False,
                 "sort_order": 1
             }
         }
+    )
 
 
 class IndustryAssociationResponse(BaseModel):
@@ -177,8 +188,8 @@ class IndustryAssociationResponse(BaseModel):
     is_primary: bool = Field(..., description="Whether this is the primary industry")
     sort_order: int = Field(..., description="Display order")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "user_industry_id": 10,
                 "industry_id": 5,
@@ -188,6 +199,7 @@ class IndustryAssociationResponse(BaseModel):
                 "sort_order": 1
             }
         }
+    )
 
 
 class EnhancedUserProfileResponse(BaseModel):
@@ -207,8 +219,8 @@ class EnhancedUserProfileResponse(BaseModel):
     font_size: Optional[ReferenceOptionResponse] = None
     industries: List[IndustryAssociationResponse] = Field(default_factory=list, description="User's industry associations")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "user_id": 123,
                 "email": "john.doe@example.com",
@@ -254,3 +266,4 @@ class EnhancedUserProfileResponse(BaseModel):
                 ]
             }
         }
+    )

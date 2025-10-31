@@ -3,7 +3,7 @@ Base Pydantic Schemas
 Common response patterns and pagination
 """
 from typing import Any, Optional, Generic, TypeVar, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 # Generic type for paginated responses
@@ -30,14 +30,15 @@ class BaseResponse(BaseModel):
     message: str = Field(..., description="Human-readable message describing the result")
     data: Optional[Any] = Field(None, description="Response data")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": True,
                 "message": "Operation completed successfully",
                 "data": {"id": 123, "name": "Example"}
             }
         }
+    )
 
 
 class ErrorResponse(BaseModel):
@@ -63,8 +64,8 @@ class ErrorResponse(BaseModel):
     message: str = Field(..., description="Human-readable error message")
     details: Optional[Any] = Field(None, description="Additional error context")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": False,
                 "error": "ValidationError",
@@ -72,6 +73,7 @@ class ErrorResponse(BaseModel):
                 "details": {"field": "email", "issue": "Invalid email format"}
             }
         }
+    )
 
 
 class PaginationParams(BaseModel):
@@ -97,8 +99,8 @@ class PaginationParams(BaseModel):
     sort_by: Optional[str] = Field(None, description="Field to sort by")
     sort_order: str = Field("asc", pattern="^(asc|desc)$", description="Sort order: 'asc' or 'desc'")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "page": 1,
                 "page_size": 20,
@@ -106,6 +108,7 @@ class PaginationParams(BaseModel):
                 "sort_order": "desc"
             }
         }
+    )
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
@@ -139,8 +142,8 @@ class PaginatedResponse(BaseModel, Generic[T]):
     data: List[T] = Field(..., description="List of items for current page")
     pagination: dict = Field(..., description="Pagination metadata")
     
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": True,
                 "message": "Items retrieved successfully",
@@ -156,6 +159,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
                 }
             }
         }
+    )
     
     @classmethod
     def create(

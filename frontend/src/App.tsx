@@ -2,6 +2,7 @@ import { useEffect, useState, Suspense, lazy } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 import { AuthProvider } from './features/auth'
 import { UXProvider, LoadingSpinner, PageLoadingSpinner, useToastNotifications } from './features/ux'
+import { ThemeProvider } from './features/theme'
 import { unsavedWorkTracker } from './utils/unsavedWorkTracker'
 import { offlineQueue } from './utils/offlineQueue'
 
@@ -13,6 +14,7 @@ const PasswordResetRequest = lazy(() => import('./features/auth').then(module =>
 const PasswordResetConfirm = lazy(() => import('./features/auth').then(module => ({ default: module.PasswordResetConfirm })))
 const DashboardPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.DashboardPage })))
 const InvitationAcceptancePage = lazy(() => import('./features/invitations').then(module => ({ default: module.InvitationAcceptancePage })))
+// Theme settings now accessible through user menu in dashboard
 
 // Make utilities available globally for testing in browser console
 if (typeof window !== 'undefined') {
@@ -145,6 +147,26 @@ function HomePage() {
             </div>
           </nav>
 
+          {/* Theme System - Story 2.2 */}
+          <nav className="bg-purple-50 border border-purple-200 rounded-lg p-4 card-lift" aria-labelledby="theme-nav">
+            <h2 id="theme-nav" className="font-semibold text-purple-900 mb-3">
+              <span className="mr-2" aria-hidden="true">🎨</span>
+              Story 2.2: Theme System Implementation
+            </h2>
+            <div className="space-y-2" role="group" aria-label="Theme options">
+              <Link 
+                to="/dashboard" 
+                className="btn-primary block w-full text-center"
+                aria-describedby="theme-nav"
+              >
+                Access Dashboard
+              </Link>
+              <p className="text-sm text-purple-700 text-center">
+                Theme settings are available in the user menu after login
+              </p>
+            </div>
+          </nav>
+
           {/* Useful Links */}
           <nav className="bg-gray-50 border border-gray-200 rounded-lg p-4 card-lift" aria-labelledby="useful-links">
             <h2 id="useful-links" className="font-semibold text-gray-900 mb-2">
@@ -200,22 +222,25 @@ function HomePage() {
 
 function App() {
   return (
-    <UXProvider>
-      <AuthProvider>
-        <Suspense fallback={<PageLoadingSpinner message="Loading page..." />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signup" element={<SignupForm />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/verify-email" element={<EmailVerification />} />
-            <Route path="/reset-password" element={<PasswordResetRequest />} />
-            <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
-            <Route path="/invitations/accept" element={<InvitationAcceptancePage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-          </Routes>
-        </Suspense>
-      </AuthProvider>
-    </UXProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <UXProvider>
+          <Suspense fallback={<PageLoadingSpinner message="Loading page..." />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/signup" element={<SignupForm />} />
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/verify-email" element={<EmailVerification />} />
+              <Route path="/reset-password" element={<PasswordResetRequest />} />
+              <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
+              <Route path="/invitations/accept" element={<InvitationAcceptancePage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              {/* Theme settings now accessible through user menu in dashboard */}
+            </Routes>
+          </Suspense>
+        </UXProvider>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }
 

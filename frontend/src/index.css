@@ -2,6 +2,154 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme System Variables - Epic 2 Story 2.2 */
+@import './features/theme/styles/theme-variables.css';
+
+/* Apply base font size globally */
+body {
+  font-size: var(--base-font-size, 16px);
+}
+
+/* Theme-aware background colors - override Tailwind defaults */
+@layer utilities {
+  .bg-white {
+    background-color: rgb(var(--color-background, 255 255 255)) !important;
+  }
+  
+  .bg-gray-50 {
+    background-color: rgb(var(--color-muted, 248 250 252)) !important;
+  }
+  
+  .bg-gray-100 {
+    background-color: rgb(var(--color-hover, 241 245 249)) !important;
+  }
+  
+  .dark .bg-white,
+  .dark .bg-gray-50,
+  .dark .bg-gray-100 {
+    background-color: rgb(var(--color-background, 15 23 42)) !important;
+  }
+  
+  .dark .bg-gray-800 {
+    background-color: rgb(var(--color-card, 15 23 42)) !important;
+  }
+  
+  .dark .bg-gray-900 {
+    background-color: rgb(var(--color-background, 2 6 23)) !important;
+  }
+
+  /* Theme-aware text colors */
+  .text-gray-900 {
+    color: rgb(var(--color-text-primary, 15 23 42)) !important;
+  }
+  
+  .text-gray-800 {
+    color: rgb(var(--color-text-primary, 30 41 59)) !important;
+  }
+  
+  .text-gray-700 {
+    color: rgb(var(--color-text-secondary, 51 65 85)) !important;
+  }
+  
+  .text-gray-600 {
+    color: rgb(var(--color-text-secondary, 71 85 105)) !important;
+  }
+  
+  .text-gray-500 {
+    color: rgb(var(--color-text-tertiary, 100 116 139)) !important;
+  }
+  
+  .text-gray-400 {
+    color: rgb(var(--color-text-tertiary, 148 163 184)) !important;
+  }
+
+  .dark .text-gray-900,
+  .dark .text-gray-800,
+  .dark .text-gray-700 {
+    color: rgb(var(--color-text-primary, 248 250 252)) !important;
+  }
+  
+  .dark .text-gray-600 {
+    color: rgb(var(--color-text-secondary, 203 213 225)) !important;
+  }
+  
+  .dark .text-gray-500,
+  .dark .text-gray-400 {
+    color: rgb(var(--color-text-tertiary, 148 163 184)) !important;
+  }
+  
+  .dark .text-white {
+    color: rgb(var(--color-text-primary, 255 255 255)) !important;
+  }
+  
+  /* Border colors */
+  .border-gray-200 {
+    border-color: rgb(var(--color-border, 226 232 240)) !important;
+  }
+  
+  .dark .border-gray-200,
+  .dark .border-gray-700 {
+    border-color: rgb(var(--color-border, 51 65 85)) !important;
+  }
+  
+  /* Spacing utilities using CSS variables for layout density */
+  .p-4 {
+    padding: var(--spacing-md, 1rem) !important;
+  }
+  
+  .p-6 {
+    padding: var(--spacing-lg, 1.5rem) !important;
+  }
+  
+  .px-4 {
+    padding-left: var(--spacing-md, 1rem) !important;
+    padding-right: var(--spacing-md, 1rem) !important;
+  }
+  
+  .px-6 {
+    padding-left: var(--spacing-lg, 1.5rem) !important;
+    padding-right: var(--spacing-lg, 1.5rem) !important;
+  }
+  
+  .py-4 {
+    padding-top: var(--spacing-md, 1rem) !important;
+    padding-bottom: var(--spacing-md, 1rem) !important;
+  }
+  
+  .py-8 {
+    padding-top: var(--spacing-xl, 2rem) !important;
+    padding-bottom: var(--spacing-xl, 2rem) !important;
+  }
+  
+  .gap-2 {
+    gap: var(--spacing-sm, 0.5rem) !important;
+  }
+  
+  .gap-3 {
+    gap: var(--spacing-md, 1rem) !important;
+  }
+  
+  .gap-4 {
+    gap: var(--spacing-md, 1rem) !important;
+  }
+  
+  .gap-6 {
+    gap: var(--spacing-lg, 1.5rem) !important;
+  }
+  
+  .mb-2 {
+    margin-bottom: var(--spacing-sm, 0.5rem) !important;
+  }
+  
+  .mb-4 {
+    margin-bottom: var(--spacing-md, 1rem) !important;
+  }
+  
+  .mb-8 {
+    margin-bottom: var(--spacing-xl, 2rem) !important;
+  }
+}
+
 /* UX Enhancement & Polish - Animation Styles */
 /* Story 1.17: Comprehensive micro-interactions and animations */
 

@@ -257,6 +257,13 @@ async def update_my_profile_enhancements(
     Logs changes to audit.UserAudit.
     """
     try:
+        # Log incoming request
+        logger.info(f"Profile enhancement update request: UserID={current_user.user_id}, "
+                   f"theme_preference_id={request.theme_preference_id}, "
+                   f"layout_density_id={request.layout_density_id}, "
+                   f"font_size_id={request.font_size_id}, "
+                   f"bio={'*' * len(request.bio) if request.bio else None}")
+        
         await update_user_profile_enhancements(
             db=db,
             user_id=current_user.user_id,
@@ -265,6 +272,8 @@ async def update_my_profile_enhancements(
             layout_density_id=request.layout_density_id,
             font_size_id=request.font_size_id
         )
+        
+        logger.info(f"Profile enhancement update completed successfully for UserID={current_user.user_id}")
         
         return UpdateUserDetailsResponse(
             success=True,
@@ -310,6 +319,8 @@ async def get_my_enhanced_profile(
     Requires authentication.
     """
     try:
+        # Get user - use expire/refresh to ensure we get latest data from database
+        # This ensures we get the latest theme preferences even if cached
         user = await get_user_profile(db, current_user.user_id)
         
         if not user:
@@ -317,6 +328,11 @@ async def get_my_enhanced_profile(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
+        
+        # Expire and refresh user object to ensure we get latest data from database
+        # This ensures we get the latest theme preferences even if cached in session
+        db.expire(user)
+        db.refresh(user)
         
         # Get industry associations
         user_industries = await get_user_industries(db, current_user.user_id)
@@ -351,6 +367,9 @@ async def get_my_enhanced_profile(
         if user.ThemePreferenceID:
             theme = db.get(ThemePreference, user.ThemePreferenceID)
             if theme:
+                logger.info(f"Returning theme preference: UserID={user.UserID}, "
+                           f"ThemePreferenceID={user.ThemePreferenceID}, "
+                           f"ThemeCode={theme.ThemeCode}, ThemeName={theme.ThemeName}")
                 response.theme_preference = ReferenceOptionResponse(
                     id=int(theme.ThemePreferenceID),
                     code=str(theme.ThemeCode),
@@ -359,6 +378,8 @@ async def get_my_enhanced_profile(
                     css_class=str(theme.CSSClass),
                     base_font_size=None
                 )
+        else:
+            logger.info(f"No theme preference set: UserID={user.UserID}, ThemePreferenceID={user.ThemePreferenceID}")
         
         # Add layout density if set
         if user.LayoutDensityID:

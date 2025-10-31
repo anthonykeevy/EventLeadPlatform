@@ -53,12 +53,107 @@ function formatError(error: unknown): Error {
 }
 
 /**
+ * Backend response format (snake_case)
+ */
+interface BackendEnhancedUserProfile {
+  user_id: number
+  email: string
+  first_name: string
+  last_name: string
+  phone: string | null
+  bio: string | null
+  role_title: string | null
+  is_email_verified: boolean
+  theme_preference: {
+    id: number
+    code: string
+    name: string
+    description: string
+    css_class: string
+    base_font_size?: string | null
+  } | null
+  layout_density: {
+    id: number
+    code: string
+    name: string
+    description: string
+    css_class: string
+    base_font_size?: string | null
+  } | null
+  font_size: {
+    id: number
+    code: string
+    name: string
+    description: string
+    css_class: string
+    base_font_size?: string | null
+  } | null
+  industries: Array<{
+    user_industry_id: number
+    industry_id: number
+    industry_name: string
+    industry_code: string
+    is_primary: boolean
+    sort_order: number
+  }>
+}
+
+/**
+ * Transform backend response (snake_case) to frontend format (camelCase)
+ */
+function transformEnhancedProfile(backendProfile: BackendEnhancedUserProfile): EnhancedUserProfile {
+  return {
+    userId: backendProfile.user_id,
+    email: backendProfile.email,
+    firstName: backendProfile.first_name,
+    lastName: backendProfile.last_name,
+    phone: backendProfile.phone,
+    bio: backendProfile.bio,
+    roleTitle: backendProfile.role_title,
+    isEmailVerified: backendProfile.is_email_verified,
+    themePreference: backendProfile.theme_preference ? {
+      id: backendProfile.theme_preference.id,
+      code: backendProfile.theme_preference.code,
+      name: backendProfile.theme_preference.name,
+      description: backendProfile.theme_preference.description,
+      css_class: backendProfile.theme_preference.css_class,
+      base_font_size: backendProfile.theme_preference.base_font_size || null
+    } : null,
+    layoutDensity: backendProfile.layout_density ? {
+      id: backendProfile.layout_density.id,
+      code: backendProfile.layout_density.code,
+      name: backendProfile.layout_density.name,
+      description: backendProfile.layout_density.description,
+      css_class: backendProfile.layout_density.css_class,
+      base_font_size: backendProfile.layout_density.base_font_size || null
+    } : null,
+    fontSize: backendProfile.font_size ? {
+      id: backendProfile.font_size.id,
+      code: backendProfile.font_size.code,
+      name: backendProfile.font_size.name,
+      description: backendProfile.font_size.description,
+      css_class: backendProfile.font_size.css_class,
+      base_font_size: backendProfile.font_size.base_font_size || null
+    } : null,
+    industries: backendProfile.industries.map(industry => ({
+      userIndustryId: industry.user_industry_id,
+      industryId: industry.industry_id,
+      industryName: industry.industry_name,
+      industryCode: industry.industry_code,
+      isPrimary: industry.is_primary,
+      sortOrder: industry.sort_order
+    }))
+  }
+}
+
+/**
  * Get enhanced user profile with Epic 2 fields
  */
 export async function getEnhancedProfile(): Promise<EnhancedUserProfile> {
   try {
-    const response = await usersClient.get<EnhancedUserProfile>('/api/users/me/profile/enhanced')
-    return response.data
+    const response = await usersClient.get<BackendEnhancedUserProfile>('/api/users/me/profile/enhanced')
+    // Transform snake_case response to camelCase
+    return transformEnhancedProfile(response.data)
   } catch (error) {
     throw formatError(error)
   }

@@ -45,6 +45,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         "/api/invitations/",  # View invitation details (Story 1.7, Story 1.16)
         "/api/countries",  # Country validation endpoints (Story 1.20)
         "/api/companies/smart-search",  # ABR search for onboarding (Story 1.19)
+        "/api/users/reference/",  # Theme reference endpoints (Story 2.2)
         "/docs",
         "/openapi.json",
         "/redoc",
@@ -69,6 +70,10 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         Raises:
             HTTPException: 401 if authentication fails
         """
+        # Skip authentication for OPTIONS requests (CORS preflight)
+        if request.method == "OPTIONS":
+            return await call_next(request)
+        
         # Skip authentication for public endpoints
         if self._is_public_path(request.url.path):
             return await call_next(request)

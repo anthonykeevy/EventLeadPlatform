@@ -123,6 +123,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Broadcast logout to other tabs
     broadcastAuthChange({ type: 'LOGOUT' })
     
+    // Reset theme BEFORE clearing storage and navigating
+    // Dispatch custom event for ThemeContext to reset theme
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('eventlead:logout', { detail: { resetTheme: true } }))
+      // Also directly reset theme classes immediately (before navigate)
+      try {
+        const doc = document.documentElement
+        let classes = doc.className.split(/\s+/)
+        classes = classes.filter(cls => 
+          !cls.startsWith('theme-') && 
+          !cls.startsWith('layout-') && 
+          !cls.startsWith('font-') && 
+          cls !== 'dark'
+        )
+        doc.className = classes.join(' ').trim()
+        doc.style.removeProperty('--theme-mode')
+        doc.style.removeProperty('--layout-density')
+        doc.style.removeProperty('--font-size')
+        doc.style.removeProperty('--base-font-size')
+        if (document.body) {
+          document.body.style.fontSize = ''
+        }
+        console.log('Theme reset directly in logout')
+      } catch (error) {
+        console.error('Failed to reset theme in logout:', error)
+      }
+    }
+    
     // Clear ALL localStorage (not just tokens)
     tokenStorage.clearAllStorage()
     

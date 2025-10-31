@@ -284,14 +284,33 @@ async def update_user_profile_enhancements(
     }
     
     # Update user profile
+    updates_made = False
     if bio is not None:
         user.Bio = bio  # type: ignore
+        updates_made = True
     if theme_preference_id is not None:
+        old_theme = user.ThemePreferenceID
         user.ThemePreferenceID = theme_preference_id  # type: ignore
+        if old_theme != theme_preference_id:
+            updates_made = True
+            logger.info(f"Updating ThemePreferenceID: {old_theme} -> {theme_preference_id}")
     if layout_density_id is not None:
+        old_density = user.LayoutDensityID
         user.LayoutDensityID = layout_density_id  # type: ignore
+        if old_density != layout_density_id:
+            updates_made = True
+            logger.info(f"Updating LayoutDensityID: {old_density} -> {layout_density_id}")
     if font_size_id is not None:
+        old_font = user.FontSizeID
         user.FontSizeID = font_size_id  # type: ignore
+        if old_font != font_size_id:
+            updates_made = True
+            logger.info(f"Updating FontSizeID: {old_font} -> {font_size_id}")
+    
+    if not updates_made:
+        logger.warning(f"No updates to make for user {user_id}")
+        db.refresh(user)
+        return user
     
     user.UpdatedDate = datetime.utcnow()  # type: ignore
     user.UpdatedBy = user_id  # type: ignore
@@ -308,6 +327,7 @@ async def update_user_profile_enhancements(
         changed_fields.append(("FontSizeID", old_values["FontSizeID"], font_size_id))
     
     try:
+        # Add audit entries first
         for field_name, old_val, new_val in changed_fields:
             audit_entry = UserAudit(
                 UserID=user_id,
@@ -323,10 +343,30 @@ async def update_user_profile_enhancements(
             )
             db.add(audit_entry)
         
+        # Flush to ensure changes are tracked
+        db.flush()
+        
+        # Commit all changes (user updates + audit entries)
         db.commit()
+        
+        # Refresh user to get latest data from database
         db.refresh(user)
         
-        logger.info(f"User profile enhancements updated: UserID={user_id}")
+        # Verify what was actually saved
+        logger.info(f"User profile enhancements COMMITTED: UserID={user_id}, "
+                   f"ThemePreferenceID={user.ThemePreferenceID} (expected: {theme_preference_id}), "
+                   f"LayoutDensityID={user.LayoutDensityID} (expected: {layout_density_id}), "
+                   f"FontSizeID={user.FontSizeID} (expected: {font_size_id})")
+        
+        # Double-check by querying database directly
+        verify_user = db.execute(
+            select(User).where(User.UserID == user_id)
+        ).scalar_one_or_none()
+        if verify_user:
+            logger.info(f"Database verification - UserID={verify_user.UserID}, "
+                       f"ThemePreferenceID={verify_user.ThemePreferenceID}, "
+                       f"LayoutDensityID={verify_user.LayoutDensityID}, "
+                       f"FontSizeID={verify_user.FontSizeID}")
         
         return user
         

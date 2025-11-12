@@ -8,6 +8,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth'
 import { OnboardingModal } from '../../onboarding'
+import { CreateEventModal, EditEventModal, DeleteEventConfirmModal } from '../../events'
+import type { Event } from '../../events/types/events.types'
 import { UserMenu } from './UserMenu'
 import { KPISection } from './KPISection'
 import { CompanyList } from './CompanyList'
@@ -17,10 +19,12 @@ import { EmptyState } from './EmptyState'
 import { getUserCompanies, getKPIData, switchCompany } from '../api/dashboardApi'
 import { buildCompanyTree, getPathToCompany, findCompanyById } from '../utils/hierarchyUtils'
 import type { Company, KPIData } from '../types/dashboard.types'
+import { useToastNotifications } from '../../ux'
 
 export function DashboardLayout() {
   const { user, logout, refreshUser } = useAuth()
   const navigate = useNavigate()
+  const toast = useToastNotifications()
   
   // Dashboard state
   const [companies, setCompanies] = useState<Company[]>([])
@@ -40,6 +44,12 @@ export function DashboardLayout() {
   // Onboarding modal state - AC-1.14.1
   const [showOnboardingModal, setShowOnboardingModal] = useState(false)
 
+  // Event creation modal state - Story 2.4
+  const [showCreateEventModal, setShowCreateEventModal] = useState(false)
+  const [showEditEventModal, setShowEditEventModal] = useState(false)
+  const [showDeleteEventModal, setShowDeleteEventModal] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+
   // Load companies on mount (but only if onboarding complete)
   useEffect(() => {
     // Don't try to load companies if user hasn't completed onboarding
@@ -57,6 +67,24 @@ export function DashboardLayout() {
       loadKPIs([activeCompanyId])
     }
   }, [activeCompanyId])
+
+  // Listen for offline queue processing completion and refresh KPIs
+  useEffect(() => {
+    const handleQueueProcessed = () => {
+      // Refresh KPIs when queue processes (new events may have been created)
+      if (activeCompanyId) {
+        console.log('🔄 Offline queue processed - refreshing KPIs')
+        loadKPIs([activeCompanyId])
+        // Also reload companies to update event counts
+        loadCompanies()
+      }
+    }
+
+    window.addEventListener('offlineQueueProcessed', handleQueueProcessed)
+    return () => {
+      window.removeEventListener('offlineQueueProcessed', handleQueueProcessed)
+    }
+  }, [activeCompanyId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Show onboarding modal if user hasn't completed onboarding - AC-1.14.1
   useEffect(() => {
@@ -177,6 +205,68 @@ export function DashboardLayout() {
     setTeamPanelCompanyId(null)
   }
 
+  // Handle event creation from dashboard - Story 2.4
+  const handleCreateEvent = (companyId: number) => {
+    // Prevent event creation when offline (required fields unavailable)
+    if (!navigator.onLine) {
+      toast.warning(
+        'Event creation unavailable offline',
+        'Event creation requires reference data (event types, statuses) that is only available when connected to the internet. Please connect to create events.'
+      )
+      return
+    }
+    
+    // Switch to the company context if not already active
+    if (companyId !== activeCompanyId) {
+      handleSelectCompany(companyId)
+    }
+    setShowCreateEventModal(true)
+  }
+
+  const handleEventCreated = () => {
+    setShowCreateEventModal(false)
+    // Reload companies to update event counts
+    loadCompanies()
+    // Reload KPIs to update event counts
+    if (activeCompanyId) {
+      loadKPIs([activeCompanyId])
+    }
+  }
+
+  // Handle event edit from dashboard - Story 2.4
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(event)
+    setShowEditEventModal(true)
+  }
+
+  const handleEventUpdated = () => {
+    setShowEditEventModal(false)
+    setSelectedEvent(null)
+    // Reload companies to update event counts
+    loadCompanies()
+    // Reload KPIs to update event counts
+    if (activeCompanyId) {
+      loadKPIs([activeCompanyId])
+    }
+  }
+
+  // Handle event delete from dashboard - Story 2.4
+  const handleDeleteEvent = (event: Event) => {
+    setSelectedEvent(event)
+    setShowDeleteEventModal(true)
+  }
+
+  const handleEventDeleted = () => {
+    setShowDeleteEventModal(false)
+    setSelectedEvent(null)
+    // Reload companies to update event counts
+    loadCompanies()
+    // Reload KPIs to update event counts
+    if (activeCompanyId) {
+      loadKPIs([activeCompanyId])
+    }
+  }
+
   // Remove handleLogout since it's now handled in UserMenu
 
   return (
@@ -230,6 +320,9 @@ export function DashboardLayout() {
             onSelectCompany={handleSelectCompany}
             onToggleExpand={handleToggleExpand}
             onOpenTeamPanel={handleOpenTeamPanel}
+            onCreateEvent={handleCreateEvent}
+            onEditEvent={handleEditEvent}
+            onDeleteEvent={handleDeleteEvent}
             isLoading={isLoadingCompanies}
           />
         )}
@@ -251,6 +344,39 @@ export function DashboardLayout() {
         isOpen={showOnboardingModal}
         onComplete={handleOnboardingComplete}
       />
+
+      {/* Create Event Modal - Story 2.4 */}
+      <CreateEventModal
+        isOpen={showCreateEventModal}
+        onClose={() => setShowCreateEventModal(false)}
+        onSuccess={handleEventCreated}
+      />
+
+      {/* Edit Event Modal - Story 2.4 */}
+      {selectedEvent && (
+        <EditEventModal
+          isOpen={showEditEventModal}
+          onClose={() => {
+            setShowEditEventModal(false)
+            setSelectedEvent(null)
+          }}
+          onSuccess={handleEventUpdated}
+          event={selectedEvent}
+        />
+      )}
+
+      {/* Delete Event Modal - Story 2.4 */}
+      {selectedEvent && (
+        <DeleteEventConfirmModal
+          isOpen={showDeleteEventModal}
+          onClose={() => {
+            setShowDeleteEventModal(false)
+            setSelectedEvent(null)
+          }}
+          onConfirm={handleEventDeleted}
+          event={selectedEvent}
+        />
+      )}
     </div>
   )
 }

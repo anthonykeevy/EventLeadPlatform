@@ -1,10 +1,23 @@
 import { useEffect, useState, Suspense, lazy } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './features/auth'
 import { UXProvider, LoadingSpinner, PageLoadingSpinner, useToastNotifications } from './features/ux'
+import { OfflineIndicator } from './features/ux/components/OfflineIndicator'
 import { ThemeProvider } from './features/theme'
 import { unsavedWorkTracker } from './utils/unsavedWorkTracker'
 import { offlineQueue } from './utils/offlineQueue'
+
+// Create QueryClient instance for TanStack Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+})
 
 // Lazy load components for better performance
 const SignupForm = lazy(() => import('./features/auth').then(module => ({ default: module.SignupForm })))
@@ -14,6 +27,7 @@ const PasswordResetRequest = lazy(() => import('./features/auth').then(module =>
 const PasswordResetConfirm = lazy(() => import('./features/auth').then(module => ({ default: module.PasswordResetConfirm })))
 const DashboardPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.DashboardPage })))
 const InvitationAcceptancePage = lazy(() => import('./features/invitations').then(module => ({ default: module.InvitationAcceptancePage })))
+const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
 // Theme settings now accessible through user menu in dashboard
 
 // Make utilities available globally for testing in browser console
@@ -35,7 +49,7 @@ function HomePage() {
 
   useEffect(() => {
     // Test API connection
-    fetch('http://localhost:8000/api/health')
+    fetch('http://127.0.0.1:8000/api/health')
       .then(res => res.json())
       .then(data => {
         setHealthData(data)
@@ -176,7 +190,7 @@ function HomePage() {
             <ul className="text-sm text-gray-700 space-y-1" role="list">
               <li>
                 <a 
-                  href="http://localhost:8000/docs" 
+                  href="http://127.0.0.1:8000/docs" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-teal-600 hover:underline link-color"
@@ -187,7 +201,7 @@ function HomePage() {
               </li>
               <li>
                 <a 
-                  href="http://localhost:8000/api/test-database" 
+                  href="http://127.0.0.1:8000/api/test-database" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-teal-600 hover:underline link-color"
@@ -222,25 +236,36 @@ function HomePage() {
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <UXProvider>
-          <Suspense fallback={<PageLoadingSpinner message="Loading page..." />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/signup" element={<SignupForm />} />
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/verify-email" element={<EmailVerification />} />
-              <Route path="/reset-password" element={<PasswordResetRequest />} />
-              <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
-              <Route path="/invitations/accept" element={<InvitationAcceptancePage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              {/* Theme settings now accessible through user menu in dashboard */}
-            </Routes>
-          </Suspense>
-        </UXProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider>
+          <UXProvider>
+            <OfflineIndicator />
+            <Suspense fallback={<PageLoadingSpinner message="Loading page..." />}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/signup" element={<SignupForm />} />
+                <Route path="/login" element={<LoginForm />} />
+                <Route path="/verify-email" element={<EmailVerification />} />
+                <Route path="/reset-password" element={<PasswordResetRequest />} />
+                <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
+                <Route path="/invitations/accept" element={<InvitationAcceptancePage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <AdminDashboard />
+                    </Suspense>
+                  }
+                />
+                {/* Theme settings now accessible through user menu in dashboard */}
+              </Routes>
+            </Suspense>
+          </UXProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 

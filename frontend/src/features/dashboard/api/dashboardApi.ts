@@ -7,7 +7,7 @@ import axios from 'axios'
 import { getAccessToken } from '../../auth/utils/tokenStorage'
 import type { Company, KPIData, CompanyUsers } from '../types/dashboard.types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 // Create axios instance with auth interceptor
 const dashboardClient = axios.create({
@@ -45,7 +45,7 @@ export async function getUserCompanies(): Promise<{ companies: Company[] }> {
     userRole: item.role === 'company_admin' ? 'Company Admin' : 'Company User',
     parentCompanyId: item.relationship?.parent_company_id || null,
     childCompanies: [],
-    eventCount: 0, // TODO: Epic 2
+    eventCount: item.event_count ?? 0,
     formCount: 0,  // TODO: Epic 2
     hierarchyLevel: 0,
     isPrimaryCompany: item.is_primary

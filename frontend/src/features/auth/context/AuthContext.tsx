@@ -56,6 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const broadcastChannelRef = useRef<BroadcastChannel | null>(null)
+  const logoutRef = useRef<(() => void) | null>(null)
+  const refreshTokenRef = useRef<(() => Promise<void>) | null>(null)
+  const scheduleTokenRefreshRef = useRef<(() => void) | null>(null)
   
   /**
    * AC-1.9.3: Auto-refresh access token before expiration
@@ -78,14 +81,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshIn = Math.max(0, timeUntilExpiry - refreshBuffer) * 1000
     
     refreshTimeoutRef.current = setTimeout(async () => {
+      // Don't attempt token refresh when offline - preserve session state
+      if (!navigator.onLine) {
+        console.log('🌐 Offline: Skipping scheduled token refresh - preserving session')
+        // Reschedule for when we come back online (check every minute)
+        refreshTimeoutRef.current = setTimeout(() => {
+          if (scheduleTokenRefreshRef.current) {
+            scheduleTokenRefreshRef.current()
+          }
+        }, 60000)
+        return
+      }
+      
       try {
-        await refreshToken()
+        if (refreshTokenRef.current) {
+          await refreshTokenRef.current()
+        }
       } catch (error) {
         console.error('Auto-refresh failed:', error)
-        logout()
+        // Only logout when online - when offline, preserve session state
+        if (navigator.onLine && logoutRef.current) {
+          logoutRef.current()
+        } else {
+          console.log('🌐 Offline: Preserving session despite refresh failure')
+          // Reschedule for when we come back online
+          refreshTimeoutRef.current = setTimeout(() => {
+            if (scheduleTokenRefreshRef.current) {
+              scheduleTokenRefreshRef.current()
+            }
+          }, 60000)
+        }
       }
     }, refreshIn)
   }, [])
+  
+  // Store scheduleTokenRefresh function in ref for use in refreshToken
+  useEffect(() => {
+    scheduleTokenRefreshRef.current = scheduleTokenRefresh
+  }, [scheduleTokenRefresh])
   
   /**
    * Story 1.16 Enhanced: Graceful logout with unsaved work check
@@ -110,6 +143,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Proceed with logout
     performLogout()
   }, [])
+  
+  // Store logout function in ref for use in scheduleTokenRefresh
+  useEffect(() => {
+    logoutRef.current = logout
+  }, [logout])
   
   /**
    * Perform actual logout (internal)
@@ -157,6 +195,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Clear unsaved work tracker
     unsavedWorkTracker.clear()
     
+    // Clear offline queue (queued items are user-specific)
+    if (typeof window !== 'undefined') {
+      import('../../../utils/offlineQueue').then(({ offlineQueue }) => {
+        offlineQueue.clearAll().catch(console.error)
+        offlineQueue.setCurrentUserId(null) // Reset user ID
+      })
+    }
+    
     // Reset state
     setState({
       user: null,
@@ -179,8 +225,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await authApi.loginUser(credentials)
       
-      // Store tokens
-      tokenStorage.storeTokens(response.access_token, response.refresh_token, 3600)
+      // Store tokens with actual expiry time from backend (defaults to 3600 if not provided)
+      const expiresIn = response.expires_in || 3600
+      tokenStorage.storeTokens(response.access_token, response.refresh_token, expiresIn)
+      
+      // Set current user ID in offline queue (clears previous user's queue if different)
+      if (typeof window !== 'undefined') {
+        import('../../../utils/offlineQueue').then(({ offlineQueue }) => {
+          offlineQueue.setCurrentUserId(response.user.id || response.user.user_id || null)
+        })
+      }
       
       // Broadcast login to other tabs
       broadcastAuthChange({ 
@@ -244,11 +298,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * AC-1.9.3: Refresh access token
    */
   const refreshToken = useCallback(async () => {
+    // Don't attempt token refresh when offline - preserve session state
+    if (!navigator.onLine) {
+      console.log('🌐 Offline: Skipping token refresh - preserving session')
+      return
+    }
+    
     try {
       const response = await authApi.refreshAccessToken()
       
-      // Store new tokens
-      tokenStorage.storeTokens(response.access_token, response.refresh_token, 3600)
+      // Store new tokens with actual expiry time from backend (defaults to 3600 if not provided)
+      const expiresIn = response.expires_in || 3600
+      tokenStorage.storeTokens(response.access_token, response.refresh_token, expiresIn)
       
       // Update user state if provided
       if (response.user) {
@@ -259,12 +320,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       // Schedule next refresh
-      scheduleTokenRefresh()
+      if (scheduleTokenRefreshRef.current) {
+        scheduleTokenRefreshRef.current()
+      }
     } catch (error) {
       console.error('Token refresh failed:', error)
-      logout()
+      // Only logout when online - when offline, preserve session state
+      if (navigator.onLine && logoutRef.current) {
+        logoutRef.current()
+      } else {
+        console.log('🌐 Offline: Preserving session despite refresh failure')
+      }
     }
-  }, [logout, scheduleTokenRefresh])
+  }, [])
+  
+  // Store refreshToken function in ref for use in scheduleTokenRefresh
+  useEffect(() => {
+    refreshTokenRef.current = refreshToken
+  }, [refreshToken])
   
   /**
    * Refresh current user data
@@ -325,6 +398,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // No unsaved work - safe to sync immediately
       if (changeType === 'logout') {
         console.log('🔄 Syncing logout from another tab')
+        // Clear offline queue and reset userId
+        if (typeof window !== 'undefined') {
+          import('../../../utils/offlineQueue').then(({ offlineQueue }) => {
+            offlineQueue.clearAll().catch(console.error)
+            offlineQueue.setCurrentUserId(null)
+          })
+        }
         setState({
           user: null,
           isAuthenticated: false,
@@ -334,6 +414,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         navigate('/login')
       } else if (newUser) {
         console.log('🔄 Syncing login from another tab')
+        // Set offline queue userId (clears previous user's queue if different)
+        if (typeof window !== 'undefined') {
+          import('../../../utils/offlineQueue').then(({ offlineQueue }) => {
+            offlineQueue.setCurrentUserId(newUser.id || newUser.user_id || null)
+          })
+        }
         setState({
           user: newUser,
           isAuthenticated: true,
@@ -390,7 +476,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
       
-      // Check if token is expired
+      // When offline, preserve session state even if token is expired
+      // This allows users to continue working offline
+      if (!navigator.onLine) {
+        // Try to restore user from localStorage if available (for offline continuity)
+        // If we have tokens, assume user is authenticated for offline work
+        setState(prev => ({
+          ...prev,
+          // Keep existing user state if available, otherwise set minimal auth state
+          isAuthenticated: prev.user !== null || tokens !== null,
+          isLoading: false,
+        }))
+        console.log('🌐 Offline: Preserving session state for offline work')
+        return
+      }
+      
+      // Check if token is expired (only when online)
       if (tokenStorage.isTokenExpired()) {
         tokenStorage.clearTokens()
         setState(prev => ({ ...prev, isLoading: false }))
@@ -412,23 +513,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         scheduleTokenRefresh()
       } catch (error) {
         console.error('Failed to restore session:', error)
-        tokenStorage.clearTokens()
-        setState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          error: null,
-        })
+        // Only clear tokens and logout when online
+        // When offline, preserve state to allow continued work
+        if (navigator.onLine) {
+          tokenStorage.clearTokens()
+          setState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          })
+        } else {
+          // Offline: preserve session state
+          console.log('🌐 Offline: Preserving session state despite API error')
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+          }))
+        }
       }
     }
     
     initializeAuth()
+    
+    // Listen for online event to re-validate session when connection is restored
+    const handleOnline = () => {
+      console.log('🌐 Connection restored - re-validating session')
+      initializeAuth()
+    }
+    
+    window.addEventListener('online', handleOnline)
     
     // Cleanup on unmount
     return () => {
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current)
       }
+      window.removeEventListener('online', handleOnline)
     }
   }, [scheduleTokenRefresh])
   

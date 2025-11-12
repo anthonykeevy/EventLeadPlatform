@@ -13,6 +13,9 @@ from modules.auth.dependencies import get_current_user
 from modules.auth.models import CurrentUser
 from models.company import Company
 from models.ref.user_company_role import UserCompanyRole
+from models.event import Event
+from models.ref.event_status import EventStatus
+from models.event_company import EventCompany
 from schemas.user import (
     UpdateUserDetailsSchema, UpdateUserDetailsResponse, UserProfileResponse,
     SwitchCompanyRequest, SwitchCompanyResponse, UserCompanyInfo, RelationshipInfo,
@@ -65,7 +68,9 @@ async def update_my_details(
             user_id=current_user.user_id,
             phone=request.phone,
             timezone_identifier=request.timezone_identifier,
-            role_title=request.role_title
+            role_title=request.role_title,
+            first_name=request.first_name,
+            last_name=request.last_name
         )
         
         return UpdateUserDetailsResponse(
@@ -169,13 +174,62 @@ async def list_my_companies(
             if item.get('relationship'):
                 relationship_info = RelationshipInfo(**item['relationship'])
 
+            # Count active events for this company (excluding archived events)
+            # Include BOTH:
+            # 1. Events directly owned by company
+            # 2. Events where company is a participant (via EventCompany)
+            archived_status = db.execute(
+                select(EventStatus).where(EventStatus.StatusCode == 'ARCHIVED')
+            ).scalar_one_or_none()
+            
+            from sqlalchemy import func, or_, distinct
+            
+            # Get event IDs from both sources
+            # 1. Events directly owned by company
+            owned_event_ids = db.execute(
+                select(Event.EventID).where(
+                    Event.CompanyID == uc.CompanyID,
+                    Event.IsDeleted == False
+                )
+            ).scalars().all()
+            
+            # 2. Events where company is a participant (via EventCompany)
+            participant_event_ids = db.execute(
+                select(EventCompany.EventID).where(
+                    EventCompany.CompanyID == uc.CompanyID,
+                    EventCompany.IsDeleted == False,
+                    EventCompany.IsActive == True
+                )
+            ).scalars().all()
+            
+            # Combine both lists and get unique event IDs
+            all_event_ids = list(set(list(owned_event_ids) + list(participant_event_ids)))
+            
+            if not all_event_ids:
+                event_count = 0
+            else:
+                # Count unique events, excluding archived
+                event_count_stmt = select(func.count(distinct(Event.EventID))).where(
+                    Event.EventID.in_(all_event_ids),
+                    Event.IsDeleted == False
+                )
+                
+                # Exclude archived events from count
+                if archived_status:
+                    event_count_stmt = event_count_stmt.where(
+                        Event.EventStatusID != archived_status.EventStatusID
+                    )
+                
+                event_count = db.execute(event_count_stmt).scalar() or 0
+
             result.append(UserCompanyInfo(
                 company_id=uc.CompanyID,
                 company_name=company.CompanyName,
                 role=role.RoleCode,
                 is_primary=uc.IsPrimaryCompany,
                 joined_at=uc.JoinedDate,
-                relationship=relationship_info
+                relationship=relationship_info,
+                event_count=event_count
             ))
         
         return result
@@ -489,6 +543,16 @@ async def add_my_industry(
     Requires authentication.
     """
     try:
+        # Log request details explicitly for debugging
+        logger.info(f"[INDUSTRY API] =========================================")
+        logger.info(f"[INDUSTRY API] POST /api/users/me/industries")
+        logger.info(f"[INDUSTRY API] User ID: {current_user.user_id}")
+        logger.info(f"[INDUSTRY API] Request received: {request}")
+        logger.info(f"[INDUSTRY API] Request fields: industry_id={request.industry_id}, is_primary={request.is_primary}, sort_order={request.sort_order}")
+        logger.info(f"[INDUSTRY API] Request type: {type(request)}")
+        logger.info(f"[INDUSTRY API] Request dict: {request.model_dump() if hasattr(request, 'model_dump') else str(request)}")
+        logger.info(f"[INDUSTRY API] =========================================")
+        
         user_industry = await add_user_industry(
             db=db,
             user_id=current_user.user_id,
@@ -496,6 +560,8 @@ async def add_my_industry(
             is_primary=request.is_primary,
             sort_order=request.sort_order
         )
+        
+        logger.info(f"[INDUSTRY API] Industry association created: UserIndustryID={user_industry.UserIndustryID}")
         
         industry = db.get(Industry, user_industry.IndustryID)
         if not industry:
@@ -514,14 +580,19 @@ async def add_my_industry(
         )
         
     except ValueError as e:
-        logger.warning(f"Invalid industry association: {str(e)}")
+        logger.warning(f"[INDUSTRY API] Invalid industry association: {str(e)}")
+        logger.warning(f"[INDUSTRY API] User ID: {current_user.user_id}, Industry ID: {request.industry_id}")
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error adding industry: {str(e)}", exc_info=True)
+        logger.error(f"[INDUSTRY API] Error adding industry: {str(e)}", exc_info=True)
+        logger.error(f"[INDUSTRY API] User ID: {current_user.user_id}, Industry ID: {request.industry_id}")
+        logger.error(f"[INDUSTRY API] Request data: {request.dict() if hasattr(request, 'dict') else request}")
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

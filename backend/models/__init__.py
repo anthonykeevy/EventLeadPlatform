@@ -31,6 +31,8 @@ from .user_invitation import UserInvitation
 from .user_email_verification_token import UserEmailVerificationToken
 from .user_password_reset_token import UserPasswordResetToken
 from .user_refresh_token import UserRefreshToken
+from .event import Event
+from .event_company import EventCompany
 
 # Reference tables (ref schema)
 from .ref import (
@@ -50,6 +52,9 @@ from .ref import (
     ThemePreference,
     LayoutDensity,
     FontSize,
+    EventType,
+    EventStatus,
+    RecurrencePattern,
 )
 
 # Configuration tables (config schema)
@@ -94,6 +99,8 @@ __all__ = [
     "UserEmailVerificationToken",
     "UserPasswordResetToken",
     "UserRefreshToken",
+    "Event",
+    "EventCompany",
     
     # Reference tables (ref)
     "Country",
@@ -112,6 +119,10 @@ __all__ = [
     "ThemePreference",
     "LayoutDensity",
     "FontSize",
+    "EventType",
+    "EventStatus",
+    "RecurrencePattern",
+    "EventCompanyRole",
     
     # Configuration tables (config)
     "AppSetting",

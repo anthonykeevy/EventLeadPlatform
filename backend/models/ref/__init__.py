@@ -19,6 +19,11 @@ from .joined_via import JoinedVia
 from .theme_preference import ThemePreference
 from .layout_density import LayoutDensity
 from .font_size import FontSize
+from .event_type import EventType
+from .event_status import EventStatus
+from .recurrence_pattern import RecurrencePattern
+from .event_company_role import EventCompanyRole
+from .public_review_status import PublicReviewStatus
 
 __all__ = [
     "Country",
@@ -38,5 +43,10 @@ __all__ = [
     "ThemePreference",
     "LayoutDensity",
     "FontSize",
+    "EventType",
+    "EventStatus",
+    "RecurrencePattern",
+    "EventCompanyRole",
+    "PublicReviewStatus",
 ]
 

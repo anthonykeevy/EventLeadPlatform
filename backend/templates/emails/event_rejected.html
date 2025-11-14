@@ -1,0 +1,73 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Event Review Feedback - EventLead Platform{% endblock %}
+
+{% block content %}
+<h1>Event Review Update</h1>
+
+<p>Thank you for submitting your event "<strong>{{ event_name }}</strong>" for public visibility on the EventLead Platform.</p>
+
+<div class="info-box">
+    <h3 style="margin-top: 0;">Why We Review Events</h3>
+    <p style="margin: 0;">We have a quality check process to ensure that all events on our platform maintain professional standards. This helps prevent inappropriate language, offensive content, or misleading information from appearing in public event searches.</p>
+</div>
+
+<div class="warning-box">
+    <h3 style="margin-top: 0;">Review Decision</h3>
+    <p style="margin: 0; font-weight: bold;">We're sorry, but we can't make your event public on our platform at this time.</p>
+</div>
+
+{% if feedback %}
+<div class="info-box">
+    <h3 style="margin-top: 0;">Feedback from Review</h3>
+    <p style="margin: 0; white-space: pre-wrap;">{{ feedback }}</p>
+</div>
+{% endif %}
+
+<div class="success-box">
+    <h3 style="margin-top: 0;">✅ Your Event is Still Available</h3>
+    <p style="margin: 0;">While your event cannot be made public on the platform, it remains fully functional for your use:</p>
+    <ul style="margin: 10px 0 0; padding-left: 20px;">
+        <li>Your event is available to you and your company</li>
+        <li>Linked organizations can still access the event</li>
+        <li>You can continue using the event for lead capture and management</li>
+        <li>All event features remain available for internal use</li>
+    </ul>
+    <p style="margin: 10px 0 0;"><strong>Note:</strong> Your event will not be visible to others on the platform until you address the feedback and resubmit for review.</p>
+</div>
+
+<h2>What Can You Do Next?</h2>
+<ol>
+    <li><strong>Review the feedback</strong> provided above to understand what needs to be addressed</li>
+    <li><strong>Edit your event</strong> to make necessary changes based on the feedback</li>
+    <li><strong>Resubmit for review</strong> once you've addressed the feedback</li>
+    <li><strong>Contact support</strong> if you have questions about the feedback or need assistance</li>
+</ol>
+
+<div class="button-container">
+    <a href="{{ event_edit_url | default('https://app.eventlead.com/dashboard') }}" class="button">Edit Event & Resubmit</a>
+</div>
+
+<h2>Resubmission Process</h2>
+<p>After you've made the necessary changes to your event:</p>
+<ol>
+    <li>Click "Edit Event" to update your event details</li>
+    <li>Address all feedback points mentioned above</li>
+    <li>Click "Resubmit for Review" to send your updated event for review again</li>
+    <li>Our team will review your updated event (typically within 24-48 hours)</li>
+</ol>
+
+<h2>Public Event Guidelines</h2>
+<p>To help you understand our quality standards and improve your event submission, please review our <a href="{{ guidelines_url | default('https://eventlead.com/policies/public-event-guidelines') }}" style="color: #0066cc;">Public Event Guidelines</a>. These guidelines explain:</p>
+<ul>
+    <li>What we review and why</li>
+    <li>Common rejection reasons</li>
+    <li>How to improve your event submission</li>
+    <li>Best practices for public events</li>
+</ul>
+
+<p>We're here to help you succeed with your event. If you have any questions about the feedback, need assistance making changes, or want to discuss the review decision, please reach out to our support team.</p>
+
+<p>Best regards,<br>
+The EventLead Team</p>
+{% endblock %}

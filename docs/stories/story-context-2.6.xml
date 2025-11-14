@@ -1,0 +1,165 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2.6</storyId>
+    <title>Admin Public Event Review Workflow</title>
+    <status>Approved</status>
+    <generatedAt>2025-11-05T00:00:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-2.6.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>system administrator</asA>
+    <iWant>to review, approve, or reject public events submitted by companies</iWant>
+    <soThat>I can ensure event quality, prevent spam, and maintain platform standards before events become publicly visible</soThat>
+    <tasks>
+      - Frontend System Admin Detection & Profile Menu (AC: 2.6.1)
+      - Frontend Reusable Table Component Library (AC: 2.6.5)
+      - Backend Admin Dashboard API Endpoints (AC: 2.6.2, 2.6.15)
+      - Frontend Admin Dashboard Page (AC: 2.6.2, 2.6.3)
+      - Frontend Event Management Tab (AC: 2.6.4, 2.6.6, 2.6.7, 2.6.16)
+      - Backend Admin Review Service Layer (AC: 2.6.8-2.6.14)
+      - Backend Admin Review API Endpoints (AC: 2.6.8-2.6.14)
+      - Backend Admin Review Request/Response Schemas (AC: 2.6.8-2.6.14)
+      - Backend Email Notification Service (AC: 2.6.11)
+      - Frontend Admin Review API Integration (AC: 2.6.8-2.6.14)
+      - Frontend Admin Review Interface (AC: 2.6.8, 2.6.9, 2.6.10)
+      - Frontend Review History Component (AC: 2.6.17)
+      - Frontend Event Creator Review Status (AC: 2.6.18)
+      - Backend Public Visibility Logic (AC: 2.6.12)
+      - Backend Audit Trail (AC: 2.6.14)
+      - Frontend Admin Role Verification (AC: 2.6.15)
+      - Integration and Testing (AC: 2.6.19)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. System Admin detection - Admin Dashboard menu item appears in profile menu for System Admin users
+    2. Admin Dashboard displays all companies' data (not filtered to admin's companies)
+    3. Admin Dashboard similar structure to current dashboard with additional "Event Management" tab
+    4. Event Management tab displays table of all events with filtering by Status and Event Type
+    5. Reusable React table component library integrated (TanStack Table v8 recommended)
+    6. Table supports inline editing or field selection with form below for admin record editing
+    7. Admin can filter pending review events by company, event type, date submitted
+    8. Admin review interface displays complete event information for review
+    9. Admin can approve public events with optional comments
+    10. Admin can reject public events with required feedback comments
+    11. Event creator receives email notification when event is reviewed (approved or rejected)
+    12. Approved events automatically become publicly visible (PublicVisibilityDate set)
+    13. Rejected events remain private with rejection feedback visible to creator
+    14. Review actions (approve/reject) are logged with admin user ID and timestamp
+    15. Admin role verification required for all admin endpoints (RBAC)
+    16. Event Management table shows pending events count and prioritization
+    17. Admin can view review history for previously reviewed events
+    18. Event creators can view review status and feedback on their events
+    19. Comprehensive UAT tests validate all admin dashboard and review workflows
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/stories/EPIC-2-STATUS.md" title="Epic 2 Status" section="Next Story Recommendation" snippet="Story 2.6: Admin Public Event Review Workflow - Completes AC5 Epic goal, foundation ready (PENDING_REVIEW status from Story 2.4)" />
+      <doc path="docs/stories/story-2.4.md" title="Story 2.4: Event Management CRUD" section="Task 20: Backend Public Event Review Workflow" snippet="PENDING_REVIEW status implemented for public events, foundation ready for admin review workflow" />
+      <doc path="database/schemas/events-domain-epic2-schema.sql" title="Event Schema Epic 2" section="Public Event Review Process" snippet="Event table includes PublicReviewStatus, PublicReviewDate, PublicReviewBy, PublicReviewComments, PublicVisibilityDate fields" />
+      <doc path="docs/data-domains/events-domain-epic2-analysis.md" title="Events Domain Epic 2 Analysis" section="Public Event Review Process" snippet="Public event review workflow with PENDING, APPROVED, REJECTED statuses and admin review fields" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="New Event Quality Review" snippet="Events created inline during form creation flagged for review, System Admin reviews and approves new events" />
+      <doc path="backend/services/email_service.py" title="Email Service" section="Email Service" snippet="Email service with provider abstraction, template rendering, and automatic logging for review notifications" />
+      <doc path="docs/technical-guides/email-service-guide.md" title="Email Service Guide" section="Email Service" snippet="Email service foundation with MailHog (dev) and SMTP (prod) support for review notifications" />
+      <doc path="docs/AGENT-LOGGING-GUIDE.md" title="BMAD Agent Logging Integration Guide" section="Epic 2 Specific Logging" snippet="Admin review logging requirements: UserAction for review actions, ApiRequest with payloads, ApplicationError for validation, PerformanceMetric for timing" />
+    </docs>
+    <code>
+      <code path="backend/modules/events/service.py" kind="file" symbol="EventService" lines="N/A" reason="Existing event service layer. Reference for event CRUD patterns and EventCompany relationship management." />
+      <code path="backend/modules/events/router.py" kind="file" symbol="EventRouter" lines="N/A" reason="Existing event API endpoints. Reference for route patterns, dependency injection, and response handling." />
+      <code path="backend/models/event.py" kind="file" symbol="Event" lines="N/A" reason="Existing Event SQLAlchemy model. Reference for model structure, review fields (PublicReviewStatus, PublicReviewDate, PublicReviewBy, PublicReviewComments), and relationships." />
+      <code path="backend/services/email_service.py" kind="file" symbol="EmailService" lines="N/A" reason="Existing email service. Reference for email sending patterns, template rendering, and notification integration." />
+      <code path="backend/middleware/auth.py" kind="file" symbol="get_current_user" lines="N/A" reason="Existing authentication middleware. Reference for admin role verification and RBAC patterns." />
+      <code path="frontend/src/features/events/components/EventDetailView.tsx" kind="file" symbol="EventDetailView" lines="N/A" reason="Existing event detail view. Reference for displaying review status and feedback to event creators." />
+      <code path="frontend/src/features/events/api/eventsApi.ts" kind="file" symbol="eventsApi" lines="N/A" reason="Existing event API integration. Reference for API call patterns, error handling, and data transformations." />
+      <code path="frontend/src/features/dashboard/components/DashboardLayout.tsx" kind="file" symbol="DashboardLayout" lines="N/A" reason="Existing dashboard structure. Reference for Admin Dashboard layout and component hierarchy." />
+      <code path="frontend/src/features/dashboard/components/UserMenu.tsx" kind="file" symbol="UserMenu" lines="N/A" reason="UserMenu component. Reference for adding Admin Dashboard menu item and System Admin detection." />
+      <code path="frontend/src/features/validation/components/CountrySelector.tsx" kind="file" symbol="CountrySelector" lines="N/A" reason="Foreign key dropdown pattern. Reference for implementing dropdowns for EventType, EventStatus, Industry, Company, Country." />
+    </code>
+    <dependencies>
+      <dependency ecosystem="frontend" packages="React 18.2.0, TypeScript 5.2.2, Tailwind CSS 3.3.5, Axios 1.6.2" />
+      <dependency ecosystem="frontend" packages="@tanstack/react-query 5.8.4 (already installed, no upgrade needed)" />
+      <dependency ecosystem="frontend" packages="@tanstack/react-table v8 (new installation, separate package)" />
+      <dependency ecosystem="backend" packages="FastAPI 0.115.7, SQLAlchemy 2.0.40, Pydantic 2.10.6" />
+      <dependency ecosystem="database" packages="MS SQL Server 2022" />
+      <dependency ecosystem="email" packages="EmailService (Epic 1), Jinja2 templates" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Admin role verification required for all review endpoints (RBAC)
+    - Multi-tenant admin access: Admins see all companies' pending events
+    - PublicReviewStatus must be 'PENDING' to approve/reject
+    - Rejection comments required for reject action
+    - Approved events automatically become publicly visible
+    - Rejected events remain private with feedback visible to creator
+    - All review actions logged with admin user ID and timestamp
+    - Email notifications sent to event creators on review
+    - Review queue load time: < 2 seconds
+    - Event approval/rejection: < 1 second
+    - Email notification delivery: < 5 seconds
+    - Logging: Use enhanced_diagnostic_logs.py to validate all review actions are logged correctly
+    - Maintain Epic 1 performance characteristics
+    - Preserve all existing Epic 1 functionality without breaking changes
+  </constraints>
+
+  <interfaces>
+    <interface name="DataTable" kind="component" signature="DataTable: React.FC<DataTableProps>" path="frontend/src/components/common/DataTable.tsx" />
+    <interface name="AdminDashboard" kind="component" signature="AdminDashboard: React.FC" path="frontend/src/features/admin/pages/AdminDashboard.tsx" />
+    <interface name="EventManagementTab" kind="component" signature="EventManagementTab: React.FC" path="frontend/src/features/admin/components/EventManagementTab.tsx" />
+    <interface name="EventReviewModal" kind="component" signature="EventReviewModal: React.FC<{ eventId: number; isOpen: boolean; onClose: () => void; onReviewComplete: () => void }>" path="frontend/src/features/admin/components/EventReviewModal.tsx" />
+    <interface name="ReviewHistory" kind="component" signature="ReviewHistory: React.FC<{ eventId: number }>" path="frontend/src/features/admin/components/ReviewHistory.tsx" />
+    <interface name="adminApi" kind="module" signature="export const { getAdminCompanies, getAdminKPIs, getAdminEvents, updateEvent }" path="frontend/src/features/admin/api/adminApi.ts" />
+    <interface name="adminReviewApi" kind="module" signature="export const { getPendingReviewEvents, getEventReviewDetails, approveEvent, rejectEvent, getReviewHistory, getEventReviewStatus }" path="frontend/src/features/admin/api/adminReviewApi.ts" />
+    <interface name="AdminDashboardService.get_all_companies" kind="method" signature="get_all_companies() -> List[Company]" path="backend/modules/admin/dashboard_service.py" />
+    <interface name="AdminDashboardService.get_platform_kpis" kind="method" signature="get_platform_kpis() -> KPIs" path="backend/modules/admin/dashboard_service.py" />
+    <interface name="AdminDashboardService.get_all_events" kind="method" signature="get_all_events(filters: dict) -> List[Event]" path="backend/modules/admin/dashboard_service.py" />
+    <interface name="AdminReviewService.get_pending_review_events" kind="method" signature="get_pending_review_events(filters: dict, page: int, page_size: int) -> List[Event]" path="backend/modules/events/admin_review_service.py" />
+    <interface name="AdminReviewService.approve_event" kind="method" signature="approve_event(event_id: int, admin_user_id: int, comments: Optional[str]) -> Event" path="backend/modules/events/admin_review_service.py" />
+    <interface name="AdminReviewService.reject_event" kind="method" signature="reject_event(event_id: int, admin_user_id: int, comments: str) -> Event" path="backend/modules/events/admin_review_service.py" />
+    <interface name="Admin Dashboard API GET /api/admin/dashboard/companies" kind="endpoint" signature="GET /api/admin/dashboard/companies" path="backend/modules/admin/dashboard_router.py" />
+    <interface name="Admin Dashboard API GET /api/admin/dashboard/kpis" kind="endpoint" signature="GET /api/admin/dashboard/kpis" path="backend/modules/admin/dashboard_router.py" />
+    <interface name="Admin Dashboard API GET /api/admin/events" kind="endpoint" signature="GET /api/admin/events?status=&event_type_id=&company_id=&search=" path="backend/modules/admin/dashboard_router.py" />
+    <interface name="Admin Review API GET /api/admin/events/pending-review" kind="endpoint" signature="GET /api/admin/events/pending-review?company_id=&event_type_id=&date_from=&date_to=&page=&page_size=" path="backend/modules/events/admin_review_router.py" />
+    <interface name="Admin Review API GET /api/admin/events/{id}/review" kind="endpoint" signature="GET /api/admin/events/{event_id}/review" path="backend/modules/events/admin_review_router.py" />
+    <interface name="Admin Review API POST /api/admin/events/{id}/approve" kind="endpoint" signature="POST /api/admin/events/{event_id}/approve" path="backend/modules/events/admin_review_router.py" />
+    <interface name="Admin Review API POST /api/admin/events/{id}/reject" kind="endpoint" signature="POST /api/admin/events/{event_id}/reject" path="backend/modules/events/admin_review_router.py" />
+    <interface name="Admin Review API GET /api/admin/events/{id}/review-history" kind="endpoint" signature="GET /api/admin/events/{event_id}/review-history" path="backend/modules/events/admin_review_router.py" />
+    <interface name="Event Review Status API GET /api/events/{id}/review-status" kind="endpoint" signature="GET /api/events/{event_id}/review-status" path="backend/modules/events/router.py" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Frontend testing with React Testing Library for component testing, Vitest for unit testing. Backend testing with pytest and FastAPI TestClient. Integration testing for cross-domain functionality. End-to-end testing for complete review workflows. Performance testing for review operations. UAT testing for user acceptance.
+    </standards>
+    <locations>
+      frontend/src/__tests__/, backend/tests/, docs/stories/UAT-*.md
+    </locations>
+    <ideas>
+      AC1: Test admin dashboard displays pending review events
+      AC2: Test filter by company works correctly
+      AC3: Test filter by event type works correctly
+      AC4: Test filter by date submitted works correctly
+      AC5: Test admin review interface displays complete event information
+      AC6: Test admin can approve event with optional comments
+      AC7: Test admin can reject event with required comments
+      AC8: Test event creator receives approval email notification
+      AC9: Test event creator receives rejection email notification with feedback
+      AC10: Test approved events become publicly visible
+      AC11: Test rejected events remain private with feedback visible
+      AC12: Test review actions logged with admin user ID and timestamp
+      AC13: Test admin role verification required for all review endpoints
+      AC14: Test review queue shows pending events count
+      AC15: Test admin can view review history
+      AC16: Test event creators can view review status and feedback
+      AC17: Test comprehensive UAT workflows
+      AC18: Test performance targets (< 2s queue load, < 1s approve/reject, < 5s email)
+      AC19: Test error handling and network failures
+      AC20: Test validation errors for rejection comments
+    </ideas>
+  </tests>
+</story-context>
+

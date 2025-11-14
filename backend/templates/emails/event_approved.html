@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Event Approved - EventLead Platform{% endblock %}
+
+{% block content %}
+<h1>🎉 Your Event Has Been Approved!</h1>
+
+<p>Thank you for submitting your event "<strong>{{ event_name }}</strong>" for review. We're pleased to let you know that it has been approved for public visibility on the EventLead Platform.</p>
+
+<div class="info-box">
+    <h3 style="margin-top: 0;">Why We Review Events</h3>
+    <p style="margin: 0;">We have a quality check process to ensure that all events on our platform maintain professional standards. This helps prevent inappropriate language, offensive content, or misleading information from appearing in public event searches. Your event has passed this quality check!</p>
+</div>
+
+{% if event_status == 'PUBLISHED' %}
+<div class="success-box">
+    <h3 style="margin-top: 0;">✅ Your Event is Now Publicly Visible</h3>
+    <p style="margin: 0;">Your event is now live on the platform and can be viewed by all users. Other companies can discover and link to your event.</p>
+</div>
+{% elif event_status == 'DRAFT' %}
+<div class="info-box">
+    <h3 style="margin-top: 0;">📝 Next Step: Publish Your Event</h3>
+    <p style="margin: 0;">Your event is approved and ready to go public. To make it visible to others on the platform, simply publish your event from your dashboard. Once published, it will appear in public event searches.</p>
+</div>
+{% elif event_status == 'CANCELLED' %}
+<div class="warning-box">
+    <h3 style="margin-top: 0;">⚠️ Event Status Note</h3>
+    <p style="margin: 0;">Your event has been approved, but it's currently marked as cancelled. If you'd like to make it publicly visible, please update the event status to "Published" from your dashboard.</p>
+</div>
+{% endif %}
+
+{% if comment %}
+<div class="info-box">
+    <h3 style="margin-top: 0;">Review Comment</h3>
+    <p style="margin: 0;">{{ comment }}</p>
+</div>
+{% endif %}
+
+<div class="button-container">
+    <a href="{{ event_url | default('https://app.eventlead.com/dashboard') }}" class="button">View Event Dashboard</a>
+</div>
+
+<h2>What's Next?</h2>
+<ul>
+    {% if event_status == 'PUBLISHED' %}
+    <li>Your event is now publicly visible on the platform</li>
+    <li>Other companies can discover and link to your event</li>
+    {% else %}
+    <li>Publish your event to make it publicly visible</li>
+    {% endif %}
+    <li>Share your event with attendees and partners</li>
+    <li>Start capturing leads and managing registrations</li>
+    <li>Track event performance and analytics</li>
+</ul>
+
+<h2>Public Event Guidelines</h2>
+<p>To maintain quality standards on our platform, we've created <a href="{{ guidelines_url | default('https://eventlead.com/policies/public-event-guidelines') }}" style="color: #0066cc;">Public Event Guidelines</a> that explain our review process and quality standards. We recommend reviewing these guidelines to ensure your future events meet our standards.</p>
+
+<p>If you have any questions or need assistance managing your event, please don't hesitate to reach out to our support team.</p>
+
+<p>Best regards,<br>
+The EventLead Team</p>
+{% endblock %}

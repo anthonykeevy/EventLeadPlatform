@@ -1,0 +1,148 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2.4</storyId>
+    <title>Event Management CRUD</title>
+    <status>Draft</status>
+    <generatedAt>2025-02-01T00:00:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-2.4.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>company user</asA>
+    <iWant>to create, view, update, and delete events through an intuitive management interface</iWant>
+    <soThat>I can manage my company's events and prepare them for lead capture form creation</soThat>
+    <tasks>
+      - Backend Event Model and Database Setup (AC: 2.4.1-2.4.15)
+      - Backend Event Service Layer (AC: 2.4.1-2.4.15)
+      - Backend Event API Endpoints (AC: 2.4.1-2.4.15)
+      - Backend Request/Response Schemas (AC: 2.4.1-2.4.15)
+      - Frontend Event API Integration (AC: 2.4.1-2.4.15)
+      - Frontend Event List Component (AC: 2.4.1, 2.4.11, 2.4.12)
+      - Frontend Event Card Component (AC: 2.4.1, 2.4.2, 2.4.3)
+      - Frontend Event Create Form (AC: 2.4.2, 2.4.7, 2.4.8, 2.4.9, 2.4.10, 2.4.13)
+      - Frontend Event Edit Form (AC: 2.4.3, 2.4.7, 2.4.8, 2.4.9, 2.4.10, 2.4.13)
+      - Frontend Event Detail View (AC: 2.4.4)
+      - Frontend Event Status Management (AC: 2.4.6)
+      - Frontend Event Deletion (AC: 2.4.5)
+      - Multi-Tenant Event Filtering (AC: 2.4.11)
+      - Event Search and Filter (AC: 2.4.12)
+      - Integration and Testing (AC: 2.4.15)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Event management page created with list/grid view of company events
+    2. Event creation form with required fields (Name, Start DateTime, Event Type)
+    3. Event edit form allowing updates to all event metadata
+    4. Event detail view showing complete event information
+    5. Event deletion with soft delete confirmation
+    6. Event status management (Draft, Published, Completed, Cancelled)
+    7. Event date/time validation (UTC storage, timezone display)
+    8. Location information management (venue, address, city, coordinates)
+    9. Event type selection from reference data (Trade Show, Conference, Expo, etc.)
+    10. Industry classification for events
+    11. Multi-tenant filtering (users only see their company's events)
+    12. Search and filter functionality for event list
+    13. Form validation with clear error messages
+    14. Success notifications for CRUD operations
+    15. Comprehensive UAT tests validate all event management workflows
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/data-domains/events-domain-epic2-analysis.md" title="Events Domain Epic 2 Analysis" section="Event Workflow Integration" snippet="Complete event creation workflow with multi-tenant access, status management, and form integration." />
+      <doc path="docs/data-domains/events-domain-epic2-analysis.md" title="Events Domain Epic 2 Analysis" section="Database Schema Summary" snippet="Event table with reference tables (EventType, EventStatus, Industry, Country) and comprehensive metadata." />
+      <doc path="database/schemas/events-domain-epic2-schema.sql" title="Event Schema Epic 2" section="Event Table" snippet="Complete event table schema with all fields, constraints, and relationships for Epic 2." />
+      <doc path="database/seeds/production/event_seed_epic2.sql" title="Event Seed Data" section="Production Seed" snippet="Verified real events with complete metadata for production testing." />
+      <doc path="docs/EPIC-2-STATUS.md" title="Epic 2 Status" section="Lessons Learned" snippet="Backend verification first, data format transformations, session management, comprehensive UAT testing." />
+      <doc path="docs/stories/DOMAIN-1-USER-EXPERIENCE-REVIEW.md" title="Domain 1 Review" section="Lessons Learned Summary" snippet="Backend verification pattern, CSS custom properties performance, story-by-story approach success." />
+      <doc path="docs/stories/story-2.1.md" title="Story 2.1: User Profile Enhancement" section="Implementation" snippet="Similar CRUD patterns for profile management with industry associations." />
+      <doc path="docs/stories/story-2.3.md" title="Story 2.3: User Preferences" section="Implementation" snippet="API integration patterns, form validation, and component structure." />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Key Data Models" snippet="Event model with company scoping, status management, and location fields." />
+      <doc path="docs/solution-architecture.md" title="Solution Architecture" section="Epic 3 Events Management" snippet="Event CRUD operations, multi-tenant filtering, and integration with Company domain." />
+      <doc path="docs/AGENT-LOGGING-GUIDE.md" title="BMAD Agent Logging Integration Guide" section="Epic 2 Specific Logging" snippet="Event Management logging requirements: UserAction for CRUD, ApiRequest with payloads, ApplicationError for validation, PerformanceMetric for timing." />
+    </docs>
+    <code>
+      <code path="frontend/src/features/profile/components/ProfileEditor.tsx" kind="file" symbol="ProfileEditor" lines="N/A" reason="Existing profile editor component. Reference for form patterns, validation, and API integration." />
+      <code path="frontend/src/features/preferences/components/AccountSettingsPopup.tsx" kind="file" symbol="AccountSettingsPopup" lines="N/A" reason="Recent modal component from Story 2.3. Reference for modal patterns and form structure." />
+      <code path="frontend/src/features/profile/api/usersApi.ts" kind="file" symbol="usersApi" lines="N/A" reason="Existing API integration layer. Reference for API call patterns, error handling, and data transformations." />
+      <code path="backend/modules/users/service.py" kind="file" symbol="UserService" lines="N/A" reason="Existing service layer from Stories 2.1 and 2.3. Reference for CRUD patterns, validation, and business logic." />
+      <code path="backend/modules/users/router.py" kind="file" symbol="UserRouter" lines="N/A" reason="Existing API endpoints. Reference for route patterns, dependency injection, and response handling." />
+      <code path="backend/models/user.py" kind="file" symbol="User" lines="N/A" reason="Existing SQLAlchemy model. Reference for model structure, relationships, and query patterns." />
+      <code path="backend/middleware/auth.py" kind="file" symbol="get_current_company" lines="N/A" reason="Multi-tenant dependency injection. Reference for company scoping and user context." />
+    </code>
+    <dependencies>
+      <dependency ecosystem="frontend" packages="React 18.2.0, TypeScript 5.2.2, Tailwind CSS 3.3.5, Axios 1.6.2" />
+      <dependency ecosystem="backend" packages="FastAPI 0.115.7, SQLAlchemy 2.0.40, Pydantic 2.10.6" />
+      <dependency ecosystem="database" packages="MS SQL Server 2022" />
+    </dependencies>
+  </artifacts>
+
+    <constraints>
+    - Maintain Epic 1 performance characteristics (event list < 2s)
+    - Preserve all existing Epic 1 functionality without breaking changes
+    - Multi-tenant filtering mandatory (users only see their company's events)
+    - Database schema already exists (verify, don't create)
+    - Reference data tables exist (EventType, EventStatus, Industry, Country)
+    - UTC date/time storage with timezone display support
+    - Soft delete for audit trail compliance
+    - Full audit trail on all CRUD operations
+    - Form validation for all required fields
+    - Success notifications for all operations
+    - Comprehensive UAT testing required
+    - Performance: Event creation < 1s, updates < 1s, deletion < 500ms
+    - Logging: Use enhanced_diagnostic_logs.py to validate all event actions are logged correctly
+  </constraints>
+
+  <interfaces>
+    <interface name="EventsPage" kind="component" signature="EventsPage: React.FC" path="frontend/src/features/events/pages/EventsPage.tsx" />
+    <interface name="EventCard" kind="component" signature="EventCard: React.FC<{ event: Event; onEdit: () => void; onDelete: () => void }>" path="frontend/src/features/events/components/EventCard.tsx" />
+    <interface name="CreateEventModal" kind="component" signature="CreateEventModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: () => void }>" path="frontend/src/features/events/components/CreateEventModal.tsx" />
+    <interface name="EditEventModal" kind="component" signature="EditEventModal: React.FC<{ isOpen: boolean; event: Event; onClose: () => void; onSuccess: () => void }>" path="frontend/src/features/events/components/EditEventModal.tsx" />
+    <interface name="EventDetailView" kind="component" signature="EventDetailView: React.FC<{ eventId: number }>" path="frontend/src/features/events/components/EventDetailView.tsx" />
+    <interface name="eventsApi" kind="module" signature="export const { getEvents, getEventById, createEvent, updateEvent, deleteEvent, searchEvents, getEventTypes, getEventStatuses }" path="frontend/src/features/events/api/eventsApi.ts" />
+    <interface name="EventService.create_event" kind="method" signature="create_event(user_id: int, company_id: int, event_data: EventCreateSchema) -> Event" path="backend/modules/events/service.py" />
+    <interface name="EventService.get_events" kind="method" signature="get_events(company_id: int, filters: dict) -> List[Event]" path="backend/modules/events/service.py" />
+    <interface name="EventService.update_event" kind="method" signature="update_event(event_id: int, company_id: int, event_data: EventUpdateSchema) -> Event" path="backend/modules/events/service.py" />
+    <interface name="EventService.delete_event" kind="method" signature="delete_event(event_id: int, company_id: int) -> None" path="backend/modules/events/service.py" />
+    <interface name="Event API POST /api/events" kind="endpoint" signature="POST /api/events" path="backend/modules/events/router.py" />
+    <interface name="Event API GET /api/events" kind="endpoint" signature="GET /api/events?type=&status=&date_from=&date_to=" path="backend/modules/events/router.py" />
+    <interface name="Event API GET /api/events/{id}" kind="endpoint" signature="GET /api/events/{event_id}" path="backend/modules/events/router.py" />
+    <interface name="Event API PUT /api/events/{id}" kind="endpoint" signature="PUT /api/events/{event_id}" path="backend/modules/events/router.py" />
+    <interface name="Event API DELETE /api/events/{id}" kind="endpoint" signature="DELETE /api/events/{event_id}" path="backend/modules/events/router.py" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Frontend testing with React Testing Library for component testing, Vitest for unit testing. Backend testing with pytest and FastAPI TestClient. Integration testing for cross-domain functionality. End-to-end testing for complete user workflows. Performance testing for CRUD operations. UAT testing for user acceptance.
+    </standards>
+    <locations>
+      frontend/src/__tests__/, backend/tests/, docs/stories/UAT-*.md
+    </locations>
+    <ideas>
+      AC1: Test event list loads with company events only
+      AC2: Test event creation with required fields
+      AC3: Test event creation with all optional fields
+      AC4: Test event edit updates all fields
+      AC5: Test event detail view displays complete information
+      AC6: Test event deletion with soft delete confirmation
+      AC7: Test event status transitions (Draft → Published → Completed/Cancelled)
+      AC8: Test date/time validation (UTC storage, timezone display)
+      AC9: Test location information management (venue, address, coordinates)
+      AC10: Test event type selection from reference data
+      AC11: Test industry classification for events
+      AC12: Test multi-tenant filtering (users only see their company's events)
+      AC13: Test search by name and description
+      AC14: Test filter by Event Type, Status, Date Range, Industry
+      AC15: Test form validation with clear error messages
+      AC16: Test success notifications for all operations
+      AC17: Test comprehensive UAT workflows
+      AC18: Test performance targets (< 2s list load, < 1s create/update, < 500ms delete)
+      AC19: Test responsive design on mobile devices
+      AC20: Test error handling and network failures
+    </ideas>
+  </tests>
+</story-context>
+

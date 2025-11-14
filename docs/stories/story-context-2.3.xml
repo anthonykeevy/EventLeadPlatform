@@ -1,0 +1,122 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2.3</storyId>
+    <title>User Preferences & Industries Management</title>
+    <status>Draft</status>
+    <generatedAt>2025-01-31T10:00:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-2.3.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to manage my preferences and industry associations through a unified, intuitive interface</iWant>
+    <soThat>I can personalize my experience and showcase my professional background efficiently</soThat>
+    <tasks>
+      - Create Preferences Management Page Structure (AC: 2.3.1)
+      - Theme Preference Selector with Live Preview (AC: 2.3.2)
+      - Layout Density Selector with Visual Examples (AC: 2.3.3)
+      - Font Size Selector with Preview Text (AC: 2.3.4)
+      - Industry Management Section (AC: 2.3.5, 2.3.7)
+      - Industry Search and Filter Functionality (AC: 2.3.6)
+      - Preference Change Management (AC: 2.3.8, 2.3.9, 2.3.11)
+      - Form Validation and Error Handling (AC: 2.3.10, 2.3.14)
+      - Responsive Design Implementation (AC: 2.3.12)
+      - Accessibility Implementation (AC: 2.3.13)
+      - Integration with Existing APIs (AC: 2.3.8, 2.3.9)
+      - Testing and Validation (AC: 2.3.15)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Comprehensive Preferences page created with unified navigation (theme, layout, font size, industries)
+    2. Theme preference selector with live preview of theme changes before saving
+    3. Layout density selector with visual examples (compact, comfortable, spacious)
+    4. Font size selector with preview text showing size differences
+    5. Industry management section with add, remove, set primary, and reorder capabilities
+    6. Industry search/filter functionality for finding industries quickly
+    7. Visual indicators for primary vs secondary industries
+    8. Preference changes save to backend API with proper error handling
+    9. Preference persistence and restoration on page load
+    10. Real-time validation feedback for all preference inputs
+    11. Undo/Reset functionality to revert unsaved preference changes
+    12. Responsive design for mobile and tablet devices
+    13. Accessibility compliance with keyboard navigation and screen reader support
+    14. Loading states and error messages for all async operations
+    15. Comprehensive UAT tests validate all preference management workflows
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/stories/story-2.1.md" title="Story 2.1: User Profile Enhancement" section="Industry Management" snippet="Industry management APIs and UserIndustry junction table. Primary/secondary industry designation." />
+      <doc path="docs/stories/story-2.2.md" title="Story 2.2: Theme System Implementation" section="Theme Provider" snippet="ThemeProvider with React Context + useReducer. CSS custom properties for theme variables. Theme persistence and global application." />
+      <doc path="docs/data-domains/user-domain-epic2-analysis.md" title="User Domain Epic 2 Analysis" section="Industry Management" snippet="Multiple industries support via UserIndustry junction table. Primary industry constraint. Sort order for display." />
+      <doc path="docs/EPIC-2-STATUS.md" title="Epic 2 Status" section="Lessons Learned" snippet="Performance: CSS custom properties pattern (< 5ms theme switching). Testing: Backend verification before frontend saves 6+ hours. Data Format: Consistent snake_case/camelCase transformations." />
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="User Preferences" snippet="Enhanced user experience with theme system, user preferences, and industry associations." />
+    </docs>
+    <code>
+      <code path="frontend/src/features/profile/components/ProfileEditor.tsx" kind="file" symbol="ProfileEditor" lines="N/A" reason="Existing profile editor component. Can be referenced for form patterns and validation." />
+      <code path="frontend/src/features/profile/components/IndustryManager.tsx" kind="file" symbol="IndustryManager" lines="N/A" reason="Existing industry manager component from Story 2.1. Can be enhanced or referenced for Story 2.3." />
+      <code path="frontend/src/components/user/ThemeSelector.tsx" kind="file" symbol="ThemeSelector" lines="N/A" reason="Theme selector component from Story 2.2. Can be enhanced with live preview for Story 2.3." />
+      <code path="backend/modules/users/service.py" kind="file" symbol="UserService" lines="N/A" reason="User service with profile enhancement and industry management methods from Story 2.1." />
+      <code path="backend/modules/users/router.py" kind="file" symbol="UserRouter" lines="N/A" reason="User API endpoints for profile enhancement, theme preferences, and industry management." />
+    </code>
+    <dependencies>
+      <dependency ecosystem="frontend" packages="React 18.2.0, TypeScript 5.2.2, Tailwind CSS 3.3.5, Axios 1.6.2" />
+      <dependency ecosystem="backend" packages="FastAPI 0.115.7, SQLAlchemy 2.0.40, Pydantic 2.10.6" />
+      <dependency ecosystem="database" packages="MS SQL Server 2022" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Maintain Epic 1 performance characteristics (dashboard < 2s)
+    - Preserve all existing Epic 1 functionality without breaking changes
+    - Integrate with existing APIs from Stories 2.1 and 2.2
+    - Use CSS custom properties for theme-aware styling
+    - Follow existing component patterns and styling conventions
+    - Ensure WCAG 2.1 AA compliance for accessibility
+    - Support cross-browser compatibility
+    - Implement proper error handling and validation
+    - Performance: Page load < 1 second, preference changes < 200ms
+  </constraints>
+
+  <interfaces>
+    <interface name="PreferencesPage" kind="component" signature="PreferencesPage: React.FC" path="frontend/src/features/preferences/pages/PreferencesPage.tsx" />
+    <interface name="ThemeSelector" kind="component" signature="ThemeSelector: React.FC<{ onSave: (themeId: number) => void }>" path="frontend/src/features/preferences/components/ThemeSelector.tsx" />
+    <interface name="LayoutDensitySelector" kind="component" signature="LayoutDensitySelector: React.FC<{ onSave: (densityId: number) => void }>" path="frontend/src/features/preferences/components/LayoutDensitySelector.tsx" />
+    <interface name="FontSizeSelector" kind="component" signature="FontSizeSelector: React.FC<{ onSave: (fontSizeId: number) => void }>" path="frontend/src/features/preferences/components/FontSizeSelector.tsx" />
+    <interface name="IndustryManager" kind="component" signature="IndustryManager: React.FC" path="frontend/src/features/preferences/components/IndustryManager.tsx" />
+    <interface name="usePreferences" kind="hook" signature="usePreferences(): { preferences, savePreferences, resetPreferences, isLoading }" path="frontend/src/features/preferences/hooks/usePreferences.ts" />
+    <interface name="UserService.update_preferences" kind="method" signature="update_preferences(user_id: int, preferences: dict) -> User" path="backend/modules/users/service.py" />
+    <interface name="User API /users/me/preferences" kind="endpoint" signature="PUT /api/users/me/profile/enhancements" path="backend/modules/users/router.py" />
+    <interface name="User API /users/me/industries" kind="endpoint" signature="POST /api/users/me/industries" path="backend/modules/users/router.py" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Frontend testing with React Testing Library for component testing, Vitest for unit testing. Backend testing with pytest and FastAPI TestClient. Integration testing for cross-domain functionality. End-to-end testing for complete user workflows. Performance testing for preference change speed.
+    </standards>
+    <locations>
+      frontend/src/__tests__/, backend/tests/, docs/stories/UAT-*.md
+    </locations>
+    <ideas>
+      AC1: Test preferences page navigation with all sections accessible
+      AC2: Test theme selector with live preview, verify preview applies temporarily
+      AC3: Test layout density selector with visual examples, verify spacing differences
+      AC4: Test font size selector with preview text, verify size differences
+      AC5: Test industry management add/remove/set primary/reorder operations
+      AC6: Test industry search functionality with debounced search
+      AC7: Test primary vs secondary industry visual indicators
+      AC8: Test preference save functionality with API integration
+      AC9: Test preference persistence by reloading page
+      AC10: Test real-time validation feedback for all inputs
+      AC11: Test undo/reset functionality to revert unsaved changes
+      AC12: Test responsive design on mobile and tablet devices
+      AC13: Test keyboard navigation and screen reader compatibility
+      AC14: Test loading states and error messages for async operations
+      AC15: Test comprehensive UAT scenarios covering all workflows
+    </ideas>
+  </tests>
+</story-context>
+

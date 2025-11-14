@@ -455,6 +455,114 @@ INSERT INTO [ref].[RecurrencePattern] (PatternCode, PatternName, PatternDescript
 GO
 ```
 
+**5. EventCompany (Company-Event Relationships)**
+```sql
+CREATE TABLE [dbo].[EventCompany] (
+    -- =====================================================================
+    -- Primary Key
+    -- =====================================================================
+    EventCompanyID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    
+    -- =====================================================================
+    -- Relationships
+    -- =====================================================================
+    EventID BIGINT NOT NULL,
+    -- ^ Event (foreign key to Event)
+    -- Used: Link company to event
+    
+    CompanyID BIGINT NOT NULL,
+    -- ^ Participating company (foreign key to Company)
+    -- Used: Track which companies use this event
+    
+    RoleID BIGINT NOT NULL,
+    -- ^ Role of company in this event (foreign key to ref.Role)
+    -- Used: Determine permissions from role definition
+    -- Values: event_owner, event_organizer, event_participant
+    -- Note: Uses existing ref.Role table (no new role table needed)
+    
+    -- =====================================================================
+    -- Usage Metrics
+    -- =====================================================================
+    FormsCreated INT NOT NULL DEFAULT 0,
+    -- ^ Number of forms this company created for this event
+    -- Used: Dashboard metrics per company
+    
+    FirstUsedDate DATETIME2 NULL,
+    -- ^ Date when company first used this event (created first form)
+    -- Used: Track event discovery and adoption
+    
+    LastUsedDate DATETIME2 NULL,
+    -- ^ Date when company last used this event
+    -- Used: Track ongoing engagement
+    
+    -- =====================================================================
+    -- Access Control
+    -- =====================================================================
+    IsActive BIT NOT NULL DEFAULT 1,
+    -- ^ Active participation flag
+    -- 0 = Company no longer using this event (soft delete)
+    -- 1 = Active participation
+    
+    DisassociatedDate DATETIME2 NULL,
+    -- ^ Date when company disassociated from event (if IsActive = 0)
+    -- Used: Track when participation ended
+    
+    DisassociatedBy BIGINT NULL,
+    -- ^ User who disassociated (foreign key to User)
+    -- NULL = Company self-disassociated
+    -- Used: Audit trail for disassociation
+    
+    -- =====================================================================
+    -- Audit Trail (Standard for ALL tables)
+    -- =====================================================================
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CreatedBy BIGINT NOT NULL,
+    UpdatedDate DATETIME2 NULL,
+    UpdatedBy BIGINT NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    DeletedDate DATETIME2 NULL,
+    DeletedBy BIGINT NULL,
+    
+    -- =====================================================================
+    -- Constraints
+    -- =====================================================================
+    CONSTRAINT PK_EventCompany_EventCompanyID PRIMARY KEY (EventCompanyID),
+    
+    CONSTRAINT FK_EventCompany_Event FOREIGN KEY (EventID) 
+        REFERENCES [dbo].[Event](EventID),
+    CONSTRAINT FK_EventCompany_Company FOREIGN KEY (CompanyID) 
+        REFERENCES [dbo].[Company](CompanyID),
+    CONSTRAINT FK_EventCompany_Role FOREIGN KEY (RoleID) 
+        REFERENCES [ref].[Role](RoleID),
+    CONSTRAINT FK_EventCompany_CreatedBy FOREIGN KEY (CreatedBy) 
+        REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_EventCompany_UpdatedBy FOREIGN KEY (UpdatedBy) 
+        REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_EventCompany_DeletedBy FOREIGN KEY (DeletedBy) 
+        REFERENCES [dbo].[User](UserID),
+    CONSTRAINT FK_EventCompany_DisassociatedBy FOREIGN KEY (DisassociatedBy) 
+        REFERENCES [dbo].[User](UserID),
+    
+    -- Ensure one active record per company per event
+    CONSTRAINT UQ_EventCompany_Event_Company_Active UNIQUE (EventID, CompanyID, IsActive)
+        WHERE IsActive = 1
+);
+GO
+
+-- Indexes for EventCompany table
+CREATE INDEX IX_EventCompany_Event ON [dbo].[EventCompany](EventID, IsActive)
+    WHERE IsDeleted = 0;
+GO
+
+CREATE INDEX IX_EventCompany_Company ON [dbo].[EventCompany](CompanyID, IsActive)
+    WHERE IsDeleted = 0;
+GO
+
+CREATE INDEX IX_EventCompany_Role ON [dbo].[EventCompany](RoleID, IsActive)
+    WHERE IsDeleted = 0;
+GO
+```
+
 ---
 
 ## 🔄 **Event Workflow Integration**
@@ -497,16 +605,18 @@ GO
 
 ## 📊 **Database Schema Summary**
 
-### **New Tables (4)**
+### **New Tables (5)**
 1. **Event** - Main event management table
 2. **EventType** - Event type reference table
 3. **EventStatus** - Event status reference table
 4. **RecurrencePattern** - Recurrence pattern reference table
+5. **EventCompany** - Company-event relationships with roles (NEW)
 
 ### **Integration Points**
 - **Company Domain**: Event ownership and multi-tenant filtering
 - **User Domain**: Event creators and permissions
 - **Forms Header Domain**: Events for form creation
+- **EventCompany Domain**: Company participation in events (owner, organizer, participant)
 
 ### **Key Relationships**
 - Event.CompanyID → Company.CompanyID (event ownership)
@@ -517,6 +627,9 @@ GO
 - Event.IndustryID → Industry.IndustryID (industry classification)
 - Event.OrganizerCompanyID → Company.CompanyID (organizer company)
 - Event.DuplicateEventID → Event.EventID (duplicate event linking)
+- EventCompany.EventID → Event.EventID (company participation in event)
+- EventCompany.CompanyID → Company.CompanyID (participating company)
+- EventCompany.RoleID → ref.Role.RoleID (participation role: event_owner, event_organizer, event_participant)
 
 ---
 
@@ -550,15 +663,21 @@ GO
 - **Content**: Complete event domain analysis and schema design
 - **Status**: Ready for Epic 2 implementation
 
+### **User Experience Workflow Document**
+- **File**: `docs/technical-guides/event-creation-workflow.md`
+- **Content**: Complete user experience workflow for 3-page event form, Private/Public paths, review process
+- **Status**: Ready for Epic 2 implementation
+
 ### **Schema File**
 - **File**: `database/schemas/events-domain-epic2-schema.sql`
-- **Content**: Complete SQL schema with 3 tables
+- **Content**: Complete SQL schema with 5 tables (including EventCompany)
 - **Status**: Ready for Solomon validation
 
 ### **Integration Points**
 - **Company Domain**: Event ownership and multi-tenant filtering
 - **User Domain**: Event creators and permissions
 - **Forms Header Domain**: Events for form creation
+- **EventCompany Domain**: Company participation in events (owner, organizer, participant)
 
 ---
 

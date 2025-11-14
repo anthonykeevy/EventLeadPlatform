@@ -18,6 +18,9 @@ from modules.events.admin_review_schemas import (
     EventReviewStatusResponse,
     EventReviewDetailsResponse,
 )
+from modules.events.schemas import EventUpdateSchema, UpdateEventResponse
+from modules.events.service import update_event
+from modules.events.router import _event_to_response
 
 router = APIRouter(prefix="/admin/events", tags=["Admin Review"])
 
@@ -84,7 +87,7 @@ async def approve_event(
     service = AdminReviewService(db)
     
     try:
-        service.approve_event(
+        await service.approve_event(
             event_id=event_id,
             admin_user_id=current_user.user_id,
             comment=approve_request.comment,
@@ -115,7 +118,7 @@ async def reject_event(
     service = AdminReviewService(db)
     
     try:
-        service.reject_event(
+        await service.reject_event(
             event_id=event_id,
             admin_user_id=current_user.user_id,
             comment=reject_request.comment,
@@ -168,3 +171,69 @@ async def get_event_review_status(
         )
     
     return status_response
+
+
+@router.put(
+    "/{event_id}",
+    response_model=UpdateEventResponse,
+    summary="Update event (Admin)",
+    description="Update any event on the platform (admin-only, bypasses company check)"
+)
+@require_role("system_admin")
+async def admin_update_event(
+    request: Request,
+    event_id: int,
+    update_request: EventUpdateSchema,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+) -> UpdateEventResponse:
+    """Update event (admin-only, can update events from any company)"""
+    try:
+        # Convert Pydantic model to dict for service layer
+        event_data = update_request.dict(exclude_none=True)
+        
+        # Normalize placeholder values from frontend ("-1" means "don't update this field")
+        if 'organizer_contact_email' in event_data and event_data['organizer_contact_email'] == "-1":
+            del event_data['organizer_contact_email']
+        if 'organizer_website' in event_data and event_data['organizer_website'] == "-1":
+            del event_data['organizer_website']
+        
+        # Update event with skip_company_check=True (admin bypass)
+        event = await update_event(
+            db=db,
+            event_id=event_id,
+            company_id=current_user.company_id,  # Not used when skip_company_check=True
+            user_id=current_user.user_id,
+            event_data=event_data,
+            skip_company_check=True  # Admin can update any event
+        )
+        
+        db.commit()
+        db.refresh(event)
+        
+        # Get event's actual company_id for response
+        event_company_id = event.CompanyID
+        event_response = _event_to_response(event, company_id=event_company_id, db=db)
+        
+        return UpdateEventResponse(
+            success=True,
+            message="Event updated successfully",
+            event_id=event_id,
+            event=event_response
+        )
+        
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error updating event (admin): {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update event"
+        )

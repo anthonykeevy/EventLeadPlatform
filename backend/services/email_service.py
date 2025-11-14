@@ -102,15 +102,7 @@ class EmailService:
         from_email = from_email or self.config.from_email
         from_name = from_name or self.config.from_name
         
-        # Render email template
-        try:
-            html_body = self._render_template(template_name, template_vars)
-        except TemplateNotFound:
-            raise ValueError(f"Email template not found: {template_name}.html")
-        except UndefinedError as e:
-            raise ValueError(f"Template variable error: {str(e)}")
-        
-        # Log email delivery attempt (PENDING)
+        # Log email delivery attempt (PENDING) - BEFORE template rendering to track all attempts
         delivery_id = self._log_email(
             to=to,
             subject=subject,
@@ -120,6 +112,24 @@ class EmailService:
             user_id=user_id,
             company_id=company_id
         )
+        
+        # Render email template
+        try:
+            html_body = self._render_template(template_name, template_vars)
+        except TemplateNotFound as e:
+            self._update_email_log(
+                delivery_id,
+                status="failed",
+                error_message=f"Email template not found: {template_name}.html"
+            )
+            raise ValueError(f"Email template not found: {template_name}.html")
+        except UndefinedError as e:
+            self._update_email_log(
+                delivery_id,
+                status="failed",
+                error_message=f"Template variable error: {str(e)}"
+            )
+            raise ValueError(f"Template variable error: {str(e)}")
         
         # Send email with retry logic
         try:
@@ -424,6 +434,56 @@ class EmailService:
                 "company_name": company_name,
                 "role_name": role_name,
                 "dashboard_url": dashboard_url
+            }
+        )
+
+    async def send_event_approval_notification(
+        self,
+        recipient_email: str,
+        event_name: str,
+        comment: Optional[str] = None,
+        event_status: Optional[str] = None,
+        event_url: Optional[str] = None,
+        guidelines_url: Optional[str] = None
+    ) -> bool:
+        """
+        Send event approval notification to event creator.
+        Story 2.6: Admin Public Event Review Workflow
+        """
+        return await self.send_email(
+            to=recipient_email,
+            subject=f"Event Approved: {event_name}",
+            template_name="event_approved",
+            template_vars={
+                "event_name": event_name,
+                "comment": comment,
+                "event_status": event_status or "PUBLISHED",
+                "event_url": event_url,
+                "guidelines_url": guidelines_url
+            }
+        )
+
+    async def send_event_rejection_notification(
+        self,
+        recipient_email: str,
+        event_name: str,
+        feedback: str,
+        event_edit_url: Optional[str] = None,
+        guidelines_url: Optional[str] = None
+    ) -> bool:
+        """
+        Send event rejection notification to event creator.
+        Story 2.6: Admin Public Event Review Workflow
+        """
+        return await self.send_email(
+            to=recipient_email,
+            subject=f"Event Review Feedback: {event_name}",
+            template_name="event_rejected",
+            template_vars={
+                "event_name": event_name,
+                "feedback": feedback,
+                "event_edit_url": event_edit_url,
+                "guidelines_url": guidelines_url
             }
         )
 

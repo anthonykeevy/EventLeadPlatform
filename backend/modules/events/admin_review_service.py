@@ -13,6 +13,7 @@ from models.event import Event
 from models.ref.event_status import EventStatus
 from models.ref.public_review_status import PublicReviewStatus
 from models.user import User
+from services.email_service import get_email_service
 
 logger = get_logger(__name__)
 
@@ -84,7 +85,7 @@ class AdminReviewService:
     # ------------------------------------------------------------------ #
     # Mutating operations
     # ------------------------------------------------------------------ #
-    def approve_event(
+    async def approve_event(
         self,
         event_id: int,
         admin_user_id: int,
@@ -93,6 +94,7 @@ class AdminReviewService:
     ) -> Event:
         """
         Approve an event for platform-wide visibility.
+        Sends email notification to event creator.
         """
         self._validate_admin_user(admin_user_id)
         event = self._get_event(event_id)
@@ -128,10 +130,47 @@ class AdminReviewService:
                 "admin_user_id": admin_user_id,
                 "public_review_status_id": approved_status.PublicReviewStatusID,
             },
-                        )
+        )
+        
+        # Send email notification to event creator (Story 2.6 - Task 8)
+        if event.created_by_user and event.created_by_user.Email:
+            try:
+                email_service = get_email_service()
+                email_sent = await email_service.send_event_approval_notification(
+                    recipient_email=event.created_by_user.Email,
+                    event_name=event.Name,
+                    comment=comment
+                )
+                if email_sent:
+                    logger.info(
+                        "Event approval email sent",
+                        extra={
+                            "event_id": event.EventID,
+                            "recipient_email": event.created_by_user.Email,
+                        },
+                    )
+                else:
+                    logger.warning(
+                        "Event approval email failed to send",
+                        extra={
+                            "event_id": event.EventID,
+                            "recipient_email": event.created_by_user.Email,
+                        },
+                    )
+            except Exception as e:
+                # Log error but don't fail the approval if email fails
+                logger.error(
+                    f"Error sending event approval email: {str(e)}",
+                    extra={
+                        "event_id": event.EventID,
+                        "recipient_email": event.created_by_user.Email if event.created_by_user else None,
+                    },
+                    exc_info=True,
+                )
+        
         return event
     
-    def reject_event(
+    async def reject_event(
         self,
         event_id: int,
         admin_user_id: int,
@@ -139,6 +178,7 @@ class AdminReviewService:
     ) -> Event:
         """
         Reject an event for platform-wide visibility.
+        Sends email notification to event creator with feedback.
         """
         self._validate_admin_user(admin_user_id)
 
@@ -179,6 +219,43 @@ class AdminReviewService:
                 "public_review_status_id": rejected_status.PublicReviewStatusID,
             },
         )
+        
+        # Send email notification to event creator with feedback (Story 2.6 - Task 8)
+        if event.created_by_user and event.created_by_user.Email:
+            try:
+                email_service = get_email_service()
+                email_sent = await email_service.send_event_rejection_notification(
+                    recipient_email=event.created_by_user.Email,
+                    event_name=event.Name,
+                    feedback=comment
+                )
+                if email_sent:
+                    logger.info(
+                        "Event rejection email sent",
+                        extra={
+                            "event_id": event.EventID,
+                            "recipient_email": event.created_by_user.Email,
+                        },
+                    )
+                else:
+                    logger.warning(
+                        "Event rejection email failed to send",
+                        extra={
+                            "event_id": event.EventID,
+                            "recipient_email": event.created_by_user.Email,
+                        },
+                    )
+            except Exception as e:
+                # Log error but don't fail the rejection if email fails
+                logger.error(
+                    f"Error sending event rejection email: {str(e)}",
+                    extra={
+                        "event_id": event.EventID,
+                        "recipient_email": event.created_by_user.Email if event.created_by_user else None,
+                    },
+                    exc_info=True,
+                )
+        
         return event
 
     # ------------------------------------------------------------------ #

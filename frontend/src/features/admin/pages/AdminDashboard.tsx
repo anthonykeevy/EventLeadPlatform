@@ -10,10 +10,21 @@ import { AdminCompanyList } from '../components/AdminCompanyList'
 import { EventManagementTab } from '../components/EventManagementTab'
 import { useRequireAdmin } from '../hooks/useRequireAdmin'
 import { LoadingSpinner } from '../../ux'
+import { KPIModal } from '../components/KPIModal'
 
 export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'events'>('overview')
+  const [usersKpiModalOpen, setUsersKpiModalOpen] = useState(false)
+  const [companiesKpiModalOpen, setCompaniesKpiModalOpen] = useState(false)
+  const [eventDateFilter, setEventDateFilter] = useState<'all' | 'past' | 'current' | 'future'>('all')
   const { isAdmin, isLoading: authLoading } = useRequireAdmin()
+
+  // Ensure tab is set to events when date filter is applied
+  React.useEffect(() => {
+    if (eventDateFilter !== 'all' && activeTab !== 'events') {
+      setActiveTab('events')
+    }
+  }, [eventDateFilter, activeTab])
 
   // Fetch platform KPIs
   const { data: kpis, isLoading: kpisLoading } = useQuery<AdminKPIs>({
@@ -21,6 +32,15 @@ export const AdminDashboard: React.FC = () => {
     queryFn: () => adminDashboardApi.getKPIs(),
     enabled: isAdmin,
   })
+
+  // Modal handlers
+  const handleCloseUsersModal = () => {
+    setUsersKpiModalOpen(false)
+  }
+
+  const handleCloseCompaniesModal = () => {
+    setCompaniesKpiModalOpen(false)
+  }
 
   if (authLoading) {
     return (
@@ -43,7 +63,7 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full max-w-[98%] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
@@ -61,17 +81,72 @@ export const AdminDashboard: React.FC = () => {
         {/* KPI Cards */}
         {!kpisLoading && kpis && (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
+            <button
+              onClick={() => setCompaniesKpiModalOpen(true)}
+              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow text-left"
+            >
               <h3 className="text-sm font-medium text-gray-500">Total Companies</h3>
               <p className="text-2xl font-bold text-gray-900 mt-2">{kpis.total_companies}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
+            </button>
+            <button
+              onClick={() => setUsersKpiModalOpen(true)}
+              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow text-left"
+            >
               <h3 className="text-sm font-medium text-gray-500">Total Users</h3>
               <p className="text-2xl font-bold text-gray-900 mt-2">{kpis.total_users}</p>
-            </div>
+            </button>
+            {/* Events KPI - Inline breakdown */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-sm font-medium text-gray-500">Total Events</h3>
-              <p className="text-2xl font-bold text-gray-900 mt-2">{kpis.total_events}</p>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-medium text-gray-500">Total Events:</span>
+                <button
+                  onClick={() => {
+                    setEventDateFilter('all')
+                    setActiveTab('events')
+                  }}
+                  className="text-2xl font-bold text-teal-600 hover:text-teal-700 cursor-pointer transition-colors"
+                >
+                  {kpis.total_events}
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-xs font-medium text-gray-500 mb-1">Past</div>
+                <button
+                  onClick={() => {
+                    setActiveTab('events')
+                    setEventDateFilter('past')
+                  }}
+                  className="text-xl font-bold text-gray-600 hover:opacity-80 cursor-pointer transition-opacity"
+                >
+                  {kpis.events_past}
+                </button>
+              </div>
+              <div className="text-center">
+                <div className="text-xs font-medium text-gray-500 mb-1">Current</div>
+                <button
+                  onClick={() => {
+                    setActiveTab('events')
+                    setEventDateFilter('current')
+                  }}
+                  className="text-xl font-bold text-teal-600 hover:opacity-80 cursor-pointer transition-opacity"
+                >
+                  {kpis.events_current}
+                </button>
+              </div>
+              <div className="text-center">
+                <div className="text-xs font-medium text-gray-500 mb-1">Future</div>
+                <button
+                  onClick={() => {
+                    setActiveTab('events')
+                    setEventDateFilter('future')
+                  }}
+                  className="text-xl font-bold text-blue-600 hover:opacity-80 cursor-pointer transition-opacity"
+                >
+                  {kpis.events_future}
+                </button>
+              </div>
+            </div>
             </div>
             <div className="bg-yellow-50 rounded-lg shadow p-6 border border-yellow-200">
               <h3 className="text-sm font-medium text-yellow-700">Pending Review</h3>
@@ -121,8 +196,101 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Tab Content */}
         {activeTab === 'overview' && <AdminCompanyList />}
-        {activeTab === 'events' && <EventManagementTab />}
+        {activeTab === 'events' && (
+          <EventManagementTab
+            dateFilter={eventDateFilter}
+            onDateFilterChange={setEventDateFilter}
+          />
+        )}
       </div>
+
+      {/* Users KPI Modal */}
+      {!kpisLoading && kpis && usersKpiModalOpen && (
+        <KPIModal
+          isOpen={usersKpiModalOpen}
+          onClose={handleCloseUsersModal}
+          title="Users Breakdown"
+          totalLabel="Total Users"
+          totalValue={kpis.total_users}
+          onTotalClick={() => {
+            setActiveTab('overview')
+            setUsersKpiModalOpen(false)
+          }}
+          breakdowns={[
+            {
+              label: 'Inactive',
+              value: kpis.users_inactive,
+              color: 'text-gray-600',
+              onClick: () => {
+                setActiveTab('overview')
+                setUsersKpiModalOpen(false)
+              },
+            },
+            {
+              label: 'Seldom',
+              value: kpis.users_seldom,
+              color: 'text-yellow-600',
+              onClick: () => {
+                setActiveTab('overview')
+                setUsersKpiModalOpen(false)
+              },
+            },
+            {
+              label: 'Active',
+              value: kpis.users_active,
+              color: 'text-green-600',
+              onClick: () => {
+                setActiveTab('overview')
+                setUsersKpiModalOpen(false)
+              },
+            },
+          ]}
+        />
+      )}
+
+      {/* Companies KPI Modal */}
+      {!kpisLoading && kpis && companiesKpiModalOpen && (
+        <KPIModal
+          isOpen={companiesKpiModalOpen}
+          onClose={handleCloseCompaniesModal}
+          title="Companies Breakdown"
+          totalLabel="Total Companies"
+          totalValue={kpis.total_companies}
+          onTotalClick={() => {
+            setActiveTab('overview')
+            setCompaniesKpiModalOpen(false)
+          }}
+          breakdowns={[
+            {
+              label: 'Inactive',
+              value: kpis.companies_inactive,
+              color: 'text-gray-600',
+              onClick: () => {
+                setActiveTab('overview')
+                setCompaniesKpiModalOpen(false)
+              },
+            },
+            {
+              label: 'Seldom',
+              value: kpis.companies_seldom,
+              color: 'text-yellow-600',
+              onClick: () => {
+                setActiveTab('overview')
+                setCompaniesKpiModalOpen(false)
+              },
+            },
+            {
+              label: 'Active',
+              value: kpis.companies_active,
+              color: 'text-green-600',
+              onClick: () => {
+                setActiveTab('overview')
+                setCompaniesKpiModalOpen(false)
+              },
+            },
+          ]}
+        />
+      )}
     </div>
   )
 }

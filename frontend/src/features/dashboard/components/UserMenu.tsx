@@ -1,19 +1,22 @@
 /**
  * User Menu Component for Dashboard
  * Provides user settings and theme customization access
+ * Story 2.6: Added Admin Dashboard access for system admins
  */
 
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User as UserIcon, LogOut, Settings, Palette, ChevronDown } from 'lucide-react'
+import { User as UserIcon, LogOut, Settings, Palette, ChevronDown, Shield } from 'lucide-react'
 import { useAuth } from '../../auth'
 import { ThemeSettingsPopup } from './ThemeSettingsPopup'
+import { AccountSettingsPopup } from '../../preferences/components/AccountSettingsPopup'
 
 interface UserMenuProps {
   user: {
     first_name: string
     last_name: string
     email: string
+    role?: string  // Story 2.6: System role (e.g., 'system_admin') or company role
   }
 }
 
@@ -22,7 +25,11 @@ export function UserMenu({ user }: UserMenuProps) {
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [showThemePopup, setShowThemePopup] = useState(false)
+  const [showAccountPopup, setShowAccountPopup] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // Check if user is system admin
+  const isSystemAdmin = user.role === 'system_admin'
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -46,6 +53,17 @@ export function UserMenu({ user }: UserMenuProps) {
 
   const handleThemeSettings = () => {
     setShowThemePopup(true)
+    setIsOpen(false)
+  }
+
+  const handleAccountSettings = () => {
+    setShowAccountPopup(true)
+    setIsOpen(false)
+  }
+
+  // Story 2.6: Admin Dashboard navigation handler
+  const handleAdminDashboard = () => {
+    navigate('/admin/dashboard')
     setIsOpen(false)
   }
 
@@ -90,6 +108,20 @@ export function UserMenu({ user }: UserMenuProps) {
 
             {/* Menu Items */}
             <div className="py-2">
+              {/* Admin Dashboard - Story 2.6: Only show for system admins */}
+              {isSystemAdmin && (
+                <>
+                  <button
+                    onClick={handleAdminDashboard}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-purple-700 hover:bg-purple-50 transition-colors"
+                  >
+                    <Shield className="w-4 h-4 text-purple-600" />
+                    <span>Admin Dashboard</span>
+                  </button>
+                  <div className="border-t border-gray-100 my-2"></div>
+                </>
+              )}
+
               {/* Theme Settings */}
               <button
                 onClick={handleThemeSettings}
@@ -101,10 +133,7 @@ export function UserMenu({ user }: UserMenuProps) {
 
               {/* Account Settings */}
               <button
-                onClick={() => {
-                  // TODO: Navigate to account settings
-                  setIsOpen(false)
-                }}
+                onClick={handleAccountSettings}
                 className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <Settings className="w-4 h-4 text-gray-500" />
@@ -131,6 +160,12 @@ export function UserMenu({ user }: UserMenuProps) {
       <ThemeSettingsPopup
         isOpen={showThemePopup}
         onClose={() => setShowThemePopup(false)}
+      />
+
+      {/* Account Settings Popup - Always rendered to prevent mount/unmount loops */}
+      <AccountSettingsPopup
+        isOpen={showAccountPopup}
+        onClose={() => setShowAccountPopup(false)}
       />
     </>
   )

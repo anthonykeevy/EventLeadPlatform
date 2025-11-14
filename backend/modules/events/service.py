@@ -432,7 +432,8 @@ async def update_event(
     event_id: int,
     company_id: int,
     user_id: int,
-    event_data: Dict[str, Any]
+    event_data: Dict[str, Any],
+    skip_company_check: bool = False
 ) -> Event:
     """
     Update an event, verifying it belongs to the company.
@@ -440,9 +441,10 @@ async def update_event(
     Args:
         db: Database session
         event_id: Event ID
-        company_id: Company ID (for multi-tenant filtering)
+        company_id: Company ID (for multi-tenant filtering, ignored if skip_company_check=True)
         user_id: User ID making the update
         event_data: Event update data from request
+        skip_company_check: If True, skip company ownership verification (admin only)
         
     Returns:
         Updated Event object
@@ -450,11 +452,36 @@ async def update_event(
     Raises:
         ValueError: If event not found, doesn't belong to company, or validation fails
     """
-    # Get event and verify company ownership
-    event = await get_event_by_id(db, event_id, company_id)
-    
-    if not event:
-        raise ValueError(f"Event not found or does not belong to your company: {event_id}")
+    # Get event and verify company ownership (or skip check for admin)
+    if skip_company_check:
+        # Admin update: query event directly without company filter
+        event = db.execute(
+            select(Event)
+            .options(
+                joinedload(Event.event_type),
+                joinedload(Event.event_status),
+                joinedload(Event.public_review_status),
+                joinedload(Event.industry),
+                joinedload(Event.organizer_company),
+                joinedload(Event.company)
+            )
+            .where(
+                Event.EventID == event_id,
+                Event.IsDeleted == False
+            )
+        ).scalar_one_or_none()
+        
+        if not event:
+            raise ValueError(f"Event not found: {event_id}")
+        
+        # Use event's actual company_id for the rest of the logic
+        company_id = event.CompanyID
+    else:
+        # Regular update: verify company ownership
+        event = await get_event_by_id(db, event_id, company_id)
+        
+        if not event:
+            raise ValueError(f"Event not found or does not belong to your company: {event_id}")
     
     # Validate event type if provided
     if event_data.get('event_type_id'):

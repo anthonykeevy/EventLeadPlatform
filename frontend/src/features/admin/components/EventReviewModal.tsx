@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { X, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { adminReviewApi, EventReviewDetails } from '../api/adminReviewApi'
+import { ReviewHistory } from './ReviewHistory'
 
 interface EventReviewModalProps {
   eventId: number
@@ -103,7 +104,7 @@ export const EventReviewModal: React.FC<EventReviewModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="bg-white px-6 py-4 max-h-[70vh] overflow-y-auto">
+          <div className="bg-white px-6 py-4 max-h-[80vh] overflow-y-auto">
             {loadingDetails ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
@@ -165,6 +166,13 @@ export const EventReviewModal: React.FC<EventReviewModalProps> = ({
                     </p>
                   </div>
                 )}
+
+                {/* Review History Section */}
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="space-y-4">
+                    <ReviewHistory eventId={eventId} />
+                  </div>
+                </div>
 
                 {/* Review Comment */}
                 <div>

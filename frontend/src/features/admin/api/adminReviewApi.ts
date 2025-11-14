@@ -86,6 +86,40 @@ export interface EventReviewStatus {
   public_visibility_date?: string
 }
 
+export interface AdminEventUpdateRequest {
+  name?: string
+  description?: string
+  short_description?: string
+  start_datetime?: string
+  end_datetime?: string
+  timezone_identifier?: string
+  venue_name?: string
+  venue_address?: string
+  city?: string
+  state?: string
+  country_id?: number
+  latitude?: number
+  longitude?: number
+  event_type_id?: number
+  industry_id?: number
+  tags?: string
+  is_public?: boolean
+  is_shared_with_platform?: boolean
+  event_status_id?: number
+  is_recurring?: boolean
+  organizer_company_id?: number
+  organizer_contact_email?: string
+  organizer_website?: string
+  expected_attendees?: number
+}
+
+export interface AdminEventUpdateResponse {
+  success: boolean
+  message: string
+  event_id: number
+  event: any
+}
+
 export const adminReviewApi = {
   /**
    * Get events pending review
@@ -135,6 +169,17 @@ export const adminReviewApi = {
    */
   async getEventReviewStatus(eventId: number): Promise<EventReviewStatus> {
     const response = await adminClient.get(`/api/events/${eventId}/review-status`)
+    return response.data
+  },
+
+  /**
+   * Update event (admin-only, can update events from any company)
+   */
+  async updateEvent(eventId: number, request: AdminEventUpdateRequest): Promise<AdminEventUpdateResponse> {
+    const response = await adminClient.put<AdminEventUpdateResponse>(
+      `/api/admin/events/${eventId}`,
+      request
+    )
     return response.data
   },
 }

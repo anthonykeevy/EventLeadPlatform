@@ -99,6 +99,9 @@ coverage/
 # BMAD Method
 bmad/_cfg/
 BMAD-METHOD/
+# BMAD Framework - Exclude from version control
+.cursor/rules/bmad/
+bmad/
 
 # Docker
 docker-compose.override.yml

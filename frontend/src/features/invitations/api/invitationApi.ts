@@ -7,7 +7,7 @@ import axios from 'axios'
 import { getAccessToken } from '../../auth/utils/tokenStorage'
 import type { InvitationDetails, AcceptInvitationResponse } from '../types/invitation.types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 // Create axios instance
 const invitationClient = axios.create({

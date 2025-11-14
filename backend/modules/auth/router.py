@@ -385,7 +385,7 @@ async def verify_email(
 
 @router.post(
     "/login",
-    response_model=LoginResponse,
+    # Note: Not using response_model because we return JSONResponse directly with custom structure
     responses={
         200: {"description": "Login successful, tokens returned"},
         401: {"model": ErrorResponse, "description": "Invalid credentials"},
@@ -457,26 +457,50 @@ async def login(
         )
     
     # 5. Get user's role and company (if exists)
-    user_company = db.query(UserCompany).filter(
-        UserCompany.UserID == user.UserID,
-        UserCompany.IsPrimaryCompany == True
-    ).first()
-    
-    # If no primary company, get any active company
-    if not user_company:
-        user_company = db.query(UserCompany).filter(
-            UserCompany.UserID == user.UserID
-        ).first()
-    
-    # Extract role and company_id
+    # Priority: System-level role (User.UserRoleID) takes precedence over company-level role
     role = None
     company_id = None
-    if user_company:
-        # Get role CODE from UserCompanyRole relationship (not RoleName)
-        # RBAC checks use role codes: "company_admin", "company_user", "system_admin"
-        if user_company.role:
-            role = user_company.role.RoleCode
-        company_id = user_company.CompanyID
+    
+    # Check for system-level role first (Story 2.6: Admin Dashboard)
+    if user.UserRoleID is not None and user.user_role:
+        # User has system-level role (e.g., system_admin)
+        role = user.user_role.RoleCode
+        # System admins can still have a company_id for multi-tenant context
+        # But system_admin role takes precedence for RBAC checks
+    
+    # Get company-level role if no system-level role
+    if not role:
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == user.UserID,
+            UserCompany.IsPrimaryCompany == True
+        ).first()
+        
+        # If no primary company, get any active company
+        if not user_company:
+            user_company = db.query(UserCompany).filter(
+                UserCompany.UserID == user.UserID
+            ).first()
+        
+        if user_company:
+            # Get role CODE from UserCompanyRole relationship (not RoleName)
+            # RBAC checks use role codes: "company_admin", "company_user", "system_admin"
+            if user_company.role:
+                role = user_company.role.RoleCode
+            company_id = user_company.CompanyID
+    else:
+        # User has system-level role, but still get company_id if available
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == user.UserID,
+            UserCompany.IsPrimaryCompany == True
+        ).first()
+        
+        if not user_company:
+            user_company = db.query(UserCompany).filter(
+                UserCompany.UserID == user.UserID
+            ).first()
+        
+        if user_company:
+            company_id = user_company.CompanyID
     
     # 6. Generate tokens
     access_token = create_access_token(
@@ -492,7 +516,11 @@ async def login(
     # 7. Store refresh token in database (expiry read from config per Story 1.13)
     store_refresh_token(db, user.UserID, refresh_token)
     
-    # 8. Return tokens with user details (for frontend AuthContext)
+    # 8. Get actual token expiry time from configuration (in seconds)
+    from config.jwt import get_access_token_expire_minutes
+    expires_in_seconds = get_access_token_expire_minutes(db) * 60
+    
+    # 9. Return tokens with user details (for frontend AuthContext)
     # Return dict directly (FastAPI will serialize, no Pydantic validation)
     return JSONResponse(
         status_code=200,
@@ -500,7 +528,7 @@ async def login(
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
-            "expires_in": 3600,
+            "expires_in": expires_in_seconds,
             "user": {
                 "user_id": user.UserID,
                 "email": user.Email,
@@ -543,17 +571,37 @@ async def get_current_user_endpoint(
         )
     
     # Get user's company and role (if exists)
-    user_company = db.query(UserCompany).filter(
-        UserCompany.UserID == user.UserID,
-        UserCompany.IsPrimaryCompany == True
-    ).first()
-    
+    # Priority: System-level role (User.UserRoleID) takes precedence over company-level role
     role = None
     company_id = None
-    if user_company:
-        if user_company.role:
-            role = user_company.role.RoleName
-        company_id = user_company.CompanyID
+    
+    # Check for system-level role first (Story 2.6: Admin Dashboard)
+    if user.UserRoleID is not None and user.user_role:
+        # User has system-level role (e.g., system_admin)
+        # Use RoleCode for consistency with JWT token
+        role = user.user_role.RoleCode
+    
+    # Get company-level role if no system-level role
+    if not role:
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == user.UserID,
+            UserCompany.IsPrimaryCompany == True
+        ).first()
+        
+        if user_company:
+            if user_company.role:
+                # Use RoleCode for consistency with JWT token (not RoleName)
+                role = user_company.role.RoleCode
+            company_id = user_company.CompanyID
+    else:
+        # User has system-level role, but still get company_id if available
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == user.UserID,
+            UserCompany.IsPrimaryCompany == True
+        ).first()
+        
+        if user_company:
+            company_id = user_company.CompanyID
     
     # Return user details
     return JSONResponse(
@@ -655,23 +703,46 @@ async def refresh_token_endpoint(
             )
         
         # 5. Get updated role/company info
-        user_company = db.query(UserCompany).filter(
-            UserCompany.UserID == user.UserID,
-            UserCompany.IsPrimaryCompany == True
-        ).first()
-        
-        if not user_company:
-            user_company = db.query(UserCompany).filter(
-                UserCompany.UserID == user.UserID
-            ).first()
-        
+        # Priority: System-level role (User.UserRoleID) takes precedence over company-level role
         role = None
         company_id = None
-        if user_company:
-            if user_company.role:
-                # Use RoleCode for JWT (RBAC checks use codes, not names)
-                role = user_company.role.RoleCode
-            company_id = user_company.CompanyID
+        
+        # Check for system-level role first (Story 2.6: Admin Dashboard)
+        if user.UserRoleID is not None and user.user_role:
+            # User has system-level role (e.g., system_admin)
+            role = user.user_role.RoleCode
+        
+        # Get company-level role if no system-level role
+        if not role:
+            user_company = db.query(UserCompany).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.IsPrimaryCompany == True
+            ).first()
+            
+            if not user_company:
+                user_company = db.query(UserCompany).filter(
+                    UserCompany.UserID == user.UserID
+                ).first()
+            
+            if user_company:
+                if user_company.role:
+                    # Use RoleCode for JWT (RBAC checks use codes, not names)
+                    role = user_company.role.RoleCode
+                company_id = user_company.CompanyID
+        else:
+            # User has system-level role, but still get company_id if available
+            user_company = db.query(UserCompany).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.IsPrimaryCompany == True
+            ).first()
+            
+            if not user_company:
+                user_company = db.query(UserCompany).filter(
+                    UserCompany.UserID == user.UserID
+                ).first()
+            
+            if user_company:
+                company_id = user_company.CompanyID
         
         # 6. Generate new access token
         access_token = create_access_token(
@@ -699,14 +770,18 @@ async def refresh_token_endpoint(
         
         logger.info(f"Token refresh successful: UserID={user.UserID}")
         
-        # 9. Return new access token
+        # 9. Get actual token expiry time from configuration (in seconds)
+        from config.jwt import get_access_token_expire_minutes
+        expires_in_seconds = get_access_token_expire_minutes(db) * 60
+        
+        # 10. Return new access token
         return RefreshResponse(
             success=True,
             message="Token refreshed successfully",
             data={
                 "access_token": access_token,
                 "token_type": "bearer",
-                "expires_in": 3600
+                "expires_in": expires_in_seconds
             }
         )
         

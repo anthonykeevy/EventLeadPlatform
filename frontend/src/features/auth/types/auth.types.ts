@@ -13,6 +13,8 @@ export interface User {
   is_active: boolean
   onboarding_complete: boolean
   created_at: string
+  role?: string  // System role (e.g., 'system_admin') or company role (e.g., 'company_admin', 'company_user')
+  company_id?: number  // Primary company ID (optional for system admins)
 }
 
 export interface AuthState {
@@ -38,7 +40,8 @@ export interface TokenResponse {
   access_token: string
   refresh_token: string
   token_type: string
-  user: User
+  expires_in?: number  // Token expiry time in seconds (optional for backward compatibility)
+  user?: User  // Optional - refresh endpoint may not include user
 }
 
 export interface AuthError {

@@ -124,7 +124,7 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
       // Remove spaces from ABN for submission
       const cleanedABN = data.abn.replace(/\s/g, '')
 
-      const response = await fetch('http://localhost:8000/api/companies', {
+      const response = await fetch('http://127.0.0.1:8000/api/companies', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

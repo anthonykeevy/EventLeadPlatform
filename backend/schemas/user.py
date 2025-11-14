@@ -11,6 +11,8 @@ class UpdateUserDetailsSchema(BaseModel):
     Request schema for updating user profile details.
     Used during onboarding or profile updates.
     """
+    first_name: Optional[str] = Field(None, min_length=1, max_length=100, description="First name")
+    last_name: Optional[str] = Field(None, min_length=1, max_length=100, description="Last name")
     phone: Optional[str] = Field(None, min_length=1, max_length=20, description="Phone number")
     timezone_identifier: str = Field(..., min_length=1, max_length=50, description="IANA timezone (e.g., 'Australia/Sydney')")
     role_title: Optional[str] = Field(None, max_length=100, description="Job title/role")
@@ -18,6 +20,8 @@ class UpdateUserDetailsSchema(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
+                "first_name": "John",
+                "last_name": "Doe",
                 "phone": "+61412345678",
                 "timezone_identifier": "Australia/Sydney",
                 "role_title": "Marketing Manager"
@@ -106,6 +110,7 @@ class UserCompanyInfo(BaseModel):
     is_primary: bool
     joined_at: datetime
     relationship: Optional[RelationshipInfo] = None
+    event_count: Optional[int] = Field(0, description="Number of active events for this company")
 
 
 # ============================================================================

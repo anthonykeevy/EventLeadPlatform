@@ -50,7 +50,7 @@ export function OnboardingStep1({ initialData, onComplete, user }: OnboardingSte
         throw new Error('Authentication token not found. Please log in again.')
       }
 
-      const response = await fetch('http://localhost:8000/api/users/me/details', {
+      const response = await fetch('http://127.0.0.1:8000/api/users/me/details', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -8,20 +8,47 @@ import time
 import uuid
 import traceback
 from typing import Callable, Optional, Dict, Any, List
-from fastapi import Request, Response
+from fastapi import Request
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.background import BackgroundTask
 from starlette.datastructures import Headers
+from starlette.responses import Response as StarletteResponse
 from io import BytesIO
 
 class CachedBodyRequest(Request):
     """
     Request subclass that caches the body for reuse.
     Critical: This prevents stream consumption issues.
+    
+    FastAPI needs to read the body for Pydantic validation, so we cache it
+    after the first read and restore it for subsequent reads.
     """
-    def __init__(self, request: Request):
-        super().__init__(request.scope, request.receive)
-        self._cached_body: Optional[bytes] = None
+    def __init__(self, request: Request, cached_body: Optional[bytes] = None):
+        # If we have a cached body, create a receive function that returns it
+        if cached_body is not None:
+            body_consumed = False
+            
+            async def cached_receive():
+                nonlocal body_consumed
+                if not body_consumed:
+                    body_consumed = True
+                    return {
+                        "type": "http.request",
+                        "body": cached_body,
+                        "more_body": False
+                    }
+                else:
+                    # Stream exhausted
+                    return {"type": "http.request", "body": b"", "more_body": False}
+            
+            # Use the cached receive function
+            super().__init__(request.scope, cached_receive)
+            self._cached_body: Optional[bytes] = cached_body
+        else:
+            # No cached body yet, use original receive
+            super().__init__(request.scope, request.receive)
+            self._cached_body: Optional[bytes] = None
         self._body_consumed = False
         
     async def body(self) -> bytes:
@@ -37,8 +64,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     and extensive debugging capabilities.
     """
     
-    def __init__(self, app, debug: bool = True):
-        print(f"\n[MIDDLEWARE CONSTRUCTOR] Called with app={type(app).__name__}, debug={debug}")
+    def __init__(self, app, debug: bool = False):
         super().__init__(app)
         self._debug = debug
         self._sensitive_fields = {
@@ -48,23 +74,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             "refresh_token", "session_id", "sessionid"
         }
         
-        # Print initialization
-        print("\n" + "="*80)
-        print("BULLETPROOF REQUEST LOGGING MIDDLEWARE INITIALIZED")
-        print(f"   Debug Mode: {self._debug}")
-        print(f"   Sensitive Fields: {len(self._sensitive_fields)} fields masked")
-        print(f"   App: {type(app).__name__}")
-        print("="*80 + "\n")
-        
-        # Test configuration retrieval immediately
-        try:
-            print("[INIT] Testing configuration retrieval...")
-            config = self._get_logging_config()
-            print(f"[INIT] Configuration test successful: {config}")
-        except Exception as e:
-            print(f"[INIT] Configuration test failed: {e}")
-            import traceback
-            print(f"[INIT] Traceback: {traceback.format_exc()}")
+        # Initialization complete - detailed logs go to database, not console
     
     def _log_debug(self, message: str, data: Any = None):
         """Centralized debug logging"""
@@ -78,45 +88,19 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         Get logging configuration with extensive debugging.
         Returns config dict with fallback defaults.
         """
-        print("[CONFIG] Starting configuration retrieval...")
-        self._log_debug("=" * 60)
-        self._log_debug("RETRIEVING LOGGING CONFIGURATION")
         
         try:
-            print("[CONFIG] Importing configuration service...")
             from common.config_service import ConfigurationService
-            from common.constants import (
-                DEFAULT_LOGGING_CAPTURE_PAYLOADS,
-                DEFAULT_LOGGING_MAX_PAYLOAD_SIZE_KB,
-                DEFAULT_LOGGING_EXCLUDED_ENDPOINTS
-            )
-            print("[CONFIG] Imports successful")
+            from common.database import SessionLocal
             
             # Create a database session for config service
-            print("[CONFIG] Creating database session...")
-            from common.database import SessionLocal
             db = SessionLocal()
-            print("[CONFIG] Database session created")
-            
-            print("[CONFIG] Creating configuration service...")
             config_service = ConfigurationService(db)
-            print("[CONFIG] Configuration service created")
             
-            # Get each setting individually with debug output
-            print("[CONFIG] Getting capture_payloads setting...")
+            # Get settings
             capture_payloads = config_service.get_logging_capture_payloads()
-            print(f"[CONFIG] capture_payloads: {capture_payloads}")
-            self._log_debug(f"Config 'capture_payloads': {capture_payloads}")
-            
-            print("[CONFIG] Getting max_payload_size_kb setting...")
             max_size = config_service.get_logging_max_payload_size_kb()
-            print(f"[CONFIG] max_payload_size_kb: {max_size}")
-            self._log_debug(f"Config 'max_payload_size_kb': {max_size}")
-            
-            print("[CONFIG] Getting excluded_endpoints setting...")
             excluded = config_service.get_logging_excluded_endpoints()
-            print(f"[CONFIG] excluded_endpoints: {excluded}")
-            self._log_debug(f"Config 'excluded_endpoints': {excluded}")
             
             config = {
                 "capture_payloads": capture_payloads,
@@ -124,29 +108,16 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 "excluded_endpoints": excluded,
             }
             
-            print("[CONFIG] Configuration loaded successfully")
-            self._log_debug("Configuration loaded successfully")
-            self._log_debug("=" * 60)
             db.close()
-            print("[CONFIG] Database session closed")
             return config
             
         except Exception as e:
-            print(f"[CONFIG] ERROR: {type(e).__name__}: {str(e)}")
-            import traceback
-            print(f"[CONFIG] Traceback: {traceback.format_exc()}")
-            self._log_debug(f"Config service error: {str(e)}")
-            self._log_debug(f"   Using fallback configuration")
-            
             # FALLBACK: Always enable for debugging
             fallback_config = {
-                "capture_payloads": True,  # Force enable for debugging
-                "max_payload_size_kb": 50,
-                "excluded_endpoints": ["/api/health", "/docs", "/openapi.json", "/redoc", "/favicon.ico"],
+                "capture_payloads": True,
+                "max_payload_size_kb": 10,
+                "excluded_endpoints": ["/api/health", "/api/test-database"],
             }
-            print(f"[CONFIG] Using fallback config: {fallback_config}")
-            self._log_debug(f"Fallback config: {fallback_config}")
-            self._log_debug("=" * 60)
             return fallback_config
     
     def _is_endpoint_excluded(self, path: str, excluded_endpoints: List[str]) -> bool:
@@ -155,6 +126,98 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         if self._debug and is_excluded:
             self._log_debug(f"Endpoint excluded from payload capture: {path}")
         return is_excluded
+    
+    def _process_payload(self, body_bytes: bytes, max_size_kb: int) -> Optional[str]:
+        """
+        Process request body bytes into sanitized payload string.
+        
+        Args:
+            body_bytes: Raw request body bytes
+            max_size_kb: Maximum payload size in KB
+            
+        Returns:
+            Sanitized payload string or None if processing fails
+        """
+        try:
+            if not body_bytes:
+                return None
+            
+            # Decode body
+            try:
+                body_str = body_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                import base64
+                return f"[BINARY DATA: {len(body_bytes)} bytes, base64: {base64.b64encode(body_bytes[:100]).decode()}...]"
+            
+            # Check size limit
+            max_size_bytes = max_size_kb * 1024
+            if len(body_str) > max_size_bytes:
+                truncated = body_str[:max_size_bytes]
+                return f"{truncated}... [TRUNCATED - Original: {len(body_str)} bytes]"
+            
+            # Try to parse and sanitize JSON
+            if body_str.strip().startswith(("{", "[")):
+                try:
+                    json_obj = json.loads(body_str)
+                    sanitized = self._sanitize_payload(json_obj)
+                    return json.dumps(sanitized, indent=2)
+                except json.JSONDecodeError:
+                    # Not valid JSON, return raw (truncated if needed)
+                    return body_str[:max_size_bytes] if len(body_str) > max_size_bytes else body_str
+            
+            # Return raw string (truncated if needed)
+            return body_str[:max_size_bytes] if len(body_str) > max_size_bytes else body_str
+            
+        except Exception as e:
+            self._log_debug(f"Error processing payload: {e}")
+            return None
+    
+    def _process_response_body(self, body_bytes: bytes, response: StarletteResponse, max_size_kb: int) -> Optional[str]:
+        """
+        Process response body bytes into sanitized payload string.
+        
+        Args:
+            body_bytes: Raw response body bytes
+            response: Response object (for content-type checking)
+            max_size_kb: Maximum payload size in KB
+            
+        Returns:
+            Sanitized payload string or None if processing fails
+        """
+        try:
+            if not body_bytes:
+                return None
+            
+            # Decode body
+            try:
+                body_str = body_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                import base64
+                return f"[BINARY DATA: {len(body_bytes)} bytes, base64: {base64.b64encode(body_bytes[:100]).decode()}...]"
+            
+            # Check size limit
+            max_size_bytes = max_size_kb * 1024
+            if len(body_str) > max_size_bytes:
+                truncated = body_str[:max_size_bytes]
+                return f"{truncated}... [TRUNCATED - Original: {len(body_str)} bytes]"
+            
+            # Check content type or try to parse JSON
+            content_type = response.headers.get("content-type", "").lower()
+            if "application/json" in content_type or body_str.strip().startswith(("{", "[")):
+                try:
+                    json_obj = json.loads(body_str)
+                    # Don't sanitize response payloads (they're typically safe, unlike request passwords)
+                    return json.dumps(json_obj, indent=2)
+                except json.JSONDecodeError:
+                    # Not valid JSON, return raw (truncated if needed)
+                    return body_str[:max_size_bytes] if len(body_str) > max_size_bytes else body_str
+            
+            # Return raw string (truncated if needed)
+            return body_str[:max_size_bytes] if len(body_str) > max_size_bytes else body_str
+            
+        except Exception as e:
+            self._log_debug(f"Error processing response body: {e}")
+            return None
     
     def _sanitize_payload(self, payload: Any) -> Any:
         """
@@ -259,26 +322,104 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     
     async def _capture_response_payload(
         self, 
-        response: Response, 
+        response: StarletteResponse, 
         max_size_kb: int
     ) -> Optional[str]:
         """
         Capture and process response payload with extensive debugging.
+        
+        Note: Starlette/FastAPI responses don't have a direct 'body' attribute.
+        We need to read from the response stream using iterate() or render().
         """
         try:
             self._log_debug("─" * 60)
             self._log_debug("CAPTURING RESPONSE PAYLOAD")
             self._log_debug(f"   Status Code: {response.status_code}")
             self._log_debug(f"   Content-Type: {response.headers.get('content-type', 'N/A')}")
+            self._log_debug(f"   Response Type: {type(response).__name__}")
             
-            # Check if response has a body attribute
-            if not hasattr(response, 'body'):
-                self._log_debug("   Response has no 'body' attribute")
-                return None
+            # Try to get body from response - different methods for different response types
+            body = None
             
-            body = response.body
+            # Method 1: Direct body attribute (for Response objects that have it)
+            if hasattr(response, 'body') and response.body is not None:
+                body = response.body
+                self._log_debug("   Body found via response.body attribute")
+            # Method 2: Try render() for JSONResponse and other simple responses
+            elif hasattr(response, 'render'):
+                try:
+                    # render() returns the body bytes without consuming the stream
+                    body = response.render()
+                    if body:
+                        self._log_debug("   Body found via response.render()")
+                    else:
+                        body = None
+                except Exception as e:
+                    self._log_debug(f"   response.render() failed: {e}")
+                    body = None
+            # Method 2b: For JSONResponse, try accessing body attribute after render
+            elif isinstance(response, JSONResponse):
+                try:
+                    # JSONResponse may have body attribute accessible
+                    if hasattr(response, 'body'):
+                        body = response.body
+                        self._log_debug("   Body found via JSONResponse.body")
+                    else:
+                        # Try rendering to get body
+                        body = response.render()
+                        self._log_debug("   Body found via JSONResponse.render()")
+                except Exception as e:
+                    self._log_debug(f"   JSONResponse body access failed: {e}")
+                    body = None
+            # Method 3: Try reading from iterator (for streaming responses like _StreamingResponse)
+            elif hasattr(response, 'body_iterator'):
+                try:
+                    # Read all chunks from the iterator
+                    chunks = []
+                    async for chunk in response.body_iterator:
+                        chunks.append(chunk)
+                    if chunks:
+                        body = b''.join(chunks)
+                        self._log_debug(f"   Body found via body_iterator: {len(body)} bytes")
+                    else:
+                        body = None
+                except Exception as e:
+                    self._log_debug(f"   body_iterator failed: {e}")
+                    body = None
+            # Method 4: For _StreamingResponse, try to access the underlying response
+            elif type(response).__name__ == '_StreamingResponse':
+                try:
+                    # _StreamingResponse wraps another response - try to access it
+                    if hasattr(response, 'render'):
+                        # render() for StreamingResponse might work without args
+                        try:
+                            body = response.render()  # This might work for some response types
+                            if body:
+                                self._log_debug("   Body found via _StreamingResponse.render()")
+                            else:
+                                body = None
+                        except TypeError:
+                            # render() needs content argument - try reading from iterator
+                            self._log_debug("   _StreamingResponse.render() needs content, trying iterator")
+                            if hasattr(response, 'body_iterator'):
+                                chunks = []
+                                async for chunk in response.body_iterator:
+                                    chunks.append(chunk)
+                                if chunks:
+                                    body = b''.join(chunks)
+                                    self._log_debug(f"   Body found via _StreamingResponse.body_iterator: {len(body)} bytes")
+                                else:
+                                    body = None
+                            else:
+                                body = None
+                    else:
+                        body = None
+                except Exception as e:
+                    self._log_debug(f"   _StreamingResponse access failed: {e}")
+                    body = None
+            
             if not body:
-                self._log_debug("   Response body is empty")
+                self._log_debug("   Response body not accessible (may be streaming or already consumed)")
                 return None
             
             body_size = len(body) if isinstance(body, bytes) else len(str(body))
@@ -328,11 +469,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             self._log_debug(f"   Traceback: {traceback.format_exc()}")
             return error_msg
     
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> StarletteResponse:
         """
         Main middleware dispatch method with comprehensive logging.
+        Logs go to database via diagnostic tool, minimal console output.
         """
-        print(f"\n[MIDDLEWARE] Dispatch called for {request.method} {request.url.path}")
         
         # Generate unique request ID
         request_id = str(uuid.uuid4())
@@ -350,14 +491,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             user_agent=user_agent
         )
         
-        # Log request start
-        self._log_debug("\n" + "="*80)
-        self._log_debug(f"INCOMING REQUEST: {request_id}")
-        self._log_debug(f"   Method: {request.method}")
-        self._log_debug(f"   Path: {request.url.path}")
-        self._log_debug(f"   Query: {request.url.query}")
-        self._log_debug("="*80)
-        
         # Get configuration
         config = self._get_logging_config()
         
@@ -367,58 +500,71 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             config["excluded_endpoints"]
         )
         
-        # Wrap request for body caching
-        self._log_debug("Wrapping request with CachedBodyRequest...")
-        cached_request = CachedBodyRequest(request)
-        cached_request.scope["request_id"] = request_id  # Add to scope for access in endpoints
+        # Determine if we should capture payloads
+        should_capture = config["capture_payloads"] and not is_excluded
         
         # Initialize payload variables
         request_payload = None
         response_payload = None
         
-        # Capture request payload BEFORE calling endpoint
-        should_capture = config["capture_payloads"] and not is_excluded
-        self._log_debug(f"Payload capture enabled: {should_capture}")
-        self._log_debug(f"   capture_payloads: {config['capture_payloads']}")
-        self._log_debug(f"   is_excluded: {is_excluded}")
+        # Capture request body first (if needed) - BEFORE wrapping
+        # This allows us to cache it for FastAPI's Pydantic validation
+        request_body: Optional[bytes] = None
+        if should_capture and request.method in ["POST", "PUT", "PATCH"]:
+            try:
+                request_body = await request.body()
+                if request_body:
+                    request_payload = self._process_payload(request_body, config["max_payload_size_kb"])
+            except Exception as e:
+                # Only log actual errors
+                if self._debug:
+                    self._log_debug(f"Error reading request body: {e}")
+                request_body = None
         
-        if should_capture:
-            self._log_debug("ATTEMPTING REQUEST PAYLOAD CAPTURE")
-            request_payload = await self._capture_request_payload(
-                cached_request, 
-                config["max_payload_size_kb"]
-            )
-            if request_payload:
-                self._log_debug(f"Request payload captured: {len(request_payload)} chars")
-            else:
-                self._log_debug("Request payload is None")
-        else:
-            self._log_debug("Skipping payload capture (disabled or excluded)")
+        # Wrap request with cached body (so FastAPI can read it for validation)
+        cached_request = CachedBodyRequest(request, cached_body=request_body)
+        cached_request.scope["request_id"] = request_id  # Add to scope for access in endpoints
         
         # Process the request through the application
-        self._log_debug("Calling next middleware/endpoint...")
         try:
             response = await call_next(cached_request)
-            self._log_debug(f"Response received: Status {response.status_code}")
         except Exception as e:
-            self._log_debug(f"Exception during request processing: {str(e)}")
-            self._log_debug(f"   Traceback: {traceback.format_exc()}")
+            # Only log actual errors
+            if self._debug:
+                self._log_debug(f"Exception during request processing: {str(e)}")
             raise
         
         # Calculate duration
         duration_ms = int((time.time() - start_time) * 1000)
         
-        # Capture response payload
+        # Capture response payload BEFORE sending to client
+        # This is critical: we must read the body iterator and create a new response
+        response_payload = None
         if should_capture:
-            self._log_debug("ATTEMPTING RESPONSE PAYLOAD CAPTURE")
-            response_payload = await self._capture_response_payload(
-                response, 
-                config["max_payload_size_kb"]
-            )
-            if response_payload:
-                self._log_debug(f"Response payload captured: {len(response_payload)} chars")
-            else:
-                self._log_debug("Response payload is None")
+            try:
+                # Read the response body iterator to capture it
+                body_chunks = []
+                async for chunk in response.body_iterator:
+                    body_chunks.append(chunk)
+                
+                # Join all chunks into a single body
+                response_body = b''.join(body_chunks) if body_chunks else b''
+                
+                if response_body:
+                    response_payload = self._process_response_body(response_body, response, config["max_payload_size_kb"])
+                
+                # Create a new response with the captured body (so client still receives it)
+                response = StarletteResponse(
+                    content=response_body,
+                    status_code=response.status_code,
+                    headers=dict(response.headers),
+                    media_type=response.media_type
+                )
+            except Exception as e:
+                # Only log actual errors
+                if self._debug:
+                    self._log_debug(f"Error capturing response payload: {e}")
+                # If capture fails, continue with original response
         
         # Prepare headers (sanitized)
         headers_dict = dict(request.headers)
@@ -443,18 +589,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             "headers": headers_json,
         }
         
-        # Log summary
-        self._log_debug("─" * 60)
-        self._log_debug("REQUEST SUMMARY")
-        self._log_debug(f"   RequestID: {request_id}")
-        self._log_debug(f"   Duration: {duration_ms}ms")
-        self._log_debug(f"   Status: {response.status_code}")
-        self._log_debug(f"   Request Payload: {'Captured' if request_payload else 'None'}")
-        self._log_debug(f"   Response Payload: {'Captured' if response_payload else 'None'}")
-        self._log_debug("="*80 + "\n")
-        
-        # Schedule database logging as background task
-        self._log_debug("Scheduling database write...")
+        # Schedule database logging as background task (silent - details in database)
         background_task = BackgroundTask(self._log_to_database, log_data)
         response.background = background_task
         
@@ -464,13 +599,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         """
         Log request data to database with error handling.
         This runs as a background task after the response is sent.
+        Silent operation - use diagnostic tool to view logs.
         """
         try:
-            self._log_debug("\n" + "="*80)
-            self._log_debug(f"WRITING TO DATABASE: {log_data['request_id']}")
-            self._log_debug(f"   Request Payload Length: {len(log_data['request_payload']) if log_data['request_payload'] else 0}")
-            self._log_debug(f"   Response Payload Length: {len(log_data['response_payload']) if log_data['response_payload'] else 0}")
-            
             from common.database import SessionLocal
             from models.log.api_request import ApiRequest
             from datetime import datetime
@@ -495,15 +626,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 db.add(api_request)
                 db.commit()
                 
-                self._log_debug("Database write successful!")
-                self._log_debug(f"   Record ID: {api_request.ApiRequestID}")
-                self._log_debug("="*80 + "\n")
-                
             finally:
                 db.close()
                 
         except Exception as e:
-            self._log_debug(f"DATABASE ERROR: {type(e).__name__}: {str(e)}")
-            self._log_debug(f"   Traceback: {traceback.format_exc()}")
-            self._log_debug("="*80 + "\n")
+            # Only log errors if debug enabled - failures shouldn't affect response
+            if self._debug:
+                self._log_debug(f"DATABASE ERROR: {type(e).__name__}: {str(e)}")
             # Don't raise - background task failures shouldn't affect response

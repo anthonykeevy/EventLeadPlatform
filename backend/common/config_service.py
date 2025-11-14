@@ -159,6 +159,9 @@ class ConfigurationService:
             
         Returns:
             Type-converted value or None on error
+            
+        Note:
+            Returns None on conversion error - caller should handle defaults
         """
         try:
             if setting_type_code == 'integer':
@@ -168,10 +171,14 @@ class ConfigurationService:
             elif setting_type_code == 'decimal':
                 return float(value)
             elif setting_type_code == 'json':
-                return json.loads(value)
+                try:
+                    return json.loads(value)
+                except json.JSONDecodeError as e:
+                    logger.error(f"JSON decode error for value '{value}': {e}")
+                    return None
             else:  # 'string'
                 return value
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             logger.error(f"Error converting value '{value}' to type '{setting_type_code}': {e}")
             return None
     
@@ -416,12 +423,20 @@ class ConfigurationService:
         
         Returns:
             List of endpoint paths to exclude (default: ["/api/health"])
+            
+        Note:
+            If JSON parsing fails and returns None, falls back to default
         """
-        return self.get_setting(
+        result = self.get_setting(
             'logging.excluded_endpoints',
             DEFAULT_LOGGING_EXCLUDED_ENDPOINTS,
             'logging'
         )
+        # Ensure we always return a list (handle None from failed JSON parsing)
+        if result is None or not isinstance(result, list):
+            logger.warning(f"excluded_endpoints returned invalid type: {type(result)}, using default")
+            return DEFAULT_LOGGING_EXCLUDED_ENDPOINTS
+        return result
     
     
     # ========================================================================

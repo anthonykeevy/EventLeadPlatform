@@ -14,7 +14,7 @@ import {
 } from '../types/profile.types'
 import { getAccessToken } from '../../auth/utils/tokenStorage'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 // Create axios instance for user requests
 const usersClient: AxiosInstance = axios.create({
@@ -172,12 +172,60 @@ export async function updateProfile(request: ProfileUpdateRequest): Promise<Prof
 }
 
 /**
- * Get user's industry associations
+ * Update user details (name, phone, timezone, role title)
+ * Backend expects snake_case
  */
+export interface UpdateUserDetailsRequest {
+  first_name?: string
+  last_name?: string
+  phone?: string | null
+  timezone_identifier: string
+  role_title?: string | null
+}
+
+export interface UpdateUserDetailsResponse {
+  success: boolean
+  message: string
+  user_id: number
+}
+
+export async function updateUserDetails(request: UpdateUserDetailsRequest): Promise<UpdateUserDetailsResponse> {
+  try {
+    console.log('[updateUserDetails] Sending request:', request)
+    const response = await usersClient.post<UpdateUserDetailsResponse>('/api/users/me/details', request)
+    console.log('[updateUserDetails] Response received:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('[updateUserDetails] Error:', error)
+    throw formatError(error)
+  }
+}
+
+/**
+ * Get user's industry associations
+ * Transform backend snake_case to frontend camelCase
+ */
+interface BackendIndustryAssociation {
+  user_industry_id: number
+  industry_id: number
+  industry_name: string
+  industry_code: string
+  is_primary: boolean
+  sort_order: number
+}
+
 export async function getUserIndustries(): Promise<IndustryAssociation[]> {
   try {
-    const response = await usersClient.get<IndustryAssociation[]>('/api/users/me/industries')
-    return response.data
+    const response = await usersClient.get<BackendIndustryAssociation[]>('/api/users/me/industries')
+    // Transform snake_case to camelCase
+    return response.data.map(industry => ({
+      userIndustryId: industry.user_industry_id,
+      industryId: industry.industry_id,
+      industryName: industry.industry_name,
+      industryCode: industry.industry_code,
+      isPrimary: industry.is_primary,
+      sortOrder: industry.sort_order
+    }))
   } catch (error) {
     throw formatError(error)
   }
@@ -185,30 +233,58 @@ export async function getUserIndustries(): Promise<IndustryAssociation[]> {
 
 /**
  * Add industry association
+ * Note: Backend expects snake_case, so we transform camelCase to snake_case
  */
 export async function addIndustry(request: IndustryAssociationRequest): Promise<IndustryAssociation> {
   try {
-    const response = await usersClient.post<IndustryAssociation>('/api/users/me/industries', request)
+    // Transform camelCase to snake_case for backend
+    const backendRequest = {
+      industry_id: request.industryId,
+      is_primary: request.isPrimary,
+      sort_order: request.sortOrder || null
+    }
+    console.log('[addIndustry] Sending request:', backendRequest)
+    const response = await usersClient.post<IndustryAssociation>('/api/users/me/industries', backendRequest)
+    console.log('[addIndustry] Response received:', response.data)
     return response.data
   } catch (error) {
+    console.error('[addIndustry] Error:', error)
     throw formatError(error)
   }
 }
 
 /**
  * Update industry association
+ * Note: Backend expects snake_case, so we transform camelCase to snake_case
  */
 export async function updateIndustry(
   userIndustryId: number,
   request: IndustryAssociationRequest
 ): Promise<IndustryAssociation> {
   try {
-    const response = await usersClient.put<IndustryAssociation>(
+    // Transform camelCase to snake_case for backend
+    const backendRequest = {
+      industry_id: request.industryId,
+      is_primary: request.isPrimary,
+      sort_order: request.sortOrder || null
+    }
+    console.log('[updateIndustry] Sending request:', { userIndustryId, backendRequest })
+    const response = await usersClient.put<BackendIndustryAssociationResponse>(
       `/api/users/me/industries/${userIndustryId}`,
-      request
+      backendRequest
     )
-    return response.data
+    console.log('[updateIndustry] Response received:', response.data)
+    // Transform snake_case to camelCase
+    return {
+      userIndustryId: response.data.user_industry_id,
+      industryId: response.data.industry_id,
+      industryName: response.data.industry_name,
+      industryCode: response.data.industry_code,
+      isPrimary: response.data.is_primary,
+      sortOrder: response.data.sort_order
+    }
   } catch (error) {
+    console.error('[updateIndustry] Error:', error)
     throw formatError(error)
   }
 }
@@ -260,3 +336,50 @@ export async function getFontSizes(): Promise<ReferenceOption[]> {
   }
 }
 
+/**
+ * Industry option from reference endpoint
+ */
+export interface IndustryOption {
+  id: number
+  code: string
+  name: string
+  description: string
+}
+
+/**
+ * Get all industries (public endpoint)
+ */
+export async function getIndustries(): Promise<IndustryOption[]> {
+  try {
+    const response = await usersClient.get<IndustryOption[]>('/api/users/reference/industries')
+    return response.data
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+/**
+ * Get user profile with timezone
+ * Used for getting timezone_identifier for updating user details
+ */
+interface UserProfileResponse {
+  user_id: number
+  email: string
+  first_name: string
+  last_name: string
+  phone: string | null
+  timezone_identifier: string
+  role_title: string | null
+  is_email_verified: boolean
+  onboarding_complete: boolean
+  onboarding_step: number
+}
+
+export async function getUserProfile(): Promise<UserProfileResponse> {
+  try {
+    const response = await usersClient.get<UserProfileResponse>('/api/users/me')
+    return response.data
+  } catch (error) {
+    throw formatError(error)
+  }
+}

@@ -109,7 +109,9 @@ async def update_user_details(
     user_id: int,
     phone: Optional[str],
     timezone_identifier: str,
-    role_title: Optional[str]
+    role_title: Optional[str],
+    first_name: Optional[str] = None,
+    last_name: Optional[str] = None
 ) -> User:
     """
     Update user profile details.
@@ -120,6 +122,8 @@ async def update_user_details(
         phone: Phone number (optional)
         timezone_identifier: IANA timezone identifier
         role_title: Job title (optional)
+        first_name: First name (optional)
+        last_name: Last name (optional)
         
     Returns:
         Updated User object
@@ -156,11 +160,17 @@ async def update_user_details(
     old_values = {
         "Phone": user.Phone,
         "TimezoneIdentifier": user.TimezoneIdentifier,
-        "RoleTitle": user.RoleTitle
+        "RoleTitle": user.RoleTitle,
+        "FirstName": user.FirstName,
+        "LastName": user.LastName
     }
     
     # Update user details
-    user.Phone = phone  # type: ignore
+    user.Phone = phone
+    if first_name is not None:
+        user.FirstName = first_name  # type: ignore
+    if last_name is not None:
+        user.LastName = last_name  # type: ignore
     user.TimezoneIdentifier = timezone_identifier  # type: ignore
     user.RoleTitle = role_title  # type: ignore
     user.UpdatedDate = datetime.utcnow()  # type: ignore
@@ -175,28 +185,35 @@ async def update_user_details(
         changed_fields.append(("TimezoneIdentifier", old_values["TimezoneIdentifier"], timezone_identifier))
     if old_values["RoleTitle"] != role_title:
         changed_fields.append(("RoleTitle", old_values["RoleTitle"], role_title))
+    if first_name is not None and old_values["FirstName"] != first_name:
+        changed_fields.append(("FirstName", old_values["FirstName"], first_name))
+    if last_name is not None and old_values["LastName"] != last_name:
+        changed_fields.append(("LastName", old_values["LastName"], last_name))
     
     # Create audit entry for each changed field
     try:
-        for field_name, old_val, new_val in changed_fields:
-            audit_entry = UserAudit(
-                UserID=user_id,
-                FieldName=field_name,
-                OldValue=str(old_val) if old_val is not None else None,
-                NewValue=str(new_val) if new_val is not None else None,
-                ChangeType="UPDATE",
-                ChangeReason="User profile update during onboarding",
-                ChangedBy=user_id,
-                ChangedByEmail=user.Email,
-                IPAddress=None,  # TODO: Get from request context
-                UserAgent=None   # TODO: Get from request context
-            )
-            db.add(audit_entry)
+        # Add audit entries for changed fields
+        if changed_fields:
+            for field_name, old_val, new_val in changed_fields:
+                audit_entry = UserAudit(
+                    UserID=user_id,
+                    FieldName=field_name,
+                    OldValue=str(old_val) if old_val is not None else None,
+                    NewValue=str(new_val) if new_val is not None else None,
+                    ChangeType="UPDATE",
+                    ChangeReason="User profile update during onboarding",
+                    ChangedBy=user_id,
+                    ChangedByEmail=user.Email,
+                    IPAddress=None,  # TODO: Get from request context
+                    UserAgent=None   # TODO: Get from request context
+                )
+                db.add(audit_entry)
         
+        # Commit user changes (and audit entries if any)
         db.commit()
         db.refresh(user)
         
-        logger.info(f"User details updated: UserID={user_id}, Timezone={timezone_identifier}")
+        logger.info(f"User details updated: UserID={user_id}, Timezone={timezone_identifier}, Changed fields: {[f[0] for f in changed_fields] if changed_fields else 'none'}")
         
         return user
         
@@ -428,17 +445,82 @@ async def add_user_industry(
     if not industry:
         raise ValueError(f"Industry not found: {industry_id}")
     
-    # Check for duplicate association
+    # Check for existing association (including soft-deleted ones)
     existing = db.execute(
         select(UserIndustry).where(
             UserIndustry.UserID == user_id,
-            UserIndustry.IndustryID == industry_id,
-            UserIndustry.IsDeleted == False
+            UserIndustry.IndustryID == industry_id
         )
     ).scalar_one_or_none()
     
     if existing:
-        raise ValueError(f"Industry already associated with user: {industry_id}")
+        if existing.IsDeleted:
+            # Restore soft-deleted industry association
+            # CRITICAL: Set SortOrder BEFORE IsPrimary to satisfy CK_UserIndustry_Primary constraint
+            # Constraint: (IsPrimary = 1 AND SortOrder = 0) OR (IsPrimary = 0 AND SortOrder > 0)
+            
+            # Calculate SortOrder first (before setting IsPrimary)
+            if is_primary:
+                calculated_sort_order = 0
+            else:
+                # If not primary, SortOrder must be > 0
+                if sort_order is not None and sort_order > 0:
+                    calculated_sort_order = sort_order
+                else:
+                    # Get max sort order for secondary industries and add 1, or use 1 if none exist
+                    max_sort = db.execute(
+                        select(UserIndustry.SortOrder).where(
+                            UserIndustry.UserID == user_id,
+                            UserIndustry.IsDeleted == False,
+                            UserIndustry.IsPrimary == False
+                        ).order_by(UserIndustry.SortOrder.desc())
+                    ).scalar()
+                    calculated_sort_order = (max_sort + 1) if max_sort else 1
+            
+            # Now set all fields at once (ensures constraint is satisfied)
+            existing.IsDeleted = False  # type: ignore
+            existing.DeletedDate = None  # type: ignore
+            existing.DeletedBy = None  # type: ignore
+            existing.IsPrimary = is_primary  # type: ignore
+            existing.SortOrder = calculated_sort_order  # type: ignore
+            
+            existing.UpdatedDate = datetime.utcnow()  # type: ignore
+            existing.UpdatedBy = user_id  # type: ignore
+            
+            # If setting as primary, unset other primary industries
+            if is_primary:
+                other_primary = db.execute(
+                    select(UserIndustry).where(
+                        UserIndustry.UserID == user_id,
+                        UserIndustry.IsPrimary == True,
+                        UserIndustry.IsDeleted == False,
+                        UserIndustry.UserIndustryID != existing.UserIndustryID
+                    )
+                ).scalars().all()
+                
+                for ui in other_primary:
+                    ui.IsPrimary = False  # type: ignore
+                    ui.UpdatedDate = datetime.utcnow()  # type: ignore
+                    ui.UpdatedBy = user_id  # type: ignore
+                    # Get max sort order for secondary industries and add 1
+                    max_sort = db.execute(
+                        select(UserIndustry.SortOrder).where(
+                            UserIndustry.UserID == user_id,
+                            UserIndustry.IsDeleted == False,
+                            UserIndustry.IsPrimary == False,
+                            UserIndustry.UserIndustryID != ui.UserIndustryID
+                        ).order_by(UserIndustry.SortOrder.desc())
+                    ).scalar()
+                    ui.SortOrder = (max_sort + 1) if max_sort else 1  # type: ignore
+            
+            db.commit()
+            db.refresh(existing)
+            
+            logger.info(f"Restored soft-deleted industry association: UserID={user_id}, IndustryID={industry_id}")
+            
+            return existing
+        else:
+            raise ValueError(f"Industry already associated with user: {industry_id}")
     
     # If setting as primary, unset other primary industries
     if is_primary:

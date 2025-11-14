@@ -31,7 +31,7 @@ describe('Password Reset API', () => {
       const result = await requestPasswordReset('user@example.com')
 
       expect(mockPost).toHaveBeenCalledWith(
-        'http://localhost:8000/api/auth/password-reset/request',
+        'http://127.0.0.1:8000/api/auth/password-reset/request',
         { email: 'user@example.com' },
         { timeout: 10000 }
       )
@@ -83,7 +83,7 @@ describe('Password Reset API', () => {
       const result = await confirmPasswordReset('abc123', 'NewPassword123!')
 
       expect(mockPost).toHaveBeenCalledWith(
-        'http://localhost:8000/api/auth/password-reset/confirm',
+        'http://127.0.0.1:8000/api/auth/password-reset/confirm',
         {
           token: 'abc123',
           new_password: 'NewPassword123!', // API expects snake_case

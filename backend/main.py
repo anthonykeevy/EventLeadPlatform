@@ -21,6 +21,9 @@ from modules.invitations.router import router as invitations_router
 from modules.config.router import router as config_router, admin_router as config_admin_router
 from modules.countries.router import router as countries_router
 from modules.dashboard.router import router as dashboard_router
+from modules.events.router import router as events_router
+from modules.admin.dashboard_router import router as admin_dashboard_router  # Story 2.6
+from modules.events.admin_review_router import router as admin_review_router  # Story 2.6
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -47,7 +50,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",  # React dev server
+        "http://127.0.0.1:3000",  # React dev server (IPv4)
         "http://localhost:5173",  # Vite default port (backup)
+        "http://127.0.0.1:5173",  # Vite default port (IPv4)
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Explicitly allow all methods including OPTIONS
@@ -64,6 +69,9 @@ app.include_router(config_router)  # Story 1.13: Public configuration
 app.include_router(config_admin_router)  # Story 1.13: Admin configuration management
 app.include_router(countries_router)  # Story 1.12: Country validation
 app.include_router(dashboard_router)  # Story 1.18: Dashboard KPIs
+app.include_router(events_router)  # Story 2.4: Event Management CRUD
+app.include_router(admin_dashboard_router, prefix="/api")  # Story 2.6: Admin Dashboard
+app.include_router(admin_review_router, prefix="/api")  # Story 2.6: Admin Review
 
 @app.get("/")
 async def root():

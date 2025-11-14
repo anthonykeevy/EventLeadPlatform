@@ -7,6 +7,7 @@ import React from 'react'
 import { Building2 } from 'lucide-react'
 import { CompanyContainer } from './CompanyContainer'
 import type { Company } from '../types/dashboard.types'
+import type { Event } from '../../events/types/events.types'
 
 interface CompanyListProps {
   companies: Company[]
@@ -15,6 +16,9 @@ interface CompanyListProps {
   onSelectCompany: (companyId: number) => void
   onToggleExpand: (companyId: number) => void
   onOpenTeamPanel: (companyId: number) => void
+  onCreateEvent?: (companyId: number) => void
+  onEditEvent?: (event: Event) => void
+  onDeleteEvent?: (event: Event) => void
   isLoading?: boolean
 }
 
@@ -25,6 +29,9 @@ export function CompanyList({
   onSelectCompany,
   onToggleExpand,
   onOpenTeamPanel,
+  onCreateEvent,
+  onEditEvent,
+  onDeleteEvent,
   isLoading = false
 }: CompanyListProps) {
   if (isLoading) {
@@ -71,6 +78,9 @@ export function CompanyList({
           onSelect={onSelectCompany}
           onToggleExpand={onToggleExpand}
           onOpenTeamPanel={onOpenTeamPanel}
+          onCreateEvent={onCreateEvent}
+          onEditEvent={onEditEvent}
+          onDeleteEvent={onDeleteEvent}
           depth={0}
         />
       ))}

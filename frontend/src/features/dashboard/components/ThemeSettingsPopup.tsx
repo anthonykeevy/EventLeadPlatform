@@ -25,6 +25,12 @@ export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   
+  // Preview mode state (Story 2.3: Preview before save)
+  const [previewTheme, setPreviewTheme] = useState<ReferenceOption | null>(null)
+  const [previewDensity, setPreviewDensity] = useState<ReferenceOption | null>(null)
+  const [previewFontSize, setPreviewFontSize] = useState<ReferenceOption | null>(null)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  
   // Track if data has been loaded to prevent multiple calls
   const dataLoadedRef = useRef(false)
   const isLoadingRef = useRef(false)
@@ -66,113 +72,116 @@ export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps)
     // Only reset on error so user can retry
   }, [isOpen]) // Only depend on isOpen
 
-  // Handle theme selection
-  const handleThemeChange = async (theme: ReferenceOption) => {
+  // Reset preview state when popup closes (Story 2.3)
+  useEffect(() => {
+    if (!isOpen && hasUnsavedChanges) {
+      // Revert to saved state
+      if (state.theme) applyTheme(state.theme)
+      if (state.layoutDensity) applyLayoutDensity(state.layoutDensity)
+      if (state.fontSize) applyFontSize(state.fontSize)
+      
+      // Reset preview state
+      setPreviewTheme(null)
+      setPreviewDensity(null)
+      setPreviewFontSize(null)
+      setHasUnsavedChanges(false)
+    }
+  }, [isOpen, hasUnsavedChanges, state.theme, state.layoutDensity, state.fontSize, applyTheme, applyLayoutDensity, applyFontSize])
+
+  // Handle theme selection - Preview mode (Story 2.3)
+  const handleThemeChange = (theme: ReferenceOption) => {
+    // Apply preview immediately for visual feedback
+    setPreviewTheme(theme)
+    applyTheme(theme)
+    setHasUnsavedChanges(true)
+  }
+
+  // Handle density selection - Preview mode (Story 2.3)
+  const handleDensityChange = (density: ReferenceOption) => {
+    // Apply preview immediately for visual feedback
+    setPreviewDensity(density)
+    applyLayoutDensity(density)
+    setHasUnsavedChanges(true)
+  }
+
+  // Handle font size selection - Preview mode (Story 2.3)
+  const handleFontSizeChange = (fontSize: ReferenceOption) => {
+    // Apply preview immediately for visual feedback
+    setPreviewFontSize(fontSize)
+    applyFontSize(fontSize)
+    setHasUnsavedChanges(true)
+  }
+
+  // Apply preview changes (Story 2.3)
+  const handleApplyChanges = async () => {
     try {
       setIsSaving(true)
-      applyTheme(theme)
-      dispatch({ type: 'SET_THEME', payload: theme })
-      console.log('Calling updateProfile with themePreferenceId:', theme.id)
-      const result = await updateProfile({ themePreferenceId: theme.id })
-      console.log('Theme update response:', JSON.stringify(result, null, 2))
       
-      // Verify response
-      if (!result || !result.success) {
-        throw new Error(`API returned unsuccessful response: ${result?.message || 'Unknown error'}`)
+      const updates: any = {}
+      
+      if (previewTheme) {
+        applyTheme(previewTheme)
+        dispatch({ type: 'SET_THEME', payload: previewTheme })
+        updates.themePreferenceId = previewTheme.id
       }
       
-      // Save was successful - the theme is already applied and state is updated
-      // Don't reload from backend immediately as it might return cached/stale data
-      // The preferences will be loaded correctly on next login/refresh
-      console.log('Theme saved successfully to backend. Using current theme:', theme.name)
+      if (previewDensity) {
+        applyLayoutDensity(previewDensity)
+        dispatch({ type: 'SET_LAYOUT_DENSITY', payload: previewDensity })
+        updates.layoutDensityId = previewDensity.id
+      }
       
-      // State change will trigger useEffect to save to localStorage
-      toast.success(`Theme changed to ${theme.name}`)
+      if (previewFontSize) {
+        applyFontSize(previewFontSize)
+        dispatch({ type: 'SET_FONT_SIZE', payload: previewFontSize })
+        updates.fontSizeId = previewFontSize.id
+      }
+      
+      // Save all changes to backend
+      if (Object.keys(updates).length > 0) {
+        const result = await updateProfile(updates)
+        
+        if (!result || !result.success) {
+          throw new Error(`API returned unsuccessful response: ${result?.message || 'Unknown error'}`)
+        }
+        
+        const changes = []
+        if (previewTheme) changes.push(`theme to ${previewTheme.name}`)
+        if (previewDensity) changes.push(`density to ${previewDensity.name}`)
+        if (previewFontSize) changes.push(`font size to ${previewFontSize.name}`)
+        
+        toast.success(`Updated ${changes.join(', ')}`)
+      }
+      
+      // Reset preview state
+      setPreviewTheme(null)
+      setPreviewDensity(null)
+      setPreviewFontSize(null)
+      setHasUnsavedChanges(false)
+      
     } catch (error) {
-      console.error('Failed to update theme:', error)
-      // Log detailed error information
-      if (error instanceof Error) {
-        console.error('Error message:', error.message)
-        console.error('Error stack:', error.stack)
-      }
-      // Check if it's an Axios error
-      if ((error as any).response) {
-        console.error('API Response:', (error as any).response.status, (error as any).response.data)
-      }
-      toast.error(`Failed to save theme preference: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error('Failed to save preferences:', error)
+      toast.error('Failed to save preferences')
+      
+      // Revert preview changes on error
+      handleCancelChanges()
     } finally {
       setIsSaving(false)
     }
   }
 
-  // Handle density selection
-  const handleDensityChange = async (density: ReferenceOption) => {
-    try {
-      setIsSaving(true)
-      applyLayoutDensity(density)
-      dispatch({ type: 'SET_LAYOUT_DENSITY', payload: density })
-      console.log('Calling updateProfile with layoutDensityId:', density.id)
-      const result = await updateProfile({ layoutDensityId: density.id })
-      console.log('Density update response:', JSON.stringify(result, null, 2))
-      
-      // Verify response
-      if (!result || !result.success) {
-        throw new Error(`API returned unsuccessful response: ${result?.message || 'Unknown error'}`)
-      }
-      
-      // Save was successful - the density is already applied and state is updated
-      console.log('Layout density saved successfully to backend. Using current density:', density.name)
-      
-      // State change will trigger useEffect to save to localStorage
-      toast.success(`Layout density changed to ${density.name}`)
-    } catch (error) {
-      console.error('Failed to update density:', error)
-      if (error instanceof Error) {
-        console.error('Error message:', error.message)
-        console.error('Error stack:', error.stack)
-      }
-      if ((error as any).response) {
-        console.error('API Response:', (error as any).response.status, (error as any).response.data)
-      }
-      toast.error(`Failed to save density preference: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  // Handle font size selection
-  const handleFontSizeChange = async (fontSize: ReferenceOption) => {
-    try {
-      setIsSaving(true)
-      applyFontSize(fontSize)
-      dispatch({ type: 'SET_FONT_SIZE', payload: fontSize })
-      console.log('Calling updateProfile with fontSizeId:', fontSize.id)
-      const result = await updateProfile({ fontSizeId: fontSize.id })
-      console.log('Font size update response:', JSON.stringify(result, null, 2))
-      
-      // Verify response
-      if (!result || !result.success) {
-        throw new Error(`API returned unsuccessful response: ${result?.message || 'Unknown error'}`)
-      }
-      
-      // Save was successful - the font size is already applied and state is updated
-      console.log('Font size saved successfully to backend. Using current font size:', fontSize.name)
-      
-      // State change will trigger useEffect to save to localStorage
-      toast.success(`Font size changed to ${fontSize.name}`)
-    } catch (error) {
-      console.error('Failed to update font size:', error)
-      if (error instanceof Error) {
-        console.error('Error message:', error.message)
-        console.error('Error stack:', error.stack)
-      }
-      if ((error as any).response) {
-        console.error('API Response:', (error as any).response.status, (error as any).response.data)
-      }
-      toast.error(`Failed to save font size preference: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    } finally {
-      setIsSaving(false)
-    }
+  // Cancel preview changes (Story 2.3)
+  const handleCancelChanges = () => {
+    // Revert to saved state
+    if (state.theme) applyTheme(state.theme)
+    if (state.layoutDensity) applyLayoutDensity(state.layoutDensity)
+    if (state.fontSize) applyFontSize(state.fontSize)
+    
+    // Reset preview state
+    setPreviewTheme(null)
+    setPreviewDensity(null)
+    setPreviewFontSize(null)
+    setHasUnsavedChanges(false)
   }
 
   if (!isOpen) return null
@@ -217,7 +226,7 @@ export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps)
                       onClick={() => handleThemeChange(theme)}
                       disabled={isSaving}
                       className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
-                        state.theme?.id === theme.id
+                        (previewTheme?.id === theme.id || (!previewTheme && state.theme?.id === theme.id))
                           ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
                           : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
                       } ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -246,7 +255,7 @@ export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps)
                       onClick={() => handleDensityChange(density)}
                       disabled={isSaving}
                       className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${
-                        state.layoutDensity?.id === density.id
+                        (previewDensity?.id === density.id || (!previewDensity && state.layoutDensity?.id === density.id))
                           ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
                           : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
                       } ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -272,7 +281,7 @@ export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps)
                       onClick={() => handleFontSizeChange(fontSize)}
                       disabled={isSaving}
                       className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${
-                        state.fontSize?.id === fontSize.id
+                        (previewFontSize?.id === fontSize.id || (!previewFontSize && state.fontSize?.id === fontSize.id))
                           ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
                           : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
                       } ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -307,17 +316,46 @@ export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps)
 
         {/* Footer */}
         <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Changes are saved automatically
-            </p>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-teal-600 dark:bg-teal-500 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors"
-            >
-              Done
-            </button>
-          </div>
+          {hasUnsavedChanges ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  You have unsaved changes
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCancelChanges}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleApplyChanges}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-sm font-medium text-white bg-teal-600 dark:bg-teal-500 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSaving ? 'Saving...' : 'Apply'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Select a preference to preview, then click Apply to save
+              </p>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-teal-600 dark:bg-teal-500 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

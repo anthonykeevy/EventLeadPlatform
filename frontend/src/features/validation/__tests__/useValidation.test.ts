@@ -33,7 +33,7 @@ describe('useValidation Hook', () => {
       await result.current.validate('phone', '+61412345678')
 
       expect(mockPost).toHaveBeenCalledWith(
-        'http://localhost:8000/api/countries/1/validate',
+        'http://127.0.0.1:8000/api/countries/1/validate',
         {
           rule_type: 'phone',  // snake_case for backend
           value: '+61412345678'
@@ -122,7 +122,7 @@ describe('useValidation Hook', () => {
       await result.current.validate('phone', '+14155551234')
 
       expect(mockPost).toHaveBeenCalledWith(
-        'http://localhost:8000/api/countries/2/validate',
+        'http://127.0.0.1:8000/api/countries/2/validate',
         expect.any(Object),
         expect.any(Object)
       )

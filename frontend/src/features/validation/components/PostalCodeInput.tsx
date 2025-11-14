@@ -50,7 +50,7 @@ export function PostalCodeInput({
     const fetchConstraints = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/countries/${countryId}/validation-rules/postal_code`
+          `http://127.0.0.1:8000/api/countries/${countryId}/validation-rules/postal_code`
         )
         if (response.ok) {
           const metadata = await response.json()

@@ -7,7 +7,7 @@ import axios, { AxiosInstance, AxiosError } from 'axios'
 import { LoginCredentials, SignupData, TokenResponse, User } from '../types/auth.types'
 import { getAccessToken, getRefreshToken, storeTokens, clearTokens } from '../utils/tokenStorage'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 // Create axios instance for auth requests
 const authClient: AxiosInstance = axios.create({
@@ -60,7 +60,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<TokenRes
 
 /**
  * AC-1.9.3: POST /api/auth/refresh with {refresh_token}
- * Response: {access_token, refresh_token}
+ * Response: {success, message, data: {access_token, token_type, expires_in}}
  * Auto-refresh logic: Refresh token 5 minutes before expiry
  */
 export async function refreshAccessToken(): Promise<TokenResponse> {
@@ -71,10 +71,26 @@ export async function refreshAccessToken(): Promise<TokenResponse> {
   }
   
   try {
-    const response = await authClient.post<TokenResponse>('/api/auth/refresh', {
+    // Refresh endpoint returns {success, message, data: {...}}
+    const response = await authClient.post<{
+      success: boolean
+      message: string
+      data: {
+        access_token: string
+        token_type: string
+        expires_in: number
+      }
+    }>('/api/auth/refresh', {
       refresh_token: refreshToken,
     })
-    return response.data
+    
+    // Transform to TokenResponse format
+    return {
+      access_token: response.data.data.access_token,
+      refresh_token: refreshToken, // Refresh token doesn't change
+      token_type: response.data.data.token_type,
+      expires_in: response.data.data.expires_in,
+    }
   } catch (error) {
     // If refresh fails, clear tokens and force re-login
     clearTokens()

@@ -1,9 +1,9 @@
+@import './features/theme/styles/theme-variables.css';
+
+/* Theme System Variables - Epic 2 Story 2.2 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Theme System Variables - Epic 2 Story 2.2 */
-@import './features/theme/styles/theme-variables.css';
 
 /* Apply base font size globally */
 body {

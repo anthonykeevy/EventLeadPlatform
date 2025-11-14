@@ -266,7 +266,7 @@ export function InvitationAcceptancePage() {
               <div>
                 <p className="text-sm text-gray-600">Expires</p>
                 <p className="font-medium text-gray-900">
-                  {new Date(invitation.expiresAt).toLocaleDateString()}
+                  {new Date(invitation.expiresAt).toLocaleDateString('en-AU')}
                 </p>
               </div>
             </div>

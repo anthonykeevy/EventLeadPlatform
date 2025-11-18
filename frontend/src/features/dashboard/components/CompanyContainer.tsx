@@ -6,10 +6,12 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock } from 'lucide-react'
+import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban } from 'lucide-react'
 import type { Company } from '../types/dashboard.types'
 import { getEvents } from '../../events/api/eventsApi'
 import type { Event } from '../../events/types/events.types'
+import { getFormsByEvent } from '../../forms/api/formsApi'
+import type { Form } from '../../forms/types/form.types'
 
 interface CompanyContainerProps {
   company: Company
@@ -21,6 +23,9 @@ interface CompanyContainerProps {
   onCreateEvent?: (companyId: number) => void
   onEditEvent?: (event: Event) => void
   onDeleteEvent?: (event: Event) => void
+  onCreateForm?: (eventId: number) => void
+  onEditForm?: (form: Form) => void
+  onDeleteForm?: (form: Form) => void
   depth?: number
   maxDepth?: number
 }
@@ -35,6 +40,9 @@ export function CompanyContainer({
   onCreateEvent,
   onEditEvent,
   onDeleteEvent,
+  onCreateForm,
+  onEditForm,
+  onDeleteForm,
   depth = 0,
   maxDepth = 5
 }: CompanyContainerProps) {
@@ -45,6 +53,13 @@ export function CompanyContainer({
   const [events, setEvents] = useState<Event[]>([])
   const [isLoadingEvents, setIsLoadingEvents] = useState(false)
   const [eventsError, setEventsError] = useState<string | null>(null)
+  
+  // Event expansion state - Story 2.8: Forms nested under Events
+  const [expandedEventIds, setExpandedEventIds] = useState<number[]>([])
+  
+  // Forms state management - Story 2.8
+  const [eventForms, setEventForms] = useState<Record<number, Form[]>>({})
+  const [isLoadingForms, setIsLoadingForms] = useState<Record<number, boolean>>({})
   
   // Fetch events when expanded and company has events - Story 2.4
   useEffect(() => {
@@ -73,6 +88,34 @@ export function CompanyContainer({
       window.removeEventListener('offlineQueueProcessed', handleQueueProcessed)
     }
   }, [isExpanded, isActive, hasChildren]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Listen for form creation/update and refresh forms for that event - Story 2.8
+  useEffect(() => {
+    const handleFormCreated = (event: CustomEvent<{ eventId: number }>) => {
+      const { eventId } = event.detail
+      // If this event is expanded, refresh its forms
+      if (expandedEventIds.includes(eventId)) {
+        console.log(`🔄 Form created - refreshing forms for event ${eventId}`)
+        loadFormsForEvent(eventId)
+      }
+    }
+
+    const handleFormUpdated = (event: CustomEvent<{ eventId: number }>) => {
+      const { eventId } = event.detail
+      // If this event is expanded, refresh its forms
+      if (expandedEventIds.includes(eventId)) {
+        console.log(`🔄 Form updated - refreshing forms for event ${eventId}`)
+        loadFormsForEvent(eventId)
+      }
+    }
+
+    window.addEventListener('formCreated', handleFormCreated as EventListener)
+    window.addEventListener('formUpdated', handleFormUpdated as EventListener)
+    return () => {
+      window.removeEventListener('formCreated', handleFormCreated as EventListener)
+      window.removeEventListener('formUpdated', handleFormUpdated as EventListener)
+    }
+  }, [expandedEventIds]) // eslint-disable-line react-hooks/exhaustive-deps
   
   const loadEvents = async () => {
     setIsLoadingEvents(true)
@@ -86,6 +129,89 @@ export function CompanyContainer({
       setEvents([])
     } finally {
       setIsLoadingEvents(false)
+    }
+  }
+  
+  // Load forms for an event - Story 2.8
+  // Always load forms so we can show count even when collapsed
+  const loadFormsForEvent = async (eventId: number) => {
+    setIsLoadingForms(prev => ({ ...prev, [eventId]: true }))
+    try {
+      const response = await getFormsByEvent(eventId)
+      setEventForms(prev => ({ ...prev, [eventId]: response.forms }))
+    } catch (error) {
+      console.error(`Failed to load forms for event ${eventId}:`, error)
+      setEventForms(prev => ({ ...prev, [eventId]: [] }))
+    } finally {
+      setIsLoadingForms(prev => ({ ...prev, [eventId]: false }))
+    }
+  }
+  
+  // Load forms for all events when events are loaded - Story 2.8
+  // Also set all events to expanded by default
+  useEffect(() => {
+    if (events.length > 0) {
+      // Expand all events by default
+      const allEventIds = events.map(event => event.eventId)
+      setExpandedEventIds(allEventIds)
+      
+      // Load forms for all events
+      events.forEach(event => {
+        if (!eventForms[event.eventId] && !isLoadingForms[event.eventId]) {
+          loadFormsForEvent(event.eventId)
+        }
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events])
+  
+  // Toggle event expansion - Story 2.8
+  const handleToggleEventExpand = (eventId: number) => {
+    setExpandedEventIds(prev => {
+      const isExpanded = prev.includes(eventId)
+      if (isExpanded) {
+        // Collapsing - remove from expanded list
+        return prev.filter(id => id !== eventId)
+      } else {
+        // Expanding - add to list (forms already loaded)
+        return [...prev, eventId]
+      }
+    })
+  }
+
+  // Helper function to get form status icon
+  const getFormStatusIcon = (statusCode: string) => {
+    switch (statusCode.toUpperCase()) {
+      case 'DRAFT':
+        return <FileText className="w-3 h-3" />
+      case 'REVIEW':
+        return <ClockIcon className="w-3 h-3" />
+      case 'PUBLISHED':
+        return <CheckCircle className="w-3 h-3" />
+      case 'PAUSED':
+        return <AlertCircle className="w-3 h-3" />
+      default:
+        return <FileText className="w-3 h-3" />
+    }
+  }
+
+  // Helper function to get approval status icon
+  const getApprovalStatusIcon = (approvalStatusCode: string) => {
+    switch (approvalStatusCode.toUpperCase()) {
+      case 'NO_APPROVAL':
+        return <CheckCircle className="w-3 h-3" />
+      case 'PENDING':
+        return <ClockIcon className="w-3 h-3" />
+      case 'APPROVED':
+        return <CheckCircle className="w-3 h-3" />
+      case 'REJECTED':
+        return <XCircle className="w-3 h-3" />
+      case 'CANCELLED':
+        return <Ban className="w-3 h-3" />
+      case 'EXPIRED':
+        return <ClockIcon className="w-3 h-3" />
+      default:
+        return <FileText className="w-3 h-3" />
     }
   }
   
@@ -237,152 +363,329 @@ export function CompanyContainer({
           ) : events.length === 0 ? (
             <div className="text-sm text-gray-500 py-4">No events found</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {events.map((event) => (
-                <div
-                  key={event.eventId}
-                  className="bg-white rounded-lg border border-gray-200 p-3 hover:border-teal-300 hover:shadow-md transition-all cursor-pointer"
-                  onClick={(e) => {
-                    // Only open edit if clicking on the card itself (not buttons)
-                    if ((e.target as HTMLElement).closest('button')) return
-                    onEditEvent?.(event)
-                  }}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h5 className="text-sm font-semibold text-gray-900 flex-1 pr-2 line-clamp-2">
-                      {event.name}
-                    </h5>
-                    {event.eventStatus && (
-                      <span
-                        className="text-xs px-2 py-1 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor: event.eventStatus.statusColor 
-                            ? `${event.eventStatus.statusColor}20` 
-                            : '#f3f4f620',
-                          color: event.eventStatus.statusColor || '#6b7280'
-                        }}
-                      >
-                        {event.eventStatus.statusName}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Event Type */}
-                  {event.eventType && (
-                    <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                      <Tag className="w-3 h-3 text-teal-600" />
-                      <span>{event.eventType.typeName}</span>
-                    </div>
-                  )}
-                  
-                  {/* Date/Time */}
-                  {event.startDateTime && (
-                    <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                      <Calendar className="w-3 h-3 text-teal-600" />
-                      <div>
-                        <span className="font-medium">
-                          {new Date(event.startDateTime).toLocaleDateString('en-AU', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </span>
-                        <span className="ml-1">
-                          {new Date(event.startDateTime).toLocaleTimeString('en-AU', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                        {event.endDateTime && (
-                          <span className="text-gray-500 ml-1">
-                            - {new Date(event.endDateTime).toLocaleDateString('en-AU', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: new Date(event.endDateTime).getFullYear() !== new Date(event.startDateTime).getFullYear() ? 'numeric' : undefined
-                            })}
-                            {new Date(event.endDateTime).toLocaleTimeString('en-AU', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </span>
+            <div className="space-y-2">
+              {events.map((event) => {
+                const isEventExpanded = expandedEventIds.includes(event.eventId)
+                const forms = eventForms[event.eventId] || []
+                const isLoadingEventForms = isLoadingForms[event.eventId] || false
+                
+                return (
+                  <div key={event.eventId} className="bg-white rounded-lg border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all">
+                    {/* Split Layout: Event Details (Left) | Forms List (Right) */}
+                    <div className="flex">
+                      {/* Left Side: Event Details */}
+                      <div className="flex-1 p-3 border-r border-gray-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2 flex-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleToggleEventExpand(event.eventId)
+                              }}
+                              className="text-gray-400 hover:text-gray-600 p-0.5 rounded"
+                              aria-label={isEventExpanded ? 'Collapse forms' : 'Expand forms'}
+                            >
+                              {isEventExpanded ? (
+                                <ChevronDown className="w-4 h-4" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4" />
+                              )}
+                            </button>
+                            <h5 className="text-sm font-semibold text-gray-900 flex-1 line-clamp-2">
+                              {event.name}
+                            </h5>
+                            {event.eventStatus && (
+                              <span
+                                className="text-xs px-2 py-1 rounded-full flex-shrink-0"
+                                style={{
+                                  backgroundColor: event.eventStatus.statusColor 
+                                    ? `${event.eventStatus.statusColor}20` 
+                                    : '#f3f4f620',
+                                  color: event.eventStatus.statusColor || '#6b7280'
+                                }}
+                              >
+                                {event.eventStatus.statusName}
+                              </span>
+                            )}
+                            {/* Form Count Badge - Show when collapsed */}
+                            {!isEventExpanded && (
+                              <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full flex-shrink-0">
+                                {forms.length} {forms.length === 1 ? 'form' : 'forms'}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {/* Action Icons - Edit and Delete */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onEditEvent?.(event)
+                              }}
+                              className="p-1 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded transition-colors"
+                              title="Edit event"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onDeleteEvent?.(event)
+                              }}
+                              className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                              title="Delete event"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      
+                        {/* Event Type */}
+                        {event.eventType && (
+                          <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
+                            <Tag className="w-3 h-3 text-teal-600" />
+                            <span>{event.eventType.typeName}</span>
+                          </div>
                         )}
+                        
+                        {/* Date/Time */}
+                        {event.startDateTime && (
+                          <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
+                            <Calendar className="w-3 h-3 text-teal-600" />
+                            <div>
+                              <span className="font-medium">
+                                {new Date(event.startDateTime).toLocaleDateString('en-AU', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                              <span className="ml-1">
+                                {new Date(event.startDateTime).toLocaleTimeString('en-AU', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                              {event.endDateTime && (
+                                <span className="text-gray-500 ml-1">
+                                  - {new Date(event.endDateTime).toLocaleDateString('en-AU', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: new Date(event.endDateTime).getFullYear() !== new Date(event.startDateTime).getFullYear() ? 'numeric' : undefined
+                                  })}
+                                  {new Date(event.endDateTime).toLocaleTimeString('en-AU', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Location */}
+                        {(event.venueName || event.city || event.state) && (
+                          <div className="flex items-start gap-1 text-xs text-gray-600 mb-1">
+                            <MapPin className="w-3 h-3 text-teal-600 mt-0.5 flex-shrink-0" />
+                            <div className="line-clamp-2">
+                              {[event.venueName, event.city, event.state].filter(Boolean).join(', ')}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Public/Private Indicator */}
+                        <div className="flex items-center gap-2 mb-1">
+                          {event.isPublic !== undefined && (
+                            <div className="flex items-center gap-1 text-xs">
+                              <Globe className={`w-3 h-3 ${event.isPublic ? 'text-blue-600' : 'text-gray-400'}`} />
+                              <span className={event.isPublic ? 'text-blue-600 font-medium' : 'text-gray-500'}>
+                                {event.isPublic ? 'Public' : 'Private'}
+                              </span>
+                            </div>
+                          )}
+                          {event.isRecurring && (
+                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                              <Clock className="w-3 h-3" />
+                              <span>Recurring</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Tags */}
+                        {event.tags && (
+                          <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                            <Tag className="w-3 h-3" />
+                            <span className="line-clamp-1">{event.tags}</span>
+                          </div>
+                        )}
+                        
+                        {/* Expected Attendees */}
+                        {event.expectedAttendees && (
+                          <div className="text-xs text-gray-600 mb-1">
+                            Expected: {event.expectedAttendees.toLocaleString()} attendees
+                          </div>
+                        )}
+                        
+                        {/* Short Description */}
+                        {event.shortDescription && (
+                          <p className="text-xs text-gray-600 mt-2 line-clamp-2">
+                            {event.shortDescription}
+                          </p>
+                        )}
+                        
                       </div>
+
+                      {/* Right Side: Forms List - Only show when expanded */}
+                      {isEventExpanded && (
+                        <div className="flex-1 p-3 bg-gray-50 max-h-[400px] overflow-y-auto">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-3 h-3 text-teal-600" />
+                              <h6 className="text-xs font-semibold text-gray-700">
+                                Forms ({forms.length})
+                              </h6>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onCreateForm?.(event.eventId)
+                              }}
+                              className="px-2 py-1 text-xs font-medium text-white bg-teal-600 hover:bg-teal-700 rounded transition-colors flex items-center gap-1"
+                              title="Create form for this event"
+                            >
+                              <span>+</span>
+                              Form
+                            </button>
+                          </div>
+                          
+                          {isLoadingEventForms ? (
+                            <div className="text-xs text-gray-500 py-4 text-center">Loading forms...</div>
+                          ) : forms.length === 0 ? (
+                            <div className="text-xs text-gray-500 py-4 text-center">
+                              No forms yet. Create your first form for this event.
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {forms.map((form) => (
+                                <div
+                                  key={form.formId}
+                                  className="bg-white rounded border border-gray-200 p-2 hover:border-teal-300 hover:shadow-sm transition-all"
+                                >
+                                  <div className="flex items-start gap-2">
+                                    {/* Thumbnail */}
+                                    <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded border border-gray-200 overflow-hidden">
+                                      {form.formThumbnailUrl ? (
+                                        <img 
+                                          src={form.formThumbnailUrl} 
+                                          alt={form.formName}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = 'none'
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <FileText className="w-6 h-6 text-gray-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Form Details */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-start justify-between gap-2 mb-1">
+                                        <div className="flex-1 min-w-0">
+                                          <h6 className="text-xs font-semibold text-gray-900 line-clamp-1">
+                                            {form.formName}
+                                          </h6>
+                                          {form.formDescription && (
+                                            <p className="text-xs text-gray-600 line-clamp-1 mt-0.5">
+                                              {form.formDescription}
+                                            </p>
+                                          )}
+                                        </div>
+                                        
+                                        {/* Action Icons */}
+                                        <div className="flex items-center gap-1 flex-shrink-0">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              onEditForm?.(form)
+                                            }}
+                                            className="p-1 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded transition-colors"
+                                            title="Edit form"
+                                          >
+                                            <Edit2 className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              onDeleteForm?.(form)
+                                            }}
+                                            className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                            title="Delete form"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                      
+                                      {/* Status Icons */}
+                                      <div className="flex items-center gap-2 mt-1.5">
+                                        {/* Form Status */}
+                                        {form.formStatus && (
+                                          <div 
+                                            className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded"
+                                            style={{
+                                              backgroundColor: form.formStatus.statusColor 
+                                                ? `${form.formStatus.statusColor}20` 
+                                                : '#f3f4f620',
+                                              color: form.formStatus.statusColor || '#6b7280'
+                                            }}
+                                            title={form.formStatus.statusDescription || form.formStatus.statusName}
+                                          >
+                                            {getFormStatusIcon(form.formStatus.statusCode)}
+                                            <span className="font-medium">{form.formStatus.statusName}</span>
+                                          </div>
+                                        )}
+                                        
+                                        {/* Approval Status */}
+                                        {form.formApprovalStatus && form.formApprovalStatus.approvalStatusCode !== 'NO_APPROVAL' && (
+                                          <div 
+                                            className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded"
+                                            style={{
+                                              backgroundColor: form.formApprovalStatus.approvalStatusCode === 'PENDING' 
+                                                ? '#fef3c720'
+                                                : form.formApprovalStatus.approvalStatusCode === 'APPROVED'
+                                                ? '#d1fae520'
+                                                : form.formApprovalStatus.approvalStatusCode === 'REJECTED'
+                                                ? '#fee2e220'
+                                                : '#f3f4f620',
+                                              color: form.formApprovalStatus.approvalStatusCode === 'PENDING' 
+                                                ? '#d97706'
+                                                : form.formApprovalStatus.approvalStatusCode === 'APPROVED'
+                                                ? '#059669'
+                                                : form.formApprovalStatus.approvalStatusCode === 'REJECTED'
+                                                ? '#dc2626'
+                                                : '#6b7280'
+                                            }}
+                                            title={form.formApprovalStatus.approvalStatusDescription || form.formApprovalStatus.approvalStatusName}
+                                          >
+                                            {getApprovalStatusIcon(form.formApprovalStatus.approvalStatusCode)}
+                                            <span className="font-medium">{form.formApprovalStatus.approvalStatusName}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  
-                  {/* Location */}
-                  {(event.venueName || event.city || event.state) && (
-                    <div className="flex items-start gap-1 text-xs text-gray-600 mb-1">
-                      <MapPin className="w-3 h-3 text-teal-600 mt-0.5 flex-shrink-0" />
-                      <div className="line-clamp-2">
-                        {[event.venueName, event.city, event.state].filter(Boolean).join(', ')}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Public/Private Indicator */}
-                  <div className="flex items-center gap-2 mb-1">
-                    {event.isPublic !== undefined && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <Globe className={`w-3 h-3 ${event.isPublic ? 'text-blue-600' : 'text-gray-400'}`} />
-                        <span className={event.isPublic ? 'text-blue-600 font-medium' : 'text-gray-500'}>
-                          {event.isPublic ? 'Public' : 'Private'}
-                        </span>
-                      </div>
-                    )}
-                    {event.isRecurring && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <Clock className="w-3 h-3" />
-                        <span>Recurring</span>
-                      </div>
-                    )}
                   </div>
-                  
-                  {/* Tags */}
-                  {event.tags && (
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
-                      <Tag className="w-3 h-3" />
-                      <span className="line-clamp-1">{event.tags}</span>
-                    </div>
-                  )}
-                  
-                  {/* Expected Attendees */}
-                  {event.expectedAttendees && (
-                    <div className="text-xs text-gray-600 mb-1">
-                      Expected: {event.expectedAttendees.toLocaleString()} attendees
-                    </div>
-                  )}
-                  
-                  {/* Short Description */}
-                  {event.shortDescription && (
-                    <p className="text-xs text-gray-600 mt-2 line-clamp-2">
-                      {event.shortDescription}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onEditEvent?.(event)
-                      }}
-                      className="text-xs text-teal-600 hover:text-teal-700 font-medium"
-                    >
-                      Edit
-                    </button>
-                    <span className="text-gray-300">|</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onDeleteEvent?.(event)
-                      }}
-                      className="text-xs text-red-600 hover:text-red-700 font-medium"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>

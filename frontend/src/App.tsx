@@ -28,6 +28,7 @@ const PasswordResetConfirm = lazy(() => import('./features/auth').then(module =>
 const DashboardPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.DashboardPage })))
 const InvitationAcceptancePage = lazy(() => import('./features/invitations').then(module => ({ default: module.InvitationAcceptancePage })))
 const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
+// Forms are now integrated into the dashboard (Company → Event → Form hierarchy)
 // Theme settings now accessible through user menu in dashboard
 
 // Make utilities available globally for testing in browser console
@@ -259,6 +260,7 @@ function App() {
                     </Suspense>
                   }
                 />
+                {/* Forms are now integrated into the dashboard (Company → Event → Form hierarchy) */}
                 {/* Theme settings now accessible through user menu in dashboard */}
               </Routes>
             </Suspense>

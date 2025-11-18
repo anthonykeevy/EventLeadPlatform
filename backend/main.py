@@ -24,6 +24,7 @@ from modules.dashboard.router import router as dashboard_router
 from modules.events.router import router as events_router
 from modules.admin.dashboard_router import router as admin_dashboard_router  # Story 2.6
 from modules.events.admin_review_router import router as admin_review_router  # Story 2.6
+from modules.forms.router import router as forms_router  # Story 2.8: Form Header Foundation
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -72,6 +73,7 @@ app.include_router(dashboard_router)  # Story 1.18: Dashboard KPIs
 app.include_router(events_router)  # Story 2.4: Event Management CRUD
 app.include_router(admin_dashboard_router, prefix="/api")  # Story 2.6: Admin Dashboard
 app.include_router(admin_review_router, prefix="/api")  # Story 2.6: Admin Review
+app.include_router(forms_router)  # Story 2.8: Form Header Foundation
 
 @app.get("/")
 async def root():

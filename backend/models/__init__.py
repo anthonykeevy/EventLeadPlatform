@@ -33,6 +33,7 @@ from .user_password_reset_token import UserPasswordResetToken
 from .user_refresh_token import UserRefreshToken
 from .event import Event
 from .event_company import EventCompany
+from .form import Form
 
 # Reference tables (ref schema)
 from .ref import (
@@ -55,6 +56,8 @@ from .ref import (
     EventType,
     EventStatus,
     RecurrencePattern,
+    FormStatus,
+    FormApprovalStatus,
 )
 
 # Configuration tables (config schema)
@@ -101,6 +104,7 @@ __all__ = [
     "UserRefreshToken",
     "Event",
     "EventCompany",
+    "Form",
     
     # Reference tables (ref)
     "Country",
@@ -123,6 +127,8 @@ __all__ = [
     "EventStatus",
     "RecurrencePattern",
     "EventCompanyRole",
+    "FormStatus",
+    "FormApprovalStatus",
     
     # Configuration tables (config)
     "AppSetting",

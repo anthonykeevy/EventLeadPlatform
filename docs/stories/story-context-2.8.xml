@@ -1,0 +1,159 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2.8</storyId>
+    <title>Form Header Foundation</title>
+    <status>Approved</status>
+    <generatedAt>2025-11-14T00:00:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-2.8.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>company user</asA>
+    <iWant>to create and manage form headers with metadata, event association, and access control</iWant>
+    <soThat>I can prepare forms for deployment and provide foundation for the form builder (Epic 3), while maintaining proper company-scoped access and audit trails</soThat>
+    <tasks>
+      - Database Schema Validation & Deltas + Form Domain Coverage Checklist (AC: 2.8.1, 2.8.2, 2.8.3, 2.8.4, 2.8.16)
+      - Backend Form Model (AC: 2.8.1, 2.8.2, 2.8.3, 2.8.4)
+      - Backend Form Service Layer (AC: 2.8.5, 2.8.6, 2.8.7, 2.8.8, 2.8.17, 2.8.18)
+      - Backend Form API Endpoints (AC: 2.8.5, 2.8.6, 2.8.7, 2.8.8, 2.8.9, 2.8.10)
+      - Backend Form Request/Response Schemas (AC: 2.8.1, 2.8.2, 2.8.3, 2.8.4)
+      - Backend Reference Data Endpoints (AC: 2.8.16)
+      - Backend Audit Trail (AC: 2.8.15)
+      - Frontend Form Types & Interfaces (AC: 2.8.1, 2.8.2, 2.8.3, 2.8.4)
+      - Frontend Form API Integration (AC: 2.8.5, 2.8.6, 2.8.7, 2.8.8, 2.8.9, 2.8.10)
+      - Frontend Form List Component (AC: 2.8.11, 2.8.12)
+      - Frontend Form Detail View (AC: 2.8.13)
+      - Frontend Form Create/Edit Form (AC: 2.8.1, 2.8.2, 2.8.3, 2.8.4, 2.8.8, 2.8.9, 2.8.10)
+      - Frontend Form Dashboard Integration (AC: 2.8.11)
+      - Frontend Form Routes (AC: 2.8.11, 2.8.12, 2.8.13)
+      - Frontend Access Control (AC: 2.8.6, 2.8.7)
+      - Frontend Event-Form Integration (AC: 2.8.8)
+      - Frontend Form Status Management (AC: 2.8.9, 2.8.10)
+      - Integration and Testing (AC: 2.8.19)
+      - Documentation & Code Review (AC: All)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Form header creation with required metadata fields (FormName, CompanyID, FormStatusID, FormApprovalStatusID)
+    2. Form header supports optional description and event association (FormDescription, EventID)
+    3. Form header includes dashboard summary fields (IsPublic, DeploymentCost, activity metrics)
+    4. Form header includes visual identification fields (FormThumbnailURL, FormPreviewURL)
+    5. Form header CRUD operations (create, read, update, delete) with proper validation
+    6. Multi-tenant filtering - forms are company-scoped (users only see their company's forms)
+    7. Role-based access control - form creators can manage their forms, company admins can manage all company forms
+    8. Event-form linking - forms can be associated with events (EventID foreign key, nullable)
+    9. Form status management - forms have status workflow (Draft, Published, Archived via FormStatusID)
+    10. Form approval status tracking - forms track approval status (FormApprovalStatusID for future approval workflow)
+    11. Form dashboard integration - forms appear in dashboard with summary information
+    12. Form list view with filtering by status, event, company
+    13. Form detail view with complete metadata display
+    14. Form soft delete - forms can be soft deleted (IsDeleted flag)
+    15. Audit trail - all form actions logged (created, updated, deleted with user ID and timestamp)
+    16. Reference data integration - FormStatus and FormApprovalStatus reference tables populated
+    17. Foreign key validation - EventID must reference valid Event (if provided)
+    18. Company ownership validation - CompanyID must reference valid Company
+    19. Comprehensive UAT tests validate all form header operations and access control
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/stories/EPIC-2-STATUS.md" title="Epic 2 Status" section="Next Story Recommendation" snippet="Story 2.8: Form Header Foundation - Epic 3 dependency, foundation for Form Builder, Domain 3 first story" />
+      <doc path="docs/stories/story-2.4.md" title="Story 2.4: Event Management CRUD" section="CRUD Patterns" snippet="Event CRUD operations with multi-tenant filtering, company-scoped access, reference for form CRUD patterns" />
+      <doc path="docs/stories/story-2.6.md" title="Story 2.6: Admin Dashboard" section="Dashboard Integration" snippet="Dashboard integration patterns, table components, reference for form dashboard integration" />
+      <doc path="database/schemas/forms-header-domain-epic2-schema.sql" title="Form Schema Epic 2" section="Form Table" snippet="Form table includes FormID, FormName, FormDescription, CompanyID, EventID, FormStatusID, FormApprovalStatusID, dashboard summary fields, visual fields, audit trail" />
+      <doc path="docs/data-domains/forms-header-domain-epic2-analysis.md" title="Forms Domain Epic 2 Analysis" section="Epic 2 Requirements" snippet="Form header management, access control integration, event integration, foundation for Epic 3 Form Builder" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Forms" snippet="Form header requirements, form management, Epic 3 Form Builder dependency" />
+      <doc path="docs/AGENT-LOGGING-GUIDE.md" title="BMAD Agent Logging Integration Guide" section="Epic 2 Specific Logging" snippet="Form logging requirements: UserAction for form actions, ApiRequest with payloads, ApplicationError for validation, PerformanceMetric for timing" />
+    </docs>
+    <code>
+      <code path="backend/modules/events/service.py" kind="file" symbol="EventService" lines="N/A" reason="Existing event service layer. Reference for CRUD patterns, company-scoped filtering, and multi-tenant access control." />
+      <code path="backend/modules/events/router.py" kind="file" symbol="EventRouter" lines="N/A" reason="Existing event API endpoints. Reference for route patterns, dependency injection, response handling, and filtering." />
+      <code path="backend/models/event.py" kind="file" symbol="Event" lines="N/A" reason="Existing Event SQLAlchemy model. Reference for model structure, relationships, audit trail fields, and soft delete pattern." />
+      <code path="backend/middleware/auth.py" kind="file" symbol="get_current_user" lines="N/A" reason="Existing authentication middleware. Reference for user authentication, company-scoped access, and RBAC patterns." />
+      <code path="frontend/src/features/events/components/EventDetailView.tsx" kind="file" symbol="EventDetailView" lines="N/A" reason="Existing event detail view. Reference for form detail view structure and metadata display." />
+      <code path="frontend/src/features/events/api/eventsApi.ts" kind="file" symbol="eventsApi" lines="N/A" reason="Existing event API integration. Reference for form API integration patterns, error handling, and data transformations." />
+      <code path="frontend/src/features/events/components/EventList.tsx" kind="file" symbol="EventList" lines="N/A" reason="Existing event list component. Reference for form list component structure, filtering, and pagination." />
+      <code path="frontend/src/features/dashboard/components/DashboardLayout.tsx" kind="file" symbol="DashboardLayout" lines="N/A" reason="Existing dashboard structure. Reference for form dashboard integration and tab navigation." />
+      <code path="frontend/src/features/validation/components/CountrySelector.tsx" kind="file" symbol="CountrySelector" lines="N/A" reason="Foreign key dropdown pattern. Reference for implementing dropdowns for EventID, FormStatusID, FormApprovalStatusID." />
+    </code>
+    <dependencies>
+      <dependency ecosystem="frontend" packages="React 18.2.0, TypeScript 5.2.2, Tailwind CSS 3.3.5, Axios 1.6.2" />
+      <dependency ecosystem="frontend" packages="@tanstack/react-query 5.8.4 (already installed, no upgrade needed)" />
+      <dependency ecosystem="backend" packages="FastAPI 0.115.7, SQLAlchemy 2.0.40, Pydantic 2.10.6" />
+      <dependency ecosystem="database" packages="MS SQL Server 2022" />
+      <dependency ecosystem="logging" packages="Enhanced diagnostic logging (Epic 1), log.UserAction, log.ApiRequest, log.ApplicationError" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Company-scoped form access required (users only see their company's forms)
+    - Role-based access control required (creator, company admin, system admin)
+    - EventID foreign key nullable (forms can exist without event association)
+    - Form soft delete required (IsDeleted flag, not hard delete)
+    - All form actions logged with user ID and timestamp
+    - Form list load time: < 2 seconds
+    - Form creation/update: < 1 second
+    - Form detail load: < 1 second
+    - Logging: Use enhanced_diagnostic_logs.py to validate all form actions are logged correctly
+    - Maintain Epic 1 performance characteristics
+    - Preserve all existing Epic 1 functionality without breaking changes
+    - Foundation for Epic 3 Form Builder (form header structure ready)
+  </constraints>
+
+  <interfaces>
+    <interface name="FormService.create_form" kind="method" signature="create_form(form_data: FormCreateRequest, user_id: int, company_id: int) -> Form" path="backend/modules/forms/service.py" />
+    <interface name="FormService.get_form" kind="method" signature="get_form(form_id: int, user_id: int, company_id: int) -> Form" path="backend/modules/forms/service.py" />
+    <interface name="FormService.get_forms" kind="method" signature="get_forms(filters: dict, user_id: int, company_id: int, page: int, page_size: int) -> List[Form]" path="backend/modules/forms/service.py" />
+    <interface name="FormService.update_form" kind="method" signature="update_form(form_id: int, form_data: FormUpdateRequest, user_id: int, company_id: int) -> Form" path="backend/modules/forms/service.py" />
+    <interface name="FormService.delete_form" kind="method" signature="delete_form(form_id: int, user_id: int, company_id: int) -> Form" path="backend/modules/forms/service.py" />
+    <interface name="FormService.get_forms_by_event" kind="method" signature="get_forms_by_event(event_id: int, user_id: int, company_id: int) -> List[Form]" path="backend/modules/forms/service.py" />
+    <interface name="Form API POST /api/forms" kind="endpoint" signature="POST /api/forms" path="backend/modules/forms/router.py" />
+    <interface name="Form API GET /api/forms" kind="endpoint" signature="GET /api/forms?status_id=&event_id=&search=&page=&page_size=" path="backend/modules/forms/router.py" />
+    <interface name="Form API GET /api/forms/{id}" kind="endpoint" signature="GET /api/forms/{form_id}" path="backend/modules/forms/router.py" />
+    <interface name="Form API PUT /api/forms/{id}" kind="endpoint" signature="PUT /api/forms/{form_id}" path="backend/modules/forms/router.py" />
+    <interface name="Form API DELETE /api/forms/{id}" kind="endpoint" signature="DELETE /api/forms/{form_id}" path="backend/modules/forms/router.py" />
+    <interface name="Form API GET /api/forms/event/{event_id}" kind="endpoint" signature="GET /api/forms/event/{event_id}" path="backend/modules/forms/router.py" />
+    <interface name="Form API GET /api/forms/statuses" kind="endpoint" signature="GET /api/forms/statuses" path="backend/modules/forms/router.py" />
+    <interface name="Form API GET /api/forms/approval-statuses" kind="endpoint" signature="GET /api/forms/approval-statuses" path="backend/modules/forms/router.py" />
+    <interface name="FormList" kind="component" signature="FormList: React.FC" path="frontend/src/features/forms/components/FormList.tsx" />
+    <interface name="FormDetailView" kind="component" signature="FormDetailView: React.FC<{ formId: number }>" path="frontend/src/features/forms/components/FormDetailView.tsx" />
+    <interface name="FormForm" kind="component" signature="FormForm: React.FC<{ formId?: number; onSubmit: (data: FormCreateRequest | FormUpdateRequest) => void }>" path="frontend/src/features/forms/components/FormForm.tsx" />
+    <interface name="formsApi" kind="module" signature="export const { createForm, getForms, getForm, updateForm, deleteForm, getFormsByEvent, getFormStatuses, getFormApprovalStatuses }" path="frontend/src/features/forms/api/formsApi.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Frontend testing with React Testing Library for component testing, Vitest for unit testing. Backend testing with pytest and FastAPI TestClient. Integration testing for cross-domain functionality. End-to-end testing for complete form workflows. Performance testing for form operations. UAT testing for user acceptance.
+    </standards>
+    <locations>
+      frontend/src/__tests__/, backend/tests/, docs/stories/UAT-*.md
+    </locations>
+    <ideas>
+      AC1: Test form header creation with required fields
+      AC2: Test form header creation with optional fields
+      AC3: Test form header creation validates required fields
+      AC4: Test form header creation validates foreign keys
+      AC5: Test form list displays company-scoped forms only
+      AC6: Test form list filters by status work correctly
+      AC7: Test form list filters by event work correctly
+      AC8: Test form detail view displays complete metadata
+      AC9: Test form update works correctly for form owners
+      AC10: Test form update blocked for unauthorized users
+      AC11: Test form deletion works correctly (soft delete)
+      AC12: Test event-form linking works correctly
+      AC13: Test access control - users only see their company's forms
+      AC14: Test role-based permissions - creators can edit own forms
+      AC15: Test company admin can manage all company forms
+      AC16: Test form status management works correctly
+      AC17: Test dashboard integration - forms appear in dashboard
+      AC18: Test performance targets (< 2s list, < 1s create/update)
+      AC19: Test error handling and network failures
+      AC20: Test validation errors display correctly
+      AC21: Test logging validation - all form actions logged
+    </ideas>
+  </tests>
+</story-context>
+

@@ -24,6 +24,8 @@ from .event_status import EventStatus
 from .recurrence_pattern import RecurrencePattern
 from .event_company_role import EventCompanyRole
 from .public_review_status import PublicReviewStatus
+from .form_status import FormStatus
+from .form_approval_status import FormApprovalStatus
 
 __all__ = [
     "Country",
@@ -48,5 +50,7 @@ __all__ = [
     "RecurrencePattern",
     "EventCompanyRole",
     "PublicReviewStatus",
+    "FormStatus",
+    "FormApprovalStatus",
 ]
 

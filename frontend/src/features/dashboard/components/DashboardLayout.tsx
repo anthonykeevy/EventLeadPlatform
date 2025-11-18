@@ -10,6 +10,8 @@ import { useAuth } from '../../auth'
 import { OnboardingModal } from '../../onboarding'
 import { CreateEventModal, EditEventModal, DeleteEventConfirmModal } from '../../events'
 import type { Event } from '../../events/types/events.types'
+import { CreateFormModal, EditFormModal, DeleteFormConfirmModal } from '../../forms'
+import type { Form } from '../../forms/types/form.types'
 import { UserMenu } from './UserMenu'
 import { KPISection } from './KPISection'
 import { CompanyList } from './CompanyList'
@@ -49,6 +51,13 @@ export function DashboardLayout() {
   const [showEditEventModal, setShowEditEventModal] = useState(false)
   const [showDeleteEventModal, setShowDeleteEventModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  
+  // Form creation modal state - Story 2.8
+  const [showCreateFormModal, setShowCreateFormModal] = useState(false)
+  const [showEditFormModal, setShowEditFormModal] = useState(false)
+  const [showDeleteFormModal, setShowDeleteFormModal] = useState(false)
+  const [selectedForm, setSelectedForm] = useState<Form | null>(null)
+  const [formEventId, setFormEventId] = useState<number | null>(null)
 
   // Load companies on mount (but only if onboarding complete)
   useEffect(() => {
@@ -267,6 +276,71 @@ export function DashboardLayout() {
     }
   }
 
+  // Handle form creation from dashboard - Story 2.8
+  const handleCreateForm = (eventId: number) => {
+    if (!navigator.onLine) {
+      toast.warning(
+        'Form creation unavailable offline',
+        'Form creation requires reference data that is only available when connected to the internet.'
+      )
+      return
+    }
+    setFormEventId(eventId)
+    setShowCreateFormModal(true)
+  }
+
+  const handleFormCreated = () => {
+    setShowCreateFormModal(false)
+    const eventId = formEventId
+    setFormEventId(null)
+    // Reload companies to refresh form counts
+    loadCompanies()
+    if (activeCompanyId) {
+      loadKPIs([activeCompanyId])
+    }
+    // Dispatch custom event to refresh forms for this event
+    if (eventId) {
+      window.dispatchEvent(new CustomEvent('formCreated', { detail: { eventId } }))
+    }
+  }
+
+  // Handle form edit from dashboard - Story 2.8
+  const handleEditForm = (form: Form) => {
+    setSelectedForm(form)
+    setShowEditFormModal(true)
+  }
+
+  const handleFormUpdated = () => {
+    setShowEditFormModal(false)
+    const eventId = selectedForm?.eventId
+    setSelectedForm(null)
+    // Reload companies to refresh form data
+    loadCompanies()
+    if (activeCompanyId) {
+      loadKPIs([activeCompanyId])
+    }
+    // Dispatch custom event to refresh forms for this event
+    if (eventId) {
+      window.dispatchEvent(new CustomEvent('formUpdated', { detail: { eventId } }))
+    }
+  }
+
+  // Handle form delete from dashboard - Story 2.8
+  const handleDeleteForm = (form: Form) => {
+    setSelectedForm(form)
+    setShowDeleteFormModal(true)
+  }
+
+  const handleFormDeleted = () => {
+    setShowDeleteFormModal(false)
+    setSelectedForm(null)
+    // Reload companies to update form counts
+    loadCompanies()
+    if (activeCompanyId) {
+      loadKPIs([activeCompanyId])
+    }
+  }
+
   // Remove handleLogout since it's now handled in UserMenu
 
   return (
@@ -275,12 +349,24 @@ export function DashboardLayout() {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-teal-600 cursor-pointer" onClick={() => navigate('/dashboard')}>
-                EventLead
-              </h1>
-              <span className="text-sm text-gray-500">Dashboard</span>
+            {/* Logo and Navigation */}
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-teal-600 cursor-pointer" onClick={() => navigate('/dashboard')}>
+                  EventLead
+                </h1>
+                <span className="text-sm text-gray-500">Dashboard</span>
+              </div>
+              
+              {/* Navigation Links */}
+              <nav className="flex items-center gap-4 ml-4">
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="text-sm font-medium text-gray-700 hover:text-teal-600 transition-colors"
+                >
+                  Dashboard
+                </button>
+              </nav>
             </div>
 
             {/* User Menu */}
@@ -323,6 +409,9 @@ export function DashboardLayout() {
             onCreateEvent={handleCreateEvent}
             onEditEvent={handleEditEvent}
             onDeleteEvent={handleDeleteEvent}
+            onCreateForm={handleCreateForm}
+            onEditForm={handleEditForm}
+            onDeleteForm={handleDeleteForm}
             isLoading={isLoadingCompanies}
           />
         )}
@@ -375,6 +464,46 @@ export function DashboardLayout() {
           }}
           onConfirm={handleEventDeleted}
           event={selectedEvent}
+        />
+      )}
+
+      {/* Create Form Modal - Story 2.8 */}
+      {formEventId !== null && (
+        <CreateFormModal
+          isOpen={showCreateFormModal}
+          eventId={formEventId}
+          userRole={activeCompanyId ? findCompanyById(companies, activeCompanyId)?.userRole : 'Company User'}
+          onClose={() => {
+            setShowCreateFormModal(false)
+            setFormEventId(null)
+          }}
+          onSuccess={handleFormCreated}
+        />
+      )}
+
+      {/* Edit Form Modal - Story 2.8 */}
+      {selectedForm && (
+        <EditFormModal
+          isOpen={showEditFormModal}
+          form={selectedForm}
+          onClose={() => {
+            setShowEditFormModal(false)
+            setSelectedForm(null)
+          }}
+          onSuccess={handleFormUpdated}
+        />
+      )}
+
+      {/* Delete Form Modal - Story 2.8 */}
+      {selectedForm && (
+        <DeleteFormConfirmModal
+          isOpen={showDeleteFormModal}
+          form={selectedForm}
+          onClose={() => {
+            setShowDeleteFormModal(false)
+            setSelectedForm(null)
+          }}
+          onConfirm={handleFormDeleted}
         />
       )}
     </div>

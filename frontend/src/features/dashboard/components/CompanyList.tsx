@@ -8,6 +8,7 @@ import { Building2 } from 'lucide-react'
 import { CompanyContainer } from './CompanyContainer'
 import type { Company } from '../types/dashboard.types'
 import type { Event } from '../../events/types/events.types'
+import type { Form } from '../../forms/types/form.types'
 
 interface CompanyListProps {
   companies: Company[]
@@ -19,6 +20,9 @@ interface CompanyListProps {
   onCreateEvent?: (companyId: number) => void
   onEditEvent?: (event: Event) => void
   onDeleteEvent?: (event: Event) => void
+  onCreateForm?: (eventId: number) => void
+  onEditForm?: (form: Form) => void
+  onDeleteForm?: (form: Form) => void
   isLoading?: boolean
 }
 
@@ -32,6 +36,9 @@ export function CompanyList({
   onCreateEvent,
   onEditEvent,
   onDeleteEvent,
+  onCreateForm,
+  onEditForm,
+  onDeleteForm,
   isLoading = false
 }: CompanyListProps) {
   if (isLoading) {
@@ -81,6 +88,9 @@ export function CompanyList({
           onCreateEvent={onCreateEvent}
           onEditEvent={onEditEvent}
           onDeleteEvent={onDeleteEvent}
+          onCreateForm={onCreateForm}
+          onEditForm={onEditForm}
+          onDeleteForm={onDeleteForm}
           depth={0}
         />
       ))}

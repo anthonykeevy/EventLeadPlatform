@@ -33,9 +33,14 @@ export function EditRoleModal({
   onSuccess
 }: EditRoleModalProps) {
   // Map display role to API role code
-  const currentRoleCode = currentRole === 'Company Admin' ? 'company_admin' : 'company_user'
+  const getRoleCode = (role: string): 'company_admin' | 'company_user' | 'company_viewer' => {
+    if (role === 'Company Admin') return 'company_admin'
+    if (role === 'Company Viewer') return 'company_viewer'
+    return 'company_user'
+  }
   
-  const [selectedRole, setSelectedRole] = useState<'company_admin' | 'company_user'>(currentRoleCode)
+  const currentRoleCode = getRoleCode(currentRole)
+  const [selectedRole, setSelectedRole] = useState<'company_admin' | 'company_user' | 'company_viewer'>(currentRoleCode)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -43,10 +48,12 @@ export function EditRoleModal({
   const availableRoles = currentUserRole === 'Company Admin' 
     ? [
         { code: 'company_admin' as const, label: 'Company Admin', description: 'Can invite and manage team members' },
-        { code: 'company_user' as const, label: 'Company User', description: 'Standard team member access' }
+        { code: 'company_user' as const, label: 'Company User', description: 'Standard team member access' },
+        { code: 'company_viewer' as const, label: 'Company Viewer', description: 'Read-only access to company resources' }
       ]
     : [
-        { code: 'company_user' as const, label: 'Company User', description: 'Standard team member access' }
+        { code: 'company_user' as const, label: 'Company User', description: 'Standard team member access' },
+        { code: 'company_viewer' as const, label: 'Company Viewer', description: 'Read-only access to company resources' }
       ]
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -174,7 +181,7 @@ export function EditRoleModal({
                       name="role"
                       value={role.code}
                       checked={selectedRole === role.code}
-                      onChange={(e) => setSelectedRole(e.target.value as 'company_admin' | 'company_user')}
+                      onChange={(e) => setSelectedRole(e.target.value as 'company_admin' | 'company_user' | 'company_viewer')}
                       className="mt-1 mr-3 text-teal-600 focus:ring-teal-500"
                       disabled={isSubmitting}
                     />

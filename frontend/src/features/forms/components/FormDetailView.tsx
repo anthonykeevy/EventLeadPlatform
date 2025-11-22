@@ -3,10 +3,13 @@
  * Displays complete form information in a detailed view
  */
 
-import React from 'react'
-import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, BarChart3 } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, BarChart3, Shield } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
+import { FormAccessControlModal } from './FormAccessControlModal'
+import { checkFormAccess } from '../api/formAccessApi'
+import { AccessCheckResponse } from '../types/form-access.types'
 
 interface FormDetailViewProps {
   form: Form | null
@@ -16,7 +19,34 @@ interface FormDetailViewProps {
 }
 
 export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailViewProps) {
+  const [userAccess, setUserAccess] = useState<AccessCheckResponse | null>(null)
+  const [isLoadingAccess, setIsLoadingAccess] = useState(false)
+  const [showAccessControl, setShowAccessControl] = useState(false)
+
+  useEffect(() => {
+    if (form) {
+      loadUserAccess()
+    }
+  }, [form])
+
+  const loadUserAccess = async () => {
+    if (!form) return
+    try {
+      setIsLoadingAccess(true)
+      const access = await checkFormAccess(form.formId)
+      setUserAccess(access)
+    } catch (err) {
+      console.error('Failed to check form access:', err)
+    } finally {
+      setIsLoadingAccess(false)
+    }
+  }
+
   if (!form) return null
+
+  const canManage = userAccess?.accessLevel === 'MANAGE'
+  const canEdit = canManage || userAccess?.accessLevel === 'EDIT'
+  const canView = userAccess?.hasAccess || canEdit || canManage
 
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'Never'
@@ -197,6 +227,33 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                   )}
                 </div>
               </section>
+
+              {/* Access Control Section */}
+              {userAccess && (
+                <section>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-teal-600" />
+                    Access Control
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">Your Access Level:</span>{' '}
+                      <span className="text-gray-600 font-semibold">
+                        {userAccess.accessLevel || 'No Access'}
+                      </span>
+                    </div>
+                    {canManage && (
+                      <button
+                        onClick={() => setShowAccessControl(true)}
+                        className="mt-2 px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors flex items-center gap-2"
+                      >
+                        <Shield className="w-4 h-4" />
+                        Manage Access
+                      </button>
+                    )}
+                  </div>
+                </section>
+              )}
             </div>
           </div>
         </div>
@@ -209,22 +266,35 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           >
             Close
           </button>
-          <button
-            onClick={() => onEdit(form)}
-            className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors flex items-center gap-2"
-          >
-            <Edit2 className="w-4 h-4" />
-            Edit
-          </button>
-          <button
-            onClick={() => onDelete(form)}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete
-          </button>
+          {canEdit && (
+            <button
+              onClick={() => onEdit(form)}
+              className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors flex items-center gap-2"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit
+            </button>
+          )}
+          {canManage && (
+            <button
+              onClick={() => onDelete(form)}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Access Control Modal */}
+      {showAccessControl && (
+        <FormAccessControlModal
+          isOpen={showAccessControl}
+          formId={form.formId}
+          onClose={() => setShowAccessControl(false)}
+        />
+      )}
     </div>
   )
 }

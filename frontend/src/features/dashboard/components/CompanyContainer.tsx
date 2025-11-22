@@ -6,12 +6,14 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban } from 'lucide-react'
+import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star } from 'lucide-react'
 import type { Company } from '../types/dashboard.types'
 import { getEvents } from '../../events/api/eventsApi'
 import type { Event } from '../../events/types/events.types'
 import { getFormsByEvent } from '../../forms/api/formsApi'
 import type { Form } from '../../forms/types/form.types'
+import { checkFormAccess } from '../../forms/api/formAccessApi'
+import { useAuth } from '../../auth/context/AuthContext'
 
 interface CompanyContainerProps {
   company: Company
@@ -20,12 +22,14 @@ interface CompanyContainerProps {
   onSelect: (companyId: number) => void
   onToggleExpand: (companyId: number) => void
   onOpenTeamPanel: (companyId: number) => void
+  onSetDefaultCompany?: (companyId: number) => void
   onCreateEvent?: (companyId: number) => void
   onEditEvent?: (event: Event) => void
   onDeleteEvent?: (event: Event) => void
   onCreateForm?: (eventId: number) => void
   onEditForm?: (form: Form) => void
   onDeleteForm?: (form: Form) => void
+  onViewForm?: (form: Form) => void
   depth?: number
   maxDepth?: number
 }
@@ -37,15 +41,18 @@ export function CompanyContainer({
   onSelect,
   onToggleExpand,
   onOpenTeamPanel,
+  onSetDefaultCompany,
   onCreateEvent,
   onEditEvent,
   onDeleteEvent,
   onCreateForm,
   onEditForm,
   onDeleteForm,
+  onViewForm,
   depth = 0,
   maxDepth = 5
 }: CompanyContainerProps) {
+  const { user } = useAuth()
   const hasChildren = company.childCompanies && company.childCompanies.length > 0
   const isAdmin = company.userRole === 'Company Admin'
   
@@ -61,17 +68,82 @@ export function CompanyContainer({
   const [eventForms, setEventForms] = useState<Record<number, Form[]>>({})
   const [isLoadingForms, setIsLoadingForms] = useState<Record<number, boolean>>({})
   
+  // Form access levels - Story 2.9: Store access level for each form
+  const [formAccessLevels, setFormAccessLevels] = useState<Record<number, string | null>>({})
+  
   // Fetch events when expanded and company has events - Story 2.4
+  // Only load events if this company matches the active company context from auth
+  // Reload events when company changes, becomes active/expanded, or when auth context company changes
   useEffect(() => {
-    if (isExpanded && !hasChildren && company.eventCount > 0) {
-      loadEvents()
-    } else {
-      // Clear events when collapsed
+    // Only load events if:
+    // 1. Company is expanded
+    // 2. Company has no children (children have their own containers)
+    // 3. Company has events
+    // 4. This company matches the active company
+    // 
+    // IMPORTANT: Use `isActive` prop as PRIMARY check because it's updated optimistically
+    // in DashboardLayout when handleSelectCompany is called, before async operations complete.
+    // The `user?.company_id` might lag behind during company switches due to async state updates.
+    // We check BOTH to ensure we have the most accurate state, but prioritize the prop.
+    const isActiveFromContext = user?.company_id === company.companyId
+    const isActiveFromProp = isActive // Passed from DashboardLayout based on activeCompanyId
+    // Company is active if prop says so (fast, optimistic) OR context confirms (slower, authoritative)
+    const isActiveCompany = isActiveFromProp || isActiveFromContext
+    
+    console.log(`[CompanyContainer ${company.companyId}] Event load check:`, {
+      isExpanded,
+      hasChildren,
+      eventCount: company.eventCount,
+      isActiveCompany,
+      isActiveFromProp,
+      isActiveFromContext,
+      userCompanyId: user?.company_id,
+      companyId: company.companyId,
+      isActive
+    })
+    
+    // CRITICAL: Clear events if company is NOT active
+    // Only clear if we're certain it's not active (both prop and context agree)
+    // This prevents premature clearing during the transition period
+    if (!isActiveFromProp && !isActiveFromContext && user?.company_id !== undefined) {
+      // Both prop and context confirm this company is not active - clear events immediately
+      console.log(`[CompanyContainer ${company.companyId}] Clearing events - not active company (prop: ${isActiveFromProp}, context: ${isActiveFromContext}, userCompanyId: ${user?.company_id})`)
       setEvents([])
       setEventsError(null)
+      setExpandedEventIds([])
+      setEventForms({})
+      return // Don't try to load events for inactive company
+    }
+    
+    if (isExpanded && !hasChildren) {
+      // Load events if company is active (from prop OR context) and has events
+      // NOTE: We use isActiveCompany which checks both prop and context, so it works even
+      // during the transition period when prop says active but context hasn't updated yet
+      if (isActiveCompany && company.eventCount > 0) {
+        console.log(`[CompanyContainer ${company.companyId}] Loading events (active company, ${company.eventCount} events, prop: ${isActiveFromProp}, context: ${isActiveFromContext})...`)
+        // Pass isActiveCompany flag to loadEvents so it can bypass the user.company_id check
+        // during the transition period
+        loadEvents(isActiveCompany)
+      } else if (isActiveCompany && company.eventCount === 0) {
+        // Active company but no events - clear any existing events
+        console.log(`[CompanyContainer ${company.companyId}] Active company but no events (count: 0) - clearing`)
+        setEvents([])
+        setEventsError(null)
+        setExpandedEventIds([])
+        setEventForms({})
+      }
+    } else {
+      // Clear events when collapsed or has children
+      if (!isExpanded || hasChildren) {
+        console.log(`[CompanyContainer ${company.companyId}] Clearing events - collapsed or has children`)
+        setEvents([])
+        setEventsError(null)
+        setExpandedEventIds([])
+        setEventForms({})
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isExpanded, company.eventCount, company.childCompanies?.length])
+  }, [isExpanded, company.companyId, company.eventCount, company.childCompanies?.length, isActive, user?.company_id])
 
   // Listen for offline queue processing completion and refresh events
   useEffect(() => {
@@ -79,7 +151,7 @@ export function CompanyContainer({
       // Only refresh if this company is expanded and active
       if (isExpanded && isActive && !hasChildren) {
         console.log('🔄 Offline queue processed - refreshing events')
-        loadEvents()
+        loadEvents(true) // Pass isActive=true since we already checked it above
       }
     }
 
@@ -87,7 +159,7 @@ export function CompanyContainer({
     return () => {
       window.removeEventListener('offlineQueueProcessed', handleQueueProcessed)
     }
-  }, [isExpanded, isActive, hasChildren]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isExpanded, isActive, hasChildren]) // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // Listen for form creation/update and refresh forms for that event - Story 2.8
   useEffect(() => {
@@ -117,28 +189,87 @@ export function CompanyContainer({
     }
   }, [expandedEventIds]) // eslint-disable-line react-hooks/exhaustive-deps
   
-  const loadEvents = async () => {
+  const loadEvents = async (isActiveOverride?: boolean) => {
+    // Use isActiveOverride (from prop) if provided, otherwise check user context
+    // This allows loading events during company switch when prop is true but context hasn't updated yet
+    const isCurrentlyActive = isActiveOverride !== undefined 
+      ? isActiveOverride 
+      : (user?.company_id === company.companyId)
+    
+    if (!isCurrentlyActive) {
+      console.log(`[CompanyContainer ${company.companyId}] Skipping event load - not active company (override: ${isActiveOverride}, userCompanyId: ${user?.company_id})`)
+      return
+    }
+    
+    // Store the expected company ID to verify after async operation
+    const expectedCompanyId = company.companyId
+    const wasActiveFromProp = isActiveOverride === true
+    
+    console.log(`[CompanyContainer ${company.companyId}] Starting to load events... (wasActiveFromProp: ${wasActiveFromProp})`)
     setIsLoadingEvents(true)
     setEventsError(null)
+    
+    // Clear events immediately when starting to load (prevents stale data showing)
+    setEvents([])
+    
     try {
       const response = await getEvents(1, 50) // Load up to 50 events
+      
+      // CRITICAL: Verify the company is still active before setting events
+      // This prevents events from the previous company showing up after a switch
+      // Check both prop (isActive) and context (user.company_id) to handle transition period
+      const isStillActive = wasActiveFromProp || (user?.company_id === expectedCompanyId)
+      
+      if (!isStillActive) {
+        console.log(`[CompanyContainer ${expectedCompanyId}] Event load completed but company switched - discarding results (userCompanyId: ${user?.company_id}, wasActiveFromProp: ${wasActiveFromProp})`)
+        setEvents([])
+        return
+      }
+      
+      console.log(`[CompanyContainer ${company.companyId}] Loaded ${response.events.length} events`)
       setEvents(response.events)
     } catch (error) {
-      console.error('Failed to load events:', error)
-      setEventsError('Failed to load events')
-      setEvents([])
+      // Only set error if company is still active
+      const isStillActive = wasActiveFromProp || (user?.company_id === expectedCompanyId)
+      if (isStillActive) {
+        console.error(`[CompanyContainer ${company.companyId}] Failed to load events:`, error)
+        setEventsError('Failed to load events')
+        setEvents([])
+      } else {
+        console.log(`[CompanyContainer ${expectedCompanyId}] Event load failed but company switched - discarding error`)
+      }
     } finally {
-      setIsLoadingEvents(false)
+      // Only update loading state if company is still active
+      const isStillActive = wasActiveFromProp || (user?.company_id === expectedCompanyId)
+      if (isStillActive) {
+        setIsLoadingEvents(false)
+      }
     }
   }
   
   // Load forms for an event - Story 2.8
   // Always load forms so we can show count even when collapsed
+  // Story 2.9: Also check access level for each form
   const loadFormsForEvent = async (eventId: number) => {
     setIsLoadingForms(prev => ({ ...prev, [eventId]: true }))
     try {
       const response = await getFormsByEvent(eventId)
       setEventForms(prev => ({ ...prev, [eventId]: response.forms }))
+      
+      // Check access level for each form - Story 2.9
+      const accessLevels: Record<number, string | null> = {}
+      await Promise.all(
+        response.forms.map(async (form) => {
+          try {
+            const accessCheck = await checkFormAccess(form.formId)
+            accessLevels[form.formId] = accessCheck.accessLevel || accessCheck.accessType?.accessTypeCode || null
+          } catch (error) {
+            console.error(`Failed to check access for form ${form.formId}:`, error)
+            accessLevels[form.formId] = null
+          }
+        })
+      )
+      setFormAccessLevels(prev => ({ ...prev, ...accessLevels }))
     } catch (error) {
       console.error(`Failed to load forms for event ${eventId}:`, error)
       setEventForms(prev => ({ ...prev, [eventId]: [] }))
@@ -233,31 +364,52 @@ export function CompanyContainer({
         <div className="p-4 flex items-center justify-between">
           {/* Left: Expand toggle + Company info */}
           <div className="flex items-center gap-3 flex-1">
-            {/* Expand/Collapse Toggle - AC-1.18.10 */}
-            {hasChildren && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation() // Don't trigger container selection
-                  onToggleExpand(company.companyId)
-                }}
-                className="text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100"
-                aria-label={isExpanded ? 'Collapse' : 'Expand'}
-              >
-                {isExpanded ? (
-                  <ChevronDown className="w-5 h-5" />
-                ) : (
-                  <ChevronRight className="w-5 h-5" />
-                )}
-              </button>
-            )}
+            {/* Expand/Collapse Toggle - Always visible to allow collapsing/expanding events */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation() // Don't trigger container selection
+                onToggleExpand(company.companyId)
+              }}
+              className="text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100 flex-shrink-0"
+              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+              title={isExpanded ? 'Collapse' : 'Expand'}
+            >
+              {isExpanded ? (
+                <ChevronDown className="w-5 h-5" />
+              ) : (
+                <ChevronRight className="w-5 h-5" />
+              )}
+            </button>
             
             {/* Company Icon and Name */}
             <div className="flex items-center gap-2 flex-1">
               <Building2 className={`w-5 h-5 ${isActive ? 'text-teal-600' : 'text-gray-400'}`} />
-              <div>
-                <h3 className={`font-semibold ${isActive ? 'text-teal-900' : 'text-gray-900'}`}>
-                  {company.companyName}
-                </h3>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className={`font-semibold ${isActive ? 'text-teal-900' : 'text-gray-900'}`}>
+                    {company.companyName}
+                  </h3>
+                  {/* Default Company Indicator - Clickable to set as default */}
+                  {(company.isPrimaryCompany || company.joinedVia === 'signup') && onSetDefaultCompany && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation() // Don't trigger container selection
+                        if (!company.isPrimaryCompany) {
+                          onSetDefaultCompany(company.companyId)
+                        }
+                      }}
+                      className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                        company.isPrimaryCompany ? 'cursor-default' : 'cursor-pointer'
+                      }`}
+                      title={company.isPrimaryCompany ? 'Default Company' : company.joinedVia === 'signup' ? 'Your Company - Click to set as default' : 'Click to set as default'}
+                      disabled={company.isPrimaryCompany}
+                    >
+                      <Star 
+                        className={`w-4 h-4 ${company.isPrimaryCompany ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-yellow-400'}`} 
+                      />
+                    </button>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 mt-1">
                   {/* Relationship Badge */}
                   <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
@@ -277,14 +429,17 @@ export function CompanyContainer({
           {/* Right: Action Icons - AC-1.18.7: Team panel trigger */}
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             {/* User Management Icon - AC-1.18.7 */}
-            <button
-              onClick={() => onOpenTeamPanel(company.companyId)}
-              className="p-2 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label="Team Management"
-              title="Team Management"
-            >
-              <UsersIcon className="w-5 h-5" />
-            </button>
+            {/* Team Management button - only show for Company Admin and Company User (not Company Viewer) */}
+            {(company.userRole === 'Company Admin' || company.userRole === 'Company User') && (
+              <button
+                onClick={() => onOpenTeamPanel(company.companyId)}
+                className="p-2 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
+                aria-label="Team Management"
+                title="Team Management"
+              >
+                <UsersIcon className="w-5 h-5" />
+              </button>
+            )}
 
             {/* Settings Icon - Only for admins */}
             {isAdmin && (
@@ -320,7 +475,14 @@ export function CompanyContainer({
               onSelect={onSelect}
               onToggleExpand={onToggleExpand}
               onOpenTeamPanel={onOpenTeamPanel}
+              onSetDefaultCompany={onSetDefaultCompany}
               onCreateEvent={onCreateEvent}
+              onEditEvent={onEditEvent}
+              onDeleteEvent={onDeleteEvent}
+              onCreateForm={onCreateForm}
+              onEditForm={onEditForm}
+              onDeleteForm={onDeleteForm}
+              onViewForm={onViewForm}
               depth={depth + 1}
               maxDepth={maxDepth}
             />
@@ -603,28 +765,60 @@ export function CompanyContainer({
                                           )}
                                         </div>
                                         
-                                        {/* Action Icons */}
+                                        {/* Action Icons - Story 2.9: Conditionally show based on access level */}
                                         <div className="flex items-center gap-1 flex-shrink-0">
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation()
-                                              onEditForm?.(form)
-                                            }}
-                                            className="p-1 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded transition-colors"
-                                            title="Edit form"
-                                          >
-                                            <Edit2 className="w-3.5 h-3.5" />
-                                          </button>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation()
-                                              onDeleteForm?.(form)
-                                            }}
-                                            className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                                            title="Delete form"
-                                          >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                          </button>
+                                          {(() => {
+                                            const accessLevel = formAccessLevels[form.formId]?.toUpperCase()
+                                            const hasView = accessLevel && ['VIEW', 'SUBMIT', 'ANALYZE', 'EDIT', 'MANAGE'].includes(accessLevel)
+                                            const hasEdit = accessLevel && ['EDIT', 'MANAGE'].includes(accessLevel)
+                                            const hasManage = accessLevel === 'MANAGE'
+                                            
+                                            return (
+                                              <>
+                                                {/* View button - shown for VIEW, SUBMIT, ANALYZE, EDIT, or MANAGE access */}
+                                                {hasView && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation()
+                                                      onViewForm?.(form)
+                                                    }}
+                                                    className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
+                                                    title="View form"
+                                                  >
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                  </button>
+                                                )}
+                                                
+                                                {/* Edit button - shown for EDIT or MANAGE access */}
+                                                {hasEdit && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation()
+                                                      onEditForm?.(form)
+                                                    }}
+                                                    className="p-1 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded transition-colors"
+                                                    title="Edit form"
+                                                  >
+                                                    <Edit2 className="w-3.5 h-3.5" />
+                                                  </button>
+                                                )}
+                                                
+                                                {/* Delete button - only shown for MANAGE access */}
+                                                {hasManage && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation()
+                                                      onDeleteForm?.(form)
+                                                    }}
+                                                    className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                                    title="Delete form"
+                                                  >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                  </button>
+                                                )}
+                                              </>
+                                            )
+                                          })()}
                                         </div>
                                       </div>
                                       

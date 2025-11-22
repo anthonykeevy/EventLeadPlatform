@@ -24,7 +24,7 @@ logger = get_logger(__name__)
 
 
 INVITATION_EXPIRY_DAYS = 7
-ALLOWED_INVITATION_ROLES = ["company_admin", "company_user"]
+ALLOWED_INVITATION_ROLES = ["company_admin", "company_user", "company_viewer"]
 
 
 def generate_invitation_token() -> str:

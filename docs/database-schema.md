@@ -1,7 +1,10 @@
 # Database Schema - EventLeadPlatform
 
-**Generated:** 2025-11-06 17:22:53
+**Generated:** 2025-11-19 19:21:39
+**Updated:** 2025-01-XX (Added agency role, ownership transfer, access function)
 **Total Tables:** 61
+**Stored Procedures:** 1 (sp_TransferFormOwnership)
+**Functions:** 1 (fn_GetUserFormAccess)
 
 ## Overview
 
@@ -695,7 +698,7 @@ This document provides a complete schema reference for the EventLeadPlatform dat
 
 ### Table: ref.EventCompanyRole
 
-**Columns (15):**
+**Columns (17):**
 
 | Column Name | Data Type | Nullable | Default | Notes |
 |------------|-----------|----------|---------|-------|
@@ -714,6 +717,8 @@ This document provides a complete schema reference for the EventLeadPlatform dat
 | CreatedBy | BIGINT | YES |  | FK→dbo.User |
 | UpdatedDate | DATETIME | YES |  |  |
 | UpdatedBy | BIGINT | YES |  | FK→dbo.User |
+| HasViewAllFormsForEvent | BIT | NO | '0' |  |
+| HasEditAllFormsForEvent | BIT | NO | '0' |  |
 
 ---
 
@@ -1478,5 +1483,75 @@ This document provides a complete schema reference for the EventLeadPlatform dat
 | UserAgent | NVARCHAR(500) | YES |  |  |
 | CreatedDate | DATETIME2 | NO | getutcdate() |  |
 | IsDeleted | BIT | NO | 0 |  |
+
+---
+
+## Stored Procedures
+
+### Procedure: dbo.sp_TransferFormOwnership
+
+**Purpose:** Bulk transfer form ownership from one user to another (for user off-boarding scenarios)
+
+**Parameters:**
+
+| Parameter | Data Type | Nullable | Description |
+|-----------|-----------|----------|-------------|
+| @FromUserID | BIGINT | NO | User ID to transfer ownership FROM (off-boarding user) |
+| @ToUserID | BIGINT | NO | User ID to transfer ownership TO (new owner) |
+| @CompanyID | BIGINT | NO | Company ID (must match company of both users) |
+| @PerformedBy | BIGINT | NO | User ID performing the transfer (must be Company Admin or System Admin) |
+| @Reason | NVARCHAR(500) | YES | Optional reason for transfer (e.g., "Bulk ownership transfer on offboarding") |
+
+**Returns:**
+- `FormsTransferred` (INT) - Number of forms transferred
+- `AccessControlsTransferred` (INT) - Number of access control entries transferred
+- `Status` (VARCHAR) - 'SUCCESS' or error status
+- `Message` (NVARCHAR) - Status message
+
+**Behavior:**
+- Validates that `@PerformedBy` has Company Admin privileges for `@CompanyID` OR is System Admin
+- Updates `Form.CreatedBy` from `@FromUserID` to `@ToUserID` for all forms in the company
+- Updates `FormAccessControl.UserID` from `@FromUserID` to `@ToUserID` for all access control entries
+- Inserts audit records into `audit.ActivityLog` for each transferred form
+- Transaction-safe with rollback on error
+
+---
+
+## Functions
+
+### Function: dbo.fn_GetUserFormAccess
+
+**Purpose:** Centralized table-valued function that determines a user's effective access to a form
+
+**Parameters:**
+
+| Parameter | Data Type | Description |
+|-----------|-----------|-------------|
+| @UserID | BIGINT | User ID to check access for |
+| @FormID | BIGINT | Form ID to check access for |
+
+**Returns (Table):**
+
+| Column | Data Type | Description |
+|--------|-----------|-------------|
+| UserID | BIGINT | User ID (input parameter) |
+| FormID | BIGINT | Form ID (input parameter) |
+| EffectiveAccessTypeID | INT | Effective access type ID (from ref.FormAccessControlAccessType) |
+| EffectiveAccessTypeCode | VARCHAR(20) | Effective access type code ('MANAGE', 'EDIT', 'ANALYZE', 'SUBMIT', 'VIEW', or NULL) |
+| CanView | BIT | Can user view the form? |
+| CanSubmit | BIT | Can user submit responses? |
+| CanAnalyze | BIT | Can user view analytics? |
+| CanEdit | BIT | Can user edit the form? |
+| CanManage | BIT | Can user manage the form (delete, grant access)? |
+| AccessSource | VARCHAR(50) | Source of access ('system_admin', 'ownership', 'explicit_acl', 'agency_event', 'company_role', 'none') |
+| AccessReason | NVARCHAR(500) | Human-readable explanation of access source |
+
+**Access Check Priority:**
+1. System Admin Override → MANAGE
+2. Resource Ownership → MANAGE (form creator)
+3. Explicit FormAccessControl → Use specified access type
+4. Agency Event-Scoped Access → VIEW/EDIT all forms for event (if `agency_form_builder` role)
+5. Company Role Default → Default based on company role
+6. No Access → NULL (requires explicit FormAccessControl entry)
 
 ---

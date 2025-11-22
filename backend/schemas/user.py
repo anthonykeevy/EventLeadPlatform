@@ -84,7 +84,11 @@ class UserProfileResponse(BaseModel):
 # ============================================================================
 
 class SwitchCompanyRequest(BaseModel):
-    company_id: int = Field(..., description="The ID of the company to switch to.")
+    company_id: int = Field(..., description="The ID of the company to switch to.", alias="companyId")
+    
+    model_config = ConfigDict(
+        populate_by_name=True  # Allow both company_id and companyId
+    )
 
 class SwitchedCompanyInfo(BaseModel):
     company_id: int
@@ -94,6 +98,9 @@ class SwitchedCompanyInfo(BaseModel):
 class SwitchCompanyResponse(BaseModel):
     access_token: str
     refresh_token: str
+    company: SwitchedCompanyInfo
+
+class SetDefaultCompanyResponse(BaseModel):
     company: SwitchedCompanyInfo
     
 class RelationshipInfo(BaseModel):
@@ -109,6 +116,7 @@ class UserCompanyInfo(BaseModel):
     role: str
     is_primary: bool
     joined_at: datetime
+    joined_via: Optional[str] = Field(None, description="Method by which user joined (e.g., 'signup', 'invitation')")
     relationship: Optional[RelationshipInfo] = None
     event_count: Optional[int] = Field(0, description="Number of active events for this company")
 

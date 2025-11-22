@@ -7,13 +7,14 @@ export interface Company {
   companyId: number
   companyName: string
   relationshipType: 'Head Office' | 'Branch' | 'Freelancer' | 'Partner'
-  userRole: 'Company Admin' | 'Company User'
+  userRole: 'Company Admin' | 'Company User' | 'Company Viewer'
   parentCompanyId: number | null
   childCompanies: Company[]
   eventCount: number
   formCount: number
   hierarchyLevel: number
   isPrimaryCompany: boolean
+  joinedVia?: string | null  // 'signup', 'invitation', etc.
 }
 
 export interface KPIData {

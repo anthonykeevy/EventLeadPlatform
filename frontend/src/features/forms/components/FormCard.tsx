@@ -3,10 +3,12 @@
  * Displays form information in a card format
  */
 
-import React from 'react'
-import { FileText, Calendar, Edit2, Trash2, Eye } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { FileText, Calendar, Edit2, Trash2, Eye, Shield, Lock, Unlock } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
+import { checkFormAccess } from '../api/formAccessApi'
+import { AccessCheckResponse } from '../types/form-access.types'
 
 interface FormCardProps {
   form: Form
@@ -16,6 +18,25 @@ interface FormCardProps {
 }
 
 export function FormCard({ form, onEdit, onDelete, onView }: FormCardProps) {
+  const [userAccess, setUserAccess] = useState<AccessCheckResponse | null>(null)
+
+  useEffect(() => {
+    loadUserAccess()
+  }, [form.formId])
+
+  const loadUserAccess = async () => {
+    try {
+      const access = await checkFormAccess(form.formId)
+      setUserAccess(access)
+    } catch (err) {
+      console.error('Failed to check form access:', err)
+    }
+  }
+
+  const canManage = userAccess?.accessLevel === 'MANAGE'
+  const canEdit = canManage || userAccess?.accessLevel === 'EDIT'
+  const isShared = userAccess?.hasAccess && userAccess?.accessLevel !== 'MANAGE' // Not owner
+
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'Never'
     try {
@@ -39,9 +60,23 @@ export function FormCard({ form, onEdit, onDelete, onView }: FormCardProps) {
       {/* Header with Status Badge */}
       <div className="p-4 pb-3 border-b border-gray-100">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="text-lg font-semibold text-gray-900 flex-1 pr-2 line-clamp-2">
-            {form.formName}
-          </h3>
+          <div className="flex-1 pr-2">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                {form.formName}
+              </h3>
+              {isShared && (
+                <span className="flex items-center gap-1 text-xs text-teal-600" title="Shared form">
+                  <Shield className="w-3 h-3" />
+                </span>
+              )}
+            </div>
+            {userAccess?.accessLevel && userAccess.accessLevel !== 'MANAGE' && (
+              <span className="text-xs text-gray-500">
+                Access: {userAccess.accessLevel}
+              </span>
+            )}
+          </div>
           <FormStatusBadge status={form.formStatus} approvalStatus={form.formApprovalStatus} />
         </div>
       </div>
@@ -93,28 +128,32 @@ export function FormCard({ form, onEdit, onDelete, onView }: FormCardProps) {
             View
           </button>
         )}
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onEdit(form)
-          }}
-          className="px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-md transition-colors flex items-center gap-1"
-          aria-label={`Edit ${form.formName}`}
-        >
-          <Edit2 className="w-4 h-4" />
-          Edit
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onDelete(form)
-          }}
-          className="px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors flex items-center gap-1"
-          aria-label={`Delete ${form.formName}`}
-        >
-          <Trash2 className="w-4 h-4" />
-          Delete
-        </button>
+        {canEdit && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit(form)
+            }}
+            className="px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-md transition-colors flex items-center gap-1"
+            aria-label={`Edit ${form.formName}`}
+          >
+            <Edit2 className="w-4 h-4" />
+            Edit
+          </button>
+        )}
+        {canManage && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(form)
+            }}
+            className="px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors flex items-center gap-1"
+            aria-label={`Delete ${form.formName}`}
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </button>
+        )}
       </div>
     </div>
   )

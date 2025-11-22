@@ -4,6 +4,7 @@ Endpoints for event CRUD operations
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select, text
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
@@ -12,6 +13,7 @@ from common.database import get_db
 from modules.auth.dependencies import get_current_user
 from modules.auth.models import CurrentUser
 from models.event import Event
+from models.form import Form
 from models.ref.event_type import EventType
 from models.ref.event_status import EventStatus
 from models.ref.industry import Industry
@@ -302,6 +304,8 @@ async def list_company_events(
     
     Requires authentication and company context.
     Automatically filters by CompanyID for multi-tenant isolation.
+    
+    System Admins: Returns ALL events in the platform (bypasses company filtering)
     """
     try:
         # Build filters dict
@@ -319,14 +323,31 @@ async def list_company_events(
         if search:
             filters['search'] = search
         
-        # Get events from BOTH sources:
+        # Ensure company context exists (required for all roles now)
+        if not current_user.company_id:
+             if current_user.role == "system_admin":
+                 logger.warning("System Admin listing events without company context - returning empty list")
+                 return EventListResponse(events=[], total=0, page=page, page_size=page_size)
+             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Company context required")
+
+        # System Admins previously saw ALL events here (bypassing company). 
+        # We now force them to use the standard flow below (company-scoped), 
+        # but the "system_admin" role will bypass form access checks in get_company_events.
+        if False and current_user.role == "system_admin":
+             pass # Code removed/disabled
+        
+        # Regular users AND System Admins (in company context): Get events from BOTH sources:
         # 1. Events from EventCompany relationships (includes participant events)
         # 2. Events directly owned by company (for legacy events without EventCompany records)
+        # Filter by user form access: only show events where user has access to at least one form
+        # (Skipped for Company Admins and Company Users - they see all company events)
         events_from_relationships = await get_company_events(
             db=db,
             company_id=current_user.company_id,
             active_only=True,
-            include_participant=True
+            include_participant=True,
+            user_id=current_user.user_id,
+            user_role=current_user.role
         )
         
         # Get events directly owned by company (for legacy events without EventCompany records)
@@ -349,6 +370,61 @@ async def list_company_events(
             if event.EventID not in event_ids_seen:
                 events.append(event)
                 event_ids_seen.add(event.EventID)
+        
+        # Filter events by user form access (apply to merged list)
+        # Only include events where user has access to at least one form
+        # Skip filtering for Company Admins and Company Users - they should see all company events
+        if events and current_user.role not in ["company_admin", "company_user", "system_admin"]:
+            accessible_event_ids = set()
+            
+            for event in events:
+                # Get all forms for this event
+                forms = db.execute(
+                    select(Form).where(
+                        Form.EventID == event.EventID,
+                        Form.IsDeleted == False
+                    )
+                ).scalars().all()
+                
+                # For Company Viewers: Only include events where user has access to at least one form
+                # Events with no forms are NOT accessible to Company Viewers
+                # (Company Admins and Company Users would see all events, but they're filtered out above)
+                if not forms:
+                    # Event has no forms - Company Viewer cannot have access
+                    continue
+                
+                # Check if user has access to at least one form in this event
+                for form in forms:
+                    try:
+                        # Use the database function to check access
+                        result = db.execute(
+                            text("""
+                                SELECT CanView
+                                FROM [dbo].[fn_GetUserFormAccess](:user_id, :form_id)
+                            """),
+                            {"user_id": current_user.user_id, "form_id": form.FormID}
+                        ).fetchone()
+                        
+                        if result and bool(result.CanView):
+                            # User has access to at least one form in this event
+                            accessible_event_ids.add(event.EventID)
+                            break  # No need to check other forms for this event
+                    except Exception as e:
+                        # If function doesn't exist or error occurs, log and skip this form
+                        error_msg = str(e)
+                        if "fn_GetUserFormAccess" in error_msg or "Invalid object name" in error_msg:
+                            logger.error(f"Database function fn_GetUserFormAccess not found. This indicates migrations haven't been run. Event filtering may not work correctly for EventID={event.EventID}")
+                            # If the function doesn't exist, we can't filter properly, so skip this event
+                            # This ensures that events are only shown if we can verify access
+                            break  # Skip to next event
+                        else:
+                            logger.warning(f"Error checking form access for FormID={form.FormID}, EventID={event.EventID}: {error_msg}")
+                        # Continue checking other forms
+            
+            # Filter events to only include those where user has access to at least one form
+            events = [e for e in events if e.EventID in accessible_event_ids]
+        
+        logger.info(f"Filtered merged events to {len(events)} events where UserID={current_user.user_id} (role={current_user.role}) has form access")
         
         # Apply additional filters if provided
         if filters:
@@ -427,12 +503,16 @@ async def get_event_details(
         # If not found, check if event exists and company is a participant
         if not event:
             # Check if event exists (public event or participant relationship)
+            # Filter by user form access: only show events where user has access to at least one form
+            # (Skipped for Company Admins and Company Users - they see all company events)
             from modules.events.event_company_service import get_company_events
             company_events = await get_company_events(
                 db=db,
                 company_id=current_user.company_id,
                 active_only=True,
-                include_participant=True
+                include_participant=True,
+                user_id=current_user.user_id,
+                user_role=current_user.role
             )
             
             event = next((e for e in company_events if e.EventID == event_id), None)

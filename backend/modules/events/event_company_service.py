@@ -3,7 +3,7 @@ EventCompany Service Module
 Business logic for EventCompany relationship management
 """
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, text
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
@@ -12,6 +12,7 @@ from models.ref.event_company_role import EventCompanyRole
 from models.ref.event_status import EventStatus
 from models.event import Event
 from models.company import Company
+from models.form import Form
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -126,16 +127,26 @@ async def get_company_events(
     db: Session,
     company_id: int,
     active_only: bool = True,
-    include_participant: bool = True
+    include_participant: bool = True,
+    user_id: Optional[int] = None,
+    user_role: Optional[str] = None
 ) -> List[Event]:
     """
     Get all events for a company, including events where company is a participant.
+    Optionally filters events to only include those where the user has access to at least one form.
+    
+    Note: Filtering by form access is skipped for Company Admins and Company Users,
+    who should see all events for their company regardless of form access.
     
     Args:
         db: Database session
         company_id: Company ID
         active_only: If True, only return active relationships
         include_participant: If True, include events where company is a participant
+        user_id: Optional user ID to filter events based on form access. If provided, only returns
+                 events where the user has access to at least one form (VIEW access or higher)
+        user_role: Optional user role. If "company_admin" or "company_user", form access filtering
+                   is skipped (they see all company events)
         
     Returns:
         List of Event objects
@@ -187,6 +198,107 @@ async def get_company_events(
     
     if archived_status:
         events = [e for e in events if e.EventStatusID != archived_status.EventStatusID]
+    
+    # Filter events based on user form access if user_id is provided
+    # Skip filtering for Company Admins and Company Users - they should see all company events
+    if user_id is not None and user_role not in ["company_admin", "company_user", "system_admin"]:
+        accessible_event_ids = set()
+        
+        # Get all forms for the events and check user access
+        for event in events:
+            # Get all forms for this event that belong to the company
+            forms = db.execute(
+                select(Form).where(
+                    Form.EventID == event.EventID,
+                    Form.CompanyID == company_id,  # Only check forms owned by this company
+                    Form.IsDeleted == False
+                )
+            ).scalars().all()
+            
+            # For Company Viewers: Only include events where user has access to at least one form
+            # Events with no forms are NOT accessible to Company Viewers
+            # (Company Admins and Company Users would see all events, but they're filtered out above)
+            if not forms:
+                # Event has no forms owned by this company - Company Viewer cannot have access
+                continue
+            
+            # Check if user has access to at least one form in this event
+            for form in forms:
+                try:
+                    # Use the database function to check access
+                    result = db.execute(
+                        text("""
+                            SELECT CanView
+                            FROM [dbo].[fn_GetUserFormAccess](:user_id, :form_id)
+                        """),
+                        {"user_id": user_id, "form_id": form.FormID}
+                    ).fetchone()
+                    
+                    if result and bool(result.CanView):
+                        # User has access to at least one form in this event
+                        accessible_event_ids.add(event.EventID)
+                        break  # No need to check other forms for this event
+                except Exception as e:
+                    # If function doesn't exist or error occurs, log and skip this form
+                    error_msg = str(e)
+                    if "fn_GetUserFormAccess" in error_msg or "Invalid object name" in error_msg:
+                        logger.warning(f"Database function fn_GetUserFormAccess not found. Skipping form access check for EventID={event.EventID}")
+                    else:
+                        logger.warning(f"Error checking form access for FormID={form.FormID}, EventID={event.EventID}: {error_msg}")
+                    # Continue checking other forms
+        
+        # CRITICAL: Also include events where the company has forms (even if not linked via EventCompany)
+        # This handles the case where a company owns forms for an event but the event is not linked via EventCompany
+        # For Company Viewers, we need to include events where they have form access, regardless of EventCompany linkage
+        additional_events_query = db.execute(
+            text("""
+                SELECT DISTINCT f.EventID
+                FROM [dbo].[Form] f
+                WHERE f.CompanyID = :company_id
+                  AND f.EventID IS NOT NULL
+                  AND f.IsDeleted = 0
+                  AND EXISTS (
+                      SELECT 1
+                      FROM [dbo].[fn_GetUserFormAccess](:user_id, f.FormID) a
+                      WHERE a.CanView = 1
+                  )
+            """),
+            {"company_id": company_id, "user_id": user_id}
+        ).fetchall()
+        
+        for row in additional_events_query:
+            accessible_event_ids.add(row.EventID)
+        
+        # Now get the Event objects for all accessible events (both from EventCompany and from forms)
+        if accessible_event_ids:
+            # Get events from EventCompany (already have these)
+            accessible_events = [e for e in events if e.EventID in accessible_event_ids]
+            
+            # Get additional events that aren't in EventCompany but have accessible forms
+            event_ids_from_ec = {e.EventID for e in events}
+            missing_event_ids = accessible_event_ids - event_ids_from_ec
+            
+            if missing_event_ids:
+                # Fetch these events directly
+                missing_events = db.execute(
+                    select(Event)
+                    .where(Event.EventID.in_(list(missing_event_ids)))
+                    .where(Event.IsDeleted == False)
+                ).scalars().all()
+                
+                # Exclude archived events
+                if archived_status:
+                    missing_events = [e for e in missing_events if e.EventStatusID != archived_status.EventStatusID]
+                
+                accessible_events.extend(missing_events)
+            
+            events = accessible_events
+        else:
+            events = []
+        
+        logger.info(f"Filtered to {len(events)} events for CompanyID={company_id} where UserID={user_id} (role={user_role}) has form access")
+    elif user_id is not None:
+        logger.info(f"Skipping form access filter for UserID={user_id} with role={user_role} - showing all company events")
     
     # Order by start date descending (most recent first)
     events.sort(key=lambda e: e.StartDateTime if e.StartDateTime else datetime.min, reverse=True)

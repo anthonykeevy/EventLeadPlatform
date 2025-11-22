@@ -25,6 +25,8 @@ from modules.events.router import router as events_router
 from modules.admin.dashboard_router import router as admin_dashboard_router  # Story 2.6
 from modules.events.admin_review_router import router as admin_review_router  # Story 2.6
 from modules.forms.router import router as forms_router  # Story 2.8: Form Header Foundation
+from modules.forms.access_control_router import router as forms_access_control_router  # Story 2.9: Form Access Control
+from modules.forms.ownership_router import router as forms_ownership_router  # Story 2.9: Form Ownership Transfer
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -73,6 +75,10 @@ app.include_router(dashboard_router)  # Story 1.18: Dashboard KPIs
 app.include_router(events_router)  # Story 2.4: Event Management CRUD
 app.include_router(admin_dashboard_router, prefix="/api")  # Story 2.6: Admin Dashboard
 app.include_router(admin_review_router, prefix="/api")  # Story 2.6: Admin Review
+# Register access_control_router FIRST to ensure specific routes (access-types, relationship-types) 
+# are matched before parameterized routes ({form_id}) in forms_router
+app.include_router(forms_access_control_router)  # Story 2.9: Form Access Control
+app.include_router(forms_ownership_router)  # Story 2.9: Form Ownership Transfer
 app.include_router(forms_router)  # Story 2.8: Form Header Foundation
 
 @app.get("/")

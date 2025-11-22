@@ -10,7 +10,11 @@ export { FormStatusBadge } from './components/FormStatusBadge'
 export { CreateFormModal } from './components/CreateFormModal'
 export { EditFormModal } from './components/EditFormModal'
 export { DeleteFormConfirmModal } from './components/DeleteFormConfirmModal'
+export { FormAccessControlModal } from './components/FormAccessControlModal'
+export { GrantAccessForm } from './components/GrantAccessForm'
 
 export * from './types/form.types'
+export * from './types/form-access.types'
 export * from './api/formsApi'
+export * from './api/formAccessApi'
 

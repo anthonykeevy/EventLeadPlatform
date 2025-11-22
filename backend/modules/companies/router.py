@@ -1067,21 +1067,43 @@ async def get_company_users(
     """
     Get all users for a specific company.
     AC-1.18.7: Team management panel shows users for clicked company.
+    
+    Requires company_admin or company_user role (Company Viewers cannot access team management).
+    System Admins: Can access team management for any company (bypasses company membership check).
     """
     from models.user_company import UserCompany
     from models.user import User
     
-    # Verify current user has access to this company
-    user_company = db.query(UserCompany).filter(
-        UserCompany.UserID == current_user.user_id,
-        UserCompany.CompanyID == company_id
-    ).first()
+    # System Admins can access any company's team management
+    is_system_admin = current_user.role == "system_admin"
     
-    if not user_company:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this company"
-        )
+    if not is_system_admin:
+        # Verify current user has access to this company
+        user_company = db.query(UserCompany).filter(
+            UserCompany.UserID == current_user.user_id,
+            UserCompany.CompanyID == company_id
+        ).first()
+        
+        if not user_company:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this company"
+            )
+        
+        # Verify user has appropriate role (Company Admin or Company User - not Company Viewer)
+        if current_user.role == 'company_viewer':
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Company Viewers cannot access team management"
+            )
+    else:
+        # System Admin: Verify company exists
+        company = db.get(Company, company_id)
+        if not company or company.IsDeleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Company not found"
+            )
     
     # Get all users for this company
     company_users = db.query(UserCompany).filter(
@@ -1111,11 +1133,15 @@ async def get_company_users(
                 "status": user_status
             })
     
+    # Get company name
+    company = db.get(Company, company_id)
+    company_name = company.CompanyName if company else "Unknown Company"
+    
     return JSONResponse(
         status_code=200,
         content={
             "companyId": company_id,
-            "companyName": "Company Name",  # TODO: Get from Company table
+            "companyName": company_name,
             "users": users_list
         }
     )

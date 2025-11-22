@@ -191,6 +191,8 @@ async def list_company_forms(
     
     Requires authentication and company context.
     Automatically filters by CompanyID for multi-tenant isolation.
+    
+    System Admins: Returns ALL forms in the platform (bypasses company filtering)
     """
     try:
         # Build filters dict
@@ -202,12 +204,46 @@ async def list_company_forms(
         if search:
             filters['search'] = search
         
-        # Get forms
-        forms = await get_forms(
-            db=db,
-            company_id=current_user.company_id,
-            filters=filters
-        )
+        # System Admins see ALL forms, not just company forms
+        if current_user.role == "system_admin":
+            from models.form import Form
+            from sqlalchemy import select
+            from sqlalchemy.orm import joinedload
+            
+            # Get all forms (bypass company filtering)
+            query = db.query(Form).options(
+                joinedload(Form.form_status),
+                joinedload(Form.form_approval_status),
+                joinedload(Form.company),
+                joinedload(Form.event)
+            ).filter(Form.IsDeleted == False)
+            
+            # Apply filters
+            if filters.get('form_status_id'):
+                query = query.filter(Form.FormStatusID == filters['form_status_id'])
+            if filters.get('event_id'):
+                query = query.filter(Form.EventID == filters['event_id'])
+            if filters.get('search'):
+                from sqlalchemy import or_
+                search_term = f"%{filters['search']}%"
+                query = query.filter(
+                    or_(
+                        Form.FormName.like(search_term),
+                        Form.FormDescription.like(search_term)
+                    )
+                )
+            
+            forms = query.order_by(Form.CreatedDate.desc()).all()
+            
+            logger.info(f"System Admin {current_user.user_id} viewing all {len(forms)} forms")
+        else:
+            # Regular users: Get forms (with access filtering)
+            forms = await get_forms(
+                db=db,
+                company_id=current_user.company_id,
+                user_id=current_user.user_id,
+                filters=filters
+            )
         
         # Convert to response models
         form_responses = [_form_to_response(f) for f in forms]
@@ -250,7 +286,8 @@ async def get_form_details(
         form = await get_form_by_id(
             db=db,
             form_id=form_id,
-            company_id=current_user.company_id
+            company_id=current_user.company_id,
+            user_id=current_user.user_id
         )
         
         if not form:

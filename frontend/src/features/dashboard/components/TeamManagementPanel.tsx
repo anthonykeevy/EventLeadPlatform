@@ -17,7 +17,7 @@ import type { Invitation } from '../types/team.types'
 interface TeamManagementPanelProps {
   companyId: number
   companyName: string
-  userRole: 'Company Admin' | 'Company User'
+  userRole: 'Company Admin' | 'Company User' | 'Company Viewer'
   isOpen: boolean
   onClose: () => void
 }
@@ -55,10 +55,19 @@ export function TeamManagementPanel({
       }
     } catch (error) {
       console.error('Failed to load team data:', error)
+      // If access denied, close the panel and show error
+      if (error instanceof Error && (
+        error.message.includes('403') || 
+        error.message.includes('Forbidden') ||
+        error.message.includes('cannot access team management')
+      )) {
+        onClose()
+        // Error will be shown by the error handler in the component that opened the panel
+      }
     } finally {
       setIsLoading(false)
     }
-  }, [companyId, isAdmin])
+  }, [companyId, isAdmin, onClose])
 
   useEffect(() => {
     if (isOpen && companyId) {

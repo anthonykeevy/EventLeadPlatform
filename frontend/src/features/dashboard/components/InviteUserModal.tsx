@@ -29,7 +29,7 @@ export function InviteUserModal({
     firstName: '',
     lastName: '',
     role: 'company_user'
-  })
+  } as InviteUserRequest)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -61,7 +61,7 @@ export function InviteUserModal({
     // Role validation
     if (!formData.role) {
       newErrors.role = 'Role is required'
-    } else if (!['company_admin', 'company_user'].includes(formData.role)) {
+    } else if (!['company_admin', 'company_user', 'company_viewer'].includes(formData.role)) {
       newErrors.role = 'Invalid role selected'
     }
 
@@ -281,7 +281,7 @@ export function InviteUserModal({
               <select
                 id="role"
                 value={formData.role}
-                onChange={(e) => handleChange('role', e.target.value as 'company_admin' | 'company_user')}
+                onChange={(e) => handleChange('role', e.target.value as 'company_admin' | 'company_user' | 'company_viewer')}
                 className={`block w-full px-3 py-2 border ${
                   errors.role ? 'border-red-300' : 'border-gray-300'
                 } rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
@@ -289,12 +289,13 @@ export function InviteUserModal({
               >
                 <option value="company_user">Company User</option>
                 <option value="company_admin">Company Admin</option>
+                <option value="company_viewer">Company Viewer</option>
               </select>
               {errors.role && (
                 <p className="mt-1 text-sm text-red-600">{errors.role}</p>
               )}
               <p className="mt-1 text-xs text-gray-500">
-                Company Admins can invite and manage team members
+                Company Admins can invite and manage team members. Company Viewers have read-only access.
               </p>
             </div>
 

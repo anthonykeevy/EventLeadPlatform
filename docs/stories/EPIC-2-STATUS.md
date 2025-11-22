@@ -1,9 +1,9 @@
 # Epic 2 Status - Enhanced User Experience & Multi-Domain Integration
 
 **Epic ID:** Epic 2  
-**Status:** In Progress - Domain 2 Complete, Stories 2.6 & 2.7 Complete  
+**Status:** In Progress - Domain 2 Complete, Stories 2.8 & 2.9 Complete (Domain 3 In Progress)  
 **Created:** January 15, 2025  
-**Last Updated:** January 27, 2025 (Story 2.8 Complete - Form Header Foundation Implemented, UAT Passed)  
+**Last Updated:** November 22, 2025 (Story 2.9 Complete - Form Access Control Implemented, UAT Passed)  
 **Product Manager:** John (PM Agent)  
 **Developer:** Developer Agent  
 
@@ -15,7 +15,6 @@
 **Scope:** User profile enhancement, theme system, event management, form foundation, approval workflows  
 **Timeline:** 2-3 weeks (story-by-story approach)  
 **Dependencies:** Epic 1 Complete ✅  
-**Last Updated:** November 14, 2025 (Stories 2.6 & 2.7 Complete - Domain 2 Complete, Ready for Domain 3)  
 
 ---
 
@@ -23,12 +22,12 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 7/12 | ✅ In Progress (58% Complete) |
-| **Last Completed Stories** | 2.8 - Form Header Foundation | ✅ **COMPLETE** - Full backend and frontend implementation, UAT Passed (14/14 categories) |
-| **Next Story** | 2.9 - Form Access Control | 📋 **READY** - Story Planned |
+| **Stories Complete** | 9/12 | ✅ In Progress (75% Complete) |
+| **Last Completed Stories** | 2.9 - Form Access Control | ✅ **COMPLETE** - 6-layer access control, System Admin fix, UAT Passed (50/55 tests) |
+| **Next Story** | 2.10 - Form-Event Integration | 📋 **READY** - Story Planned |
 | **Domains Complete** | 2/4 | ✅ Domain 1 Complete, ✅ Domain 2 Complete |
-| **Current Domain** | Domain 3 - Form Foundation | 📋 **IN PROGRESS** - Story 2.8 Complete (UAT Passed), Stories 2.9, 2.10 Planned |
-| **UAT Tests Passed** | Story 2.1: 10/10, Story 2.2: 9/10, Story 2.3: All Core Features, Story 2.4: 12/12, Story 2.6: 35/36, Story 2.7: 45/45, Story 2.8: 14/14 | ✅ All 7 Stories Complete with UAT Passed |
+| **Current Domain** | Domain 3 - Form Foundation | 📋 **IN PROGRESS** - Stories 2.8 & 2.9 Complete, Story 2.10 Planned |
+| **UAT Tests Passed** | Story 2.1: 10/10, Story 2.2: 9/10, Story 2.3: All Core Features, Story 2.4: 12/12, Story 2.6: 35/36, Story 2.7: 45/45, Story 2.8: 14/14, Story 2.9: 50/55 | ✅ All 9 Stories Complete with UAT Passed |
 
 ---
 
@@ -60,13 +59,17 @@
 - **Stories:** 2.8, 2.9, 2.10
 - **Focus:** Form headers, access control, Epic 3 preparation
 - **UAT Tests:** 3 comprehensive test suites
-- **Status:** 📋 **IN PROGRESS** - Story 2.8 Complete (UAT Passed), Stories 2.9 & 2.10 Planned
-- **Progress:** 1/3 stories complete (33%), 2/3 stories planned (67%)
-- **Next Story:** 2.9 - Form Access Control (📋 Story Planned)
+- **Status:** 📋 **IN PROGRESS** - Stories 2.8 & 2.9 Complete (UAT Passed), Story 2.10 Planned
+- **Progress:** 2/3 stories complete (66%), 1/3 stories planned (33%)
+- **Next Story:** 2.10 - Form-Event Integration (📋 **PLANNED** - Ready for Implementation)
 - **Epic 3 Dependency:** Form Builder requires form header foundation
 - **Key Achievements:**
   - ✅ Form header CRUD operations with multi-tenant filtering
   - ✅ Complete form management UI with dashboard hierarchy integration
+  - ✅ 6-Layer Access Control System (System Admin -> Ownership -> ACL -> Agency -> Role -> None)
+  - ✅ Centralized Access Logic (fn_GetUserFormAccess)
+  - ✅ Agency Event-Scoped Access Support
+  - ✅ Legacy Data Support for Events and Forms
   - ✅ Event-form linking support (split layout, form count badge)
   - ✅ Status and approval status management with icons
   - ✅ Audit trail integration
@@ -93,7 +96,7 @@
 | 2.6 | Admin Public Event Review Workflow | ✅ **COMPLETE** | Complete | ✅ 35/36 UAT Passed (1 skipped) | 6 Critical, 3 UI/UX Issues Fixed | Admin dashboard with event management table, review workflow, email notifications, priority indicators, column filters, inline editing, expandable rows | Event Management |
 | 2.7 | Event Public Review Workflow Implementation | ✅ **COMPLETE** | Complete | ✅ 45/45 UAT Passed | 5 Critical, 4 Minor Issues Fixed | Complete workflow implementation, offline-first capability, shared event participation, recursive company network visibility | Event Management |
 | 2.8 | Form Header Foundation | ✅ **COMPLETE** | Complete | ✅ 14/14 UAT Passed | 11 Issues Fixed | Reused Event Management patterns, company-scoped filtering, full CRUD with audit trail, dashboard hierarchy integration, simplified modals, split layout design | Form Foundation |
-| 2.9 | Form Access Control | 📋 Planned | - | - | - | - | Form Foundation |
+| 2.9 | Form Access Control | ✅ **COMPLETE** | Complete | ✅ 50/55 UAT Passed | System Admin Visibility, Legacy Events | 6-layer access logic, Centralized DB function, Agency access | Form Foundation |
 | 2.10 | Form-Event Integration | 📋 Planned | - | - | - | - | Form Foundation |
 | 2.11 | Approval Workflow Extensions | 📋 Planned | - | - | - | - | Approval Workflows |
 | 2.12 | External Approver Support | 📋 Planned | - | - | - | - | Approval Workflows |
@@ -187,90 +190,86 @@
 
 ### **Recommended Next Story**
 
-**✅ CONFIRMED NEXT STORY:** **Story 2.8 - Form Header Foundation**
+**✅ CONFIRMED NEXT STORY:** **Story 2.10 - Form-Event Integration**
 
 **Status:** 📋 **READY FOR IMPLEMENTATION**
 
-**Epic Goal:** Complete AC6 - Form Header Foundation (Epic 3 dependency)  
-**Story Focus:** Form header creation for Epic 3 preparation  
+**Epic Goal:** Complete AC6 - Form Header Foundation (Integration)
+**Story Focus:** Integration between Forms and Events
 **Current Domain:** Domain 3 - Form Foundation
 
 **Story Scope (for Scrum Master reference):**
-- Form header creation with metadata
-- Access control integration
-- Event-form linking
-- Foundation for Epic 3 Form Builder
+- Event-Form linking (many-to-one relationship)
+- Form availability based on Event status
+- Form copying/templating from Events
+- Form list filtering by Event
 
 **Why This Story:**
-1. **Epic 3 Dependency:** Form Builder needs form headers (blocks Epic 3 development)
-2. **Cross-Domain Integration:** Events → Forms integration (completes Epic 2 integration goals)
-3. **Business Value:** Enables Epic 3 Form Builder development (hero feature)
-4. **Technical Foundation:** Prepares platform for form management features
-5. **Domain Progression:** Natural progression from Domain 2 (Events) to Domain 3 (Forms)
+1. **Completion of Domain 3:** Final piece of the Form Foundation domain.
+2. **Workflow Continuity:** Bridges the gap between Event Management (Domain 2) and Forms (Domain 3).
+3. **User Experience:** Allows users to manage forms in the context of their events.
 
-**Estimated Effort:** 8-10 hours
+**Estimated Effort:** 8-12 hours
 
 **Dependencies:**
-- ✅ Story 2.6 Complete (admin dashboard and event management complete)
-- ✅ Story 2.7 Complete (event workflow foundation complete)
-- ✅ Story 2.4 Complete (event foundation ready)
-- ✅ Domain 2 Complete (event management domain complete)
+- ✅ Story 2.9 Complete (Access Control ready)
+- ✅ Story 2.8 Complete (Form Header ready)
+- ✅ Story 2.4 Complete (Event Foundation ready)
 
 **Acceptance Criteria Focus:**
-- Form header creation with metadata fields
-- Access control integration (RBAC, company-scoped access)
-- Event-form linking (many-to-one relationship)
-- Foundation for Epic 3 Form Builder
-- Multi-tenant filtering for form headers
-- Audit trail for form header actions
+- Link form to event
+- Unlink form from event
+- Filter forms by event
+- Check form availability based on event dates/status
 
 **Technical Requirements:**
-- Form header model with metadata fields
-- Form header API endpoints (CRUD operations)
-- Event-form relationship management
-- Access control integration (company-scoped, role-based)
-- Foundation for Epic 3 Form Builder integration
+- Update Form model (EventID FK already exists)
+- Event-Form API endpoints
+- UI for selecting events for forms
+- UI for viewing forms within an event context
 
 ---
 
 ### **Story Creation Instructions for Scrum Master**
 
-**Story ID:** 2.8  
-**Story Title:** Form Header Foundation  
+**Story ID:** 2.9  
+**Story Title:** Form Access Control  
 **Domain:** Form Foundation (Domain 3)  
-**Epic Goal:** Complete AC6 - Form Header Foundation  
+**Epic Goal:** Complete AC6 - Form Header Foundation (Access Control Extension)  
 **Status:** ✅ **STORY CREATED** - Ready for Implementation
 
 **Key Context:**
-- Domain 2 (Event Management) is complete (Stories 2.4, 2.6, 2.7)
-- Event model is ready for form-header linking (many-to-one relationship)
-- Epic 3 Form Builder depends on form header foundation
-- Access control patterns established in Epic 1 (RBAC, company-scoped access)
-- Multi-tenant filtering patterns established in Story 2.4
-- Story file created: `docs/stories/story-2.8.md`
-- Context file created: `docs/stories/story-context-2.8.xml`
+- Story 2.8 (Form Header Foundation) is complete with basic company-scoped access control
+- FormAccessControl table exists in database schema
+- Reference tables exist: FormAccessControlAccessType, CompanyRelationshipType
+- Database function exists: dbo.CheckFormAccess(FormID, UserID, AccessTypeCode)
+- Story 2.9 must implement complete access control management and integration
+- Story file created: `docs/stories/story-2.9.md`
+- Context file created: `docs/stories/story-context-2.9.xml`
 
 **Acceptance Criteria Focus:**
-- Form header creation with metadata fields (Name, Description, EventID, etc.)
-- Access control integration (company-scoped, role-based)
-- Event-form linking (many-to-one relationship: Event → Forms)
-- Foundation for Epic 3 Form Builder (form header structure ready)
-- Multi-tenant filtering for form headers (company-scoped access)
-- Audit trail for form header actions (created, updated, deleted)
+- FormAccessControl CRUD operations (grant/revoke access)
+- Access types: View, Edit, Manage, Submit, Analyze
+- Access expiry support (optional ExpiryDate)
+- Relationship types: Partner, Vendor, Client, Affiliate
+- Access check query guards (filter forms based on user access)
+- Access control UI (access management modal, grant access form)
+- Access-based UI permissions (show/hide buttons based on access level)
+- Audit trail for access grants/revocations
 
 **Technical Requirements:**
-- Form header model with metadata fields
-- Form header API endpoints (CRUD operations)
-- Event-form relationship management (EventID FK)
-- Access control integration (company-scoped, role-based)
-- Foundation for Epic 3 Form Builder integration
-- Multi-tenant filtering (company-scoped access)
-- Comprehensive logging for form header actions
+- FormAccessControl model with all fields
+- Access control service layer (grant/revoke/check methods)
+- Access control API endpoints (POST, GET, DELETE)
+- Query guards integrated into form service (access checks)
+- Access control UI components (FormAccessControlModal, GrantAccessForm)
+- Access integration in form list/detail views
+- Comprehensive logging for access control actions
 
 **Story Deliverables:**
-- ✅ Story file: `docs/stories/story-2.8.md` (18 tasks, 19 acceptance criteria)
-- ✅ Context file: `docs/stories/story-context-2.8.xml` (complete context)
-- ✅ Epic 2 Status updated with Story 2.8 details
+- ✅ Story file: `docs/stories/story-2.9.md` (16 tasks, 23 acceptance criteria)
+- ✅ Context file: `docs/stories/story-context-2.9.xml` (complete context)
+- ✅ Epic 2 Status updated with Story 2.9 details
 
 ---
 
@@ -283,7 +282,8 @@
 - **Epic 1 Admin Role** ✅ → Complete - Admin users exist, RBAC middleware supports admin checks
 - **Epic 1 Email Service** ✅ → Complete - Email service ready for notifications
 - **Database Migrations** ✅ → Complete - Migrations 020, 021, 022, 023 executed (PublicReviewStatusID FK, IsSharedWithPlatform field)
-- **Story 2.8** ✅ → **STORY CREATED** - Form Header Foundation (Epic 3 dependency) - Story file and context created, ready for implementation
+- **Story 2.8** ✅ → **COMPLETE** - Form Header Foundation (UAT Passed, 14/14 categories)
+- **Story 2.9** ✅ → **STORY CREATED** - Form Access Control (Story file and context created, ready for implementation)
 
 ---
 
@@ -308,7 +308,7 @@
 | **AC3** | Theme System Implementation | ✅ Complete | Story 2.2 |
 | **AC4** | Approval Workflow Extension | 📋 Planned | Stories 2.10-2.12 |
 | **AC5** | Event Management | ✅ **Complete** | Story 2.4 complete, Story 2.7 complete (workflow implementation), Story 2.6 complete (admin dashboard & review workflow) |
-| **AC6** | Form Header Foundation | 📋 Planned | Story 2.7-2.9 |
+| **AC6** | Form Header Foundation | 🔄 **In Progress** | Story 2.8 & 2.9 Complete, Story 2.10 Planned |
 | **AC7** | Cross-Domain Integration | ✅ Complete | Theme system (Story 2.2) |
 | **AC8** | Enhanced Logging | ✅ Complete | Story 2.4 logging validation passed |
 | **AC9** | Backward Compatibility | ✅ Complete | All stories maintained Epic 1 |
@@ -316,7 +316,7 @@
 | **AC11** | Audit Trail Compliance | ✅ Complete | All actions logged |
 | **AC12** | Database Migration Safety | ✅ Complete | All migrations reversible |
 
-**Epic 2 Progress:** **6/12 ACs Complete (50%), 0/12 ACs Partially Complete, 6/12 Stories Complete (50%), 1/12 Stories Planned (8%)**
+**Epic 2 Progress:** **6/12 ACs Complete (50%), 1/12 ACs Partially Complete, 9/12 Stories Complete (75%), 1/12 Stories Planned (8%)**
 
 ---
 

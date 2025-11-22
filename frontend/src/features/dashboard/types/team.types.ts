@@ -25,7 +25,7 @@ export interface InviteUserRequest {
   email: string
   firstName: string
   lastName: string
-  role: 'company_admin' | 'company_user'
+  role: 'company_admin' | 'company_user' | 'company_viewer'
 }
 
 export interface InviteUserResponse {
@@ -57,7 +57,7 @@ export interface CancelInvitationResponse {
 }
 
 export interface EditUserRoleRequest {
-  roleCode: 'company_admin' | 'company_user'
+  roleCode: 'company_admin' | 'company_user' | 'company_viewer'
 }
 
 export interface EditUserRoleResponse {

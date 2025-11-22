@@ -156,6 +156,11 @@ function formatAuthError(error: unknown): Error {
     // Handle by status code
     switch (status) {
       case 401:
+        // For token refresh, use backend's specific error message
+        // For login, use generic message to prevent email enumeration
+        if (detail && (detail.includes('refresh token') || detail.includes('token') || detail.includes('Invalid or expired'))) {
+          return new Error(detail || 'Token refresh failed. Please log in again.')
+        }
         return new Error('Email or password is incorrect.')
       case 403:
         return new Error('Please verify your email before logging in.')

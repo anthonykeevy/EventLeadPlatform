@@ -10,7 +10,7 @@ import { useAuth } from '../../auth'
 import { OnboardingModal } from '../../onboarding'
 import { CreateEventModal, EditEventModal, DeleteEventConfirmModal } from '../../events'
 import type { Event } from '../../events/types/events.types'
-import { CreateFormModal, EditFormModal, DeleteFormConfirmModal } from '../../forms'
+import { CreateFormModal, EditFormModal, DeleteFormConfirmModal, FormDetailView } from '../../forms'
 import type { Form } from '../../forms/types/form.types'
 import { UserMenu } from './UserMenu'
 import { KPISection } from './KPISection'
@@ -18,7 +18,7 @@ import { CompanyList } from './CompanyList'
 import { TeamManagementPanel } from './TeamManagementPanel'
 import { Breadcrumbs } from './Breadcrumbs'
 import { EmptyState } from './EmptyState'
-import { getUserCompanies, getKPIData, switchCompany } from '../api/dashboardApi'
+import { getUserCompanies, getKPIData, switchCompany, setDefaultCompany } from '../api/dashboardApi'
 import { buildCompanyTree, getPathToCompany, findCompanyById } from '../utils/hierarchyUtils'
 import type { Company, KPIData } from '../types/dashboard.types'
 import { useToastNotifications } from '../../ux'
@@ -56,19 +56,24 @@ export function DashboardLayout() {
   const [showCreateFormModal, setShowCreateFormModal] = useState(false)
   const [showEditFormModal, setShowEditFormModal] = useState(false)
   const [showDeleteFormModal, setShowDeleteFormModal] = useState(false)
+  const [showFormDetailView, setShowFormDetailView] = useState(false)
   const [selectedForm, setSelectedForm] = useState<Form | null>(null)
   const [formEventId, setFormEventId] = useState<number | null>(null)
 
   // Load companies on mount (but only if onboarding complete)
+  // On initial load, switch to default company automatically
   useEffect(() => {
     // Don't try to load companies if user hasn't completed onboarding
     if (user && user.onboarding_complete) {
-      loadCompanies()
+      // On initial mount, switch to default company (shouldSwitchToDefault = true)
+      // This ensures the JWT token matches the default company
+      const isInitialLoad = activeCompanyId === null && companies.length === 0
+      loadCompanies(isInitialLoad)
     } else if (user && !user.onboarding_complete) {
       // User needs to complete onboarding first - companies will load after
       setIsLoadingCompanies(false)
     }
-  }, [user])
+  }, [user?.onboarding_complete]) // Only reload when onboarding status changes
 
   // Load KPIs when active company changes
   useEffect(() => {
@@ -109,11 +114,11 @@ export function DashboardLayout() {
     // Refresh user object from the new JWT (contains onboarding_complete=true)
     await refreshUser()
     
-    // Reload companies to show newly created company
-    await loadCompanies()
+      // Reload companies to show newly created company
+      await loadCompanies(false, null) // Don't switch, no company to preserve
   }
 
-  const loadCompanies = async () => {
+  const loadCompanies = async (shouldSwitchToDefault = false, preserveCompanyId: number | null = null) => {
     setIsLoadingCompanies(true)
     try {
       const data = await getUserCompanies()
@@ -121,17 +126,95 @@ export function DashboardLayout() {
       setCompanies(hierarchicalCompanies)
       setAllCompaniesFlat(data.companies)
       
-      // Auto-select first company (or primary company)
       if (data.companies.length > 0) {
-        const primaryCompany = data.companies.find(c => c.isPrimaryCompany) || data.companies[0]
-        setActiveCompanyId(primaryCompany.companyId)
+        let selectedCompany = null
         
-        // Auto-expand first level
-        setExpandedCompanyIds([primaryCompany.companyId])
-        
-        // Set breadcrumb path
-        const path = getPathToCompany(primaryCompany, data.companies)
-        setBreadcrumbPath(path)
+        // If we should switch to the default company (e.g., on initial load or after login)
+        if (shouldSwitchToDefault) {
+          // Auto-select company with priority:
+          // 1. User's "own company" (joined via signup)
+          // 2. Primary company (explicitly set by user)
+          // 3. First company as fallback
+          selectedCompany = data.companies.find(c => c.joinedVia === 'signup')
+          if (!selectedCompany) {
+            selectedCompany = data.companies.find(c => c.isPrimaryCompany)
+          }
+          if (!selectedCompany) {
+            selectedCompany = data.companies[0]
+          }
+          
+          // If default company doesn't match the current active company, switch to it
+          if (selectedCompany.companyId !== activeCompanyId) {
+            // Switch to the default company (this will update JWT tokens)
+            try {
+              const response = await switchCompany(selectedCompany.companyId)
+              
+              // Store new tokens if provided
+              if (response.access_token && response.refresh_token) {
+                const { storeTokens } = await import('../../auth/utils/tokenStorage')
+                const expiresIn = 24 * 60 * 60 // 24 hours in seconds
+                storeTokens(response.access_token, response.refresh_token, expiresIn)
+              }
+              
+              // Refresh user data to get updated company_id in auth context
+              await refreshUser()
+            } catch (error) {
+              console.error('Failed to switch to default company:', error)
+              // Continue anyway - we'll still select it in the UI
+            }
+          }
+          
+          setActiveCompanyId(selectedCompany.companyId)
+          
+          // Auto-expand selected company
+          setExpandedCompanyIds([selectedCompany.companyId])
+          
+          // Set breadcrumb path
+          const path = getPathToCompany(selectedCompany, data.companies)
+          setBreadcrumbPath(path)
+        } else {
+          // NOT switching to default - preserve specified company or current active company if it still exists
+          // This is important when reloading after a manual company switch
+          // Priority: preserveCompanyId (explicit) > activeCompanyId (from state)
+          // CRITICAL: If preserveCompanyId is provided, use it regardless of activeCompanyId value
+          // (React state updates are async, so activeCompanyId might still be the old value)
+          const companyToPreserve = preserveCompanyId !== null && preserveCompanyId !== undefined
+            ? preserveCompanyId  // Explicitly provided - always use it
+            : (activeCompanyId ?? null)  // Fall back to state value
+          
+          console.log(`[DashboardLayout] loadCompanies preservation check: preserveCompanyId=${preserveCompanyId}, activeCompanyId=${activeCompanyId}, companyToPreserve=${companyToPreserve}`)
+          
+          if (companyToPreserve) {
+            const companyToPreserveExists = data.companies.find(c => c.companyId === companyToPreserve)
+            
+            if (companyToPreserveExists) {
+              // Preserve the specified/active company - keep it active and ensure it's expanded
+              console.log(`[DashboardLayout] Preserving active company ${companyToPreserve} after reload`)
+              setActiveCompanyId(companyToPreserve)
+              setExpandedCompanyIds([companyToPreserve])
+              
+              // Update breadcrumb path
+              const path = getPathToCompany(companyToPreserveExists, data.companies)
+              setBreadcrumbPath(path)
+            } else {
+              // Preserved company no longer exists or wasn't specified - fall back to default
+              selectedCompany = data.companies.find(c => c.joinedVia === 'signup')
+              if (!selectedCompany) {
+                selectedCompany = data.companies.find(c => c.isPrimaryCompany)
+              }
+              if (!selectedCompany) {
+                selectedCompany = data.companies[0]
+              }
+              
+              setActiveCompanyId(selectedCompany.companyId)
+              setExpandedCompanyIds([selectedCompany.companyId])
+              
+              // Set breadcrumb path
+              const path = getPathToCompany(selectedCompany, data.companies)
+              setBreadcrumbPath(path)
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to load companies:', error)
@@ -163,20 +246,65 @@ export function DashboardLayout() {
   const handleSelectCompany = async (companyId: number) => {
     if (companyId === activeCompanyId) return
     
-    setActiveCompanyId(companyId)
+    console.log(`[DashboardLayout] Switching to company ${companyId}...`)
     
-    // Update breadcrumb path - AC-1.18.5
-    const company = findCompanyById(companies, companyId)
-    if (company) {
-      const path = getPathToCompany(company, allCompaniesFlat)
-      setBreadcrumbPath(path)
-    }
-    
-    // Call backend to switch company context
+    // Call backend to switch company context FIRST (before updating UI state)
     try {
-      await switchCompany(companyId)
+      const response = await switchCompany(companyId)
+      
+      // Store new tokens if provided
+      if (response.access_token && response.refresh_token) {
+        const { storeTokens } = await import('../../auth/utils/tokenStorage')
+        // Calculate expiry (default 24 hours)
+        const expiresIn = 24 * 60 * 60 // 24 hours in seconds
+        storeTokens(response.access_token, response.refresh_token, expiresIn)
+      }
+      
+      // Update UI state immediately (optimistic update)
+      // This ensures the UI reflects the switch immediately
+      setActiveCompanyId(companyId)
+      setExpandedCompanyIds([companyId])
+      
+      // Refresh user data to get updated company_id in auth context
+      // This MUST complete before events can load (events depend on user.company_id)
+      await refreshUser()
+      console.log(`[DashboardLayout] User refreshed, company_id should now be ${companyId}`)
+      
+      // Update breadcrumb path - AC-1.18.5
+      const company = findCompanyById(companies, companyId)
+      if (company) {
+        const path = getPathToCompany(company, allCompaniesFlat)
+        setBreadcrumbPath(path)
+      }
+      
+      // Reload companies to get updated data (including event counts for the new company context)
+      // This is important because event counts are filtered by user access based on company role
+      // CRITICAL: Pass companyId explicitly as preserveCompanyId, because React state updates are async
+      // and activeCompanyId might still be the old value when loadCompanies executes
+      console.log(`[DashboardLayout] Reloading companies, preserving companyId=${companyId} (activeCompanyId=${activeCompanyId})`)
+      await loadCompanies(false, companyId) // Don't switch again, preserve the company we just switched to
+      
+      // Ensure the company is still expanded after reload
+      // This MUST be set AFTER loadCompanies to ensure the expanded state persists
+      setExpandedCompanyIds([companyId])
+      console.log(`[DashboardLayout] Company ${companyId} should now be expanded with updated event counts`)
     } catch (error) {
       console.error('Failed to switch company:', error)
+      toast.error('Failed to switch company', 'Error')
+    }
+  }
+
+  // Handle setting default company (without switching)
+  const handleSetDefaultCompany = async (companyId: number) => {
+    try {
+      await setDefaultCompany(companyId)
+      toast.success('Default company updated', 'Success')
+      
+      // Reload companies to get updated isPrimaryCompany status
+      await loadCompanies()
+    } catch (error) {
+      console.error('Failed to set default company:', error)
+      toast.error('Failed to set default company', 'Error')
     }
   }
   
@@ -192,12 +320,24 @@ export function DashboardLayout() {
   }
 
   // AC-1.18.10: Expand/collapse containers
-  const handleToggleExpand = (companyId: number) => {
-    setExpandedCompanyIds(prev =>
-      prev.includes(companyId)
-        ? prev.filter(id => id !== companyId)
-        : [...prev, companyId]
-    )
+  const handleToggleExpand = async (companyId: number) => {
+    const isCurrentlyExpanded = expandedCompanyIds.includes(companyId)
+    
+    if (!isCurrentlyExpanded) {
+      // Expanding - if this company is not the active company, switch to it first
+      // This ensures events load correctly when expanding a company (JWT context must match)
+      if (companyId !== activeCompanyId) {
+        // Switch to this company (this will update JWT context and expand it)
+        // handleSelectCompany sets expandedCompanyIds to [companyId], so we're done
+        await handleSelectCompany(companyId)
+        return
+      }
+      // Company is active but not expanded - just expand it
+      setExpandedCompanyIds(prev => [...prev, companyId])
+    } else {
+      // Collapsing - just remove from expanded list
+      setExpandedCompanyIds(prev => prev.filter(id => id !== companyId))
+    }
   }
 
   // AC-1.18.7: Open team management panel
@@ -331,6 +471,17 @@ export function DashboardLayout() {
     setShowDeleteFormModal(true)
   }
 
+  // Handle form view from dashboard - Story 2.9
+  const handleViewForm = (form: Form) => {
+    setSelectedForm(form)
+    setShowFormDetailView(true)
+  }
+
+  const handleFormDetailViewClose = () => {
+    setShowFormDetailView(false)
+    setSelectedForm(null)
+  }
+
   const handleFormDeleted = () => {
     setShowDeleteFormModal(false)
     setSelectedForm(null)
@@ -399,21 +550,23 @@ export function DashboardLayout() {
 
         {/* Company List - AC-1.18.1 */}
         {companies.length > 0 && (
-          <CompanyList
-            companies={companies}
-            activeCompanyId={activeCompanyId}
-            expandedCompanyIds={expandedCompanyIds}
-            onSelectCompany={handleSelectCompany}
-            onToggleExpand={handleToggleExpand}
-            onOpenTeamPanel={handleOpenTeamPanel}
-            onCreateEvent={handleCreateEvent}
-            onEditEvent={handleEditEvent}
-            onDeleteEvent={handleDeleteEvent}
-            onCreateForm={handleCreateForm}
-            onEditForm={handleEditForm}
-            onDeleteForm={handleDeleteForm}
-            isLoading={isLoadingCompanies}
-          />
+            <CompanyList
+              companies={companies}
+              activeCompanyId={activeCompanyId}
+              expandedCompanyIds={expandedCompanyIds}
+              onSelectCompany={handleSelectCompany}
+              onToggleExpand={handleToggleExpand}
+              onOpenTeamPanel={handleOpenTeamPanel}
+              onSetDefaultCompany={handleSetDefaultCompany}
+              onCreateEvent={handleCreateEvent}
+              onEditEvent={handleEditEvent}
+              onDeleteEvent={handleDeleteEvent}
+              onCreateForm={handleCreateForm}
+              onEditForm={handleEditForm}
+              onDeleteForm={handleDeleteForm}
+              onViewForm={handleViewForm}
+              isLoading={isLoadingCompanies}
+            />
         )}
       </main>
 
@@ -504,6 +657,22 @@ export function DashboardLayout() {
             setSelectedForm(null)
           }}
           onConfirm={handleFormDeleted}
+        />
+      )}
+
+      {/* Form Detail View Modal - Story 2.9 */}
+      {showFormDetailView && selectedForm && (
+        <FormDetailView
+          form={selectedForm}
+          onClose={handleFormDetailViewClose}
+          onEdit={(form) => {
+            handleFormDetailViewClose()
+            handleEditForm(form)
+          }}
+          onDelete={(form) => {
+            handleFormDetailViewClose()
+            handleDeleteForm(form)
+          }}
         />
       )}
     </div>

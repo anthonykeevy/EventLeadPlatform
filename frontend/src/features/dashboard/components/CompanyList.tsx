@@ -17,12 +17,14 @@ interface CompanyListProps {
   onSelectCompany: (companyId: number) => void
   onToggleExpand: (companyId: number) => void
   onOpenTeamPanel: (companyId: number) => void
+  onSetDefaultCompany?: (companyId: number) => void
   onCreateEvent?: (companyId: number) => void
   onEditEvent?: (event: Event) => void
   onDeleteEvent?: (event: Event) => void
   onCreateForm?: (eventId: number) => void
   onEditForm?: (form: Form) => void
   onDeleteForm?: (form: Form) => void
+  onViewForm?: (form: Form) => void
   isLoading?: boolean
 }
 
@@ -33,12 +35,14 @@ export function CompanyList({
   onSelectCompany,
   onToggleExpand,
   onOpenTeamPanel,
+  onSetDefaultCompany,
   onCreateEvent,
   onEditEvent,
   onDeleteEvent,
   onCreateForm,
   onEditForm,
   onDeleteForm,
+  onViewForm,
   isLoading = false
 }: CompanyListProps) {
   if (isLoading) {
@@ -85,12 +89,14 @@ export function CompanyList({
           onSelect={onSelectCompany}
           onToggleExpand={onToggleExpand}
           onOpenTeamPanel={onOpenTeamPanel}
+          onSetDefaultCompany={onSetDefaultCompany}
           onCreateEvent={onCreateEvent}
           onEditEvent={onEditEvent}
           onDeleteEvent={onDeleteEvent}
           onCreateForm={onCreateForm}
           onEditForm={onEditForm}
           onDeleteForm={onDeleteForm}
+          onViewForm={onViewForm}
           depth={0}
         />
       ))}

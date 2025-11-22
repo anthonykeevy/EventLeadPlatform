@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StoryContext>
+    <StoryInfo>
+        <StoryID>2.9</StoryID>
+        <StoryTitle>Form Access Control</StoryTitle>
+        <Status>DRAFT</Status>
+        <Domain>Form Foundation (Domain 3)</Domain>
+        <Epic>Epic 2 - Enhanced User Experience & Multi-Domain Integration</Epic>
+        <CreatedDate>2025-11-18</CreatedDate>
+        <CreatedBy>Scrum Master Agent</CreatedBy>
+    </StoryInfo>
+    
+    <Dependencies>
+        <CompletedStories>
+            <Story>
+                <ID>2.8</ID>
+                <Title>Form Header Foundation</Title>
+                <Status>COMPLETE</Status>
+                <CompletionDate>2025-01-27</CompletionDate>
+                <KeyDeliverables>Form header CRUD, company-scoped filtering, dashboard integration, event-form linking</KeyDeliverables>
+            </Story>
+            <Story>
+                <ID>2.4</ID>
+                <Title>Event Management CRUD</Title>
+                <Status>COMPLETE</Status>
+                <KeyDeliverables>Event CRUD operations, multi-tenant filtering patterns</KeyDeliverables>
+            </Story>
+        </CompletedStories>
+        
+        <DatabaseSchema>
+            <Table>FormAccessControl</Table>
+            <Table>FormAccessControlAccessType</Table>
+            <Table>CompanyRelationshipType</Table>
+            <Function>dbo.CheckFormAccess</Function>
+        </DatabaseSchema>
+        
+        <Infrastructure>
+            <Item>Epic 1 authentication and authorization middleware</Item>
+            <Item>Epic 1 logging system (log.UserAction table)</Item>
+            <Item>Story 2.8 form foundation (Form model, service, API)</Item>
+        </Infrastructure>
+    </Dependencies>
+    
+    <BusinessContext>
+        <Problem>
+            Form owners need to grant access to forms for users and companies with different permission levels (View, Edit, Manage, Submit, Analyze). Currently, forms are only accessible to company owners. Need granular access control with expiry support and audit trails.
+        </Problem>
+        
+        <Solution>
+            Implement FormAccessControl management system with CRUD operations, access grants/revocations, access expiry support, query guards for access checks, and UI for managing form access. Integrate access checks into form operations and display access indicators in form list/detail views.
+        </Solution>
+        
+        <BusinessValue>
+            - Enable form sharing across companies and users
+            - Support different permission levels for collaboration
+            - Provide temporary access with expiry support
+            - Maintain audit trail for access grants/revocations
+            - Foundation for form collaboration features
+        </BusinessValue>
+    </BusinessContext>
+    
+    <TechnicalContext>
+        <Architecture>
+            <Backend>
+                <Model>FormAccessControl SQLAlchemy model</Model>
+                <Service>FormAccessControlService with grant/revoke/check methods</Service>
+                <Router>Access control API endpoints (POST, GET, DELETE)</Router>
+                <Schema>Pydantic schemas for access control requests/responses</Schema>
+                <Guard>Access check query guards integrated into form service</Guard>
+            </Backend>
+            
+            <Frontend>
+                <Component>FormAccessControlModal for access management</Component>
+                <Component>GrantAccessForm for granting access</Component>
+                <API>formAccessApi.ts for access control API integration</API>
+                <Integration>Access control integrated into FormDetailView</Integration>
+                <Integration>Access indicators in FormList</Integration>
+            </Frontend>
+            
+            <Database>
+                <Table>FormAccessControl with access grant details</Table>
+                <Reference>FormAccessControlAccessType (View, Edit, Manage, Submit, Analyze)</Reference>
+                <Reference>CompanyRelationshipType (Partner, Vendor, Client, Affiliate)</Reference>
+                <Function>dbo.CheckFormAccess for access checks</Function>
+                <Constraint>Unique constraint on (FormID, UserID, CompanyID)</Constraint>
+            </Database>
+        </Architecture>
+        
+        <KeyPatterns>
+            <Pattern>Access Control Query Guards - Filter forms based on user access</Pattern>
+            <Pattern>Access Grant/Revoke Operations - CRUD operations for access control</Pattern>
+            <Pattern>Access Expiry Validation - Exclude expired access from access checks</Pattern>
+            <Pattern>Duplicate Access Prevention - Unique constraint prevents duplicate grants</Pattern>
+            <Pattern>Access-Based UI Permissions - Show/hide UI elements based on access level</Pattern>
+        </KeyPatterns>
+        
+        <IntegrationPoints>
+            <Integration>Form CRUD operations - Access checks in get/update/delete methods</Integration>
+            <Integration>Form list - Filter forms based on user access</Integration>
+            <Integration>Form detail view - Show access control management</Integration>
+            <Integration>User domain - User access level included in form responses</Integration>
+            <Integration>Company domain - CompanyRelationshipType for relationship context</Integration>
+        </IntegrationPoints>
+    </TechnicalContext>
+    
+    <AcceptanceCriteria>
+        <AC ID="2.9.1">FormAccessControl model created with all fields</AC>
+        <AC ID="2.9.2">FormAccessControl reference models created</AC>
+        <AC ID="2.9.3">FormAccessControl CRUD operations implemented</AC>
+        <AC ID="2.9.4">Access grant operation implemented</AC>
+        <AC ID="2.9.5">Access revoke operation implemented</AC>
+        <AC ID="2.9.6">Access check query guard implemented</AC>
+        <AC ID="2.9.7">Form list query guard implemented</AC>
+        <AC ID="2.9.8">Form detail query guard implemented</AC>
+        <AC ID="2.9.9">Form update query guard implemented</AC>
+        <AC ID="2.9.10">Form delete query guard implemented</AC>
+        <AC ID="2.9.11">Access expiry validation implemented</AC>
+        <AC ID="2.9.12">Duplicate access prevention implemented</AC>
+        <AC ID="2.9.13">Access control API endpoints created</AC>
+        <AC ID="2.9.14">Reference data endpoints created</AC>
+        <AC ID="2.9.15">Access control UI component created</AC>
+        <AC ID="2.9.16">Access list display implemented</AC>
+        <AC ID="2.9.17">Grant access UI implemented</AC>
+        <AC ID="2.9.18">Revoke access UI implemented</AC>
+        <AC ID="2.9.19">Access control integration in form CRUD</AC>
+        <AC ID="2.9.20">Access control display in form list</AC>
+        <AC ID="2.9.21">Access-based UI permissions</AC>
+        <AC ID="2.9.22">Audit trail for access control</AC>
+        <AC ID="2.9.23">Comprehensive UAT tests</AC>
+    </AcceptanceCriteria>
+    
+    <KeyFiles>
+        <Backend>
+            <File>backend/models/form_access_control.py</File>
+            <File>backend/models/ref/form_access_control_access_type.py</File>
+            <File>backend/modules/forms/access_control_service.py</File>
+            <File>backend/modules/forms/access_control_router.py</File>
+            <File>backend/modules/forms/access_control_schemas.py</File>
+            <File>backend/modules/forms/access_guard.py</File>
+        </Backend>
+        
+        <Frontend>
+            <File>frontend/src/features/forms/components/FormAccessControlModal.tsx</File>
+            <File>frontend/src/features/forms/components/GrantAccessForm.tsx</File>
+            <File>frontend/src/features/forms/api/formAccessApi.ts</File>
+            <File>frontend/src/features/forms/types/form-access.types.ts</File>
+        </Frontend>
+    </KeyFiles>
+    
+    <References>
+        <Reference>docs/data-domains/forms-header-domain-epic2-analysis.md - Form domain analysis</Reference>
+        <Reference>database/schemas/forms-header-domain-epic2-schema.sql - FormAccessControl schema</Reference>
+        <Reference>docs/stories/story-2.8.md - Form Header Foundation (completed story)</Reference>
+        <Reference>docs/stories/EPIC-2-STATUS.md - Epic 2 progress</Reference>
+        <Reference>docs/AGENT-LOGGING-GUIDE.md - Logging integration guide</Reference>
+    </References>
+</StoryContext>
+

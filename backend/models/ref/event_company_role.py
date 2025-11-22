@@ -15,17 +15,20 @@ class EventCompanyRole(Base):
     - event_owner: Company that created the event (full control)
     - event_organizer: Company organizing the event (if different from owner)
     - event_participant: Company using public event for forms (read-only)
+    - agency_form_builder: External agency company working on forms for a specific event (event-scoped form access)
     
     Attributes:
         EventCompanyRoleID: Primary key
-        RoleCode: Unique role code (event_owner, event_organizer, event_participant)
-        RoleName: Display name (Event Owner, Event Organizer, Event Participant)
+        RoleCode: Unique role code (event_owner, event_organizer, event_participant, agency_form_builder)
+        RoleName: Display name (Event Owner, Event Organizer, Event Participant, Agency Form Builder)
         Description: Full description of role permissions
         RoleLevel: Numeric hierarchy level (higher = more permissions)
         HasEditEvent: Can edit event details (boolean)
         HasDeleteEvent: Can delete event (boolean)
         HasManageParticipants: Can manage event participants (boolean)
         HasViewEvent: Can view event details (boolean)
+        HasViewAllFormsForEvent: Can view all forms for event (boolean, for agency_form_builder role)
+        HasEditAllFormsForEvent: Can edit all forms for event (boolean, for agency_form_builder role)
     """
     
     __tablename__ = "EventCompanyRole"
@@ -45,6 +48,10 @@ class EventCompanyRole(Base):
     HasDeleteEvent = Column(Boolean, nullable=False, default=False)
     HasManageParticipants = Column(Boolean, nullable=False, default=False)
     HasViewEvent = Column(Boolean, nullable=False, default=True)
+    
+    # Agency Form Access Flags (for agency_form_builder role)
+    HasViewAllFormsForEvent = Column(Boolean, nullable=False, default=False)
+    HasEditAllFormsForEvent = Column(Boolean, nullable=False, default=False)
     
     # Configuration
     IsActive = Column(Boolean, nullable=False, default=True)

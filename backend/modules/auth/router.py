@@ -53,6 +53,7 @@ from modules.auth.jwt_service import (
 from common.security import verify_password, hash_password
 from models.user import User
 from models.user_company import UserCompany
+from models.ref.user_company_status import UserCompanyStatus
 from models.ref.user_company_role import UserCompanyRole
 from jose import JWTError  # type: ignore
 from modules.auth.audit_service import (
@@ -470,16 +471,34 @@ async def login(
     
     # Get company-level role if no system-level role
     if not role:
-        user_company = db.query(UserCompany).filter(
-            UserCompany.UserID == user.UserID,
-            UserCompany.IsPrimaryCompany == True
-        ).first()
+        # Priority 1: Get user's "own company" (joined via signup - they created it)
+        from models.ref.joined_via import JoinedVia
+        signup_method = db.query(JoinedVia).filter(JoinedVia.MethodCode == 'signup').first()
         
-        # If no primary company, get any active company
-        if not user_company:
-            user_company = db.query(UserCompany).filter(
-                UserCompany.UserID == user.UserID
+        if signup_method:
+            user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.JoinedViaID == signup_method.JoinedViaID,
+                UserCompany.IsDeleted == False,
+                UserCompanyStatus.StatusCode == 'active'
             ).first()
+        
+        # Priority 2: Get primary company (if user has explicitly set one)
+        if not user_company:
+            user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.IsPrimaryCompany == True,
+                UserCompany.IsDeleted == False,
+                UserCompanyStatus.StatusCode == 'active'
+            ).first()
+        
+        # Priority 3: Get any active company as fallback
+        if not user_company:
+            user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.IsDeleted == False,
+                UserCompanyStatus.StatusCode == 'active'
+            ).order_by(UserCompany.JoinedDate.asc()).first()
         
         if user_company:
             # Get role CODE from UserCompanyRole relationship (not RoleName)
@@ -489,15 +508,34 @@ async def login(
             company_id = user_company.CompanyID
     else:
         # User has system-level role, but still get company_id if available
-        user_company = db.query(UserCompany).filter(
-            UserCompany.UserID == user.UserID,
-            UserCompany.IsPrimaryCompany == True
-        ).first()
+        # Priority 1: Get user's "own company" (joined via signup)
+        from models.ref.joined_via import JoinedVia
+        signup_method = db.query(JoinedVia).filter(JoinedVia.MethodCode == 'signup').first()
         
-        if not user_company:
-            user_company = db.query(UserCompany).filter(
-                UserCompany.UserID == user.UserID
+        if signup_method:
+            user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.JoinedViaID == signup_method.JoinedViaID,
+                UserCompany.IsDeleted == False,
+                UserCompanyStatus.StatusCode == 'active'
             ).first()
+        
+        # Priority 2: Get primary company
+        if not user_company:
+            user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.IsPrimaryCompany == True,
+                UserCompany.IsDeleted == False,
+                UserCompanyStatus.StatusCode == 'active'
+            ).first()
+        
+        # Priority 3: Get any active company as fallback
+        if not user_company:
+            user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                UserCompany.UserID == user.UserID,
+                UserCompany.IsDeleted == False,
+                UserCompanyStatus.StatusCode == 'active'
+            ).order_by(UserCompany.JoinedDate.asc()).first()
         
         if user_company:
             company_id = user_company.CompanyID
@@ -704,6 +742,7 @@ async def refresh_token_endpoint(
         
         # 5. Get updated role/company info
         # Priority: System-level role (User.UserRoleID) takes precedence over company-level role
+        # Use same logic as login endpoint to determine company (prioritize own company, then primary, then any active)
         role = None
         company_id = None
         
@@ -714,15 +753,35 @@ async def refresh_token_endpoint(
         
         # Get company-level role if no system-level role
         if not role:
-            user_company = db.query(UserCompany).filter(
-                UserCompany.UserID == user.UserID,
-                UserCompany.IsPrimaryCompany == True
-            ).first()
+            # Priority 1: User's "own company" (joined via signup)
+            from models.ref.joined_via import JoinedVia
+            signup_method = db.query(JoinedVia).filter(JoinedVia.MethodCode == 'signup').first()
+            user_company = None
             
-            if not user_company:
-                user_company = db.query(UserCompany).filter(
-                    UserCompany.UserID == user.UserID
+            if signup_method:
+                user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                    UserCompany.UserID == user.UserID,
+                    UserCompany.JoinedViaID == signup_method.JoinedViaID,
+                    UserCompany.IsDeleted == False,
+                    UserCompanyStatus.StatusCode == 'active'
                 ).first()
+            
+            # Priority 2: Primary company (if user has explicitly set one)
+            if not user_company:
+                user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                    UserCompany.UserID == user.UserID,
+                    UserCompany.IsPrimaryCompany == True,
+                    UserCompany.IsDeleted == False,
+                    UserCompanyStatus.StatusCode == 'active'
+                ).first()
+            
+            # Priority 3: Any active company as fallback
+            if not user_company:
+                user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                    UserCompany.UserID == user.UserID,
+                    UserCompany.IsDeleted == False,
+                    UserCompanyStatus.StatusCode == 'active'
+                ).order_by(UserCompany.JoinedDate.asc()).first()
             
             if user_company:
                 if user_company.role:
@@ -731,15 +790,35 @@ async def refresh_token_endpoint(
                 company_id = user_company.CompanyID
         else:
             # User has system-level role, but still get company_id if available
-            user_company = db.query(UserCompany).filter(
-                UserCompany.UserID == user.UserID,
-                UserCompany.IsPrimaryCompany == True
-            ).first()
+            # Priority 1: User's "own company" (joined via signup)
+            from models.ref.joined_via import JoinedVia
+            signup_method = db.query(JoinedVia).filter(JoinedVia.MethodCode == 'signup').first()
+            user_company = None
             
-            if not user_company:
-                user_company = db.query(UserCompany).filter(
-                    UserCompany.UserID == user.UserID
+            if signup_method:
+                user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                    UserCompany.UserID == user.UserID,
+                    UserCompany.JoinedViaID == signup_method.JoinedViaID,
+                    UserCompany.IsDeleted == False,
+                    UserCompanyStatus.StatusCode == 'active'
                 ).first()
+            
+            # Priority 2: Primary company (if user has explicitly set one)
+            if not user_company:
+                user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                    UserCompany.UserID == user.UserID,
+                    UserCompany.IsPrimaryCompany == True,
+                    UserCompany.IsDeleted == False,
+                    UserCompanyStatus.StatusCode == 'active'
+                ).first()
+            
+            # Priority 3: Any active company as fallback
+            if not user_company:
+                user_company = db.query(UserCompany).join(UserCompanyStatus).filter(
+                    UserCompany.UserID == user.UserID,
+                    UserCompany.IsDeleted == False,
+                    UserCompanyStatus.StatusCode == 'active'
+                ).order_by(UserCompany.JoinedDate.asc()).first()
             
             if user_company:
                 company_id = user_company.CompanyID

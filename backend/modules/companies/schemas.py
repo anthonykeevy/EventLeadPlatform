@@ -12,12 +12,12 @@ from enum import Enum
 
 class EditUserRoleRequest(BaseModel):
     """Request schema for editing user role (Story 1.16)"""
-    role_code: str = Field(..., description="Role code (company_admin or company_user)")
+    role_code: str = Field(..., description="Role code (company_admin, company_user, or company_viewer)")
     
     @validator('role_code')
     def validate_role_code(cls, v):
-        if v not in ['company_admin', 'company_user']:
-            raise ValueError('Role must be company_admin or company_user')
+        if v not in ['company_admin', 'company_user', 'company_viewer']:
+            raise ValueError('Role must be company_admin, company_user, or company_viewer')
         return v
     
     class Config:
@@ -146,7 +146,7 @@ class SendInvitationSchema(BaseModel):
     email: EmailStr = Field(..., description="Email address of invitee")
     first_name: str = Field(..., min_length=1, max_length=100, description="First name of invitee")
     last_name: str = Field(..., min_length=1, max_length=100, description="Last name of invitee")
-    role: str = Field(..., description="Role to assign (company_admin or company_user)")
+    role: str = Field(..., description="Role to assign (company_admin, company_user, or company_viewer)")
     
     class Config:
         json_schema_extra = {

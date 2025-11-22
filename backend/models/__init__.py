@@ -34,6 +34,7 @@ from .user_refresh_token import UserRefreshToken
 from .event import Event
 from .event_company import EventCompany
 from .form import Form
+from .form_access_control import FormAccessControl
 
 # Reference tables (ref schema)
 from .ref import (
@@ -56,8 +57,10 @@ from .ref import (
     EventType,
     EventStatus,
     RecurrencePattern,
+    EventCompanyRole,
     FormStatus,
     FormApprovalStatus,
+    FormAccessControlAccessType,
 )
 
 # Configuration tables (config schema)
@@ -105,6 +108,7 @@ __all__ = [
     "Event",
     "EventCompany",
     "Form",
+    "FormAccessControl",
     
     # Reference tables (ref)
     "Country",
@@ -129,6 +133,7 @@ __all__ = [
     "EventCompanyRole",
     "FormStatus",
     "FormApprovalStatus",
+    "FormAccessControlAccessType",
     
     # Configuration tables (config)
     "AppSetting",
@@ -166,7 +171,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 37  # Updated for Epic 2: 33 base + 4 new models
+    expected_count = 38  # Updated for Epic 2: 33 base + 5 new models (FormAccessControl added)
     actual_count = len(__all__)
     
     if actual_count != expected_count:

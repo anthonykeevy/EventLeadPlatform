@@ -18,7 +18,8 @@ from models.ref.event_status import EventStatus
 from models.event_company import EventCompany
 from schemas.user import (
     UpdateUserDetailsSchema, UpdateUserDetailsResponse, UserProfileResponse,
-    SwitchCompanyRequest, SwitchCompanyResponse, UserCompanyInfo, RelationshipInfo,
+    SwitchCompanyRequest, SwitchCompanyResponse, SetDefaultCompanyResponse,
+    UserCompanyInfo, RelationshipInfo,
     UserProfileUpdateSchema, EnhancedUserProfileResponse, ReferenceOptionResponse,
     IndustryAssociationSchema, IndustryAssociationResponse
 )
@@ -27,6 +28,7 @@ from .service import (
     update_user_profile_enhancements, get_user_industries, add_user_industry,
     update_user_industry, remove_user_industry
 )
+from modules.events.service import get_events # Import get_events for legacy event counting
 from .switch_service import CompanySwitchService
 from common.logger import get_logger
 
@@ -160,67 +162,145 @@ async def list_my_companies(
     """
     List all companies user belongs to, enriched with relationship context.
     AC-1.11.1, AC-1.11.3, AC-1.11.8
+    
+    Event counts are filtered by user access:
+    - Company Admins and Company Users see all events for their company
+    - Company Viewers only see events where they have form access
+    
+    System Admins: Returns ALL companies in the platform (bypasses company membership filtering)
     """
     try:
+        # System Admins see ALL companies, not just ones they belong to
+        if current_user.role == "system_admin":
+            # Get all active companies
+            all_companies = db.execute(
+                select(Company).where(Company.IsDeleted == False)
+                .order_by(Company.CompanyName.asc())
+            ).scalars().all()
+            
+            result = []
+            from modules.events.event_company_service import get_company_events
+            
+            for company in all_companies:
+                # Get all events for this company (System Admins see all events)
+                # 1. Get events from relationships (Modern flow + Participants)
+                company_events = await get_company_events(
+                    db=db,
+                    company_id=company.CompanyID,
+                    active_only=True,
+                    include_participant=True,
+                    user_id=None,  # System Admin bypasses form access filtering
+                    user_role="system_admin"
+                )
+                
+                # 2. Get directly owned events (Legacy flow)
+                legacy_events = await get_events(
+                    db=db,
+                    company_id=company.CompanyID,
+                    filters=None
+                )
+                
+                # 3. Merge unique events to get accurate count
+                # Use a set to deduplicate events that might appear in both lists (rare but possible)
+                unique_event_ids = set()
+                for e in company_events:
+                    unique_event_ids.add(e.EventID)
+                for e in legacy_events:
+                    unique_event_ids.add(e.EventID)
+                
+                event_count = len(unique_event_ids)
+                
+                result.append(UserCompanyInfo(
+                    company_id=company.CompanyID,
+                    company_name=company.CompanyName,
+                    role="system_admin",  # System Admin role for all companies
+                    is_primary=False,  # System Admin doesn't have a "primary" company
+                    joined_at=company.CreatedDate,  # Use company creation date
+                    joined_via=None,  # System Admin doesn't "join" companies
+                    relationship=None,  # No relationship context for System Admin
+                    event_count=event_count
+                ))
+            
+            logger.info(f"System Admin {current_user.user_id} viewing all {len(result)} companies")
+            return result
+        
+        # Regular users: Get companies they belong to
         enriched_companies = await get_user_companies_with_relationship_context(db, current_user.user_id)
+        
+        # Get user's role for each company to apply correct event filtering
+        from models.ref.user_company_role import UserCompanyRole
         
         result = []
         for item in enriched_companies:
             uc = item['user_company']
             company = db.get(Company, uc.CompanyID)
             role = db.get(UserCompanyRole, uc.UserCompanyRoleID)
+            
+            # Get joined via method code
+            joined_via_code = None
+            if uc.joined_via:
+                joined_via_code = uc.joined_via.MethodCode
 
             relationship_info = None
             if item.get('relationship'):
                 relationship_info = RelationshipInfo(**item['relationship'])
 
             # Count active events for this company (excluding archived events)
-            # Include BOTH:
-            # 1. Events directly owned by company
-            # 2. Events where company is a participant (via EventCompany)
-            archived_status = db.execute(
-                select(EventStatus).where(EventStatus.StatusCode == 'ARCHIVED')
-            ).scalar_one_or_none()
+            # Event counts are filtered by user access based on company role:
+            # - Company Admins and Company Users: see all events for their company
+            # - Company Viewers: only see events where they have form access
+            # Use the same filtering logic as get_company_events
             
-            from sqlalchemy import func, or_, distinct
+            # Get user's role for this company
+            user_company_role = db.get(UserCompanyRole, uc.UserCompanyRoleID)
+            user_role_code = user_company_role.RoleCode if user_company_role else None
             
-            # Get event IDs from both sources
-            # 1. Events directly owned by company
-            owned_event_ids = db.execute(
-                select(Event.EventID).where(
-                    Event.CompanyID == uc.CompanyID,
-                    Event.IsDeleted == False
-                )
-            ).scalars().all()
+            # Use the same filtering logic as get_company_events
+            from modules.events.event_company_service import get_company_events
             
-            # 2. Events where company is a participant (via EventCompany)
-            participant_event_ids = db.execute(
-                select(EventCompany.EventID).where(
-                    EventCompany.CompanyID == uc.CompanyID,
-                    EventCompany.IsDeleted == False,
-                    EventCompany.IsActive == True
-                )
-            ).scalars().all()
+            # Get events for this company with user access filtering
+            # Only filter by form access if user is Company Viewer (not Admin or User)
+            # IMPORTANT: We pass the specific company_id (uc.CompanyID) to get_company_events,
+            # not current_user.company_id, so event counts are calculated for each company
+            # independently based on the user's role in that specific company
             
-            # Combine both lists and get unique event IDs
-            all_event_ids = list(set(list(owned_event_ids) + list(participant_event_ids)))
+            # 1. Get relationship events
+            company_events = await get_company_events(
+                db=db,
+                company_id=uc.CompanyID,
+                active_only=True,
+                include_participant=True,
+                user_id=current_user.user_id if user_role_code == 'company_viewer' else None,
+                user_role=user_role_code if user_role_code == 'company_viewer' else None
+            )
             
-            if not all_event_ids:
-                event_count = 0
-            else:
-                # Count unique events, excluding archived
-                event_count_stmt = select(func.count(distinct(Event.EventID))).where(
-                    Event.EventID.in_(all_event_ids),
-                    Event.IsDeleted == False
-                )
-                
-                # Exclude archived events from count
-                if archived_status:
-                    event_count_stmt = event_count_stmt.where(
-                        Event.EventStatusID != archived_status.EventStatusID
-                    )
-                
-                event_count = db.execute(event_count_stmt).scalar() or 0
+            # 2. Get legacy events
+            # Note: For Viewers, we should technically filter these by form access too,
+            # but for now we'll include them to ensure legacy events aren't hidden from counts.
+            # The list endpoint will filter them correctly if needed.
+            legacy_events = await get_events(
+                db=db,
+                company_id=uc.CompanyID,
+                filters=None
+            )
+            
+            # 3. Merge counts
+            unique_event_ids = set()
+            for e in company_events:
+                unique_event_ids.add(e.EventID)
+            
+            # For Viewers, strictly we should check access to legacy events, 
+            # but to avoid complex duplication here, we'll include them if they are owned by company.
+            # (Or we can skip legacy for Viewers to be safe/restrictive)
+            include_legacy = user_role_code in ['company_admin', 'company_user']
+            if include_legacy:
+                for e in legacy_events:
+                    unique_event_ids.add(e.EventID)
+            
+            event_count = len(unique_event_ids)
+            
+            # Log event count calculation for debugging
+            logger.debug(f"Event count for CompanyID={uc.CompanyID}, UserID={current_user.user_id}, Role={user_role_code}: {event_count} events")
 
             result.append(UserCompanyInfo(
                 company_id=uc.CompanyID,
@@ -228,6 +308,7 @@ async def list_my_companies(
                 role=role.RoleCode,
                 is_primary=uc.IsPrimaryCompany,
                 joined_at=uc.JoinedDate,
+                joined_via=joined_via_code,
                 relationship=relationship_info,
                 event_count=event_count
             ))
@@ -263,7 +344,8 @@ async def switch_active_company(
         
         result = switch_service.switch_company(
             user_id=current_user.user_id,
-            target_company_id=request.company_id
+            target_company_id=request.company_id,
+            current_role=current_user.role  # Pass current role to check if System Admin
         )
         
         return SwitchCompanyResponse(**result)
@@ -279,6 +361,47 @@ async def switch_active_company(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to switch company"
+        )
+
+
+@router.post(
+    "/me/set-default-company",
+    response_model=SetDefaultCompanyResponse,
+    summary="Set default company",
+    description="Set a company as default (primary) without switching context"
+)
+async def set_default_company(
+    request: SwitchCompanyRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> SetDefaultCompanyResponse:
+    """
+    Set a company as the user's default (primary) company without switching context.
+    
+    This updates IsPrimaryCompany=True for the target company and False for all others.
+    Does NOT switch the active company context (no new JWT tokens issued).
+    """
+    try:
+        switch_service = CompanySwitchService(db)
+        
+        result = switch_service.set_default_company(
+            user_id=current_user.user_id,
+            target_company_id=request.company_id
+        )
+        
+        return SetDefaultCompanyResponse(**result)
+        
+    except ValueError as e:
+        logger.warning(f"Invalid default company setting: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Error setting default company: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to set default company"
         )
 
 

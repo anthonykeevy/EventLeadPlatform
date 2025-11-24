@@ -9,7 +9,7 @@ from alembic import op
 from sqlalchemy.sql import text
 
 # revision identifiers, used by Alembic.
-revision = '027_add_approval_workflow_settings'
+revision = '027_approval_workflow'
 down_revision = 'fix_agency_access_join_issue'
 branch_labels = None
 depends_on = None

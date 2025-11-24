@@ -118,11 +118,15 @@ def upgrade():
                 DECLARE @FormsTransferred INT = 0;
                 DECLARE @AccessControlsTransferred INT = 0;
                 
+                -- Table variable to track transferred forms for audit
+                DECLARE @TransferredFormIDs TABLE (FormID BIGINT);
+
                 -- Update Form.CreatedBy
                 UPDATE f
                 SET f.CreatedBy = @ToUserID,
                     f.UpdatedBy = @PerformedBy,
                     f.UpdatedDate = GETUTCDATE()
+                OUTPUT inserted.FormID INTO @TransferredFormIDs
                 FROM dbo.Form f
                 WHERE f.CompanyID = @CompanyID
                   AND f.CreatedBy = @FromUserID
@@ -193,10 +197,7 @@ def upgrade():
                     ),
                     GETUTCDATE()
                 FROM dbo.Form f
-                WHERE f.CompanyID = @CompanyID
-                  AND f.CreatedBy = @ToUserID  -- Now owned by new user
-                  AND f.UpdatedBy = @PerformedBy  -- Just updated by this procedure
-                  AND f.UpdatedDate >= DATEADD(SECOND, -5, GETUTCDATE());  -- Within last 5 seconds
+                INNER JOIN @TransferredFormIDs tf ON f.FormID = tf.FormID;
                 
                 -- =====================================================================
                 -- SUCCESS

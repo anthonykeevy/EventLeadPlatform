@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StoryContext>
+    <StoryInfo>
+        <StoryID>2.11</StoryID>
+        <StoryTitle>Approval Workflow Extensions</StoryTitle>
+        <Status>DRAFT</Status>
+        <Domain>Approval Workflows (Domain 4)</Domain>
+        <Epic>Epic 2 - Enhanced User Experience & Multi-Domain Integration</Epic>
+        <CreatedDate>2025-11-24</CreatedDate>
+        <CreatedBy>Product Manager Agent</CreatedBy>
+    </StoryInfo>
+    
+    <Dependencies>
+        <CompletedStories>
+            <Story>
+                <ID>2.8</ID>
+                <Title>Form Header Foundation</Title>
+                <Status>COMPLETE</Status>
+                <Notes>FormStatus and FormApprovalStatus fields exist.</Notes>
+            </Story>
+            <Story>
+                <ID>2.9</ID>
+                <Title>Form Access Control</Title>
+                <Status>COMPLETE</Status>
+                <Notes>Role-based access logic (Admin vs User) is established.</Notes>
+            </Story>
+            <Story>
+                <ID>Epic 1</ID>
+                <Title>Core Infrastructure</Title>
+                <Status>COMPLETE</Status>
+                <Notes>EmailService available for notifications.</Notes>
+            </Story>
+        </CompletedStories>
+    </Dependencies>
+    
+    <TechnicalContext>
+        <Architecture>
+            <Backend>
+                <Service>ApprovalService (New logic layer)</Service>
+                <Service>EmailService (Existing)</Service>
+                <Guard>Publish Access Guard (Prevent publishing without approval)</Guard>
+            </Backend>
+            <Frontend>
+                <View>FormDetailView (Add Approval Actions)</View>
+                <Component>ApprovalStatusBanner</Component>
+                <Component>ReviewActionModal</Component>
+            </Frontend>
+        </Architecture>
+        <DataModel>
+            <Table>Form</Table>
+            <Fields>FormStatusID, FormApprovalStatusID, DeploymentCost</Fields>
+        </DataModel>
+    </TechnicalContext>
+    
+    <AcceptanceCriteria>
+        <AC ID="2.11.1">Approval Trigger Logic (Cost > Threshold)</AC>
+        <AC ID="2.11.2">Submit for Approval Action</AC>
+        <AC ID="2.11.3">Admin Approve Action</AC>
+        <AC ID="2.11.4">Admin Reject Action</AC>
+        <AC ID="2.11.5">Publish Guard (Status Check)</AC>
+        <AC ID="2.11.6">Notification (Request)</AC>
+        <AC ID="2.11.7">Notification (Decision)</AC>
+    </AcceptanceCriteria>
+</StoryContext>
+

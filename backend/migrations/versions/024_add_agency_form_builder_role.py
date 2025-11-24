@@ -1,7 +1,7 @@
 """Add Agency Form Builder Role - Event-Scoped Form Access
 
 Revision ID: 024_add_agency_form_builder_role
-Revises: 023_drop_old_public_review_status_column
+Revises: 023_drop_public_review_status
 Create Date: 2025-01-XX 12:00:00.000000
 
 Story: Epic 2 - Form Access Control Enhancement

@@ -20,7 +20,9 @@ from .schemas import (
     UpdateFormResponse,
     DeleteFormResponse,
     FormStatusResponse,
-    FormApprovalStatusResponse
+    FormApprovalStatusResponse,
+    TransferFormOwnershipRequest,
+    TransferFormOwnershipResponse
 )
 from .service import (
     create_form,
@@ -30,7 +32,8 @@ from .service import (
     delete_form,
     get_forms_by_event,
     get_form_statuses,
-    get_form_approval_statuses
+    get_form_approval_statuses,
+    transfer_form_ownership
 )
 from common.logger import get_logger
 
@@ -422,6 +425,78 @@ async def delete_existing_form(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete form"
+        )
+
+
+@router.post(
+    "/ownership/transfer",
+    response_model=TransferFormOwnershipResponse,
+    summary="Transfer form ownership",
+    description="Transfer all forms from one user to another (Bulk Ownership Transfer)"
+)
+async def transfer_ownership(
+    request: TransferFormOwnershipRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> TransferFormOwnershipResponse:
+    """
+    Transfer all forms from one user to another (AC-2.10.4).
+    
+    Requires 'company_admin' role.
+    Both users must belong to the same company.
+    """
+    try:
+        # Verify permission (Company Admin only)
+        if current_user.role != 'company_admin' and current_user.role != 'system_admin':
+             raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Company Administrators can transfer form ownership"
+            )
+            
+        # Verify company context matches request
+        if current_user.role != 'system_admin' and request.company_id != current_user.company_id:
+             raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only transfer ownership within your own company"
+            )
+
+        # Perform transfer
+        result = await transfer_form_ownership(
+            db=db,
+            from_user_id=request.from_user_id,
+            to_user_id=request.to_user_id,
+            company_id=request.company_id,
+            admin_user_id=current_user.user_id,
+            reason=request.reason
+        )
+        
+        db.commit()
+        
+        logger.info(f"Form ownership transfer complete: {result['forms_transferred']} forms transferred from {request.from_user_id} to {request.to_user_id}")
+        
+        return TransferFormOwnershipResponse(
+            success=True,
+            message="Ownership transferred successfully",
+            forms_transferred=result['forms_transferred'],
+            access_controls_transferred=result['access_controls_transferred'],
+            status="completed"
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid transfer request: {str(e)}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error transferring ownership: {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to transfer ownership"
         )
 
 

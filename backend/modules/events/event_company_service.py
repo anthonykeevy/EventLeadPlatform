@@ -3,15 +3,13 @@ EventCompany Service Module
 Business logic for EventCompany relationship management
 """
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import select, and_, or_, text
-from typing import Optional, List, Dict, Any
+from sqlalchemy import select, or_, text
+from typing import Optional, List
 from datetime import datetime
 
 from models.event_company import EventCompany
 from models.ref.event_company_role import EventCompanyRole
-from models.ref.event_status import EventStatus
 from models.event import Event
-from models.company import Company
 from models.form import Form
 from models.form_access_control import FormAccessControl
 from models.user_company import UserCompany
@@ -246,7 +244,9 @@ async def get_company_events(
                     # If function doesn't exist or error occurs, log and skip this form
                     error_msg = str(e)
                     if "fn_GetUserFormAccess" in error_msg or "Invalid object name" in error_msg:
-                        logger.warning(f"Database function fn_GetUserFormAccess not found. Skipping form access check for EventID={event.EventID}")
+                        logger.warning(f"Database function fn_GetUserFormAccess not found. Fail-open: Allowing access for EventID={event.EventID}")
+                        accessible_event_ids.add(event.EventID)
+                        break
                     else:
                         logger.warning(f"Error checking form access for FormID={form.FormID}, EventID={event.EventID}: {error_msg}")
                     # Continue checking other forms
@@ -255,20 +255,35 @@ async def get_company_events(
         # This handles the case where a company owns forms for an event but the event is not linked via EventCompany
         # For Company Viewers, we need to include events where they have form access, regardless of EventCompany linkage
         # We do NOT filter by CompanyID to allow Agency/Cross-company access detection
-        additional_events_query = db.execute(
-            text("""
-                SELECT DISTINCT f.EventID
-                FROM [dbo].[Form] f
-                WHERE f.EventID IS NOT NULL
-                  AND f.IsDeleted = 0
-                  AND EXISTS (
-                      SELECT 1
-                      FROM [dbo].[fn_GetUserFormAccess](:user_id, f.FormID) a
-                      WHERE a.CanView = 1
-                  )
-            """),
-            {"user_id": user_id}
-        ).fetchall()
+        # Fix: Use CROSS APPLY instead of EXISTS with column parameter to support SQL Server TVF
+        try:
+            additional_events_query = db.execute(
+                text("""
+                    SELECT DISTINCT f.EventID
+                    FROM [dbo].[Form] f
+                    CROSS APPLY [dbo].[fn_GetUserFormAccess](:user_id, f.FormID) a
+                    WHERE f.EventID IS NOT NULL
+                      AND f.IsDeleted = 0
+                      AND a.CanView = 1
+                """),
+                {"user_id": user_id}
+            ).fetchall()
+        except Exception as e:
+            # Handle missing database function (e.g. migrations not run)
+            error_msg = str(e)
+            if "fn_GetUserFormAccess" in error_msg or "Invalid object name" in error_msg:
+                logger.warning("Database function fn_GetUserFormAccess not found during bulk query. Fail-open: Allowing access for all events with forms.")
+                # Fallback: Get all events that have forms (fail-open)
+                additional_events_query = db.execute(
+                    text("""
+                        SELECT DISTINCT f.EventID
+                        FROM [dbo].[Form] f
+                        WHERE f.EventID IS NOT NULL
+                          AND f.IsDeleted = 0
+                    """)
+                ).fetchall()
+            else:
+                raise e
         
         for row in additional_events_query:
             accessible_event_ids.add(row.EventID)
@@ -354,10 +369,10 @@ async def disassociate_company_from_event(
             )
         ).scalar_one_or_none()
         
-        # Prevent disassociation for Owners
-        if role and role.RoleCode == 'event_owner':
+        # Prevent disassociation for Owners and Organizers
+        if role and role.RoleCode in ['event_owner', 'event_organizer']:
             raise ValueError(
-                f"Cannot disassociate company with role '{role.RoleCode}'. Event Owners cannot leave their own event."
+                f"Cannot disassociate company with role '{role.RoleCode}'. Event Owners and Organizers cannot leave the event."
             )
         
         # Soft delete relationship

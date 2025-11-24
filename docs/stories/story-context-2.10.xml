@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StoryContext>
+    <StoryInfo>
+        <StoryID>2.10</StoryID>
+        <StoryTitle>Form-Event Integration</StoryTitle>
+        <Status>COMPLETE</Status>
+        <Domain>Form Foundation (Domain 3)</Domain>
+        <Epic>Epic 2 - Enhanced User Experience & Multi-Domain Integration</Epic>
+        <CreatedDate>2025-11-22</CreatedDate>
+        <CreatedBy>Scrum Master Agent</CreatedBy>
+    </StoryInfo>
+    
+    <Dependencies>
+        <CompletedStories>
+            <Story>
+                <ID>2.9</ID>
+                <Title>Form Access Control</Title>
+                <Status>COMPLETE</Status>
+                <Notes>Backend logic for Agency Access (fn_GetUserFormAccess) is ready.</Notes>
+            </Story>
+            <Story>
+                <ID>2.4</ID>
+                <Title>Event Management CRUD</Title>
+                <Status>COMPLETE</Status>
+                <Notes>EventDetailView (Modal) exists.</Notes>
+            </Story>
+        </CompletedStories>
+        
+        <DeferredItems>
+            <Item>
+                <Source>Story 2.9</Source>
+                <Description>Ownership Transfer UI</Description>
+                <Reason>Deferred to prioritize core access logic.</Reason>
+            </Item>
+        </DeferredItems>
+    </Dependencies>
+    
+    <TechnicalContext>
+        <Architecture>
+            <Frontend>
+                <View>EventDetailView (Modal) - Add Forms section</View>
+                <View>AgencyDashboard (Event List with Agency filter)</View>
+                <View>CompanySettings (Bulk Ownership Transfer)</View>
+                <Component>ShareEventModal (Grant Agency Access)</Component>
+                <Component>EventSelector (Async)</Component>
+                <Component>BulkTransferOwnershipModal</Component>
+            </Frontend>
+            <Backend>
+                <Logic>fn_GetUserFormAccess (Database)</Logic>
+                <Logic>sp_TransferFormOwnership (Database)</Logic>
+            </Backend>
+        </Architecture>
+    </TechnicalContext>
+    
+    <AcceptanceCriteria>
+        <AC ID="2.10.1">Event-Form Linking UI</AC>
+        <AC ID="2.10.2">Event Modal Forms Section</AC>
+        <AC ID="2.10.3">Create Form from Event</AC>
+        <AC ID="2.10.4">Agency Dashboard View</AC>
+        <AC ID="2.10.5">Agency Form Access UI</AC>
+        <AC ID="2.10.6">Agency Sharing UI (Grant Access)</AC>
+        <AC ID="2.10.7">Form Availability Visuals</AC>
+        <AC ID="2.10.8">Bulk Ownership Transfer UI</AC>
+    </AcceptanceCriteria>
+</StoryContext>

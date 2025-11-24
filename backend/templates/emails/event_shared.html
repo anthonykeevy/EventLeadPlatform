@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Event Access Granted - EventLead Platform{% endblock %}
+
+{% block content %}
+<h1>You've Been Granted Access to an Event!</h1>
+
+<p>Hi {{ recipient_name | default('there') }},</p>
+
+<p><strong>{{ inviter_name }}</strong> from <strong>{{ inviter_company_name }}</strong> has shared the event <strong>"{{ event_name }}"</strong> with you.</p>
+
+<p>You have been granted the <strong>{{ role_name }}</strong> role for this event. This allows you to:</p>
+<ul>
+    <li>Access event details</li>
+    <li>Create and manage forms for this event</li>
+    <li>View event submissions</li>
+</ul>
+
+<p>You can access the event directly from your dashboard:</p>
+
+<div class="button-container">
+    <a href="{{ event_url }}" class="button">View Event</a>
+</div>
+
+<div class="info-box">
+    <p style="margin: 0;"><strong>Event:</strong> {{ event_name }}</p>
+    <p style="margin: 10px 0 0;"><strong>Shared By:</strong> {{ inviter_company_name }}</p>
+</div>
+
+<p>If you have any questions, please contact {{ inviter_name }} directly.</p>
+
+<p>Best regards,<br>
+The EventLead Team</p>
+{% endblock %}
+

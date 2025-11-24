@@ -113,6 +113,29 @@ class FormUpdateSchema(BaseModel):
         populate_by_name = True
 
 
+class TransferFormOwnershipRequest(BaseModel):
+    """Request schema for bulk transfer of form ownership"""
+    from_user_id: int = Field(..., alias="from_user_id")
+    to_user_id: int = Field(..., alias="to_user_id")
+    company_id: int = Field(..., alias="company_id")
+    reason: Optional[str] = Field(None, alias="reason")
+    
+    class Config:
+        populate_by_name = True
+
+
+class TransferFormOwnershipResponse(BaseModel):
+    """Response for bulk transfer of form ownership"""
+    success: bool = Field(..., alias="success")
+    message: str = Field(..., alias="message")
+    forms_transferred: int = Field(..., alias="forms_transferred")
+    access_controls_transferred: int = Field(..., alias="access_controls_transferred")
+    status: str = Field(..., alias="status")
+    
+    class Config:
+        populate_by_name = True
+
+
 # =====================================================================
 # Response Schemas
 # =====================================================================

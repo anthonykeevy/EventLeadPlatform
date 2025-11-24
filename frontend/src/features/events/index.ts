@@ -11,6 +11,8 @@ export { StatusBadge } from './components/StatusBadge'
 export { CreateEventModal } from './components/CreateEventModal'
 export { EditEventModal } from './components/EditEventModal'
 export { DeleteEventConfirmModal } from './components/DeleteEventConfirmModal'
+export { ShareEventModal } from './components/ShareEventModal'
 export { EventDetailView } from './components/EventDetailView'
+export { EventSelector } from './components/EventSelector'
 
 

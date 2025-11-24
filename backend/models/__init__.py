@@ -171,7 +171,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 38  # Updated for Epic 2: 33 base + 5 new models (FormAccessControl added)
+    expected_count = 49  # Updated for Epic 2: Correct count of all registered models (15 dbo + 23 ref + 2 config + 4 audit + 4 log + 1 cache)
     actual_count = len(__all__)
     
     if actual_count != expected_count:
@@ -184,4 +184,4 @@ def validate_models() -> None:
     
     print(f"✓ Loaded {actual_count} models")
     print(f"✓ Registered {len(registered_tables)} tables with SQLAlchemy")
-    print(f"✓ Schemas: ref, dbo, config, audit, log, cache")
+    print("✓ Schemas: ref, dbo, config, audit, log, cache")

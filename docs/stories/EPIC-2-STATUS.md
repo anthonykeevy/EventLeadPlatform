@@ -27,7 +27,7 @@
 | **Next Story** | 2.11 - Approval Workflow Extensions | 📋 **PLANNED** |
 | **Domains Complete** | 3/4 | ✅ Domain 1, ✅ Domain 2, ✅ Domain 3 Complete |
 | **Current Domain** | Domain 4 - Approval Workflows | 📋 **PLANNED** - Stories 2.11-2.13 |
-| **UAT Tests Passed** | Story 2.1: 10/10, Story 2.2: 9/10, Story 2.3: All Core Features, Story 2.4: 12/12, Story 2.6: 35/36, Story 2.7: 45/45, Story 2.8: 14/14, Story 2.9: 50/55, Story 2.10: 10/10 | ✅ All 10 Stories Complete with UAT Passed |
+| **UAT Tests Passed** | Story 2.1: 10/10, Story 2.2: 9/10, Story 2.3: All Core Features, Story 2.4: 12/12, Story 2.6: 35/36, Story 2.7: 45/45, Story 2.8: 14/14, Story 2.9: 50/55 (4 deferred to 2.10, 1 future), Story 2.10: 10/10 | ✅ All 10 Stories Complete with UAT Passed |
 
 ---
 
@@ -99,7 +99,7 @@
 | 2.6 | Admin Public Event Review Workflow | ✅ **COMPLETE** | Complete | ✅ 35/36 UAT Passed (1 skipped) | 6 Critical, 3 UI/UX Issues Fixed | Admin dashboard with event management table, review workflow, email notifications, priority indicators, column filters, inline editing, expandable rows | Event Management |
 | 2.7 | Event Public Review Workflow Implementation | ✅ **COMPLETE** | Complete | ✅ 45/45 UAT Passed | 5 Critical, 4 Minor Issues Fixed | Complete workflow implementation, offline-first capability, shared event participation, recursive company network visibility | Event Management |
 | 2.8 | Form Header Foundation | ✅ **COMPLETE** | Complete | ✅ 14/14 UAT Passed | 11 Issues Fixed | Reused Event Management patterns, company-scoped filtering, full CRUD with audit trail, dashboard hierarchy integration, simplified modals, split layout design | Form Foundation |
-| 2.9 | Form Access Control | ✅ **COMPLETE** | Complete | ✅ 50/55 UAT Passed | System Admin Visibility, Legacy Events | 6-layer access logic, Centralized DB function, Agency access | Form Foundation |
+| 2.9 | Form Access Control | ✅ **COMPLETE** | Complete | ✅ 50/55 UAT Passed (4 deferred to 2.10) | System Admin Visibility, Legacy Events | 6-layer access logic, Centralized DB function, Agency access | Form Foundation |
 | 2.10 | Form-Event Integration | ✅ **COMPLETE** | Complete | ✅ 10/10 UAT Passed | Agency filtering, Access Matrix | Agency access requires explicit ownership enforcement, bulk transfer is powerful admin tool | Form Foundation |
 | 2.11 | Approval Workflow Extensions | 📋 Planned | - | - | - | - | Approval Workflows |
 | 2.12 | External Approver Support | 📋 Planned | - | - | - | - | Approval Workflows |
@@ -216,11 +216,29 @@
 **Story Title:** Approval Workflow Extensions  
 **Domain:** Approval Workflows (Domain 4)  
 **Epic Goal:** Complete AC4 - Approval Workflow Extension  
-**Status:** 📋 **READY FOR CREATION**
+**Status:** ✅ **STORY CREATED** - Ready for Implementation
 
 **Key Context:**
 - Basic Form Approval Status exists (`Draft`, `Pending Approval`, `Approved`).
 - Need to add logic to *trigger* these states based on rules (e.g., Deployment Cost > $100).
+- Story file created: `docs/stories/story-2.11.md`
+- Context file created: `docs/stories/story-context-2.11.xml`
+
+**Acceptance Criteria Focus:**
+- Cost-based approval triggers
+- Submit/Approve/Reject workflow actions
+- Publish Guard (prevent unapproved forms from going live)
+- Email Notifications
+
+**Technical Requirements:**
+- Backend: `ApprovalService`, `submit`/`approve`/`reject` endpoints.
+- Frontend: Approval Status UI, Admin Action Buttons.
+- Integration: `EmailService` hookup.
+
+**Story Deliverables:**
+- ✅ Story file: `docs/stories/story-2.11.md`
+- ✅ Context file: `docs/stories/story-context-2.11.xml`
+- ✅ Epic 2 Status updated with Story 2.11 details
 
 ---
 
@@ -315,9 +333,9 @@
 
 ### **Domain Reviews**
 - **Domain 1 Review:** `docs/stories/DOMAIN-1-USER-EXPERIENCE-REVIEW.md` ✅ Complete
-- **Domain 2 Review:** `docs/stories/DOMAIN-2-EVENT-MANAGEMENT-REVIEW.md` ✅ Complete (November 14, 2025)
-- **Domain 3 Review:** `docs/stories/DOMAIN-3-FORM-FOUNDATION-REVIEW.md` (Pending)
-- **Domain 4 Review:** `docs/stories/DOMAIN-4-APPROVAL-WORKFLOWS-REVIEW.md`
+  - **Domain 2 Review:** `docs/stories/DOMAIN-2-EVENT-MANAGEMENT-REVIEW.md` ✅ Complete (November 14, 2025)
+  - **Domain 3 Review:** `docs/stories/DOMAIN-3-FORM-FOUNDATION-REVIEW.md` ✅ Complete
+  - **Domain 4 Review:** `docs/stories/DOMAIN-4-APPROVAL-WORKFLOWS-REVIEW.md`
 
 ---
 

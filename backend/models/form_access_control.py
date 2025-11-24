@@ -62,7 +62,7 @@ class FormAccessControl(Base):
     form = relationship("Form", foreign_keys=[FormID])
     user = relationship("User", foreign_keys=[UserID])
     company = relationship("Company", foreign_keys=[CompanyID])
-    access_type = relationship("FormAccessControlAccessType", foreign_keys=[FormAccessControlAccessTypeID])
+    access_type = relationship("FormAccessControlAccessType", foreign_keys=[FormAccessControlAccessTypeID], back_populates="form_access_controls")
     relationship_type = relationship("CompanyRelationshipType", foreign_keys=[CompanyRelationshipTypeID])
     granted_by_user = relationship("User", foreign_keys=[GrantedBy])
     created_by_user = relationship("User", foreign_keys=[CreatedBy])

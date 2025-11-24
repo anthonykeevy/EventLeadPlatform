@@ -62,9 +62,16 @@ export function EventCard({ event, onEdit, onDelete, onView }: EventCardProps) {
       {/* Header with Status Badge */}
       <div className="p-4 pb-3 border-b border-gray-100">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="text-lg font-semibold text-gray-900 flex-1 pr-2 line-clamp-2">
-            {event.name}
-          </h3>
+          <div className="flex flex-col flex-1 pr-2">
+            <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+              {event.name}
+            </h3>
+            {event.userRole && !event.userRole.is_legacy && (
+              <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 w-fit">
+                {event.userRole.role_name || 'Agency Access'}
+              </span>
+            )}
+          </div>
           <StatusBadge status={event.eventStatus} />
         </div>
       </div>

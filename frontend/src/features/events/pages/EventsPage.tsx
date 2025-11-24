@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Filter, X } from 'lucide-react'
-import { getEvents, getEventTypes, getEventStatuses, EventFilters } from '../api/eventsApi'
-import { Event, EventType, EventStatus } from '../types/events.types'
+import { getEvents, getEventTypes, getEventStatuses } from '../api/eventsApi'
+import { Event, EventType, EventStatus, EventFilters } from '../types/events.types'
 import { EventCard } from '../components/EventCard'
 import { CreateEventModal } from '../components/CreateEventModal'
 import { EditEventModal } from '../components/EditEventModal'
@@ -15,10 +15,15 @@ import { EventDetailView } from '../components/EventDetailView'
 import { useToastNotifications } from '../../ux'
 import { LoadingSpinner } from '../../ux/components/LoadingSpinner'
 import { ErrorMessage } from '../../ux/components/ErrorMessage'
+import { CreateFormModal, EditFormModal, DeleteFormConfirmModal, FormDetailView } from '../../forms'
+import { Form } from '../../forms/types/form.types'
+import { useAuth } from '../../auth'
 
 export function EventsPage() {
+  const { user } = useAuth()
   // State
   const [events, setEvents] = useState<Event[]>([])
+
   const [eventTypes, setEventTypes] = useState<EventType[]>([])
   const [eventStatuses, setEventStatuses] = useState<EventStatus[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -43,7 +48,15 @@ export function EventsPage() {
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null)
   const [viewingEvent, setViewingEvent] = useState<Event | null>(null)
 
-  const { showToast } = useToastNotifications()
+  // Form modals state
+  const [showCreateFormModal, setShowCreateFormModal] = useState(false)
+  const [showEditFormModal, setShowEditFormModal] = useState(false)
+  const [showDeleteFormModal, setShowDeleteFormModal] = useState(false)
+  const [formEventId, setFormEventId] = useState<number | null>(null)
+  const [selectedForm, setSelectedForm] = useState<Form | null>(null)
+
+  const toast = useToastNotifications()
+
 
   // Load reference data on mount
   useEffect(() => {
@@ -58,12 +71,12 @@ export function EventsPage() {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load reference data'
         setError(errorMessage)
-        showToast.error(errorMessage, 'Failed to load event types and statuses')
+        toast.error(errorMessage, 'Failed to load event types and statuses')
       }
     }
 
     loadReferenceData()
-  }, [showToast])
+  }, [toast])
 
   // Load events
   const loadEvents = useCallback(async () => {
@@ -85,12 +98,12 @@ export function EventsPage() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load events'
       setError(errorMessage)
-      showToast.error(errorMessage, 'Failed to load events')
+      toast.error(errorMessage, 'Failed to load events')
     } finally {
       setIsLoadingEvents(false)
       setIsLoading(false)
     }
-  }, [page, searchQuery, selectedEventTypeId, selectedStatusId, dateFrom, dateTo, showToast])
+  }, [page, searchQuery, selectedEventTypeId, selectedStatusId, dateFrom, dateTo, toast])
 
   // Load events when filters or page changes
   useEffect(() => {
@@ -100,7 +113,7 @@ export function EventsPage() {
   // Handle create event
   const handleCreateSuccess = () => {
     setShowCreateModal(false)
-    showToast.success('The event has been created successfully', 'Event created')
+    toast.success('The event has been created successfully', 'Event created')
     loadEvents()
   }
 
@@ -111,7 +124,7 @@ export function EventsPage() {
 
   const handleEditSuccess = () => {
     setEditingEvent(null)
-    showToast.success('The event has been updated successfully', 'Event updated')
+    toast.success('The event has been updated successfully', 'Event updated')
     loadEvents()
   }
 
@@ -122,8 +135,54 @@ export function EventsPage() {
 
   const handleDeleteSuccess = () => {
     setDeletingEvent(null)
-    showToast.success('The event has been deleted successfully', 'Event deleted')
+    toast.success('The event has been deleted successfully', 'Event deleted')
     loadEvents()
+  }
+
+  // Handle create form
+  const handleCreateForm = (eventId: number) => {
+    setFormEventId(eventId)
+    setShowCreateFormModal(true)
+  }
+
+  const handleFormCreated = () => {
+    setShowCreateFormModal(false)
+    const eventId = formEventId
+    setFormEventId(null)
+    // Dispatch custom event to refresh forms for this event
+    if (eventId) {
+      window.dispatchEvent(new CustomEvent('formCreated', { detail: { eventId } }))
+    }
+  }
+
+  // Handle edit form
+  const handleEditForm = (form: Form) => {
+    setSelectedForm(form)
+    setShowEditFormModal(true)
+  }
+
+  const handleFormUpdated = () => {
+    setShowEditFormModal(false)
+    const eventId = selectedForm?.eventId
+    setSelectedForm(null)
+    if (eventId) {
+      window.dispatchEvent(new CustomEvent('formUpdated', { detail: { eventId } }))
+    }
+  }
+
+  // Handle delete form
+  const handleDeleteForm = (form: Form) => {
+    setSelectedForm(form)
+    setShowDeleteFormModal(true)
+  }
+
+  const handleFormDeleted = () => {
+    setShowDeleteFormModal(false)
+    const eventId = selectedForm?.eventId
+    setSelectedForm(null)
+    if (eventId) {
+      window.dispatchEvent(new CustomEvent('formUpdated', { detail: { eventId } }))
+    }
   }
 
   // Clear filters
@@ -286,7 +345,7 @@ export function EventsPage() {
         {/* Loading State */}
         {isLoading && (
           <div className="flex justify-center items-center py-12">
-            <LoadingSpinner size="large" />
+            <LoadingSpinner size="lg" />
           </div>
         )}
 
@@ -392,6 +451,8 @@ export function EventsPage() {
           event={deletingEvent}
           onClose={() => setDeletingEvent(null)}
           onConfirm={handleDeleteSuccess}
+          mode={deletingEvent.companyId !== user?.company_id ? 'leave' : 'delete'}
+          companyId={user?.company_id}
         />
       )}
 
@@ -407,6 +468,46 @@ export function EventsPage() {
             setViewingEvent(null)
             setDeletingEvent(event)
           }}
+          onAddForm={handleCreateForm}
+          onEditForm={handleEditForm}
+          onDeleteForm={handleDeleteForm}
+        />
+      )}
+
+      {/* Form Modals */}
+      {showCreateFormModal && formEventId && (
+        <CreateFormModal
+          isOpen={showCreateFormModal}
+          eventId={formEventId}
+          onClose={() => {
+            setShowCreateFormModal(false)
+            setFormEventId(null)
+          }}
+          onSuccess={handleFormCreated}
+        />
+      )}
+
+      {selectedForm && (
+        <EditFormModal
+          isOpen={showEditFormModal}
+          form={selectedForm}
+          onClose={() => {
+            setShowEditFormModal(false)
+            setSelectedForm(null)
+          }}
+          onSuccess={handleFormUpdated}
+        />
+      )}
+
+      {selectedForm && (
+        <DeleteFormConfirmModal
+          isOpen={showDeleteFormModal}
+          form={selectedForm}
+          onClose={() => {
+            setShowDeleteFormModal(false)
+            setSelectedForm(null)
+          }}
+          onConfirm={handleFormDeleted}
         />
       )}
     </div>

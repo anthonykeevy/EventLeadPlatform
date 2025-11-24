@@ -8,7 +8,8 @@
  * - Error handling with user-friendly messages
  */
 
-const API_BASE_URL = 'http://127.0.0.1:8000'
+import axios from 'axios'
+import { apiClient } from '../../../lib/apiClient'
 
 /**
  * Backend response format (snake_case)
@@ -104,33 +105,17 @@ function transformSearchResponse(backendResponse: BackendSearchResponse): Compan
  * Story 1.19: Two-step enrichment for name search results
  * When user selects from name search, automatically search by ABN to get full details
  * 
- * NOTE: This function makes a direct API call without using the search hook
- * to avoid triggering auto-select cascades
- * 
  * @param abn Company ABN to enrich
  * @returns Promise with enriched company data or null if fails
  */
 export async function enrichCompanyByABN(abn: string): Promise<CompanySearchResult | null> {
   try {
-    // Make direct API call (don't use searchCompanies to avoid state updates)
-    const response = await fetch(`${API_BASE_URL}/api/companies/smart-search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: abn.trim(),
-        max_results: 1
-      })
+    const response = await apiClient.post<BackendSearchResponse>('/api/companies/smart-search', {
+      query: abn.trim(),
+      max_results: 1
     })
 
-    if (!response.ok) {
-      return null
-    }
-
-    const backendData: BackendSearchResponse = await response.json()
-    const transformed = transformSearchResponse(backendData)
-    
+    const transformed = transformSearchResponse(response.data)
     return transformed.results[0] || null
     
   } catch (error) {
@@ -159,49 +144,36 @@ export async function searchCompanies(
   maxResults: number = 10
 ): Promise<CompanySearchResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/companies/smart-search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: query.trim(),
-        max_results: maxResults
-      })
+    const response = await apiClient.post<BackendSearchResponse>('/api/companies/smart-search', {
+      query: query.trim(),
+      max_results: maxResults
     })
 
-    if (!response.ok) {
-      // Handle error responses
-      const errorData: BackendSearchError = await response.json().catch(() => ({
-        error: 'UNKNOWN_ERROR',
-        message: 'An unexpected error occurred. Please try again or enter details manually.'
-      }))
-
-      // Transform to frontend format
-      const error: CompanySearchError = {
-        error: errorData.error,
-        message: errorData.message,
-        fallbackUrl: errorData.fallback_url
-      }
-
-      throw error
-    }
-
-    // Success - transform response to camelCase
-    const backendData: BackendSearchResponse = await response.json()
-    return transformSearchResponse(backendData)
+    return transformSearchResponse(response.data)
 
   } catch (error) {
-    // Network errors or JSON parse errors
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw {
-        error: 'NETWORK_ERROR',
-        message: 'Unable to connect to server. Please check your internet connection.',
-        fallbackUrl: undefined
-      } as CompanySearchError
+    if (axios.isAxiosError(error)) {
+      // Network errors
+      if (error.code === 'ERR_NETWORK' || !error.response) {
+         throw {
+          error: 'NETWORK_ERROR',
+          message: 'Unable to connect to server. Please check your internet connection.',
+          fallbackUrl: undefined
+        } as CompanySearchError
+      }
+
+      // Backend errors
+      if (error.response?.data) {
+        const errorData = error.response.data as BackendSearchError
+        throw {
+          error: errorData.error || 'UNKNOWN_ERROR',
+          message: errorData.message || 'An unexpected error occurred.',
+          fallbackUrl: errorData.fallback_url
+        } as CompanySearchError
+      }
     }
 
-    // Re-throw API errors
+    // Re-throw other errors
     throw error
   }
 }
@@ -280,4 +252,3 @@ export function parseBusinessAddress(businessAddress: string | null): {
 
   return result
 }
-

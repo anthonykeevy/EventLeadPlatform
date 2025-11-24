@@ -3,7 +3,7 @@
  * Handles user profile API calls
  */
 
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import { apiClient, formatError } from '../../../lib/apiClient'
 import {
   EnhancedUserProfile,
   ProfileUpdateRequest,
@@ -12,45 +12,6 @@ import {
   IndustryAssociationRequest,
   ReferenceOption
 } from '../types/profile.types'
-import { getAccessToken } from '../../auth/utils/tokenStorage'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance for user requests
-const usersClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
-})
-
-// Add request interceptor to attach access token
-usersClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// Format error for display
-function formatError(error: unknown): Error {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError
-    if (axiosError.response) {
-      return new Error(
-        (axiosError.response.data as any)?.detail || 
-        axiosError.response.statusText || 
-        'An error occurred'
-      )
-    }
-  }
-  return new Error(error instanceof Error ? error.message : 'An unknown error occurred')
-}
 
 /**
  * Backend response format (snake_case)
@@ -151,7 +112,7 @@ function transformEnhancedProfile(backendProfile: BackendEnhancedUserProfile): E
  */
 export async function getEnhancedProfile(): Promise<EnhancedUserProfile> {
   try {
-    const response = await usersClient.get<BackendEnhancedUserProfile>('/api/users/me/profile/enhanced')
+    const response = await apiClient.get<BackendEnhancedUserProfile>('/api/users/me/profile/enhanced')
     // Transform snake_case response to camelCase
     return transformEnhancedProfile(response.data)
   } catch (error) {
@@ -164,7 +125,7 @@ export async function getEnhancedProfile(): Promise<EnhancedUserProfile> {
  */
 export async function updateProfile(request: ProfileUpdateRequest): Promise<ProfileUpdateResponse> {
   try {
-    const response = await usersClient.put<ProfileUpdateResponse>('/api/users/me/profile/enhancements', request)
+    const response = await apiClient.put<ProfileUpdateResponse>('/api/users/me/profile/enhancements', request)
     return response.data
   } catch (error) {
     throw formatError(error)
@@ -192,7 +153,7 @@ export interface UpdateUserDetailsResponse {
 export async function updateUserDetails(request: UpdateUserDetailsRequest): Promise<UpdateUserDetailsResponse> {
   try {
     console.log('[updateUserDetails] Sending request:', request)
-    const response = await usersClient.post<UpdateUserDetailsResponse>('/api/users/me/details', request)
+    const response = await apiClient.post<UpdateUserDetailsResponse>('/api/users/me/details', request)
     console.log('[updateUserDetails] Response received:', response.data)
     return response.data
   } catch (error) {
@@ -216,7 +177,7 @@ interface BackendIndustryAssociation {
 
 export async function getUserIndustries(): Promise<IndustryAssociation[]> {
   try {
-    const response = await usersClient.get<BackendIndustryAssociation[]>('/api/users/me/industries')
+    const response = await apiClient.get<BackendIndustryAssociation[]>('/api/users/me/industries')
     // Transform snake_case to camelCase
     return response.data.map(industry => ({
       userIndustryId: industry.user_industry_id,
@@ -244,7 +205,7 @@ export async function addIndustry(request: IndustryAssociationRequest): Promise<
       sort_order: request.sortOrder || null
     }
     console.log('[addIndustry] Sending request:', backendRequest)
-    const response = await usersClient.post<IndustryAssociation>('/api/users/me/industries', backendRequest)
+    const response = await apiClient.post<IndustryAssociation>('/api/users/me/industries', backendRequest)
     console.log('[addIndustry] Response received:', response.data)
     return response.data
   } catch (error) {
@@ -257,6 +218,15 @@ export async function addIndustry(request: IndustryAssociationRequest): Promise<
  * Update industry association
  * Note: Backend expects snake_case, so we transform camelCase to snake_case
  */
+interface BackendIndustryAssociationResponse {
+    user_industry_id: number;
+    industry_id: number;
+    industry_name: string;
+    industry_code: string;
+    is_primary: boolean;
+    sort_order: number;
+}
+
 export async function updateIndustry(
   userIndustryId: number,
   request: IndustryAssociationRequest
@@ -269,7 +239,7 @@ export async function updateIndustry(
       sort_order: request.sortOrder || null
     }
     console.log('[updateIndustry] Sending request:', { userIndustryId, backendRequest })
-    const response = await usersClient.put<BackendIndustryAssociationResponse>(
+    const response = await apiClient.put<BackendIndustryAssociationResponse>(
       `/api/users/me/industries/${userIndustryId}`,
       backendRequest
     )
@@ -294,7 +264,7 @@ export async function updateIndustry(
  */
 export async function removeIndustry(userIndustryId: number): Promise<void> {
   try {
-    await usersClient.delete(`/api/users/me/industries/${userIndustryId}`)
+    await apiClient.delete(`/api/users/me/industries/${userIndustryId}`)
   } catch (error) {
     throw formatError(error)
   }
@@ -305,7 +275,7 @@ export async function removeIndustry(userIndustryId: number): Promise<void> {
  */
 export async function getThemes(): Promise<ReferenceOption[]> {
   try {
-    const response = await usersClient.get<ReferenceOption[]>('/api/users/reference/themes')
+    const response = await apiClient.get<ReferenceOption[]>('/api/users/reference/themes')
     return response.data
   } catch (error) {
     throw formatError(error)
@@ -317,7 +287,7 @@ export async function getThemes(): Promise<ReferenceOption[]> {
  */
 export async function getLayoutDensities(): Promise<ReferenceOption[]> {
   try {
-    const response = await usersClient.get<ReferenceOption[]>('/api/users/reference/layout-densities')
+    const response = await apiClient.get<ReferenceOption[]>('/api/users/reference/layout-densities')
     return response.data
   } catch (error) {
     throw formatError(error)
@@ -329,7 +299,7 @@ export async function getLayoutDensities(): Promise<ReferenceOption[]> {
  */
 export async function getFontSizes(): Promise<ReferenceOption[]> {
   try {
-    const response = await usersClient.get<ReferenceOption[]>('/api/users/reference/font-sizes')
+    const response = await apiClient.get<ReferenceOption[]>('/api/users/reference/font-sizes')
     return response.data
   } catch (error) {
     throw formatError(error)
@@ -351,7 +321,7 @@ export interface IndustryOption {
  */
 export async function getIndustries(): Promise<IndustryOption[]> {
   try {
-    const response = await usersClient.get<IndustryOption[]>('/api/users/reference/industries')
+    const response = await apiClient.get<IndustryOption[]>('/api/users/reference/industries')
     return response.data
   } catch (error) {
     throw formatError(error)
@@ -377,7 +347,7 @@ interface UserProfileResponse {
 
 export async function getUserProfile(): Promise<UserProfileResponse> {
   try {
-    const response = await usersClient.get<UserProfileResponse>('/api/users/me')
+    const response = await apiClient.get<UserProfileResponse>('/api/users/me')
     return response.data
   } catch (error) {
     throw formatError(error)

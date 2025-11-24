@@ -3,39 +3,15 @@
  * Handles dashboard data fetching and company operations
  */
 
-import axios from 'axios'
-import { getAccessToken } from '../../auth/utils/tokenStorage'
+import { apiClient } from '../../../lib/apiClient'
 import type { Company, KPIData, CompanyUsers } from '../types/dashboard.types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance with auth interceptor
-const dashboardClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
-})
-
-// Add request interceptor to attach access token
-dashboardClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
 
 /**
  * Get all companies user belongs to (hierarchical structure)
  * AC-1.18.1: Dashboard displays all user's companies
  */
 export async function getUserCompanies(): Promise<{ companies: Company[] }> {
-  const response = await dashboardClient.get('/api/users/me/companies')
+  const response = await apiClient.get('/api/users/me/companies')
   
   // Transform snake_case from backend to camelCase for frontend
   const companies = response.data.map((item: any) => ({
@@ -61,7 +37,7 @@ export async function getUserCompanies(): Promise<{ companies: Company[] }> {
  */
 export async function getKPIData(companyIds: number[]): Promise<KPIData> {
   const params = companyIds.map(id => `companyIds[]=${id}`).join('&')
-  const response = await dashboardClient.get(`/api/dashboard/kpis?${params}`)
+  const response = await apiClient.get(`/api/dashboard/kpis?${params}`)
   return response.data
 }
 
@@ -70,7 +46,7 @@ export async function getKPIData(companyIds: number[]): Promise<KPIData> {
  * AC-1.18.7: User icon opens team panel
  */
 export async function getCompanyUsers(companyId: number): Promise<CompanyUsers> {
-  const response = await dashboardClient.get(`/api/companies/${companyId}/users`)
+  const response = await apiClient.get(`/api/companies/${companyId}/users`)
   
   // Transform snake_case from backend to camelCase for frontend
   const transformed = {
@@ -102,7 +78,7 @@ export async function switchCompany(companyId: number): Promise<{
     role: string
   }
 }> {
-  const response = await dashboardClient.post('/api/users/me/switch-company', { companyId })
+  const response = await apiClient.post('/api/users/me/switch-company', { companyId })
   return response.data
 }
 
@@ -116,7 +92,7 @@ export async function setDefaultCompany(companyId: number): Promise<{
     role: string
   }
 }> {
-  const response = await dashboardClient.post('/api/users/me/set-default-company', { companyId })
+  const response = await apiClient.post('/api/users/me/set-default-company', { companyId })
   return response.data
 }
 
@@ -125,9 +101,6 @@ export async function setDefaultCompany(companyId: number): Promise<{
  * AC-1.18.12: Lazy load events/forms on expand
  */
 export async function getCompanyEvents(companyId: number): Promise<any[]> {
-  const response = await dashboardClient.get(`/api/companies/${companyId}/events`)
+  const response = await apiClient.get(`/api/companies/${companyId}/events`)
   return response.data
 }
-
-
-

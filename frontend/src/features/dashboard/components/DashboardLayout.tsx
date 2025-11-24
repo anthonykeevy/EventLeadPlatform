@@ -24,7 +24,7 @@ import type { Company, KPIData } from '../types/dashboard.types'
 import { useToastNotifications } from '../../ux'
 
 export function DashboardLayout() {
-  const { user, logout, refreshUser } = useAuth()
+  const { user, logout, refreshUser, isLoading: isAuthLoading } = useAuth()
   const navigate = useNavigate()
   const toast = useToastNotifications()
   
@@ -63,6 +63,9 @@ export function DashboardLayout() {
   // Load companies on mount (but only if onboarding complete)
   // On initial load, switch to default company automatically
   useEffect(() => {
+    // If auth is still loading, wait
+    if (isAuthLoading) return
+
     // Don't try to load companies if user hasn't completed onboarding
     if (user && user.onboarding_complete) {
       // On initial mount, switch to default company (shouldSwitchToDefault = true)
@@ -72,9 +75,12 @@ export function DashboardLayout() {
     } else if (user && !user.onboarding_complete) {
       // User needs to complete onboarding first - companies will load after
       setIsLoadingCompanies(false)
+    } else if (!user) {
+      // User is not authenticated - stop loading and show empty/guest state
+      setIsLoadingCompanies(false)
     }
-  }, [user?.onboarding_complete]) // Only reload when onboarding status changes
-
+  }, [user?.onboarding_complete, isAuthLoading, user]) // Reload when auth state changes
+  
   // Load KPIs when active company changes
   useEffect(() => {
     if (activeCompanyId) {
@@ -119,6 +125,8 @@ export function DashboardLayout() {
   }
 
   const loadCompanies = async (shouldSwitchToDefault = false, preserveCompanyId: number | null = null) => {
+    if (!user) return // Don't load if no user
+
     setIsLoadingCompanies(true)
     try {
       const data = await getUserCompanies()
@@ -224,6 +232,8 @@ export function DashboardLayout() {
   }
 
   const loadKPIs = async (companyIds: number[]) => {
+    if (!user) return
+
     setIsLoadingKPIs(true)
     try {
       const data = await getKPIData(companyIds)
@@ -538,6 +548,11 @@ export function DashboardLayout() {
         {/* KPI Section - AC-1.18.8 */}
         <KPISection kpiData={kpiData} isLoading={isLoadingKPIs} />
 
+        {/* Empty State: Guest Access (Unauthenticated) */}
+        {!isLoadingCompanies && !user && (
+          <EmptyState type="guest-access" />
+        )}
+
         {/* Empty State - AC-1.18.9: Check if onboarding required */}
         {!isLoadingCompanies && companies.length === 0 && user && !user.onboarding_complete && (
           <EmptyState type="onboarding-required" />
@@ -617,6 +632,8 @@ export function DashboardLayout() {
           }}
           onConfirm={handleEventDeleted}
           event={selectedEvent}
+          mode={selectedEvent.companyId !== activeCompanyId ? 'leave' : 'delete'}
+          companyId={activeCompanyId || undefined}
         />
       )}
 
@@ -678,5 +695,3 @@ export function DashboardLayout() {
     </div>
   )
 }
-
-

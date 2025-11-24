@@ -3,7 +3,7 @@
  * Handles event management API calls
  */
 
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import {
   Event,
   EventType,
@@ -19,99 +19,7 @@ import {
   DeleteEventResponse,
   EventFilters
 } from '../types/events.types'
-import { getAccessToken, getRefreshToken, storeTokens, clearTokens } from '../../auth/utils/tokenStorage'
-import { refreshAccessToken } from '../../auth/api/authApi'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance for events requests
-const eventsClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 30000,
-})
-
-// Add request interceptor to attach access token
-eventsClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// Add response interceptor to handle token refresh on 401 errors
-eventsClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config
-
-    // Suppress 404 errors for timezone-to-country endpoint (expected behavior)
-    if (error.response?.status === 404 && originalRequest.url?.includes('/timezones/') && originalRequest.url?.includes('/country')) {
-      // Return a rejected promise but don't log as error - handled gracefully in calling code
-      return Promise.reject(error)
-    }
-
-    // Check if offline - don't try to refresh token or clear tokens
-    if (!navigator.onLine) {
-      // If offline and network error, don't fail - let the calling code handle it
-      // (they can queue the request)
-      if (!error.response) {
-        // Network error (no response) - this is expected when offline
-        return Promise.reject(error)
-      }
-      // If we got a response but are offline, something else is wrong
-      return Promise.reject(error)
-    }
-
-    // If error is 401 and we haven't already retried
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-
-      try {
-        // Refresh the token
-        const tokenResponse = await refreshAccessToken()
-        
-        // Store new tokens with actual expiry time from backend (defaults to 3600 if not provided)
-        const expiresIn = tokenResponse.expires_in || 3600
-        storeTokens(tokenResponse.access_token, tokenResponse.refresh_token, expiresIn)
-        
-        // Retry the original request with new token
-        originalRequest.headers.Authorization = `Bearer ${tokenResponse.access_token}`
-        return eventsClient(originalRequest)
-      } catch (refreshError) {
-        // If refresh fails and we're still online, clear tokens and reject
-        // (Don't clear if offline - tokens might still be valid when back online)
-        if (navigator.onLine) {
-          clearTokens()
-        }
-        return Promise.reject(refreshError)
-      }
-    }
-
-    return Promise.reject(error)
-  }
-)
-
-// Format error for display
-function formatError(error: unknown): Error {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError
-    if (axiosError.response) {
-      return new Error(
-        (axiosError.response.data as any)?.detail || 
-        axiosError.response.statusText || 
-        'An error occurred'
-      )
-    }
-  }
-  return new Error(error instanceof Error ? error.message : 'An unknown error occurred')
-}
+import { apiClient, formatError } from '../../../lib/apiClient'
 
 // =====================================================================
 // Transformers: Backend snake_case to Frontend camelCase
@@ -335,7 +243,7 @@ function transformCompanySummary(backendCompany: any): CompanySummary {
 export async function getEventTypes(): Promise<EventType[]> {
   try {
     console.log('getEventTypes - Calling API endpoint: /api/events/reference/types')
-    const response = await eventsClient.get<BackendEventType[]>('/api/events/reference/types')
+    const response = await apiClient.get<BackendEventType[]>('/api/events/reference/types')
     console.log('getEventTypes - API response:', response.data)
     const transformed = response.data.map(transformEventType)
     console.log('getEventTypes - Transformed data:', transformed)
@@ -352,7 +260,7 @@ export async function getEventTypes(): Promise<EventType[]> {
 export async function getEventStatuses(): Promise<EventStatus[]> {
   try {
     console.log('getEventStatuses - Calling API endpoint: /api/events/reference/statuses')
-    const response = await eventsClient.get<any[]>('/api/events/reference/statuses')
+    const response = await apiClient.get<any[]>('/api/events/reference/statuses')
     console.log('getEventStatuses - API response:', response.data)
     const transformed = response.data.map(transformEventStatus)
     console.log('getEventStatuses - Transformed data:', transformed)
@@ -373,7 +281,7 @@ export async function searchPublicEvents(searchTerm?: string, limit: number = 20
     params.append('limit', limit.toString())
     
     // Authenticated endpoint - includes company network visibility plus platform-approved events
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       events: any[]  // Use any to handle both PascalCase and snake_case
       total: number
       page: number
@@ -408,7 +316,7 @@ export async function searchPublicEvents(searchTerm?: string, limit: number = 20
  */
 export async function participateInEvent(eventId: number): Promise<{ success: boolean; message: string; event_company_id: number; alreadyExists: boolean }> {
   try {
-    const response = await eventsClient.post<{
+    const response = await apiClient.post<{
       success: boolean
       message: string
       event_company_id: number
@@ -431,6 +339,107 @@ export async function participateInEvent(eventId: number): Promise<{ success: bo
 }
 
 /**
+ * Share an event with another company (e.g., Agency)
+ */
+export async function shareEvent(eventId: number, companyId: number, roleCode: string = 'agency_form_builder'): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await apiClient.post<{
+      success: boolean
+      message: string
+      event_company_id: number
+      event_id: number
+      company_id: number
+      role: string
+      already_exists?: boolean
+    }>(`/api/events/${eventId}/share`, {
+      company_id: companyId,
+      role_code: roleCode
+    })
+    
+    return {
+      success: response.data.success,
+      message: response.data.message
+    }
+  } catch (error) {
+    console.error('Error sharing event:', error)
+    throw formatError(error)
+  }
+}
+
+/**
+ * Share an event with a user via email
+ */
+export async function shareEventByEmail(eventId: number, email: string, roleCode: string = 'agency_form_builder'): Promise<{ success: boolean; message: string; alreadyExists?: boolean }> {
+  try {
+    const response = await apiClient.post<{
+      success: boolean
+      message: string
+      event_company_id: number
+      event_id: number
+      company_id: number
+      role: string
+      already_exists?: boolean
+    }>(`/api/events/${eventId}/share-by-email`, {
+      email: email,
+      role_code: roleCode
+    })
+    
+    return {
+      success: response.data.success,
+      message: response.data.message,
+      alreadyExists: response.data.already_exists
+    }
+  } catch (error) {
+    console.error('Error sharing event by email:', error)
+    throw formatError(error)
+  }
+}
+
+
+/**
+ * Get all companies for an event
+ */
+export async function getEventCompanies(eventId: number): Promise<{
+  success: boolean
+  companies: Array<{
+    event_company_id: number
+    company_id: number
+    company_name: string
+    role_code: string
+    role_name: string
+    is_active: boolean
+    forms_created: number
+    first_used_date: string | null
+    last_used_date: string | null
+  }>
+  total: number
+}> {
+  try {
+    const response = await apiClient.get<{
+      success: boolean
+      event_id: number
+      companies: Array<{
+        event_company_id: number
+        company_id: number
+        company_name: string
+        role_code: string
+        role_name: string
+        is_active: boolean
+        forms_created: number
+        first_used_date: string | null
+        last_used_date: string | null
+      }>
+      total: number
+    }>(`/api/events/${eventId}/companies`)
+    
+    return response.data
+  } catch (error) {
+    console.error('Error getting event companies:', error)
+    throw formatError(error)
+  }
+}
+
+/**
  * Get current user's role for an event
  */
 export async function getMyRoleForEvent(eventId: number): Promise<{
@@ -444,7 +453,7 @@ export async function getMyRoleForEvent(eventId: number): Promise<{
   is_legacy: boolean
 }> {
   try {
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       success: boolean
       role_code: string
       role_name: string
@@ -471,7 +480,7 @@ export async function getMyRoleForEvent(eventId: number): Promise<{
  */
 export async function getCountryFromTimezone(timezoneIdentifier: string): Promise<{ country_id: number; country_code: string; country_name: string } | null> {
   try {
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       success: boolean
       timezone_identifier: string
       country_id: number
@@ -491,7 +500,7 @@ export async function getCountryFromTimezone(timezoneIdentifier: string): Promis
   } catch (error) {
     // 404 is expected when timezone doesn't have country mapping - this is fine
     // Only log as debug, not as error
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
+    if ((error as AxiosError).response?.status === 404) {
       console.debug(`Country not found for timezone: ${timezoneIdentifier} (this is expected if timezone doesn't have a country mapping)`)
       return null
     }
@@ -507,7 +516,7 @@ export async function getCountryFromTimezone(timezoneIdentifier: string): Promis
  */
 export async function getUserProfileForInference(): Promise<{ timezone_identifier: string; country_id: number | null; country_code: string | null; country_name: string | null } | null> {
   try {
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       success: boolean
       user_id: number
       timezone_identifier: string
@@ -536,7 +545,7 @@ export async function getUserProfileForInference(): Promise<{ timezone_identifie
  */
 export async function getCompanyProfileForInference(companyId: number): Promise<{ billing_city: string | null; billing_state: string | null; country_id: number | null } | null> {
   try {
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       success: boolean
       company_id: number
       company_name: string
@@ -565,7 +574,7 @@ export async function getCompanyProfileForInference(companyId: number): Promise<
  */
 export async function getRecentEventCities(limit: number = 5): Promise<string[]> {
   try {
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       success: boolean
       cities: string[]
       count: number
@@ -606,7 +615,7 @@ export async function getEvents(
     if (filters?.dateTo) params.append('date_to', filters.dateTo)
     if (filters?.search) params.append('search', filters.search)
     
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       events: BackendEvent[]
       total: number
       page: number
@@ -648,7 +657,7 @@ export async function getEvents(
  */
 export async function getEventById(eventId: number): Promise<Event> {
   try {
-    const response = await eventsClient.get<BackendEvent>(`/api/events/${eventId}`)
+    const response = await apiClient.get<BackendEvent>(`/api/events/${eventId}`)
     return transformEvent(response.data)
   } catch (error) {
     throw formatError(error)
@@ -702,7 +711,7 @@ export async function createEvent(request: EventCreateRequest): Promise<CreateEv
     // Transform camelCase to snake_case for backend
     const backendRequest = transformEventCreateRequest(request)
     
-    const response = await eventsClient.post<{
+    const response = await apiClient.post<{
       success: boolean
       message: string
       event_id: number
@@ -762,7 +771,7 @@ export async function updateEvent(
     
     if (request.expectedAttendees !== undefined) backendRequest.expected_attendees = request.expectedAttendees
     
-    const response = await eventsClient.put<{
+    const response = await apiClient.put<{
       success: boolean
       message: string
       event_id: number
@@ -785,7 +794,7 @@ export async function updateEvent(
  */
 export async function deleteEvent(eventId: number): Promise<DeleteEventResponse> {
   try {
-    const response = await eventsClient.delete<{
+    const response = await apiClient.delete<{
       success: boolean
       message: string
       event_id: number
@@ -795,6 +804,27 @@ export async function deleteEvent(eventId: number): Promise<DeleteEventResponse>
       success: response.data.success,
       message: response.data.message,
       eventId: response.data.event_id
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+/**
+ * Leave an event (disassociate company)
+ */
+export async function leaveEvent(eventId: number, companyId: number): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await apiClient.delete<{
+      success: boolean
+      message: string
+      event_id: number
+      company_id: number
+    }>(`/api/events/${eventId}/companies/${companyId}`)
+    
+    return {
+      success: response.data.success,
+      message: response.data.message
     }
   } catch (error) {
     throw formatError(error)
@@ -821,7 +851,7 @@ export async function searchEvents(
     if (filters.dateTo) params.append('date_to', filters.dateTo)
     if (filters.search) params.append('search', filters.search)
     
-    const response = await eventsClient.get<{
+    const response = await apiClient.get<{
       events: BackendEvent[]
       total: number
       page: number
@@ -838,5 +868,3 @@ export async function searchEvents(
     throw formatError(error)
   }
 }
-
-

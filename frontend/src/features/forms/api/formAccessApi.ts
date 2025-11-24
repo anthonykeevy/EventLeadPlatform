@@ -3,7 +3,6 @@
  * Handles form access control API calls
  */
 
-import axios, { AxiosInstance, AxiosError } from 'axios'
 import {
   FormAccessControlAccessType,
   CompanyRelationshipType,
@@ -16,82 +15,7 @@ import {
   UserResponse,
   CompanyResponse
 } from '../types/form-access.types'
-import { getAccessToken, getRefreshToken, storeTokens, clearTokens } from '../../auth/utils/tokenStorage'
-import { refreshAccessToken } from '../../auth/api/authApi'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance for form access control requests
-const formAccessClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 30000,
-})
-
-// Add request interceptor to attach access token
-formAccessClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// Add response interceptor to handle token refresh on 401 errors
-formAccessClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config
-
-    // Check if offline
-    if (!navigator.onLine) {
-      if (!error.response) {
-        return Promise.reject(error)
-      }
-      return Promise.reject(error)
-    }
-
-    // If error is 401 and we haven't already retried
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-
-      try {
-        const tokenResponse = await refreshAccessToken()
-        const expiresIn = tokenResponse.expires_in || 3600
-        storeTokens(tokenResponse.access_token, tokenResponse.refresh_token, expiresIn)
-        originalRequest.headers.Authorization = `Bearer ${tokenResponse.access_token}`
-        return formAccessClient(originalRequest)
-      } catch (refreshError) {
-        if (navigator.onLine) {
-          clearTokens()
-        }
-        return Promise.reject(refreshError)
-      }
-    }
-
-    return Promise.reject(error)
-  }
-)
-
-// Format error for display
-function formatError(error: unknown): Error {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError
-    if (axiosError.response) {
-      return new Error(
-        (axiosError.response.data as any)?.detail || 
-        axiosError.response.statusText || 
-        'An error occurred'
-      )
-    }
-  }
-  return new Error(error instanceof Error ? error.message : 'An unknown error occurred')
-}
+import { apiClient, formatError } from '../../../lib/apiClient'
 
 // =====================================================================
 // Transformers: Backend to Frontend
@@ -165,7 +89,7 @@ function transformAccessControl(backend: any): AccessControlResponse {
  */
 export async function getAccessTypes(): Promise<FormAccessControlAccessType[]> {
   try {
-    const response = await formAccessClient.get('/api/forms/access-types')
+    const response = await apiClient.get('/api/forms/access-types')
     return (response.data as any[]).map(transformAccessType)
   } catch (error) {
     throw formatError(error)
@@ -177,7 +101,7 @@ export async function getAccessTypes(): Promise<FormAccessControlAccessType[]> {
  */
 export async function getRelationshipTypes(): Promise<CompanyRelationshipType[]> {
   try {
-    const response = await formAccessClient.get('/api/forms/relationship-types')
+    const response = await apiClient.get('/api/forms/relationship-types')
     return (response.data as any[]).map(transformRelationshipType)
   } catch (error) {
     throw formatError(error)
@@ -196,7 +120,7 @@ export interface UserSearchResult {
 
 export async function searchUsers(query: string, limit: number = 10): Promise<UserSearchResult[]> {
   try {
-    const response = await formAccessClient.get('/api/forms/search-users', {
+    const response = await apiClient.get('/api/forms/search-users', {
       params: { query, limit }
     })
     return (response.data as any[]).map((u: any) => ({
@@ -220,7 +144,7 @@ export interface CompanySearchResult {
 
 export async function searchCompanies(query: string, limit: number = 10): Promise<CompanySearchResult[]> {
   try {
-    const response = await formAccessClient.get('/api/forms/search-companies', {
+    const response = await apiClient.get('/api/forms/search-companies', {
       params: { query, limit }
     })
     return (response.data as any[]).map((c: any) => ({
@@ -237,7 +161,7 @@ export async function searchCompanies(query: string, limit: number = 10): Promis
  */
 export async function getCompanyMembersForForm(formId: number): Promise<UserSearchResult[]> {
   try {
-    const response = await formAccessClient.get(`/api/forms/${formId}/company-members`)
+    const response = await apiClient.get(`/api/forms/${formId}/company-members`)
     return (response.data as any[]).map((u: any) => ({
       userId: u.userId ?? u.user_id ?? u.UserID ?? 0,
       email: u.email ?? u.Email ?? '',
@@ -254,7 +178,7 @@ export async function getCompanyMembersForForm(formId: number): Promise<UserSear
  */
 export async function getRelatedCompaniesForForm(formId: number): Promise<CompanySearchResult[]> {
   try {
-    const response = await formAccessClient.get(`/api/forms/${formId}/related-companies`)
+    const response = await apiClient.get(`/api/forms/${formId}/related-companies`)
     return (response.data as any[]).map((c: any) => ({
       companyId: c.companyId ?? c.company_id ?? c.CompanyID ?? 0,
       companyName: c.companyName ?? c.company_name ?? c.CompanyName ?? '',
@@ -272,7 +196,7 @@ export async function grantFormAccess(
   request: GrantAccessRequest
 ): Promise<GrantAccessResponse> {
   try {
-    const response = await formAccessClient.post(`/api/forms/${formId}/access`, request)
+    const response = await apiClient.post(`/api/forms/${formId}/access`, request)
     return {
       success: response.data.success ?? true,
       message: response.data.message ?? 'Access granted successfully',
@@ -295,7 +219,7 @@ export async function getFormAccessList(
     if (accessTypeId) {
       params.access_type_id = accessTypeId
     }
-    const response = await formAccessClient.get(`/api/forms/${formId}/access`, { params })
+    const response = await apiClient.get(`/api/forms/${formId}/access`, { params })
     return {
       accessEntries: (response.data.accessEntries ?? response.data.access_entries ?? []).map(transformAccessControl),
       totalCount: response.data.totalCount ?? response.data.total_count ?? 0,
@@ -313,7 +237,7 @@ export async function revokeFormAccess(
   accessId: number
 ): Promise<RevokeAccessResponse> {
   try {
-    const response = await formAccessClient.delete(`/api/forms/${formId}/access/${accessId}`)
+    const response = await apiClient.delete(`/api/forms/${formId}/access/${accessId}`)
     return {
       success: response.data.success ?? true,
       message: response.data.message ?? 'Access revoked successfully',
@@ -329,7 +253,7 @@ export async function revokeFormAccess(
  */
 export async function checkFormAccess(formId: number): Promise<AccessCheckResponse> {
   try {
-    const response = await formAccessClient.get(`/api/forms/${formId}/access/check`)
+    const response = await apiClient.get(`/api/forms/${formId}/access/check`)
     return {
       hasAccess: response.data.hasAccess ?? response.data.has_access ?? false,
       accessLevel: response.data.accessLevel ?? response.data.access_level ?? null,
@@ -341,4 +265,3 @@ export async function checkFormAccess(formId: number): Promise<AccessCheckRespon
     throw formatError(error)
   }
 }
-

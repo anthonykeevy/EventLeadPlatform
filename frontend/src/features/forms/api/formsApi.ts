@@ -3,7 +3,6 @@
  * Handles form header management API calls
  */
 
-import axios, { AxiosInstance, AxiosError } from 'axios'
 import {
   Form,
   FormStatus,
@@ -16,82 +15,7 @@ import {
   DeleteFormResponse,
   FormFilters
 } from '../types/form.types'
-import { getAccessToken, getRefreshToken, storeTokens, clearTokens } from '../../auth/utils/tokenStorage'
-import { refreshAccessToken } from '../../auth/api/authApi'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance for forms requests
-const formsClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 30000,
-})
-
-// Add request interceptor to attach access token
-formsClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// Add response interceptor to handle token refresh on 401 errors
-formsClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config
-
-    // Check if offline
-    if (!navigator.onLine) {
-      if (!error.response) {
-        return Promise.reject(error)
-      }
-      return Promise.reject(error)
-    }
-
-    // If error is 401 and we haven't already retried
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-
-      try {
-        const tokenResponse = await refreshAccessToken()
-        const expiresIn = tokenResponse.expires_in || 3600
-        storeTokens(tokenResponse.access_token, tokenResponse.refresh_token, expiresIn)
-        originalRequest.headers.Authorization = `Bearer ${tokenResponse.access_token}`
-        return formsClient(originalRequest)
-      } catch (refreshError) {
-        if (navigator.onLine) {
-          clearTokens()
-        }
-        return Promise.reject(refreshError)
-      }
-    }
-
-    return Promise.reject(error)
-  }
-)
-
-// Format error for display
-function formatError(error: unknown): Error {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError
-    if (axiosError.response) {
-      return new Error(
-        (axiosError.response.data as any)?.detail || 
-        axiosError.response.statusText || 
-        'An error occurred'
-      )
-    }
-  }
-  return new Error(error instanceof Error ? error.message : 'An unknown error occurred')
-}
+import { apiClient, formatError } from '../../../lib/apiClient'
 
 // =====================================================================
 // Transformers: Backend to Frontend
@@ -162,7 +86,7 @@ function transformForm(backend: any): Form {
  */
 export async function getFormStatuses(): Promise<FormStatus[]> {
   try {
-    const response = await formsClient.get('/api/forms/statuses')
+    const response = await apiClient.get('/api/forms/statuses')
     return (response.data as any[]).map(transformFormStatus)
   } catch (error) {
     throw formatError(error)
@@ -174,7 +98,7 @@ export async function getFormStatuses(): Promise<FormStatus[]> {
  */
 export async function getFormApprovalStatuses(): Promise<FormApprovalStatus[]> {
   try {
-    const response = await formsClient.get('/api/forms/approval-statuses')
+    const response = await apiClient.get('/api/forms/approval-statuses')
     return (response.data as any[]).map(transformFormApprovalStatus)
   } catch (error) {
     throw formatError(error)
@@ -201,7 +125,7 @@ export async function getForms(filters?: FormFilters, page: number = 1, pageSize
       params.search = filters.search
     }
     
-    const response = await formsClient.get('/api/forms', { params })
+    const response = await apiClient.get('/api/forms', { params })
     return {
       forms: (response.data.forms ?? []).map(transformForm),
       total: response.data.total ?? 0,
@@ -218,7 +142,7 @@ export async function getForms(filters?: FormFilters, page: number = 1, pageSize
  */
 export async function getForm(formId: number): Promise<Form> {
   try {
-    const response = await formsClient.get(`/api/forms/${formId}`)
+    const response = await apiClient.get(`/api/forms/${formId}`)
     return transformForm(response.data)
   } catch (error) {
     throw formatError(error)
@@ -230,7 +154,7 @@ export async function getForm(formId: number): Promise<Form> {
  */
 export async function createForm(request: FormCreateRequest): Promise<CreateFormResponse> {
   try {
-    const response = await formsClient.post('/api/forms', request)
+    const response = await apiClient.post('/api/forms', request)
     // Handle response structure: backend returns { success, message, formId, form }
     const formData = response.data.form || response.data
     if (!formData || !formData.formId) {
@@ -252,7 +176,7 @@ export async function createForm(request: FormCreateRequest): Promise<CreateForm
  */
 export async function updateForm(formId: number, request: FormUpdateRequest): Promise<UpdateFormResponse> {
   try {
-    const response = await formsClient.put(`/api/forms/${formId}`, request)
+    const response = await apiClient.put(`/api/forms/${formId}`, request)
     return {
       success: response.data.success ?? true,
       message: response.data.message ?? 'Form updated successfully',
@@ -269,7 +193,7 @@ export async function updateForm(formId: number, request: FormUpdateRequest): Pr
  */
 export async function deleteForm(formId: number): Promise<DeleteFormResponse> {
   try {
-    const response = await formsClient.delete(`/api/forms/${formId}`)
+    const response = await apiClient.delete(`/api/forms/${formId}`)
     return {
       success: response.data.success ?? true,
       message: response.data.message ?? 'Form deleted successfully',
@@ -285,7 +209,7 @@ export async function deleteForm(formId: number): Promise<DeleteFormResponse> {
  */
 export async function getFormsByEvent(eventId: number): Promise<FormListResponse> {
   try {
-    const response = await formsClient.get(`/api/forms/event/${eventId}`)
+    const response = await apiClient.get(`/api/forms/event/${eventId}`)
     return {
       forms: (response.data.forms ?? []).map(transformForm),
       total: response.data.total ?? 0,
@@ -296,4 +220,3 @@ export async function getFormsByEvent(eventId: number): Promise<FormListResponse
     throw formatError(error)
   }
 }
-

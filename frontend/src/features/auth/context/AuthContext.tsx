@@ -25,9 +25,14 @@ import * as authApi from '../api/authApi'
 import * as tokenStorage from '../utils/tokenStorage'
 import { unsavedWorkTracker } from '../../../utils/unsavedWorkTracker'
 import { AuthChangeBanner } from '../../../components/AuthChangeBanner'
+import { SessionExpiredModal } from '../components/SessionExpiredModal'
+
+interface LoginOptions {
+  skipRedirect?: boolean
+}
 
 interface AuthContextValue extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>
+  login: (credentials: LoginCredentials, options?: LoginOptions) => Promise<void>
   signup: (data: SignupData) => Promise<void>
   logout: () => void
   refreshToken: () => Promise<void>
@@ -51,6 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     description?: string
     newUser?: User | null
   } | null>(null)
+
+  const [showSessionExpired, setShowSessionExpired] = useState(false)
   
   const navigate = useNavigate()
   const location = useLocation()
@@ -210,6 +217,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading: false,
       error: null,
     })
+
+    // Close expired modal if open
+    setShowSessionExpired(false)
     
     // Navigate to login (NO RELOAD - just navigate)
     navigate('/login')
@@ -219,7 +229,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * AC-1.9.2: Login - Store tokens and navigate
    * Story 1.16 Enhanced: Force reload on initial login for clean state
    */
-  const login = useCallback(async (credentials: LoginCredentials) => {
+  const login = useCallback(async (credentials: LoginCredentials, options?: LoginOptions) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     
     try {
@@ -253,9 +263,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Schedule auto-refresh
       scheduleTokenRefresh()
       
-      // FORCE RELOAD on initial login to ensure fresh auth state
-      // This is different from cross-tab sync (which is graceful)
-      window.location.href = '/dashboard'
+      // Only force reload if NOT skipping redirect (i.e. normal login, not re-auth)
+      if (!options?.skipRedirect) {
+        window.location.href = '/dashboard'
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed'
       setState(prev => ({
@@ -486,13 +497,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Keep existing user state if available, otherwise set minimal auth state
           isAuthenticated: prev.user !== null || tokens !== null,
           isLoading: false,
-        }))
+          }))
         console.log('🌐 Offline: Preserving session state for offline work')
         return
       }
       
       // Check if token is expired (only when online)
       if (tokenStorage.isTokenExpired()) {
+        // NOTE: We might want to show the modal here instead of clearing tokens immediately if we want to support "Restore Session" from mount.
+        // But typically if you reload with an expired token, a fresh login is cleaner.
+        // The modal is best for "in-app" expiration.
         tokenStorage.clearTokens()
         setState(prev => ({ ...prev, isLoading: false }))
         return
@@ -544,12 +558,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     window.addEventListener('online', handleOnline)
     
+    // Listen for session expiry event from apiClient
+    const handleSessionExpired = () => {
+      console.warn('⚠️ Session expired event received')
+      // Only show if user is currently logged in locally or we have a user state
+      // (Even if isAuthenticated is false, we might want to show it if we have a user email)
+      setShowSessionExpired(true)
+    }
+    window.addEventListener('eventlead:session-expired', handleSessionExpired)
+    
     // Cleanup on unmount
     return () => {
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current)
       }
       window.removeEventListener('online', handleOnline)
+      window.removeEventListener('eventlead:session-expired', handleSessionExpired)
     }
   }, [scheduleTokenRefresh])
   
@@ -662,6 +686,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   return (
     <AuthContext.Provider value={value}>
+      {/* Session Expired Modal */}
+      <SessionExpiredModal
+        isOpen={showSessionExpired}
+        email={state.user?.email}
+        onLogin={async (creds) => {
+          await login(creds, { skipRedirect: true })
+          setShowSessionExpired(false)
+        }}
+        onLogout={performLogout}
+      />
+
       {/* Auth Change Banner */}
       {authChangeBanner?.show && (
         <AuthChangeBanner

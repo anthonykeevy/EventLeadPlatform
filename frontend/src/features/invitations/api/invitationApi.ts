@@ -3,39 +3,15 @@
  * Handles invitation viewing and acceptance
  */
 
-import axios from 'axios'
-import { getAccessToken } from '../../auth/utils/tokenStorage'
+import { apiClient } from '../../../lib/apiClient'
 import type { InvitationDetails, AcceptInvitationResponse } from '../types/invitation.types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance
-const invitationClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
-})
-
-// Add request interceptor to attach access token (if available)
-invitationClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
 
 /**
  * View invitation details (public endpoint)
  * AC-1.7.1: Public endpoint to view invitation details
  */
 export async function viewInvitation(token: string): Promise<InvitationDetails> {
-  const response = await invitationClient.get(`/api/invitations/${token}`)
+  const response = await apiClient.get(`/api/invitations/${token}`)
   
   // Transform snake_case from backend to camelCase for frontend
   return {
@@ -57,7 +33,7 @@ export async function viewInvitation(token: string): Promise<InvitationDetails> 
  * AC-1.7.3: Protected endpoint to accept invitation
  */
 export async function acceptInvitation(token: string): Promise<AcceptInvitationResponse> {
-  const response = await invitationClient.post(`/api/invitations/${token}/accept`)
+  const response = await apiClient.post(`/api/invitations/${token}/accept`)
   
   return {
     success: response.data.success,
@@ -80,7 +56,7 @@ export async function signupWithInvitation(
   password: string,
   token: string
 ): Promise<AcceptInvitationResponse> {
-  const response = await invitationClient.post('/api/auth/signup', {
+  const response = await apiClient.post('/api/auth/signup', {
     email: email,
     password: password,
     first_name: firstName,
@@ -97,4 +73,3 @@ export async function signupWithInvitation(
     refreshToken: response.data.data?.refresh_token || ''
   }
 }
-

@@ -3,8 +3,7 @@
  * Handles team invitations and user management
  */
 
-import axios from 'axios'
-import { getAccessToken } from '../../auth/utils/tokenStorage'
+import { apiClient } from '../../../lib/apiClient'
 import type {
   InviteUserRequest,
   InviteUserResponse,
@@ -14,29 +13,6 @@ import type {
   EditUserRoleRequest,
   EditUserRoleResponse
 } from '../types/team.types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance with auth interceptor
-const teamClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
-})
-
-// Add request interceptor to attach access token
-teamClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
 
 /**
  * Send team invitation
@@ -54,7 +30,7 @@ export async function inviteUser(
     role: data.role
   }
   
-  const response = await teamClient.post(
+  const response = await apiClient.post(
     `/api/companies/${companyId}/invite`,
     backendData
   )
@@ -76,7 +52,7 @@ export async function listInvitations(
   params.append('page', page.toString())
   params.append('page_size', pageSize.toString())
   
-  const response = await teamClient.get(
+  const response = await apiClient.get(
     `/api/companies/${companyId}/invitations?${params.toString()}`
   )
   
@@ -115,7 +91,7 @@ export async function resendInvitation(
   companyId: number,
   invitationId: number
 ): Promise<ResendInvitationResponse> {
-  const response = await teamClient.post(
+  const response = await apiClient.post(
     `/api/companies/${companyId}/invitations/${invitationId}/resend`
   )
   
@@ -136,7 +112,7 @@ export async function cancelInvitation(
   companyId: number,
   invitationId: number
 ): Promise<CancelInvitationResponse> {
-  const response = await teamClient.delete(
+  const response = await apiClient.delete(
     `/api/companies/${companyId}/invitations/${invitationId}`
   )
   
@@ -161,10 +137,9 @@ export async function editUserRole(
     role_code: data.roleCode
   }
   
-  const response = await teamClient.patch(
+  const response = await apiClient.patch(
     `/api/companies/${companyId}/users/${userId}/role`,
     backendData
   )
   return response.data
 }
-

@@ -2,31 +2,7 @@
  * Admin Dashboard API
  * Story 2.6: Admin Public Event Review Workflow
  */
-import axios, { AxiosInstance } from 'axios'
-import { getAccessToken } from '../../auth/utils/tokenStorage'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance with auth interceptor
-const adminClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
-})
-
-// Add request interceptor to attach access token
-adminClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+import { apiClient } from '../../../lib/apiClient'
 
 export interface AdminCompany {
   company_id: number
@@ -106,7 +82,7 @@ export const adminDashboardApi = {
    * Get all companies
    */
   async getCompanies(): Promise<AdminCompany[]> {
-    const response = await adminClient.get('/api/admin/dashboard/companies')
+    const response = await apiClient.get('/api/admin/dashboard/companies')
     return response.data
   },
 
@@ -114,7 +90,7 @@ export const adminDashboardApi = {
    * Get platform KPIs
    */
   async getKPIs(): Promise<AdminKPIs> {
-    const response = await adminClient.get('/api/admin/dashboard/kpis')
+    const response = await apiClient.get('/api/admin/dashboard/kpis')
     return response.data
   },
 
@@ -134,7 +110,7 @@ export const adminDashboardApi = {
     if (apiParams.date_filter === 'all') {
       delete apiParams.date_filter
     }
-    const response = await adminClient.get('/api/admin/dashboard/events', { params: apiParams })
+    const response = await apiClient.get('/api/admin/dashboard/events', { params: apiParams })
     return response.data
   },
 }

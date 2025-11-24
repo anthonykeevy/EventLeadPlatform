@@ -4,8 +4,13 @@
  */
 
 import axios, { AxiosError } from 'axios'
+import { apiClient } from '../../../lib/apiClient'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+// Note: Password reset endpoints are public and do not require authentication.
+// We use apiClient to benefit from base URL configuration and consistent error handling,
+// but we don't need the auth interceptor functionality.
+// The auth interceptor checks for token presence, which is fine (it adds it if present, but these endpoints ignore it).
+// The 401 refresh logic is irrelevant here as we are not authenticated.
 
 export interface PasswordResetRequestResponse {
   success: boolean
@@ -30,8 +35,8 @@ export interface TokenValidationResponse {
  */
 export async function validatePasswordResetToken(token: string): Promise<boolean> {
   try {
-    await axios.get(
-      `${API_BASE_URL}/api/auth/password-reset/validate/${token}`,
+    await apiClient.get(
+      `/api/auth/password-reset/validate/${token}`,
       { timeout: 10000 }
     )
     return true
@@ -47,8 +52,8 @@ export async function validatePasswordResetToken(token: string): Promise<boolean
  */
 export async function requestPasswordReset(email: string): Promise<PasswordResetRequestResponse> {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/auth/password-reset/request`,
+    const response = await apiClient.post<PasswordResetRequestResponse>(
+      '/api/auth/password-reset/request',
       { email },
       { timeout: 10000 }
     )
@@ -68,8 +73,8 @@ export async function confirmPasswordReset(
   newPassword: string
 ): Promise<PasswordResetConfirmResponse> {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/auth/password-reset/confirm`,
+    const response = await apiClient.post(
+      '/api/auth/password-reset/confirm',
       {
         token,
         new_password: newPassword, // ⚠️ Backend expects snake_case
@@ -129,4 +134,3 @@ function formatPasswordResetError(error: unknown): Error {
 
   return new Error('An unexpected error occurred. Please try again.')
 }
-

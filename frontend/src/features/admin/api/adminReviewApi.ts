@@ -2,31 +2,7 @@
  * Admin Review API
  * Story 2.6: Admin Public Event Review Workflow
  */
-import axios, { AxiosInstance } from 'axios'
-import { getAccessToken } from '../../auth/utils/tokenStorage'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-
-// Create axios instance with auth interceptor
-const adminClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
-})
-
-// Add request interceptor to attach access token
-adminClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+import { apiClient } from '../../../lib/apiClient'
 
 export interface PendingReviewEvent {
   event_id: number
@@ -125,7 +101,7 @@ export const adminReviewApi = {
    * Get events pending review
    */
   async getPendingReviewEvents(skip: number = 0, limit: number = 100): Promise<PendingReviewEvent[]> {
-    const response = await adminClient.get('/api/admin/events/pending-review', {
+    const response = await apiClient.get('/api/admin/events/pending-review', {
       params: { skip, limit },
     })
     return response.data
@@ -135,7 +111,7 @@ export const adminReviewApi = {
    * Get event review details
    */
   async getEventReviewDetails(eventId: number): Promise<EventReviewDetails> {
-    const response = await adminClient.get(`/api/admin/events/${eventId}/review`)
+    const response = await apiClient.get(`/api/admin/events/${eventId}/review`)
     return response.data
   },
 
@@ -143,14 +119,14 @@ export const adminReviewApi = {
    * Approve event
    */
   async approveEvent(eventId: number, request: ApproveEventRequest): Promise<void> {
-    await adminClient.post(`/api/admin/events/${eventId}/approve`, request)
+    await apiClient.post(`/api/admin/events/${eventId}/approve`, request)
   },
 
   /**
    * Reject event
    */
   async rejectEvent(eventId: number, request: RejectEventRequest): Promise<void> {
-    await adminClient.post(`/api/admin/events/${eventId}/reject`, request)
+    await apiClient.post(`/api/admin/events/${eventId}/reject`, request)
   },
 
   /**
@@ -160,7 +136,7 @@ export const adminReviewApi = {
     const url = eventId
       ? `/api/admin/events/${eventId}/review-history`
       : '/api/admin/events/review-history'
-    const response = await adminClient.get(url)
+    const response = await apiClient.get(url)
     return response.data
   },
 
@@ -168,7 +144,7 @@ export const adminReviewApi = {
    * Get review status (for event creators)
    */
   async getEventReviewStatus(eventId: number): Promise<EventReviewStatus> {
-    const response = await adminClient.get(`/api/events/${eventId}/review-status`)
+    const response = await apiClient.get(`/api/events/${eventId}/review-status`)
     return response.data
   },
 
@@ -176,7 +152,7 @@ export const adminReviewApi = {
    * Update event (admin-only, can update events from any company)
    */
   async updateEvent(eventId: number, request: AdminEventUpdateRequest): Promise<AdminEventUpdateResponse> {
-    const response = await adminClient.put<AdminEventUpdateResponse>(
+    const response = await apiClient.put<AdminEventUpdateResponse>(
       `/api/admin/events/${eventId}`,
       request
     )

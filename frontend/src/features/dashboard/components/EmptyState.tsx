@@ -4,14 +4,43 @@
  */
 
 import React from 'react'
-import { Building2, FileText, Plus } from 'lucide-react'
+import { Building2, FileText, Plus, Lock } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 interface EmptyStateProps {
-  type: 'no-companies' | 'no-events' | 'onboarding-required'
+  type: 'no-companies' | 'no-events' | 'onboarding-required' | 'guest-access'
   onAction?: () => void
 }
 
 export function EmptyState({ type, onAction }: EmptyStateProps) {
+  if (type === 'guest-access') {
+    return (
+      <div className="bg-white rounded-lg shadow p-12 text-center mt-8">
+        <Lock className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          Authentication Required
+        </h3>
+        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+          You are currently viewing the dashboard as a guest. To view your companies, events, and leads, please log in to your account.
+        </p>
+        <div className="flex justify-center gap-4">
+          <Link
+            to="/login"
+            className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Log In
+          </Link>
+          <Link
+            to="/signup"
+            className="px-6 py-3 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+          >
+            Sign Up
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   if (type === 'no-companies') {
     return (
       <div className="bg-white rounded-lg shadow p-12 text-center">
@@ -76,7 +105,3 @@ export function EmptyState({ type, onAction }: EmptyStateProps) {
 
   return null
 }
-
-
-
-

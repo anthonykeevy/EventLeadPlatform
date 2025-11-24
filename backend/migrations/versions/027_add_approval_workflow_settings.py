@@ -10,7 +10,7 @@ from sqlalchemy.sql import text
 
 # revision identifiers, used by Alembic.
 revision = '027_add_approval_workflow_settings'
-down_revision = '026_add_form_access_function'
+down_revision = '026_form_access_function'
 branch_labels = None
 depends_on = None
 

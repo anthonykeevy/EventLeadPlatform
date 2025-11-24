@@ -63,18 +63,23 @@ async def transfer_form_ownership(
         )
     
     # Validate users are in company
-    if not await _validate_user_in_company(db, from_user_id, company_id):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"FromUserID {from_user_id} is not an active member of company {company_id}"
-        )
-    
+    # Recipient MUST be in the company
     if not await _validate_user_in_company(db, to_user_id, company_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"ToUserID {to_user_id} is not an active member of company {company_id}"
         )
     
+    # Sender checks:
+    # 1. Are they in the company? (Internal transfer)
+    # 2. If not, check if they have agency relationship (Agency transfer) - handled by query logic below
+    is_sender_in_company = await _validate_user_in_company(db, from_user_id, company_id)
+    
+    if not is_sender_in_company:
+        # If sender is not in company, this might be an agency transfer.
+        # We proceed, but logic below will only pick up forms relevant to the company.
+        logger.info(f"Sender {from_user_id} is not in company {company_id} - attempting Agency Handover transfer")
+
     # Validate from_user_id != to_user_id
     if from_user_id == to_user_id:
         raise HTTPException(
@@ -83,54 +88,80 @@ async def transfer_form_ownership(
         )
     
     try:
-        # Call stored procedure
-        # The stored procedure returns a result set with FormsTransferred, AccessControlsTransferred, Status, Message
-        result = db.execute(
-            text("""
-                EXEC [dbo].[sp_TransferFormOwnership]
-                    @FromUserID = :from_user_id,
-                    @ToUserID = :to_user_id,
-                    @CompanyID = :company_id,
-                    @PerformedBy = :performed_by,
-                    @Reason = :reason
-            """),
-            {
-                "from_user_id": from_user_id,
-                "to_user_id": to_user_id,
-                "company_id": company_id,
-                "performed_by": performed_by,
-                "reason": reason or "Bulk ownership transfer"
-            }
-        )
+        # Use Python logic instead of SP to support Agency Handover scenarios
+        from models.form import Form
+        from models.event import Event
+        from models.audit.activity_log import ActivityLog
+        from sqlalchemy import select, or_
+        from datetime import datetime
+
+        # Find eligible forms
+        # Criteria:
+        # A. Form is owned by the sender
+        # AND
+        # B. (Form belongs to the target company OR Form belongs to an Event owned by the target company)
+        forms = db.execute(
+            select(Form)
+            .join(Event, Form.EventID == Event.EventID, isouter=True)
+            .where(
+                Form.CreatedBy == from_user_id,
+                Form.IsDeleted == False,
+                or_(
+                    Form.CompanyID == company_id,
+                    Event.CompanyID == company_id
+                )
+            )
+        ).scalars().all()
         
-        # Fetch the result set returned by the stored procedure
-        row = result.fetchone()
+        forms_transferred = 0
+        access_controls_transferred = 0
         
-        if row is None:
-            raise Exception("Stored procedure did not return expected result set")
+        for form in forms:
+            old_company_id = form.CompanyID
+            
+            # Update ownership
+            form.CreatedBy = to_user_id
+            form.UpdatedBy = performed_by
+            form.CompanyID = company_id # Ensure target company owns it
+            form.UpdatedDate = datetime.utcnow()
+            forms_transferred += 1
+            
+            # Audit Log
+            try:
+                activity_log = ActivityLog(
+                    UserID=performed_by,
+                    CompanyID=company_id,
+                    Action="form.ownership_transferred",
+                    EntityType="Form",
+                    EntityID=form.FormID,
+                    OldValue=f"Owner: {from_user_id}, Company: {old_company_id}",
+                    NewValue=f"Owner: {to_user_id}, Company: {company_id}",
+                    Comments=f"Bulk transfer: {reason}" if reason else "Bulk transfer",
+                    CreatedDate=datetime.utcnow()
+                )
+                db.add(activity_log)
+            except Exception as log_err:
+                logger.warning(f"Failed to log audit for form {form.FormID}: {log_err}")
         
-        # The stored procedure returns: FormsTransferred, AccessControlsTransferred, Status, Message
-        forms_transferred = int(row[0]) if row[0] is not None else 0
-        access_controls_transferred = int(row[1]) if row[1] is not None else 0
-        status = row[2] if len(row) > 2 else "SUCCESS"
-        message = row[3] if len(row) > 3 else "Ownership transfer completed successfully"
-        
-        # Commit the transaction (stored procedure handles its own transaction, but we commit here for safety)
         db.commit()
+        
+        status_msg = "SUCCESS"
+        msg = "Ownership transfer completed successfully"
+        if forms_transferred == 0:
+            msg = "No eligible forms found for transfer"
         
         logger.info(
             f"Form ownership transferred: FromUserID={from_user_id}, "
             f"ToUserID={to_user_id}, CompanyID={company_id}, "
             f"FormsTransferred={forms_transferred}, "
-            f"AccessControlsTransferred={access_controls_transferred}, "
-            f"Status={status}"
+            f"Status={status_msg}"
         )
         
         return {
             "FormsTransferred": forms_transferred,
             "AccessControlsTransferred": access_controls_transferred,
-            "Status": status,
-            "Message": message,
+            "Status": status_msg,
+            "Message": msg,
             "Success": True
         }
         

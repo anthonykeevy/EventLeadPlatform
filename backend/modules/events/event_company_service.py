@@ -13,6 +13,9 @@ from models.ref.event_status import EventStatus
 from models.event import Event
 from models.company import Company
 from models.form import Form
+from models.form_access_control import FormAccessControl
+from models.user_company import UserCompany
+from models.ref.user_company_status import UserCompanyStatus
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -206,11 +209,12 @@ async def get_company_events(
         
         # Get all forms for the events and check user access
         for event in events:
-            # Get all forms for this event that belong to the company
+            # Get all forms for this event
+            # Note: We do NOT filter by CompanyID here because we want to find forms
+            # that might be owned by other companies (e.g., for Agency access)
             forms = db.execute(
                 select(Form).where(
                     Form.EventID == event.EventID,
-                    Form.CompanyID == company_id,  # Only check forms owned by this company
                     Form.IsDeleted == False
                 )
             ).scalars().all()
@@ -250,12 +254,12 @@ async def get_company_events(
         # CRITICAL: Also include events where the company has forms (even if not linked via EventCompany)
         # This handles the case where a company owns forms for an event but the event is not linked via EventCompany
         # For Company Viewers, we need to include events where they have form access, regardless of EventCompany linkage
+        # We do NOT filter by CompanyID to allow Agency/Cross-company access detection
         additional_events_query = db.execute(
             text("""
                 SELECT DISTINCT f.EventID
                 FROM [dbo].[Form] f
-                WHERE f.CompanyID = :company_id
-                  AND f.EventID IS NOT NULL
+                WHERE f.EventID IS NOT NULL
                   AND f.IsDeleted = 0
                   AND EXISTS (
                       SELECT 1
@@ -263,7 +267,7 @@ async def get_company_events(
                       WHERE a.CanView = 1
                   )
             """),
-            {"company_id": company_id, "user_id": user_id}
+            {"user_id": user_id}
         ).fetchall()
         
         for row in additional_events_query:
@@ -315,7 +319,10 @@ async def disassociate_company_from_event(
     user_id: int
 ) -> bool:
     """
-    Disassociate a company from an event (soft delete participant relationship).
+    Disassociate a company from an event.
+    
+    1. Soft delete EventCompany relationship if it exists.
+    2. Revoke all form access for users of that company for that event.
     
     Args:
         db: Database session
@@ -327,9 +334,9 @@ async def disassociate_company_from_event(
         True if disassociation successful, False otherwise
         
     Raises:
-        ValueError: If relationship not found or cannot be disassociated
+        ValueError: If relationship cannot be disassociated (e.g. Owner)
     """
-    # Find active relationship
+    # 1. Find and deactivate active EventCompany relationship
     event_company = db.execute(
         select(EventCompany).where(
             EventCompany.EventID == event_id,
@@ -339,36 +346,79 @@ async def disassociate_company_from_event(
         )
     ).scalar_one_or_none()
     
-    if not event_company:
-        raise ValueError(
-            f"Active EventCompany relationship not found for EventID={event_id}, CompanyID={company_id}"
+    if event_company:
+        # Get role to check if it's a restricted role (Owner/Organizer cannot leave easily?)
+        role = db.execute(
+            select(EventCompanyRole).where(
+                EventCompanyRole.EventCompanyRoleID == event_company.EventCompanyRoleID
+            )
+        ).scalar_one_or_none()
+        
+        # Prevent disassociation for Owners
+        if role and role.RoleCode == 'event_owner':
+            raise ValueError(
+                f"Cannot disassociate company with role '{role.RoleCode}'. Event Owners cannot leave their own event."
+            )
+        
+        # Soft delete relationship
+        event_company.IsActive = False
+        event_company.DisassociatedDate = datetime.utcnow()
+        event_company.DisassociatedBy = user_id
+        event_company.UpdatedDate = datetime.utcnow()
+        event_company.UpdatedBy = user_id
+        
+        logger.info(
+            f"Disassociated company from event (EventCompany): EventID={event_id}, CompanyID={company_id}, "
+            f"EventCompanyID={event_company.EventCompanyID}"
         )
-    
-    # Get role to check if it's a participant (only participants can be disassociated)
-    role = db.execute(
-        select(EventCompanyRole).where(
-            EventCompanyRole.EventCompanyRoleID == event_company.EventCompanyRoleID
+    else:
+        logger.info(
+            f"No active EventCompany relationship found for EventID={event_id}, CompanyID={company_id}. "
+            f"Proceeding to cleanup form access."
         )
-    ).scalar_one_or_none()
-    
-    if role and role.RoleCode != 'event_participant':
-        raise ValueError(
-            f"Cannot disassociate company with role '{role.RoleCode}'. Only participants can be disassociated."
+
+    # 2. Revoke Form Access for all users of this company for this event
+    # Find users of the company
+    company_users = db.execute(
+        select(UserCompany.UserID)
+        .join(UserCompanyStatus)
+        .where(
+            UserCompany.CompanyID == company_id,
+            UserCompany.IsDeleted == False,
+            UserCompanyStatus.StatusCode == 'active'
         )
+    ).scalars().all()
     
-    # Soft delete relationship
-    event_company.IsActive = False
-    event_company.DisassociatedDate = datetime.utcnow()
-    event_company.DisassociatedBy = user_id
-    event_company.UpdatedDate = datetime.utcnow()
-    event_company.UpdatedBy = user_id
-    
+    if company_users:
+        # Find forms for this event
+        event_forms = db.execute(
+            select(Form.FormID).where(
+                Form.EventID == event_id,
+                Form.IsDeleted == False
+            )
+        ).scalars().all()
+        
+        if event_forms:
+            # Soft delete FormAccessControl records
+            # We update IsDeleted=True
+            access_controls = db.execute(
+                select(FormAccessControl).where(
+                    FormAccessControl.FormID.in_(event_forms),
+                    FormAccessControl.UserID.in_(company_users),
+                    FormAccessControl.IsDeleted == False
+                )
+            ).scalars().all()
+            
+            for ac in access_controls:
+                ac.IsDeleted = True
+                ac.UpdatedDate = datetime.utcnow()
+                ac.UpdatedBy = user_id
+                
+            logger.info(
+                f"Revoked form access for {len(access_controls)} records for CompanyID={company_id} on EventID={event_id}"
+            )
+
     db.commit()
-    
-    logger.info(
-        f"Disassociated company from event: EventID={event_id}, CompanyID={company_id}, "
-        f"EventCompanyID={event_company.EventCompanyID}"
-    )
     
     return True
 

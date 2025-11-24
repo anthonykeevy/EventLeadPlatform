@@ -28,7 +28,10 @@ from .schemas import (
     EventTypeResponse,
     EventStatusResponse,
     IndustryResponse,
-    CompanySummaryResponse
+    CompanySummaryResponse,
+    ShareEventRequest,
+    ShareEventResponse,
+    ShareEventByEmailRequest
 )
 from .service import (
     create_event,
@@ -55,6 +58,8 @@ from .inference_service import (
     get_recent_event_cities
 )
 from common.logger import get_logger
+from services.email_service import get_email_service
+from fastapi import BackgroundTasks
 
 logger = get_logger(__name__)
 
@@ -1026,6 +1031,306 @@ async def create_participant_relationship(
         )
 
 
+@router.post(
+    "/{event_id}/share",
+    response_model=ShareEventResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Share event with another company",
+    description="Grant another company access to this event with a specific role (e.g., Agency)."
+)
+async def share_event_with_company(
+    event_id: int,
+    request: ShareEventRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> ShareEventResponse:
+    """
+    Share an event with another company (e.g., Host Company shares with Agency).
+    
+    Requires 'manage_participants' permission on the event.
+    """
+    try:
+        # Verify event exists and user has access
+        # We need to check if the user has 'manage_participants' permission
+        from modules.events.event_company_service import get_event_companies
+        
+        # Get all companies for this event to check user's role
+        event_companies = await get_event_companies(
+            db=db,
+            event_id=event_id,
+            active_only=True
+        )
+        
+        # Find current user's company role
+        user_relationship = next(
+            (ec for ec in event_companies if ec.CompanyID == current_user.company_id),
+            None
+        )
+        
+        has_manage_permission = False
+        
+        if user_relationship and user_relationship.role and user_relationship.role.HasManageParticipants:
+            has_manage_permission = True
+        else:
+            # Check if user is from the owner company (legacy or explicit)
+            event = await get_event_by_id(db, event_id, current_user.company_id)
+            if event and event.CompanyID == current_user.company_id:
+                has_manage_permission = True
+        
+        if not has_manage_permission:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to share this event"
+            )
+            
+        # Check if relationship already exists
+        existing_relationship = next(
+            (ec for ec in event_companies if ec.CompanyID == request.company_id),
+            None
+        )
+        
+        if existing_relationship:
+            return ShareEventResponse(
+                success=True,
+                message=f"Company is already linked to this event with role: {existing_relationship.role.RoleName if existing_relationship.role else 'Unknown'}",
+                event_company_id=existing_relationship.EventCompanyID,
+                event_id=event_id,
+                company_id=request.company_id,
+                role=existing_relationship.role.RoleCode if existing_relationship.role else 'unknown',
+                already_exists=True
+            )
+            
+        # Create relationship
+        event_company = await create_event_company_relationship(
+            db=db,
+            event_id=event_id,
+            company_id=request.company_id,
+            role_code=request.role_code,
+            user_id=current_user.user_id
+        )
+        
+        logger.info(
+            f"Shared event {event_id} with company {request.company_id} (Role: {request.role_code}) by user {current_user.user_id}"
+        )
+        
+        return ShareEventResponse(
+            success=True,
+            message="Event shared successfully",
+            event_company_id=event_company.EventCompanyID,
+            event_id=event_id,
+            company_id=request.company_id,
+            role=request.role_code,
+            already_exists=False
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid share request: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing event: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to share event"
+        )
+
+
+
+@router.post(
+    "/{event_id}/share-by-email",
+    response_model=ShareEventResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Share event via email",
+    description="Share an event with a user by email. If the user exists, links their company."
+)
+async def share_event_by_email(
+    event_id: int,
+    request: ShareEventByEmailRequest,
+    background_tasks: BackgroundTasks,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> ShareEventResponse:
+    """
+    Share an event with a user by email.
+    
+    1. Finds user by email.
+    2. If found, finds their active company.
+    3. Creates EventCompany relationship.
+    4. Requires 'manage_participants' permission.
+    5. Sends email notification to the user.
+    """
+    try:
+        # Verify event exists and user has access (same permission check as standard share)
+        from modules.events.event_company_service import get_event_companies
+        
+        event_companies = await get_event_companies(
+            db=db,
+            event_id=event_id,
+            active_only=True
+        )
+        
+        # Find current user's company role
+        user_relationship = next(
+            (ec for ec in event_companies if ec.CompanyID == current_user.company_id),
+            None
+        )
+        
+        has_manage_permission = False
+        
+        if user_relationship and user_relationship.role and user_relationship.role.HasManageParticipants:
+            has_manage_permission = True
+        else:
+            # Check if user is from the owner company (legacy or explicit)
+            event = await get_event_by_id(db, event_id, current_user.company_id)
+            if event and event.CompanyID == current_user.company_id:
+                has_manage_permission = True
+        
+        if not has_manage_permission:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to share this event"
+            )
+
+        # Find user by email
+        from models.user import User
+        target_user = db.query(User).filter(User.Email == request.email).first()
+        
+        if not target_user:
+            # TODO: In future stories, this could trigger an invitation flow
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found. Please ask them to sign up first."
+            )
+            
+        # Find user's active company
+        # We prioritize 'active' status and maybe 'owner' or 'admin' roles if multiple
+        from models.user_company import UserCompany
+        from models.ref.user_company_status import UserCompanyStatus
+        from models.company import Company
+        
+        target_user_companies = db.query(UserCompany).join(UserCompanyStatus).filter(
+            UserCompany.UserID == target_user.UserID,
+            UserCompany.IsDeleted == False,
+            UserCompanyStatus.StatusCode == 'active'
+        ).all()
+        
+        if not target_user_companies:
+             raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User exists but is not associated with any active company."
+            )
+            
+        # Logic to pick the "primary" company if multiple:
+        # For now, just pick the first one. In future, could prompt or pick based on role.
+        target_company_id = target_user_companies[0].CompanyID
+        target_company = db.get(Company, target_company_id)
+
+        if not target_company:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Target company not found"
+            )
+        
+        # Check if relationship already exists
+        existing_relationship = next(
+            (ec for ec in event_companies if ec.CompanyID == target_company_id),
+            None
+        )
+        
+        # Fetch inviter details for email
+        inviter = db.get(User, current_user.user_id)
+        inviter_company = db.get(Company, current_user.company_id)
+        
+        # If relationship already exists, we still might want to notify them?
+        # Or just return as before. For now, keep existing behavior but maybe warn.
+        if existing_relationship:
+            return ShareEventResponse(
+                success=True,
+                message=f"User's company ({target_company.CompanyName}) is already linked to this event.",
+                event_company_id=existing_relationship.EventCompanyID,
+                event_id=event_id,
+                company_id=target_company_id,
+                role=existing_relationship.role.RoleCode if existing_relationship.role else 'unknown',
+                already_exists=True
+            )
+
+        # Create relationship
+        event_company = await create_event_company_relationship(
+            db=db,
+            event_id=event_id,
+            company_id=target_company_id,
+            role_code=request.role_code,
+            user_id=current_user.user_id
+        )
+        
+        # Send email notification
+        try:
+            # Get event details for email
+            event_details = await get_event_by_id(db, event_id, current_user.company_id)
+            if not event_details:
+                 # Fallback if not directly owned
+                 event_details = db.get(Event, event_id)
+
+            if event_details:
+                email_service = get_email_service()
+                # Use FRONTEND_URL from env, defaulting to localhost:3000 if not set
+                import os
+                frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+                event_url = f"{frontend_url}/dashboard/events" # Direct deep link if supported, else list
+                
+                background_tasks.add_task(
+                    email_service.send_email,
+                    to=str(target_user.Email),
+                    subject=f"Access Granted: {event_details.Name} - EventLead Platform",
+                    template_name="event_shared",
+                    template_vars={
+                        "recipient_name": target_user.FirstName,
+                        "inviter_name": f"{inviter.FirstName} {inviter.LastName}" if inviter else "An administrator",
+                        "inviter_company_name": inviter_company.CompanyName if inviter_company else "Host Company",
+                        "event_name": event_details.Name,
+                        "role_name": "Agency Form Builder" if request.role_code == "agency_form_builder" else request.role_code,
+                        "event_url": event_url
+                    }
+                )
+                logger.info(f"Queued share notification email to {target_user.Email}")
+        except Exception as email_err:
+            logger.error(f"Failed to queue share notification email: {str(email_err)}")
+            # Don't fail the request if email fails, but log it
+        
+        logger.info(
+            f"Shared event {event_id} with user {request.email} (Company: {target_company.CompanyName}) by user {current_user.user_id}"
+        )
+        
+        return ShareEventResponse(
+            success=True,
+            message=f"Event shared with {target_company.CompanyName}",
+            event_company_id=event_company.EventCompanyID,
+            event_id=event_id,
+            company_id=target_company_id,
+            role=request.role_code,
+            already_exists=False
+        )
+
+    except ValueError as e:
+        logger.warning(f"Invalid share request: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing event by email: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to share event"
+        )
+
+
 @router.get(
     "/{event_id}/my-role",
     response_model=dict,
@@ -1224,11 +1529,43 @@ async def disassociate_company_from_event_endpoint(
     Only participants can be disassociated. Owner and organizer relationships cannot be removed.
     """
     try:
-        # Verify user's company matches the company being disassociated
-        if company_id != current_user.company_id:
+        # Verify user has permission to disassociate
+        # 1. Can disassociate own company (leave event)
+        # 2. Can disassociate others if has manage_participants permission (revoke access)
+        
+        has_permission = False
+        
+        if company_id == current_user.company_id:
+            has_permission = True
+        else:
+            # Check for manage_participants permission
+            from modules.events.event_company_service import get_event_companies
+            
+            # Get all companies for this event to check user's role
+            event_companies = await get_event_companies(
+                db=db,
+                event_id=event_id,
+                active_only=True
+            )
+            
+            # Find current user's company role
+            user_relationship = next(
+                (ec for ec in event_companies if ec.CompanyID == current_user.company_id),
+                None
+            )
+            
+            if user_relationship and user_relationship.role and user_relationship.role.HasManageParticipants:
+                has_permission = True
+            else:
+                # Check if user is from the owner company (legacy or explicit)
+                event = await get_event_by_id(db, event_id, current_user.company_id)
+                if event and event.CompanyID == current_user.company_id:
+                    has_permission = True
+        
+        if not has_permission:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only disassociate your own company from events"
+                detail="You do not have permission to remove this company from the event"
             )
         
         # Disassociate company

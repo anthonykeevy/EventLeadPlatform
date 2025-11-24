@@ -3,20 +3,81 @@
  * Displays complete event information in a detailed view
  */
 
-import React from 'react'
-import { Calendar, MapPin, Tag, Globe, Building2, Edit2, Trash2, ArrowLeft, X } from 'lucide-react'
-import { Event } from '../types/events.types'
+import React, { useState, useEffect } from 'react'
+import { Calendar, MapPin, Tag, Globe, Building2, Edit2, Trash2, ArrowLeft, X, FileText, Plus, Share2, LogOut } from 'lucide-react'
+import { Event as IEvent } from '../types/events.types'
 import { StatusBadge } from './StatusBadge'
+import { getFormsByEvent } from '../../forms/api/formsApi'
+import { Form } from '../../forms/types/form.types'
+import { useToastNotifications } from '../../ux'
+import { ShareEventModal } from './ShareEventModal'
+import { useAuth } from '../../auth'
 
 interface EventDetailViewProps {
-  event: Event | null
+  event: IEvent | null
   onClose: () => void
-  onEdit: (event: Event) => void
-  onDelete: (event: Event) => void
+  onEdit: (event: IEvent) => void
+  onDelete: (event: IEvent) => void
+  onAddForm?: (eventId: number) => void
+  onEditForm?: (form: Form) => void
+  onDeleteForm?: (form: Form) => void
 }
 
-export function EventDetailView({ event, onClose, onEdit, onDelete }: EventDetailViewProps) {
+export function EventDetailView({ 
+  event, 
+  onClose, 
+  onEdit, 
+  onDelete,
+  onAddForm,
+  onEditForm,
+  onDeleteForm
+}: EventDetailViewProps) {
   if (!event) return null
+
+  const [forms, setForms] = useState<Form[]>([])
+  const [isLoadingForms, setIsLoadingForms] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const toast = useToastNotifications()
+  const { user } = useAuth()
+
+  const isShared = event.companyId !== user?.company_id
+  const canEdit = event.userRole?.has_edit_event ?? !isShared
+  const canShare = event.userRole?.has_manage_participants ?? !isShared
+
+  // Listen for form updates
+  useEffect(() => {
+    const handleFormUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent
+      if (customEvent.detail.eventId === event.eventId) {
+        loadForms()
+      }
+    }
+
+    window.addEventListener('formCreated', handleFormUpdate)
+    window.addEventListener('formUpdated', handleFormUpdate)
+
+    return () => {
+      window.removeEventListener('formCreated', handleFormUpdate)
+      window.removeEventListener('formUpdated', handleFormUpdate)
+    }
+  }, [event.eventId])
+
+  useEffect(() => {
+    loadForms()
+  }, [event.eventId])
+
+  const loadForms = async () => {
+    setIsLoadingForms(true)
+    try {
+      const response = await getFormsByEvent(event.eventId)
+      setForms(response.forms)
+    } catch (error) {
+      console.error('Failed to load forms:', error)
+      toast.error('Failed to load forms for this event', 'Error')
+    } finally {
+      setIsLoadingForms(false)
+    }
+  }
 
   const defaultTimeZone = (() => {
     try {
@@ -115,13 +176,25 @@ export function EventDetailView({ event, onClose, onEdit, onDelete }: EventDetai
                 Event Details
               </h2>
             </div>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-gray-200 p-1 rounded transition-colors"
-              aria-label="Close modal"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Share button - Story 2.10 */}
+              {canShare && (
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="text-white hover:text-gray-200 p-1 rounded transition-colors"
+                  title="Share Event"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="text-white hover:text-gray-200 p-1 rounded transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -221,6 +294,78 @@ export function EventDetailView({ event, onClose, onEdit, onDelete }: EventDetai
 
             {/* Right Column */}
             <div className="space-y-6">
+              {/* Forms Section - Story 2.10 */}
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-teal-600" />
+                    Linked Forms
+                  </h4>
+                  {onAddForm && (
+                    <button
+                      onClick={() => onAddForm(event.eventId)}
+                      className="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Form
+                    </button>
+                  )}
+                </div>
+                
+                {isLoadingForms ? (
+                  <div className="text-sm text-gray-500">Loading forms...</div>
+                ) : forms.length === 0 ? (
+                  <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-md border border-gray-100">
+                    No forms linked to this event yet.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {forms.map(form => (
+                      <div 
+                        key={form.formId}
+                        className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md hover:shadow-sm transition-shadow"
+                      >
+                        <div>
+                          <div className="font-medium text-sm text-gray-900">{form.formName}</div>
+                          <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                            <span 
+                              className="px-1.5 py-0.5 rounded-full"
+                              style={{ 
+                                backgroundColor: `${form.formStatus?.statusColor}20`,
+                                color: form.formStatus?.statusColor || '#666'
+                              }}
+                            >
+                              {form.formStatus?.statusName}
+                            </span>
+                            <span>{form.totalSubmissions} submissions</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {onEditForm && (
+                            <button
+                              onClick={() => onEditForm(form)}
+                              className="p-1 text-gray-400 hover:text-teal-600 rounded transition-colors"
+                              aria-label="Edit form"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          {onDeleteForm && (
+                            <button
+                              onClick={() => onDeleteForm(form)}
+                              className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
+                              aria-label="Unlink form"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
               {/* Description */}
               {event.description && (
                 <section>
@@ -344,25 +489,36 @@ export function EventDetailView({ event, onClose, onEdit, onDelete }: EventDetai
           >
             Close
           </button>
-          <button
-            type="button"
-            onClick={() => onEdit(event)}
-            className="px-4 py-2 bg-teal-600 text-white rounded-md text-sm font-medium hover:bg-teal-700 transition-colors flex items-center gap-2"
-          >
-            <Edit2 className="w-4 h-4" />
-            Edit Event
-          </button>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(event)}
+              className="px-4 py-2 bg-teal-600 text-white rounded-md text-sm font-medium hover:bg-teal-700 transition-colors flex items-center gap-2"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Event
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onDelete(event)}
-            className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
+            className={`px-4 py-2 ${isShared ? 'bg-orange-500 hover:bg-orange-600' : 'bg-red-600 hover:bg-red-700'} text-white rounded-md text-sm font-medium transition-colors flex items-center gap-2`}
           >
-            <Trash2 className="w-4 h-4" />
-            Delete Event
+            {isShared ? <LogOut className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+            {isShared ? "Leave Event" : "Delete Event"}
           </button>
         </div>
       </div>
+
+      {/* Share Modal - Story 2.10 */}
+      {showShareModal && (
+        <ShareEventModal
+          isOpen={showShareModal}
+          eventId={event.eventId}
+          eventName={event.name}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   )
 }
-

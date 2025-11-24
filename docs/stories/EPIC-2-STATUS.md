@@ -1,9 +1,9 @@
 # Epic 2 Status - Enhanced User Experience & Multi-Domain Integration
 
 **Epic ID:** Epic 2  
-**Status:** In Progress - Domain 2 Complete, Stories 2.8 & 2.9 Complete (Domain 3 In Progress)  
+**Status:** In Progress - Domain 1, 2 & 3 Complete (Domain 4 Next)  
 **Created:** January 15, 2025  
-**Last Updated:** November 22, 2025 (Story 2.9 Complete - Form Access Control Implemented, UAT Passed)  
+**Last Updated:** November 24, 2025 (Story 2.10 Complete - Form-Event Integration, UAT Passed)  
 **Product Manager:** John (PM Agent)  
 **Developer:** Developer Agent  
 
@@ -22,12 +22,12 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 9/12 | ✅ In Progress (75% Complete) |
-| **Last Completed Stories** | 2.9 - Form Access Control | ✅ **COMPLETE** - 6-layer access control, System Admin fix, UAT Passed (50/55 tests) |
-| **Next Story** | 2.10 - Form-Event Integration | 📋 **READY** - Story Planned |
-| **Domains Complete** | 2/4 | ✅ Domain 1 Complete, ✅ Domain 2 Complete |
-| **Current Domain** | Domain 3 - Form Foundation | 📋 **IN PROGRESS** - Stories 2.8 & 2.9 Complete, Story 2.10 Planned |
-| **UAT Tests Passed** | Story 2.1: 10/10, Story 2.2: 9/10, Story 2.3: All Core Features, Story 2.4: 12/12, Story 2.6: 35/36, Story 2.7: 45/45, Story 2.8: 14/14, Story 2.9: 50/55 | ✅ All 9 Stories Complete with UAT Passed |
+| **Stories Complete** | 10/12 | ✅ In Progress (83% Complete) |
+| **Last Completed Stories** | 2.10 - Form-Event Integration | ✅ **COMPLETE** - Agency Access, Sharing UI, Bulk Transfer, UAT Passed |
+| **Next Story** | 2.11 - Approval Workflow Extensions | 📋 **PLANNED** |
+| **Domains Complete** | 3/4 | ✅ Domain 1, ✅ Domain 2, ✅ Domain 3 Complete |
+| **Current Domain** | Domain 4 - Approval Workflows | 📋 **PLANNED** - Stories 2.11-2.13 |
+| **UAT Tests Passed** | Story 2.1: 10/10, Story 2.2: 9/10, Story 2.3: All Core Features, Story 2.4: 12/12, Story 2.6: 35/36, Story 2.7: 45/45, Story 2.8: 14/14, Story 2.9: 50/55, Story 2.10: 10/10 | ✅ All 10 Stories Complete with UAT Passed |
 
 ---
 
@@ -59,9 +59,9 @@
 - **Stories:** 2.8, 2.9, 2.10
 - **Focus:** Form headers, access control, Epic 3 preparation
 - **UAT Tests:** 3 comprehensive test suites
-- **Status:** 📋 **IN PROGRESS** - Stories 2.8 & 2.9 Complete (UAT Passed), Story 2.10 Planned
-- **Progress:** 2/3 stories complete (66%), 1/3 stories planned (33%)
-- **Next Story:** 2.10 - Form-Event Integration (📋 **PLANNED** - Ready for Implementation)
+- **Status:** ✅ **Domain Complete** (All 3 stories complete with UAT passed)
+- **Progress:** 3/3 stories complete (100%)
+- **Completion Date:** November 24, 2025
 - **Epic 3 Dependency:** Form Builder requires form header foundation
 - **Key Achievements:**
   - ✅ Form header CRUD operations with multi-tenant filtering
@@ -75,12 +75,15 @@
   - ✅ Audit trail integration
   - ✅ Simplified form creation/edit modals (auto-managed fields)
   - ✅ Dashboard integration (Company → Event → Form hierarchy)
+  - ✅ Agency Sharing & Access UI
+  - ✅ Bulk Ownership Transfer
 
 ### **Domain 4: Approval Workflows**
 - **Stories:** 2.11, 2.12, 2.13
 - **Focus:** Cost approval, external approvers, audit trails
 - **UAT Tests:** 3 comprehensive test suites
 - **Status:** 📋 Planned
+- **Progress:** 0/3 stories complete (0%)
 
 ---
 
@@ -97,7 +100,7 @@
 | 2.7 | Event Public Review Workflow Implementation | ✅ **COMPLETE** | Complete | ✅ 45/45 UAT Passed | 5 Critical, 4 Minor Issues Fixed | Complete workflow implementation, offline-first capability, shared event participation, recursive company network visibility | Event Management |
 | 2.8 | Form Header Foundation | ✅ **COMPLETE** | Complete | ✅ 14/14 UAT Passed | 11 Issues Fixed | Reused Event Management patterns, company-scoped filtering, full CRUD with audit trail, dashboard hierarchy integration, simplified modals, split layout design | Form Foundation |
 | 2.9 | Form Access Control | ✅ **COMPLETE** | Complete | ✅ 50/55 UAT Passed | System Admin Visibility, Legacy Events | 6-layer access logic, Centralized DB function, Agency access | Form Foundation |
-| 2.10 | Form-Event Integration | 📋 Planned | - | - | - | - | Form Foundation |
+| 2.10 | Form-Event Integration | ✅ **COMPLETE** | Complete | ✅ 10/10 UAT Passed | Agency filtering, Access Matrix | Agency access requires explicit ownership enforcement, bulk transfer is powerful admin tool | Form Foundation |
 | 2.11 | Approval Workflow Extensions | 📋 Planned | - | - | - | - | Approval Workflows |
 | 2.12 | External Approver Support | 📋 Planned | - | - | - | - | Approval Workflows |
 | 2.13 | Audit Trail & Compliance | 📋 Planned | - | - | - | - | Approval Workflows |
@@ -127,6 +130,7 @@
 - **Data Integrity Issues** - Existing inconsistent records fixed with data migration scripts (Story 2.7)
 - **Admin Dashboard Performance** - TanStack Table integration optimized for large datasets (Story 2.6)
 - **Multi-Step Progressive Disclosure** - Complex UX flow implemented with state management (Story 2.7)
+- **Access Control Logic** - Complex multi-company logic required distinct handling for Agency vs Internal access (Story 2.10)
 
 ### **Process Improvements Identified**
 - **Story-by-Story Approach:** Optimized for agentic programming ✅ Working well
@@ -140,6 +144,7 @@
 - **Smart Field Inference:** Multi-source inference pattern (browser, profile, company, recent events) ✅ Story 2.4 pattern
 - **Progressive Disclosure:** Hide complexity until needed (visibility selection first) ✅ Story 2.4 pattern
 - **Idempotent API Design:** Return success if relationship already exists ✅ Story 2.4 pattern
+- **Debug Scripts:** Creating small python scripts to verify DB state is faster than full app testing for data issues ✅ Story 2.10 pattern
 
 ### **Technical Debt**
 - **Enhanced Logging Tools** - Need consistent database access configuration (improved in Story 2.3)
@@ -153,147 +158,84 @@
 
 ## 🎯 **Next Recommendations**
 
-### **Epic Goal Assessment: AC5 - Event Management**
+### **Epic Goal Assessment: AC6 - Form Header Foundation**
 
-**Epic 2 AC5 Requirement:**
-> "Users can create, update, and manage events with multi-tenant filtering and public review process"
+**Epic 2 AC6 Requirement:**
+> "Users can manage forms, access control, and link forms to events"
 
-**Story 2.4 Delivery Assessment:**
+**Domain 3 Delivery Assessment:**
 
-✅ **Event Creation & Management:** COMPLETE
-- Event CRUD operations fully implemented
-- Dashboard integration with event list
-- Tab-based creation form with smart inference
-- Edit and delete functionality
+✅ **Form Header Management:** COMPLETE (Story 2.8)
+- Form CRUD operations
+- Multi-tenant filtering
+- Audit trails
 
-✅ **Multi-Tenant Filtering:** COMPLETE
-- Company-scoped event access (Event.CompanyID filtering)
-- EventCompany relationship management (participant vs organizer)
-- Role-based access control (organizer vs participant permissions)
-- Company-based query filtering enforced
+✅ **Access Control:** COMPLETE (Story 2.9)
+- 6-Layer access control system
+- Centralized logic
+- Agency access support
 
-✅ **Public Review Process:** COMPLETE
-- PENDING_REVIEW status implemented ✅
-- PublicReviewStatusID FK implemented (migration 022) ✅
-- IsSharedWithPlatform field implemented (migration 021) ✅
-- Complete workflow implementation with guards and validation rules (Story 2.7) ✅
-- Admin review workflow implemented (Story 2.6) ✅
-- Admin approval/rejection endpoints implemented (Story 2.6) ✅
-- Review notifications to event creators implemented (Story 2.6) ✅
-- Multi-step progressive disclosure flow for event creation (Story 2.7) ✅
-- Platform-wide visibility rules and query guards (Story 2.7) ✅
-- Data integrity fixes and workflow state management (Story 2.7) ✅
+✅ **Integration:** COMPLETE (Story 2.10)
+- Event-Form linking
+- Agency dashboard UI
+- Bulk ownership transfer
 
-**Conclusion:** **AC5 is COMPLETE (100%)**. All stories (2.4, 2.6, 2.7) delivered complete event management with public review process. Domain 2 is complete and ready for production.
+**Conclusion:** **AC6 is COMPLETE (100%)**. Domain 3 is complete and ready for production.
 
 ---
 
 ### **Recommended Next Story**
 
-**✅ CONFIRMED NEXT STORY:** **Story 2.10 - Form-Event Integration**
+**✅ CONFIRMED NEXT STORY:** **Story 2.11 - Approval Workflow Extensions**
 
-**Status:** 📋 **READY FOR IMPLEMENTATION**
+**Status:** 📋 **PLANNED**
 
-**Epic Goal:** Complete AC6 - Form Header Foundation (Integration)
-**Story Focus:** Integration between Forms and Events
-**Current Domain:** Domain 3 - Form Foundation
+**Epic Goal:** Complete AC4 - Approval Workflow Extension
+**Story Focus:** Enterprise approval features
+**Current Domain:** Domain 4 - Approval Workflows
 
 **Story Scope (for Scrum Master reference):**
-- Event-Form linking (many-to-one relationship)
-- Form availability based on Event status
-- Form copying/templating from Events
-- Form list filtering by Event
+- Cost-based approval triggers
+- Multi-stage approval workflows
+- Notification logic for approvals
 
 **Why This Story:**
-1. **Completion of Domain 3:** Final piece of the Form Foundation domain.
-2. **Workflow Continuity:** Bridges the gap between Event Management (Domain 2) and Forms (Domain 3).
-3. **User Experience:** Allows users to manage forms in the context of their events.
+1. **Start of Domain 4:** Begins the final domain of Epic 2.
+2. **Enterprise Value:** Adds critical governance features requested by larger clients.
 
 **Estimated Effort:** 8-12 hours
 
 **Dependencies:**
-- ✅ Story 2.9 Complete (Access Control ready)
-- ✅ Story 2.8 Complete (Form Header ready)
-- ✅ Story 2.4 Complete (Event Foundation ready)
-
-**Acceptance Criteria Focus:**
-- Link form to event
-- Unlink form from event
-- Filter forms by event
-- Check form availability based on event dates/status
-
-**Technical Requirements:**
-- Update Form model (EventID FK already exists)
-- Event-Form API endpoints
-- UI for selecting events for forms
-- UI for viewing forms within an event context
+- ✅ Domain 3 Complete (Forms ready)
 
 ---
 
 ### **Story Creation Instructions for Scrum Master**
 
-**Story ID:** 2.9  
-**Story Title:** Form Access Control  
-**Domain:** Form Foundation (Domain 3)  
-**Epic Goal:** Complete AC6 - Form Header Foundation (Access Control Extension)  
-**Status:** ✅ **STORY CREATED** - Ready for Implementation
+**Story ID:** 2.11  
+**Story Title:** Approval Workflow Extensions  
+**Domain:** Approval Workflows (Domain 4)  
+**Epic Goal:** Complete AC4 - Approval Workflow Extension  
+**Status:** 📋 **READY FOR CREATION**
 
 **Key Context:**
-- Story 2.8 (Form Header Foundation) is complete with basic company-scoped access control
-- FormAccessControl table exists in database schema
-- Reference tables exist: FormAccessControlAccessType, CompanyRelationshipType
-- Database function exists: dbo.CheckFormAccess(FormID, UserID, AccessTypeCode)
-- Story 2.9 must implement complete access control management and integration
-- Story file created: `docs/stories/story-2.9.md`
-- Context file created: `docs/stories/story-context-2.9.xml`
-
-**Acceptance Criteria Focus:**
-- FormAccessControl CRUD operations (grant/revoke access)
-- Access types: View, Edit, Manage, Submit, Analyze
-- Access expiry support (optional ExpiryDate)
-- Relationship types: Partner, Vendor, Client, Affiliate
-- Access check query guards (filter forms based on user access)
-- Access control UI (access management modal, grant access form)
-- Access-based UI permissions (show/hide buttons based on access level)
-- Audit trail for access grants/revocations
-
-**Technical Requirements:**
-- FormAccessControl model with all fields
-- Access control service layer (grant/revoke/check methods)
-- Access control API endpoints (POST, GET, DELETE)
-- Query guards integrated into form service (access checks)
-- Access control UI components (FormAccessControlModal, GrantAccessForm)
-- Access integration in form list/detail views
-- Comprehensive logging for access control actions
-
-**Story Deliverables:**
-- ✅ Story file: `docs/stories/story-2.9.md` (16 tasks, 23 acceptance criteria)
-- ✅ Context file: `docs/stories/story-context-2.9.xml` (complete context)
-- ✅ Epic 2 Status updated with Story 2.9 details
+- Basic Form Approval Status exists (`Draft`, `Pending Approval`, `Approved`).
+- Need to add logic to *trigger* these states based on rules (e.g., Deployment Cost > $100).
 
 ---
 
 ### **Dependencies**
 
-- **Story 2.4** ✅ → Complete - Event CRUD operations, multi-tenant filtering, event foundation
-- **Story 2.6** ✅ → Complete - Admin dashboard, review workflow, event management
-- **Story 2.7** ✅ → Complete - Workflow guards, query guards, data integrity, UX enhancements
-- **Domain 2** ✅ → Complete - Event Management domain complete (all 3 stories)
-- **Epic 1 Admin Role** ✅ → Complete - Admin users exist, RBAC middleware supports admin checks
-- **Epic 1 Email Service** ✅ → Complete - Email service ready for notifications
-- **Database Migrations** ✅ → Complete - Migrations 020, 021, 022, 023 executed (PublicReviewStatusID FK, IsSharedWithPlatform field)
-- **Story 2.8** ✅ → **COMPLETE** - Form Header Foundation (UAT Passed, 14/14 categories)
-- **Story 2.9** ✅ → **STORY CREATED** - Form Access Control (Story file and context created, ready for implementation)
+- **Domain 2** ✅ → Complete - Event Management
+- **Domain 3** ✅ → Complete - Form Foundation
+- **Epic 1** ✅ → Complete
 
 ---
 
 ### **Risk Areas**
 
-- **Form Header Foundation:** Form Builder (Epic 3) depends on form header foundation - must complete before Epic 3
-- **Event-Form Integration:** Event-form linking must be properly implemented (many-to-one relationship)
-- **Access Control:** Form headers must follow established patterns (company-scoped, role-based access)
-- **Epic 3 Dependency:** Form Builder cannot proceed without form header foundation - high priority
-- **Cross-Domain Integration:** Events → Forms integration must be seamless (EventID FK relationship)
+- **Workflow Complexity:** Approval workflows can become complex state machines. Keep it simple for v1.
+- **Notification Fatigue:** Ensure approval notifications are targeted and batched if possible.
 
 ---
 
@@ -306,9 +248,9 @@
 | **AC1** | User Profile Enhancement | ✅ Complete | Story 2.1 |
 | **AC2** | Multiple Industry Support | ✅ Complete | Story 2.1, 2.3 |
 | **AC3** | Theme System Implementation | ✅ Complete | Story 2.2 |
-| **AC4** | Approval Workflow Extension | 📋 Planned | Stories 2.10-2.12 |
+| **AC4** | Approval Workflow Extension | 📋 Planned | Stories 2.11-2.13 |
 | **AC5** | Event Management | ✅ **Complete** | Story 2.4 complete, Story 2.7 complete (workflow implementation), Story 2.6 complete (admin dashboard & review workflow) |
-| **AC6** | Form Header Foundation | 🔄 **In Progress** | Story 2.8 & 2.9 Complete, Story 2.10 Planned |
+| **AC6** | Form Header Foundation | ✅ **Complete** | Story 2.8, 2.9 & 2.10 Complete |
 | **AC7** | Cross-Domain Integration | ✅ Complete | Theme system (Story 2.2) |
 | **AC8** | Enhanced Logging | ✅ Complete | Story 2.4 logging validation passed |
 | **AC9** | Backward Compatibility | ✅ Complete | All stories maintained Epic 1 |
@@ -316,33 +258,22 @@
 | **AC11** | Audit Trail Compliance | ✅ Complete | All actions logged |
 | **AC12** | Database Migration Safety | ✅ Complete | All migrations reversible |
 
-**Epic 2 Progress:** **6/12 ACs Complete (50%), 1/12 ACs Partially Complete, 9/12 Stories Complete (75%), 1/12 Stories Planned (8%)**
+**Epic 2 Progress:** **10/12 ACs Complete (83%), 0/12 ACs Partially Complete, 10/12 Stories Complete (83%), 2/12 Stories Planned (17%)**
 
 ---
 
 ### **Remaining Epic Goals Priority**
 
-1. **🔥 High Priority (Epic 3 Dependency):**
-   - ✅ AC5 (Event Management) - **COMPLETE** (Domain 2 complete - Stories 2.4, 2.6, 2.7)
-   - AC6 (Form Header Foundation) - **Next Story: 2.8** (Epic 3 Form Builder dependency - blocks Epic 3)
-
-2. **📋 Medium Priority (Domain 3):**
-   - AC6 (Form Header Foundation) - Story 2.8 (Ready for Implementation)
-   - Form Access Control - Story 2.9 (Planned)
-   - Form-Event Integration - Story 2.10 (Planned)
-
-3. **💡 Low Priority (Domain 4):**
+1. **📋 Medium Priority (Domain 4):**
    - AC4 (Approval Workflow Extension) - Stories 2.11, 2.12, 2.13 (Enterprise features)
-   - Enhanced event filtering (beyond AC5 minimum) - Nice-to-have
-   - Advanced discovery features - Nice-to-have
 
 ---
 
 ## 📈 **Success Metrics**
 
 ### **Epic 2 Success Criteria**
-- ✅ All 12 stories completed with UAT passed (6/12 complete - 50%, all UAT tests passed)
-- ✅ All 4 domains completed with comprehensive testing (2/4 complete - 50% - Domain 1 ✅, Domain 2 ✅)
+- ✅ All 12 stories completed with UAT passed (10/12 complete - 83%, all UAT tests passed)
+- ✅ All 4 domains completed with comprehensive testing (3/4 complete - 75% - Domain 1 ✅, Domain 2 ✅, Domain 3 ✅)
 - ✅ Performance maintained or improved from Epic 1 (Theme switching < 5ms, exceeded < 500ms target)
 - ✅ Performance exceeded targets (Event list: 28ms vs < 2s target, Event creation: 243ms vs < 1s target)
 - ✅ Zero breaking changes to Epic 1 functionality
@@ -385,12 +316,12 @@
 ### **Domain Reviews**
 - **Domain 1 Review:** `docs/stories/DOMAIN-1-USER-EXPERIENCE-REVIEW.md` ✅ Complete
 - **Domain 2 Review:** `docs/stories/DOMAIN-2-EVENT-MANAGEMENT-REVIEW.md` ✅ Complete (November 14, 2025)
-- **Domain 3 Review:** `docs/stories/DOMAIN-3-FORM-FOUNDATION-REVIEW.md`
+- **Domain 3 Review:** `docs/stories/DOMAIN-3-FORM-FOUNDATION-REVIEW.md` (Pending)
 - **Domain 4 Review:** `docs/stories/DOMAIN-4-APPROVAL-WORKFLOWS-REVIEW.md`
 
 ---
 
 *Epic 2 Status Document - Generated by BMAD Product Manager Agent*  
-*Date: 2025-11-14*  
-*Status: In Progress - Domain 1 Complete, Domain 2 Complete (Stories 2.4, 2.6, 2.7), Story 2.8 Created (Domain 3)*  
-*Progress: 6/12 Stories Complete (50%), 1/12 Stories Planned (8%), 2/4 Domains Complete (50%), 1/4 Domains In Progress (25%)*
+*Date: 2025-11-24*  
+*Status: In Progress - Domain 1, 2 & 3 Complete, Story 2.11 Planned*  
+*Progress: 10/12 Stories Complete (83%), 2/12 Stories Planned (17%), 3/4 Domains Complete (75%), 1/4 Domains Planned (25%)*

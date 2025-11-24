@@ -11,6 +11,7 @@ import { getCompanyUsers } from '../api/dashboardApi'
 import { listInvitations, resendInvitation, cancelInvitation } from '../api/teamApi'
 import { InviteUserModal } from './InviteUserModal'
 import { EditRoleModal } from './EditRoleModal'
+import { BulkTransferOwnershipModal } from '../../forms/components/BulkTransferOwnershipModal'
 import type { TeamMember } from '../types/dashboard.types'
 import type { Invitation } from '../types/team.types'
 
@@ -37,6 +38,7 @@ export function TeamManagementPanel({
   // Modal states
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showTransferModal, setShowTransferModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<TeamMember | null>(null)
   
   const isAdmin = userRole === 'Company Admin'
@@ -106,6 +108,11 @@ export function TeamManagementPanel({
   const handleEditRole = useCallback((user: TeamMember) => {
     setSelectedUser(user)
     setShowEditModal(true)
+  }, [])
+
+  const handleTransferOwnership = useCallback((user: TeamMember) => {
+    setSelectedUser(user)
+    setShowTransferModal(true)
   }, [])
 
   const handleInviteSuccess = useCallback(() => {
@@ -224,13 +231,23 @@ export function TeamManagementPanel({
                       
                       {/* Edit button - AC-1.16.3: Only for admins on active users */}
                       {isAdmin && user.status === 'Active' && (
-                        <button
-                          onClick={() => handleEditRole(user)}
-                          className="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
-                        >
-                          <Edit className="w-4 h-4" />
-                          Edit
-                        </button>
+                        <div className="flex flex-col gap-2 ml-4">
+                          <button
+                            onClick={() => handleEditRole(user)}
+                            className="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
+                          >
+                            <Edit className="w-4 h-4" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleTransferOwnership(user)}
+                            className="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1"
+                            title="Transfer all forms from this user to another"
+                          >
+                            <RotateCw className="w-4 h-4" />
+                            Transfer
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -350,6 +367,24 @@ export function TeamManagementPanel({
             setSelectedUser(null)
           }}
           onSuccess={handleEditSuccess}
+        />
+      )}
+
+      {selectedUser && (
+        <BulkTransferOwnershipModal
+          isOpen={showTransferModal}
+          onClose={() => {
+            setShowTransferModal(false)
+            setSelectedUser(null)
+          }}
+          fromUser={selectedUser}
+          companyId={companyId}
+          companyName={companyName}
+          onSuccess={() => {
+            // Optional: reload data if needed, though transfer doesn't change user list
+            setShowTransferModal(false)
+            setSelectedUser(null)
+          }}
         />
       )}
     </>

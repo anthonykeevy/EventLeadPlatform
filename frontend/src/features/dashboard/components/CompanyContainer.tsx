@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star } from 'lucide-react'
+import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut } from 'lucide-react'
 import type { Company } from '../types/dashboard.types'
 import { getEvents } from '../../events/api/eventsApi'
 import type { Event } from '../../events/types/events.types'
@@ -14,6 +14,7 @@ import { getFormsByEvent } from '../../forms/api/formsApi'
 import type { Form } from '../../forms/types/form.types'
 import { checkFormAccess } from '../../forms/api/formAccessApi'
 import { useAuth } from '../../auth/context/AuthContext'
+import { ShareEventModal } from '../../events/components/ShareEventModal'
 
 interface CompanyContainerProps {
   company: Company
@@ -71,6 +72,10 @@ export function CompanyContainer({
   // Form access levels - Story 2.9: Store access level for each form
   const [formAccessLevels, setFormAccessLevels] = useState<Record<number, string | null>>({})
   
+  // Share Event state - Story 2.10
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [eventToShare, setEventToShare] = useState<Event | null>(null)
+
   // Fetch events when expanded and company has events - Story 2.4
   // Only load events if this company matches the active company context from auth
   // Reload events when company changes, becomes active/expanded, or when auth context company changes
@@ -531,6 +536,15 @@ export function CompanyContainer({
                 const forms = eventForms[event.eventId] || []
                 const isLoadingEventForms = isLoadingForms[event.eventId] || false
                 
+                // Check if event is shared (owned by another company)
+                // We use userRole to determine specific permissions, but for high-level UI adjustments:
+                const isShared = event.companyId !== company.companyId
+                const ownerName = event.ownerCompany?.companyName
+                
+                // Permissions
+                const canEdit = event.userRole?.has_edit_event ?? !isShared
+                const canShare = event.userRole?.has_manage_participants ?? !isShared
+                
                 return (
                   <div key={event.eventId} className="bg-white rounded-lg border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all">
                     {/* Split Layout: Event Details (Left) | Forms List (Right) */}
@@ -553,9 +567,16 @@ export function CompanyContainer({
                                 <ChevronRight className="w-4 h-4" />
                               )}
                             </button>
-                            <h5 className="text-sm font-semibold text-gray-900 flex-1 line-clamp-2">
-                              {event.name}
-                            </h5>
+                            <div>
+                                <h5 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                                  {event.name}
+                                </h5>
+                                {isShared && ownerName && (
+                                    <span className="text-xs text-gray-500 font-normal block">
+                                        (Shared by: {ownerName})
+                                    </span>
+                                )}
+                            </div>
                             {event.eventStatus && (
                               <span
                                 className="text-xs px-2 py-1 rounded-full flex-shrink-0"
@@ -577,26 +598,42 @@ export function CompanyContainer({
                             )}
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            {/* Action Icons - Edit and Delete */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onEditEvent?.(event)
-                              }}
-                              className="p-1 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded transition-colors"
-                              title="Edit event"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
+                            {/* Action Icons - Edit, Share, Delete */}
+                            {canEdit && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onEditEvent?.(event)
+                                  }}
+                                  className="p-1 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded transition-colors"
+                                  title="Edit event"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                            {/* Share Button - Story 2.10: Only for admins or event owners */}
+                            {canShare && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setEventToShare(event)
+                                    setShowShareModal(true)
+                                  }}
+                                  className="p-1 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-colors"
+                                  title="Share event with agency"
+                                >
+                                  <Share2 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
                                 onDeleteEvent?.(event)
                               }}
-                              className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                              title="Delete event"
+                              className={`p-1 ${isShared ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50' : 'text-red-600 hover:text-red-700 hover:bg-red-50'} rounded transition-colors`}
+                              title={isShared ? "Leave Event" : "Delete event"}
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              {isShared ? <LogOut className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
                             </button>
                           </div>
                         </div>
@@ -904,6 +941,19 @@ export function CompanyContainer({
             <span>📭 No events yet. Create your first event!</span>
           </button>
         </div>
+      )}
+
+      {/* Share Event Modal - Story 2.10 */}
+      {eventToShare && (
+        <ShareEventModal
+          isOpen={showShareModal}
+          eventId={eventToShare.eventId}
+          eventName={eventToShare.name}
+          onClose={() => {
+            setShowShareModal(false)
+            setEventToShare(null)
+          }}
+        />
       )}
     </div>
   )

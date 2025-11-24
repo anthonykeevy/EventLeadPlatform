@@ -408,3 +408,27 @@ class DeleteEventResponse(BaseModel):
         }
 
 
+class ShareEventRequest(BaseModel):
+    """Request schema for sharing an event with another company"""
+    company_id: int = Field(..., description="Company ID to share with")
+    role_code: str = Field("agency_form_builder", description="Role to assign (default: agency_form_builder)")
+
+
+class ShareEventByEmailRequest(BaseModel):
+    """Request schema for sharing an event with a user via email"""
+    email: str = Field(..., description="Email address of the user to share with")
+    role_code: str = Field("agency_form_builder", description="Role to assign (default: agency_form_builder)")
+
+
+class ShareEventResponse(BaseModel):
+    """Response schema for sharing an event"""
+    success: bool
+    message: str
+    event_company_id: int
+    event_id: int
+    company_id: int
+    role: str
+    already_exists: bool
+
+
+

@@ -122,17 +122,30 @@ async def create_form(
         raise ValueError(f"Invalid company ID: {company_id}")
     
     # Validate event if provided (allow agency relationships)
+    form_company_id = company_id
     if form_data.get('event_id'):
         has_access = await _check_company_has_event_access(db, form_data['event_id'], company_id)
         
         if not has_access:
             raise ValueError(f"Invalid event ID or event does not belong to your company: {form_data['event_id']}")
+            
+        # Fix for agency-created forms: Ensure form is assigned to Event Owner Company
+        # Fetch event details
+        event = db.execute(
+            select(Event).where(Event.EventID == form_data['event_id'])
+        ).scalar_one_or_none()
+        
+        if event and event.CompanyID != company_id:
+            # Creating form for another company's event (Agency relationship)
+            # Force form ownership to Host Company as per Access Control Matrix Layer 3
+            logger.info(f"Agency user (Company {company_id}) creating form for Event {event.EventID} owned by Company {event.CompanyID}")
+            form_company_id = event.CompanyID
     
     # Create form object
     form = Form(
         FormName=form_data['form_name'],
         FormDescription=form_data.get('form_description'),
-        CompanyID=company_id,
+        CompanyID=form_company_id,
         EventID=form_data.get('event_id'),
         FormStatusID=form_data['form_status_id'],
         FormApprovalStatusID=form_data['form_approval_status_id'],
@@ -443,6 +456,13 @@ async def get_forms_by_event(
     Returns:
         List of Form objects for the event
     """
+    # Check if company owns the event
+    event_ownership = db.execute(
+        select(Event.CompanyID).where(Event.EventID == event_id)
+    ).scalar_one_or_none()
+    
+    is_owner = (event_ownership == company_id)
+
     # Check if company has agency relationship with event (agency_form_builder role)
     from models.event_company import EventCompany
     from models.ref.event_company_role import EventCompanyRole
@@ -467,7 +487,7 @@ async def get_forms_by_event(
             has_agency_access = True
             logger.info(f"Company {company_id} has agency_form_builder access to Event {event_id} - returning all forms")
     
-    # Build query - filter by company unless agency access
+    # Build query - filter by company unless agency access OR event owner
     query = select(Form).options(
         joinedload(Form.form_status),
         joinedload(Form.form_approval_status),
@@ -478,12 +498,12 @@ async def get_forms_by_event(
         Form.IsDeleted == False
     )
     
-    # Only filter by company if NOT agency access
-    if not has_agency_access:
+    # Only filter by company if NOT agency access AND NOT owner
+    if not has_agency_access and not is_owner:
         query = query.where(Form.CompanyID == company_id)
         logger.info(f"Filtering forms by CompanyID={company_id} for EventID={event_id}")
     else:
-        logger.info(f"Agency access detected - returning all forms for EventID={event_id} (not filtered by company)")
+        logger.info(f"Access granted (Owner={is_owner}, Agency={has_agency_access}) - returning all forms for EventID={event_id}")
     
     query = query.order_by(Form.CreatedDate.desc())
     
@@ -533,3 +553,134 @@ async def get_form_approval_statuses(db: Session) -> List[FormApprovalStatus]:
     
     return form_approval_statuses
 
+
+async def transfer_form_ownership(
+    db: Session,
+    from_user_id: int,
+    to_user_id: int,
+    company_id: int,
+    admin_user_id: int,
+    reason: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Transfer ownership of all forms from one user to another within the same company.
+    
+    Args:
+        db: Database session
+        from_user_id: User ID to transfer from
+        to_user_id: User ID to transfer to
+        company_id: Company ID
+        admin_user_id: Admin User ID performing the transfer
+        reason: Reason for transfer
+        
+    Returns:
+        Dictionary with transfer statistics
+        
+    Raises:
+        ValueError: If users not in company or invalid IDs
+    """
+    logger.info(f"Starting bulk form ownership transfer: From={from_user_id}, To={to_user_id}, Company={company_id}, Admin={admin_user_id}")
+    
+    # 1. Validate users exist and belong to the company
+    # We check 'Active' status for recipient, but sender might be inactive (off-boarding)
+    from models.user_company import UserCompany
+    from models.ref.user_company_status import UserCompanyStatus
+    
+    # Check recipient
+    recipient = db.execute(
+        select(UserCompany).join(UserCompanyStatus).where(
+            UserCompany.UserID == to_user_id,
+            UserCompany.CompanyID == company_id,
+            UserCompany.IsDeleted == False,
+            UserCompanyStatus.StatusCode == 'active'
+        )
+    ).scalar_one_or_none()
+    
+    if not recipient:
+        raise ValueError(f"Recipient user {to_user_id} is not an active member of company {company_id}")
+        
+    # Check sender (just needs to exist in company history)
+    sender = db.execute(
+        select(UserCompany).where(
+            UserCompany.UserID == from_user_id,
+            UserCompany.CompanyID == company_id
+        )
+    ).scalar_one_or_none()
+    
+    if not sender:
+        raise ValueError(f"Sender user {from_user_id} is not associated with company {company_id}")
+        
+    # 2. Find forms eligible for transfer
+    # Criteria:
+    # A. Form is owned by the sender
+    # AND
+    # B. (Form belongs to the target company OR Form belongs to an Event owned by the target company)
+    # This handles both internal transfers (employee off-boarding) and agency handovers.
+    
+    forms = db.execute(
+        select(Form)
+        .join(Event, Form.EventID == Event.EventID, isouter=True)
+        .where(
+            Form.CreatedBy == from_user_id,
+            Form.IsDeleted == False,
+            or_(
+                Form.CompanyID == company_id,
+                Event.CompanyID == company_id
+            )
+        )
+    ).scalars().all()
+    
+    if not forms:
+        logger.info(f"No eligible forms found for user {from_user_id} transfer to company {company_id}")
+        return {
+            "forms_transferred": 0,
+            "access_controls_transferred": 0
+        }
+        
+    # 3. Update ownership
+    forms_count = 0
+    for form in forms:
+        # Update creator/owner
+        # Note: CreatedBy is the owner. UpdatedBy records who did the transfer.
+        # CRITICAL: Also update CompanyID to ensure the target company owns the form now
+        old_company_id = form.CompanyID
+        
+        form.CreatedBy = to_user_id
+        form.UpdatedBy = admin_user_id
+        form.CompanyID = company_id
+        form.UpdatedDate = datetime.utcnow()
+        forms_count += 1
+        
+        # Log activity
+        try:
+            activity_log = ActivityLog(
+                UserID=admin_user_id,
+                CompanyID=company_id,
+                Action="form.ownership_transferred",
+                EntityType="Form",
+                EntityID=form.FormID,
+                OldValue=f"Owner: {from_user_id}, Company: {old_company_id}",
+                NewValue=f"Owner: {to_user_id}, Company: {company_id}",
+                Comments=f"Bulk transfer: {reason}" if reason else "Bulk transfer",
+                CreatedDate=datetime.utcnow()
+            )
+            db.add(activity_log)
+        except Exception as e:
+            logger.warning(f"Failed to log audit for form {form.FormID}: {e}")
+
+    # 4. Update FormAccessControl (if any specific grants exist for the sender)
+    # If sender had specific access to other forms, we might want to transfer that too.
+    # But the requirement usually focuses on OWNERSHIP of created forms.
+    # Let's stick to ownership transfer as per story description "Transferring all forms from one user to another".
+    
+    # However, if there are access controls GRANTED by the sender, they remain valid (granted by ID X).
+    # We don't necessarily need to change 'GrantedBy' unless required.
+    
+    db.flush()
+    
+    logger.info(f"Transferred {forms_count} forms from User {from_user_id} to User {to_user_id}")
+    
+    return {
+        "forms_transferred": forms_count,
+        "access_controls_transferred": 0 # Placeholder if we implement access transfer later
+    }

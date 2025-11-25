@@ -62,7 +62,9 @@ function transformForm(backend: any): Form {
       ? transformFormApprovalStatus(backend.form_approval_status ?? backend.formApprovalStatus ?? backend.FormApprovalStatus)
       : null,
     isPublic: backend.is_public ?? backend.isPublic ?? backend.IsPublic ?? false,
-    deploymentCost: backend.deployment_cost ?? backend.deploymentCost ?? backend.DeploymentCost ?? null,
+    deploymentCost: (backend.deployment_cost ?? backend.deploymentCost ?? backend.DeploymentCost) !== null 
+      ? Number(backend.deployment_cost ?? backend.deploymentCost ?? backend.DeploymentCost)
+      : null,
     totalSubmissions: backend.total_submissions ?? backend.totalSubmissions ?? backend.TotalSubmissions ?? 0,
     demoLeadsCollected: backend.demo_leads_collected ?? backend.demoLeadsCollected ?? backend.DemoLeadsCollected ?? 0,
     productionLeadsCollected: backend.production_leads_collected ?? backend.productionLeadsCollected ?? backend.ProductionLeadsCollected ?? 0,
@@ -215,6 +217,57 @@ export async function getFormsByEvent(eventId: number): Promise<FormListResponse
       total: response.data.total ?? 0,
       page: response.data.page ?? 1,
       pageSize: response.data.page_size ?? response.data.pageSize ?? 20,
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+/**
+ * Submit a form for approval
+ */
+export async function submitFormForApproval(formId: number): Promise<UpdateFormResponse> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/submit`)
+    return {
+      success: response.data.success ?? true,
+      message: response.data.message ?? 'Form submitted for approval',
+      formId: response.data.formId ?? formId,
+      form: transformForm(response.data.form ?? response.data),
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+/**
+ * Approve a pending form
+ */
+export async function approveForm(formId: number): Promise<UpdateFormResponse> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/approve`)
+    return {
+      success: response.data.success ?? true,
+      message: response.data.message ?? 'Form approved',
+      formId: response.data.formId ?? formId,
+      form: transformForm(response.data.form ?? response.data),
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+/**
+ * Reject a pending form
+ */
+export async function rejectForm(formId: number, reason: string): Promise<UpdateFormResponse> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/reject`, { reason })
+    return {
+      success: response.data.success ?? true,
+      message: response.data.message ?? 'Form rejected',
+      formId: response.data.formId ?? formId,
+      form: transformForm(response.data.form ?? response.data),
     }
   } catch (error) {
     throw formatError(error)

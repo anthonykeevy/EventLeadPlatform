@@ -22,7 +22,8 @@ from .schemas import (
     FormStatusResponse,
     FormApprovalStatusResponse,
     TransferFormOwnershipRequest,
-    TransferFormOwnershipResponse
+    TransferFormOwnershipResponse,
+    RejectFormRequest
 )
 from .service import (
     create_form,
@@ -35,6 +36,7 @@ from .service import (
     get_form_approval_statuses,
     transfer_form_ownership
 )
+from .approval_service import ApprovalService
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -541,6 +543,138 @@ async def get_forms_for_event(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch forms for event"
         )
+
+
+@router.post(
+    "/{form_id}/submit",
+    response_model=UpdateFormResponse,
+    summary="Submit form for approval",
+    description="Submit a form for approval (triggers PENDING status if cost > threshold)"
+)
+async def submit_form_for_approval(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> UpdateFormResponse:
+    """
+    Submit form for approval (AC-2.11.2).
+    """
+    try:
+        service = ApprovalService(db)
+        form = await service.submit_for_approval(
+            form_id=form_id,
+            user_id=current_user.user_id,
+            company_id=current_user.company_id
+        )
+        
+        db.commit()
+        
+        # Convert to response model
+        form_response = _form_to_response(form)
+        
+        return UpdateFormResponse(
+            success=True,
+            message="Form submitted for approval",
+            formId=form.FormID,
+            form=form_response
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid submit request: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error submitting form: {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to submit form")
+
+
+@router.post(
+    "/{form_id}/approve",
+    response_model=UpdateFormResponse,
+    summary="Approve form",
+    description="Approve a pending form (Admin only)"
+)
+async def approve_form_request(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> UpdateFormResponse:
+    """
+    Approve a pending form (AC-2.11.3).
+    """
+    try:
+        service = ApprovalService(db)
+        form = await service.approve_form(
+            form_id=form_id,
+            admin_user_id=current_user.user_id,
+            company_id=current_user.company_id
+        )
+        
+        db.commit()
+        
+        form_response = _form_to_response(form)
+        
+        return UpdateFormResponse(
+            success=True,
+            message="Form approved",
+            formId=form.FormID,
+            form=form_response
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid approve request: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error approving form: {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to approve form")
+
+
+@router.post(
+    "/{form_id}/reject",
+    response_model=UpdateFormResponse,
+    summary="Reject form",
+    description="Reject a pending form (Admin only)"
+)
+async def reject_form_request(
+    form_id: int,
+    request: RejectFormRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> UpdateFormResponse:
+    """
+    Reject a pending form (AC-2.11.4).
+    """
+    try:
+        service = ApprovalService(db)
+        form = await service.reject_form(
+            form_id=form_id,
+            admin_user_id=current_user.user_id,
+            company_id=current_user.company_id,
+            reason=request.reason
+        )
+        
+        db.commit()
+        
+        form_response = _form_to_response(form)
+        
+        return UpdateFormResponse(
+            success=True,
+            message="Form rejected",
+            formId=form.FormID,
+            form=form_response
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid reject request: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error rejecting form: {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to reject form")
 
 
 # =====================================================================

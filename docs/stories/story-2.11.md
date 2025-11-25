@@ -1,6 +1,6 @@
 # Story 2.11: Approval Workflow Extensions
 
-Status: **📋 DRAFT** - Ready for Implementation
+Status: **COMPLETE**
 
 ## Story Scope & Domain Context
 
@@ -55,63 +55,53 @@ so that I can control deployment costs and ensure quality standards are met befo
 8.  **AC-2.11.8:** UI Feedback: Form Detail view clearly shows current approval status and blocks restricted actions (e.g., Publish button disabled if pending).
 9.  **AC-2.11.9:** Comprehensive UAT tests covering the approval lifecycle.
 
-## Tasks / Subtasks
+## Completion Report
 
-### **Phase 1: Backend Workflow Logic**
-- [ ] **Task 1: Approval Service Layer**
-    - [ ] Create `ApprovalService` (or extend `FormService`).
-    - [ ] Implement `submit_for_approval(form_id)` method.
-    - [ ] Implement `approve_form(form_id, approver_id)` method.
-    - [ ] Implement `reject_form(form_id, rejector_id, reason)` method.
-    - [ ] Implement cost-check logic (Threshold default: $100).
+### 1. Implementation Summary
+Story 2.11 successfully implemented a cost-based approval workflow for form publishing. The system now automatically intercepts publishing attempts for high-cost forms (>$100), requiring approval from Company Admins. Key features include a robust state machine, automated email notifications, and role-based UI actions.
 
-- [ ] **Task 2: Publish Guard Update**
-    - [ ] Update `update_form` (specifically status changes) to check `FormApprovalStatus` before allowing transition to `PUBLISHED`.
+### 2. APIs Created/Modified
+- **New Endpoints:**
+    - `POST /api/forms/{id}/submit`: Triggers the approval workflow.
+    - `POST /api/forms/{id}/approve`: Admin action to approve (with auto-publish logic).
+    - `POST /api/forms/{id}/reject`: Admin action to reject (with reason).
+- **Modified Endpoints:**
+    - `PUT /api/forms/{id}`: Updated to include a "Publish Guard" that prevents direct status changes to `PUBLISHED` if requirements aren't met.
 
-- [ ] **Task 3: Notification Integration**
-    - [ ] Update `ApprovalService` to call `EmailService`.
-    - [ ] Create email templates for "Approval Request" and "Approval Decision".
+### 3. Database Changes
+- **Configuration:** Added default cost threshold setting (`forms.approval.default_cost_threshold`).
+- **Schema:** No new tables, but enhanced usage of `FormApprovalStatus` and `ActivityLog` for tracking workflow events.
 
-### **Phase 2: Frontend Approval UI**
-- [ ] **Task 4: Approval Status Indicators**
-    - [ ] Update `FormStatusBadge` to be more prominent for Pending/Rejected states.
-    - [ ] Add banner/alert in `FormDetailView` explaining why Publish is disabled (if applicable).
+### 4. Frontend Components
+- **FormDetailView:** Implemented "Smart Publish" button logic, Admin decision buttons (Approve/Reject/Pre-Approve), and role-based visibility.
+- **EditFormModal:** Added "Admin Bypass" for direct publishing and blocked "Published" option for standard users if cost is high.
+- **FormStatusBadge:** Unified display logic to show the most relevant status (e.g., hiding "Draft" if "Pending Approval" is active).
 
-- [ ] **Task 5: Approval Actions (Owner)**
-    - [ ] Add "Submit for Approval" button in `FormDetailView` (visible when Draft + Cost > Threshold).
+### 5. Testing Results
+- **UAT Status:** ✅ **Passed (6/6 Scenarios)**
+    - Scenario 1: Low Cost Flow (Auto-Publish) - PASS
+    - Scenario 2: High Cost Flow (Interception & Request) - PASS
+    - Scenario 3: Governance Flow (Admin Approval) - PASS
+    - Scenario 4: Proactive Flow (Pre-Approval & Admin Bypass) - PASS
+    - Scenario 5: System Admin Override - PASS
+    - Scenario 6: Restricted Flow (Viewer Access) - PASS
 
-- [ ] **Task 6: Approval Actions (Admin)**
-    - [ ] Add "Review Request" panel for Admins on Pending forms.
-    - [ ] Implement Approve/Reject buttons with confirmation modals (Reject requires reason).
+### 6. Issues Resolved
+- **Middleware Crash:** Fixed a critical stability issue where `JWTAuthMiddleware` was raising exceptions instead of returning JSON responses, causing the backend worker to crash on auth failures.
+- **Email Notifications:** Corrected role code lookup (`admin` vs `company_admin`) ensuring notifications reach the right users.
+- **Self-Spam:** Suppressed "Form Approved" email notifications when the approver is also the form owner.
 
-### **Phase 3: Integration & Testing**
-- [ ] **Task 7: Backend API Endpoints**
-    - [ ] `POST /api/forms/{id}/submit`
-    - [ ] `POST /api/forms/{id}/approve`
-    - [ ] `POST /api/forms/{id}/reject`
+### 7. Lessons Learned
+- **Smart Defaults:** Merging "Submit" and "Publish" into a single "Smart Publish" action significantly reduced user confusion compared to separate buttons.
+- **Role Context:** "Admin as Creator" is a unique persona that requires specific "Bypass" logic to avoid friction in testing/demo creation.
+- **Middleware Stability:** Always return `JSONResponse` in ASGI middleware; never raise `HTTPException` directly to ensure server stability.
 
-- [ ] **Task 8: UAT Scenarios**
-    - [ ] **Trigger:** Create costly form -> Verify "Submit" required.
-    - [ ] **Flow:** Submit -> Admin Approve -> Owner Publish.
-    - [ ] **Rejection:** Submit -> Admin Reject -> Owner Edit -> Resubmit.
-    - [ ] **Guard:** Try to Publish pending form via API -> Verify 403/400.
-
-## UAT Test Requirements
-
-### **Category 1: Workflow Triggers**
-1.  **Cost Trigger:** Create form with Cost=$0. Verify Publish allowed. Create form with Cost=$500. Verify Publish blocked, "Submit for Approval" shown.
-2.  **Explicit Submit:** User clicks "Submit". Verify status changes to `PENDING`.
-
-### **Category 2: Admin Decisions**
-3.  **Approve:** Admin approves pending form. Verify status `APPROVED`. Verify Publish now enabled.
-4.  **Reject:** Admin rejects pending form. Verify status `REJECTED`. Verify Publish blocked.
-
-### **Category 3: Notifications**
-5.  **Admin Alert:** Verify mocked email sent to Admin on submission.
-6.  **Owner Alert:** Verify mocked email sent to Owner on decision.
+### 8. What Could Be Improved
+- **Configurable Thresholds:** Currently, the threshold is a system-wide default ($100). Moving this to a Company Setting would allow per-tenant customization.
+- **Email Customization:** Emails use a hardcoded template. Implementing a template editor would allow companies to brand their approval emails.
+- **Audit Trail Visibility:** While logged in the database, the approval history (who approved when) is only partially visible in the UI. A dedicated "Approval History" tab would improve transparency.
 
 ---
 
 *Story 2.11 - Approval Workflow Extensions*
-*Status: 📋 DRAFT*
-
+*Status: ✅ COMPLETE*

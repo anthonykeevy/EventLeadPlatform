@@ -46,21 +46,57 @@ export function FormStatusBadge({ status, approvalStatus }: FormStatusBadgeProps
 
   return (
     <div className="flex flex-col gap-1 items-end">
-      {status && (
-        <span
-          className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(status.statusCode)}`}
-          style={status.statusColor ? { backgroundColor: status.statusColor + '20', color: status.statusColor } : undefined}
-        >
-          {status.statusName}
-        </span>
-      )}
-      {approvalStatus && approvalStatus.approvalStatusCode !== 'NO_APPROVAL' && (
-        <span
-          className={`px-2 py-1 text-xs font-medium rounded-full ${getApprovalColor(approvalStatus.approvalStatusCode)}`}
-        >
-          {approvalStatus.approvalStatusName}
-        </span>
-      )}
+      {/* 
+        Smart Status Display Logic:
+        1. If Pending Approval -> Show "Pending Approval" (Orange) - Hide Draft
+        2. If Rejected -> Show "Rejected" (Red) - Hide Draft
+        3. If Approved but Draft -> Show "Ready to Publish" (Blue/Green) - Hide Draft
+        4. Else -> Show Form Status (Draft, Published, Archived)
+      */}
+      
+      {(() => {
+        // Priority 1: Pending Approval
+        if (approvalStatus?.approvalStatusCode?.toUpperCase() === 'PENDING') {
+          return (
+            <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+              Pending Approval
+            </span>
+          )
+        }
+
+        // Priority 2: Rejected
+        if (approvalStatus?.approvalStatusCode?.toUpperCase() === 'REJECTED') {
+          return (
+            <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+              Rejected
+            </span>
+          )
+        }
+
+        // Priority 3: Approved but not yet Published (Pre-approved)
+        // Case-insensitive check to ensure we catch the pre-approval state
+        if (approvalStatus?.approvalStatusCode?.toUpperCase() === 'APPROVED' && status?.statusCode?.toUpperCase() === 'DRAFT') {
+          return (
+            <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+              Ready to Publish
+            </span>
+          )
+        }
+
+        // Priority 4: Default Form Status (Published, Archived, or Draft with No Approval needed)
+        if (status) {
+          return (
+            <span
+              className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(status.statusCode)}`}
+              style={status.statusColor ? { backgroundColor: status.statusColor + '20', color: status.statusColor } : undefined}
+            >
+              {status.statusName}
+            </span>
+          )
+        }
+
+        return null
+      })()}
     </div>
   )
 }

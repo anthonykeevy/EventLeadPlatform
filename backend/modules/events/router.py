@@ -52,7 +52,6 @@ from .inference_service import (
     get_recent_event_cities
 )
 from common.logger import get_logger
-from services.email_service import get_email_service
 from fastapi import BackgroundTasks
 
 logger = get_logger(__name__)
@@ -324,10 +323,10 @@ async def list_company_events(
         
         # Ensure company context exists (required for all roles now)
         if not current_user.company_id:
-             if current_user.role == "system_admin":
-                 logger.warning("System Admin listing events without company context - returning empty list until global view is implemented")
-                 return EventListResponse(events=[], total=0, page=page, page_size=page_size)
-             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Company context required")
+            if current_user.role == "system_admin":
+                logger.warning("System Admin listing events without company context - returning empty list until global view is implemented")
+                return EventListResponse(events=[], total=0, page=page, page_size=page_size)
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Company context required")
         
         # Regular users AND System Admins (in company context): Get events from BOTH sources:
         # 1. Events from EventCompany relationships (includes participant events)
@@ -1218,25 +1217,61 @@ async def share_event_by_email(
                  event_details = db.get(Event, event_id)
 
             if event_details:
-                email_service = get_email_service()
+                from common.email import EmailService
+                email_service = EmailService()
                 # Use FRONTEND_URL from env, defaulting to localhost:3000 if not set
                 import os
                 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
                 event_url = f"{frontend_url}/dashboard/events" # Direct deep link if supported, else list
                 
+                # Render email template
+                template_vars = {
+                    "recipient_name": target_user.FirstName,
+                    "inviter_name": f"{inviter.FirstName} {inviter.LastName}" if inviter else "An administrator",
+                    "inviter_company_name": inviter_company.CompanyName if inviter_company else "Host Company",
+                    "event_name": event_details.Name,
+                    "role_name": "Agency Form Builder" if request.role_code == "agency_form_builder" else request.role_code,
+                    "event_url": event_url
+                }
+                
+                # Render template to HTML
+                html_content = None
+                if email_service.jinja_env:
+                    try:
+                        template = email_service.jinja_env.get_template("emails/event_shared.html")
+                        html_content = template.render(**template_vars)
+                    except Exception as template_err:
+                        logger.error(f"Failed to render email template: {str(template_err)}")
+                        # Fallback to simple HTML
+                        html_content = f"""
+                        <html>
+                        <body>
+                            <h2>Access Granted: {event_details.Name}</h2>
+                            <p>Hi {target_user.FirstName},</p>
+                            <p><strong>{template_vars['inviter_name']}</strong> from <strong>{template_vars['inviter_company_name']}</strong> has shared the event <strong>"{event_details.Name}"</strong> with you.</p>
+                            <p>You can access the event at: <a href="{event_url}">View Event</a></p>
+                        </body>
+                        </html>
+                        """
+                else:
+                    # Fallback if Jinja2 not available
+                    html_content = f"""
+                    <html>
+                    <body>
+                        <h2>Access Granted: {event_details.Name}</h2>
+                        <p>Hi {target_user.FirstName},</p>
+                        <p><strong>{template_vars['inviter_name']}</strong> from <strong>{template_vars['inviter_company_name']}</strong> has shared the event <strong>"{event_details.Name}"</strong> with you.</p>
+                        <p>You can access the event at: <a href="{event_url}">View Event</a></p>
+                    </body>
+                    </html>
+                    """
+                
+                # Send email using send_notification_email
                 background_tasks.add_task(
-                    email_service.send_email,
-                    to=str(target_user.Email),
+                    email_service.send_notification_email,
+                    email=str(target_user.Email),
                     subject=f"Access Granted: {event_details.Name} - EventLead Platform",
-                    template_name="event_shared",
-                    template_vars={
-                        "recipient_name": target_user.FirstName,
-                        "inviter_name": f"{inviter.FirstName} {inviter.LastName}" if inviter else "An administrator",
-                        "inviter_company_name": inviter_company.CompanyName if inviter_company else "Host Company",
-                        "event_name": event_details.Name,
-                        "role_name": "Agency Form Builder" if request.role_code == "agency_form_builder" else request.role_code,
-                        "event_url": event_url
-                    }
+                    html_content=html_content
                 )
                 logger.info(f"Queued share notification email to {target_user.Email}")
         except Exception as email_err:

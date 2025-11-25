@@ -440,6 +440,24 @@ class ConfigurationService:
     
     
     # ========================================================================
+    # FORM APPROVAL CONFIGURATION (Epic 2 Story 2.11)
+    # ========================================================================
+    
+    def get_approval_cost_threshold(self) -> float:
+        """
+        Get default cost threshold for form approval.
+        
+        Returns:
+            Cost threshold (default: 100.0)
+        """
+        return self.get_setting(
+            'forms.approval.default_cost_threshold',
+            100.0,
+            'forms'
+        )
+
+    
+    # ========================================================================
     # ADMIN METHODS (Story 1.13 Task 9)
     # ========================================================================
     

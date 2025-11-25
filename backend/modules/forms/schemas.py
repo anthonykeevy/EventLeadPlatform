@@ -124,6 +124,14 @@ class TransferFormOwnershipRequest(BaseModel):
         populate_by_name = True
 
 
+class RejectFormRequest(BaseModel):
+    """Schema for rejecting a form"""
+    reason: str = Field(..., min_length=1, max_length=500, alias="reason")
+    
+    class Config:
+        populate_by_name = True
+
+
 class TransferFormOwnershipResponse(BaseModel):
     """Response for bulk transfer of form ownership"""
     success: bool = Field(..., alias="success")

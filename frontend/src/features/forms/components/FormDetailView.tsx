@@ -4,12 +4,14 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, BarChart3, Shield } from 'lucide-react'
+import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
 import { checkFormAccess } from '../api/formAccessApi'
+import { submitFormForApproval, approveForm, rejectForm, updateForm } from '../api/formsApi'
 import { AccessCheckResponse } from '../types/form-access.types'
+import { useAuth } from '../../auth/context/AuthContext'
 
 interface FormDetailViewProps {
   form: Form | null
@@ -19,9 +21,11 @@ interface FormDetailViewProps {
 }
 
 export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailViewProps) {
+  const { user } = useAuth()
   const [userAccess, setUserAccess] = useState<AccessCheckResponse | null>(null)
   const [isLoadingAccess, setIsLoadingAccess] = useState(false)
   const [showAccessControl, setShowAccessControl] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
     if (form) {
@@ -42,11 +46,158 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
     }
   }
 
+  const handleSubmitForApproval = async () => {
+    if (!form) return
+    
+    // Smart Publish / Interception Logic
+    const threshold = 100
+    const currentCost = form.deploymentCost || 0
+    
+    if (currentCost > threshold) {
+        // Admin Bypass Logic
+        if (isCompanyAdmin) {
+             if (!confirm(`Warning: This form exceeds the deployment cost threshold ($${currentCost}).\n\nAs an Administrator, you can publish this immediately without approval.\n\nProceed to Publish?`)) {
+                return
+             }
+             
+             try {
+                setIsProcessing(true)
+                // 1. Pre-approve (sets status to APPROVED)
+                await approveForm(form.formId)
+                // 2. Publish (sets status to PUBLISHED)
+                // Note: updateForm will pass the guard because approval status is now APPROVED
+                await updateForm(form.formId, { formStatusId: 3 }) 
+                alert('Form Published Successfully')
+                onClose()
+                window.location.reload()
+             } catch (err) {
+                 console.error(err)
+                 alert('Failed to publish form')
+             } finally {
+                 setIsProcessing(false)
+             }
+             return
+        }
+
+        // Standard User Logic
+        if (!confirm(`Form requires approval based on your company's policy and will be sent to Company Admins for approval.\n\nSend Request?`)) {
+            return
+        }
+        
+        try {
+          setIsProcessing(true)
+          await submitFormForApproval(form.formId)
+          alert('Request sent to Company Admins')
+          onClose() 
+        } catch (err) {
+          console.error('Failed to submit:', err)
+          alert('Failed to submit form')
+        } finally {
+          setIsProcessing(false)
+        }
+    } else {
+        // Low cost form - Auto-publish
+        if (!confirm('Publish this form?')) return
+        
+        try {
+          setIsProcessing(true)
+          // ID 3 = PUBLISHED (based on seed data)
+          await updateForm(form.formId, { formStatusId: 3 })
+          alert('Form published')
+          onClose()
+          window.location.reload()
+        } catch (err) {
+           console.error('Failed to publish:', err)
+           alert('Failed to publish form')
+        } finally {
+           setIsProcessing(false)
+        }
+    }
+  }
+
+  const handleApprove = async () => {
+    if (!form) return
+    if (!confirm('Approve this form?')) return
+
+    try {
+      setIsProcessing(true)
+      await approveForm(form.formId)
+      alert('Form approved')
+      // Force a reload of the dashboard/list if possible, or assume onClose will trigger refetch in parent
+      // Since we can't control parent refetch easily without context, ensure parent handles onClose by refetching.
+      onClose()
+      // Optional: reload page if simple
+      window.location.reload() 
+    } catch (err) {
+      console.error('Failed to approve:', err)
+      alert('Failed to approve form')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleReject = async () => {
+    if (!form) return
+    const reason = prompt('Enter rejection reason:')
+    if (!reason) return
+
+    try {
+      setIsProcessing(true)
+      await rejectForm(form.formId, reason)
+      alert('Form rejected')
+      onClose()
+    } catch (err) {
+      console.error('Failed to reject:', err)
+      alert('Failed to reject form')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   if (!form) return null
+
+  // Determine if user is Admin (Company Admin or System Admin)
+  const isCompanyAdmin = user?.role === 'company_admin' || user?.role === 'system_admin'
 
   const canManage = userAccess?.accessLevel === 'MANAGE'
   const canEdit = canManage || userAccess?.accessLevel === 'EDIT'
   const canView = userAccess?.hasAccess || canEdit || canManage
+
+  // Approval Logic
+  const cost = form.deploymentCost || 0
+  const isPending = form.formApprovalStatus?.approvalStatusCode === 'PENDING'
+  const isNoApproval = form.formApprovalStatus?.approvalStatusCode === 'NO_APPROVAL' || !form.formApprovalStatus
+  const isRejected = form.formApprovalStatus?.approvalStatusCode === 'REJECTED'
+  
+  // Show Submit if: Can Edit AND (No Approval OR Rejected) AND Cost > 100
+  // Note: Now mostly handled by auto-trigger on Publish attempt, but keeping explicit submit 
+  // for manual workflow if draft status persists or retry needed.
+  // Updated requirement: Button should be "Publish" which triggers check, but Detail view 
+  // often shows "Submit" as specific action for Drafts.
+  // Let's align with Smart Publish: Detail View shouldn't show "Submit" separately if we want 
+  // user to click "Publish" to trigger it. 
+  // However, we agreed to replace "Submit" with "Publish" logic or keep Submit if blocked.
+  // In DetailView, we usually just show actions. 
+  // Let's HIDE explicit "Submit for Approval" button and rely on "Publish" action (if we added one here)
+  // OR keep "Submit for Approval" as the fallback manual way if auto-trigger failed or for re-submission.
+  // Actually, Scenario 2.4 says: "Publish button is disabled/hidden" -> "Submit" is shown?
+  // No, Scenario 2.2 says User clicks "Publish". 
+  // If DetailView doesn't have a "Publish" button (it has Edit/Delete), then where do they Publish?
+  // Usually Publish is an Edit action (changing status).
+  // BUT, high cost forms MIGHT need a dedicated "Submit" button if they can't change status in Edit.
+  
+  // Let's stick to the "Smart Publish" flow where changing status triggers it.
+  // BUT we need a way to trigger it from Detail View if Edit is blocked.
+  // Let's show a "Publish" button here for Owners that triggers the check.
+  
+  // Show "Publish" (Request Approval) if: Draft/Rejected, Cost > 100, Can Edit
+  const showSmartPublish = canEdit && (isNoApproval || isRejected) && cost > 100
+  
+  // Show Approve/Reject ONLY if: User is Admin AND Form is Pending
+  // PRE-APPROVAL: Also show if Draft (No Approval) AND Cost > 100 (Scenario 4)
+  // HIDE if current user is the owner (Self-approval handled via Publish)
+  const isOwner = user?.id === form.createdBy
+  const showDecision = isCompanyAdmin && !isOwner && (isPending || (isNoApproval && cost > 100))
 
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'Never'
@@ -186,7 +337,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                   {form.deploymentCost !== null && (
                     <div>
                       <span className="font-medium text-gray-700">Deployment Cost:</span>{' '}
-                      <span className="text-gray-600">${form.deploymentCost.toFixed(2)}</span>
+                      <span className="text-gray-600">${Number(form.deploymentCost).toFixed(2)}</span>
                     </div>
                   )}
                   {form.formThumbnailUrl && (
@@ -266,6 +417,45 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           >
             Close
           </button>
+          
+          {/* Smart Publish Button (Replaces manual Submit) */}
+          {showSmartPublish && (
+             <button
+               onClick={handleSubmitForApproval}
+               disabled={isProcessing}
+               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-2"
+             >
+               <Send className="w-4 h-4" />
+               {isCompanyAdmin ? 'Publish' : 'Publish (Request Approval)'}
+             </button>
+          )}
+          
+          {/* Admin Decisions */}
+          {showDecision && (
+            <>
+              {/* Only show Reject if it's actually pending or previously approved? No, only pending. */}
+              {isPending && (
+                  <button
+                    onClick={handleReject}
+                    disabled={isProcessing}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Reject
+                  </button>
+              )}
+              
+              <button
+                onClick={handleApprove}
+                disabled={isProcessing}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                {isPending ? 'Approve & Publish' : 'Pre-Approve'}
+              </button>
+            </>
+          )}
+
           {canEdit && (
             <button
               onClick={() => onEdit(form)}

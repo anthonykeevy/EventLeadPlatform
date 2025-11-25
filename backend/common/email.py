@@ -162,6 +162,32 @@ class EmailService:
         except Exception as e:
             logger.error(f"Failed to send password reset email to {email}: {str(e)}")
             return False
+
+    async def send_notification_email(self, email: str, subject: str, html_content: str) -> bool:
+        """
+        Send a generic notification email.
+        
+        Args:
+            email: Recipient email
+            subject: Email subject
+            html_content: HTML body content
+            
+        Returns:
+            bool: True if sent successfully
+        """
+        try:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = f"{self.from_name} <{self.from_email}>"
+            msg["To"] = email
+            
+            html_part = MIMEText(html_content, "html")
+            msg.attach(html_part)
+            
+            return await self._send_email(msg, email)
+        except Exception as e:
+            logger.error(f"Failed to send notification email to {email}: {str(e)}")
+            return False
     
     async def _send_email(self, msg: MIMEMultipart, to_email: str) -> bool:
         """

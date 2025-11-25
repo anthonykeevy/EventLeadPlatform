@@ -17,6 +17,7 @@ from models.event import Event
 from models.audit.activity_log import ActivityLog
 from .access_control_service import get_user_accessible_forms, check_user_access, get_user_access_level
 from .access_guard import check_form_access_guard
+from .approval_service import ApprovalService
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -317,7 +318,53 @@ async def update_form(
         
         if not form_status:
             raise ValueError(f"Invalid form status ID: {form_data['form_status_id']}")
-    
+
+        # Publish Guard (Story 2.11)
+        # If trying to set status to PUBLISHED, check approval
+        if form_status.StatusCode == 'PUBLISHED':
+            # Check if changing TO published (or already published and updating something else? 
+            # Guard should probably run if status is being set to PUBLISHED, even if already published? 
+            # No, only if transitioning or valid check.
+            # If already published, cost check might not be needed or logic is different.
+            # Let's assume if we are setting it to PUBLISHED, we must pass the guard.
+            approval_service = ApprovalService(db)
+            # We need to check against the NEW cost if provided, else old cost
+            # Construct a temporary form object or update the attributes on the instance temporarily?
+            # Or just pass the form and handle the potential new cost.
+            # ApprovalService.check_publish_guard uses form.DeploymentCost.
+            # We should update the form object's cost first if it's changing, OR handle it manually.
+            
+            # Let's update the form object with new values BEFORE check, but don't commit yet.
+            # We already have 'form' object attached to session.
+            temp_cost = form_data.get('deployment_cost', form.DeploymentCost)
+            
+            # We need to be careful not to persist partial updates if validation fails.
+            # But check_publish_guard reads from the form object. 
+            # Let's temporarily set the cost on the object, check, and if fail, rollback/error.
+            # Actually, we haven't applied changes yet in this function.
+            
+            # Let's modify check_publish_guard to accept optional cost override?
+            # Or just manually check here.
+            
+            # Re-implementing check here to avoid modifying ApprovalService interface for now
+            from common.config_service import ConfigurationService
+            config_service = ConfigurationService(db)
+            threshold = config_service.get_approval_cost_threshold()
+            cost = temp_cost or 0
+            
+            if cost > threshold:
+                # Check approval status
+                # If approval status is ALSO being updated, use that.
+                new_approval_status_id = form_data.get('form_approval_status_id', form.FormApprovalStatusID)
+                
+                # Get status code for this ID
+                approval_status_row = db.execute(
+                    select(FormApprovalStatus).where(FormApprovalStatus.FormApprovalStatusID == new_approval_status_id)
+                ).scalar_one_or_none()
+                
+                if not approval_status_row or approval_status_row.ApprovalStatusCode != 'APPROVED':
+                     raise ValueError(f"Form requires approval (Cost ${cost} > ${threshold}) before publishing.")
+
     # Validate form approval status if provided
     if form_data.get('form_approval_status_id'):
         form_approval_status = db.execute(

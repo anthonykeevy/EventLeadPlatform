@@ -26,9 +26,9 @@ export function CreateFormModal({ isOpen, eventId, userRole = 'Company User', on
     eventId: eventId || null,
     // Defaults set automatically:
     // Form Status: Always Draft (ID 1)
-    // Approval Status: No Approval Required (ID 1) if Company Admin, Pending Approval (ID 2) if Company User
+    // Approval Status: Always No Approval Required (ID 1) - Logic handles transition to Pending later if needed
     formStatusId: 1, // Draft
-    formApprovalStatusId: userRole === 'Company Admin' ? 1 : 2, // No Approval Required : Pending Approval
+    formApprovalStatusId: 1, // No Approval Required
   })
   
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -42,7 +42,7 @@ export function CreateFormModal({ isOpen, eventId, userRole = 'Company User', on
       setFormData(prev => ({ 
         ...prev, 
         eventId,
-        formApprovalStatusId: userRole === 'Company Admin' ? 1 : 2
+        formApprovalStatusId: 1
       }))
     }
   }, [eventId, userRole])
@@ -55,7 +55,7 @@ export function CreateFormModal({ isOpen, eventId, userRole = 'Company User', on
         formDescription: null,
         eventId: eventId || null,
         formStatusId: 1, // Draft
-        formApprovalStatusId: userRole === 'Company Admin' ? 1 : 2, // No Approval Required : Pending Approval
+        formApprovalStatusId: 1, // No Approval Required
       })
       setErrors({})
     }
@@ -72,6 +72,9 @@ export function CreateFormModal({ isOpen, eventId, userRole = 'Company User', on
     }
     if (!formData.eventId || formData.eventId === 0) {
       newErrors.eventId = 'Event is required. Forms must be created in the context of an event.'
+    }
+    if (formData.deploymentCost !== undefined && formData.deploymentCost !== null && formData.deploymentCost < 0) {
+        newErrors.deploymentCost = 'Cost cannot be negative'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -137,6 +140,24 @@ export function CreateFormModal({ isOpen, eventId, userRole = 'Company User', on
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 placeholder="Optional description for this form"
               />
+            </div>
+
+            {/* Deployment Cost */}
+            <div className="grid grid-cols-2 gap-4">
+              <EnhancedFormInput
+                name="deploymentCost"
+                label="Deployment Cost ($)"
+                type="number"
+                value={formData.deploymentCost !== undefined && formData.deploymentCost !== null ? formData.deploymentCost : ''}
+                onChange={(value) => setFormData(prev => ({ ...prev, deploymentCost: value === '' ? null : Number(value) }))}
+                error={errors.deploymentCost}
+                min={0}
+                step={0.01}
+                placeholder="0.00"
+              />
+              
+              {/* Placeholder for other fields if needed */}
+              <div />
             </div>
 
             {errors.submit && (

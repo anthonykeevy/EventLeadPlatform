@@ -78,7 +78,7 @@ Epic 2 Status: docs/stories/EPIC-2-STATUS.md
 
 Database Status:
 - Epic 1 migrations: Complete (002_epic1_complete_schema.py)
-- Epic 2 migrations: Complete up to 018_logging_configuration.py
+- Epic 2 migrations: Up to date (check backend/migrations/versions/)
 - Database is ready - verify and skip any database setup tasks
 - Focus on testing existing database functionality
 
@@ -123,6 +123,8 @@ Story Location: docs/stories/story-2.X.md
 Epic 2 Status: docs/stories/EPIC-2-STATUS.md
 
 Requirements:
+- Run linter checks on edited files and resolve all issues
+- Update Git with changes (commit message: "feat: Complete Story 2.X - [Story Title]")
 - Update story file with detailed completion report
 - Mark all UAT tests as completed/passed
 - Document what was implemented

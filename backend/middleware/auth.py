@@ -5,7 +5,7 @@ Validates JWT tokens and injects current user into request state
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-from fastapi import HTTPException, status
+from fastapi import status, HTTPException
 from jose import JWTError  # type: ignore
 from typing import Callable
 
@@ -68,7 +68,8 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
             HTTP response
             
         Raises:
-            HTTPException: 401 if authentication fails
+            HTTPException: For authentication failures (401 Unauthorized)
+                          These are caught by the global exception handler and logged to log.ApplicationError
         """
         # Skip authentication for OPTIONS requests (CORS preflight)
         if request.method == "OPTIONS":

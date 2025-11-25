@@ -176,7 +176,7 @@ def upgrade() -> None:
                     WHEN UserSystemRole = 'system_admin' THEN 1
                     WHEN FormCreatedBy = UserID THEN 1
                     WHEN ExplicitAccessTypeCode IN ('ANALYZE', 'MANAGE') AND UserCanViewReports = 1 THEN 1
-                    WHEN AgencyHasEditAllForms = 1 AND UserCanViewReports = 1 THEN 1
+                    WHEN AgencyHasEditAllForms = 1 THEN 1
                     WHEN UserCompanyRole = 'company_admin' AND UserCanViewReports = 1 THEN 1
                     WHEN UserCompanyRole = 'company_user' AND UserCanViewReports = 1 THEN 1
                     ELSE 0
@@ -352,7 +352,7 @@ def downgrade() -> None:
                     WHEN UserSystemRole = 'system_admin' THEN 1
                     WHEN FormCreatedBy = UserID THEN 1
                     WHEN ExplicitAccessTypeCode IN ('ANALYZE', 'MANAGE') AND UserCanViewReports = 1 THEN 1
-                    WHEN AgencyHasEditAllForms = 1 AND UserCanViewReports = 1 THEN 1
+                    WHEN AgencyHasEditAllForms = 1 THEN 1
                     WHEN UserCompanyRole = 'company_admin' AND UserCanViewReports = 1 THEN 1
                     WHEN UserCompanyRole = 'company_user' AND UserCanViewReports = 1 THEN 1
                     ELSE 0

@@ -58,8 +58,8 @@ async def create_event_company_relationship(
         select(EventCompany).where(
             EventCompany.EventID == event_id,
             EventCompany.CompanyID == company_id,
-            EventCompany.IsActive == True,
-            EventCompany.IsDeleted == False
+            EventCompany.IsActive.is_(True),  # type: ignore[arg-type]
+            EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
         )
     ).scalar_one_or_none()
     
@@ -111,11 +111,11 @@ async def get_event_companies(
         joinedload(EventCompany.role)
     ).filter(
         EventCompany.EventID == event_id,
-        EventCompany.IsDeleted == False
+        EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
     )
     
     if active_only:
-        query = query.filter(EventCompany.IsActive == True)
+        query = query.filter(EventCompany.IsActive.is_(True))  # type: ignore[arg-type]
     
     companies = query.all()
     
@@ -162,11 +162,11 @@ async def get_company_events(
         joinedload(EventCompany.event).joinedload(Event.company)
     ).filter(
         EventCompany.CompanyID == company_id,
-        EventCompany.IsDeleted == False
+        EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
     )
     
     if active_only:
-        query = query.filter(EventCompany.IsActive == True)
+        query = query.filter(EventCompany.IsActive.is_(True))  # type: ignore[arg-type]
     
     if include_participant:
         # Include all roles (owner, organizer, participant)
@@ -213,7 +213,7 @@ async def get_company_events(
             forms = db.execute(
                 select(Form).where(
                     Form.EventID == event.EventID,
-                    Form.IsDeleted == False
+                    Form.IsDeleted.is_(False)  # type: ignore[arg-type]
                 )
             ).scalars().all()
             
@@ -241,12 +241,12 @@ async def get_company_events(
                         accessible_event_ids.add(event.EventID)
                         break  # No need to check other forms for this event
                 except Exception as e:
-                    # If function doesn't exist or error occurs, log and skip this form
+                    # If function doesn't exist or error occurs, fail-closed: deny access
                     error_msg = str(e)
                     if "fn_GetUserFormAccess" in error_msg or "Invalid object name" in error_msg:
-                        logger.warning(f"Database function fn_GetUserFormAccess not found. Fail-open: Allowing access for EventID={event.EventID}")
-                        accessible_event_ids.add(event.EventID)
-                        break
+                        logger.error(f"SECURITY: Database function fn_GetUserFormAccess not found. Fail-closed: Denying access for EventID={event.EventID}. Database migrations may not be complete.")
+                        # Do NOT add event to accessible_event_ids - fail-closed security model
+                        # Continue checking other forms, but this form check failed
                     else:
                         logger.warning(f"Error checking form access for FormID={form.FormID}, EventID={event.EventID}: {error_msg}")
                     # Continue checking other forms
@@ -272,16 +272,10 @@ async def get_company_events(
             # Handle missing database function (e.g. migrations not run)
             error_msg = str(e)
             if "fn_GetUserFormAccess" in error_msg or "Invalid object name" in error_msg:
-                logger.warning("Database function fn_GetUserFormAccess not found during bulk query. Fail-open: Allowing access for all events with forms.")
-                # Fallback: Get all events that have forms (fail-open)
-                additional_events_query = db.execute(
-                    text("""
-                        SELECT DISTINCT f.EventID
-                        FROM [dbo].[Form] f
-                        WHERE f.EventID IS NOT NULL
-                          AND f.IsDeleted = 0
-                    """)
-                ).fetchall()
+                logger.error("SECURITY: Database function fn_GetUserFormAccess not found during bulk query. Fail-closed: Denying access. Database migrations may not be complete.")
+                # Fail-closed: Return empty result set - no events accessible
+                # This prevents unauthorized access when access control cannot be verified
+                additional_events_query = []
             else:
                 raise e
         
@@ -302,7 +296,7 @@ async def get_company_events(
                 missing_events = db.execute(
                     select(Event)
                     .where(Event.EventID.in_(list(missing_event_ids)))
-                    .where(Event.IsDeleted == False)
+                    .where(Event.IsDeleted.is_(False))  # type: ignore[arg-type]
                 ).scalars().all()
                 
                 # Exclude archived events
@@ -356,8 +350,8 @@ async def disassociate_company_from_event(
         select(EventCompany).where(
             EventCompany.EventID == event_id,
             EventCompany.CompanyID == company_id,
-            EventCompany.IsActive == True,
-            EventCompany.IsDeleted == False
+            EventCompany.IsActive.is_(True),  # type: ignore[arg-type]
+            EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
         )
     ).scalar_one_or_none()
     
@@ -376,11 +370,11 @@ async def disassociate_company_from_event(
             )
         
         # Soft delete relationship
-        event_company.IsActive = False
-        event_company.DisassociatedDate = datetime.utcnow()
-        event_company.DisassociatedBy = user_id
-        event_company.UpdatedDate = datetime.utcnow()
-        event_company.UpdatedBy = user_id
+        event_company.IsActive = False  # type: ignore[assignment]
+        event_company.DisassociatedDate = datetime.utcnow()  # type: ignore[assignment]
+        event_company.DisassociatedBy = user_id  # type: ignore[assignment]
+        event_company.UpdatedDate = datetime.utcnow()  # type: ignore[assignment]
+        event_company.UpdatedBy = user_id  # type: ignore[assignment]
         
         logger.info(
             f"Disassociated company from event (EventCompany): EventID={event_id}, CompanyID={company_id}, "
@@ -399,7 +393,7 @@ async def disassociate_company_from_event(
         .join(UserCompanyStatus)
         .where(
             UserCompany.CompanyID == company_id,
-            UserCompany.IsDeleted == False,
+            UserCompany.IsDeleted.is_(False),  # type: ignore[arg-type]
             UserCompanyStatus.StatusCode == 'active'
         )
     ).scalars().all()
@@ -409,7 +403,7 @@ async def disassociate_company_from_event(
         event_forms = db.execute(
             select(Form.FormID).where(
                 Form.EventID == event_id,
-                Form.IsDeleted == False
+                Form.IsDeleted.is_(False)  # type: ignore[arg-type]
             )
         ).scalars().all()
         
@@ -420,14 +414,14 @@ async def disassociate_company_from_event(
                 select(FormAccessControl).where(
                     FormAccessControl.FormID.in_(event_forms),
                     FormAccessControl.UserID.in_(company_users),
-                    FormAccessControl.IsDeleted == False
+                    FormAccessControl.IsDeleted.is_(False)  # type: ignore[arg-type]
                 )
             ).scalars().all()
             
             for ac in access_controls:
-                ac.IsDeleted = True
-                ac.UpdatedDate = datetime.utcnow()
-                ac.UpdatedBy = user_id
+                ac.IsDeleted = True  # type: ignore[assignment]
+                ac.UpdatedDate = datetime.utcnow()  # type: ignore[assignment]
+                ac.UpdatedBy = user_id  # type: ignore[assignment]
                 
             logger.info(
                 f"Revoked form access for {len(access_controls)} records for CompanyID={company_id} on EventID={event_id}"
@@ -455,7 +449,7 @@ async def get_event_company_role_by_code(
     role = db.execute(
         select(EventCompanyRole).where(
             EventCompanyRole.RoleCode == role_code,
-            EventCompanyRole.IsActive == True
+            EventCompanyRole.IsActive.is_(True)  # type: ignore[arg-type]
         )
     ).scalar_one_or_none()
     

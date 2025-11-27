@@ -1,0 +1,39 @@
+<story_context>
+    <story_id>2.13</story_id>
+    <title>Audit Trail & Compliance</title>
+    <domain>Approval Workflows</domain>
+    <status>DRAFT</status>
+    
+    <dependencies>
+        <story id="2.12">External Approver Support (Source of logs)</story>
+        <story id="2.11">Approval Workflows (Source of logs)</story>
+        <story id="2.10">Form-Event Integration (Ownership Transfer logs)</story>
+    </dependencies>
+
+    <business_context>
+        <goal>Provide a tamper-evident, comprehensive history of form lifecycles for compliance.</goal>
+        <value_proposition>Enables enterprise adoption by satisfying governance and audit requirements.</value_proposition>
+        <risk>Incomplete logs or difficulty retrieving history could lead to compliance failures.</risk>
+    </business_context>
+
+    <technical_context>
+        <components>
+            <component>ComplianceService (New)</component>
+            <component>AuditRouter (New API)</component>
+            <component>ActivityLog (Existing Table)</component>
+        </components>
+        <data_model>
+            <entity>audit.ActivityLog</entity>
+            <relation>Linked to Form, User, Event, Company</relation>
+        </data_model>
+    </technical_context>
+
+    <acceptance_criteria>
+        <criterion>Unified view of all form actions (Internal + External)</criterion>
+        <criterion>Attribution of External Approvals (Email + Token)</criterion>
+        <criterion>Compliance Report API generation</criterion>
+        <criterion>Frontend Audit Timeline visualization</criterion>
+        <criterion>Strict RBAC for audit access</criterion>
+    </acceptance_criteria>
+</story_context>
+

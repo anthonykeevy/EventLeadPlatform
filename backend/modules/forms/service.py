@@ -201,13 +201,24 @@ async def create_form(
     
     # Log form creation to audit trail
     try:
+        # Get creator info for audit details
+        creator = db.get(User, user_id)
+        creator_display = f"{creator.Email} ({creator.FirstName} {creator.LastName})" if creator else f"User {user_id}"
+        
+        import json
+        new_value_json = json.dumps({
+            "details": f"Created form '{form.FormName}'",
+            "form_name": form.FormName,
+            "created_by": creator_display
+        })
+        
         activity_log = ActivityLog(
             UserID=user_id,
             CompanyID=company_id,
             Action="form.created",
             EntityType="Form",
             EntityID=form.FormID,
-            NewValue=f'{{"form_name": "{form.FormName}", "form_id": {form.FormID}}}',
+            NewValue=new_value_json,
             CreatedDate=datetime.utcnow()
         )
         db.add(activity_log)
@@ -336,12 +347,17 @@ async def update_form(
     # Check Manage access (raises HTTPException if denied)
     form = await check_form_access_guard(db, form_id, user_id, "MANAGE")
     
-    # Store old values for audit trail
+    # Store ALL editable field values for audit trail (before any changes)
     old_values = {
         "form_name": form.FormName,
+        "form_description": form.FormDescription,
         "form_status_id": form.FormStatusID,
         "form_approval_status_id": form.FormApprovalStatusID,
-        "event_id": form.EventID
+        "event_id": form.EventID,
+        "is_public": form.IsPublic,
+        "deployment_cost": float(form.DeploymentCost) if form.DeploymentCost else None,
+        "form_thumbnail_url": form.FormThumbnailURL,
+        "form_preview_url": form.FormPreviewURL
     }
     
     # Validate form status if provided
@@ -441,26 +457,151 @@ async def update_form(
     
     db.flush()
     
-    # Log form update to audit trail
+    # Log form update to audit trail - only log fields that actually changed
     try:
+        import json
+        
+        # Capture new values for ALL editable fields (after changes applied)
         new_values = {
             "form_name": form.FormName,
+            "form_description": form.FormDescription,
             "form_status_id": form.FormStatusID,
             "form_approval_status_id": form.FormApprovalStatusID,
-            "event_id": form.EventID
+            "event_id": form.EventID,
+            "is_public": form.IsPublic,
+            "deployment_cost": float(form.DeploymentCost) if form.DeploymentCost else None,
+            "form_thumbnail_url": form.FormThumbnailURL,
+            "form_preview_url": form.FormPreviewURL
         }
-        activity_log = ActivityLog(
-            UserID=user_id,
-            CompanyID=company_id,
-            Action="form.updated",
-            EntityType="Form",
-            EntityID=form.FormID,
-            OldValue=str(old_values),
-            NewValue=str(new_values),
-            CreatedDate=datetime.utcnow()
-        )
-        db.add(activity_log)
-        db.flush()
+        
+        # Find which fields actually changed
+        changed_fields = {}
+        old_changed = {}
+        for key in old_values:
+            if old_values[key] != new_values[key]:
+                changed_fields[key] = new_values[key]
+                old_changed[key] = old_values[key]
+        
+        # Only log if there are actual changes
+        if changed_fields:
+            # Get updater info
+            updater = db.get(User, user_id)
+            updater_display = f"{updater.Email} ({updater.FirstName} {updater.LastName})" if updater else f"User {user_id}"
+            
+            # Resolve IDs to human-readable names for better audit display
+            def get_status_name(status_id):
+                if not status_id:
+                    return "None"
+                status = db.execute(
+                    select(FormStatus).where(FormStatus.FormStatusID == status_id)
+                ).scalar_one_or_none()
+                return status.StatusName if status else f"Unknown ({status_id})"
+            
+            def get_approval_status_name(status_id):
+                if not status_id:
+                    return "None"
+                status = db.execute(
+                    select(FormApprovalStatus).where(FormApprovalStatus.FormApprovalStatusID == status_id)
+                ).scalar_one_or_none()
+                return status.ApprovalStatusName if status else f"Unknown ({status_id})"
+            
+            # Field display name mapping for cleaner output
+            field_display_names = {
+                "form_name": "Form Name",
+                "form_description": "Description",
+                "form_status_id": "Status",
+                "form_approval_status_id": "Approval Status",
+                "event_id": "Event",
+                "is_public": "Public",
+                "deployment_cost": "Deployment Cost",
+                "form_thumbnail_url": "Thumbnail URL",
+                "form_preview_url": "Preview URL"
+            }
+            
+            # Build structured change data for table display on frontend
+            # Format: { "field_name": {"old": "...", "new": "..."}, ... }
+            structured_changes = {}
+            change_descriptions = []
+            
+            for key in changed_fields:
+                old_val = old_changed[key]
+                new_val = changed_fields[key]
+                display_name = field_display_names.get(key, key.replace('_', ' ').title())
+                
+                # Resolve IDs to names for better readability
+                if key == "form_status_id":
+                    old_display = get_status_name(old_val)
+                    new_display = get_status_name(new_val)
+                elif key == "form_approval_status_id":
+                    old_display = get_approval_status_name(old_val)
+                    new_display = get_approval_status_name(new_val)
+                elif key == "event_id":
+                    old_event = db.execute(select(Event).where(Event.EventID == old_val)).scalar_one_or_none() if old_val else None
+                    new_event = db.execute(select(Event).where(Event.EventID == new_val)).scalar_one_or_none() if new_val else None
+                    old_display = old_event.Name if old_event else "None"
+                    new_display = new_event.Name if new_event else "None"
+                elif key == "is_public":
+                    old_display = "Yes" if old_val else "No"
+                    new_display = "Yes" if new_val else "No"
+                elif key == "deployment_cost":
+                    old_display = f"${old_val:.2f}" if old_val is not None else "Not set"
+                    new_display = f"${new_val:.2f}" if new_val is not None else "Not set"
+                else:
+                    old_display = str(old_val) if old_val is not None else "None"
+                    new_display = str(new_val) if new_val is not None else "None"
+                
+                # Add to structured changes for table display
+                structured_changes[display_name] = {
+                    "old": old_display,
+                    "new": new_display
+                }
+                change_descriptions.append(f"{display_name}: {old_display} → {new_display}")
+            
+            details_text = ", ".join(change_descriptions)
+            
+            activity_log = ActivityLog(
+                UserID=user_id,
+                CompanyID=company_id,
+                Action="form.updated",
+                EntityType="Form",
+                EntityID=form.FormID,
+                OldValue=json.dumps(structured_changes),  # Structured for table display
+                NewValue=json.dumps({
+                    "changes": structured_changes,  # Structured data
+                    "details": details_text,  # Human-readable summary
+                    "updated_by": updater_display
+                }),
+                CreatedDate=datetime.utcnow()
+            )
+            db.add(activity_log)
+            
+            # Check if approval status changed to APPROVED - log a separate form.approved entry
+            if "form_approval_status_id" in changed_fields:
+                new_approval_status = db.execute(
+                    select(FormApprovalStatus).where(FormApprovalStatus.FormApprovalStatusID == changed_fields["form_approval_status_id"])
+                ).scalar_one_or_none()
+                
+                if new_approval_status and new_approval_status.ApprovalStatusCode == 'APPROVED':
+                    # Log a separate approval entry for the Approvals tab
+                    approval_log = ActivityLog(
+                        UserID=user_id,
+                        CompanyID=company_id,
+                        Action="form.approved",
+                        EntityType="Form",
+                        EntityID=form.FormID,
+                        NewValue=json.dumps({
+                            "details": f"Approved by {updater_display}",
+                            "approved_by": updater_display,
+                            "form_name": form.FormName
+                        }),
+                        CreatedDate=datetime.utcnow()
+                    )
+                    db.add(approval_log)
+                    logger.info(f"Logged form.approved for form {form_id} - approval via form update")
+            
+            db.flush()
+        else:
+            logger.debug(f"Form {form_id} update skipped audit log - no tracked fields changed")
     except Exception as e:
         logger.warning(f"Failed to log form update to audit trail: {str(e)}")
     

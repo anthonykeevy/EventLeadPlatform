@@ -1,6 +1,7 @@
 /**
  * Admin Dashboard Page
  * Story 2.6: Admin Public Event Review Workflow
+ * Story 2.13: Audit Trail & Compliance
  */
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -11,9 +12,10 @@ import { EventManagementTab } from '../components/EventManagementTab'
 import { useRequireAdmin } from '../hooks/useRequireAdmin'
 import { LoadingSpinner } from '../../ux'
 import { KPIModal } from '../components/KPIModal'
+import { AuditTable } from '../../audit'
 
 export const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'events'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'activity'>('overview')
   const [usersKpiModalOpen, setUsersKpiModalOpen] = useState(false)
   const [companiesKpiModalOpen, setCompaniesKpiModalOpen] = useState(false)
   const [eventDateFilter, setEventDateFilter] = useState<'all' | 'past' | 'current' | 'future'>('all')
@@ -191,6 +193,16 @@ export const AdminDashboard: React.FC = () => {
                 </span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('activity')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'activity'
+                  ? 'border-teal-500 text-teal-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Activity Log
+            </button>
           </nav>
         </div>
 
@@ -201,6 +213,16 @@ export const AdminDashboard: React.FC = () => {
             dateFilter={eventDateFilter}
             onDateFilterChange={setEventDateFilter}
           />
+        )}
+        {activeTab === 'activity' && (
+          <div className="bg-white rounded-lg shadow">
+            <AuditTable 
+              title="Company Activity Log"
+              showFilters={true}
+              enablePagination={true}
+              pageSize={25}
+            />
+          </div>
         )}
       </div>
 

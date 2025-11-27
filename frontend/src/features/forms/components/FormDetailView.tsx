@@ -1,10 +1,11 @@
 /**
  * Form Detail View - Story 2.8
  * Displays complete form information in a detailed view
+ * Story 2.13: Added audit report link for admins
  */
 
 import React, { useState, useEffect } from 'react'
-import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle } from 'lucide-react'
+import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle, ClipboardList } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
@@ -13,6 +14,7 @@ import { checkFormAccess } from '../api/formAccessApi'
 import { submitFormForApproval, approveForm, rejectForm, updateForm } from '../api/formsApi'
 import { AccessCheckResponse } from '../types/form-access.types'
 import { useAuth } from '../../auth/context/AuthContext'
+import { FormAuditReport } from '../../audit'
 
 interface FormDetailViewProps {
   form: Form | null
@@ -27,6 +29,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   const [isLoadingAccess, setIsLoadingAccess] = useState(false)
   const [showAccessControl, setShowAccessControl] = useState(false)
   const [showApprovalRequest, setShowApprovalRequest] = useState(false)
+  const [showAuditReport, setShowAuditReport] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
@@ -364,6 +367,16 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                       <span className="text-gray-600">{formatDate(form.updatedDate)}</span>
                     </div>
                   )}
+                  {/* Full Compliance Report - Only for Admins (Story 2.13) */}
+                  {isCompanyAdmin && (
+                    <button
+                      onClick={() => setShowAuditReport(true)}
+                      className="mt-3 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                    >
+                      <ClipboardList className="w-4 h-4" />
+                      View Compliance Report
+                    </button>
+                  )}
                 </div>
               </section>
 
@@ -487,6 +500,16 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
             onClose() // Close detail view
           }}
         />
+      )}
+
+      {/* Audit Report Modal (Story 2.13) */}
+      {showAuditReport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
+          <FormAuditReport 
+            formId={form.formId}
+            onClose={() => setShowAuditReport(false)}
+          />
+        </div>
       )}
     </div>
   )

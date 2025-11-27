@@ -150,13 +150,24 @@ async def grant_access(
         
         # Log access update to audit trail
         try:
+            # Get updater info
+            updater = db.get(User, granted_by)
+            updater_display = f"{updater.Email} ({updater.FirstName} {updater.LastName})" if updater else f"User {granted_by}"
+            user_display = f"{user.Email} ({user.FirstName} {user.LastName})" if user else f"User {user_id}"
+            
+            import json
             activity_log = ActivityLog(
                 UserID=granted_by,
                 CompanyID=company_id,
                 Action="form.access.updated",
-                EntityType="FormAccessControl",
-                EntityID=existing_access.FormAccessControlID,
-                NewValue=f'{{"form_id": {form_id}, "user_id": {user_id}, "access_type": "{access_type.AccessTypeCode}", "expiry_date": "{expiry_date_naive if expiry_date_naive else None}"}}',
+                EntityType="Form",  # Associate with Form entity for compliance report
+                EntityID=form_id,
+                NewValue=json.dumps({
+                    "details": f"Updated access for {user_display} to {access_type.AccessTypeName}",
+                    "updated_for": user_display,
+                    "access_type": access_type.AccessTypeName,
+                    "updated_by": updater_display
+                }),
                 CreatedDate=datetime.now(timezone.utc).replace(tzinfo=None)  # Store as naive UTC
             )
             db.add(activity_log)
@@ -188,13 +199,24 @@ async def grant_access(
         
         # Log access grant to audit trail
         try:
+            # Get granter info
+            granter = db.get(User, granted_by)
+            granter_display = f"{granter.Email} ({granter.FirstName} {granter.LastName})" if granter else f"User {granted_by}"
+            user_display = f"{user.Email} ({user.FirstName} {user.LastName})" if user else f"User {user_id}"
+            
+            import json
             activity_log = ActivityLog(
                 UserID=granted_by,
                 CompanyID=company_id,
                 Action="form.access.granted",
-                EntityType="FormAccessControl",
-                EntityID=access_control.FormAccessControlID,
-                NewValue=f'{{"form_id": {form_id}, "user_id": {user_id}, "access_type": "{access_type.AccessTypeCode}", "expiry_date": "{expiry_date_naive if expiry_date_naive else None}"}}',
+                EntityType="Form",  # Associate with Form entity for compliance report
+                EntityID=form_id,
+                NewValue=json.dumps({
+                    "details": f"Granted {access_type.AccessTypeName} access to {user_display}",
+                    "granted_to": user_display,
+                    "access_type": access_type.AccessTypeName,
+                    "granted_by": granter_display
+                }),
                 CreatedDate=datetime.now(timezone.utc).replace(tzinfo=None)  # Store as naive UTC
             )
             db.add(activity_log)
@@ -252,13 +274,29 @@ async def revoke_access(
     
     # Log revocation to audit trail
     try:
+        import json
+        
+        # Get user info for better logging
+        revoked_user = db.execute(
+            select(User).where(User.UserID == access_control.UserID)
+        ).scalar_one_or_none()
+        revoked_user_display = f"{revoked_user.Email} ({revoked_user.FirstName} {revoked_user.LastName})" if revoked_user else f"User {access_control.UserID}"
+        
+        # Get revoker info
+        revoker = db.get(User, revoked_by)
+        revoker_display = f"{revoker.Email} ({revoker.FirstName} {revoker.LastName})" if revoker else f"User {revoked_by}"
+        
         activity_log = ActivityLog(
             UserID=revoked_by,
             CompanyID=company_id,
             Action="form.access.revoked",
-            EntityType="FormAccessControl",
-            EntityID=access_id,
-            OldValue=f'{{"form_id": {form_id}, "user_id": {access_control.UserID}, "access_type_id": {access_control.FormAccessControlAccessTypeID}}}',
+            EntityType="Form",  # Associate with Form entity for compliance report
+            EntityID=form_id,
+            NewValue=json.dumps({
+                "details": f"Revoked access for {revoked_user_display}",
+                "revoked_for": revoked_user_display,
+                "revoked_by": revoker_display
+            }),
             CreatedDate=datetime.now(timezone.utc).replace(tzinfo=None)  # Store as naive UTC
         )
         db.add(activity_log)

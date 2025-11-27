@@ -222,13 +222,28 @@ class ApprovalService:
             # So let's check the INTENT. This flow is specifically for pending requests.
             # If the user got a token, the form WAS pending. We can safely assume we should try to publish.
             
+            auto_published = False
             published_status = await self._get_form_status_by_code('PUBLISHED')
             if published_status:
                 form.FormStatusID = published_status.FormStatusID
+                auto_published = True
                 logger.info(f"Auto-publishing form {form.FormID} after external approval")
                 
-            self._log_activity(user_id, form.CompanyID, "form.approved_external", form, 
-                               f"Approved by external user {token.Email}")
+            self._log_activity(
+                user_id, form.CompanyID, "form.approved_external", form, 
+                f"Approved by external user {token.Email}",
+                user_email=token.Email,
+                token_id=token.FormApprovalTokenID
+            )
+            
+            # Log auto-publish status change separately for complete audit trail
+            if auto_published:
+                self._log_activity(
+                    user_id, form.CompanyID, "form.published", form, 
+                    f"Form auto-published after external approval by {token.Email}",
+                    user_email=token.Email,
+                    token_id=token.FormApprovalTokenID
+                )
             
             # Notify Owner
             await self._notify_owner_of_decision(form, "Approved", user_id)
@@ -242,8 +257,12 @@ class ApprovalService:
             form.UpdatedBy = user_id
             form.UpdatedDate = datetime.utcnow()
             
-            self._log_activity(user_id, form.CompanyID, "form.rejected_external", form, 
-                               f"Rejected by external user {token.Email}. Reason: {reason}")
+            self._log_activity(
+                user_id, form.CompanyID, "form.rejected_external", form, 
+                f"Rejected by external user {token.Email}. Reason: {reason}",
+                user_email=token.Email,
+                token_id=token.FormApprovalTokenID
+            )
                                
             # Notify Owner
             await self._notify_owner_of_decision(form, "Rejected", user_id, reason)
@@ -288,17 +307,26 @@ class ApprovalService:
         
         # Auto-Publish Logic
         # If form was PENDING (intercepted publish), auto-publish it.
+        auto_published = False
         if old_approval_status_code == 'PENDING':
             published_status = await self._get_form_status_by_code('PUBLISHED')
             if published_status:
                 form.FormStatusID = published_status.FormStatusID
+                auto_published = True
                 logger.info(f"Auto-publishing form {form_id} after approval")
         
         self.db.flush()
         
-        # Log
+        # Log with user details
+        admin_user = self.db.get(User, admin_user_id)
+        admin_display = f"{admin_user.Email} ({admin_user.FirstName} {admin_user.LastName})" if admin_user else f"User {admin_user_id}"
         self._log_activity(admin_user_id, company_id, "form.approved", form, 
-                           f"Approved by user {admin_user_id}")
+                           f"Approved by {admin_display}")
+        
+        # Log auto-publish status change separately for complete audit trail
+        if auto_published:
+            self._log_activity(admin_user_id, company_id, "form.published", form, 
+                               f"Form auto-published after approval by {admin_display}")
 
         # Notify Owner
         if admin_user_id != form.CreatedBy:
@@ -333,8 +361,11 @@ class ApprovalService:
         
         self.db.flush()
         
+        # Log with user details
+        admin_user = self.db.get(User, admin_user_id)
+        admin_display = f"{admin_user.Email} ({admin_user.FirstName} {admin_user.LastName})" if admin_user else f"User {admin_user_id}"
         self._log_activity(admin_user_id, company_id, "form.rejected", form, 
-                           f"Reason: {reason}")
+                           f"Rejected by {admin_display}. Reason: {reason}")
                            
         await self._notify_owner_of_decision(form, "Rejected", admin_user_id, reason)
         
@@ -358,15 +389,49 @@ class ApprovalService:
             
         raise ValueError(f"Form requires approval (Cost ${cost} > ${threshold}) and current status is {status.ApprovalStatusCode}")
 
-    def _log_activity(self, user_id: int, company_id: int, action: str, form: Form, details: str):
+    def _log_activity(
+        self, 
+        user_id: int, 
+        company_id: int, 
+        action: str, 
+        form: Form, 
+        details: str,
+        user_email: str = None,
+        token_id: int = None
+    ):
+        """
+        Log an activity to the audit trail.
+        
+        Args:
+            user_id: User performing the action
+            company_id: Company context
+            action: Action code (e.g., 'form.approved_external')
+            form: Form being acted upon
+            details: Human-readable details
+            user_email: Email of the user (especially for external approvers)
+            token_id: FormApprovalTokenID if action was via token (for audit traceability)
+        """
+        import json
         try:
+            # Build structured NewValue JSON
+            new_value_data = {
+                "details": details,
+                "form_name": form.FormName,
+                "form_id": form.FormID
+            }
+            if token_id:
+                new_value_data["approval_token_id"] = token_id
+            if user_email:
+                new_value_data["external_email"] = user_email
+                
             activity_log = ActivityLog(
                 UserID=user_id,
+                UserEmail=user_email,  # Store email for external approver attribution
                 CompanyID=company_id,
                 Action=action,
                 EntityType="Form",
                 EntityID=form.FormID,
-                NewValue=details,
+                NewValue=json.dumps(new_value_data),
                 CreatedDate=datetime.utcnow()
             )
             self.db.add(activity_log)

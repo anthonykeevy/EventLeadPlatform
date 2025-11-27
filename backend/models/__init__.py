@@ -19,24 +19,7 @@ Organization:
 Total: 37 models across 6 schemas (Epic 2: +4 models)
 """
 
-# Core business models (dbo schema)
-from .user import User
-from .company import Company
-from .user_company import UserCompany
-from .user_industry import UserIndustry
-from .company_customer_details import CompanyCustomerDetails
-from .company_billing_details import CompanyBillingDetails
-from .company_organizer_details import CompanyOrganizerDetails
-from .user_invitation import UserInvitation
-from .user_email_verification_token import UserEmailVerificationToken
-from .user_password_reset_token import UserPasswordResetToken
-from .user_refresh_token import UserRefreshToken
-from .event import Event
-from .event_company import EventCompany
-from .form import Form
-from .form_access_control import FormAccessControl
-
-# Reference tables (ref schema)
+# Reference tables (ref schema) - LOAD FIRST to ensure relationships work
 from .ref import (
     Country,
     Language,
@@ -61,7 +44,27 @@ from .ref import (
     FormStatus,
     FormApprovalStatus,
     FormAccessControlAccessType,
+    CompanyRelationshipType,
 )
+
+# Core business models (dbo schema)
+from .user import User
+from .company import Company
+from .user_company import UserCompany
+from .company_relationship import CompanyRelationship
+from .user_industry import UserIndustry
+from .company_customer_details import CompanyCustomerDetails
+from .company_billing_details import CompanyBillingDetails
+from .company_organizer_details import CompanyOrganizerDetails
+from .user_invitation import UserInvitation
+from .user_email_verification_token import UserEmailVerificationToken
+from .user_password_reset_token import UserPasswordResetToken
+from .user_refresh_token import UserRefreshToken
+from .event import Event
+from .event_company import EventCompany
+from .form import Form
+from .form_access_control import FormAccessControl
+from .form_approval_token import FormApprovalToken
 
 # Configuration tables (config schema)
 from .config import (
@@ -97,6 +100,7 @@ __all__ = [
     "User",
     "Company",
     "UserCompany",
+    "CompanyRelationship",
     "UserIndustry",
     "CompanyCustomerDetails",
     "CompanyBillingDetails",
@@ -109,6 +113,7 @@ __all__ = [
     "EventCompany",
     "Form",
     "FormAccessControl",
+    "FormApprovalToken",
     
     # Reference tables (ref)
     "Country",
@@ -134,6 +139,7 @@ __all__ = [
     "FormStatus",
     "FormApprovalStatus",
     "FormAccessControlAccessType",
+    "CompanyRelationshipType",
     
     # Configuration tables (config)
     "AppSetting",
@@ -171,7 +177,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 49  # Updated for Epic 2: Correct count of all registered models (15 dbo + 23 ref + 2 config + 4 audit + 4 log + 1 cache)
+    expected_count = 52  # Updated for Epic 2: Correct count of all registered models (16 dbo + 23 ref + 2 config + 4 audit + 4 log + 1 cache)
     actual_count = len(__all__)
     
     if actual_count != expected_count:

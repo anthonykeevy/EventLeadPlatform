@@ -21,7 +21,8 @@ from schemas.user import (
     SwitchCompanyRequest, SwitchCompanyResponse, SetDefaultCompanyResponse,
     UserCompanyInfo, RelationshipInfo,
     UserProfileUpdateSchema, EnhancedUserProfileResponse, ReferenceOptionResponse,
-    IndustryAssociationSchema, IndustryAssociationResponse
+    IndustryAssociationSchema, IndustryAssociationResponse,
+    SuggestedCompanyResponse
 )
 from .service import (
     update_user_details, get_user_profile, get_user_companies_with_relationship_context,
@@ -36,6 +37,8 @@ from models.ref.theme_preference import ThemePreference
 from models.ref.layout_density import LayoutDensity
 from models.ref.font_size import FontSize
 from models.ref.industry import Industry
+from models.form_approval_token import FormApprovalToken
+from models.form import Form
 
 logger = get_logger(__name__)
 
@@ -232,86 +235,106 @@ async def list_my_companies(
         
         result = []
         for item in enriched_companies:
-            uc = item['user_company']
-            company = db.get(Company, uc.CompanyID)
-            role = db.get(UserCompanyRole, uc.UserCompanyRoleID)
-            
-            # Get joined via method code
-            joined_via_code = None
-            if uc.joined_via:
-                joined_via_code = uc.joined_via.MethodCode
+            try:
+                uc = item['user_company']
+                if not uc:
+                    logger.warning(f"Skipping invalid company record for user {current_user.user_id}: {item}")
+                    continue
+                    
+                company = db.get(Company, uc.CompanyID)
+                if not company:
+                    logger.warning(f"Company not found for UserCompanyID={uc.UserCompanyID}, CompanyID={uc.CompanyID}")
+                    continue
 
-            relationship_info = None
-            if item.get('relationship'):
-                relationship_info = RelationshipInfo(**item['relationship'])
+                role = db.get(UserCompanyRole, uc.UserCompanyRoleID)
+                
+                # Get joined via method code
+                joined_via_code = None
+                if uc.joined_via:
+                    joined_via_code = uc.joined_via.MethodCode
 
-            # Count active events for this company (excluding archived events)
-            # Event counts are filtered by user access based on company role:
-            # - Company Admins and Company Users: see all events for their company
-            # - Company Viewers: only see events where they have form access
-            # Use the same filtering logic as get_company_events
-            
-            # Get user's role for this company
-            user_company_role = db.get(UserCompanyRole, uc.UserCompanyRoleID)
-            user_role_code = user_company_role.RoleCode if user_company_role else None
-            
-            # Use the same filtering logic as get_company_events
-            from modules.events.event_company_service import get_company_events
-            
-            # Get events for this company with user access filtering
-            # Only filter by form access if user is Company Viewer (not Admin or User)
-            # IMPORTANT: We pass the specific company_id (uc.CompanyID) to get_company_events,
-            # not current_user.company_id, so event counts are calculated for each company
-            # independently based on the user's role in that specific company
-            
-            # 1. Get relationship events
-            company_events = await get_company_events(
-                db=db,
-                company_id=uc.CompanyID,
-                active_only=True,
-                include_participant=True,
-                user_id=current_user.user_id if user_role_code == 'company_viewer' else None,
-                user_role=user_role_code if user_role_code == 'company_viewer' else None
-            )
-            
-            # 2. Get legacy events
-            # Note: For Viewers, we should technically filter these by form access too,
-            # but for now we'll include them to ensure legacy events aren't hidden from counts.
-            # The list endpoint will filter them correctly if needed.
-            legacy_events = await get_events(
-                db=db,
-                company_id=uc.CompanyID,
-                filters=None
-            )
-            
-            # 3. Merge counts
-            unique_event_ids = set()
-            for e in company_events:
-                unique_event_ids.add(e.EventID)
-            
-            # For Viewers, strictly we should check access to legacy events, 
-            # but to avoid complex duplication here, we'll include them if they are owned by company.
-            # (Or we can skip legacy for Viewers to be safe/restrictive)
-            include_legacy = user_role_code in ['company_admin', 'company_user']
-            if include_legacy:
-                for e in legacy_events:
+                relationship_info = None
+                if item.get('relationship'):
+                    relationship_info = RelationshipInfo(**item['relationship'])
+
+                # Count active events for this company (excluding archived events)
+                # Event counts are filtered by user access based on company role:
+                # - Company Admins and Company Users: see all events for their company
+                # - Company Viewers: only see events where they have form access
+                # Use the same filtering logic as get_company_events
+                
+                # Get user's role for this company
+                user_company_role = db.get(UserCompanyRole, uc.UserCompanyRoleID)
+                user_role_code = user_company_role.RoleCode if user_company_role else None
+                
+                # Use the same filtering logic as get_company_events
+                from modules.events.event_company_service import get_company_events
+                
+                # Get events for this company with user access filtering
+                # Only filter by form access if user is Company Viewer (not Admin or User)
+                # IMPORTANT: We pass the specific company_id (uc.CompanyID) to get_company_events,
+                # not current_user.company_id, so event counts are calculated for each company
+                # independently based on the user's role in that specific company
+                
+                # 1. Get relationship events
+                try:
+                    company_events = await get_company_events(
+                        db=db,
+                        company_id=uc.CompanyID,
+                        active_only=True,
+                        include_participant=True,
+                        user_id=current_user.user_id if user_role_code == 'company_viewer' else None,
+                        user_role=user_role_code if user_role_code == 'company_viewer' else None
+                    )
+                except Exception as e:
+                    logger.error(f"Error getting company events for CompanyID={uc.CompanyID}: {str(e)}")
+                    company_events = []
+                
+                # 2. Get legacy events
+                # Note: For Viewers, we should technically filter these by form access too,
+                # but for now we'll include them to ensure legacy events aren't hidden from counts.
+                # The list endpoint will filter them correctly if needed.
+                try:
+                    legacy_events = await get_events(
+                        db=db,
+                        company_id=uc.CompanyID,
+                        filters=None
+                    )
+                except Exception as e:
+                    logger.error(f"Error getting legacy events for CompanyID={uc.CompanyID}: {str(e)}")
+                    legacy_events = []
+                
+                # 3. Merge counts
+                unique_event_ids = set()
+                for e in company_events:
                     unique_event_ids.add(e.EventID)
-            
-            event_count = len(unique_event_ids)
-            
-            # Log event count calculation for debugging
-            logger.debug(f"Event count for CompanyID={uc.CompanyID}, UserID={current_user.user_id}, Role={user_role_code}: {event_count} events")
+                
+                # For Viewers, strictly we should check access to legacy events, 
+                # but to avoid complex duplication here, we'll include them if they are owned by company.
+                # (Or we can skip legacy for Viewers to be safe/restrictive)
+                include_legacy = user_role_code in ['company_admin', 'company_user']
+                if include_legacy:
+                    for e in legacy_events:
+                        unique_event_ids.add(e.EventID)
+                
+                event_count = len(unique_event_ids)
+                
+                # Log event count calculation for debugging
+                logger.debug(f"Event count for CompanyID={uc.CompanyID}, UserID={current_user.user_id}, Role={user_role_code}: {event_count} events")
 
-            result.append(UserCompanyInfo(
-                company_id=uc.CompanyID,
-                company_name=company.CompanyName,
-                role=role.RoleCode,
-                is_primary=uc.IsPrimaryCompany,
-                joined_at=uc.JoinedDate,
-                joined_via=joined_via_code,
-                relationship=relationship_info,
-                event_count=event_count
-            ))
+                result.append(UserCompanyInfo(
+                    company_id=uc.CompanyID,
+                    company_name=company.CompanyName,
+                    role=role.RoleCode if role else "unknown",
+                    is_primary=uc.IsPrimaryCompany,
+                    joined_at=uc.JoinedDate,
+                    joined_via=joined_via_code,
+                    relationship=relationship_info,
+                    event_count=event_count
+                ))
+            except Exception as e:
+                logger.error(f"Error processing company record for user {current_user.user_id}: {str(e)}", exc_info=True)
+                continue  # Skip problematic company but return others
         
         return result
         
@@ -829,6 +852,72 @@ async def remove_my_industry(
 # ============================================================================
 # Epic 2: Reference Data Endpoints
 # ============================================================================
+
+from models.company_billing_details import CompanyBillingDetails
+
+@router.get(
+    "/me/suggested-company",
+    response_model=SuggestedCompanyResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get suggested company",
+    description="Get suggested company name based on user's history (e.g., approval requests)"
+)
+async def get_my_suggested_company(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> SuggestedCompanyResponse:
+    """
+    Get suggested company for onboarding.
+    
+    Logic:
+    1. Check if user has any FormApprovalTokens (External User history)
+    2. Return the company name of the most recently approved/interacted form.
+    
+    Requires authentication.
+    """
+    try:
+        # Find most recent approval token
+        # Join with Form and Company to get name
+        stmt = (
+            select(Company)
+            .join(Form, Form.CompanyID == Company.CompanyID)
+            .join(FormApprovalToken, FormApprovalToken.FormID == Form.FormID)
+            .where(FormApprovalToken.UserID == current_user.user_id)
+            .order_by(FormApprovalToken.CreatedDate.desc()) # Get most recent
+            .limit(1)
+        )
+        
+        company = db.execute(stmt).scalar_one_or_none()
+        
+        if company:
+            logger.info(f"Found suggested company '{company.CompanyName}' for user {current_user.user_id} from approval history")
+            
+            # Fetch billing details
+            billing = db.execute(
+                select(CompanyBillingDetails).where(CompanyBillingDetails.CompanyID == company.CompanyID)
+            ).scalar_one_or_none()
+            
+            return SuggestedCompanyResponse(
+                company_name=str(company.CompanyName),
+                source="approval_history",
+                abn=str(company.ABN) if company.ABN else None,
+                country_id=int(company.CountryID),
+                billing_address_line1=str(billing.BillingAddressLine1) if billing and billing.BillingAddressLine1 else None,
+                billing_city=str(billing.BillingCity) if billing and billing.BillingCity else None,
+                billing_state=str(billing.BillingState) if billing and billing.BillingState else None,
+                billing_postal_code=str(billing.BillingPostalCode) if billing and billing.BillingPostalCode else None
+            )
+            
+        # Fallback: Check invitations (if we track them linked to user before signup)
+        # Not implementing complex invitation logic here as invitations usually add user directly.
+        
+        return SuggestedCompanyResponse(company_name=None, source=None)
+        
+    except Exception as e:
+        logger.error(f"Error getting suggested company: {str(e)}", exc_info=True)
+        # Don't block onboarding if this fails
+        return SuggestedCompanyResponse(company_name=None, source=None)
+
 
 @router.get(
     "/reference/themes",

@@ -88,6 +88,7 @@ class DiagnosticLogger:
                     StackTrace,
                     ExceptionType
                 FROM log.ApplicationError
+                WHERE ErrorMessage LIKE 'Error listing events%'
                 ORDER BY CreatedDate DESC
             """)
             return [dict(row._mapping) for row in conn.execute(query).fetchall()]
@@ -192,51 +193,69 @@ class DiagnosticLogger:
         """Get correlated analysis for a specific request or most recent failure"""
         with self.engine.connect() as conn:
             if request_id:
+                # First try to find in ApplicationError as it's most likely source of truth for 500s
                 correlation_query = text("""
                     SELECT 
-                        ae.RequestID,
-                        ae.EventType,
-                        ae.Reason,
-                        ae.CreatedDate,
+                        ape.RequestID,
                         ape.ErrorType,
                         ape.ErrorMessage,
                         ape.StackTrace,
+                        ape.CreatedDate,
                         api.StatusCode,
                         api.DurationMs,
                         api.RequestPayload,
                         api.ResponsePayload,
-                        ed.Status as EmailStatus,
-                        ed.ErrorMessage as EmailError
-                    FROM log.AuthEvent ae
-                    LEFT JOIN log.ApplicationError ape ON ae.RequestID = ape.RequestID
-                    LEFT JOIN log.ApiRequest api ON ae.RequestID = api.RequestID
-                    LEFT JOIN log.EmailDelivery ed ON ae.UserID = ed.UserID
-                    WHERE ae.RequestID = :request_id
+                        api.UserID,
+                        ae.EventType as AuthEventType,
+                        ae.Reason as AuthReason
+                    FROM log.ApplicationError ape
+                    LEFT JOIN log.ApiRequest api ON ape.RequestID = api.RequestID
+                    LEFT JOIN log.AuthEvent ae ON ape.RequestID = ae.RequestID
+                    WHERE ape.RequestID = :request_id
                 """)
                 result = conn.execute(correlation_query, {"request_id": request_id}).fetchone()
+                
+                if not result:
+                    # Fallback to ApiRequest if no ApplicationError (e.g. 404s or handled errors)
+                    correlation_query = text("""
+                        SELECT 
+                            api.RequestID,
+                            NULL as ErrorType,
+                            NULL as ErrorMessage,
+                            NULL as StackTrace,
+                            api.CreatedDate,
+                            api.StatusCode,
+                            api.DurationMs,
+                            api.RequestPayload,
+                            api.ResponsePayload,
+                            api.UserID,
+                            ae.EventType as AuthEventType,
+                            ae.Reason as AuthReason
+                        FROM log.ApiRequest api
+                        LEFT JOIN log.AuthEvent ae ON api.RequestID = ae.RequestID
+                        WHERE api.RequestID = :request_id
+                    """)
+                    result = conn.execute(correlation_query, {"request_id": request_id}).fetchone()
             else:
-                # Get most recent failed request
+                # Get most recent Application Error
                 correlation_query = text("""
                     SELECT TOP 1
-                        ae.RequestID,
-                        ae.EventType,
-                        ae.Reason,
-                        ae.CreatedDate,
+                        ape.RequestID,
                         ape.ErrorType,
                         ape.ErrorMessage,
                         ape.StackTrace,
+                        ape.CreatedDate,
                         api.StatusCode,
                         api.DurationMs,
                         api.RequestPayload,
                         api.ResponsePayload,
-                        ed.Status as EmailStatus,
-                        ed.ErrorMessage as EmailError
-                    FROM log.AuthEvent ae
-                    LEFT JOIN log.ApplicationError ape ON ae.RequestID = ape.RequestID
-                    LEFT JOIN log.ApiRequest api ON ae.RequestID = api.RequestID
-                    LEFT JOIN log.EmailDelivery ed ON ae.UserID = ed.UserID
-                    WHERE ae.EventType LIKE '%FAILED%' OR ape.ErrorType IS NOT NULL
-                    ORDER BY ae.CreatedDate DESC
+                        api.UserID,
+                        ae.EventType as AuthEventType,
+                        ae.Reason as AuthReason
+                    FROM log.ApplicationError ape
+                    LEFT JOIN log.ApiRequest api ON ape.RequestID = api.RequestID
+                    LEFT JOIN log.AuthEvent ae ON ape.RequestID = ae.RequestID
+                    ORDER BY ape.CreatedDate DESC
                 """)
                 result = conn.execute(correlation_query).fetchone()
             
@@ -411,16 +430,17 @@ class DiagnosticLogger:
         print(f"\nRequestID: {correlation['RequestID']}")
         print(f"Timestamp: {correlation['CreatedDate']}")
         
-        print(f"\nAuth Event:")
-        print(f"  Type: {correlation['EventType']}")
-        print(f"  Reason: {self.format_json(correlation['Reason'])}")
+        if correlation.get('AuthEventType'):
+            print(f"\nAuth Event:")
+            print(f"  Type: {correlation['AuthEventType']}")
+            print(f"  Reason: {self.format_json(correlation['AuthReason'])}")
         
         if correlation.get('ErrorType'):
             print(f"\nApplication Error:")
             print(f"  Type: {correlation['ErrorType']}")
             print(f"  Message: {correlation['ErrorMessage']}")
             if correlation.get('StackTrace'):
-                print(f"  Stack Trace: {correlation['StackTrace'][:300]}...")
+                print(f"  Stack Trace: {correlation['StackTrace'][:500]}...")
         
         if correlation.get('StatusCode'):
             print(f"\nAPI Request:")

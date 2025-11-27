@@ -3,7 +3,7 @@
 **Epic ID:** Epic 2  
 **Status:** In Progress - Domain 1, 2 & 3 Complete, Domain 4 In Progress  
 **Created:** January 15, 2025  
-**Last Updated:** November 25, 2025 (Story 2.11 Complete - Approval Workflows)  
+**Last Updated:** November 27, 2025 (Story 2.12 Complete - External Approver Support)  
 **Product Manager:** John (PM Agent)  
 **Developer:** Developer Agent  
 
@@ -22,12 +22,12 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 11/12 | ✅ In Progress (92% Complete) |
-| **Last Completed Stories** | 2.11 - Approval Workflow Extensions | ✅ **COMPLETE** - Approval Service, Publish Guard, Notifications, UI Actions, Admin Bypass |
-| **Next Story** | 2.12 - External Approver Support | 📋 **PLANNED** |
+| **Stories Complete** | 12/12 | ✅ **100% Complete** (Waiting on final audit story 2.13) |
+| **Last Completed Stories** | 2.12 - External Approver Support | ✅ **COMPLETE** - Shadow Users, Public Approval Page, Account Upgrade Flow |
+| **Next Story** | 2.13 - Audit Trail & Compliance | 📋 **PLANNED** |
 | **Domains Complete** | 3/4 | ✅ Domain 1, ✅ Domain 2, ✅ Domain 3 Complete |
-| **Current Domain** | Domain 4 - Approval Workflows | 🔄 **IN PROGRESS** - Story 2.11 done, 2.12-2.13 remaining |
-| **UAT Tests Passed** | All previous + Story 2.11 (All 6 Scenarios) | ✅ 11 Stories Complete |
+| **Current Domain** | Domain 4 - Approval Workflows | 🔄 **IN PROGRESS** - Story 2.13 Remaining |
+| **UAT Tests Passed** | All previous + Story 2.12 (All 5 Scenarios) | ✅ 12 Stories Complete |
 
 ---
 
@@ -49,13 +49,13 @@
 - **Stories:** 2.11, 2.12, 2.13
 - **Focus:** Cost approval, external approvers, audit trails
 - **Status:** 🔄 In Progress
-- **Progress:** 1/3 stories complete (33%)
+- **Progress:** 2/3 stories complete (66%)
 - **Key Achievements:**
   - ✅ **Approval Service:** Dedicated service for workflow logic.
   - ✅ **Publish Guard:** Prevents high-cost forms from being published without approval.
-  - ✅ **Notifications:** Automated emails to Admins and Owners.
-  - ✅ **Status Management:** Clear transitions between Draft, Pending, Approved, Rejected.
-  - ✅ **UI Integration:** Smart Publish button, Admin Bypass, Pre-Approval actions.
+  - ✅ **External Support:** "Shadow User" pattern for external stakeholders.
+  - ✅ **Secure Tokens:** Token-based public access for approvals.
+  - ✅ **Seamless Upgrade:** Convert external users to full accounts preserving history.
 
 ---
 
@@ -72,8 +72,8 @@
 | 2.8 | Form Header Foundation | ✅ Complete | Complete | ✅ Passed | - | - | Form Foundation |
 | 2.9 | Form Access Control | ✅ Complete | Complete | ✅ Passed | - | - | Form Foundation |
 | 2.10 | Form-Event Integration | ✅ Complete | Complete | ✅ Passed | - | - | Form Foundation |
-| 2.11 | Approval Workflow Extensions | ✅ **COMPLETE** | Complete | ✅ Passed (All 6) | Fixed Auth Crash | Separated ApprovalService, Admin Bypass logic | Approval Workflows |
-| 2.12 | External Approver Support | 📋 Planned | - | - | - | - | Approval Workflows |
+| 2.11 | Approval Workflow Extensions | ✅ Complete | Complete | ✅ Passed (All 6) | Fixed Auth Crash | Separated ApprovalService, Admin Bypass logic | Approval Workflows |
+| 2.12 | External Approver Support | ✅ **COMPLETE** | Complete | ✅ Passed (All 5) | Fixed Form Ownership | Shadow User pattern effective for history retention | Approval Workflows |
 | 2.13 | Audit Trail & Compliance | 📋 Planned | - | - | - | - | Approval Workflows |
 
 ---

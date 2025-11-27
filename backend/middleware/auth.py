@@ -46,6 +46,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         "/api/countries",  # Country validation endpoints (Story 1.20)
         "/api/companies/smart-search",  # ABR search for onboarding (Story 1.19)
         "/api/users/reference/",  # Theme reference endpoints (Story 2.2)
+        "/api/public/", # External Approval and other public endpoints (Story 2.12)
         "/docs",
         "/openapi.json",
         "/redoc",

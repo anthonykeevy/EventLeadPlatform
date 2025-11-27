@@ -68,6 +68,13 @@ class CreateCompanySchema(BaseModel):
     entity_type: Optional[str] = Field(None, max_length=100, description="Entity type from ABR")
     gst_registered: Optional[bool] = Field(None, description="GST registration status from ABR")
     
+    # Billing Address Fields (Story 2.12 Fix)
+    billing_address_line1: Optional[str] = Field(None, max_length=255, description="Billing address line 1")
+    billing_city: Optional[str] = Field(None, max_length=100, description="Billing city/suburb")
+    billing_state: Optional[str] = Field(None, max_length=100, description="Billing state")
+    billing_postal_code: Optional[str] = Field(None, max_length=20, description="Billing postal code")
+    billing_country_id: Optional[int] = Field(None, description="Billing country ID (defaults to company country)")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -78,7 +85,11 @@ class CreateCompanySchema(BaseModel):
                 "email": "info@acmeevents.com.au",
                 "website": "https://acmeevents.com.au",
                 "country_id": 1,
-                "industry_id": 5
+                "industry_id": 5,
+                "billing_address_line1": "123 Main St",
+                "billing_city": "Sydney",
+                "billing_state": "NSW",
+                "billing_postal_code": "2000"
             }
         }
 

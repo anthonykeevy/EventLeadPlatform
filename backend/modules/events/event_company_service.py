@@ -58,8 +58,8 @@ async def create_event_company_relationship(
         select(EventCompany).where(
             EventCompany.EventID == event_id,
             EventCompany.CompanyID == company_id,
-            EventCompany.IsActive.is_(True),  # type: ignore[arg-type]
-            EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
+            EventCompany.IsActive== True,  # type: ignore[arg-type]
+            EventCompany.IsDeleted== False  # type: ignore[arg-type]
         )
     ).scalar_one_or_none()
     
@@ -111,11 +111,11 @@ async def get_event_companies(
         joinedload(EventCompany.role)
     ).filter(
         EventCompany.EventID == event_id,
-        EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
+        EventCompany.IsDeleted== False  # type: ignore[arg-type]
     )
     
     if active_only:
-        query = query.filter(EventCompany.IsActive.is_(True))  # type: ignore[arg-type]
+        query = query.filter(EventCompany.IsActive== True)  # type: ignore[arg-type]
     
     companies = query.all()
     
@@ -162,11 +162,11 @@ async def get_company_events(
         joinedload(EventCompany.event).joinedload(Event.company)
     ).filter(
         EventCompany.CompanyID == company_id,
-        EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
+        EventCompany.IsDeleted== False  # type: ignore[arg-type]
     )
     
     if active_only:
-        query = query.filter(EventCompany.IsActive.is_(True))  # type: ignore[arg-type]
+        query = query.filter(EventCompany.IsActive== True)  # type: ignore[arg-type]
     
     if include_participant:
         # Include all roles (owner, organizer, participant)
@@ -213,7 +213,7 @@ async def get_company_events(
             forms = db.execute(
                 select(Form).where(
                     Form.EventID == event.EventID,
-                    Form.IsDeleted.is_(False)  # type: ignore[arg-type]
+                    Form.IsDeleted== False  # type: ignore[arg-type]
                 )
             ).scalars().all()
             
@@ -296,7 +296,7 @@ async def get_company_events(
                 missing_events = db.execute(
                     select(Event)
                     .where(Event.EventID.in_(list(missing_event_ids)))
-                    .where(Event.IsDeleted.is_(False))  # type: ignore[arg-type]
+                    .where(Event.IsDeleted== False)  # type: ignore[arg-type]
                 ).scalars().all()
                 
                 # Exclude archived events
@@ -350,8 +350,8 @@ async def disassociate_company_from_event(
         select(EventCompany).where(
             EventCompany.EventID == event_id,
             EventCompany.CompanyID == company_id,
-            EventCompany.IsActive.is_(True),  # type: ignore[arg-type]
-            EventCompany.IsDeleted.is_(False)  # type: ignore[arg-type]
+            EventCompany.IsActive== True,  # type: ignore[arg-type]
+            EventCompany.IsDeleted== False  # type: ignore[arg-type]
         )
     ).scalar_one_or_none()
     
@@ -393,7 +393,7 @@ async def disassociate_company_from_event(
         .join(UserCompanyStatus)
         .where(
             UserCompany.CompanyID == company_id,
-            UserCompany.IsDeleted.is_(False),  # type: ignore[arg-type]
+            UserCompany.IsDeleted== False,  # type: ignore[arg-type]
             UserCompanyStatus.StatusCode == 'active'
         )
     ).scalars().all()
@@ -403,7 +403,7 @@ async def disassociate_company_from_event(
         event_forms = db.execute(
             select(Form.FormID).where(
                 Form.EventID == event_id,
-                Form.IsDeleted.is_(False)  # type: ignore[arg-type]
+                Form.IsDeleted== False  # type: ignore[arg-type]
             )
         ).scalars().all()
         
@@ -414,7 +414,7 @@ async def disassociate_company_from_event(
                 select(FormAccessControl).where(
                     FormAccessControl.FormID.in_(event_forms),
                     FormAccessControl.UserID.in_(company_users),
-                    FormAccessControl.IsDeleted.is_(False)  # type: ignore[arg-type]
+                    FormAccessControl.IsDeleted== False  # type: ignore[arg-type]
                 )
             ).scalars().all()
             
@@ -449,7 +449,7 @@ async def get_event_company_role_by_code(
     role = db.execute(
         select(EventCompanyRole).where(
             EventCompanyRole.RoleCode == role_code,
-            EventCompanyRole.IsActive.is_(True)  # type: ignore[arg-type]
+            EventCompanyRole.IsActive== True  # type: ignore[arg-type]
         )
     ).scalar_one_or_none()
     

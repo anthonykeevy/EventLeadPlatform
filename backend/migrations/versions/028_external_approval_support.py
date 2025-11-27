@@ -42,9 +42,9 @@ def upgrade() -> None:
         sa.Column('CreatedDate', sa.DateTime(), nullable=False, server_default=sa.func.getutcdate()),
         sa.Column('CreatedBy', sa.BigInteger(), nullable=True),
         sa.PrimaryKeyConstraint('FormApprovalTokenID'),
-        sa.ForeignKeyConstraint(['FormID'], ['dbo.Form'], ['FormID']),
-        sa.ForeignKeyConstraint(['UserID'], ['dbo.User'], ['UserID']),
-        sa.ForeignKeyConstraint(['CreatedBy'], ['dbo.User'], ['UserID'])
+        sa.ForeignKeyConstraint(('FormID',), ['dbo.Form.FormID']),
+        sa.ForeignKeyConstraint(('UserID',), ['dbo.User.UserID']),
+        sa.ForeignKeyConstraint(('CreatedBy',), ['dbo.User.UserID'])
     )
 
     # Add index on Token for fast lookups

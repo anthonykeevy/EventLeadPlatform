@@ -15,6 +15,7 @@ from common.database import get_db
 from modules.auth.dependencies import get_current_user, get_current_user_optional
 from modules.auth.models import CurrentUser
 from modules.auth.jwt_service import create_access_token, create_refresh_token
+from modules.auth.token_service import store_refresh_token
 from common.rbac import require_company_admin_for_company
 from models.user import User
 from models.company import Company
@@ -107,7 +108,13 @@ async def create_first_company(
             legal_entity_name=request.legal_entity_name,  # Story 1.19: ABR data
             abn_status=request.abn_status,  # Story 1.19: ABR data
             entity_type=request.entity_type,  # Story 1.19: ABR data
-            gst_registered=request.gst_registered  # Story 1.19: ABR data
+            gst_registered=request.gst_registered,  # Story 1.19: ABR data
+            # Billing Fields (Story 2.12 Fix)
+            billing_address_line1=request.billing_address_line1,
+            billing_city=request.billing_city,
+            billing_state=request.billing_state,
+            billing_postal_code=request.billing_postal_code,
+            billing_country_id=request.billing_country_id
         )
         
         # Issue new JWT with role and company_id (AC-1.5.6)
@@ -124,6 +131,9 @@ async def create_first_company(
             db=db,
             user_id=current_user.user_id
         )
+        
+        # Store refresh token in database (Story 1.13 / Story 2.12 Fix)
+        store_refresh_token(db, current_user.user_id, refresh_token)
         
         # Only commit if EVERYTHING above succeeded
         db.commit()

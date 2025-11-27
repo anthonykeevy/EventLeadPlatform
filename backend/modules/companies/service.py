@@ -48,6 +48,8 @@ async def check_user_has_company(db: Session, user_id: int) -> bool:
     return user_company is not None
 
 
+from models.company_billing_details import CompanyBillingDetails
+
 async def create_company(
     db: Session,
     user_id: int,
@@ -62,7 +64,13 @@ async def create_company(
     legal_entity_name: Optional[str] = None,
     abn_status: Optional[str] = None,
     entity_type: Optional[str] = None,
-    gst_registered: Optional[bool] = None
+    gst_registered: Optional[bool] = None,
+    # Billing Fields (Story 2.12 Fix)
+    billing_address_line1: Optional[str] = None,
+    billing_city: Optional[str] = None,
+    billing_state: Optional[str] = None,
+    billing_postal_code: Optional[str] = None,
+    billing_country_id: Optional[int] = None
 ) -> Tuple[Company, UserCompany]:
     """
     Create a new company and assign user as company_admin.
@@ -125,21 +133,50 @@ async def create_company(
                 company_name
             )
             
-            if is_verified:
-                # Auto-join existing company (domain matches - likely legitimate employee)
+            # Check for Approval Trust (Story 2.12)
+            # If domain check fails, check if user has recently approved a form for this company
+            from models.form import Form
+            from models.form_approval_token import FormApprovalToken
+            
+            is_trusted_approver = False
+            if not is_verified:
+                trust_check = db.execute(
+                    select(FormApprovalToken)
+                    .join(Form, Form.FormID == FormApprovalToken.FormID)
+                    .where(
+                        Form.CompanyID == existing_company.CompanyID,
+                        FormApprovalToken.UserID == user_id,
+                        FormApprovalToken.IsUsed == True # Must have actually approved/rejected
+                    )
+                ).first()
+                if trust_check:
+                    is_trusted_approver = True
+                    verification_reason = "User has prior approval history with this company"
+            
+            if is_verified or is_trusted_approver:
+                # Auto-join existing company (domain matches OR trusted approver)
                 logger.info(
                     f"Auto-joining user to existing company: UserID={user_id}, "
                     f"CompanyID={existing_company.CompanyID}, ABN={abn}, "
                     f"Reason: {verification_reason}"
                 )
                 
-                # Get company_admin role ID
-                admin_role = db.execute(
-                    select(UserCompanyRole).where(UserCompanyRole.RoleName == 'company_admin')
+                # Determine Role: Admin for domain match, User for trusted approver
+                role_code = 'company_admin' if is_verified else 'company_user'
+                
+                # Get role ID
+                role_obj = db.execute(
+                    select(UserCompanyRole).where(UserCompanyRole.RoleCode == role_code)
                 ).scalar_one_or_none()
                 
-                if not admin_role:
-                    raise ValueError("company_admin role not found in reference data")
+                if not role_obj:
+                    # Fallback to admin if user role not found (shouldn't happen)
+                    role_obj = db.execute(
+                        select(UserCompanyRole).where(UserCompanyRole.RoleCode == 'company_admin')
+                    ).scalar_one_or_none()
+                
+                if not role_obj:
+                    raise ValueError(f"{role_code} role not found in reference data")
                 
                 # Get active status ID
                 active_status = db.execute(
@@ -149,13 +186,31 @@ async def create_company(
                 if not active_status:
                     raise ValueError("active status not found in reference data")
                 
+                # Get trusted joined_via method
+                trusted_via = db.execute(
+                    select(JoinedVia).where(JoinedVia.MethodCode == "approval_trust")
+                ).scalar_one_or_none()
+                
+                if not trusted_via:
+                    # Fallback to invitation if approval_trust doesn't exist yet
+                    trusted_via = db.execute(
+                        select(JoinedVia).where(JoinedVia.MethodCode == "invitation")
+                    ).scalar_one_or_none()
+                
+                if not trusted_via:
+                     # Absolute fallback
+                     trusted_via = db.execute(
+                        select(JoinedVia).where(JoinedVia.MethodCode == "signup")
+                    ).scalar_one_or_none()
+
                 # Create UserCompany relationship (company already exists)
                 user_company = UserCompany(
                     UserID=user_id,
                     CompanyID=existing_company.CompanyID,
-                    UserCompanyRoleID=admin_role.UserCompanyRoleID,
+                    UserCompanyRoleID=role_obj.UserCompanyRoleID,
                     StatusID=active_status.UserCompanyStatusID,
                     JoinedDate=datetime.utcnow(),
+                    JoinedViaID=trusted_via.JoinedViaID,
                     CreatedBy=user_id,
                     CreatedDate=datetime.utcnow(),
                     UpdatedBy=user_id,
@@ -165,10 +220,21 @@ async def create_company(
                 db.add(user_company)
                 db.flush()
                 
+                # Update user onboarding status
+                user = db.execute(
+                    select(User).where(User.UserID == user_id)
+                ).scalar_one_or_none()
+                
+                if user:
+                    user.OnboardingComplete = True
+                    user.OnboardingStep = 5
+                    user.UpdatedDate = datetime.utcnow()
+                    user.UpdatedBy = user_id
+                
                 logger.info(
-                    f"User auto-joined existing company via domain verification: "
+                    f"User auto-joined existing company: "
                     f"UserID={user_id}, Email={user_email}, CompanyID={existing_company.CompanyID}, "
-                    f"CompanyName={company_name}"
+                    f"Role={role_code}"
                 )
                 
                 # Return existing company + new user-company relationship
@@ -266,6 +332,24 @@ async def create_company(
     )
     db.add(company)
     db.flush()  # Get CompanyID
+    
+    # Create Billing Details (Story 2.12 Fix)
+    # Even if fields are empty, create the record for future updates
+    billing_details = CompanyBillingDetails(
+        CompanyID=company.CompanyID,
+        BillingAddressLine1=billing_address_line1,
+        BillingCity=billing_city,
+        BillingState=billing_state,
+        BillingPostalCode=billing_postal_code,
+        BillingCountryID=billing_country_id or country_id, # Default to company country
+        BillingEmail=email, # Default to company email
+        BillingPhone=phone, # Default to company phone
+        CreatedBy=user_id,
+        CreatedDate=datetime.utcnow(),
+        UpdatedBy=user_id,
+        UpdatedDate=datetime.utcnow()
+    )
+    db.add(billing_details)
     
     # Log company creation to audit (AC-1.5.7)
     # Log company creation to audit table (field-level tracking)

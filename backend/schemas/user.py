@@ -280,3 +280,16 @@ class EnhancedUserProfileResponse(BaseModel):
             }
         }
     )
+
+
+class SuggestedCompanyResponse(BaseModel):
+    """Response schema for suggested company (Story 2.12)"""
+    company_name: Optional[str] = Field(None, description="Suggested company name based on history")
+    source: Optional[str] = Field(None, description="Source of suggestion (e.g., 'approval_history')")
+    # Full details for pre-filling
+    abn: Optional[str] = None
+    billing_address_line1: Optional[str] = None
+    billing_city: Optional[str] = None
+    billing_state: Optional[str] = None
+    billing_postal_code: Optional[str] = None
+    country_id: Optional[int] = None

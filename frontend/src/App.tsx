@@ -28,6 +28,7 @@ const PasswordResetConfirm = lazy(() => import('./features/auth').then(module =>
 const DashboardPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.DashboardPage })))
 const InvitationAcceptancePage = lazy(() => import('./features/invitations').then(module => ({ default: module.InvitationAcceptancePage })))
 const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
+const ExternalApprovalPage = lazy(() => import('./features/forms/pages/ExternalApprovalPage').then(module => ({ default: module.ExternalApprovalPage })))
 import { RequireAuth } from './features/auth/components/RequireAuth'
 // Forms are now integrated into the dashboard (Company → Event → Form hierarchy)
 // Theme settings now accessible through user menu in dashboard
@@ -252,6 +253,7 @@ function App() {
                 <Route path="/reset-password" element={<PasswordResetRequest />} />
                 <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
                 <Route path="/invitations/accept" element={<InvitationAcceptancePage />} />
+                <Route path="/approval/external/:token" element={<ExternalApprovalPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route
                   path="/admin/dashboard"

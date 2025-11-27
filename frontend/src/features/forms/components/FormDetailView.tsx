@@ -8,6 +8,7 @@ import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, Bar
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
+import { ApprovalRequestModal } from './ApprovalRequestModal'
 import { checkFormAccess } from '../api/formAccessApi'
 import { submitFormForApproval, approveForm, rejectForm, updateForm } from '../api/formsApi'
 import { AccessCheckResponse } from '../types/form-access.types'
@@ -25,6 +26,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   const [userAccess, setUserAccess] = useState<AccessCheckResponse | null>(null)
   const [isLoadingAccess, setIsLoadingAccess] = useState(false)
   const [showAccessControl, setShowAccessControl] = useState(false)
+  const [showApprovalRequest, setShowApprovalRequest] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
@@ -80,21 +82,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
         }
 
         // Standard User Logic
-        if (!confirm(`Form requires approval based on your company's policy and will be sent to Company Admins for approval.\n\nSend Request?`)) {
-            return
-        }
-        
-        try {
-          setIsProcessing(true)
-          await submitFormForApproval(form.formId)
-          alert('Request sent to Company Admins')
-          onClose() 
-        } catch (err) {
-          console.error('Failed to submit:', err)
-          alert('Failed to submit form')
-        } finally {
-          setIsProcessing(false)
-        }
+        setShowApprovalRequest(true)
     } else {
         // Low cost form - Auto-publish
         if (!confirm('Publish this form?')) return
@@ -483,6 +471,21 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           isOpen={showAccessControl}
           formId={form.formId}
           onClose={() => setShowAccessControl(false)}
+        />
+      )}
+
+      {/* Approval Request Modal */}
+      {showApprovalRequest && (
+        <ApprovalRequestModal
+          isOpen={showApprovalRequest}
+          formId={form.formId}
+          formName={form.formName}
+          deploymentCost={form.deploymentCost || 0}
+          onClose={() => setShowApprovalRequest(false)}
+          onSuccess={() => {
+            alert('Approval request sent successfully')
+            onClose() // Close detail view
+          }}
         />
       )}
     </div>

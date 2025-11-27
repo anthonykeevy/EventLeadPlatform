@@ -3,7 +3,7 @@ Forms Module Schemas
 Pydantic models for form requests/responses
 """
 from pydantic import BaseModel, Field, validator
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
 from decimal import Decimal
 
@@ -132,6 +132,14 @@ class RejectFormRequest(BaseModel):
         populate_by_name = True
 
 
+class ExternalApprovalRequest(BaseModel):
+    """Schema for requesting external approval"""
+    email: str = Field(..., min_length=5, max_length=255, alias="email")
+    
+    class Config:
+        populate_by_name = True
+
+
 class TransferFormOwnershipResponse(BaseModel):
     """Response for bulk transfer of form ownership"""
     success: bool = Field(..., alias="success")
@@ -220,3 +228,13 @@ class DeleteFormResponse(BaseModel):
     class Config:
         populate_by_name = True
 
+
+class ExternalApprovalResponse(BaseModel):
+    """Response for external approval request"""
+    success: bool = Field(..., alias="success")
+    message: str = Field(..., alias="message")
+    token: str = Field(..., alias="token")
+    email: str = Field(..., alias="email")
+    
+    class Config:
+        populate_by_name = True

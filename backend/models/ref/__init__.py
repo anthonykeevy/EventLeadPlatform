@@ -27,6 +27,7 @@ from .public_review_status import PublicReviewStatus
 from .form_status import FormStatus
 from .form_approval_status import FormApprovalStatus
 from .form_access_control_access_type import FormAccessControlAccessType
+from .company_relationship_type import CompanyRelationshipType
 
 __all__ = [
     "Country",
@@ -54,5 +55,6 @@ __all__ = [
     "FormStatus",
     "FormApprovalStatus",
     "FormAccessControlAccessType",
+    "CompanyRelationshipType",
 ]
 

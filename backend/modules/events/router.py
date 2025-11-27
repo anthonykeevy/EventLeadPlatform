@@ -306,6 +306,7 @@ async def list_company_events(
     System Admins: Returns ALL events in the platform (bypasses company filtering) - CURRENTLY DISABLED (Requires Company Context)
     """
     try:
+        print(f"DEBUG: Entering list_company_events for user {current_user.user_id}")
         # Build filters dict
         filters: Dict[str, Any] = {}
         if event_type_id:
@@ -417,6 +418,11 @@ async def list_company_events(
         )
         
     except Exception as e:
+        import traceback
+        with open("last_error_trace.txt", "w") as f:
+            f.write(f"Error: {str(e)}\\n")
+            f.write(traceback.format_exc())
+        
         logger.error(f"Error listing events: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1767,5 +1773,3 @@ async def get_recent_cities_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get recent cities"
         )
-
-

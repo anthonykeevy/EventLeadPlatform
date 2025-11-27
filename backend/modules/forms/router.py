@@ -23,7 +23,9 @@ from .schemas import (
     FormApprovalStatusResponse,
     TransferFormOwnershipRequest,
     TransferFormOwnershipResponse,
-    RejectFormRequest
+    RejectFormRequest,
+    ExternalApprovalRequest,
+    ExternalApprovalResponse
 )
 from .service import (
     create_form,
@@ -677,6 +679,49 @@ async def reject_form_request(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to reject form")
 
 
+@router.post(
+    "/{form_id}/request-external-approval",
+    response_model=ExternalApprovalResponse,
+    summary="Request external approval",
+    description="Request approval from an external stakeholder (Story 2.12)"
+)
+async def request_external_approval_endpoint(
+    form_id: int,
+    request: ExternalApprovalRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> ExternalApprovalResponse:
+    """
+    Request approval from an external stakeholder.
+    """
+    try:
+        service = ApprovalService(db)
+        result = await service.request_external_approval(
+            form_id=form_id,
+            requestor_id=current_user.user_id,
+            company_id=current_user.company_id,
+            external_email=request.email
+        )
+        
+        db.commit()
+        
+        return ExternalApprovalResponse(
+            success=True,
+            message=result["message"],
+            token=result["token"],
+            email=result["email"]
+        )
+        
+    except ValueError as e:
+        logger.warning(f"Invalid external approval request: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error requesting external approval: {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to request external approval")
+
+
 # =====================================================================
 # Helper Functions
 # =====================================================================
@@ -733,4 +778,3 @@ def _form_to_response(form: Form) -> FormResponse:
         updatedDate=form.UpdatedDate,
         updatedBy=form.UpdatedBy
     )
-

@@ -27,6 +27,7 @@ from modules.events.admin_review_router import router as admin_review_router  # 
 from modules.forms.router import router as forms_router  # Story 2.8: Form Header Foundation
 from modules.forms.access_control_router import router as forms_access_control_router  # Story 2.9: Form Access Control
 from modules.forms.ownership_router import router as forms_ownership_router  # Story 2.9: Form Ownership Transfer
+from modules.forms.public_router import router as forms_public_router  # Story 2.12: External Approver Support
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -56,6 +57,8 @@ app.add_middleware(
         "http://127.0.0.1:3000",  # React dev server (IPv4)
         "http://localhost:5173",  # Vite default port (backup)
         "http://127.0.0.1:5173",  # Vite default port (IPv4)
+        # Add current origin for safety if user is accessing via explicit IP or different port
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Explicitly allow all methods including OPTIONS
@@ -79,6 +82,7 @@ app.include_router(admin_review_router, prefix="/api")  # Story 2.6: Admin Revie
 # are matched before parameterized routes ({form_id}) in forms_router
 app.include_router(forms_access_control_router)  # Story 2.9: Form Access Control
 app.include_router(forms_ownership_router)  # Story 2.9: Form Ownership Transfer
+app.include_router(forms_public_router)  # Story 2.12: External Approver Support
 app.include_router(forms_router)  # Story 2.8: Form Header Foundation
 
 @app.get("/")

@@ -241,6 +241,44 @@ export async function submitFormForApproval(formId: number): Promise<UpdateFormR
 }
 
 /**
+ * Request External Approval (Story 2.12)
+ */
+export async function requestExternalApproval(formId: number, email: string): Promise<any> {
+    try {
+        const response = await apiClient.post(`/api/forms/${formId}/request-external-approval`, { email })
+        return response.data
+    } catch (error) {
+        throw formatError(error)
+    }
+}
+
+/**
+ * Get External Approval Context (Story 2.12)
+ */
+export async function getExternalApprovalContext(token: string): Promise<any> {
+    try {
+        // Note: Public endpoint, but apiClient might attach auth header if token exists. 
+        // Should be fine as backend ignores it for public routes or handles it.
+        const response = await apiClient.get(`/api/public/approval/${token}`)
+        return response.data
+    } catch (error) {
+        throw formatError(error)
+    }
+}
+
+/**
+ * Submit External Decision (Story 2.12)
+ */
+export async function submitExternalDecision(token: string, decision: string, reason?: string): Promise<any> {
+    try {
+        const response = await apiClient.post(`/api/public/approval/${token}/decide`, { decision, reason })
+        return response.data
+    } catch (error) {
+        throw formatError(error)
+    }
+}
+
+/**
  * Approve a pending form
  */
 export async function approveForm(formId: number): Promise<UpdateFormResponse> {

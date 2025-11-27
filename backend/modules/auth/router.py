@@ -53,6 +53,7 @@ from models.user import User
 from models.user_company import UserCompany
 from models.ref.user_company_status import UserCompanyStatus
 from models.ref.user_company_role import UserCompanyRole
+from models.ref.user_status import UserStatus
 from jose import JWTError  # type: ignore
 from modules.auth.audit_service import (
     log_auth_event,
@@ -61,6 +62,7 @@ from modules.auth.audit_service import (
 )
 from services.email_service import get_email_service
 from common.auth_event_decorator import log_auth_attempts
+from modules.users.external_user_service import ExternalUserService
 
 logger = logging.getLogger(__name__)
 
@@ -190,11 +192,22 @@ async def signup(
     # Standard signup flow (no invitation)
     # 1. Check email uniqueness
     existing_user = get_user_by_email(db, request_data.email)
+    is_upgrade = False
+    
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered. Please use a different email or try logging in."
-        )
+        # Story 2.12: Check if it's an EXTERNAL user (Shadow User)
+        # We need to check status. Loading status if not eager loaded.
+        status_obj = db.get(UserStatus, existing_user.StatusID)
+        
+        if status_obj and status_obj.StatusCode == 'EXTERNAL':
+            # Allow upgrade
+            is_upgrade = True
+            logger.info(f"Upgrading EXTERNAL user {existing_user.Email} to full account.")
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered. Please use a different email or try logging in."
+            )
     
     # 2. Validate password strength
     password_errors = validate_password_strength(db, request_data.password)
@@ -204,15 +217,27 @@ async def signup(
             detail=f"Password does not meet security requirements: {'; '.join(password_errors)}"
         )
     
-    # 3. Create user (don't commit yet - transactional with email send)
-    user = create_user(
-        db=db,
-        email=request_data.email,
-        password=request_data.password,
-        first_name=request_data.first_name,
-        last_name=request_data.last_name,
-        auto_commit=False  # We'll commit after email sends
-    )
+    if is_upgrade:
+        # Perform Upgrade
+        ext_service = ExternalUserService(db)
+        pw_hash = hash_password(request_data.password)
+        # This upgrades them to PENDING (usually) and sets password
+        user = await ext_service.upgrade_external_user(
+            existing_user.UserID,
+            pw_hash,
+            request_data.first_name,
+            request_data.last_name
+        )
+    else:
+        # 3. Create user (don't commit yet - transactional with email send)
+        user = create_user(
+            db=db,
+            email=request_data.email,
+            password=request_data.password,
+            first_name=request_data.first_name,
+            last_name=request_data.last_name,
+            auto_commit=False  # We'll commit after email sends
+        )
     
     try:
         # 4. Generate verification token (don't commit yet)
@@ -236,7 +261,11 @@ async def signup(
         )
         
         # 6. Log user creation audit (still part of transaction)
-        log_user_creation(db, user.UserID, user.Email)
+        if not is_upgrade:
+            log_user_creation(db, user.UserID, user.Email)
+        else:
+            # Log upgrade event?
+            pass 
         
         # 7. Email sent successfully - commit the transaction
         db.commit()
@@ -449,11 +478,14 @@ async def login(
         )
     
     # 4. Check account active (via StatusID relationship)
-    if user.status and user.status.StatusName not in ["Active"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Your account has been deactivated. Please contact support."
-        )
+    # Use StatusID if relationship not loaded
+    if user.StatusID:
+        status_obj = db.get(UserStatus, user.StatusID)
+        if status_obj and status_obj.StatusName not in ["Active"]:
+             raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your account has been deactivated. Please contact support."
+            )
     
     # 5. Get user's role and company (if exists)
     # Priority: System-level role (User.UserRoleID) takes precedence over company-level role
@@ -1101,4 +1133,3 @@ async def auth_health():
             "/api/auth/password-reset/confirm"
         ]
     }
-

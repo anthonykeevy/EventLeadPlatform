@@ -1,0 +1,42 @@
+<story_context>
+    <story_id>2.12</story_id>
+    <title>External Approver Support</title>
+    <domain>Approval Workflows</domain>
+    <status>DRAFT</status>
+    
+    <dependencies>
+        <story id="2.11">Approval Workflow Extensions (Service Base)</story>
+        <story id="1.7">Email Service</story>
+        <story id="1.1">User Management (Signup Flow)</story>
+    </dependencies>
+
+    <business_context>
+        <goal>Enable external stakeholders to approve forms and retain history if they join.</goal>
+        <value_proposition>Seamless transition from external stakeholder to platform user with preserved audit trail.</value_proposition>
+        <risk>Shadow user data management (GDPR/Privacy). Mitigation: Clear data retention policies.</risk>
+    </business_context>
+
+    <technical_context>
+        <components>
+            <component>ApprovalService</component>
+            <component>ExternalUserService (New Logic)</component>
+            <component>AuthService (Signup Upgrade)</component>
+            <component>FormApprovalToken</component>
+        </components>
+        <data_model>
+            <entity>User (Status='EXTERNAL')</entity>
+            <new_table>FormApprovalToken</new_table>
+            <fields>TokenID, FormID, UserID (FK), Token, ExpiresAt, IsUsed</fields>
+        </data_model>
+    </technical_context>
+
+    <acceptance_criteria>
+        <criterion>Auto-create 'EXTERNAL' user for new email addresses</criterion>
+        <criterion>Reuse existing 'EXTERNAL' user for repeated requests</criterion>
+        <criterion>Upgrade 'EXTERNAL' to 'ACTIVE' user upon signup</criterion>
+        <criterion>Retain 'UserID' during upgrade to preserve history</criterion>
+        <criterion>Secure token logic linked to UserID</criterion>
+        <criterion>Fraud Guard checks</criterion>
+        <criterion>Admin Transparency notifications</criterion>
+    </acceptance_criteria>
+</story_context>

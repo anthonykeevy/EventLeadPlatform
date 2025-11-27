@@ -54,6 +54,44 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
   const postcodeValue = watch('billingPostcode')
   const abnValue = watch('abn')
 
+  // Fetch suggested company from history (Story 2.12)
+  React.useEffect(() => {
+    const fetchSuggestion = async () => {
+      // Only fetch if no company name set (don't overwrite existing/initial data)
+      if (watch('companyName')) return
+
+      try {
+        const token = getAccessToken()
+        if (!token) return
+
+        const response = await fetch('http://127.0.0.1:8000/api/users/me/suggested-company', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          if (data.company_name) {
+             // Pre-fill and switch to manual entry so user sees it
+             setValue('companyName', data.company_name, { shouldValidate: true })
+             
+             if (data.abn) setValue('abn', data.abn, { shouldValidate: true })
+             if (data.billing_address_line1) setValue('billingAddress', data.billing_address_line1, { shouldValidate: true })
+             if (data.billing_city) setValue('billingSuburb', data.billing_city, { shouldValidate: true })
+             if (data.billing_state) setValue('billingState', data.billing_state, { shouldValidate: true })
+             if (data.billing_postal_code) setValue('billingPostcode', data.billing_postal_code, { shouldValidate: true })
+             
+             setUseManualEntry(true) 
+          }
+        }
+      } catch (e) {
+        // Silent fail for suggestions
+        console.error("Failed to fetch suggestion", e)
+      }
+    }
+    
+    fetchSuggestion()
+  }, [setValue, setUseManualEntry]) // Dependencies
+
   // Handle company selection from ABR search (Story 1.19)
   const handleCompanySelected = useCallback(async (company: CompanySearchResult, searchContext?: {searchType: string, query: string}) => {
     // If searched by Name, enrich with full ABN details (get entity type, GST, etc.)
@@ -143,7 +181,14 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
           legal_entity_name: abrData?.companyName || null,
           abn_status: abrData?.status || null,
           entity_type: abrData?.entityType || null,
-          gst_registered: abrData?.gstRegistered || data.gstRegistered || null
+          gst_registered: abrData?.gstRegistered || data.gstRegistered || null,
+          
+          // Story 2.12 Fix: Send Billing Address
+          billing_address_line1: data.billingAddress || null,
+          billing_city: data.billingSuburb || null,
+          billing_state: data.billingState || null,
+          billing_postal_code: data.billingPostcode || null,
+          billing_country_id: companyCountry
         })
       })
 

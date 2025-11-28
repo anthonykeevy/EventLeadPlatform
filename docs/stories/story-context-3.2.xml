@@ -1,0 +1,33 @@
+<context>
+    <story id="3.2">
+        <title>JSON Schema Definition</title>
+        <description>Define Pydantic models and Zod schemas for strict validation of the Form Definition JSON.</description>
+        <requirements>
+            <requirement>Create Pydantic models for FormDefinition, Page, Component, and Theme.</requirement>
+            <requirement>Implement validation logic in FormVersionService before saving.</requirement>
+            <requirement>Ensure support for multi-page forms (Pages array).</requirement>
+            <requirement>Define polymorphic component types using discriminators.</requirement>
+        </requirements>
+        <references>
+            <reference file="backend/models/form_version.py">FormVersion Table Definition</reference>
+            <reference file="docs/stories/EPIC-3-ARCHITECTURE-REF.md">Architecture Reference</reference>
+        </references>
+        <schema_example>
+{
+  "schemaVersion": "1.0",
+  "pages": [
+    {
+      "id": "p1",
+      "components": [
+        {
+          "id": "c1",
+          "type": "text",
+          "props": { "label": "Name" }
+        }
+      ]
+    }
+  ]
+}
+        </schema_example>
+    </story>
+</context>

@@ -34,6 +34,12 @@ To support drag-and-drop, custom objects, and global styling without hardcoding 
 
 ### **C. The "DefinitionJSON" (The Contract)**
 The schema is the single source of truth. It is "compiled" by the Builder and stored in `FormVersion.DefinitionJSON`.
+It is strictly validated by the backend using **Pydantic** before saving.
+
+**Validation Layer:**
+*   **Service:** `FormVersionService`
+*   **Schema File:** `backend/schemas/form_definition.py`
+*   **Enforcement:** Strict Type checking, Unique ID enforcement, `schemaVersion` check.
 
 **Structure Strategy:**
 *   **Global Theme:** Defines the CSS variables (Fonts, Colors, Spacing) at the root.

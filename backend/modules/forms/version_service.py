@@ -13,6 +13,7 @@ from models.form import Form
 from models.audit.activity_log import ActivityLog
 from common.logger import get_logger
 from modules.forms.access_guard import check_form_access_guard
+from modules.forms.validation_service import validate_definition
 
 logger = get_logger(__name__)
 
@@ -63,6 +64,9 @@ class FormVersionService:
         new_ver_num = last_ver + 1
 
         # Create new version
+        # Validate Definition Schema
+        validate_definition(definition)
+
         new_version = FormVersion(
             FormID=form_id,
             VersionNumber=new_ver_num,
@@ -99,6 +103,9 @@ class FormVersionService:
         if version.Status != 'DRAFT':
             raise ValueError("Only DRAFT versions can be modified")
             
+        # Validate Definition Schema
+        validate_definition(definition)
+
         version.DefinitionJSON = json.dumps(definition)
         if comment is not None:
             version.VersionComment = comment

@@ -26,10 +26,10 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 1/9 | 🏃 In Progress |
-| **Next Story** | 3.2 - JSON Schema Definition | 📋 **PLANNED** |
+| **Stories Complete** | 2/9 | 🏃 In Progress |
+| **Next Story** | 3.3 - Drag-and-Drop Canvas | 📋 **PLANNED** |
 | **Domains Complete** | 0/4 | 🏃 In Progress |
-| **UAT Tests Passed** | 5 | ✅ Passed |
+| **UAT Tests Passed** | 10 | ✅ Passed |
 
 ---
 
@@ -38,7 +38,7 @@
 ### **Domain 1: Schema & Versioning**
 *   **Stories:** 3.1, 3.2
 *   **Focus:** Backend storage, JSON schema definition, Version control
-*   **Status:** 🏃 In Progress
+*   **Status:** ✅ Complete
 
 ### **Domain 2: Visual Builder**
 *   **Stories:** 3.3, 3.4, 3.5
@@ -62,7 +62,7 @@
 | Story | Title | Status | Domain | Key Deliverables |
 |-------|-------|--------|--------|------------------|
 | 3.1 | Form Versioning Architecture | ✅ Complete | Schema | `FormVersion` table, JSON storage, Version Service |
-| 3.2 | JSON Schema Definition | 📋 Planned | Schema | Zod schema, Validation logic |
+| 3.2 | JSON Schema Definition | ✅ Complete | Schema | Pydantic Schema, Strict Validation, 400 Bad Request Handling |
 | 3.3 | Drag-and-Drop Canvas | 📋 Planned | Builder | Dnd-kit integration, Canvas UI |
 | 3.4 | Component Library | 📋 Planned | Builder | Text, Select, Radio components |
 | 3.5 | Properties Panel | 📋 Planned | Builder | Field settings editor |

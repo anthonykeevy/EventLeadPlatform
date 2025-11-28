@@ -1,6 +1,6 @@
 # Epic 3 Workflow Guide - Advanced Agentic Development
 
-**Current Focus:** Story 3.1 - Form Versioning Architecture  
+**Current Focus:** Story 3.3 - Drag-and-Drop Canvas  
 **Status:** 🟢 Ready for Execution  
 
 ---
@@ -9,7 +9,7 @@
 **FOR THE PM AGENT:**
 At the end of every story, you **MUST** update this document.
 1.  Identify the **Next Story** from `EPIC-3-STATUS.md`.
-2.  **REWRITE** the prompts in Stages 1, 2, 3, and 4 below to be specific to that new story (replace "3.1" with "3.2", update goals, update context).
+2.  **REWRITE** the prompts in Stages 1, 2, 3, and 4 below to be specific to that new story (replace "3.3" with "3.4", update goals, update context).
 3.  Ensure the "Current Focus" header above reflects the new story.
 4.  Only then is the story considered "Closed".
 
@@ -17,21 +17,21 @@ At the end of every story, you **MUST** update this document.
 
 ## 📋 **Stage 1: Create Story (Scrum Master)**
 
-**Current Target:** Story 3.1  
-**Goal:** Establish the database foundation for form versioning.
+**Current Target:** Story 3.3  
+**Goal:** Establish the frontend Drag-and-Drop interface foundation.
 
 ### **Copy/Paste this Prompt for the Scrum Master (@sm.mdc)**
 ```markdown
-@sm.mdc Please create Epic 3 Story 3.1: Form Versioning Architecture.
+@sm.mdc Please create Epic 3 Story 3.3: Drag-and-Drop Canvas.
 
 Context:
-- Previous Story: None (Epic Start)
-- Focus Domain: Schema & Versioning
-- Goal: Establish the database foundation (FormVersion table) and backend logic to store and retrieve JSON form definitions.
+- Previous Story: 3.2 (JSON Schema & Validation Implemented)
+- Focus Domain: Visual Builder
+- Goal: Initialize the React Drag-and-Drop environment (dnd-kit) and basic canvas structure.
 
 Requirements:
-1. Create story file: docs/stories/story-3.1.md
-2. Create context file: docs/stories/story-context-3.1.xml
+1. Create story file: docs/stories/story-3.3.md
+2. Create context file: docs/stories/story-context-3.3.xml
 3. Update Epic 3 Status: docs/stories/EPIC-3-STATUS.md
 4. **CRITICAL:** Include a placeholder section for "UAT Test Guide" in the story file.
 
@@ -46,25 +46,25 @@ Deliverables:
 
 ## 🧪 **Stage 2: UAT Design (Developer)**
 
-**When:** Immediately after Story 3.1 is created.  
+**When:** Immediately after Story 3.3 is created.  
 **Goal:** Define the test cases before coding.
 
 ### **Copy/Paste this Prompt for the Developer (@dev.mdc)**
 ```markdown
-@dev.mdc Please design the UAT Test Guide for Story 3.1.
+@dev.mdc Please design the UAT Test Guide for Story 3.3.
 
-Story Location: docs/stories/story-3.1.md
-Context: docs/stories/story-context-3.1.xml
+Story Location: docs/stories/story-3.3.md
+Context: docs/stories/story-context-3.3.xml
 
 Goal:
-Create a comprehensive `docs/stories/STORY-3.1-UAT-TEST-GUIDE.md` document. 
+Create a comprehensive `docs/stories/STORY-3.3-UAT-TEST-GUIDE.md` document. 
 This document must define the EXACT scenarios we will test to prove the story is complete.
 
 Requirements:
-- Define Pre-requisites (e.g., "Database is migrated").
-- Define 3-5 core Test Scenarios (e.g., "Create new form version", "Retrieve specific version", "Publish version").
+- Define Pre-requisites (e.g., "React app running").
+- Define 3-5 core Test Scenarios (e.g., "Drag item from sidebar", "Drop item on canvas", "Reorder items").
 - For each scenario, list: Steps to Execute -> Expected Result.
-- Include edge cases (e.g., "Retrieve non-existent version").
+- Include edge cases (e.g., "Drop outside canvas").
 
 Do NOT write any implementation code yet. Just the test guide.
 ```
@@ -78,22 +78,23 @@ Do NOT write any implementation code yet. Just the test guide.
 
 ### **Copy/Paste this Prompt for the Developer (@dev.mdc)**
 ```markdown
-@dev.mdc Please implement Story 3.1 based on the approved UAT Guide.
+@dev.mdc Please implement Story 3.3 based on the approved UAT Guide.
 
-Story: docs/stories/story-3.1.md
-UAT Guide: docs/stories/STORY-3.1-UAT-TEST-GUIDE.md
+Story: docs/stories/story-3.3.md
+UAT Guide: docs/stories/STORY-3.3-UAT-TEST-GUIDE.md
 Architecture Ref: docs/stories/EPIC-3-ARCHITECTURE-REF.md
 
 Requirements:
-1. Implement the `FormVersion` SQLAlchemy model and migration.
-2. Implement the `FormService` logic for version control (Draft/Published).
-3. Ensure strict adherence to the UAT scenarios defined in the guide.
-4. Run linter checks on all edited files.
+1. Install `dnd-kit` (core, sortable, utilities) in the frontend.
+2. Create `BuilderCanvas` component (The drop zone).
+3. Create `ComponentSidebar` component (The draggable source).
+4. Implement basic state management for the form definition (using React State or Context).
+5. Ensure strict adherence to the UAT scenarios defined in the guide.
 
 Focus Areas:
-- Database Migration (Alembic)
-- JSON Storage (SQL Server NVARCHAR(MAX))
-- Service Logic (Versioning Strategy)
+- Drag-and-Drop mechanics
+- Visual feedback (DragOverlay)
+- State updates on Drop
 
 Please confirm completion and provide a summary.
 ```
@@ -103,17 +104,23 @@ Please confirm completion and provide a summary.
 ## 📊 **Stage 4: Completion & Handover (Developer)**
 
 **When:** Implementation is done and you have verified the UATs pass.  
-**Goal:** Finalize artifacts and update documentation.
+**Goal:** Finalize artifacts and update documentation and git.
 
 ### **Copy/Paste this Prompt for the Developer (@dev.mdc)**
 ```markdown
-@dev.mdc Please finalize Story 3.1.
+@dev.mdc Please finalize Story 3.3.
 
 Requirements:
-1. Update `docs/stories/story-3.1.md` with a "Completion Report".
-2. Mark all tests in `docs/stories/STORY-3.1-UAT-TEST-GUIDE.md` as ✅ PASSED.
-3. Update `docs/stories/EPIC-3-STATUS.md` (Mark 3.1 as Complete, 3.2 as Next).
-4. Update `docs/stories/EPIC-3-ARCHITECTURE-REF.md` with the final `FormVersion` table schema.
+1. Update `docs/stories/story-3.3.md` with a "Completion Report".
+2. Mark all tests in `docs/stories/STORY-3.3-UAT-TEST-GUIDE.md` as ✅ PASSED.
+3. Update `docs/stories/EPIC-3-STATUS.md` (Mark 3.3 as Complete, 3.4 as Next).
+4. Update `docs/stories/EPIC-3-ARCHITECTURE-REF.md` with Canvas/DND details.
+5. **GIT UPDATE:** Run the following commands to checkpoint progress:
+   ```powershell
+   git add .
+   git commit -m "feat(epic3): Complete Story 3.3 - Drag-and-Drop Canvas"
+   # git push
+   ```
 
 Deliverable:
 - Finalized Story artifacts.
@@ -124,13 +131,18 @@ Deliverable:
 
 ## 🔄 **Stage 5: Cycle Reset (PM Agent)**
 
-**When:** Story 3.1 is finalized.  
-**Goal:** Prepare this document for Story 3.2.
+**When:** Story 3.3 is finalized.  
+**Goal:** Prepare this document for Story 3.4.
 
-**PM Instructions:**
-1.  Read `EPIC-3-STATUS.md` to confirm Story 3.2 is next.
-2.  **Update this file (`EPIC-3-WORKFLOW-GUIDE.md`)**:
-    *   Change "Current Target" to **Story 3.2**.
-    *   Update Stage 1 Prompt with Story 3.2 Context/Goals.
-    *   Update Stage 2, 3, 4 Prompts with "3.2" file paths.
-3.  Notify the user that the guide is ready for the next cycle.
+### **Copy/Paste this Prompt for the PM Agent (@pm.mdc)**
+```markdown
+@pm.mdc Please reset the cycle for the next story.
+
+Requirements:
+1. Read `docs/stories/EPIC-3-STATUS.md` to identify the next story (Story 3.4).
+2. Update `docs/stories/EPIC-3-WORKFLOW-GUIDE.md`:
+   - Update "Current Focus" to Story 3.4.
+   - Rewrite Stages 1-4 prompts to be specific to Story 3.4 (Component Library).
+   - Ensure goals and context match the new story.
+3. Confirm ready for execution.
+```

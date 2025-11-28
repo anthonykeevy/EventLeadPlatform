@@ -3,8 +3,9 @@
  * Displays form information in a card format
  */
 
-import React, { useState, useEffect } from 'react'
-import { FileText, Calendar, Edit2, Trash2, Eye, Shield, Lock, Unlock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Calendar, Edit2, Trash2, Eye, Shield, Layout } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
 import { checkFormAccess } from '../api/formAccessApi'
@@ -15,6 +16,7 @@ interface FormCardProps {
   onEdit: (form: Form) => void
   onDelete: (form: Form) => void
   onView?: (form: Form) => void
+  onDesign?: (form: Form) => void
 }
 
 export function FormCard({ form, onEdit, onDelete, onView }: FormCardProps) {
@@ -127,6 +129,17 @@ export function FormCard({ form, onEdit, onDelete, onView }: FormCardProps) {
             <Eye className="w-4 h-4" />
             View
           </button>
+        )}
+        {canEdit && (
+          <Link
+            to={`/forms/${form.formId}/builder`}
+            className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-md transition-colors flex items-center gap-1"
+            aria-label={`Design ${form.formName}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Layout className="w-4 h-4" />
+            Design
+          </Link>
         )}
         {canEdit && (
           <button

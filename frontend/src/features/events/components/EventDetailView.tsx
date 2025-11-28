@@ -3,8 +3,9 @@
  * Displays complete event information in a detailed view
  */
 
-import React, { useState, useEffect } from 'react'
-import { Calendar, MapPin, Tag, Globe, Building2, Edit2, Trash2, ArrowLeft, X, FileText, Plus, Share2, LogOut } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Calendar, MapPin, Tag, Globe, Building2, Edit2, Trash2, ArrowLeft, X, FileText, Plus, Share2, LogOut, Layout } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Event as IEvent } from '../types/events.types'
 import { StatusBadge } from './StatusBadge'
 import { getFormsByEvent } from '../../forms/api/formsApi'
@@ -341,6 +342,14 @@ export function EventDetailView({
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
+                          <Link
+                             to={`/forms/${form.formId}/builder`}
+                             className="p-1 text-gray-400 hover:text-indigo-600 rounded transition-colors"
+                             aria-label="Design form"
+                             title="Design form"
+                          >
+                            <Layout className="w-4 h-4" />
+                          </Link>
                           {onEditForm && (
                             <button
                               onClick={() => onEditForm(form)}

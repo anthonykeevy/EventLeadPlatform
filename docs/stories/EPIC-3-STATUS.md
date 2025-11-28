@@ -26,10 +26,10 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 2/9 | 🏃 In Progress |
-| **Next Story** | 3.3 - Drag-and-Drop Canvas | 📋 **PLANNED** |
+| **Stories Complete** | 3/9 | 🏃 In Progress |
+| **Next Story** | 3.4 - Component Library | 📋 **PLANNED** |
 | **Domains Complete** | 0/4 | 🏃 In Progress |
-| **UAT Tests Passed** | 10 | ✅ Passed |
+| **UAT Tests Passed** | 14 | ✅ Passed |
 
 ---
 
@@ -43,7 +43,10 @@
 ### **Domain 2: Visual Builder**
 *   **Stories:** 3.3, 3.4, 3.5
 *   **Focus:** Drag-and-drop UI, Component library, Property editors
-*   **Status:** 📋 Planned
+*   **Status:** 🏃 In Progress
+    *   *Story 3.3:* Canvas Foundation (✅ Complete)
+    *   *Story 3.4:* Toolbox & Adding Items (📋 Next)
+    *   *Story 3.5:* Configuration & Properties (📋 Planned)
 
 ### **Domain 3: Logic Engine**
 *   **Stories:** 3.6, 3.7
@@ -57,19 +60,19 @@
 
 ---
 
-## 📋 **Story Completion History**
+## 📋 **Story Completion History & Roadmap**
 
-| Story | Title | Status | Domain | Key Deliverables |
+| Story | Title | Status | Domain | Key Deliverables (What the user gets) |
 |-------|-------|--------|--------|------------------|
-| 3.1 | Form Versioning Architecture | ✅ Complete | Schema | `FormVersion` table, JSON storage, Version Service |
-| 3.2 | JSON Schema Definition | ✅ Complete | Schema | Pydantic Schema, Strict Validation, 400 Bad Request Handling |
-| 3.3 | Drag-and-Drop Canvas | 📋 Planned | Builder | Dnd-kit integration, Canvas UI |
-| 3.4 | Component Library | 📋 Planned | Builder | Text, Select, Radio components |
-| 3.5 | Properties Panel | 📋 Planned | Builder | Field settings editor |
-| 3.6 | Conditional Logic UI | 📋 Planned | Logic | Rule builder interface |
-| 3.7 | Rule Evaluation Engine | 📋 Planned | Logic | Frontend logic processor |
-| 3.8 | Public Form Renderer | 📋 Planned | Render | Standalone PWA renderer |
-| 3.9 | Dynamic Submission | 📋 Planned | Render | Async queue, Worker processing |
+| **3.1** | Form Versioning Architecture | ✅ Complete | Schema | Database tables, API for saving versions. |
+| **3.2** | JSON Schema Definition | ✅ Complete | Schema | Strict validation rules (Pydantic) ensuring no corrupt data. |
+| **3.3** | Drag-and-Drop Canvas | ✅ Complete | Builder | **The Workbench.** Drag to reorder *existing* items. Keyboard support. |
+| **3.4** | **Component Library** | 📋 **Next** | Builder | **The Toolbox.** Sidebar with all field types. Drag *new* items onto canvas. |
+| **3.5** | **Properties Panel** | 📋 Planned | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. |
+| **3.6** | Conditional Logic UI | 📋 Planned | Logic | **The Rules.** "Show Field X if Field Y is 'Yes'". |
+| **3.7** | Rule Evaluation Engine | 📋 Planned | Logic | **The Brain.** Frontend engine that runs the rules in real-time. |
+| **3.8** | Public Form Renderer | 📋 Planned | Render | **The Player.** The actual form the public sees (optimized for tablets). |
+| **3.9** | Dynamic Submission | 📋 Planned | Render | **The Outbox.** Queue system for offline submissions and syncing. |
 
 ---
 

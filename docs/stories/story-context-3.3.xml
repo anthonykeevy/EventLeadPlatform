@@ -1,0 +1,39 @@
+<story_context>
+    <story_id>3.3</story_id>
+    <epic_id>3</epic_id>
+    <domain>Visual Builder</domain>
+    <dependencies>
+        <dependency>
+            <id>3.2</id>
+            <title>JSON Schema Definition</title>
+            <status>Complete</status>
+            <relevance>The Canvas must manipulate data structures that strictly adhere to the Schema defined in 3.2.</relevance>
+        </dependency>
+    </dependencies>
+    <ux_guidelines>
+        <reference>docs/ux-specification.md</reference>
+        <key_points>
+            <point>Maximized workspace (no side navigation)</point>
+            <point>Show, Don't Tell (Immediate visual feedback)</point>
+            <point>Tablet-first for forms, Desktop-built for builder</point>
+        </key_points>
+        <entry_point>
+            <description>Button on Dashboard Form List</description>
+            <context>Must pass formId to builder</context>
+        </entry_point>
+    </ux_guidelines>
+    <technical_stack>
+        <frontend>React, TypeScript, Tailwind CSS</frontend>
+        <library>@dnd-kit/core, @dnd-kit/sortable</library>
+        <state_management>Zustand (or Context API)</state_management>
+    </technical_stack>
+    <goal>
+        Establish the visual foundation of the Form Builder. This is the "workbench" where the user interacts with the form structure.
+        Key challenge is ensuring smooth drag-and-drop performance and correct state updates that don't violate the schema.
+    </goal>
+    <notes>
+        - Focus on the "Canvas" (Center Pane) first.
+        - The "Sidebar" (Toolbox) will be implemented in Story 3.4, but we can use dummy buttons for now to add items.
+        - The "Properties Panel" (Right Pane) is Story 3.5.
+    </notes>
+</story_context>

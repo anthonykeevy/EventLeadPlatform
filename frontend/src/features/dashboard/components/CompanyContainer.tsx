@@ -5,8 +5,9 @@
  * Story 2.4: Event display when expanded
  */
 
-import React, { useState, useEffect } from 'react'
-import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut, Layout } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import type { Company } from '../types/dashboard.types'
 import { getEvents } from '../../events/api/eventsApi'
 import type { Event } from '../../events/types/events.types'
@@ -824,6 +825,18 @@ export function CompanyContainer({
                                                   >
                                                     <Eye className="w-3.5 h-3.5" />
                                                   </button>
+                                                )}
+                                                
+                                                {/* Design button - shown for EDIT or MANAGE access */}
+                                                {hasEdit && (
+                                                  <Link
+                                                    to={`/forms/${form.formId}/builder`}
+                                                    className="p-1 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-colors"
+                                                    title="Design form"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                  >
+                                                    <Layout className="w-3.5 h-3.5" />
+                                                  </Link>
                                                 )}
                                                 
                                                 {/* Edit button - shown for EDIT or MANAGE access */}

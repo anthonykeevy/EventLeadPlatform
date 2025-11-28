@@ -47,37 +47,18 @@ It is strictly validated by the backend using **Pydantic** before saving.
 *   **Resolved Props:** The Builder calculates the "Defaults + Overrides" and saves the *final* configuration for the Renderer.
 *   **Serialization Limit:** Only serializable data (JSON) is stored. Custom logic must be registered as "Action Keys" (strings) in the registry, not raw code.
 
-**Example Schema:**
-```json
-{
-  "formId": "uuid-123",
-  "version": 1,
-  "theme": {
-    "primaryColor": "#0055FF",
-    "fontFamily": "Inter"
-  },
-  "components": [
-    {
-      "id": "q1",
-      "type": "text-input", 
-      "props": {
-        "label": "Full Name",
-        "required": true,
-        "style": { "width": "100%" } // Resolved style
-      }
-    },
-    {
-      "id": "q2",
-      "type": "custom-agency-widget",
-      "props": {
-        "agencyId": "coca-cola",
-        "mode": "dark",
-        "apiKey": "enc_..." // Complex config stored simply
-      }
-    }
-  ]
-}
-```
+### **D. Drag-and-Drop Architecture (Story 3.3)**
+The Visual Builder uses **@dnd-kit** for its accessible, robust drag-and-drop capabilities.
+
+*   **State Management:** `useBuilderStore` (Zustand) holds the ephemeral state of the drag operation and the persistent state of the form structure.
+*   **Data Flow:**
+    1.  User initiates drag.
+    2.  `DndContext` detects start event, updates `activeId` in store.
+    3.  `DragOverlay` renders a ghost component.
+    4.  User drops item.
+    5.  `DndContext` fires `onDragEnd`.
+    6.  Store calculates new array order using `arrayMove` and updates the `FormDefinition`.
+*   **Accessibility:** Fully supports keyboard reordering via `KeyboardSensor` (Tab to focus, Space to lift, Arrows to move, Space to drop).
 
 ---
 

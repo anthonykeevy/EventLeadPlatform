@@ -1,0 +1,52 @@
+<story_context>
+    <story_id>3.1</story_id>
+    <title>Form Versioning Architecture</title>
+    <domain>Schema & Versioning</domain>
+    
+    <schema_definition>
+        <table name="FormVersion" schema="dbo">
+            <column name="FormVersionID" type="BigInteger" primary_key="true" identity="true" />
+            <column name="FormID" type="BigInteger" foreign_key="dbo.Form.FormID" nullable="false" />
+            <column name="VersionNumber" type="Integer" nullable="false" description="Sequential version number per form" />
+            <column name="DefinitionJSON" type="NVARCHAR(MAX)" nullable="false" description="The complete form schema (JSON)" />
+            <column name="VersionComment" type="NVARCHAR(500)" nullable="true" />
+            <column name="Status" type="VARCHAR(20)" nullable="false" default="DRAFT" description="DRAFT, PUBLISHED, ARCHIVED" />
+            <column name="IsActive" type="Boolean" nullable="false" default="false" description="Only one active version per form" />
+            <column name="CreatedDate" type="DateTime" default="UTC" />
+            <column name="CreatedBy" type="BigInteger" foreign_key="dbo.User.UserID" />
+            <column name="PublishedDate" type="DateTime" nullable="true" />
+            <column name="PublishedBy" type="BigInteger" foreign_key="dbo.User.UserID" nullable="true" />
+        </table>
+    </schema_definition>
+
+    <json_structure_example>
+    {
+      "formId": "101",
+      "version": 1,
+      "theme": {
+        "primaryColor": "#0055FF",
+        "fontFamily": "Inter"
+      },
+      "pages": [
+        {
+          "id": "p1",
+          "title": "Contact Info",
+          "components": [
+            {
+              "id": "c1",
+              "type": "text-input",
+              "props": { "label": "Name", "required": true }
+            }
+          ]
+        }
+      ]
+    }
+    </json_structure_example>
+
+    <business_rules>
+        <rule>Only one version can be 'IsActive=true' for a given FormID at any time.</rule>
+        <rule>VersionNumber must be strictly increasing for a given FormID.</rule>
+        <rule>Cannot modify DefinitionJSON of a PUBLISHED or ARCHIVED version (Immutable).</rule>
+    </business_rules>
+</story_context>
+

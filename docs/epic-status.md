@@ -3,7 +3,7 @@
 **Project:** EventLeadPlatform  
 **Purpose:** Track epic completion status for boundary enforcement  
 **Guardian:** Sentinel (Epic Boundary Guardian Agent)  
-**Last Updated:** 2025-10-12
+**Last Updated:** 2025-11-27
 
 ---
 
@@ -11,15 +11,14 @@
 
 | Epic | Name | Status | Completed Date | Protected Files |
 |------|------|--------|----------------|-----------------|
-| **Epic 1** | Authentication & Onboarding | ⏳ PENDING | - | None yet |
-| **Epic 2** | Company & Multi-Tenant | ⏳ PENDING | - | None yet |
-| **Epic 3** | Events Management | ⏳ PENDING | - | None yet |
+| **Epic 1** | Authentication & Onboarding | ✅ COMPLETE | 2025-09-30 | Auth, Users, Invitations |
+| **Epic 2** | Company & Multi-Tenant | ✅ COMPLETE | 2025-11-27 | Companies, Events, Admin, Audit, Forms (Foundation) |
+| **Epic 3** | Form Builder | 🔄 IN PROGRESS | - | None yet |
 | **Epic 4** | Team Collaboration | ⏳ PENDING | - | None yet |
-| **Epic 5** | Form Builder | ⏳ PENDING | - | None yet |
-| **Epic 6** | Preview & Publishing | ⏳ PENDING | - | None yet |
-| **Epic 7** | Payments & Billing | ⏳ PENDING | - | None yet |
-| **Epic 8** | Analytics & Lead Collection | ⏳ PENDING | - | None yet |
-| **Epic 9** | Enterprise Data & Audit | ⏳ PENDING | - | None yet |
+| **Epic 5** | Preview & Publishing | ⏳ PENDING | - | None yet |
+| **Epic 6** | Payments & Billing | ⏳ PENDING | - | None yet |
+| **Epic 7** | Analytics & Lead Collection | ⏳ PENDING | - | None yet |
+| **Epic 8** | Enterprise Data | ⏳ PENDING | - | None yet |
 
 **Status Legend:**
 - ⏳ PENDING - Not started yet (no boundary protection)
@@ -31,36 +30,38 @@
 
 ## Protected Zones (Forbidden to Modify)
 
-**Currently:** NONE (no epics complete yet)
+**⚠️ CRITICAL RULE:** Agents working on Epic 3 MUST NOT modify the files in these zones without explicit permission.
 
-**Once Epic 1 is COMPLETE:**
-```
-FORBIDDEN ZONES (Epic 1):
-- backend/modules/auth/ (all files)
-- frontend/features/auth/ (all files)
-- backend/models/user.py
-- backend/models/email_verification_token.py
-- backend/models/password_reset_token.py
-- database/migrations/001_*.py
-- database/migrations/002_*.py
+### **Zone 1: Authentication & Core (Epic 1)**
+*   `backend/modules/auth/` (All files)
+*   `backend/modules/users/` (All files)
+*   `backend/modules/invitations/` (All files)
+*   `backend/models/user.py`
+*   `backend/models/company.py`
+*   **Allowed Interactions:** Import `get_current_user`, use `User` model (ReadOnly).
 
-READ-ONLY ALLOWED:
-- from backend.modules.auth.dependencies import get_current_user (import OK)
-- Calling /api/auth/* endpoints (usage OK)
-- Referencing User table in queries (FK relationships OK)
-
-FORBIDDEN:
-- Editing any files in backend/modules/auth/
-- Modifying authentication middleware
-- Changing User model schema
-```
+### **Zone 2: Event Management & Form Foundation (Epic 2)**
+*   `backend/modules/companies/` (All files)
+*   `backend/modules/events/` (All files)
+*   `backend/modules/admin/` (All files)
+*   `backend/modules/audit/` (All files)
+*   **Form Foundation Files (DO NOT EDIT):**
+    *   `backend/modules/forms/service.py` (Core CRUD)
+    *   `backend/modules/forms/access_control_service.py` (RBAC)
+    *   `backend/modules/forms/access_control_router.py`
+    *   `backend/modules/forms/access_guard.py`
+    *   `backend/modules/forms/approval_service.py`
+    *   `backend/modules/forms/router.py`
+*   **Allowed Interactions:**
+    *   Link new Form Builder tables to `EventID` / `FormID`.
+    *   Call `FormService.get_form()` (ReadOnly).
+    *   **Exception:** Epic 3 may create *NEW* files in `backend/modules/forms/` (e.g., `builder_service.py`, `schema_validator.py`).
 
 ---
 
 ## How to Mark Epic Complete
 
 **When epic is finished and tested:**
-
 ```
 @bmad/agents/epic-boundary-guardian
 Command: *mark-epic-complete
@@ -71,8 +72,6 @@ This will:
 1. Update this epic-status.md file
 2. Mark epic status: PENDING → COMPLETE ✅
 3. Lock epic files as forbidden zones
-4. Generate protected files list
-5. Update story-context template for future stories
 
 ---
 
@@ -84,34 +83,15 @@ This will:
 |------|------|-----------|---------------|--------|------------|
 | - | - | - | - | - | No violations yet |
 
-**Purpose:** Learn from boundary crossings, improve process over time.
-
 ---
 
 ## Integration Points (Cross-Epic Dependencies)
 
 **These are ALLOWED read-only dependencies:**
 
-```
-Epic 3 (Events) depends on:
-  - Epic 1 (Auth): get_current_user() dependency
-  - Epic 2 (Companies): CompanyID filtering
-
-Epic 5 (Forms) depends on:
-  - Epic 1 (Auth): Authentication
-  - Epic 2 (Companies): Multi-tenant filtering
-  - Epic 3 (Events): Forms belong to events
-
-Epic 7 (Payments) depends on:
-  - Epic 2 (Companies): Billing scoped to company
-  - Epic 5 (Forms): Payment unlocks publish
-```
+**Epic 3 (Form Builder) depends on:**
+*   **Epic 1 (Auth):** Needs `current_user` for saving form versions.
+*   **Epic 2 (Events):** Forms must be linked to an `Event`.
+*   **Epic 2 (Form Foundation):** Needs `FormID` to store version history against.
 
 **Rule:** Dependencies are READ-ONLY. Use, don't modify.
-
----
-
-**This file is maintained by:** Sentinel (Epic Boundary Guardian Agent)  
-**Purpose:** Prevent v4-style cross-epic contamination  
-**Protection Level:** Zero tolerance for boundary violations
-

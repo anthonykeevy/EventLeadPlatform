@@ -63,6 +63,7 @@ from .user_refresh_token import UserRefreshToken
 from .event import Event
 from .event_company import EventCompany
 from .form import Form
+from .form_version import FormVersion
 from .form_access_control import FormAccessControl
 from .form_approval_token import FormApprovalToken
 
@@ -112,6 +113,7 @@ __all__ = [
     "Event",
     "EventCompany",
     "Form",
+    "FormVersion",
     "FormAccessControl",
     "FormApprovalToken",
     

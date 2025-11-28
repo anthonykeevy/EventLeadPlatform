@@ -28,6 +28,7 @@ from modules.forms.router import router as forms_router  # Story 2.8: Form Heade
 from modules.forms.access_control_router import router as forms_access_control_router  # Story 2.9: Form Access Control
 from modules.forms.ownership_router import router as forms_ownership_router  # Story 2.9: Form Ownership Transfer
 from modules.forms.public_router import router as forms_public_router  # Story 2.12: External Approver Support
+from modules.forms.version_router import versions_router, active_version_router  # Story 3.1: Form Versioning
 from modules.audit.router import router as audit_router  # Story 2.13: Audit Trail & Compliance
 
 # Configure application-wide logging
@@ -84,6 +85,8 @@ app.include_router(admin_review_router, prefix="/api")  # Story 2.6: Admin Revie
 app.include_router(forms_access_control_router)  # Story 2.9: Form Access Control
 app.include_router(forms_ownership_router)  # Story 2.9: Form Ownership Transfer
 app.include_router(forms_public_router)  # Story 2.12: External Approver Support
+app.include_router(versions_router)  # Story 3.1: Form Versioning
+app.include_router(active_version_router)  # Story 3.1: Form Versioning - Live/Active Endpoint
 app.include_router(forms_router)  # Story 2.8: Form Header Foundation
 app.include_router(audit_router, prefix="/api")  # Story 2.13: Audit Trail & Compliance
 

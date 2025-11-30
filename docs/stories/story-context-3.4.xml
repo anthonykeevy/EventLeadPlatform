@@ -1,0 +1,52 @@
+<story-context>
+    <id>3.4</id>
+    <title>Component Library & Grid Layout</title>
+    <epic>3</epic>
+    <domain>Visual Builder</domain>
+    <dependencies>
+        <dependency>Story 3.3 (Canvas Foundation)</dependency>
+    </dependencies>
+    
+    <technical-context>
+        <component-registry>
+            <description>
+                A central dictionary mapping string Types (e.g., "text-input", "row") to React Components and JSON Schema factories.
+                Crucial for the "Toolbox" sidebar to know what can be dragged.
+            </description>
+        </component-registry>
+        
+        <grid-system>
+            <specs>
+                <base-unit>8px</base-unit>
+                <behavior>Snap-to-grid during drag (using dnd-kit modifiers or custom sensor logic).</behavior>
+            </specs>
+        </grid-system>
+        
+        <layout-engine>
+            <containers>
+                <container name="Row">Horizontal Flexbox context. Droppable.</container>
+                <container name="Column">Vertical context. Droppable.</container>
+            </containers>
+            <collision>
+                Logic must prevent components from occupying the same "cell" or overlapping coordinates if absolute positioning is used (though current plan implies flow layout + reordering, strict grid placement might imply absolute or strict flex sizing).
+                *Correction:* Given "Collision Detection" requirement, we are likely moving towards a more free-form or strict-grid hybrid, OR simply preventing invalid nesting/ordering.
+            </collision>
+        </layout-engine>
+        
+        <responsive-preview>
+            <implementation>
+                CSS-based width constraints on the main Canvas container.
+                - Desktop: w-full
+                - Tablet: max-w-[768px]
+                - Mobile: max-w-[375px]
+            </implementation>
+        </responsive-preview>
+    </technical-context>
+    
+    <user-ux-concerns>
+        <concern>Precision alignment (Grid).</concern>
+        <concern>Structured layout (Rows/Cols).</concern>
+        <concern>Visual validation (Device Preview).</concern>
+    </user-ux-concerns>
+</story-context>
+

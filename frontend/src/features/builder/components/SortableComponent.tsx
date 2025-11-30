@@ -1,105 +1,99 @@
 import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
+import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { FormComponent } from '../types/builder.types';
-import { GripVertical } from 'lucide-react';
+import { FirstNameField } from './fields/FirstNameField';
+import { StandardInput } from './fields/StandardInput';
+import { ComponentRegistry } from '../registry/ComponentRegistry';
+import { useBuilderStore } from '../stores/useBuilderStore';
 
 interface SortableComponentProps {
   component: FormComponent;
 }
 
+// Renamed to DraggableComponent since we aren't sorting anymore
 export const SortableComponent: React.FC<SortableComponentProps> = ({ component }) => {
+  // Get the current Canvas Scale and Layer from store
+  const { scale, activeLayer } = useBuilderStore(state => ({ 
+      scale: state.scale, 
+      activeLayer: state.activeLayer 
+  }));
+
+  // Determine if interaction should be disabled
+  // For now, all components are on Layer 1 (Elements)
+  // If Active Layer is 0 (Background), then Layer 1 is locked.
+  const isLocked = activeLayer === 0; 
+
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
-  } = useSortable({ id: component.id });
+  } = useDraggable({ 
+      id: component.id,
+      data: {
+        type: component.type,
+        component 
+      },
+      disabled: isLocked // Disable drag if locked
+  });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+  // Inverse-Scale the Transform
+  const scaledTransform = transform ? {
+      ...transform,
+      x: transform.x / scale,
+      y: transform.y / scale
+  } : null;
+
+  // Absolute Positioning Logic
+  const style: React.CSSProperties = {
+    transform: scaledTransform ? CSS.Translate.toString(scaledTransform) : undefined,
+    position: 'absolute',
+    left: component.position?.x ?? 0,
+    top: component.position?.y ?? 0,
+    zIndex: isDragging ? 100 : (component.style?.zIndex ?? 10),
     opacity: isDragging ? 0.5 : 1,
+    // Visual feedback for locked state
+    cursor: isLocked ? 'not-allowed' : undefined 
   };
 
+  // 1. First Name (POC)
+  if (component.type === 'first-name') {
+      return (
+        <div
+            ref={setNodeRef} 
+            style={style}
+            className="group touch-none" 
+        >
+            <FirstNameField 
+                dragListeners={listeners} 
+                dragAttributes={attributes} 
+            />
+        </div>
+      );
+  }
+
+  // 2. Standard Inputs (Gold Standard)
+  const def = ComponentRegistry[component.type];
+  
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`
-        relative group bg-white border border-gray-200 rounded-md p-4 mb-3 shadow-sm 
-        hover:border-teal-400 hover:shadow-md transition-all
-        ${isDragging ? 'ring-2 ring-teal-500 z-50' : ''}
-      `}
+      className="group touch-none"
     >
-      {/* Drag Handle */}
-      <div 
-        {...attributes} 
-        {...listeners}
-        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 cursor-grab text-gray-400 hover:text-teal-600 active:cursor-grabbing"
-        aria-label="Drag to reorder"
-      >
-        <GripVertical size={20} />
-      </div>
-
-      {/* Content Area */}
-      <div className="ml-8">
-        <div className="mb-2">
-          <label className="block text-sm font-medium text-gray-700">
-            {component.props.label}
-            {component.props.required && <span className="text-red-500 ml-1">*</span>}
-          </label>
-          {component.props.helpText && (
-             <p className="text-xs text-gray-500 mb-1">{component.props.helpText}</p>
-          )}
-        </div>
-
-        {/* Visual Placeholder of the Input */}
-        <div className="pointer-events-none"> 
-          {renderInputPlaceholder(component)}
-        </div>
-      </div>
+      <StandardInput 
+          label={component.props.label || 'Unknown'}
+          icon={def?.icon}
+          placeholder={component.props.placeholder}
+          validationMessage={component.props.validationMessage || "Validation message here"}
+          required={component.props.required}
+          type={component.type as any}
+          options={component.props.options}
+          dragListeners={listeners}
+          dragAttributes={attributes}
+      />
     </div>
   );
 };
-
-const renderInputPlaceholder = (component: FormComponent) => {
-  const baseClasses = "block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 px-3 py-2 text-sm text-gray-500";
-  
-  switch (component.type) {
-    case 'textarea':
-      return <div className={`${baseClasses} h-20`}>{component.props.placeholder || 'Text Area'}</div>;
-    case 'checkbox':
-      return (
-        <div className="flex items-center">
-          <div className="h-4 w-4 rounded border-gray-300 bg-gray-50"></div>
-          <span className="ml-2 text-sm text-gray-500">{component.props.label}</span>
-        </div>
-      );
-    case 'radio':
-        return (
-            <div className="space-y-2">
-                <div className="flex items-center">
-                    <div className="h-4 w-4 rounded-full border-gray-300 bg-gray-50"></div>
-                    <span className="ml-2 text-sm text-gray-500">Option 1</span>
-                </div>
-                <div className="flex items-center">
-                    <div className="h-4 w-4 rounded-full border-gray-300 bg-gray-50"></div>
-                    <span className="ml-2 text-sm text-gray-500">Option 2</span>
-                </div>
-            </div>
-        );
-    case 'select':
-       return (
-         <div className={`${baseClasses} flex justify-between items-center`}>
-            <span>{component.props.placeholder || 'Select an option'}</span>
-            <span>▼</span>
-         </div>
-       );
-    default: // text, email, number, date
-      return <div className={baseClasses}>{component.props.placeholder || 'Input text'}</div>;
-  }
-};
-

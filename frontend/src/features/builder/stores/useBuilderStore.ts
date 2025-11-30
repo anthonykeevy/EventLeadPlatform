@@ -1,5 +1,5 @@
 /**
- * Builder Store - Story 3.3
+ * Builder Store - Story 3.3 & 3.4
  * Manages the state of the Form Builder (FormDefinition)
  */
 
@@ -13,14 +13,22 @@ interface BuilderState {
   activePageId: string; // Currently selected page
   isLoading: boolean;
   
+  // Canvas Viewport State
+  scale: number;
+  showGrid: boolean;
+  activeLayer: 0 | 1; // 0 = Background, 1 = Functional
+  
   // Actions
   initializeForm: (formId: string) => void;
   setActiveId: (id: string | null) => void;
-  moveComponent: (activeId: string, overId: string) => void;
-  addComponent: (component: FormComponent) => void; // Placeholder for future
+  setScale: (scale: number) => void;
+  setShowGrid: (show: boolean) => void;
+  setActiveLayer: (layer: 0 | 1) => void;
+  moveComponent: (activeId: string, overId: string) => void; // Legacy Sortable Move (Deprecated for Canvas)
+  updateComponent: (id: string, updates: Partial<FormComponent>) => void; // New Generic Update (for Position)
+  addComponent: (component: FormComponent, parentId?: string, index?: number) => void;
 }
 
-// Mock Initial Data (as per UAT requirements)
 const MOCK_INITIAL_FORM: FormDefinition = {
   schemaVersion: '1.0',
   formId: 'mock-form-1',
@@ -34,26 +42,7 @@ const MOCK_INITIAL_FORM: FormDefinition = {
       id: 'page-1',
       title: 'Page 1',
       components: [
-        {
-          id: 'comp-1',
-          type: 'text',
-          props: { label: 'First Name', placeholder: 'Enter your first name', required: true },
-        },
-        {
-          id: 'comp-2',
-          type: 'email',
-          props: { label: 'Email Address', placeholder: 'name@example.com', required: true },
-        },
-        {
-          id: 'comp-3',
-          type: 'checkbox',
-          props: { label: 'I agree to terms', required: true },
-        },
-        {
-          id: 'comp-4',
-          type: 'textarea',
-          props: { label: 'Comments', placeholder: 'Any additional details...' },
-        }
+        // Blank Canvas - No Components Initially
       ],
     },
   ],
@@ -64,57 +53,88 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   activeId: null,
   activePageId: 'page-1',
   isLoading: false,
+  scale: 1, // Default scale
+  showGrid: true, // Default grid on
+  activeLayer: 1, // Default to Elements layer
 
   initializeForm: (formId: string) => {
     set({ isLoading: true });
-    
-    // In a real app, we would fetch from API here.
-    // For now, we hydrate with mock data and override the ID.
     setTimeout(() => {
       set({
         formDefinition: { ...MOCK_INITIAL_FORM, formId },
         activePageId: MOCK_INITIAL_FORM.pages[0].id,
         isLoading: false,
       });
-    }, 500); // Simulate network delay
+    }, 500);
   },
 
   setActiveId: (id) => set({ activeId: id }),
+  
+  setScale: (scale) => set({ scale }),
+  setShowGrid: (show) => set({ showGrid: show }),
+  setActiveLayer: (layer) => set({ activeLayer: layer }),
 
-  moveComponent: (activeId, overId) => {
-    set((state) => {
-      if (!state.formDefinition) return state;
+  // Generic Update Action (Crucial for Absolute Positioning)
+  updateComponent: (id, updates) => {
+      set((state) => {
+          if (!state.formDefinition) return state;
+          const activePage = state.formDefinition.pages.find(p => p.id === state.activePageId);
+          if (!activePage) return state;
 
-      const currentPageIndex = state.formDefinition.pages.findIndex(p => p.id === state.activePageId);
-      if (currentPageIndex === -1) return state;
+          // Deep clone components
+          const newComponents = JSON.parse(JSON.stringify(activePage.components)) as FormComponent[];
 
-      const components = [...state.formDefinition.pages[currentPageIndex].components];
-      const oldIndex = components.findIndex((c) => c.id === activeId);
-      const newIndex = components.findIndex((c) => c.id === overId);
+          // Recursive find and update
+          const updateRecursive = (list: FormComponent[]): boolean => {
+              for (let i = 0; i < list.length; i++) {
+                  if (list[i].id === id) {
+                      list[i] = { ...list[i], ...updates };
+                      return true;
+                  }
+                  if (list[i].children && updateRecursive(list[i].children!)) {
+                      return true;
+                  }
+              }
+              return false;
+          };
 
-      if (oldIndex === -1 || newIndex === -1) return state;
+          updateRecursive(newComponents);
 
-      const newComponents = arrayMove(components, oldIndex, newIndex);
-      
-      // Create new immutable state
-      const newPages = [...state.formDefinition.pages];
-      newPages[currentPageIndex] = {
-        ...newPages[currentPageIndex],
-        components: newComponents
-      };
+          const newPages = state.formDefinition.pages.map(p => 
+            p.id === state.activePageId ? { ...p, components: newComponents } : p
+          );
 
-      return {
-        formDefinition: {
-          ...state.formDefinition,
-          pages: newPages
-        }
-      };
-    });
+          return { formDefinition: { ...state.formDefinition, pages: newPages } };
+      });
   },
 
-  addComponent: (component) => {
-      // Placeholder for Story 3.4
-      console.log('Adding component', component);
+  // Deprecated for Free-Form Canvas but kept for safety if we re-introduce lists later
+  moveComponent: (activeId, overId) => {
+      // ... existing logic ...
+      return;
+  },
+
+  addComponent: (component, parentId, index) => {
+    set((state) => {
+        if (!state.formDefinition) return state;
+        const activePage = state.formDefinition.pages.find(p => p.id === state.activePageId);
+        if (!activePage) return state;
+
+        let newComponents = JSON.parse(JSON.stringify(activePage.components)) as FormComponent[];
+
+        // Simplified: Only adding to root for Free-Form Canvas for now
+        newComponents.push(component);
+
+        const newPages = state.formDefinition.pages.map(p => 
+            p.id === state.activePageId ? { ...p, components: newComponents } : p
+        );
+
+        return {
+            formDefinition: {
+                ...state.formDefinition,
+                pages: newPages
+            }
+        };
+    });
   }
 }));
-

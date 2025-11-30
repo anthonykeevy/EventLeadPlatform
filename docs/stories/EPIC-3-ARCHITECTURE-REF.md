@@ -28,8 +28,6 @@ To support drag-and-drop, custom objects, and global styling without hardcoding 
 2.  **The Component Definition (Metadata):**
     *   Defines the *capabilities* of a component for the Builder.
     *   **Properties Schema:** A definition (Zod/JSON Schema) of what the user can edit in the Properties Panel.
-        *   *Simple:* Label, Required.
-        *   *Complex:* API Keys, Region Restrictions, Map Styles.
     *   **Default Config:** The baseline settings (Global Defaults).
 
 ### **C. The "DefinitionJSON" (The Contract)**
@@ -47,18 +45,28 @@ It is strictly validated by the backend using **Pydantic** before saving.
 *   **Resolved Props:** The Builder calculates the "Defaults + Overrides" and saves the *final* configuration for the Renderer.
 *   **Serialization Limit:** Only serializable data (JSON) is stored. Custom logic must be registered as "Action Keys" (strings) in the registry, not raw code.
 
-### **D. Drag-and-Drop Architecture (Story 3.3)**
+### **D. Drag-and-Drop Architecture (Story 3.3 & 3.4)**
 The Visual Builder uses **@dnd-kit** for its accessible, robust drag-and-drop capabilities.
 
 *   **State Management:** `useBuilderStore` (Zustand) holds the ephemeral state of the drag operation and the persistent state of the form structure.
-*   **Data Flow:**
-    1.  User initiates drag.
-    2.  `DndContext` detects start event, updates `activeId` in store.
-    3.  `DragOverlay` renders a ghost component.
-    4.  User drops item.
-    5.  `DndContext` fires `onDragEnd`.
-    6.  Store calculates new array order using `arrayMove` and updates the `FormDefinition`.
-*   **Accessibility:** Fully supports keyboard reordering via `KeyboardSensor` (Tab to focus, Space to lift, Arrows to move, Space to drop).
+*   **Interaction Behaviors (Updated Story 3.4):**
+    *   **Viewport Scaling:** The Canvas uses CSS Transform (`scale`) to fit large layouts (1920x980) into the viewport.
+    *   **Inverse-Scale Dragging:** Drag coordinates are divided by the `scale` factor to ensure mouse movements align 1:1 with component movement on the scaled canvas.
+    *   **Lock on Drop:** Items are positioned absolutely (`x`, `y`).
+    *   **Grid Snapping:** 8px magnetic grid logic is applied during `onDragEnd` if the grid is enabled.
+    *   **Collision Prevention:** Invalid drops are rejected.
+*   **Accessibility:** Fully supports keyboard reordering via `KeyboardSensor`.
+
+### **E. Component Visual Structure (The "3-Part Standard")**
+Every draggable Input Component must adhere to a standard visual structure to ensure consistency and usability:
+1.  **Label Area (Top/Left):** For the field name/question.
+2.  **Input Area (Middle):** The actual interactive element (box, dropdown, checkbox).
+3.  **Validation Area (Bottom):** Reserved space for error messages/help text.
+
+**Skyline Border (New):**
+*   Components are wrapped in a `<SmartBorder>` component.
+*   This uses `ResizeObserver` to generate a dynamic SVG path that "shrink-wraps" the 3 parts, creating a non-rectangular "Skyline" shape.
+*   The SVG path serves as the draggable hitbox.
 
 ---
 
@@ -117,8 +125,8 @@ The Visual Builder uses **@dnd-kit** for its accessible, robust drag-and-drop ca
 
 ### **Domain 2: The Framework & Builder**
 *   Story 3.3: Component Registry Foundation (The "Factory" Logic & Complexity Handling)
-*   Story 3.4: Drag-and-Drop Canvas (The "Assembler")
-*   Story 3.5: Properties Panel & Custom Object Support
+*   Story 3.4: Component Library & Layout (Toolbox, Scalable Canvas, Skyline Borders)
+*   Story 3.5: Properties Panel & Configuration (Global vs Individual Settings, Layout Toggles)
 
 ### **Domain 3: Logic Engine**
 *   Story 3.6: Conditional Logic UI

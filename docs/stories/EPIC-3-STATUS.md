@@ -26,10 +26,10 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 3/9 | 🏃 In Progress |
-| **Next Story** | 3.4 - Component Library | 📋 **PLANNED** |
+| **Stories Complete** | 4/9 | 🏃 In Progress |
+| **Next Story** | 3.5 - Properties Panel | 📋 **Planned** |
 | **Domains Complete** | 0/4 | 🏃 In Progress |
-| **UAT Tests Passed** | 14 | ✅ Passed |
+| **UAT Tests Passed** | 19 | ✅ Passed |
 
 ---
 
@@ -45,8 +45,8 @@
 *   **Focus:** Drag-and-drop UI, Component library, Property editors
 *   **Status:** 🏃 In Progress
     *   *Story 3.3:* Canvas Foundation (✅ Complete)
-    *   *Story 3.4:* Toolbox & Adding Items (📋 Next)
-    *   *Story 3.5:* Configuration & Properties (📋 Planned)
+    *   *Story 3.4:* Component Library & Grid (✅ Complete)
+    *   *Story 3.5:* Configuration & Properties (📋 **Next Up**)
 
 ### **Domain 3: Logic Engine**
 *   **Stories:** 3.6, 3.7
@@ -67,8 +67,8 @@
 | **3.1** | Form Versioning Architecture | ✅ Complete | Schema | Database tables, API for saving versions. |
 | **3.2** | JSON Schema Definition | ✅ Complete | Schema | Strict validation rules (Pydantic) ensuring no corrupt data. |
 | **3.3** | Drag-and-Drop Canvas | ✅ Complete | Builder | **The Workbench.** Drag to reorder *existing* items. Keyboard support. |
-| **3.4** | **Component Library** | 📋 **Next** | Builder | **The Toolbox.** Sidebar with all field types. Drag *new* items onto canvas. |
-| **3.5** | **Properties Panel** | 📋 Planned | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. |
+| **3.4** | **Component Library** | ✅ **Complete** | Builder | **The Toolbox.** Scalable Canvas, Layered Editing, Skyline Borders. |
+| **3.5** | **Properties Panel** | 📋 **Planned** | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. |
 | **3.6** | Conditional Logic UI | 📋 Planned | Logic | **The Rules.** "Show Field X if Field Y is 'Yes'". |
 | **3.7** | Rule Evaluation Engine | 📋 Planned | Logic | **The Brain.** Frontend engine that runs the rules in real-time. |
 | **3.8** | Public Form Renderer | 📋 Planned | Render | **The Player.** The actual form the public sees (optimized for tablets). |

@@ -1,102 +1,241 @@
-import React from 'react';
+import React, { useState, forwardRef, useEffect } from 'react';
 import { 
-  DndContext, 
-  closestCenter, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
-  useSensors,
-  DragOverlay,
-  DragStartEvent,
-  DragEndEvent
+  useDroppable,
 } from '@dnd-kit/core';
-import { 
-  arrayMove, 
-  SortableContext, 
-  sortableKeyboardCoordinates, 
-  verticalListSortingStrategy 
-} from '@dnd-kit/sortable';
+import { Monitor, Tablet, Smartphone, Grid as GridIcon, Image as ImageIcon, Settings } from 'lucide-react';
+
 import { useBuilderStore } from '../stores/useBuilderStore';
 import { SortableComponent } from './SortableComponent';
-import { FormComponent } from '../types/builder.types';
+import { DEVICE_DIMENSIONS } from '../types/builder.types';
 
-export const FormBuilderCanvas: React.FC = () => {
-  const { formDefinition, activePageId, moveComponent, activeId, setActiveId } = useBuilderStore();
+interface FormBuilderCanvasProps {
+    // No props needed if we use forwardRef correctly, 
+    // but we can keep custom props if needed later.
+}
+
+// Use forwardRef to properly expose the DOM node
+export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasProps>((props, ref) => {
+  const { 
+      formDefinition, 
+      activePageId, 
+      setScale, 
+      scale, 
+      showGrid, 
+      setShowGrid,
+      activeLayer,
+      setActiveLayer 
+  } = useBuilderStore(); // Use store for all state
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   
+  // Removed local activeLayer and scale state
+
   const activePage = formDefinition?.pages.find(p => p.id === activePageId);
   const components = activePage?.components || [];
   
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-        activationConstraint: {
-            distance: 5, // Avoid accidental drags on click
-        }
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const { setNodeRef: setDndRef, isOver } = useDroppable({
+      id: 'canvas-stage',
+      data: { 
+          type: 'stage',
+          isContainer: true,
+          scale: scale 
+      }
+  });
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+  // Container Ref for auto-scaling calculation
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Merge Refs safely
+  const setRefs = (element: HTMLDivElement | null) => {
+      setDndRef(element);
+      
+      // Handle forwarded ref
+      if (ref) {
+          if (typeof ref === 'function') {
+              ref(element);
+          } else {
+              ref.current = element;
+          }
+      }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  // Auto-Scale Logic
+  useEffect(() => {
+      const calculateScale = () => {
+          if (!containerRef.current) return;
+          
+          const availableWidth = containerRef.current.clientWidth - 64; // Padding
+          const availableHeight = containerRef.current.clientHeight - 64;
+          
+          const targetDim = DEVICE_DIMENSIONS[previewMode];
+          
+          const scaleX = availableWidth / targetDim.width;
+          const scaleY = availableHeight / targetDim.height;
+          
+          // Use the smaller scale to fit both dimensions, capped at 1 (don't upscale pixelated)
+          const newScale = Math.min(scaleX, scaleY, 1);
+          
+          // Use Store Action
+          setScale(Math.max(0.2, Math.min(1, newScale)));
+      };
 
-    if (active.id !== over?.id && over) {
-      moveComponent(active.id as string, over.id as string);
-    }
-    
-    setActiveId(null);
-  };
+      calculateScale();
+      window.addEventListener('resize', calculateScale);
+      return () => window.removeEventListener('resize', calculateScale);
+  }, [previewMode, setScale]); // Add setScale dependency
 
-  // Find the component object for the DragOverlay
-  const activeComponent = activeId 
-    ? components.find(c => c.id === activeId) 
-    : null;
+  const targetDim = DEVICE_DIMENSIONS[previewMode];
 
   if (!formDefinition) return <div>Loading Canvas...</div>;
 
   return (
-    <div className="max-w-3xl mx-auto min-h-[800px] bg-white shadow-lg rounded-lg p-8 my-8">
-        <div className="mb-8 border-b pb-4">
-            <h2 className="text-2xl font-bold text-gray-800">{activePage?.title || 'Form Page'}</h2>
-            <p className="text-gray-500">Drag and drop components to reorder.</p>
+    <div className="flex flex-col flex-1 h-full bg-gray-200 overflow-hidden">
+        {/* Top Toolbar */}
+        <div className="h-12 bg-white border-b flex items-center justify-between px-4 shadow-sm z-20 flex-shrink-0">
+            <div className="flex items-center gap-4">
+                <span className="text-sm font-bold text-gray-600">{activePage?.title}</span>
+                
+                {/* Layer Switcher (Mini Toolbar) */}
+                <div className="flex bg-gray-100 rounded-md p-0.5 border border-gray-200">
+                    <button
+                        onClick={() => setActiveLayer(1)}
+                        className={`px-3 py-1 text-xs font-medium rounded-sm flex items-center gap-1 ${activeLayer === 1 ? 'bg-white shadow-sm text-teal-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        <Settings size={12} /> Elements
+                    </button>
+                    <button
+                        onClick={() => setActiveLayer(0)}
+                        className={`px-3 py-1 text-xs font-medium rounded-sm flex items-center gap-1 ${activeLayer === 0 ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        <ImageIcon size={12} /> Background
+                    </button>
+                </div>
+                
+                <span className="text-xs text-gray-400 border-l pl-3 ml-2">
+                    {Math.round(scale * 100)}% • {targetDim.width}x{targetDim.height}
+                </span>
+            </div>
+            
+            <div className="flex items-center space-x-2 bg-gray-100 p-1 rounded-lg">
+                <button 
+                    onClick={() => setPreviewMode('desktop')}
+                    className={`p-1.5 rounded ${previewMode === 'desktop' ? 'bg-white shadow text-teal-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    title="Desktop (1920x980)"
+                >
+                    <Monitor size={16} />
+                </button>
+                <button 
+                    onClick={() => setPreviewMode('tablet')}
+                    className={`p-1.5 rounded ${previewMode === 'tablet' ? 'bg-white shadow text-teal-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    title="Tablet (768x1024)"
+                >
+                    <Tablet size={16} />
+                </button>
+                <button 
+                    onClick={() => setPreviewMode('mobile')}
+                    className={`p-1.5 rounded ${previewMode === 'mobile' ? 'bg-white shadow text-teal-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    title="Mobile (375x667)"
+                >
+                    <Smartphone size={16} />
+                </button>
+            </div>
+
+            <button 
+                onClick={() => setShowGrid(!showGrid)}
+                className={`p-1.5 rounded ${showGrid ? 'bg-teal-50 text-teal-600' : 'text-gray-400 hover:text-gray-600'}`}
+                title="Toggle Grid"
+            >
+                <GridIcon size={18} />
+            </button>
         </div>
 
-      <DndContext 
-        sensors={sensors} 
-        collisionDetection={closestCenter} 
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext 
-          items={components.map(c => c.id)} 
-          strategy={verticalListSortingStrategy}
+        {/* Canvas Viewport (Scrollable Area) */}
+        <div 
+            ref={containerRef}
+            className="flex-1 overflow-hidden p-8 flex justify-center items-center relative bg-gray-200"
         >
-          <div className="space-y-3 min-h-[200px]">
-            {components.length === 0 ? (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-400">
-                    Drop components here
+            
+            {/* THE STAGE */}
+            <div 
+                ref={setRefs}
+                style={{
+                    width: targetDim.width,
+                    height: targetDim.height,
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'center center'
+                }}
+                className={`
+                    relative bg-white shadow-2xl transition-shadow duration-300 ease-in-out flex-shrink-0
+                    ${isOver ? 'ring-4 ring-teal-400' : ''}
+                    ${activeLayer === 0 ? 'ring-4 ring-indigo-400' : ''}
+                `}
+            >
+                {/* LAYER 0: Background */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                    {activePage?.background ? (
+                         activePage.background.type === 'image' ? (
+                             <img 
+                                src={activePage.background.value} 
+                                className="w-full h-full object-cover" 
+                                style={{ opacity: activePage.background.opacity ?? 1 }}
+                                alt="Background"
+                             />
+                         ) : (
+                             <div 
+                                className="w-full h-full" 
+                                style={{ backgroundColor: activePage.background.value }} 
+                             />
+                         )
+                    ) : (
+                        <div className="w-full h-full bg-white" />
+                    )}
                 </div>
-            ) : (
-                components.map((component) => (
-                <SortableComponent key={component.id} component={component} />
-                ))
-            )}
-          </div>
-        </SortableContext>
 
-        <DragOverlay>
-          {activeComponent ? (
-             <div className="opacity-90 rotate-2 scale-105 cursor-grabbing">
-                <SortableComponent component={activeComponent} />
-             </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+                {/* Grid Overlay */}
+                {showGrid && (
+                    <div 
+                        className="absolute inset-0 pointer-events-none z-50 opacity-20"
+                        style={{
+                            backgroundImage: `
+                                linear-gradient(to right, #ddd 1px, transparent 1px),
+                                linear-gradient(to bottom, #ddd 1px, transparent 1px)
+                            `,
+                            backgroundSize: '8px 8px'
+                        }}
+                    />
+                )}
+
+                {/* LAYER 1: Functional Components */}
+                <div className={`absolute inset-0 z-10 ${activeLayer === 0 ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+                    {components.length === 0 && activeLayer === 1 ? (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="text-gray-300 text-lg font-medium">
+                                Drag components here
+                            </div>
+                        </div>
+                    ) : (
+                        components.map((component) => (
+                            <SortableComponent 
+                                key={component.id} 
+                                component={component} 
+                            />
+                        ))
+                    )}
+                </div>
+
+                {/* Layer 0 Interaction Overlay */}
+                {activeLayer === 0 && (
+                     <div className="absolute inset-0 z-20 border-4 border-indigo-400 pointer-events-none">
+                        <div className="absolute top-2 left-2 bg-indigo-600 text-white px-3 py-1 text-xs font-bold rounded shadow">
+                            Background Mode
+                        </div>
+                     </div>
+                )}
+
+            </div>
+        </div>
     </div>
   );
-};
+});
 
+// Display Name for Debugging
+FormBuilderCanvas.displayName = 'FormBuilderCanvas';

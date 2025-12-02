@@ -94,6 +94,23 @@ from .cache import (
     ABRSearch,
 )
 
+# Font tables (Google Fonts caching AND custom font uploads)
+from .fonts import (
+    FontFamily,
+    FontVariant,
+    FontSubset,
+    FontAxis,
+    FontColorCapability,
+    FontSyncLog,
+    FontSyncDetail,
+    FontUsageLog,
+    FontCategoryRef,
+    FontSubsetRef,
+    FontAxisRef,
+    CompanyFont,
+    FontFile,
+)
+
 
 # Export all models
 __all__ = [
@@ -161,6 +178,21 @@ __all__ = [
     
     # Cache tables (cache)
     "ABRSearch",
+    
+    # Font tables (Google Fonts AND custom fonts)
+    "FontFamily",
+    "FontVariant",
+    "FontSubset",
+    "FontAxis",
+    "FontColorCapability",
+    "FontSyncLog",
+    "FontSyncDetail",
+    "FontUsageLog",
+    "FontCategoryRef",
+    "FontSubsetRef",
+    "FontAxisRef",
+    "CompanyFont",
+    "FontFile",
 ]
 
 
@@ -179,7 +211,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 52  # Updated for Epic 2: Correct count of all registered models (16 dbo + 23 ref + 2 config + 4 audit + 4 log + 1 cache)
+    expected_count = 65  # Updated: 16 dbo + 23 ref + 2 config + 4 audit + 4 log + 1 cache + 13 fonts (10 dbo + 3 log)
     actual_count = len(__all__)
     
     if actual_count != expected_count:

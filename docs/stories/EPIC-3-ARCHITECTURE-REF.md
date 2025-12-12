@@ -92,6 +92,75 @@ Undo/redo stores bounded snapshots of the full `formDefinition` prior to signifi
 
 **Primary implementation:** `frontend/src/features/builder/stores/useBuilderStore.ts`
 
+---
+
+## 1.2 Logic Rules (Story 3.6 - Conditional Logic UI)
+
+Story 3.6 introduces **rule authoring + persistence** only. The **runtime evaluation engine** is explicitly deferred to **Story 3.7**.
+
+### **A. DefinitionJSON Storage Model**
+- Rules are persisted into the form definition as structured JSON:
+  - `formDefinition.logic.rules: LogicRule[]`
+- Each rule references components by their **stable component IDs** (`FormComponent.id`).
+
+**Canonical Rule JSON Shape:**
+
+```json
+{
+  "logic": {
+    "rules": [
+      {
+        "id": "rule-<uuid>",
+        "enabled": true,
+        "name": "Optional user-friendly label",
+        "when": {
+          "sourceComponentId": "comp-2",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "targetComponentId": "comp-5",
+          "action": "show"
+        }
+      }
+    ]
+  }
+}
+```
+
+**Operators:**
+- `equals`, `notEquals`, `contains`, `isEmpty`
+
+**Actions:**
+- `show` / `hide`
+- `require` / `unrequire`
+- `enable` / `disable`
+
+**Serialization constraint (critical):**
+- Only JSON-serializable data is stored (no functions/code).
+- For `isEmpty`, `when.value` is omitted (or null) by convention.
+
+### **B. Builder UI Patterns (Authoring UX)**
+- The right panel supports a dedicated **Logic tab** alongside the Inspector.
+- Rules are shown as a **scannable list** with a sentence-style summary (e.g., “If A equals X → Show B”).
+- The Logic panel includes:
+  - **Create / Edit / Delete**
+  - **Enable/Disable**
+  - **Reorder** via Move Up/Down (keyboard accessible)
+  - Filters: **All / Enabled / With errors** + an **error count** badge
+
+### **C. Validation & Guardrails (UI-time)**
+- Prevent saving incomplete rules with clear inline messages.
+- Block invalid rules:
+  - Source field cannot equal target field
+  - `contains` only available for text-capable fields
+  - `isEmpty` does not accept a value
+- If referenced components are deleted, rules remain persisted but surface **broken reference** errors for user correction.
+
+### **D. Separation from the Runtime Engine (Story 3.7)**
+- Story 3.6 does not apply rule effects to the builder canvas or renderer.
+- Story 3.7 will interpret `logic.rules` and apply actions at runtime.
+
 ### **D. Drag-and-Drop Architecture (Story 3.3 & 3.4)**
 The Visual Builder uses **@dnd-kit** for its accessible, robust drag-and-drop capabilities.
 

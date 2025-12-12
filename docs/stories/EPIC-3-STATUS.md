@@ -26,10 +26,10 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 5/9 | 🏃 In Progress |
-| **Current Story** | 3.6 - Conditional Logic UI | 🛠️ **Next (Ready for Development)** |
+| **Stories Complete** | 6/9 | 🏃 In Progress |
+| **Current Story** | 3.7 - Rule Evaluation Engine | 🛠️ **Next (Ready for Development)** |
 | **Domains Complete** | 2/4 | 🏃 In Progress |
-| **UAT Tests Passed** | 62 (Story 3.5) | ✅ Passed |
+| **UAT Tests Passed** | 5 scenarios (Story 3.6) | ✅ Passed |
 
 ---
 
@@ -51,7 +51,7 @@
 ### **Domain 3: Logic Engine**
 *   **Stories:** 3.6, 3.7
 *   **Focus:** Conditional logic UI, Rule evaluation engine
-*   **Status:** 📋 Planned
+*   **Status:** 🏃 In Progress
 
 ### **Domain 4: Rendering & Submission**
 *   **Stories:** 3.8, 3.9
@@ -69,8 +69,8 @@
 | **3.3** | Drag-and-Drop Canvas | ✅ Complete | Builder | **The Workbench.** Drag to reorder *existing* items. Keyboard support. |
 | **3.4** | Component Library | ✅ Complete | Builder | **The Toolbox.** Scalable Canvas, Layered Editing, Skyline Borders. |
 | **3.5** | **Properties Panel** | ✅ Complete | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. Global vs Individual settings. Layout toggles. |
-| **3.6** | Conditional Logic UI | 🛠️ **Next** | Logic | **The Rules.** "Show Field X if Field Y is 'Yes'". |
-| **3.7** | Rule Evaluation Engine | 📋 Planned | Logic | **The Brain.** Frontend engine that runs the rules in real-time. |
+| **3.6** | Conditional Logic UI | ✅ Complete | Logic | **The Rules.** Author rules and persist them into DefinitionJSON. |
+| **3.7** | Rule Evaluation Engine | 🛠️ **Next** | Logic | **The Brain.** Frontend engine that runs the rules in real-time. |
 | **3.8** | Public Form Renderer | 📋 Planned | Render | **The Player.** The actual form the public sees (optimized for tablets). |
 | **3.9** | Dynamic Submission | 📋 Planned | Render | **The Outbox.** Queue system for offline submissions and syncing. |
 
@@ -103,6 +103,7 @@ This story specifically addresses user-requested flexibility controls:
 | 3.3 | `story-3.3.md` | `story-context-3.3.xml` | `STORY-3.3-UAT-TEST-GUIDE.md` |
 | 3.4 | `story-3.4.md` | `story-context-3.4.xml` | `STORY-3.4-UAT-TEST-GUIDE.md` |
 | 3.5 | `story-3.5.md` | `story-context-3.5.xml` | `STORY-3.5-UAT-TEST-GUIDE.md` ✅ |
+| 3.6 | `story-3.6.md` | `story-context-3.6.xml` | `STORY-3.6-UAT-TEST-GUIDE.md` ✅ |
 
 ### **Story 3.5 Additional Documentation**
 | Document | Description |

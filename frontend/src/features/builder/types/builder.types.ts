@@ -544,6 +544,39 @@ export interface FormPage {
     };
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// LOGIC ENGINE (Story 3.6 - Authoring + Persistence Only)
+// Runtime evaluation is explicitly deferred to Story 3.7.
+// ═══════════════════════════════════════════════════════════════════════════
+
+export type LogicOperator = 'equals' | 'notEquals' | 'contains' | 'isEmpty';
+export type LogicAction = 'show' | 'hide' | 'require' | 'unrequire' | 'enable' | 'disable';
+
+export interface LogicWhen {
+    sourceComponentId: string;
+    operator: LogicOperator;
+    /** Required for equals/notEquals/contains; omitted for isEmpty */
+    value?: string;
+}
+
+export interface LogicThen {
+    targetComponentId: string;
+    action: LogicAction;
+}
+
+export interface LogicRule {
+    id: string;
+    enabled: boolean;
+    /** Optional user-friendly name for rule management (UX) */
+    name?: string;
+    when: LogicWhen;
+    then: LogicThen;
+}
+
+export interface FormLogic {
+    rules: LogicRule[];
+}
+
 /**
  * Global styles - the "Brand DNA" defaults for all components.
  * These cascade to all components unless overridden individually.
@@ -743,6 +776,9 @@ export interface FormDefinition {
     
     // Global Styles (The Master Theme / Brand DNA)
     globalStyles?: GlobalStyles;
+
+    // Logic Engine (Story 3.6) - persisted rule definitions
+    logic?: FormLogic;
     
     // Canvas Settings
     canvasSettings?: CanvasSettings;

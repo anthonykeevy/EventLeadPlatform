@@ -1,0 +1,134 @@
+<story-context>
+    <id>3.6</id>
+    <title>Conditional Logic UI</title>
+    <epic>3</epic>
+    <domain>Logic Engine</domain>
+
+    <scope-boundary>
+        <in-scope>
+            <item>UI for creating/editing/deleting/reordering conditional rules</item>
+            <item>Rule data model persisted into DefinitionJSON (structured JSON, no code)</item>
+            <item>Rule authoring validation and user-facing error messages</item>
+        </in-scope>
+        <out-of-scope>
+            <item>Runtime evaluation engine (Story 3.7)</item>
+            <item>Applying rule effects in preview/renderer (Story 3.7+)</item>
+        </out-of-scope>
+    </scope-boundary>
+
+    <dependencies>
+        <dependency>Story 3.2 (DefinitionJSON contract and backend validation)</dependency>
+        <dependency>Story 3.5 (Properties Panel + editable per-component configs)</dependency>
+        <dependency>Epic 3 Architecture Reference (DefinitionJSON is stored in FormVersion.DefinitionJSON)</dependency>
+    </dependencies>
+
+    <technical-context>
+        <definition-json>
+            <backend-schema>
+                <location>backend/schemas/form_definition.py</location>
+                <note>Schema currently validates core FormDefinition fields; Story 3.6 extends it to accept persisted rule structures.</note>
+            </backend-schema>
+            <frontend-types>
+                <location>frontend/src/features/builder/types/builder.types.ts</location>
+                <note>FormDefinition currently does not contain rule storage; Story 3.6 adds a logic container for rules.</note>
+            </frontend-types>
+        </definition-json>
+
+        <builder-store>
+            <location>frontend/src/features/builder/stores/useBuilderStore.ts</location>
+            <current-state>
+                <property name="formDefinition">The in-memory FormDefinition that is compiled to DefinitionJSON</property>
+                <property name="selectedComponentId">Primary selected component (Story 3.5)</property>
+                <property name="selectedComponentIds">Multi-select set (Story 3.5)</property>
+            </current-state>
+            <expected-new-state>
+                <property name="formDefinition.logic.rules">Persisted rules array (NEW)</property>
+            </expected-new-state>
+            <expected-new-actions>
+                <action name="addRule">Append a new rule with defaults and unique id</action>
+                <action name="updateRule">Patch update a rule (partial updates)</action>
+                <action name="removeRule">Delete rule by id</action>
+                <action name="reorderRules">Reorder by drag/drop or move up/down</action>
+                <action name="toggleRuleEnabled">Enable/disable a rule</action>
+            </expected-new-actions>
+        </builder-store>
+
+        <ui-entrypoints>
+            <properties-panel>
+                <location>frontend/src/features/builder/components/PropertiesPanel.tsx</location>
+                <note>Recommended to add a new tab (e.g., "Logic") to the existing right panel framework.</note>
+            </properties-panel>
+            <builder-page>
+                <location>frontend/src/features/builder/pages/BuilderPage.tsx</location>
+                <note>Right panel/tab wiring may need a small extension to host the Logic Panel.</note>
+            </builder-page>
+        </ui-entrypoints>
+
+        <rule-shape>
+            <operators>
+                <operator>equals</operator>
+                <operator>notEquals</operator>
+                <operator>contains</operator>
+                <operator>isEmpty</operator>
+            </operators>
+            <actions>
+                <action>show</action>
+                <action>hide</action>
+                <action>require</action>
+                <action>unrequire</action>
+                <action>enable</action>
+                <action>disable</action>
+            </actions>
+            <proposed-definition-json>
+                <![CDATA[
+{
+  "logic": {
+    "rules": [
+      {
+        "id": "rule-uuid-or-nanoid",
+        "enabled": true,
+        "when": {
+          "sourceComponentId": "comp-2",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "targetComponentId": "comp-5",
+          "action": "show"
+        }
+      }
+    ]
+  }
+}
+                ]]>
+            </proposed-definition-json>
+        </rule-shape>
+
+        <validation-rules>
+            <rule name="source-not-target">Source field cannot be the same as target field</rule>
+            <rule name="operator-required">Operator must be selected</rule>
+            <rule name="value-required">Value required for equals/notEquals/contains; disallowed for isEmpty</rule>
+            <rule name="contains-string-only">Contains only permitted for string-capable fields</rule>
+            <rule name="missing-component">If referenced component id no longer exists, mark rule invalid and require user fix</rule>
+        </validation-rules>
+
+        <non-goals>
+            <item>No evaluation engine execution (Story 3.7)</item>
+            <item>No automatic hiding/showing in canvas based on rules (Story 3.7)</item>
+        </non-goals>
+    </technical-context>
+
+    <file-structure>
+        <new-files>
+            <file>frontend/src/features/builder/components/logic/LogicPanel.tsx</file>
+            <file>frontend/src/features/builder/components/logic/RuleRow.tsx</file>
+            <file>frontend/src/features/builder/components/logic/ruleValidation.ts</file>
+        </new-files>
+        <modified-files>
+            <file>frontend/src/features/builder/types/builder.types.ts (Add FormDefinition.logic + rule types)</file>
+            <file>frontend/src/features/builder/stores/useBuilderStore.ts (Add rule CRUD + reorder actions)</file>
+            <file>frontend/src/features/builder/components/PropertiesPanel.tsx (Add Logic tab/panel)</file>
+            <file>backend/schemas/form_definition.py (Extend validation to include rules)</file>
+        </modified-files>
+    </file-structure>
+</story-context>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, X, Layers, Users } from 'lucide-react';
+import { Settings, X, Layers, Users, GitBranch, SlidersHorizontal } from 'lucide-react';
 import { useBuilderStore } from '../stores/useBuilderStore';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
 import { DEFAULT_GLOBAL_STYLES, FormPage, FormComponent, StyleOverrides } from '../types/builder.types';
@@ -14,6 +14,7 @@ import { TermsPropertiesSection } from './properties/TermsPropertiesSection';
 import { TextareaPropertiesSection } from './properties/TextareaPropertiesSection';
 import { OptionsSection } from './properties/OptionsSection';
 import { DatePropertiesSection } from './properties/DatePropertiesSection';
+import { LogicPanel } from './logic/LogicPanel';
 
 /**
  * Type compatibility map for Must Match Field filtering
@@ -57,6 +58,25 @@ export const PropertiesPanel: React.FC = () => {
     // Get the current page for background settings
     const currentPage = formDefinition?.pages.find(p => p.id === activePageId);
     const pageBackground = currentPage?.background;
+
+    // Right panel tabs (Inspector/Logic). Logic is form-level and works without selection.
+    const [activeTab, setActiveTab] = React.useState<'inspector' | 'logic'>(() => {
+        try {
+            const raw = localStorage.getItem('builder-right-panel-tab');
+            if (raw === 'logic' || raw === 'inspector') return raw;
+        } catch {
+            // ignore
+        }
+        return 'inspector';
+    });
+
+    React.useEffect(() => {
+        try {
+            localStorage.setItem('builder-right-panel-tab', activeTab);
+        } catch {
+            // ignore
+        }
+    }, [activeTab]);
     
     // ═══════════════════════════════════════════════════════════════════════════════
     // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
@@ -282,10 +302,49 @@ export const PropertiesPanel: React.FC = () => {
     // Panel styling - width is controlled by ResizablePanel parent
     const panelClassName = "w-full h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden";
 
+    const TabsHeader = () => (
+        <div className="flex items-center border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40">
+            <button
+                onClick={() => setActiveTab('inspector')}
+                className={`flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-2 transition-colors ${
+                    activeTab === 'inspector'
+                        ? 'text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 border-b-2 border-teal-500'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+                title="Inspector"
+            >
+                <SlidersHorizontal size={14} />
+                Inspector
+            </button>
+            <button
+                onClick={() => setActiveTab('logic')}
+                className={`flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-2 transition-colors ${
+                    activeTab === 'logic'
+                        ? 'text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 border-b-2 border-indigo-500'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+                title="Logic"
+            >
+                <GitBranch size={14} />
+                Logic
+            </button>
+        </div>
+    );
+
+    if (activeTab === 'logic') {
+        return (
+            <aside className={panelClassName}>
+                <TabsHeader />
+                <LogicPanel />
+            </aside>
+        );
+    }
+
     // If in Background mode (activeLayer === 0), show Background Properties
     if (activeLayer === 0) {
         return (
             <aside className={panelClassName}>
+                <TabsHeader />
                 <BackgroundPropertiesPanel 
                     pageBackground={pageBackground}
                     onBackgroundChange={handleBackgroundChange}
@@ -298,6 +357,7 @@ export const PropertiesPanel: React.FC = () => {
     if (!selectedComponentId || !selectedComponent) {
         return (
             <aside className={panelClassName}>
+                <TabsHeader />
                 <GlobalStylesPanel 
                     globalStyles={globalStyles}
                     onGlobalStylesChange={updateGlobalStyles}
@@ -330,6 +390,7 @@ export const PropertiesPanel: React.FC = () => {
         
         return (
             <aside className={panelClassName}>
+                <TabsHeader />
                 {/* Multi-Select Header */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
                     <div className="flex items-center gap-2">
@@ -472,6 +533,7 @@ export const PropertiesPanel: React.FC = () => {
     // ═══════════════════════════════════════════════════════════════════════════════
     return (
         <aside className={panelClassName}>
+            <TabsHeader />
             {/* Panel Header */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
                 <div className="flex items-center gap-2">

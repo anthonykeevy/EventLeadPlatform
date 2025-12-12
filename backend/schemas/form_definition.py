@@ -33,11 +33,57 @@ class FormPage(BaseModel):
     title: Optional[str] = None
     components: List[FormComponent] = Field(default_factory=list)
 
+class LogicOperator(str, Enum):
+    EQUALS = "equals"
+    NOT_EQUALS = "notEquals"
+    CONTAINS = "contains"
+    IS_EMPTY = "isEmpty"
+
+class LogicAction(str, Enum):
+    SHOW = "show"
+    HIDE = "hide"
+    REQUIRE = "require"
+    UNREQUIRE = "unrequire"
+    ENABLE = "enable"
+    DISABLE = "disable"
+
+class RuleWhen(BaseModel):
+    sourceComponentId: str = Field(..., min_length=1)
+    operator: LogicOperator
+    value: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_value_requirements(self) -> "RuleWhen":
+        if self.operator == LogicOperator.IS_EMPTY:
+            # value not used for isEmpty
+            self.value = None
+            return self
+        if self.operator in (LogicOperator.EQUALS, LogicOperator.NOT_EQUALS, LogicOperator.CONTAINS):
+            if self.value is None or str(self.value).strip() == "":
+                raise ValueError(f"value is required for operator '{self.operator.value}'")
+        return self
+
+class RuleThen(BaseModel):
+    targetComponentId: str = Field(..., min_length=1)
+    action: LogicAction
+
+class LogicRule(BaseModel):
+    id: str = Field(..., min_length=1)
+    enabled: bool = True
+    name: Optional[str] = None
+    when: RuleWhen
+    then: RuleThen
+
+class FormLogic(BaseModel):
+    rules: List[LogicRule] = Field(default_factory=list)
+
 class FormDefinition(BaseModel):
     schemaVersion: Literal["1.0"] = "1.0"
     formId: str = Field(..., min_length=1)
     theme: FormTheme
     pages: List[FormPage]
+    # Story 3.6: Rule definitions stored as structured JSON (no code)
+    logic: Optional[FormLogic] = None
 
     @model_validator(mode='after')
     def check_unique_ids(self) -> 'FormDefinition':
@@ -55,6 +101,12 @@ class FormDefinition(BaseModel):
         
         if duplicates:
             raise ValueError(f"Duplicate component IDs found: {', '.join(duplicates)}")
+
+        # Optional rule integrity checks (structure-only; runtime evaluation is Story 3.7)
+        if self.logic and self.logic.rules:
+            for rule in self.logic.rules:
+                if rule.when.sourceComponentId == rule.then.targetComponentId:
+                    raise ValueError("Rule sourceComponentId cannot equal targetComponentId")
         
         return self
 

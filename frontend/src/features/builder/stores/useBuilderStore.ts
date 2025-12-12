@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, StyleOverrides } from '../types/builder.types';
+import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, StyleOverrides, LogicRule } from '../types/builder.types';
 import { hasStyleOverrides, getOverriddenProperties } from '../utils/styleUtils';
 
 /**
@@ -28,6 +28,19 @@ interface FormSnapshot {
  * Maximum number of undo/redo steps to keep
  */
 const MAX_HISTORY_SIZE = 50;
+
+function getStorageKey(formId: string) {
+    return `builder-formDefinition-${formId}`;
+}
+
+function persistToStorage(def: FormDefinition | null) {
+    if (!def?.formId) return;
+    try {
+        localStorage.setItem(getStorageKey(def.formId), JSON.stringify(def));
+    } catch {
+        // Ignore persistence failures (storage full/disabled)
+    }
+}
 
 interface BuilderState {
     formDefinition: FormDefinition | null;
@@ -69,6 +82,13 @@ interface BuilderState {
     canUndo: () => boolean;
     canRedo: () => boolean;
     pushToHistory: () => void; // Internal: save current state before changes
+
+    // Logic Rules (Story 3.6) - authoring + persistence only
+    addRule: (rule: LogicRule) => void;
+    updateRule: (ruleId: string, updates: Partial<LogicRule>) => void;
+    removeRule: (ruleId: string) => void;
+    moveRule: (ruleId: string, direction: 'up' | 'down') => void;
+    toggleRuleEnabled: (ruleId: string, enabled: boolean) => void;
     
     // Override tracking helpers
     getComponentsWithOverrides: () => ComponentWithOverrides[];
@@ -86,6 +106,7 @@ const MOCK_INITIAL_FORM: FormDefinition = {
         fontFamily: 'Inter',
     },
     globalStyles: { ...DEFAULT_GLOBAL_STYLES },
+    logic: { rules: [] },
     pages: [
         {
             id: 'page-1',
@@ -146,9 +167,24 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     initializeForm: (formId: string) => {
         set({ isLoading: true });
         setTimeout(() => {
+            // Try to load persisted state first (UAT expects reload persistence)
+            let loaded: FormDefinition | null = null;
+            try {
+                const raw = localStorage.getItem(getStorageKey(formId));
+                if (raw) loaded = JSON.parse(raw) as FormDefinition;
+            } catch {
+                loaded = null;
+            }
+
+            const base = loaded || { ...MOCK_INITIAL_FORM, formId };
+            const withLogic: FormDefinition = {
+                ...base,
+                logic: base.logic || { rules: [] },
+            };
+
             set({
-                formDefinition: { ...MOCK_INITIAL_FORM, formId },
-                activePageId: MOCK_INITIAL_FORM.pages[0].id,
+                formDefinition: withLogic,
+                activePageId: withLogic.pages[0].id,
                 isLoading: false,
                 selectedComponentId: null, // Reset selection on form load
                 selectedComponentIds: [], // Clear multi-selection
@@ -300,6 +336,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             historyPast: newPast,
             historyFuture: [currentSnapshot, ...state.historyFuture].slice(0, MAX_HISTORY_SIZE),
         });
+        persistToStorage(get().formDefinition);
     },
 
     /**
@@ -324,6 +361,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             historyPast: [...state.historyPast, currentSnapshot].slice(-MAX_HISTORY_SIZE),
             historyFuture: newFuture,
         });
+        persistToStorage(get().formDefinition);
     },
 
     /**
@@ -369,6 +407,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
             return { formDefinition: { ...state.formDefinition, pages: newPages } };
         });
+        persistToStorage(get().formDefinition);
     },
 
     // Story 3.5: Update just the props of a component (for property panel)
@@ -405,6 +444,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
             return { formDefinition: { ...state.formDefinition, pages: newPages } };
         });
+        persistToStorage(get().formDefinition);
     },
 
     // Multi-select: Update props on ALL selected components
@@ -442,6 +482,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
             return { formDefinition: { ...state.formDefinition, pages: newPages } };
         });
+        persistToStorage(get().formDefinition);
     },
 
     // Story 3.5: Update global styles
@@ -463,6 +504,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 },
             };
         });
+        persistToStorage(get().formDefinition);
     },
 
     // Deprecated for Free-Form Canvas but kept for safety
@@ -493,6 +535,104 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 }
             };
         });
+        persistToStorage(get().formDefinition);
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // LOGIC RULES (Story 3.6) - Authoring + Persistence Only
+    // ═══════════════════════════════════════════════════════════════
+
+    addRule: (rule) => {
+        get().pushToHistory();
+        set((state) => {
+            if (!state.formDefinition) return state;
+            const current = state.formDefinition.logic?.rules || [];
+            return {
+                formDefinition: {
+                    ...state.formDefinition,
+                    logic: {
+                        rules: [...current, rule],
+                    },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
+    },
+
+    updateRule: (ruleId, updates) => {
+        get().pushToHistory();
+        set((state) => {
+            if (!state.formDefinition) return state;
+            const current = state.formDefinition.logic?.rules || [];
+            return {
+                formDefinition: {
+                    ...state.formDefinition,
+                    logic: {
+                        rules: current.map(r => (r.id === ruleId ? { ...r, ...updates } : r)),
+                    },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
+    },
+
+    removeRule: (ruleId) => {
+        get().pushToHistory();
+        set((state) => {
+            if (!state.formDefinition) return state;
+            const current = state.formDefinition.logic?.rules || [];
+            return {
+                formDefinition: {
+                    ...state.formDefinition,
+                    logic: {
+                        rules: current.filter(r => r.id !== ruleId),
+                    },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
+    },
+
+    moveRule: (ruleId, direction) => {
+        get().pushToHistory();
+        set((state) => {
+            if (!state.formDefinition) return state;
+            const current = [...(state.formDefinition.logic?.rules || [])];
+            const idx = current.findIndex(r => r.id === ruleId);
+            if (idx === -1) return state;
+
+            const nextIdx = direction === 'up' ? idx - 1 : idx + 1;
+            if (nextIdx < 0 || nextIdx >= current.length) return state;
+
+            const tmp = current[idx];
+            current[idx] = current[nextIdx];
+            current[nextIdx] = tmp;
+
+            return {
+                formDefinition: {
+                    ...state.formDefinition,
+                    logic: { rules: current },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
+    },
+
+    toggleRuleEnabled: (ruleId, enabled) => {
+        get().pushToHistory();
+        set((state) => {
+            if (!state.formDefinition) return state;
+            const current = state.formDefinition.logic?.rules || [];
+            return {
+                formDefinition: {
+                    ...state.formDefinition,
+                    logic: {
+                        rules: current.map(r => (r.id === ruleId ? { ...r, enabled } : r)),
+                    },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
     },
 
     // ═══════════════════════════════════════════════════════════════
@@ -596,6 +736,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 },
             };
         });
+        persistToStorage(get().formDefinition);
     },
 
     /**
@@ -642,5 +783,6 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 },
             };
         });
+        persistToStorage(get().formDefinition);
     },
 }));

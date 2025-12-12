@@ -45,6 +45,53 @@ It is strictly validated by the backend using **Pydantic** before saving.
 *   **Resolved Props:** The Builder calculates the "Defaults + Overrides" and saves the *final* configuration for the Renderer.
 *   **Serialization Limit:** Only serializable data (JSON) is stored. Custom logic must be registered as "Action Keys" (strings) in the registry, not raw code.
 
+---
+
+## 1.1 Property Handling (Story 3.5 - Properties Panel)
+
+This section documents how **Global Styles**, **Component Overrides**, **Bulk Edit**, and **Undo/Redo** work together in the Builder.
+
+### **A. Storage Model**
+- **Form-level defaults:** `formDefinition.globalStyles`
+- **Per-component overrides:** `component.props.styleOverrides`
+
+### **B. Cascade / Resolution**
+The Builder preview resolves effective styling at render time using the cascade:
+\[
+\text{effective} = \text{globalStyles} \;\;+\;\; \text{styleOverrides}
+\]
+
+- `undefined` means “no override; inherit global”.
+- Certain values are intentionally explicit overrides, e.g. `backgroundColor: 'transparent'` means “force transparent”, not “unset”.
+
+**Primary implementation:** `frontend/src/features/builder/utils/styleUtils.ts`
+
+### **C. Reset-to-Global Semantics**
+“Reset” clears overrides by removing the key (or setting to `undefined`), returning the component to inheritance.
+
+In multi-select and bulk operations, the system merges patch updates into each selected component’s existing override object (so unrelated overrides are preserved).
+
+**Primary implementation:** `frontend/src/features/builder/components/PropertiesPanel.tsx`
+
+### **D. Multi-select Bulk Edit**
+- Selection state is tracked as a primary selection plus a set:
+  - `selectedComponentId` (primary)
+  - `selectedComponentIds` (multi-select set)
+- Ctrl+Click toggles membership in `selectedComponentIds` (add/remove).
+- Bulk changes apply to all selected components via store helpers.
+
+**Primary implementation:** `frontend/src/features/builder/stores/useBuilderStore.ts`
+
+### **E. Undo/Redo Coverage**
+Undo/redo stores bounded snapshots of the full `formDefinition` prior to significant user actions:
+- Add component
+- Move/resize/scale changes
+- Single-component property edits
+- Multi-select bulk edits
+- Global style edits
+
+**Primary implementation:** `frontend/src/features/builder/stores/useBuilderStore.ts`
+
 ### **D. Drag-and-Drop Architecture (Story 3.3 & 3.4)**
 The Visual Builder uses **@dnd-kit** for its accessible, robust drag-and-drop capabilities.
 

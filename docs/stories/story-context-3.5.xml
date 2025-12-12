@@ -1,0 +1,174 @@
+<story-context>
+    <id>3.5</id>
+    <title>Properties Panel &amp; Configuration</title>
+    <epic>3</epic>
+    <domain>Visual Builder</domain>
+    
+    <dependencies>
+        <dependency>Story 3.3 (Canvas Foundation - dnd-kit, Zustand store)</dependency>
+        <dependency>Story 3.4 (Component Library - Toolbox, Skyline Borders, ComponentRegistry)</dependency>
+    </dependencies>
+    
+    <technical-context>
+        <existing-store>
+            <location>frontend/src/features/builder/stores/useBuilderStore.ts</location>
+            <current-state>
+                <property name="formDefinition">FormDefinition containing pages and components</property>
+                <property name="activeId">Currently dragging component ID</property>
+                <property name="activePageId">Selected page</property>
+                <property name="scale">Viewport scale factor</property>
+                <property name="showGrid">Grid visibility toggle</property>
+                <property name="activeLayer">0 (Background) or 1 (Functional)</property>
+            </current-state>
+            <new-state>
+                <property name="selectedComponentId">ID of clicked component for editing (NEW)</property>
+                <property name="globalStyles">GlobalStyles object with theme defaults (EXTEND)</property>
+            </new-state>
+            <existing-actions>
+                <action name="updateComponent">Generic update - already supports Partial&lt;FormComponent&gt;</action>
+                <action name="addComponent">Add new component to canvas</action>
+            </existing-actions>
+            <new-actions>
+                <action name="selectComponent">Set selectedComponentId (NEW)</action>
+                <action name="updateGlobalStyles">Update theme defaults (NEW)</action>
+                <action name="resetPropertyToGlobal">Clear individual override (NEW)</action>
+            </new-actions>
+        </existing-store>
+        
+        <component-types>
+            <location>frontend/src/features/builder/types/builder.types.ts</location>
+            <relevant-interfaces>
+                <interface name="ComponentProps">
+                    Current fields: label, required, placeholder, helpText, options
+                    Extension needed: layout ('vertical' | 'horizontal'), validation rules
+                </interface>
+                <interface name="GlobalStyles">
+                    Current fields: fontFamily, fontSize, primaryColor, textColor, borderRadius, spacing
+                    Already defined, needs connection to Properties Panel
+                </interface>
+            </relevant-interfaces>
+        </component-types>
+        
+        <component-registry>
+            <location>frontend/src/features/builder/components/ComponentSidebar.tsx (inline)</location>
+            <current-structure>Maps type string to RenderComponent</current-structure>
+            <extension>Add PropertiesEditor component mapping</extension>
+        </component-registry>
+        
+        <properties-panel-architecture>
+            <base-panel>
+                <description>Generic PropertiesPanel shell with tabs and sections</description>
+                <sections>
+                    <section name="General">Label, Placeholder, Required, HelpText, Layout</section>
+                    <section name="Validation">MinLength, MaxLength, Pattern, CustomErrorMessage</section>
+                    <section name="Style Overrides">Font, Size, Colors with Global/Individual toggles</section>
+                </sections>
+            </base-panel>
+            <type-specific-editors>
+                <editor type="text">TextPropertiesEditor (standard)</editor>
+                <editor type="first-name">FirstNamePropertiesEditor (+ Auto-Capitalize toggle)</editor>
+                <editor type="select">SelectPropertiesEditor (+ Options list editor)</editor>
+            </type-specific-editors>
+        </properties-panel-architecture>
+        
+        <global-theme-cascade>
+            <principle>Global styles are the "source of truth" for defaults</principle>
+            <resolution>effectiveValue = componentProp ?? globalStyle</resolution>
+            <override-indicator>UI shows "linked" icon if using global, "unlinked" if overridden</override-indicator>
+            <reset-action>Delete the prop from component to revert to global</reset-action>
+        </global-theme-cascade>
+        
+        <proportional-scaling>
+            <property name="componentScale" type="number" default="100">Percentage scale factor for component</property>
+            <scaled-properties>
+                <property>fontSize</property>
+                <property>labelFontSize</property>
+                <property>helpTextFontSize</property>
+                <property>inputPaddingX</property>
+                <property>inputPaddingY</property>
+                <property>labelGap</property>
+                <property>borderRadius</property>
+                <property>inputHeight</property>
+            </scaled-properties>
+            <formula>effectiveValue = baseValue * (componentScale / 100)</formula>
+            <override-behavior>Explicit value set on property breaks proportional scaling for that property</override-behavior>
+        </proportional-scaling>
+        
+        <spacing-system>
+            <base-unit name="baseSpacing" default="8">The grid unit all spacing derives from</base-unit>
+            <multiplier-properties>
+                <property name="componentMargin" default="2">baseSpacing × 2 = 16px between components</property>
+                <property name="labelGap" default="1">baseSpacing × 1 = 8px between label and input</property>
+                <property name="inputPaddingX" default="1.5">baseSpacing × 1.5 = 12px horizontal padding</property>
+                <property name="inputPaddingY" default="1">baseSpacing × 1 = 8px vertical padding</property>
+                <property name="helpTextGap" default="0.5">baseSpacing × 0.5 = 4px after input</property>
+                <property name="sectionSpacing" default="4">baseSpacing × 4 = 32px between sections</property>
+            </multiplier-properties>
+            <benefit>Changing baseSpacing automatically scales all derived values proportionally</benefit>
+        </spacing-system>
+        
+        <property-categories>
+            <category name="Typography">fontFamily, fontSize, fontWeight, lineHeight, labelFontSize, helpTextFontSize</category>
+            <category name="Colors">primaryColor, textColor, labelColor, placeholderColor, backgroundColor, borderColor, focusBorderColor, errorColor</category>
+            <category name="Spacing">baseSpacing, componentMargin, labelGap, inputPaddingX, inputPaddingY, helpTextGap</category>
+            <category name="Borders">borderRadius, borderWidth, borderStyle, focusRingWidth</category>
+            <category name="Sizing">inputHeight, inputMinWidth, inputMaxWidth, componentScale</category>
+            <category name="Layout">layout, labelAlign, inputAlign, requiredIndicator</category>
+            <category name="Behavior">label, placeholder, helpText, required, disabled, readOnly</category>
+            <category name="Validation">minLength, maxLength, pattern, minValue, maxValue, customError</category>
+        </property-categories>
+        
+        <layout-toggle>
+            <property name="layout" type="enum">vertical | horizontal</property>
+            <vertical>Label above input (default)</vertical>
+            <horizontal>Label to left of input (flex-row)</horizontal>
+            <application>CSS class swap on component wrapper</application>
+        </layout-toggle>
+    </technical-context>
+    
+    <user-ux-concerns>
+        <concern priority="high">Global vs Individual - Must be clear which setting is being used</concern>
+        <concern priority="high">Layout Toggle - Quick switch without complex menus</concern>
+        <concern priority="medium">Real-time preview - No "Apply" button needed</concern>
+        <concern priority="medium">Validation UX - Clear, accessible error message configuration</concern>
+    </user-ux-concerns>
+    
+    <file-structure>
+        <new-files>
+            <file>frontend/src/features/builder/components/PropertiesPanel.tsx (Main panel component)</file>
+            <file>frontend/src/features/builder/components/properties/GeneralSection.tsx</file>
+            <file>frontend/src/features/builder/components/properties/ValidationSection.tsx</file>
+            <file>frontend/src/features/builder/components/properties/StyleOverridesSection.tsx</file>
+            <file>frontend/src/features/builder/components/properties/GlobalThemePanel.tsx</file>
+            <file>frontend/src/features/builder/components/properties/PropertyInput.tsx (Reusable input with global toggle)</file>
+        </new-files>
+        <modified-files>
+            <file>frontend/src/features/builder/stores/useBuilderStore.ts (Add selectedComponentId, globalStyles actions)</file>
+            <file>frontend/src/features/builder/types/builder.types.ts (Add validation types, layout enum)</file>
+            <file>frontend/src/features/builder/components/SortableComponent.tsx (Add click selection handler)</file>
+            <file>frontend/src/features/builder/pages/BuilderPage.tsx (Add right sidebar with PropertiesPanel)</file>
+        </modified-files>
+    </file-structure>
+    
+    <validation-schema-extension>
+        <interface name="ValidationRules">
+            <field name="minLength" type="number" />
+            <field name="maxLength" type="number" />
+            <field name="pattern" type="string" description="Regex pattern" />
+            <field name="minValue" type="number" description="For number inputs" />
+            <field name="maxValue" type="number" description="For number inputs" />
+            <field name="customError" type="string" description="User-defined error message" />
+        </interface>
+        <component-props-extension>
+            <field name="validation" type="ValidationRules" />
+            <field name="layout" type="'vertical' | 'horizontal'" default="vertical" />
+        </component-props-extension>
+    </validation-schema-extension>
+    
+    <keyboard-shortcuts>
+        <shortcut key="Escape">Deselect component</shortcut>
+        <shortcut key="Delete/Backspace">Delete selected component (if focused on canvas)</shortcut>
+        <shortcut key="Tab">Navigate Properties Panel fields</shortcut>
+    </keyboard-shortcuts>
+</story-context>
+

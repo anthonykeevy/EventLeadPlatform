@@ -9,11 +9,19 @@ import {
   Calendar, 
   Heading, 
   Pilcrow,
-  User 
+  User,
+  Phone,
+  MapPin,
+  FileCheck,
+  Send,
+  Minus,
 } from 'lucide-react';
 import { ComponentType, FormComponent } from '../types/builder.types';
 import { FirstNameField } from '../components/fields/FirstNameField';
 import { StandardInput } from '../components/fields/StandardInput';
+import { TermsField } from '../components/fields/TermsField';
+import { SubmitButtonField } from '../components/fields/SubmitButtonField';
+import { AddressField } from '../components/fields/AddressField';
 
 export interface ComponentDefinition {
   type: ComponentType;
@@ -35,7 +43,8 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     defaultProps: {
       label: 'First Name',
       placeholder: 'Enter your first name',
-      required: true
+      required: true,
+      validation: { maxLength: 30 },
     },
     previewComponent: <FirstNameField />
   },
@@ -49,7 +58,8 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     defaultProps: {
       label: 'Text Field',
       placeholder: 'Enter text...',
-      required: false
+      required: false,
+      validation: { maxLength: 50 },
     },
     previewComponent: <StandardInput 
         label="Text Field" 
@@ -66,7 +76,8 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     defaultProps: {
       label: 'Number Field',
       placeholder: '0',
-      required: false
+      required: false,
+      validation: { maxLength: 12 },
     },
     previewComponent: <StandardInput 
         label="Number Field" 
@@ -84,7 +95,8 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     defaultProps: {
       label: 'Email Address',
       placeholder: 'example@email.com',
-      required: false
+      required: false,
+      validation: { maxLength: 254 },
     },
     previewComponent: <StandardInput 
         label="Email Address" 
@@ -101,7 +113,8 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     defaultProps: {
       label: 'Long Text',
       placeholder: 'Enter details...',
-      required: false
+      required: false,
+      validation: { maxLength: 500 },
     },
     previewComponent: <StandardInput 
         label="Long Text" 
@@ -167,6 +180,77 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
 
   // Layout (Row/Column removed per user request)
 
+  // Phone Input
+  phone: {
+    type: 'phone',
+    label: 'Phone Number',
+    icon: <Phone size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'Phone Number',
+      placeholder: '+61 400 000 000',
+      required: false,
+      exportName: 'phone',
+      validation: { maxLength: 20 },
+    },
+    previewComponent: <StandardInput 
+      label="Phone Number" 
+      icon={Phone} 
+      placeholder="+61 400 000 000" 
+      validationMessage="Invalid phone format"
+    />
+  },
+
+  // Address Field (Placeholder for future autocomplete)
+  address: {
+    type: 'address',
+    label: 'Address',
+    icon: <MapPin size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'Address',
+      placeholder: 'Start typing your address...',
+      required: false,
+      enableAutocomplete: true,
+      exportName: 'address',
+    },
+    previewComponent: <AddressField />
+  },
+
+  // Terms & Conditions
+  terms: {
+    type: 'terms',
+    label: 'Terms & Conditions',
+    icon: <FileCheck size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'I agree to the',
+      termsLinkText: 'Terms of Service',
+      termsUrl: '',
+      termsContent: '',
+      required: true,
+      exportName: 'terms_accepted',
+    },
+    previewComponent: <TermsField />
+  },
+
+  // Submit Button
+  'submit-button': {
+    type: 'submit-button',
+    label: 'Submit Button',
+    icon: <Send size={18} />,
+    category: 'input',
+    defaultProps: {
+      buttonText: 'Submit',
+      buttonAction: 'submit',
+      buttonWidth: 'auto',
+      buttonAlign: 'left',
+      showLoadingState: true,
+      disableUntilValid: true,
+    },
+    previewComponent: <SubmitButtonField />
+  },
+
   // Display
   header: {
     type: 'header',
@@ -181,6 +265,20 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     icon: <Pilcrow size={18} />,
     category: 'display',
     defaultProps: { label: 'Paragraph' }
+  },
+  
+  // Divider
+  divider: {
+    type: 'divider',
+    label: 'Divider',
+    icon: <Minus size={18} />,
+    category: 'display',
+    defaultProps: {},
+    previewComponent: (
+      <div className="py-4 flex items-center justify-center">
+        <div className="w-full border-t border-gray-300" />
+      </div>
+    )
   }
 } as Record<ComponentType, ComponentDefinition>;
 

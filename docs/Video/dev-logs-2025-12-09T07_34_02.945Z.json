@@ -1,0 +1,7038 @@
+[
+  {
+    "ts": 1765265626652,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 46,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626668,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 47,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626683,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 50,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626691,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 50,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626708,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 51,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626724,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 52,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626731,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 52,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626740,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 53,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626757,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 54,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626763,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 56,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626808,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 57,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626812,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 58,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626819,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 60,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626828,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 60,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626836,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 61,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626851,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 62,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626868,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 63,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626876,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 64,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626884,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 66,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626903,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 67,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626915,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 68,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626923,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 69,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626959,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 71,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626972,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 72,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626989,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 74,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265626996,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 74,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627004,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 75,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627011,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 76,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627026,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 78,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627052,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 78,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627060,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 80,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627075,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 80,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627083,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 82,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627100,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 83,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627116,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 84,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627123,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 85,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627131,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 86,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627139,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 87,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627155,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 88,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627165,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 88,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627171,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 89,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627179,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 90,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627188,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 91,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627196,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 92,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627215,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 93,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627228,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 94,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627249,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 94,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627251,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 96,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627260,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 96,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627268,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 98,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627284,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 100,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627292,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 102,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627300,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 104,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627307,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 105,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627324,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 107,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627331,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 108,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627340,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 110,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627348,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 112,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627363,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 112,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627372,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 114,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627380,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 116,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627387,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 116,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627404,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 118,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627415,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 120,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627420,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 120,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627428,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 123,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627448,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 124,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627451,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 126,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627459,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 128,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627475,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 129,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627484,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 130,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627492,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 131,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627508,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 132,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627515,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 133,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627523,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 134,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627532,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 134,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627540,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 136,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627557,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 137,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627564,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 138,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627571,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 139,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627580,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 140,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627596,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 140,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627604,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 141,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "previewLabelGap": 48,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265627667,
+    "level": "info",
+    "event": "resize.commit.vertical",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaY": 141,
+      "inputHeight": {
+        "current": 240,
+        "new": 240,
+        "min": 28,
+        "max": 240,
+        "clamped": true,
+        "unscaledApplied": 240
+      },
+      "spacing": {
+        "labelGap": 48
+      }
+    }
+  },
+  {
+    "ts": 1765265629981,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265630116,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 240,
+      "clampedHeight": true,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265630132,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -2,
+      "previewInputHeight": 238,
+      "clampedHeight": false,
+      "topShift": 2
+    }
+  },
+  {
+    "ts": 1765265630140,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -3,
+      "previewInputHeight": 237,
+      "clampedHeight": false,
+      "topShift": 3
+    }
+  },
+  {
+    "ts": 1765265630157,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -4,
+      "previewInputHeight": 236,
+      "clampedHeight": false,
+      "topShift": 4
+    }
+  },
+  {
+    "ts": 1765265630165,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -5,
+      "previewInputHeight": 235,
+      "clampedHeight": false,
+      "topShift": 5
+    }
+  },
+  {
+    "ts": 1765265630181,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -6,
+      "previewInputHeight": 234,
+      "clampedHeight": false,
+      "topShift": 6
+    }
+  },
+  {
+    "ts": 1765265630229,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -7,
+      "previewInputHeight": 233,
+      "clampedHeight": false,
+      "topShift": 7
+    }
+  },
+  {
+    "ts": 1765265630236,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -8,
+      "previewInputHeight": 232,
+      "clampedHeight": false,
+      "topShift": 8
+    }
+  },
+  {
+    "ts": 1765265630275,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -9,
+      "previewInputHeight": 231,
+      "clampedHeight": false,
+      "topShift": 9
+    }
+  },
+  {
+    "ts": 1765265630277,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -10,
+      "previewInputHeight": 230,
+      "clampedHeight": false,
+      "topShift": 10
+    }
+  },
+  {
+    "ts": 1765265630286,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -11,
+      "previewInputHeight": 229,
+      "clampedHeight": false,
+      "topShift": 11
+    }
+  },
+  {
+    "ts": 1765265630293,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -12,
+      "previewInputHeight": 228,
+      "clampedHeight": false,
+      "topShift": 12
+    }
+  },
+  {
+    "ts": 1765265630302,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -12,
+      "previewInputHeight": 228,
+      "clampedHeight": false,
+      "topShift": 12
+    }
+  },
+  {
+    "ts": 1765265630307,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -15,
+      "previewInputHeight": 225,
+      "clampedHeight": false,
+      "topShift": 15
+    }
+  },
+  {
+    "ts": 1765265630325,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -16,
+      "previewInputHeight": 224,
+      "clampedHeight": false,
+      "topShift": 16
+    }
+  },
+  {
+    "ts": 1765265630337,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -17,
+      "previewInputHeight": 223,
+      "clampedHeight": false,
+      "topShift": 17
+    }
+  },
+  {
+    "ts": 1765265630351,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -18,
+      "previewInputHeight": 222,
+      "clampedHeight": false,
+      "topShift": 18
+    }
+  },
+  {
+    "ts": 1765265630355,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -18,
+      "previewInputHeight": 222,
+      "clampedHeight": false,
+      "topShift": 18
+    }
+  },
+  {
+    "ts": 1765265630363,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -20,
+      "previewInputHeight": 220,
+      "clampedHeight": false,
+      "topShift": 20
+    }
+  },
+  {
+    "ts": 1765265630379,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -20,
+      "previewInputHeight": 220,
+      "clampedHeight": false,
+      "topShift": 20
+    }
+  },
+  {
+    "ts": 1765265630387,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -21,
+      "previewInputHeight": 219,
+      "clampedHeight": false,
+      "topShift": 21
+    }
+  },
+  {
+    "ts": 1765265630395,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -22,
+      "previewInputHeight": 218,
+      "clampedHeight": false,
+      "topShift": 22
+    }
+  },
+  {
+    "ts": 1765265630404,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -23,
+      "previewInputHeight": 217,
+      "clampedHeight": false,
+      "topShift": 23
+    }
+  },
+  {
+    "ts": 1765265630424,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -24,
+      "previewInputHeight": 216,
+      "clampedHeight": false,
+      "topShift": 24
+    }
+  },
+  {
+    "ts": 1765265630437,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -26,
+      "previewInputHeight": 214,
+      "clampedHeight": false,
+      "topShift": 26
+    }
+  },
+  {
+    "ts": 1765265630470,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -26,
+      "previewInputHeight": 214,
+      "clampedHeight": false,
+      "topShift": 26
+    }
+  },
+  {
+    "ts": 1765265630484,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -27,
+      "previewInputHeight": 213,
+      "clampedHeight": false,
+      "topShift": 27
+    }
+  },
+  {
+    "ts": 1765265630511,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -28,
+      "previewInputHeight": 212,
+      "clampedHeight": false,
+      "topShift": 28
+    }
+  },
+  {
+    "ts": 1765265630516,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -29,
+      "previewInputHeight": 211,
+      "clampedHeight": false,
+      "topShift": 29
+    }
+  },
+  {
+    "ts": 1765265630557,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -30,
+      "previewInputHeight": 210,
+      "clampedHeight": false,
+      "topShift": 30
+    }
+  },
+  {
+    "ts": 1765265630575,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -32,
+      "previewInputHeight": 208,
+      "clampedHeight": false,
+      "topShift": 32
+    }
+  },
+  {
+    "ts": 1765265630666,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -32,
+      "previewInputHeight": 208,
+      "clampedHeight": false,
+      "topShift": 32
+    }
+  },
+  {
+    "ts": 1765265630677,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -33,
+      "previewInputHeight": 207,
+      "clampedHeight": false,
+      "topShift": 33
+    }
+  },
+  {
+    "ts": 1765265630684,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -34,
+      "previewInputHeight": 206,
+      "clampedHeight": false,
+      "topShift": 34
+    }
+  },
+  {
+    "ts": 1765265630691,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -36,
+      "previewInputHeight": 204,
+      "clampedHeight": false,
+      "topShift": 36
+    }
+  },
+  {
+    "ts": 1765265630743,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -37,
+      "previewInputHeight": 203,
+      "clampedHeight": false,
+      "topShift": 37
+    }
+  },
+  {
+    "ts": 1765265630748,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -38,
+      "previewInputHeight": 202,
+      "clampedHeight": false,
+      "topShift": 38
+    }
+  },
+  {
+    "ts": 1765265630765,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -38,
+      "previewInputHeight": 202,
+      "clampedHeight": false,
+      "topShift": 38
+    }
+  },
+  {
+    "ts": 1765265630781,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -39,
+      "previewInputHeight": 201,
+      "clampedHeight": false,
+      "topShift": 39
+    }
+  },
+  {
+    "ts": 1765265630789,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -41,
+      "previewInputHeight": 199,
+      "clampedHeight": false,
+      "topShift": 41
+    }
+  },
+  {
+    "ts": 1765265630806,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -44,
+      "previewInputHeight": 196,
+      "clampedHeight": false,
+      "topShift": 44
+    }
+  },
+  {
+    "ts": 1765265630821,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -45,
+      "previewInputHeight": 195,
+      "clampedHeight": false,
+      "topShift": 45
+    }
+  },
+  {
+    "ts": 1765265630829,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -46,
+      "previewInputHeight": 194,
+      "clampedHeight": false,
+      "topShift": 46
+    }
+  },
+  {
+    "ts": 1765265630837,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -48,
+      "previewInputHeight": 192,
+      "clampedHeight": false,
+      "topShift": 48
+    }
+  },
+  {
+    "ts": 1765265630845,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -49,
+      "previewInputHeight": 191,
+      "clampedHeight": false,
+      "topShift": 49
+    }
+  },
+  {
+    "ts": 1765265630860,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -50,
+      "previewInputHeight": 190,
+      "clampedHeight": false,
+      "topShift": 50
+    }
+  },
+  {
+    "ts": 1765265630868,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -50,
+      "previewInputHeight": 190,
+      "clampedHeight": false,
+      "topShift": 50
+    }
+  },
+  {
+    "ts": 1765265630877,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -51,
+      "previewInputHeight": 189,
+      "clampedHeight": false,
+      "topShift": 51
+    }
+  },
+  {
+    "ts": 1765265630893,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -52,
+      "previewInputHeight": 188,
+      "clampedHeight": false,
+      "topShift": 52
+    }
+  },
+  {
+    "ts": 1765265630901,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -54,
+      "previewInputHeight": 186,
+      "clampedHeight": false,
+      "topShift": 54
+    }
+  },
+  {
+    "ts": 1765265630916,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -55,
+      "previewInputHeight": 185,
+      "clampedHeight": false,
+      "topShift": 55
+    }
+  },
+  {
+    "ts": 1765265630924,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -56,
+      "previewInputHeight": 184,
+      "clampedHeight": false,
+      "topShift": 56
+    }
+  },
+  {
+    "ts": 1765265630941,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -58,
+      "previewInputHeight": 182,
+      "clampedHeight": false,
+      "topShift": 58
+    }
+  },
+  {
+    "ts": 1765265630948,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -60,
+      "previewInputHeight": 180,
+      "clampedHeight": false,
+      "topShift": 60
+    }
+  },
+  {
+    "ts": 1765265630956,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -60,
+      "previewInputHeight": 180,
+      "clampedHeight": false,
+      "topShift": 60
+    }
+  },
+  {
+    "ts": 1765265630963,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -61,
+      "previewInputHeight": 179,
+      "clampedHeight": false,
+      "topShift": 61
+    }
+  },
+  {
+    "ts": 1765265630973,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -63,
+      "previewInputHeight": 177,
+      "clampedHeight": false,
+      "topShift": 63
+    }
+  },
+  {
+    "ts": 1765265630988,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -66,
+      "previewInputHeight": 174,
+      "clampedHeight": false,
+      "topShift": 66
+    }
+  },
+  {
+    "ts": 1765265630996,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -66,
+      "previewInputHeight": 174,
+      "clampedHeight": false,
+      "topShift": 66
+    }
+  },
+  {
+    "ts": 1765265631004,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -68,
+      "previewInputHeight": 172,
+      "clampedHeight": false,
+      "topShift": 68
+    }
+  },
+  {
+    "ts": 1765265631012,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -70,
+      "previewInputHeight": 170,
+      "clampedHeight": false,
+      "topShift": 70
+    }
+  },
+  {
+    "ts": 1765265631019,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -71,
+      "previewInputHeight": 169,
+      "clampedHeight": false,
+      "topShift": 71
+    }
+  },
+  {
+    "ts": 1765265631027,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -73,
+      "previewInputHeight": 167,
+      "clampedHeight": false,
+      "topShift": 73
+    }
+  },
+  {
+    "ts": 1765265631036,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -78,
+      "previewInputHeight": 162,
+      "clampedHeight": false,
+      "topShift": 78
+    }
+  },
+  {
+    "ts": 1765265631045,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -80,
+      "previewInputHeight": 160,
+      "clampedHeight": false,
+      "topShift": 80
+    }
+  },
+  {
+    "ts": 1765265631052,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -82,
+      "previewInputHeight": 158,
+      "clampedHeight": false,
+      "topShift": 82
+    }
+  },
+  {
+    "ts": 1765265631060,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -84,
+      "previewInputHeight": 156,
+      "clampedHeight": false,
+      "topShift": 84
+    }
+  },
+  {
+    "ts": 1765265631069,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -86,
+      "previewInputHeight": 154,
+      "clampedHeight": false,
+      "topShift": 86
+    }
+  },
+  {
+    "ts": 1765265631076,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -88,
+      "previewInputHeight": 152,
+      "clampedHeight": false,
+      "topShift": 88
+    }
+  },
+  {
+    "ts": 1765265631084,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -90,
+      "previewInputHeight": 150,
+      "clampedHeight": false,
+      "topShift": 90
+    }
+  },
+  {
+    "ts": 1765265631092,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -91,
+      "previewInputHeight": 149,
+      "clampedHeight": false,
+      "topShift": 91
+    }
+  },
+  {
+    "ts": 1765265631100,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -92,
+      "previewInputHeight": 148,
+      "clampedHeight": false,
+      "topShift": 92
+    }
+  },
+  {
+    "ts": 1765265631108,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -93,
+      "previewInputHeight": 147,
+      "clampedHeight": false,
+      "topShift": 93
+    }
+  },
+  {
+    "ts": 1765265631116,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -96,
+      "previewInputHeight": 144,
+      "clampedHeight": false,
+      "topShift": 96
+    }
+  },
+  {
+    "ts": 1765265631124,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -97,
+      "previewInputHeight": 143,
+      "clampedHeight": false,
+      "topShift": 97
+    }
+  },
+  {
+    "ts": 1765265631132,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -98,
+      "previewInputHeight": 142,
+      "clampedHeight": false,
+      "topShift": 98
+    }
+  },
+  {
+    "ts": 1765265631149,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -100,
+      "previewInputHeight": 140,
+      "clampedHeight": false,
+      "topShift": 100
+    }
+  },
+  {
+    "ts": 1765265631157,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -103,
+      "previewInputHeight": 137,
+      "clampedHeight": false,
+      "topShift": 103
+    }
+  },
+  {
+    "ts": 1765265631184,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -104,
+      "previewInputHeight": 136,
+      "clampedHeight": false,
+      "topShift": 104
+    }
+  },
+  {
+    "ts": 1765265631189,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -105,
+      "previewInputHeight": 135,
+      "clampedHeight": false,
+      "topShift": 105
+    }
+  },
+  {
+    "ts": 1765265631226,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -109,
+      "previewInputHeight": 131,
+      "clampedHeight": false,
+      "topShift": 109
+    }
+  },
+  {
+    "ts": 1765265631229,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -110,
+      "previewInputHeight": 130,
+      "clampedHeight": false,
+      "topShift": 110
+    }
+  },
+  {
+    "ts": 1765265631236,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -112,
+      "previewInputHeight": 128,
+      "clampedHeight": false,
+      "topShift": 112
+    }
+  },
+  {
+    "ts": 1765265631244,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -112,
+      "previewInputHeight": 128,
+      "clampedHeight": false,
+      "topShift": 112
+    }
+  },
+  {
+    "ts": 1765265631251,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -114,
+      "previewInputHeight": 126,
+      "clampedHeight": false,
+      "topShift": 114
+    }
+  },
+  {
+    "ts": 1765265631260,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -116,
+      "previewInputHeight": 124,
+      "clampedHeight": false,
+      "topShift": 116
+    }
+  },
+  {
+    "ts": 1765265631269,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -116,
+      "previewInputHeight": 124,
+      "clampedHeight": false,
+      "topShift": 116
+    }
+  },
+  {
+    "ts": 1765265631276,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -117,
+      "previewInputHeight": 123,
+      "clampedHeight": false,
+      "topShift": 117
+    }
+  },
+  {
+    "ts": 1765265631292,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -120,
+      "previewInputHeight": 120,
+      "clampedHeight": false,
+      "topShift": 120
+    }
+  },
+  {
+    "ts": 1765265631312,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -120,
+      "previewInputHeight": 120,
+      "clampedHeight": false,
+      "topShift": 120
+    }
+  },
+  {
+    "ts": 1765265631317,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -120,
+      "previewInputHeight": 120,
+      "clampedHeight": false,
+      "topShift": 120
+    }
+  },
+  {
+    "ts": 1765265631323,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -122,
+      "previewInputHeight": 118,
+      "clampedHeight": false,
+      "topShift": 122
+    }
+  },
+  {
+    "ts": 1765265631353,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -126,
+      "previewInputHeight": 114,
+      "clampedHeight": false,
+      "topShift": 126
+    }
+  },
+  {
+    "ts": 1765265631358,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -126,
+      "previewInputHeight": 114,
+      "clampedHeight": false,
+      "topShift": 126
+    }
+  },
+  {
+    "ts": 1765265631372,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -127,
+      "previewInputHeight": 113,
+      "clampedHeight": false,
+      "topShift": 127
+    }
+  },
+  {
+    "ts": 1765265631397,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -128,
+      "previewInputHeight": 112,
+      "clampedHeight": false,
+      "topShift": 128
+    }
+  },
+  {
+    "ts": 1765265631407,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -128,
+      "previewInputHeight": 112,
+      "clampedHeight": false,
+      "topShift": 128
+    }
+  },
+  {
+    "ts": 1765265631412,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -130,
+      "previewInputHeight": 110,
+      "clampedHeight": false,
+      "topShift": 130
+    }
+  },
+  {
+    "ts": 1765265631420,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -132,
+      "previewInputHeight": 108,
+      "clampedHeight": false,
+      "topShift": 132
+    }
+  },
+  {
+    "ts": 1765265631429,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -133,
+      "previewInputHeight": 107,
+      "clampedHeight": false,
+      "topShift": 133
+    }
+  },
+  {
+    "ts": 1765265631449,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -134,
+      "previewInputHeight": 106,
+      "clampedHeight": false,
+      "topShift": 134
+    }
+  },
+  {
+    "ts": 1765265631454,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -135,
+      "previewInputHeight": 105,
+      "clampedHeight": false,
+      "topShift": 135
+    }
+  },
+  {
+    "ts": 1765265631460,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -136,
+      "previewInputHeight": 104,
+      "clampedHeight": false,
+      "topShift": 136
+    }
+  },
+  {
+    "ts": 1765265631467,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -136,
+      "previewInputHeight": 104,
+      "clampedHeight": false,
+      "topShift": 136
+    }
+  },
+  {
+    "ts": 1765265631476,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -140,
+      "previewInputHeight": 100,
+      "clampedHeight": false,
+      "topShift": 140
+    }
+  },
+  {
+    "ts": 1765265631492,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -142,
+      "previewInputHeight": 98,
+      "clampedHeight": false,
+      "topShift": 142
+    }
+  },
+  {
+    "ts": 1765265631501,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -143,
+      "previewInputHeight": 97,
+      "clampedHeight": false,
+      "topShift": 143
+    }
+  },
+  {
+    "ts": 1765265631509,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -144,
+      "previewInputHeight": 96,
+      "clampedHeight": false,
+      "topShift": 144
+    }
+  },
+  {
+    "ts": 1765265631517,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -145,
+      "previewInputHeight": 95,
+      "clampedHeight": false,
+      "topShift": 145
+    }
+  },
+  {
+    "ts": 1765265631525,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -147,
+      "previewInputHeight": 93,
+      "clampedHeight": false,
+      "topShift": 147
+    }
+  },
+  {
+    "ts": 1765265631532,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -150,
+      "previewInputHeight": 90,
+      "clampedHeight": false,
+      "topShift": 150
+    }
+  },
+  {
+    "ts": 1765265631548,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -151,
+      "previewInputHeight": 89,
+      "clampedHeight": false,
+      "topShift": 151
+    }
+  },
+  {
+    "ts": 1765265631556,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -152,
+      "previewInputHeight": 88,
+      "clampedHeight": false,
+      "topShift": 152
+    }
+  },
+  {
+    "ts": 1765265631565,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -153,
+      "previewInputHeight": 87,
+      "clampedHeight": false,
+      "topShift": 153
+    }
+  },
+  {
+    "ts": 1765265631573,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -154,
+      "previewInputHeight": 86,
+      "clampedHeight": false,
+      "topShift": 154
+    }
+  },
+  {
+    "ts": 1765265631582,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -156,
+      "previewInputHeight": 84,
+      "clampedHeight": false,
+      "topShift": 156
+    }
+  },
+  {
+    "ts": 1765265631589,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -156,
+      "previewInputHeight": 84,
+      "clampedHeight": false,
+      "topShift": 156
+    }
+  },
+  {
+    "ts": 1765265631596,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -158,
+      "previewInputHeight": 82,
+      "clampedHeight": false,
+      "topShift": 158
+    }
+  },
+  {
+    "ts": 1765265631604,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -158,
+      "previewInputHeight": 82,
+      "clampedHeight": false,
+      "topShift": 158
+    }
+  },
+  {
+    "ts": 1765265631613,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -161,
+      "previewInputHeight": 79,
+      "clampedHeight": false,
+      "topShift": 161
+    }
+  },
+  {
+    "ts": 1765265631629,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -162,
+      "previewInputHeight": 78,
+      "clampedHeight": false,
+      "topShift": 162
+    }
+  },
+  {
+    "ts": 1765265631636,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -163,
+      "previewInputHeight": 77,
+      "clampedHeight": false,
+      "topShift": 163
+    }
+  },
+  {
+    "ts": 1765265631653,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -164,
+      "previewInputHeight": 76,
+      "clampedHeight": false,
+      "topShift": 164
+    }
+  },
+  {
+    "ts": 1765265631660,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -164,
+      "previewInputHeight": 76,
+      "clampedHeight": false,
+      "topShift": 164
+    }
+  },
+  {
+    "ts": 1765265631668,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -166,
+      "previewInputHeight": 74,
+      "clampedHeight": false,
+      "topShift": 166
+    }
+  },
+  {
+    "ts": 1765265631677,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -167,
+      "previewInputHeight": 73,
+      "clampedHeight": false,
+      "topShift": 167
+    }
+  },
+  {
+    "ts": 1765265631685,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -168,
+      "previewInputHeight": 72,
+      "clampedHeight": false,
+      "topShift": 168
+    }
+  },
+  {
+    "ts": 1765265631693,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -168,
+      "previewInputHeight": 72,
+      "clampedHeight": false,
+      "topShift": 168
+    }
+  },
+  {
+    "ts": 1765265631700,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -169,
+      "previewInputHeight": 71,
+      "clampedHeight": false,
+      "topShift": 169
+    }
+  },
+  {
+    "ts": 1765265631709,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -170,
+      "previewInputHeight": 70,
+      "clampedHeight": false,
+      "topShift": 170
+    }
+  },
+  {
+    "ts": 1765265631724,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -172,
+      "previewInputHeight": 68,
+      "clampedHeight": false,
+      "topShift": 172
+    }
+  },
+  {
+    "ts": 1765265631732,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -174,
+      "previewInputHeight": 66,
+      "clampedHeight": false,
+      "topShift": 174
+    }
+  },
+  {
+    "ts": 1765265631758,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -175,
+      "previewInputHeight": 65,
+      "clampedHeight": false,
+      "topShift": 175
+    }
+  },
+  {
+    "ts": 1765265631764,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -176,
+      "previewInputHeight": 64,
+      "clampedHeight": false,
+      "topShift": 176
+    }
+  },
+  {
+    "ts": 1765265631808,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -178,
+      "previewInputHeight": 62,
+      "clampedHeight": false,
+      "topShift": 178
+    }
+  },
+  {
+    "ts": 1765265631814,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -178,
+      "previewInputHeight": 62,
+      "clampedHeight": false,
+      "topShift": 178
+    }
+  },
+  {
+    "ts": 1765265631820,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -179,
+      "previewInputHeight": 61,
+      "clampedHeight": false,
+      "topShift": 179
+    }
+  },
+  {
+    "ts": 1765265631828,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -180,
+      "previewInputHeight": 60,
+      "clampedHeight": false,
+      "topShift": 180
+    }
+  },
+  {
+    "ts": 1765265631836,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -180,
+      "previewInputHeight": 60,
+      "clampedHeight": false,
+      "topShift": 180
+    }
+  },
+  {
+    "ts": 1765265631852,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -180,
+      "previewInputHeight": 60,
+      "clampedHeight": false,
+      "topShift": 180
+    }
+  },
+  {
+    "ts": 1765265631859,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -181,
+      "previewInputHeight": 59,
+      "clampedHeight": false,
+      "topShift": 181
+    }
+  },
+  {
+    "ts": 1765265631869,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -182,
+      "previewInputHeight": 58,
+      "clampedHeight": false,
+      "topShift": 182
+    }
+  },
+  {
+    "ts": 1765265631877,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -183,
+      "previewInputHeight": 57,
+      "clampedHeight": false,
+      "topShift": 183
+    }
+  },
+  {
+    "ts": 1765265631885,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -184,
+      "previewInputHeight": 56,
+      "clampedHeight": false,
+      "topShift": 184
+    }
+  },
+  {
+    "ts": 1765265631906,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -184,
+      "previewInputHeight": 56,
+      "clampedHeight": false,
+      "topShift": 184
+    }
+  },
+  {
+    "ts": 1765265631909,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -185,
+      "previewInputHeight": 55,
+      "clampedHeight": false,
+      "topShift": 185
+    }
+  },
+  {
+    "ts": 1765265631924,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -186,
+      "previewInputHeight": 54,
+      "clampedHeight": false,
+      "topShift": 186
+    }
+  },
+  {
+    "ts": 1765265631932,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -187,
+      "previewInputHeight": 53,
+      "clampedHeight": false,
+      "topShift": 187
+    }
+  },
+  {
+    "ts": 1765265631941,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -188,
+      "previewInputHeight": 52,
+      "clampedHeight": false,
+      "topShift": 188
+    }
+  },
+  {
+    "ts": 1765265631957,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -190,
+      "previewInputHeight": 50,
+      "clampedHeight": false,
+      "topShift": 190
+    }
+  },
+  {
+    "ts": 1765265631965,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -190,
+      "previewInputHeight": 50,
+      "clampedHeight": false,
+      "topShift": 190
+    }
+  },
+  {
+    "ts": 1765265631972,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -192,
+      "previewInputHeight": 48,
+      "clampedHeight": false,
+      "topShift": 192
+    }
+  },
+  {
+    "ts": 1765265632006,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -194,
+      "previewInputHeight": 46,
+      "clampedHeight": false,
+      "topShift": 194
+    }
+  },
+  {
+    "ts": 1765265632012,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -195,
+      "previewInputHeight": 45,
+      "clampedHeight": false,
+      "topShift": 195
+    }
+  },
+  {
+    "ts": 1765265632019,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -196,
+      "previewInputHeight": 44,
+      "clampedHeight": false,
+      "topShift": 196
+    }
+  },
+  {
+    "ts": 1765265632028,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -197,
+      "previewInputHeight": 43,
+      "clampedHeight": false,
+      "topShift": 197
+    }
+  },
+  {
+    "ts": 1765265632045,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -198,
+      "previewInputHeight": 42,
+      "clampedHeight": false,
+      "topShift": 198
+    }
+  },
+  {
+    "ts": 1765265632052,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632060,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632068,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632085,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632093,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632100,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632117,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632123,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632131,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632140,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632148,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632157,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632165,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632173,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632181,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632189,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632197,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632204,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632213,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632220,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632228,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632236,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632245,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632252,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632259,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632269,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632276,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632284,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632293,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632301,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632309,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632317,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632324,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632332,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632341,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632348,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632356,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632364,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632380,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632399,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632405,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632413,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632420,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632445,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632452,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632461,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632469,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632477,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632485,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632501,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632540,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632551,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632604,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632612,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": -200,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 200
+    }
+  },
+  {
+    "ts": 1765265632763,
+    "level": "info",
+    "event": "resize.commit.vertical",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaY": -282,
+      "inputHeight": {
+        "current": 240,
+        "new": 40,
+        "min": 28,
+        "max": 240,
+        "clamped": false,
+        "unscaledApplied": 40
+      },
+      "spacing": {
+        "labelGap": 0
+      }
+    }
+  },
+  {
+    "ts": 1765265634747,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634849,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634855,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634861,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634868,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634876,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634887,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634894,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634900,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634911,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634916,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634925,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634932,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634943,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634948,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634964,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634972,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634982,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634990,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265634999,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635008,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635012,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635021,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635029,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635036,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635044,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635052,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635068,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635075,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635084,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635092,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635108,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635116,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635125,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635150,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635157,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635173,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635181,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635213,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635232,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635237,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635244,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635253,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635271,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635286,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635292,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635329,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635332,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635349,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635358,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635366,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635373,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635389,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635397,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635404,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635412,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635429,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635436,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635444,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635452,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635460,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635468,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635476,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635501,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635509,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635517,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635525,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635533,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635541,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635558,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635573,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635581,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635588,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635596,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635605,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635614,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635620,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635628,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635638,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635645,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635653,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635660,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635668,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635677,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635685,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635693,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635701,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635708,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635716,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635725,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635733,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635742,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635748,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635756,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635765,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635772,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635781,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635788,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635808,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635813,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635821,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635828,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635836,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635845,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635853,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635861,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635869,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635876,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635885,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635893,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635901,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635908,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635917,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635924,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635932,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635939,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635948,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635955,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635964,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635972,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635980,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265635988,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false,
+      "topShift": 0
+    }
+  },
+  {
+    "ts": 1765265636052,
+    "level": "info",
+    "event": "resize.commit.vertical",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "n",
+      "deltaY": -225,
+      "inputHeight": {
+        "current": 40,
+        "new": 40,
+        "min": 28,
+        "max": 240,
+        "clamped": false,
+        "unscaledApplied": 40
+      },
+      "spacing": {
+        "labelGap": 0
+      }
+    }
+  },
+  {
+    "ts": 1765265637847,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265637992,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265637996,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638004,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638021,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638030,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638038,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638045,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638053,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638061,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638069,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638076,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638085,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638092,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638101,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638109,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638117,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638142,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638157,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638165,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638173,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638182,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638190,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638198,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638206,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638214,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638221,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638229,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638254,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638283,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638285,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638292,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638301,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638310,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638317,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638341,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638350,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638358,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638366,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638373,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638406,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638415,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638452,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638455,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638469,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638497,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638501,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638509,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638526,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638542,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638674,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638727,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638734,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638775,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638798,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638815,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638850,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638854,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638862,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638870,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638877,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638886,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638893,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638901,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638908,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638916,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638925,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638933,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638942,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638951,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638958,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638965,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638981,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638988,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265638997,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265639005,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265639012,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265639063,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265639078,
+    "level": "debug",
+    "event": "resize.preview",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaHeight": 0,
+      "previewInputHeight": 40,
+      "clampedHeight": false
+    }
+  },
+  {
+    "ts": 1765265639100,
+    "level": "info",
+    "event": "resize.commit.vertical",
+    "payload": {
+      "componentId": "comp-1",
+      "componentType": "first-name",
+      "handle": "s",
+      "deltaY": -100,
+      "inputHeight": {
+        "current": 40,
+        "new": 40,
+        "min": 28,
+        "max": 240,
+        "clamped": false,
+        "unscaledApplied": 40
+      },
+      "spacing": {
+        "inputHelpGap": 0
+      }
+    }
+  }
+]

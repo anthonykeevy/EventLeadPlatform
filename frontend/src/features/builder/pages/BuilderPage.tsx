@@ -19,6 +19,7 @@ import { useBuilderStore } from '../stores/useBuilderStore';
 import { BuilderLayout } from '../components/BuilderLayout';
 import { ComponentSidebar } from '../components/ComponentSidebar';
 import { FormBuilderCanvas } from '../components/FormBuilderCanvas';
+import { PropertiesPanel } from '../components/PropertiesPanel'; // Story 3.5
 import { ComponentPreview } from '../components/ComponentPreview';
 import { FirstNameField } from '../components/fields/FirstNameField';
 import { StandardInput } from '../components/fields/StandardInput';
@@ -77,7 +78,7 @@ export const BuilderPage: React.FC = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     try {
-        const { active, over, delta, activatorEvent } = event;
+        const { active, over, delta } = event;
         setActiveId(null);
 
         if (!over) return;
@@ -191,7 +192,7 @@ export const BuilderPage: React.FC = () => {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-gray-50">
         <div className="text-center">
-            <LoadingSpinner size="large" />
+            <LoadingSpinner size="lg" />
             <p className="mt-4 text-gray-500">Loading Form Builder...</p>
         </div>
       </div>
@@ -201,18 +202,20 @@ export const BuilderPage: React.FC = () => {
   const renderOverlayContent = (component: FormComponent | null) => {
       if (!component) return null;
       
+      // Show highlighted SmartBorder while dragging (isSelected=true)
       const content = (() => {
-        if (component.type === 'first-name') return <FirstNameField />;
+        if (component.type === 'first-name') return <FirstNameField isSelected={true} />;
         const def = ComponentRegistry[component.type];
         if (def?.category === 'input' || def?.category === 'display') {
             return <StandardInput 
-                label={component.props.label}
+                label={component.props.label || 'Field'}
                 icon={def.icon}
                 placeholder={component.props.placeholder}
                 validationMessage={component.props.validationMessage || "Validation message here"}
                 required={component.props.required}
-                type={component.type as any}
+                type={component.type as 'text' | 'number' | 'email' | 'textarea' | 'select' | 'date'}
                 options={component.props.options}
+                isSelected={true}
             />
         }
         return <ComponentPreview component={component} isOverlay={true} />;
@@ -239,6 +242,7 @@ export const BuilderPage: React.FC = () => {
     >
         <BuilderLayout 
             sidebar={<ComponentSidebar />}
+            propertiesPanel={<PropertiesPanel />}
             title={formDefinition?.formId ? `Form: ${formDefinition.formId}` : 'Form Builder'}
         >
             <FormBuilderCanvas ref={canvasRef} />

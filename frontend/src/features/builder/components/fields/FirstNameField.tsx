@@ -1,61 +1,281 @@
 import React from 'react';
 import { AlertCircle, User } from 'lucide-react';
 import { SmartBorder } from '../ui/SmartBorder';
+import { LayoutType } from '../../types/builder.types';
+import { ComputedFieldStyles, computeFieldStyles, estimateRequiredInputWidth } from '../../utils/styleUtils';
 
 interface FirstNameFieldProps {
-  // Drag props passed from dnd-kit
-  dragListeners?: any;
-  dragAttributes?: any;
-  setNodeRef?: (node: HTMLElement | null) => void;
+    // Dynamic props from component schema
+    label?: string;
+    placeholder?: string;
+    required?: boolean;
+    helpText?: string;
+    // Drag props passed from dnd-kit
+    dragListeners?: unknown;
+    dragAttributes?: unknown;
+    setNodeRef?: (node: HTMLElement | null) => void;
+    isSelected?: boolean;
+    layout?: LayoutType;
+    // Global styles passed from parent
+    fieldStyles?: ComputedFieldStyles;
+    // Container width from parent (for responsive input)
+    containerWidth?: string;
+    // Input width mode: 'fill' = stretch to container, 'fixed' = explicit width, 'auto' = from maxLength
+    inputWidthMode?: 'fill' | 'fixed' | 'auto';
+    // Allow label to wrap (default: true)
+    labelWrap?: boolean;
+    // Text alignment
+    textAlign?: 'left' | 'center' | 'right';
 }
 
-export const FirstNameField: React.FC<FirstNameFieldProps> = ({ dragListeners, dragAttributes, setNodeRef }) => {
-  // Validation Messages
-  const validationMessages = [
-      "We only accept names less than 30 Characters",
-      "Numbers and Special characters are not allowed"
-  ];
+export const FirstNameField: React.FC<FirstNameFieldProps> = ({ 
+    label = 'First Name',
+    placeholder = 'Enter your first name',
+    required = true,
+    helpText,
+    dragListeners, 
+    dragAttributes, 
+    setNodeRef,
+    isSelected = false,
+    layout = 'vertical',
+    fieldStyles: externalStyles,
+    containerWidth,
+    inputWidthMode = 'fill', // Default to fill mode for responsive behavior
+    labelWrap = true, // Default to allow wrapping
+    textAlign = 'left',
+}) => {
+    // Use provided styles or compute defaults
+    const fieldStyles = externalStyles || computeFieldStyles(undefined);
+    const { computed } = fieldStyles;
 
-  const longestMessage = validationMessages.reduce((a, b) => a.length > b.length ? a : b);
+    const containerWidthPx = containerWidth && containerWidth.endsWith('px')
+        ? parseInt(containerWidth, 10)
+        : undefined;
+    
+    // Validation Messages
+    const validationMessages = [
+        "We only accept names less than 30 Characters",
+        "Numbers and Special characters are not allowed"
+    ];
 
-  return (
-    <div ref={setNodeRef ? (node) => setNodeRef(node as any) : undefined} style={{display: 'inline-block'}}> 
-      {/* We wrap in a div to receive the setNodeRef so dnd-kit knows what element moves 
-          BUT we don't attach listeners here. We pass them to SmartBorder. */}
-      
-      <SmartBorder padding={5} dragListeners={dragListeners} dragAttributes={dragAttributes}>
-        
-        {/* 1. Label Area */}
-        <div className="mb-1 pr-2 w-max">
-          <label className="block text-sm font-medium text-slate-900 dark:text-gray-200 whitespace-nowrap">
-            First Name <span className="text-red-500">*</span>
-          </label>
+    const longestMessage = validationMessages.reduce((a, b) => a.length > b.length ? a : b);
+
+    // Calculate input width based on mode
+    const getInputWidth = (): string => {
+        switch (inputWidthMode) {
+            case 'fill':
+                return '100%'; // Fill container width
+            case 'fixed':
+            case 'auto':
+            default:
+                return '320px'; // Default width for first name
+        }
+    };
+
+    const inputWidthValue = getInputWidth();
+    const appliedInputWidth = containerWidth || inputWidthValue;
+
+    // Layout classes based on vertical/horizontal
+    const isHorizontal = layout === 'horizontal';
+
+    // Build input style with global styles
+    const padX = Math.max(1, (computed.paddingX ?? 0) * 0.15);
+    const inputStyle: React.CSSProperties = {
+        ...fieldStyles.inputStyle,
+        width: '100%', // Input fills its container
+        paddingLeft: `${padX}px`,
+        paddingRight: `${padX}px`,
+        textAlign,
+    };
+
+    // Width guide (design-time only)
+    const maxChars = 30;
+    const guideRequiredWidth = estimateRequiredInputWidth({
+        maxChars,
+        fontFamily: computed.fontFamily,
+        fontSize: computed.fontSize,
+        fontWeight: computed.fontWeight,
+        paddingX: computed.paddingX ?? 0,
+        borderWidth: computed.borderWidth ?? 0,
+    });
+    const guideDisplayWidth = containerWidthPx
+        ? Math.min(guideRequiredWidth, containerWidthPx)
+        : guideRequiredWidth;
+    const guideFill = 'rgba(34, 197, 94, 0.6)';
+    const guideBorder = 'rgba(0,0,0,0.35)';
+
+    // Label style from global - with conditional wrapping
+    const labelStyle: React.CSSProperties = {
+        ...fieldStyles.labelStyle,
+        whiteSpace: labelWrap ? 'normal' : 'nowrap',
+        wordBreak: labelWrap ? 'break-word' : 'normal',
+        marginBottom: isHorizontal ? 0 : `${computed.labelGap}px`,
+    };
+
+    // Validation/help text style - also with wrapping support
+    const validationStyle: React.CSSProperties = {
+        ...fieldStyles.helpTextStyle,
+        opacity: 0.7,
+        display: 'flex',
+        alignItems: 'flex-start',
+        wordBreak: 'break-word',
+    };
+
+    // Container style - DO NOT apply width here (let SmartBorder hug content)
+    const containerStyle: React.CSSProperties = {
+        ...fieldStyles.containerStyle,
+        display: 'inline-block',
+        ...(containerWidth ? { width: containerWidth, maxWidth: containerWidth } : {}),
+    };
+
+    // For horizontal layout, use a wrapper since items are side-by-side
+    if (isHorizontal) {
+        return (
+            <div 
+                ref={setNodeRef ? (node) => setNodeRef(node as HTMLElement | null) : undefined} 
+                style={containerStyle}
+            > 
+                <SmartBorder key="horizontal" padding={5} dragListeners={dragListeners} dragAttributes={dragAttributes} isSelected={isSelected}>
+                    <div className="flex flex-col">
+                        {/* Top row: Label + Input aligned */}
+                        <div className="flex flex-row items-center w-full" style={{ gap: `${computed.labelGap}px` }}>
+                            <div 
+                                className="flex items-center flex-shrink-0" 
+                                style={{ 
+                                    minWidth: '80px',
+                                    height: `${computed.inputHeight}px` 
+                                }}
+                            >
+                                <label style={labelStyle}>
+                                    {label} {required && <span style={{ color: computed.errorColor }}>*</span>}
+                                </label>
+                            </div>
+                            <div 
+                                className="relative flex-1" 
+                                style={{ 
+                                    width: inputWidthMode === 'fill' ? undefined : inputWidthValue,
+                                    borderRadius: `${computed.borderRadius}px` 
+                                }}
+                            >
+                                {/* Width guide bar (design-time only) */}
+                                <div 
+                                    style={{ 
+                                        position: 'absolute',
+                                        left: `${padX + (computed.borderWidth ?? 0)}px`,
+                                        right: `${padX + (computed.borderWidth ?? 0)}px`,
+                                        bottom: `${Math.max(2, (computed.paddingY ?? 0) * 0.3)}px`,
+                                        pointerEvents: 'none',
+                                        height: 8,
+                                        border: `1px solid ${guideBorder}`,
+                                        borderRadius: 4,
+                                        overflow: 'hidden',
+                                        backgroundColor: 'transparent',
+                                        zIndex: 3,
+                                    }}
+                                >
+                                    <div 
+                                        style={{ 
+                                            height: '100%',
+                                            width: `${guideDisplayWidth}px`,
+                                            maxWidth: '100%',
+                                            backgroundColor: guideFill,
+                                        }}
+                                    />
+                                </div>
+                                <input type="text" name="first-name" style={inputStyle} className="block w-full focus:outline-none border-0" placeholder={placeholder} disabled readOnly />
+                            </div>
+                        </div>
+                        {/* Bottom row: Help/Validation aligned with input */}
+                        <div className="flex flex-row w-full" style={{ gap: `${computed.labelGap}px`, marginTop: `${computed.inputHelpGap}px` }}>
+                            {/* Spacer for label column - matches label width */}
+                            <div className="flex-shrink-0" style={{ minWidth: '80px' }} />
+                            <div className="flex-1">
+                                <div style={validationStyle}>
+                                    <AlertCircle size={14} className="mr-1 mt-0.5 flex-shrink-0" style={{ color: computed.helpTextColor }} />
+                                    <span>{longestMessage}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </SmartBorder>
+            </div>
+        );
+    }
+
+    // Vertical layout: Pass each section as separate child for smart hugging border
+    return (
+        <div 
+            ref={setNodeRef ? (node) => setNodeRef(node as HTMLElement | null) : undefined} 
+            style={containerStyle}
+        > 
+            <SmartBorder key="vertical" padding={5} dragListeners={dragListeners} dragAttributes={dragAttributes} isSelected={isSelected}>
+                {/* 1. Label Area - allow wrapping when container is narrow */}
+                <div style={{ width: 'auto' }}>
+                    <label style={labelStyle}>
+                        {label} {required && <span style={{ color: computed.errorColor }}>*</span>}
+                    </label>
+                </div>
+
+                {/* 2. Input Area - respects inputWidthMode */}
+                <div 
+                    className="relative" 
+                    style={{ 
+                        width: inputWidthMode === 'fill' ? appliedInputWidth : inputWidthValue, 
+                        borderRadius: `${computed.borderRadius}px` 
+                    }}
+                >
+                    {/* Width guide bar (design-time only) */}
+                    <div 
+                        style={{ 
+                            position: 'absolute',
+                            left: `${padX + (computed.borderWidth ?? 0)}px`,
+                            right: `${padX + (computed.borderWidth ?? 0)}px`,
+                            bottom: `${Math.max(2, (computed.paddingY ?? 0) * 0.3)}px`,
+                            pointerEvents: 'none',
+                            height: 8,
+                            border: `1px solid ${guideBorder}`,
+                            borderRadius: 4,
+                            overflow: 'hidden',
+                            backgroundColor: 'transparent',
+                            zIndex: 3,
+                        }}
+                    >
+                        <div 
+                            style={{ 
+                                height: '100%',
+                                width: `${guideDisplayWidth}px`,
+                                maxWidth: '100%',
+                                backgroundColor: guideFill,
+                            }}
+                        />
+                    </div>
+                    <input
+                        type="text"
+                        name="first-name"
+                        style={inputStyle}
+                        className="block w-full focus:outline-none border-0"
+                        placeholder={placeholder}
+                        disabled
+                        readOnly
+                    />
+                </div>
+
+                {/* 3. Validation Area - also respects container width */}
+                <div style={{ 
+                    width: 'auto',
+                    maxWidth: appliedInputWidth,
+                    marginTop: `${computed.inputHelpGap}px` 
+                }}>
+                    <div style={validationStyle}>
+                        <AlertCircle 
+                            size={14} 
+                            className="mr-1 mt-0.5 flex-shrink-0" 
+                            style={{ color: computed.helpTextColor }}
+                        />
+                        <span>{longestMessage}</span>
+                    </div>
+                </div>
+            </SmartBorder>
         </div>
-
-        {/* 2. Input Area */}
-        <div className="relative rounded-md shadow-sm w-80">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <User className="h-4 w-4 text-gray-400" aria-hidden="true" />
-          </div>
-          <input
-            type="text"
-            name="first-name"
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-600 pl-10 py-2 text-sm text-slate-900 dark:text-gray-200 bg-white dark:bg-gray-800 focus:border-teal-500 focus:outline-none placeholder-gray-400 dark:placeholder-gray-500"
-            placeholder="Enter your first name"
-            disabled
-            readOnly
-          />
-        </div>
-
-        {/* 3. Validation Area */}
-        <div className="mt-1 w-max max-w-[320px]">
-          <div className="flex items-start text-xs text-gray-500 dark:text-gray-400 opacity-70">
-              <AlertCircle size={14} className="mr-1 mt-0.5 flex-shrink-0" />
-              <span>{longestMessage}</span>
-          </div>
-        </div>
-
-      </SmartBorder>
-    </div>
-  );
+    );
 };

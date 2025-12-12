@@ -127,11 +127,12 @@ class FontFamily(Base):
     DeletedBy = Column(String(100), nullable=True)
     
     # Relationships
-    variants = relationship("FontVariant", back_populates="font_family", lazy="dynamic")
-    subsets = relationship("FontSubset", back_populates="font_family", lazy="dynamic")
-    axes = relationship("FontAxis", back_populates="font_family", lazy="dynamic")
-    color_capabilities = relationship("FontColorCapability", back_populates="font_family", lazy="dynamic")
-    usage_logs = relationship("FontUsageLog", back_populates="font_family", lazy="dynamic")
+    # Note: Using lazy="selectin" to allow eager loading with joinedload() while keeping lazy load capability
+    variants = relationship("FontVariant", back_populates="font_family", lazy="selectin")
+    subsets = relationship("FontSubset", back_populates="font_family", lazy="selectin")
+    axes = relationship("FontAxis", back_populates="font_family", lazy="selectin")
+    color_capabilities = relationship("FontColorCapability", back_populates="font_family", lazy="selectin")
+    usage_logs = relationship("FontUsageLog", back_populates="font_family", lazy="selectin")
     
     # Company relationships
     uploaded_by_company = relationship("Company", foreign_keys=[UploadedByCompanyID])

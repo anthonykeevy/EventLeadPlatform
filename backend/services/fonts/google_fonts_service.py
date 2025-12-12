@@ -6,8 +6,8 @@ import os
 import httpx
 from typing import List, Optional, Tuple, Dict, Any
 from datetime import datetime
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import select, func, or_, and_
+from sqlalchemy.orm import Session
+from sqlalchemy import select, func, or_, and_, case
 
 from common.logger import get_logger
 from models.fonts import (
@@ -127,9 +127,11 @@ class GoogleFontsService:
             total_count = base_query.count()
             
             # Apply sorting
+            # Note: Using case() for SQL Server compatibility (NULLS LAST not supported)
             if sort_by == 'popularity':
                 base_query = base_query.order_by(
-                    FontFamily.PopularityRank.asc().nullslast(),
+                    case((FontFamily.PopularityRank.is_(None), 1), else_=0),
+                    FontFamily.PopularityRank.asc(),
                     FontFamily.FamilyName.asc()
                 )
             elif sort_by == 'name':
@@ -139,7 +141,8 @@ class GoogleFontsService:
             elif sort_by == 'featured':
                 base_query = base_query.order_by(
                     FontFamily.IsFeatured.desc(),
-                    FontFamily.DisplayOrder.asc().nullslast(),
+                    case((FontFamily.DisplayOrder.is_(None), 1), else_=0),
+                    FontFamily.DisplayOrder.asc(),
                     FontFamily.FamilyName.asc()
                 )
             else:
@@ -162,14 +165,10 @@ class GoogleFontsService:
         Get complete font details by ID.
         
         Includes variants, subsets, axes, and color capabilities.
+        Note: Relationships are loaded automatically via selectin lazy loading.
         """
         try:
-            font = self.db.query(FontFamily).options(
-                joinedload(FontFamily.variants),
-                joinedload(FontFamily.subsets),
-                joinedload(FontFamily.axes),
-                joinedload(FontFamily.color_capabilities),
-            ).filter(
+            font = self.db.query(FontFamily).filter(
                 FontFamily.FontFamilyID == font_family_id,
                 FontFamily.IsDeleted == False
             ).first()
@@ -183,11 +182,7 @@ class GoogleFontsService:
     async def get_font_by_name(self, family_name: str) -> Optional[FontFamily]:
         """Get font by family name."""
         try:
-            font = self.db.query(FontFamily).options(
-                joinedload(FontFamily.variants),
-                joinedload(FontFamily.subsets),
-                joinedload(FontFamily.axes),
-            ).filter(
+            font = self.db.query(FontFamily).filter(
                 FontFamily.FamilyNameNormalized == family_name.lower(),
                 FontFamily.IsDeleted == False
             ).first()
@@ -214,8 +209,10 @@ class GoogleFontsService:
             if category:
                 query = query.filter(FontFamily.Category == category)
             
+            # SQL Server compatible NULLS LAST
             fonts = query.order_by(
-                FontFamily.PopularityRank.asc().nullslast()
+                case((FontFamily.PopularityRank.is_(None), 1), else_=0),
+                FontFamily.PopularityRank.asc()
             ).limit(limit).all()
             
             return fonts
@@ -232,7 +229,9 @@ class GoogleFontsService:
                 FontFamily.IsActive == True,
                 FontFamily.IsFeatured == True
             ).order_by(
-                FontFamily.DisplayOrder.asc().nullslast(),
+                # SQL Server compatible NULLS LAST
+                case((FontFamily.DisplayOrder.is_(None), 1), else_=0),
+                FontFamily.DisplayOrder.asc(),
                 FontFamily.FamilyName.asc()
             ).all()
             

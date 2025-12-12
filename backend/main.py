@@ -30,6 +30,7 @@ from modules.forms.ownership_router import router as forms_ownership_router  # S
 from modules.forms.public_router import router as forms_public_router  # Story 2.12: External Approver Support
 from modules.forms.version_router import versions_router, active_version_router  # Story 3.1: Form Versioning
 from modules.audit.router import router as audit_router  # Story 2.13: Audit Trail & Compliance
+from modules.fonts.router import router as fonts_router  # Google Fonts caching
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -89,6 +90,7 @@ app.include_router(versions_router)  # Story 3.1: Form Versioning
 app.include_router(active_version_router)  # Story 3.1: Form Versioning - Live/Active Endpoint
 app.include_router(forms_router)  # Story 2.8: Form Header Foundation
 app.include_router(audit_router, prefix="/api")  # Story 2.13: Audit Trail & Compliance
+app.include_router(fonts_router)  # Google Fonts caching
 
 @app.get("/")
 async def root():

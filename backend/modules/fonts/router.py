@@ -83,6 +83,7 @@ def _company_font_to_response(font_data: dict) -> CompanyFontResponse:
 
 def _font_to_detail(font) -> FontFamilyDetailResponse:
     """Convert FontFamily model to detail response with relationships."""
+    # Filter and sort in Python since relationships now return lists (lazy="selectin")
     variants = [
         FontVariantResponse(
             font_variant_id=v.FontVariantID,
@@ -94,7 +95,10 @@ def _font_to_detail(font) -> FontFamilyDetailResponse:
             display_order=v.DisplayOrder,
             is_default=v.IsDefault
         )
-        for v in font.variants.filter_by(IsDeleted=False).order_by('DisplayOrder').all()
+        for v in sorted(
+            [v for v in font.variants if not v.IsDeleted],
+            key=lambda x: x.DisplayOrder or 0
+        )
     ]
     
     subsets = [
@@ -105,7 +109,10 @@ def _font_to_detail(font) -> FontFamilyDetailResponse:
             subset_group=s.SubsetGroup,
             is_extended=s.IsExtended
         )
-        for s in font.subsets.filter_by(IsActive=True).order_by('DisplayOrder').all()
+        for s in sorted(
+            [s for s in font.subsets if s.IsActive],
+            key=lambda x: x.DisplayOrder or 0
+        )
     ]
     
     axes = [
@@ -119,7 +126,10 @@ def _font_to_detail(font) -> FontFamilyDetailResponse:
             is_standard=a.IsStandard,
             css_property=a.CssProperty
         )
-        for a in font.axes.filter_by(IsActive=True).order_by('DisplayOrder').all()
+        for a in sorted(
+            [a for a in font.axes if a.IsActive],
+            key=lambda x: x.DisplayOrder or 0
+        )
     ]
     
     return FontFamilyDetailResponse(

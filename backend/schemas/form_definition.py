@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict, Any, Literal
-from pydantic import BaseModel, Field, field_validator, ValidationInfo, model_validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo, model_validator, field_serializer, SkipSerialization
 from enum import Enum
 
 class ComponentType(str, Enum):
@@ -51,6 +51,14 @@ class RuleWhen(BaseModel):
     sourceComponentId: str = Field(..., min_length=1)
     operator: LogicOperator
     value: Optional[str] = None
+
+    @field_serializer("value", when_used="always")
+    def serialize_value(self, v: Optional[str]):
+        # For isEmpty, value is not part of the semantic rule and should not be emitted in JSON.
+        # This prevents clients from receiving `value: null` and misinterpreting it as a real value.
+        if self.operator == LogicOperator.IS_EMPTY:
+            return SkipSerialization
+        return v
 
     @model_validator(mode="after")
     def validate_value_requirements(self) -> "RuleWhen":

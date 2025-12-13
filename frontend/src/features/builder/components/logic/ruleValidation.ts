@@ -70,7 +70,8 @@ export function validateRule(rule: Partial<LogicRule>, componentsById: Record<st
   if (requiresValue && (!value || String(value).trim() === '')) {
     errors.push({ field: 'value', message: `Value is required for ${operator}.` });
   }
-  if (operator === 'isEmpty' && value !== undefined && String(value).trim() !== '') {
+  // Backends may serialize unused optional fields as null. Treat null the same as undefined for isEmpty.
+  if (operator === 'isEmpty' && value != null && String(value).trim() !== '') {
     errors.push({ field: 'value', message: 'Value is not used for “is empty”.' });
   }
 

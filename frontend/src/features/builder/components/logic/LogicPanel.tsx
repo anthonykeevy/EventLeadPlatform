@@ -68,7 +68,7 @@ export const LogicPanel: React.FC = () => {
         addRule,
         updateRule,
         removeRule,
-        moveRule,
+        swapRules,
         toggleRuleEnabled,
     } = useBuilderStore();
 
@@ -111,6 +111,20 @@ export const LogicPanel: React.FC = () => {
         return true;
     });
 
+    // IMPORTANT: When the list is filtered (enabled/errors), "Move up/down" must operate on the
+    // *displayed* (filtered) order, but apply the swap to the underlying saved rule list.
+    const moveRuleInView = React.useCallback(
+        (ruleId: string, direction: 'up' | 'down') => {
+            const idx = filteredRules.findIndex(r => r.id === ruleId);
+            if (idx === -1) return;
+            const neighborIdx = direction === 'up' ? idx - 1 : idx + 1;
+            if (neighborIdx < 0 || neighborIdx >= filteredRules.length) return;
+            const neighborId = filteredRules[neighborIdx].id;
+            swapRules(ruleId, neighborId);
+        },
+        [filteredRules, swapRules]
+    );
+
     const startNewRule = () => {
         const id = makeId('rule');
         setEditingRuleId(id);
@@ -140,13 +154,24 @@ export const LogicPanel: React.FC = () => {
         setDraftErrors({});
     };
 
-    const normalizeForSave = (r: LogicRule): LogicRule => {
+    const normalizeForSave = (r: LogicRule): LogicRule | null => {
         const next: LogicRule = JSON.parse(JSON.stringify(r));
-        if (next.when.operator === 'isEmpty') {
+
+        // Normalize/guard value handling. Even though UI validation should prevent invalid rules,
+        // this provides a safe backstop (e.g., import/API/state corruption).
+        const op = next.when.operator;
+        const requiresValue = op === 'equals' || op === 'notEquals' || op === 'contains';
+
+        if (op === 'isEmpty') {
             delete next.when.value;
+        } else if (requiresValue) {
+            const cleaned = String(next.when.value ?? '').trim();
+            if (cleaned.length === 0) return null;
+            next.when.value = cleaned;
         } else if (typeof next.when.value === 'string') {
             next.when.value = next.when.value.trim();
         }
+
         if (next.name !== undefined) {
             const cleaned = String(next.name).trim();
             if (cleaned.length === 0) delete next.name;
@@ -170,8 +195,15 @@ export const LogicPanel: React.FC = () => {
         }
 
         const normalized = normalizeForSave(full);
-        const exists = savedRules.some(r => r.id === normalized.id);
+        if (!normalized) {
+            setDraftErrors(prev => ({
+                ...prev,
+                value: 'Value is required for this operator.',
+            }));
+            return;
+        }
 
+        const exists = savedRules.some(r => r.id === normalized.id);
         if (exists) updateRule(normalized.id, normalized);
         else addRule(normalized);
 
@@ -340,18 +372,18 @@ export const LogicPanel: React.FC = () => {
 
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                     <button
-                                        onClick={() => moveRule(rule.id, 'up')}
+                                        onClick={() => moveRuleInView(rule.id, 'up')}
                                         className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
                                         title="Move up"
-                                        disabled={isDraftRow || realIdx <= 0}
+                                        disabled={isDraftRow || idx <= 0}
                                     >
                                         <ArrowUp size={14} />
                                     </button>
                                     <button
-                                        onClick={() => moveRule(rule.id, 'down')}
+                                        onClick={() => moveRuleInView(rule.id, 'down')}
                                         className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
                                         title="Move down"
-                                        disabled={isDraftRow || realIdx === -1 || realIdx >= savedRules.length - 1}
+                                        disabled={isDraftRow || idx === -1 || idx >= filteredRules.length - 1}
                                     >
                                         <ArrowDown size={14} />
                                     </button>

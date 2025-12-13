@@ -88,6 +88,8 @@ interface BuilderState {
     updateRule: (ruleId: string, updates: Partial<LogicRule>) => void;
     removeRule: (ruleId: string) => void;
     moveRule: (ruleId: string, direction: 'up' | 'down') => void;
+    /** Swap two rules by id (used by filtered UI reordering) */
+    swapRules: (ruleIdA: string, ruleIdB: string) => void;
     toggleRuleEnabled: (ruleId: string, enabled: boolean) => void;
     
     // Override tracking helpers
@@ -607,6 +609,30 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             const tmp = current[idx];
             current[idx] = current[nextIdx];
             current[nextIdx] = tmp;
+
+            return {
+                formDefinition: {
+                    ...state.formDefinition,
+                    logic: { rules: current },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
+    },
+
+    swapRules: (ruleIdA, ruleIdB) => {
+        if (ruleIdA === ruleIdB) return;
+        get().pushToHistory();
+        set((state) => {
+            if (!state.formDefinition) return state;
+            const current = [...(state.formDefinition.logic?.rules || [])];
+            const idxA = current.findIndex(r => r.id === ruleIdA);
+            const idxB = current.findIndex(r => r.id === ruleIdB);
+            if (idxA === -1 || idxB === -1) return state;
+
+            const tmp = current[idxA];
+            current[idxA] = current[idxB];
+            current[idxB] = tmp;
 
             return {
                 formDefinition: {

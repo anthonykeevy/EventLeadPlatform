@@ -124,10 +124,10 @@ Requirements:
 2. Mark all tests in `docs/stories/STORY-3.7-UAT-TEST-GUIDE.md` as ✅ PASSED.
 3. Update `docs/stories/EPIC-3-STATUS.md` (Mark 3.7 as Complete, 3.8 as Next).
 4. Update `docs/stories/EPIC-3-ARCHITECTURE-REF.md` with engine/runtime evaluation details.
-5. **GIT UPDATE:** Run the following commands to checkpoint progress:
+5. **GIT UPDATE (general):** Stage and commit all files changed for the story (including documentation):
    ```powershell
    git add .
-   git commit -m "feat(epic3): Complete Story 3.7 - Rule Evaluation Engine"
+   git commit -m "<type>(epic3): complete Story 3.7 - Rule Evaluation Engine"
    # git push
    ```
 

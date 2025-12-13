@@ -458,7 +458,7 @@ Create file `frontend/package.json`:
     "@dnd-kit/sortable": "7.0.2",
     "@dnd-kit/utilities": "3.2.1",
     "@tanstack/react-query": "5.8.4",
-    "axios": "1.6.2",
+    "axios": "1.13.2",
     "recharts": "2.10.1",
     "date-fns": "2.30.0",
     "lucide-react": "0.294.0",
@@ -471,13 +471,13 @@ Create file `frontend/package.json`:
   "devDependencies": {
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
-    "@vitejs/plugin-react": "4.2.0",
+    "@vitejs/plugin-react": "5.1.2",
     "typescript": "5.2.2",
-    "vite": "5.0.0",
+    "vite": "7.2.7",
     "tailwindcss": "3.3.5",
     "autoprefixer": "10.4.16",
     "postcss": "8.4.31",
-    "vitest": "1.0.4",
+    "vitest": "4.0.15",
     "@testing-library/react": "14.1.2",
     "@testing-library/jest-dom": "6.1.5",
     "eslint": "8.54.0",
@@ -502,7 +502,7 @@ npm list react
 
 # Check Vite
 npm list vite
-# Should show: vite@5.0.0
+# Should show: vite@7.2.7
 ```
 
 ---

@@ -5598,7 +5598,7 @@ logger.error("error.exception", ...)  # → Shows in App Insights dashboard
 | **Data Fetching** | TanStack Query (React Query) | 5.8.4 | Caching, automatic refetching, optimistic updates, industry standard for data fetching |
 | **Charts/Visualization** | Recharts | 2.10.1 | React-native charts, composable, good docs, sufficient for analytics dashboard |
 | **Date Handling** | date-fns | 2.30.0 | Lightweight, tree-shakeable, functional API, better than Moment.js |
-| **HTTP Client** | Axios | 1.6.2 | Interceptors (auth token injection), request/response transformation, better DX than fetch |
+| **HTTP Client** | Axios | 1.13.2 | Interceptors (auth token injection), request/response transformation, better DX than fetch |
 | **Icons** | Lucide React | 0.294.0 | Modern, consistent, tree-shakeable, large icon set, better than Font Awesome |
 | **UI Primitives** | Radix UI | 1.3.0 | Unstyled accessible components (modals, dropdowns), works with Tailwind, WCAG compliant |
 | **Animation** | Framer Motion | 10.16.5 | Declarative animations, gesture handling, 24 micro-interactions from UX spec |
@@ -5622,7 +5622,7 @@ logger.error("error.exception", ...)  # → Shows in App Insights dashboard
 | **Image Processing (Server)** | Pillow (PIL) | 10.1.0 | Image resize, optimization, thumbnail generation, Python standard |
 | **CSV Generation** | pandas | 2.1.3 | Multiple format support (Salesforce, Marketing Cloud, Emarsys), data transformation |
 | **Testing (Backend)** | pytest | 7.4.3 | Python testing standard, fixtures, async support, excellent plugin ecosystem |
-| **Testing (Frontend)** | Vitest | 1.0.4 | Vite-native (fast), Jest-compatible API, modern testing framework |
+| **Testing (Frontend)** | Vitest | 4.0.15 | Vite-native (fast), Jest-compatible API, modern testing framework |
 | **E2E Testing** | Playwright | 1.40.0 | Cross-browser testing, auto-wait (no flaky tests), excellent developer experience |
 | **Payments** | Stripe Python SDK | 7.6.0 | Payment processing, webhooks, Australian merchant support, industry standard |
 | **Email (Production)** | Azure Communication Services SDK | 1.2.0 | Azure-native email, transactional emails, SMTP alternative |
@@ -5694,7 +5694,7 @@ No dependencies - these are the foundation everything else builds on
 ```
 React 18.2.0
   ├─→ Depends on: TypeScript 5.2.2
-  └─→ Built by: Vite 5.0.0
+  └─→ Built by: Vite 7.2.7
 
 FastAPI 0.104.1
   ├─→ Depends on: Python 3.11.6
@@ -6160,7 +6160,7 @@ stripe==7.6.0
 | Python 3.11.6 | All Azure SDKs | ✅ Compatible | All SDKs support Python 3.11 |
 | SQLAlchemy 2.0 | pyodbc 5.0.1 | ✅ Compatible | Standard ODBC driver |
 | Tailwind 3.3.5 | Radix UI 1.3.0 | ✅ Compatible | Unstyled components work with any CSS |
-| Vite 5.0.0 | React 18.2.0 | ✅ Compatible | Vite optimized for React |
+| Vite 7.2.7 | React 18.2.0 | ✅ Compatible | Vite optimized for React |
 | structlog | Azure App Insights | ✅ Compatible | opencensus-ext-azure bridges |
 
 **Potential Future Conflicts (Monitor):**

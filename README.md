@@ -34,7 +34,7 @@ Beautiful, branded lead collection forms for events. Drag-and-drop form builder 
 
 **Frontend:**
 - React 18.2.0 + TypeScript 5.2.2
-- Vite 5.0.0 (build tool)
+- Vite 7.2.7 (build tool)
 - Tailwind CSS 3.3.5 (styling)
 - Zustand 4.4.6 (state management)
 - dnd-kit 6.0.8 (drag-and-drop form builder)

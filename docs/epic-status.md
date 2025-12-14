@@ -20,6 +20,10 @@
 | **Epic 7** | Analytics & Lead Collection | ⏳ PENDING | - | None yet |
 | **Epic 8** | Enterprise Data | ⏳ PENDING | - | None yet |
 
+### Recommended Execution Order (Product Delivery)
+To maximize early end-to-end value (build → preview/publish → collect leads), the recommended delivery order is:
+- **Epic 1 → Epic 2 → Epic 3 → Epic 5 → Epic 4 → Epic 6 → Epic 7 → Epic 8**
+
 **Status Legend:**
 - ⏳ PENDING - Not started yet (no boundary protection)
 - 🔄 IN PROGRESS - Currently being implemented (files can be modified)

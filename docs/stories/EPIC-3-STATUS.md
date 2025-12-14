@@ -71,7 +71,7 @@
 | **3.5** | **Properties Panel** | ✅ Complete | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. Global vs Individual settings. Layout toggles. |
 | **3.6** | Conditional Logic UI | ✅ Complete | Logic | **The Rules.** Author rules and persist them into DefinitionJSON. |
 | **3.7** | Rule Evaluation Engine | ✅ Complete | Logic | **The Brain.** Frontend engine that runs the rules in real-time (builder preview + renderer parity). |
-| **3.8** | Public Form Renderer | 🛠️ **Next** | Render | **The Player.** The actual form the public sees (optimized for tablets). |
+| **3.8** | Public Form Renderer | 🛠️ **Next** | Render | **The Player.** Renders the public form exactly on the **selected design canvas/device profile** (no responsive reflow; separate canvases require separate designs). |
 | **3.9** | Dynamic Submission | 📋 Planned | Render | **The Outbox.** Queue system for offline submissions and syncing. |
 
 ---

@@ -18,7 +18,7 @@ At the end of every story, you **MUST** update this document.
 ## 📋 **Stage 1: Create Story (Scrum Master)**
 
 **Current Target:** Story 3.8  
-**Goal:** Build the **Slim Public Form Renderer** (“The Player”) that renders `DefinitionJSON` into a fast, tablet-friendly public experience.
+**Goal:** Build the **Slim Public Form Renderer** (“The Player”) that renders `DefinitionJSON` into the **exact design canvas/device profile** it was authored for (no responsive reflow).
 
 ### **Copy/Paste this Prompt for the Scrum Master (@sm.mdc)**
 ```markdown
@@ -27,7 +27,7 @@ At the end of every story, you **MUST** update this document.
 Context:
 - Previous Story: 3.7 (Rule Evaluation Engine complete - runtime logic applied in preview/renderer)
 - Focus Domain: Rendering & Submission
-- Goal: Render the public form from `FormVersion.DefinitionJSON` using the Component Registry, optimized for tablets/mobile.
+- Goal: Render the public form from `FormVersion.DefinitionJSON` using the Component Registry, matching the **selected design canvas/device profile** exactly.
 - **Scope Boundary:** This story is **rendering + client-side UX**. The async submission/outbox pipeline is Story 3.9.
 
 Requirements:
@@ -37,11 +37,12 @@ Requirements:
 4. **CRITICAL:** Include a placeholder section for \"UAT Test Guide\" in the story file.
 
 Functional Requirements (High Level):
-- Public route/view renders the form from `DefinitionJSON` (theme + pages + components).
+- Public route/view renders the form from `DefinitionJSON` (theme + pages + components) **at the authored canvas/profile dimensions**.
 - Uses the same Component Registry as the Builder (no duplication).
 - Supports runtime effects from Story 3.7 (visibility/required/disabled).
 - Safe behavior for unknown component types or malformed config (fallback UI; do not crash).
 - Data entry UX exists (field state + validation message area), but **submission transport/outbox** is deferred to Story 3.9.
+ - **Important:** If a customer wants the same form for multiple canvases (e.g., Desktop and Tablet), they must create separate designs/profiles; the renderer must not “auto reflow” into a different layout.
 
 Requirements:
 Deliverables:
@@ -71,7 +72,7 @@ Create a comprehensive `docs/stories/STORY-3.8-UAT-TEST-GUIDE.md` document.
 Requirements:
 - Define Pre-requisites.
 - Include scenarios for rendering from stored `DefinitionJSON` (happy path + unknown component fallback).
-- Include responsive/tablet scenarios (layout, scrolling, touch-friendly interactions).
+- Include canvas/profile fidelity scenarios (no responsive reflow; positions/sizing match the authored design).
 - Include runtime logic scenarios (rules affect visibility/required/disabled during entry).
 - Include broken/missing reference behavior (do not crash).
 - For each scenario, list: Steps to Execute -> Expected Result.
@@ -102,7 +103,7 @@ Requirements:
 5. Keep submission/outbox **out of scope** (Story 3.9).
 
 Focus Areas:
-- Fast, reliable renderer UX (tablet-friendly).
+- Fast, reliable renderer UX (load time, no crashes, predictable rendering).
 - Deterministic rendering from stored DefinitionJSON (no builder-only assumptions).
 - Maintain JSON-only contract (no code in DefinitionJSON).
 

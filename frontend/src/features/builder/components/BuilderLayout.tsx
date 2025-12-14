@@ -24,30 +24,53 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
     propertiesPanel,
     title 
 }) => {
-    const { undo, redo, canUndo, canRedo } = useBuilderStore();
+    const { undo, redo, canUndo, canRedo, togglePreview, viewMode, runtimeWarnings, deleteSelectedComponents, selectedComponentIds, activeLayer, clearRuntimeWarnings } = useBuilderStore();
+    
+    // Safety: ensure runtime warnings never persist outside preview mode
+    useEffect(() => {
+        if (viewMode !== 'preview') {
+            clearRuntimeWarnings();
+        }
+    }, [viewMode, clearRuntimeWarnings]);
     
     // Keyboard shortcuts for undo/redo
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Don't trigger global shortcuts while typing in inputs/textareas/contenteditable
+            const target = e.target as HTMLElement | null;
+            const isTypingTarget =
+                !!target &&
+                (target.tagName === 'INPUT' ||
+                    target.tagName === 'TEXTAREA' ||
+                    (target as any).isContentEditable);
+
             // Check for Ctrl+Z (Windows) or Cmd+Z (Mac)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            if (!isTypingTarget && (e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 if (canUndo()) {
                     undo();
                 }
             }
             // Check for Ctrl+Y (Windows) or Cmd+Shift+Z (Mac)
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            if (!isTypingTarget && (e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
                 e.preventDefault();
                 if (canRedo()) {
                     redo();
+                }
+            }
+
+            // Delete selected component(s) (edit mode only)
+            if (!isTypingTarget && viewMode === 'edit' && activeLayer === 1 && selectedComponentIds.length > 0) {
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    deleteSelectedComponents();
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [undo, redo, canUndo, canRedo]);
+    }, [undo, redo, canUndo, canRedo, deleteSelectedComponents, selectedComponentIds, viewMode, activeLayer]);
 
     return (
         <div className="flex flex-col h-screen bg-gray-100 overflow-hidden">
@@ -91,9 +114,21 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
                             <Download size={16} /> Dev Logs
                         </button>
                     )}
-                    <button className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-2">
-                        <Eye size={16} /> Preview
+                    <button
+                        className={`btn-secondary text-sm py-1.5 px-3 flex items-center gap-2 ${viewMode === 'preview' ? 'ring-2 ring-teal-400' : ''}`}
+                        onClick={() => togglePreview()}
+                        title="Toggle runtime preview"
+                    >
+                        <Eye size={16} /> {viewMode === 'preview' ? 'Editing' : 'Preview'}
                     </button>
+                    {viewMode === 'preview' && runtimeWarnings.length > 0 && (
+                        <span
+                            className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium"
+                            title={`${runtimeWarnings.length} runtime warning(s) (rules ignored safely)`}
+                        >
+                            Warnings: {runtimeWarnings.length}
+                        </span>
+                    )}
                     <button className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-2">
                         <Settings size={16} /> Settings
                     </button>

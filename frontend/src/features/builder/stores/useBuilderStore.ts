@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, StyleOverrides, LogicRule } from '../types/builder.types';
 import { hasStyleOverrides, getOverriddenProperties } from '../utils/styleUtils';
+import type { RuntimeRuleWarning } from '../../logic-engine/types';
 
 /**
  * Info about a component with style overrides
@@ -54,6 +55,16 @@ interface BuilderState {
     scale: number;
     showGrid: boolean;
     activeLayer: 0 | 1; // 0 = Background, 1 = Functional
+
+    // Builder runtime preview (Story 3.7)
+    viewMode: 'edit' | 'preview';
+    setViewMode: (mode: 'edit' | 'preview') => void;
+    togglePreview: () => void;
+
+    // Story 3.7: runtime warnings from evaluation (non-blocking)
+    runtimeWarnings: RuntimeRuleWarning[];
+    setRuntimeWarnings: (warnings: RuntimeRuleWarning[]) => void;
+    clearRuntimeWarnings: () => void;
     
     // Undo/Redo History
     historyPast: FormSnapshot[];
@@ -72,6 +83,7 @@ interface BuilderState {
     updateComponentProps: (id: string, props: Partial<FormComponent['props']>) => void; // Story 3.5
     updateMultipleComponentProps: (props: Partial<FormComponent['props']>) => void; // Multi-select bulk update
     addComponent: (component: FormComponent, parentId?: string, index?: number) => void;
+    deleteSelectedComponents: () => void; // Delete key support (Story 3.7+)
     updateGlobalStyles: (updates: Partial<GlobalStyles>) => void; // Story 3.5
     getSelectedComponent: () => FormComponent | null; // Story 3.5 helper - returns first/primary
     getSelectedComponents: () => FormComponent[]; // Multi-select helper - returns all selected
@@ -161,6 +173,14 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     scale: 1,
     showGrid: true,
     activeLayer: 1,
+
+    viewMode: 'edit',
+    setViewMode: (mode) => set({ viewMode: mode }),
+    togglePreview: () => set((s) => ({ viewMode: s.viewMode === 'preview' ? 'edit' : 'preview' })),
+
+    runtimeWarnings: [],
+    setRuntimeWarnings: (warnings) => set({ runtimeWarnings: warnings }),
+    clearRuntimeWarnings: () => set({ runtimeWarnings: [] }),
     
     // Undo/Redo history stacks
     historyPast: [],
@@ -537,6 +557,55 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 }
             };
         });
+        persistToStorage(get().formDefinition);
+    },
+
+    /**
+     * Delete currently selected component(s) (supports multi-select).
+     * Integrated with undo/redo by pushing state before mutation.
+     */
+    deleteSelectedComponents: () => {
+        const state = get();
+        if (!state.formDefinition) return;
+        if (state.selectedComponentIds.length === 0) return;
+
+        get().pushToHistory();
+
+        set((s) => {
+            if (!s.formDefinition) return s;
+            const activePage = s.formDefinition.pages.find(p => p.id === s.activePageId);
+            if (!activePage) return s;
+
+            const idsToDelete = new Set(s.selectedComponentIds);
+
+            const removeRecursive = (list: FormComponent[]): FormComponent[] => {
+                const next: FormComponent[] = [];
+                for (const c of list) {
+                    if (idsToDelete.has(c.id)) {
+                        continue;
+                    }
+                    if (c.children?.length) {
+                        next.push({ ...c, children: removeRecursive(c.children) });
+                    } else {
+                        next.push(c);
+                    }
+                }
+                return next;
+            };
+
+            const newComponents = removeRecursive(activePage.components);
+            const newPages = s.formDefinition.pages.map(p =>
+                p.id === s.activePageId ? { ...p, components: newComponents } : p
+            );
+
+            return {
+                formDefinition: { ...s.formDefinition, pages: newPages },
+                selectedComponentId: null,
+                selectedComponentIds: [],
+                activeId: null,
+            };
+        });
+
         persistToStorage(get().formDefinition);
     },
 

@@ -30,6 +30,7 @@ const InvitationAcceptancePage = lazy(() => import('./features/invitations').the
 const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
 const ExternalApprovalPage = lazy(() => import('./features/forms/pages/ExternalApprovalPage').then(module => ({ default: module.ExternalApprovalPage })))
 const BuilderPage = lazy(() => import('./features/builder/pages/BuilderPage').then(module => ({ default: module.BuilderPage })))
+const FormRendererPage = lazy(() => import('./features/renderer/pages/FormRendererPage').then(module => ({ default: module.FormRendererPage })))
 import { RequireAuth } from './features/auth/components/RequireAuth'
 // Forms are now integrated into the dashboard (Company → Event → Form hierarchy)
 // Theme settings now accessible through user menu in dashboard
@@ -272,6 +273,16 @@ function App() {
                     <RequireAuth>
                       <Suspense fallback={<PageLoadingSpinner />}>
                         <BuilderPage />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/forms/:formId/render"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <FormRendererPage />
                       </Suspense>
                     </RequireAuth>
                   }

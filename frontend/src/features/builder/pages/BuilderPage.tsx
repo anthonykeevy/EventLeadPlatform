@@ -21,6 +21,7 @@ import { ComponentSidebar } from '../components/ComponentSidebar';
 import { FormBuilderCanvas } from '../components/FormBuilderCanvas';
 import { PropertiesPanel } from '../components/PropertiesPanel'; // Story 3.5
 import { ComponentPreview } from '../components/ComponentPreview';
+import { RuntimeFormView } from '../components/runtime/RuntimeFormView';
 import { FirstNameField } from '../components/fields/FirstNameField';
 import { StandardInput } from '../components/fields/StandardInput';
 import { ComponentRegistry, generateComponent } from '../registry/ComponentRegistry';
@@ -52,7 +53,8 @@ export const BuilderPage: React.FC = () => {
       updateComponent, 
       addComponent, 
       scale,
-      showGrid 
+      showGrid,
+      viewMode
   } = useBuilderStore();
 
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -231,26 +233,38 @@ export const BuilderPage: React.FC = () => {
       );
   };
 
-  return (
-    <DndContext 
-        sensors={sensors} 
-        collisionDetection={closestCenter} 
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        // Conditionally apply the snap modifier
-        modifiers={showGrid ? [snapToGridModifier] : []}
-    >
-        <BuilderLayout 
-            sidebar={<ComponentSidebar />}
-            propertiesPanel={<PropertiesPanel />}
-            title={formDefinition?.formId ? `Form: ${formDefinition.formId}` : 'Form Builder'}
-        >
-            <FormBuilderCanvas ref={canvasRef} />
-        </BuilderLayout>
+  if (viewMode === 'preview' && formDefinition) {
+    return (
+      <BuilderLayout
+        sidebar={<ComponentSidebar />}
+        propertiesPanel={<PropertiesPanel />}
+        title={formDefinition?.formId ? `Form: ${formDefinition.formId}` : 'Form Builder'}
+      >
+        <RuntimeFormView definition={formDefinition} title="Builder Preview (Runtime)" />
+      </BuilderLayout>
+    );
+  }
 
-        <DragOverlay dropAnimation={dropAnimationConfig}>
-            {renderOverlayContent(activeComponent)}
-        </DragOverlay>
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      // Conditionally apply the snap modifier
+      modifiers={showGrid ? [snapToGridModifier] : []}
+    >
+      <BuilderLayout
+        sidebar={<ComponentSidebar />}
+        propertiesPanel={<PropertiesPanel />}
+        title={formDefinition?.formId ? `Form: ${formDefinition.formId}` : 'Form Builder'}
+      >
+        <FormBuilderCanvas ref={canvasRef} />
+      </BuilderLayout>
+
+      <DragOverlay dropAnimation={dropAnimationConfig}>
+        {renderOverlayContent(activeComponent)}
+      </DragOverlay>
     </DndContext>
   );
 };

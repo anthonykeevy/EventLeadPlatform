@@ -1,0 +1,103 @@
+<story-context>
+    <id>3.7</id>
+    <title>Rule Evaluation Engine</title>
+    <epic>3</epic>
+    <domain>Logic Engine</domain>
+
+    <scope-boundary>
+        <in-scope>
+            <item>Evaluate rules stored in DefinitionJSON at formDefinition.logic.rules</item>
+            <item>Apply rule actions at runtime in builder preview and renderer</item>
+            <item>Supported runtime actions: show/hide, enable/disable, require/unrequire</item>
+            <item>Deterministic rule application using persisted ordering (ordering matters)</item>
+            <item>Safe handling for missing/broken references (ignore rule + surface warning)</item>
+        </in-scope>
+        <out-of-scope>
+            <item>Rule authoring UI and persisted data model changes (Story 3.6)</item>
+            <item>New operators/actions beyond the existing minimum set</item>
+            <item>Branching/navigation logic (future)</item>
+        </out-of-scope>
+    </scope-boundary>
+
+    <dependencies>
+        <dependency>Story 3.6 (Conditional Logic UI + persisted rules in DefinitionJSON)</dependency>
+        <dependency>FormDefinition type contract (frontend/src/features/builder/types/builder.types.ts)</dependency>
+    </dependencies>
+
+    <technical-context>
+        <definition-json>
+            <rule-storage>
+                <location>FormDefinition.logic.rules</location>
+                <note>Rules are persisted by Story 3.6 and evaluated at runtime by Story 3.7.</note>
+            </rule-storage>
+            <backend-schema>
+                <location>backend/schemas/form_definition.py</location>
+                <note>Backend validates persisted rule structures; runtime evaluation is frontend-driven.</note>
+            </backend-schema>
+            <frontend-types>
+                <location>frontend/src/features/builder/types/builder.types.ts</location>
+                <note>Contains LogicRule/LogicWhen/LogicThen and operator/action enums used by the engine.</note>
+            </frontend-types>
+        </definition-json>
+
+        <engine-contract>
+            <inputs>
+                <item>rules: LogicRule[] (enabled rules, ordered)</item>
+                <item>valuesByComponentId: Record&lt;string, unknown&gt;</item>
+                <item>componentsById (for reference validation + type-aware comparisons)</item>
+            </inputs>
+            <outputs>
+                <item>componentStateById: { visible, enabled, required }</item>
+                <item>warnings: RuntimeRuleWarning[]</item>
+            </outputs>
+            <determinism>
+                <rule>Rules are evaluated in persisted order (top-to-bottom)</rule>
+                <rule>Conflict resolution: last applicable rule wins per target property</rule>
+            </determinism>
+        </engine-contract>
+
+        <builder-preview-integration>
+            <entrypoints>
+                <location>frontend/src/features/builder/pages/BuilderPage.tsx</location>
+                <location>frontend/src/features/builder/components/FormBuilderCanvas.tsx</location>
+                <location>frontend/src/features/builder/components/SortableComponent.tsx</location>
+            </entrypoints>
+            <note>Preview must re-evaluate rules when relevant values or rules change and apply computed visible/enabled/required state.</note>
+        </builder-preview-integration>
+
+        <rule-authoring-ui-touchpoints>
+            <location>frontend/src/features/builder/components/logic/LogicPanel.tsx</location>
+            <location>frontend/src/features/builder/components/logic/ruleValidation.ts</location>
+            <note>Story 3.7 must surface runtime warnings for broken/missing references; the Logic Panel already surfaces authoring validation errors.</note>
+        </rule-authoring-ui-touchpoints>
+
+        <state-management>
+            <builder-store>
+                <location>frontend/src/features/builder/stores/useBuilderStore.ts</location>
+                <note>Story 3.6 persists rules here; Story 3.7 will add runtime evaluation wiring and computed per-component runtime state (or a dedicated runtime store).</note>
+            </builder-store>
+        </state-management>
+
+        <renderer-integration>
+            <note>The evaluation engine must be reusable by the form renderer runtime to ensure identical behavior to builder preview.</note>
+        </renderer-integration>
+
+        <warning-behavior>
+            <rule>Missing source or target component id → ignore rule, emit warning</rule>
+            <rule>Invalid operator/value combination → ignore rule, emit warning</rule>
+            <rule>No runtime crashes due to malformed/broken rule data</rule>
+        </warning-behavior>
+    </technical-context>
+
+    <file-structure>
+        <new-files>
+            <file>(recommended) frontend/src/features/logic-engine/evaluateRules.ts</file>
+            <file>(recommended) frontend/src/features/logic-engine/types.ts</file>
+        </new-files>
+        <modified-files>
+            <file>frontend/src/features/builder/pages/BuilderPage.tsx (wire preview values + evaluation)</file>
+            <file>frontend/src/features/builder/components/FormBuilderCanvas.tsx (apply visible/enabled/required)</file>
+            <file>frontend/src/features/builder/stores/useBuilderStore.ts (rule evaluation triggers and/or computed state)</file>
+        </modified-files>
+    </file-structure>
+</story-context>

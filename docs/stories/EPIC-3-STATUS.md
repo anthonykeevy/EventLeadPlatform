@@ -26,10 +26,10 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 6/9 | 🏃 In Progress |
-| **Current Story** | 3.7 - Rule Evaluation Engine | 🛠️ **Next (Ready for Development)** |
-| **Domains Complete** | 2/4 | 🏃 In Progress |
-| **UAT Tests Passed** | 5 scenarios (Story 3.6) | ✅ Passed |
+| **Stories Complete** | 7/9 | 🏃 In Progress |
+| **Current Story** | 3.8 - Public Form Renderer | 🛠️ **Next (Ready for Development)** |
+| **Domains Complete** | 3/4 | 🏃 In Progress |
+| **UAT Tests Passed** | 10 scenarios (Story 3.7) | ✅ Passed |
 
 ---
 
@@ -51,7 +51,7 @@
 ### **Domain 3: Logic Engine**
 *   **Stories:** 3.6, 3.7
 *   **Focus:** Conditional logic UI, Rule evaluation engine
-*   **Status:** 🏃 In Progress
+*   **Status:** ✅ Complete
 
 ### **Domain 4: Rendering & Submission**
 *   **Stories:** 3.8, 3.9
@@ -70,27 +70,26 @@
 | **3.4** | Component Library | ✅ Complete | Builder | **The Toolbox.** Scalable Canvas, Layered Editing, Skyline Borders. |
 | **3.5** | **Properties Panel** | ✅ Complete | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. Global vs Individual settings. Layout toggles. |
 | **3.6** | Conditional Logic UI | ✅ Complete | Logic | **The Rules.** Author rules and persist them into DefinitionJSON. |
-| **3.7** | Rule Evaluation Engine | 🛠️ **Next** | Logic | **The Brain.** Frontend engine that runs the rules in real-time. |
-| **3.8** | Public Form Renderer | 📋 Planned | Render | **The Player.** The actual form the public sees (optimized for tablets). |
+| **3.7** | Rule Evaluation Engine | ✅ Complete | Logic | **The Brain.** Frontend engine that runs the rules in real-time (builder preview + renderer parity). |
+| **3.8** | Public Form Renderer | 🛠️ **Next** | Render | **The Player.** The actual form the public sees (optimized for tablets). |
 | **3.9** | Dynamic Submission | 📋 Planned | Render | **The Outbox.** Queue system for offline submissions and syncing. |
 
 ---
 
-## 🎯 **Story 3.5 Focus Areas**
+## 🎯 **Story 3.7 Focus Areas**
 
-This story specifically addresses user-requested flexibility controls:
+This story activates the Logic Engine at runtime by executing the rules authored in Story 3.6.
 
 ### Key Features
-1.  **Selection System:** Click component → Properties Panel displays its settings
-2.  **Standard Editors:** Label, Required, Placeholder, Help Text, Layout Toggle
-3.  **Validation Panel:** Min/Max Length, Regex Pattern, Custom Error Messages
-4.  **Global vs Individual:** Theme-level defaults with per-component overrides
-5.  **Layout Toggle:** Switch between Vertical (label on top) and Horizontal (label on left)
+1. **Runtime Evaluation:** Evaluate `formDefinition.logic.rules` deterministically on relevant value changes.
+2. **Live Effects:** Apply show/hide, enable/disable, require/unrequire in **builder preview** and **renderer**.
+3. **Predictable Ordering:** Persisted rule order matters; conflicts resolve deterministically (last applicable rule wins).
+4. **Resilience:** Missing/broken references are ignored safely and surfaced as non-blocking warnings in UI.
 
 ### Technical Scope
-- **New Store State:** `selectedComponentId`, extended `globalStyles` actions
-- **New Components:** `PropertiesPanel`, `GeneralSection`, `ValidationSection`, `StyleOverridesSection`
-- **Registry Extension:** `ComponentDefinition.PropertiesEditor` mapping
+- **Shared Engine Module:** A pure evaluation function usable by builder preview and renderer.
+- **Runtime State Application:** A computed per-component state (visible/enabled/required) applied during rendering.
+- **Warning Surface:** UI indicator for ignored rules due to broken references or invalid comparisons.
 
 ---
 
@@ -104,6 +103,9 @@ This story specifically addresses user-requested flexibility controls:
 | 3.4 | `story-3.4.md` | `story-context-3.4.xml` | `STORY-3.4-UAT-TEST-GUIDE.md` |
 | 3.5 | `story-3.5.md` | `story-context-3.5.xml` | `STORY-3.5-UAT-TEST-GUIDE.md` ✅ |
 | 3.6 | `story-3.6.md` | `story-context-3.6.xml` | `STORY-3.6-UAT-TEST-GUIDE.md` ✅ |
+| 3.7 | `story-3.7.md` | `story-context-3.7.xml` | `STORY-3.7-UAT-TEST-GUIDE.md` ✅ |
+| 3.8 | `story-3.8.md` | `story-context-3.8.xml` | `STORY-3.8-UAT-TEST-GUIDE.md` (TBD) |
+| 3.9 | `story-3.9.md` | `story-context-3.9.xml` | `STORY-3.9-UAT-TEST-GUIDE.md` (TBD) |
 
 ### **Story 3.5 Additional Documentation**
 | Document | Description |
@@ -113,4 +115,4 @@ This story specifically addresses user-requested flexibility controls:
 ---
 
 *Epic 3 Status Document - Updated by Scrum Master Agent*  
-*Last Updated: 2025-12-12*
+*Last Updated: 2025-12-14*

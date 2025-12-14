@@ -161,6 +161,61 @@ Story 3.6 introduces **rule authoring + persistence** only. The **runtime evalua
 - Story 3.6 does not apply rule effects to the builder canvas or renderer.
 - Story 3.7 will interpret `logic.rules` and apply actions at runtime.
 
+---
+
+## 1.3 Runtime Rule Evaluation (Story 3.7 - Rule Evaluation Engine)
+
+Story 3.7 activates conditional logic at runtime by **evaluating** `formDefinition.logic.rules` and applying the results to the runtime form view(s).
+
+### **A. Engine Contract (Pure + Deterministic)**
+- **Input**
+  - `rules: LogicRule[]` (from `formDefinition.logic.rules`)
+  - `valuesByComponentId: Record<string, unknown>` (runtime answers keyed by component id)
+  - `componentsById: Record<string, FormComponent | undefined>` (to validate references)
+  - `baseStateById: Record<string, { visible; enabled; required }>` (defaults)
+- **Output**
+  - `stateById: Record<string, { visible; enabled; required }>`
+  - `warnings: RuntimeRuleWarning[]` (non-blocking; broken rules are ignored safely)
+
+**Determinism rule (critical):**
+- Rules are processed in **persisted order** (top-to-bottom as saved).
+- Conflicts resolve per target-property using **last applicable rule wins**.
+
+**Primary implementation:**
+- `frontend/src/features/logic-engine/evaluateRules.ts`
+- `frontend/src/features/logic-engine/types.ts`
+
+### **B. Supported Operators / Actions**
+- **Operators**: `equals`, `notEquals`, `contains`, `isEmpty`
+- **Actions**: `show` / `hide`, `enable` / `disable`, `require` / `unrequire`
+
+### **C. Runtime Surfaces**
+Story 3.7 proves runtime parity across two surfaces:
+- **Builder Preview (Runtime)**: interactive preview inside the builder (toggle in header)
+- **Renderer runtime (internal parity route)**: `/forms/:formId/render`
+
+Both reuse the same runtime view that:
+- Computes rule effects live as inputs change
+- Applies the computed state:
+  - `visible=false` → component is not rendered (removed from tab order)
+  - `enabled=false` → component is disabled (non-interactive)
+  - `required=true` → required indicator + validation on “Validate”
+
+**Primary implementation:**
+- `frontend/src/features/builder/components/runtime/RuntimeFormView.tsx`
+- `frontend/src/features/renderer/pages/FormRendererPage.tsx`
+
+### **D. Safety & Warning Surface**
+Broken/malformed rules (missing source/target, invalid value/operator) are:
+- **Ignored** for evaluation (no crash)
+- Returned as **warnings**
+- Surfaced non-blockingly in the UI (warning banner and header badge in preview)
+
+### **E. Builder UX Constraint (Separation from Authoring)**
+Story 3.7 does not change the authoring model/contract (“JSON-only contract”):
+- Rules remain stored in `formDefinition.logic.rules` (no code in JSON)
+- Execution is implemented entirely in frontend runtime modules
+
 ### **D. Drag-and-Drop Architecture (Story 3.3 & 3.4)**
 The Visual Builder uses **@dnd-kit** for its accessible, robust drag-and-drop capabilities.
 

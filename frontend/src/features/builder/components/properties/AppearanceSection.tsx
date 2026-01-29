@@ -13,26 +13,51 @@
  * 6. Help & Validation
  */
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { 
     ChevronDown, Link, Unlink, Tag, Type, MessageSquare, 
-    ArrowUpDown, Palette, Maximize2, Wand2 
+    ArrowUpDown, Palette, Maximize2, Wand2, LayoutGrid, RotateCcw 
 } from 'lucide-react';
 import { TypographyCard, PropertySelect, PropertyNumberInput } from './inputs';
-import { StyleOverrides, GlobalStyles, FontWeightValue, FontStyleType, ComponentProps, AlignType } from '../../types/builder.types';
+import { StyleOverrides, GlobalStyles, FontWeightValue, FontStyleType, ComponentProps, AlignType, ComponentStructure, ObjectLayoutType } from '../../types/builder.types';
+import { SpacingSection } from './SpacingSection';
+import { ScaleAnchor } from '../../utils/scaleUtils';
+import { devLogger } from '../../utils/devLogger';
+
+// Interface for sticky anchor during slider drag
+interface StickyAnchor {
+    x: number;
+    y: number;
+    anchor: ScaleAnchor;
+    // Base dimensions at 100% scale - used to calculate size at any scale
+    baseWidth: number;
+    baseHeight: number;
+}
 
 interface AppearanceSectionProps {
     overrides: StyleOverrides | undefined;
     globalStyles: GlobalStyles;
     onOverridesChange: (updates: Partial<StyleOverrides>) => void;
     /** Current layout for spacing control direction */
-    currentLayout?: 'vertical' | 'horizontal';
+    currentLayout?: 'vertical' | 'horizontal' | 'mixed';
     /** Component props for dimensions */
     props?: ComponentProps;
     /** Handler for component props changes */
     onPropsChange?: (updates: Partial<ComponentProps>) => void;
     /** Component type for conditional rendering */
     componentType?: string;
+    /** NEW: Component structure for Universal FieldShell */
+    structure?: ComponentStructure;
+    /** NEW: Handler for global styles changes */
+    onGlobalStylesChange?: (updates: Partial<GlobalStyles>) => void;
+    /** Component position for anchor-based scaling */
+    componentPosition?: { x: number; y: number };
+    /** Handler for position changes (for anchor-based scaling) */
+    onPositionChange?: (position: { x: number; y: number }) => void;
+    /** Atomic update for position AND props in single render (for smooth anchor scaling) */
+    onAtomicScaleChange?: (position: { x: number; y: number }, props: Partial<ComponentProps>) => void;
+    /** Component ID for DOM lookup */
+    componentId?: string;
 }
 
 const WIDTH_PRESET_OPTIONS = [
@@ -42,6 +67,7 @@ const WIDTH_PRESET_OPTIONS = [
     { value: '50%', label: '50%' },
     { value: '66%', label: '66%' },
     { value: '75%', label: '75%' },
+    { value: '90%', label: '90%' },
     { value: '100%', label: '100%' },
     { value: 'custom', label: 'Custom (px)' },
 ];
@@ -50,6 +76,13 @@ const ALIGN_OPTIONS = [
     { value: 'left', label: 'Left' },
     { value: 'center', label: 'Center' },
     { value: 'right', label: 'Right' },
+];
+
+// Object width mode options for individual object width overrides
+const OBJECT_WIDTH_OPTIONS = [
+    { value: 'auto', label: 'Auto (fit content)' },
+    { value: 'fill', label: 'Fill (remaining space)' },
+    { value: 'custom', label: 'Custom (px)' },
 ];
 
 /**
@@ -166,31 +199,218 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
     props,
     onPropsChange,
     componentType = 'text',
+    structure,
+    onGlobalStylesChange,
+    componentPosition,
+    onPositionChange,
+    onAtomicScaleChange,
+    componentId,
 }) => {
     const [isExpanded, setIsExpanded] = React.useState(false);
     const [isDimensionsExpanded, setIsDimensionsExpanded] = React.useState(true);
     const [isTypographyExpanded, setIsTypographyExpanded] = React.useState(false);
     const [customWidth, setCustomWidth] = React.useState<number>(300);
+    // Anchor point for slider-based scaling (default: NW = component grows toward SE)
+    // Initialize from props if available, otherwise default to 'nw'
+    const [scaleAnchor, setScaleAnchor] = useState<ScaleAnchor>(props?.componentScaleAnchor ?? 'nw');
+    
+    // Sync anchor state with props when component changes (e.g., different component selected)
+    React.useEffect(() => {
+        if (props?.componentScaleAnchor !== undefined) {
+            setScaleAnchor(props.componentScaleAnchor);
+        } else {
+            setScaleAnchor('nw'); // Default to NW if not set
+        }
+    }, [props?.componentScaleAnchor]);
+    
+    // Sticky anchor ref - persists across slider drag to prevent drift
+    // Stores the EXACT anchor position captured at drag start
+    const stickyAnchorRef = useRef<StickyAnchor | null>(null);
 
     // Dimensions logic
     const isCustomWidth = props?.width?.endsWith('px');
     const currentPreset = isCustomWidth ? 'custom' : (props?.width || 'auto');
     const supportsHeight = ['textarea'].includes(componentType);
-    const supportsAutoFit = ['text', 'email', 'number', 'select', 'phone'].includes(componentType);
+    const supportsAutoFit = ['text', 'email', 'number', 'dropdown', 'phone'].includes(componentType);
+    
+    // Components that support object width overrides (most input types with label/input/validation objects)
+    const supportsObjectWidthOverrides = [
+        'text', 'email', 'number', 'phone', 'textarea', 'dropdown', 
+        'checkbox', 'radio', 'date', 'address', 'first-name', 'terms'
+    ].includes(componentType);
+    
+    // Check if any object width override is set
+    const hasAnyObjectWidthOverride = props && (
+        props.labelWidthOverride !== undefined || 
+        props.inputWidthOverride !== undefined || 
+        props.helpWidthOverride !== undefined
+    );
+    
+    // Object width mode helpers
+    const getLabelWidthMode = (): string => {
+        if (props?.labelWidthOverride !== undefined) return 'custom';
+        return 'auto';
+    };
+    
+    const getInputWidthMode = (): string => {
+        if (props?.inputWidthOverride !== undefined) return 'custom';
+        if (props?.inputWidthMode === 'fill') return 'fill';
+        return 'auto';
+    };
+    
+    const getHelpWidthMode = (): string => {
+        if (props?.helpWidthOverride !== undefined) return 'custom';
+        return 'auto';
+    };
+    
+    const handleLabelWidthModeChange = (mode: string) => {
+        if (!onPropsChange) return;
+        if (mode === 'auto') {
+            onPropsChange({ labelWidthOverride: undefined });
+        } else if (mode === 'fill') {
+            onPropsChange({ labelWidthOverride: undefined });
+        } else if (mode === 'custom') {
+            onPropsChange({ labelWidthOverride: 120 });
+        }
+    };
+    
+    const handleInputWidthModeChange = (mode: string) => {
+        if (!onPropsChange) return;
+        if (mode === 'auto') {
+            onPropsChange({ inputWidthOverride: undefined, inputWidthMode: undefined });
+        } else if (mode === 'fill') {
+            onPropsChange({ inputWidthOverride: undefined, inputWidthMode: 'fill' });
+        } else if (mode === 'custom') {
+            onPropsChange({ inputWidthOverride: 200 });
+        }
+    };
+    
+    const handleHelpWidthModeChange = (mode: string) => {
+        if (!onPropsChange) return;
+        if (mode === 'auto') {
+            onPropsChange({ helpWidthOverride: undefined });
+        } else if (mode === 'fill') {
+            onPropsChange({ helpWidthOverride: undefined });
+        } else if (mode === 'custom') {
+            onPropsChange({ helpWidthOverride: 200 });
+        }
+    };
 
     const handleWidthPresetChange = (value: string) => {
         if (!onPropsChange) return;
+        
+        const isSubmitButton = componentType === 'submit-button';
+        
+        // ═══════════════════════════════════════════════════════════════
+        // BUTTON WIDTH CHANGE LOGGING (for debugging panel changes)
+        // ═══════════════════════════════════════════════════════════════
+        if (isSubmitButton) {
+            const currentWidth = props?.width;
+            const currentActionWidthOverride = props?.actionWidthOverride;
+            
+            devLogger.info('panel.button.width.preset.changed', {
+                componentId: componentId,
+                componentType: componentType,
+                BEFORE: {
+                    width: currentWidth,
+                    actionWidthOverride: currentActionWidthOverride,
+                },
+                NEW_VALUE: value,
+                IS_CUSTOM: value === 'custom',
+                IS_AUTO: value === 'auto',
+            });
+        }
+        
         if (value === 'custom') {
-            onPropsChange({ width: `${customWidth}px` });
+            const updates: Partial<ComponentProps> = { width: `${customWidth}px` };
+            if (isSubmitButton) {
+                updates.actionWidthOverride = customWidth;
+            }
+            
+            if (isSubmitButton) {
+                devLogger.info('panel.button.width.custom.applied', {
+                    componentId: componentId,
+                    customWidth,
+                    updates,
+                });
+            }
+            
+            onPropsChange(updates);
+        } else if (value === 'auto') {
+            // Clear width to allow auto-sizing (undefined is the true "auto" state)
+            const updates: Partial<ComponentProps> = { width: undefined };
+            if (isSubmitButton) {
+                updates.actionWidthOverride = undefined;
+            }
+            
+            if (isSubmitButton) {
+                devLogger.info('panel.button.width.auto.applied', {
+                    componentId: componentId,
+                    updates,
+                });
+            }
+            
+            onPropsChange(updates);
         } else {
-            onPropsChange({ width: value });
+            // For buttons: set both width (for container) and actionWidthOverride (for button element)
+            const updates: Partial<ComponentProps> = { width: value };
+            
+            if (isSubmitButton) {
+                if (value.endsWith('%')) {
+                    // For percentage widths: keep width as percentage (for container/SmartBorder)
+                    // and set actionWidthOverride to undefined so button fills container (100%)
+                    // CRITICAL: Store uses Object.keys() which includes keys with undefined values
+                    // We must explicitly set the key so store can delete it
+                    (updates as any).actionWidthOverride = undefined;
+                } else if (value.endsWith('px')) {
+                    // For pixel widths: set both width and actionWidthOverride to the same value
+                    const widthPx = parseInt(value, 10);
+                    updates.width = `${widthPx}px`;
+                    updates.actionWidthOverride = widthPx;
+                }
+            }
+            
+            if (isSubmitButton) {
+                // Create a log-safe version that shows undefined values
+                const logUpdates: any = { ...updates };
+                if (value.endsWith('%')) {
+                    logUpdates.actionWidthOverride = undefined; // Explicitly show undefined
+                }
+                devLogger.info('panel.button.width.preset.applied', {
+                    componentId: componentId,
+                    value,
+                    updates: logUpdates,
+                    actualUpdatesKeys: Object.keys(updates),
+                    hasActionWidthOverrideKey: 'actionWidthOverride' in updates,
+                    actionWidthOverrideValue: (updates as any).actionWidthOverride,
+                    parsedPx: value.endsWith('px') ? parseInt(value, 10) : undefined,
+                    isPercentage: value.endsWith('%'),
+                });
+            }
+            
+            onPropsChange(updates);
         }
     };
 
     const handleCustomWidthChange = (value: number) => {
         if (!onPropsChange) return;
         setCustomWidth(value);
-        onPropsChange({ width: `${value}px` });
+        const updates: Partial<ComponentProps> = { width: `${value}px` };
+        // For buttons: also set actionWidthOverride
+        if (componentType === 'submit-button') {
+            updates.actionWidthOverride = value;
+            
+            devLogger.info('panel.button.width.custom.changed', {
+                componentId: componentId,
+                BEFORE: {
+                    width: props?.width,
+                    actionWidthOverride: props?.actionWidthOverride,
+                },
+                NEW_VALUE: value,
+                updates,
+            });
+        }
+        onPropsChange(updates);
     };
 
     // Count overrides for each category
@@ -347,8 +567,13 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                 {supportsHeight && (
                                     <PropertyNumberInput
                                         label="Height"
-                                        value={props.height || 100}
-                                        onChange={(value) => onPropsChange({ height: value })}
+                                        value={props.styleOverrides?.inputHeight ?? props.height ?? 40}
+                                        onChange={(value) =>
+                                            onPropsChange({
+                                                styleOverrides: { ...(props.styleOverrides || {}), inputHeight: value },
+                                                height: undefined,
+                                            })
+                                        }
                                         min={40}
                                         max={500}
                                         step={10}
@@ -358,29 +583,175 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 
                                 {/* Text Alignment */}
                                 <PropertySelect
-                                    label="Text Alignment"
+                                    label={componentType === 'submit-button' ? "Container Alignment (Canvas)" : "Text Alignment"}
                                     value={props.textAlign || 'left'}
                                     onChange={(value) => onPropsChange({ textAlign: value as AlignType })}
                                     options={ALIGN_OPTIONS}
+                                    helpText={componentType === 'submit-button' 
+                                        ? "Alignment of the component container on the canvas (use Button Settings for button alignment)"
+                                        : undefined}
                                 />
 
-                                {/* Component Scale - Proportional scaling */}
-                                <div className="space-y-1 pt-2 border-t border-gray-100 dark:border-gray-700">
+                                {/* Component Scale - Proportional scaling with anchor selection
+                                    Uses shared scaleUtils for unified scaling logic.
+                                    Anchor determines which corner stays fixed during scaling. */}
+                                <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                                             Component Scale
                                         </span>
-                                        <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                                        <span className="text-sm font-bold font-mono text-gray-500 dark:text-gray-400">
                                             {props.componentScale ?? 100}%
                                         </span>
                                     </div>
+                                    
+                                    {/* Anchor Point Selection - 2x2 grid */}
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400">Anchor:</span>
+                                        <div className="grid grid-cols-2 gap-0.5 p-1 bg-gray-100 dark:bg-gray-800 rounded">
+                                            {(['nw', 'ne', 'sw', 'se'] as ScaleAnchor[]).map((anchor) => (
+                                                <button
+                                                    key={anchor}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setScaleAnchor(anchor);
+                                                        // Save anchor to component props so SortableComponent can use it for transform-origin
+                                                        onPropsChange?.({ componentScaleAnchor: anchor });
+                                                    }}
+                                                    className={`w-5 h-5 text-[8px] font-bold rounded transition-colors ${
+                                                        scaleAnchor === anchor
+                                                            ? 'bg-blue-500 text-white'
+                                                            : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                                                    }`}
+                                                    title={`Anchor ${anchor.toUpperCase()} corner (${anchor === 'nw' ? 'top-left' : anchor === 'ne' ? 'top-right' : anchor === 'sw' ? 'bottom-left' : 'bottom-right'})`}
+                                                >
+                                                    {anchor.toUpperCase()}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <span className="text-[9px] text-gray-400">{scaleAnchor === 'nw' ? '↘' : scaleAnchor === 'ne' ? '↙' : scaleAnchor === 'sw' ? '↗' : '↖'}</span>
+                                    </div>
+                                    
                                     <input
                                         type="range"
                                         min={50}
                                         max={200}
                                         step={5}
                                         value={props.componentScale ?? 100}
-                                        onChange={(e) => onPropsChange({ componentScale: parseInt(e.target.value) })}
+                                        onMouseDown={() => {
+                                            // Capture sticky anchor AND base dimensions at START of drag
+                                            if (scaleAnchor === 'nw' || !componentPosition || !componentId) {
+                                                stickyAnchorRef.current = null;
+                                                return;
+                                            }
+                                            
+                                            const el = document.querySelector(`[data-component-id="${componentId}"]`) as HTMLElement;
+                                            const rect = el?.getBoundingClientRect();
+                                            if (!rect) {
+                                                stickyAnchorRef.current = null;
+                                                return;
+                                            }
+                                            
+                                            const canvasContainer = document.querySelector('[data-canvas-container]') as HTMLElement;
+                                            const canvasScale = canvasContainer ? 
+                                                parseFloat(canvasContainer.style.transform?.match(/scale\(([^)]+)\)/)?.[1] || '1') : 1;
+                                            
+                                            const currentScale = props?.componentScale ?? 100;
+                                            const canvasWidth = rect.width / canvasScale;
+                                            const canvasHeight = rect.height / canvasScale;
+                                            
+                                            // Calculate BASE dimensions at 100% scale
+                                            const baseWidth = canvasWidth * (100 / currentScale);
+                                            const baseHeight = canvasHeight * (100 / currentScale);
+                                            
+                                            let anchorX = componentPosition.x;
+                                            let anchorY = componentPosition.y;
+                                            
+                                            if (scaleAnchor === 'ne' || scaleAnchor === 'se') {
+                                                anchorX = componentPosition.x + canvasWidth;
+                                            }
+                                            if (scaleAnchor === 'se' || scaleAnchor === 'sw') {
+                                                anchorY = componentPosition.y + canvasHeight;
+                                            }
+                                            
+                                            stickyAnchorRef.current = { 
+                                                x: anchorX, 
+                                                y: anchorY, 
+                                                anchor: scaleAnchor,
+                                                baseWidth,
+                                                baseHeight,
+                                            };
+                                            
+                                            devLogger.info('scale.slider.start', {
+                                                componentId,
+                                                anchor: scaleAnchor,
+                                                currentScale,
+                                                stickyAnchor: stickyAnchorRef.current,
+                                                componentPosition,
+                                                dimensions: { width: canvasWidth, height: canvasHeight },
+                                                baseDimensions: { width: baseWidth, height: baseHeight },
+                                            });
+                                        }}
+                                        onMouseUp={() => {
+                                            // Clear sticky anchor at END of drag
+                                            if (stickyAnchorRef.current) {
+                                                devLogger.info('scale.slider.end', {
+                                                    componentId,
+                                                    stickyAnchor: stickyAnchorRef.current,
+                                                });
+                                            }
+                                            stickyAnchorRef.current = null;
+                                        }}
+                                        onChange={(e) => {
+                                            const newScale = parseInt(e.target.value);
+                                            
+                                            // If anchor is NW or no sticky anchor, just update scale
+                                            if (scaleAnchor === 'nw' || !stickyAnchorRef.current) {
+                                                onPropsChange?.({ componentScale: newScale });
+                                                return;
+                                            }
+                                            
+                                            const sticky = stickyAnchorRef.current;
+                                            
+                                            // Calculate new dimensions from BASE dimensions (no DOM measurement needed!)
+                                            const newWidth = sticky.baseWidth * (newScale / 100);
+                                            const newHeight = sticky.baseHeight * (newScale / 100);
+                                            
+                                            // Calculate position using the STICKY anchor
+                                            let newX: number;
+                                            let newY: number;
+                                            
+                                            // For NE/SE: right edge is fixed, so x = anchorX - width
+                                            if (sticky.anchor === 'ne' || sticky.anchor === 'se') {
+                                                newX = sticky.x - newWidth;
+                                            } else {
+                                                newX = sticky.x; // NW/SW: left edge is fixed
+                                            }
+                                            
+                                            // For SE/SW: bottom edge is fixed, so y = anchorY - height
+                                            if (sticky.anchor === 'se' || sticky.anchor === 'sw') {
+                                                newY = sticky.y - newHeight;
+                                            } else {
+                                                newY = sticky.y; // NW/NE: top edge is fixed
+                                            }
+                                            
+                                            devLogger.info('scale.slider.change', {
+                                                componentId,
+                                                newScale,
+                                                stickyAnchor: sticky,
+                                                calculatedSize: { width: newWidth, height: newHeight },
+                                                newPosition: { x: newX, y: newY },
+                                                mode: onAtomicScaleChange ? 'atomic' : 'separate',
+                                            });
+                                            
+                                            // Use atomic update if available (single render), otherwise fallback to separate calls
+                                            if (onAtomicScaleChange) {
+                                                onAtomicScaleChange({ x: newX, y: newY }, { componentScale: newScale });
+                                            } else {
+                                                onPositionChange?.({ x: newX, y: newY });
+                                                onPropsChange?.({ componentScale: newScale });
+                                            }
+                                        }}
                                         className="w-full h-1.5 accent-blue-500"
                                     />
                                     <div className="flex justify-between text-[9px] text-gray-400">
@@ -388,19 +759,113 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                         <span className="text-blue-500">100%</span>
                                         <span>200%</span>
                                     </div>
-                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
-                                        Proportionally scales font, height, padding, and border radius
+                                    <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                                        Scales proportionally. Anchor = fixed corner.
                                     </p>
                                     {(props.componentScale ?? 100) !== 100 && (
                                         <button
                                             type="button"
-                                            onClick={() => onPropsChange({ componentScale: 100 })}
+                                            onClick={() => onPropsChange?.({ componentScale: 100 })}
                                             className="w-full mt-1 py-1 text-[10px] text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800"
                                         >
                                             Reset to 100%
                                         </button>
                                     )}
                                 </div>
+
+                                {/* Object Width Overrides - for horizontal/mixed layouts */}
+                                {supportsObjectWidthOverrides && (
+                                    <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <LayoutGrid size={12} className="text-purple-500" />
+                                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                                    Object Widths
+                                                </span>
+                                            </div>
+                                            {hasAnyObjectWidthOverride && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onPropsChange({
+                                                        labelWidthOverride: undefined,
+                                                        inputWidthOverride: undefined,
+                                                        helpWidthOverride: undefined,
+                                                    })}
+                                                    className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                                    title="Reset all object widths to auto"
+                                                >
+                                                    <RotateCcw size={10} />
+                                                    Reset
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">
+                                            Set individual widths for Label, Input, and Validation objects in horizontal layouts.
+                                        </p>
+
+                                        <div className="space-y-2">
+                                            {/* Label Width */}
+                                            <PropertySelect
+                                                label="Label Width"
+                                                value={getLabelWidthMode()}
+                                                onChange={handleLabelWidthModeChange}
+                                                options={OBJECT_WIDTH_OPTIONS}
+                                                helpText="Width of the label object"
+                                            />
+                                            {props.labelWidthOverride !== undefined && (
+                                                <PropertyNumberInput
+                                                    label="Label Width (px)"
+                                                    value={props.labelWidthOverride}
+                                                    onChange={(value) => onPropsChange({ labelWidthOverride: value })}
+                                                    min={30}
+                                                    max={800}
+                                                    step={10}
+                                                    unit="px"
+                                                />
+                                            )}
+
+                                            {/* Input Width */}
+                                            <PropertySelect
+                                                label="Input Width"
+                                                value={getInputWidthMode()}
+                                                onChange={handleInputWidthModeChange}
+                                                options={OBJECT_WIDTH_OPTIONS}
+                                                helpText="Width of the input control"
+                                            />
+                                            {props.inputWidthOverride !== undefined && (
+                                                <PropertyNumberInput
+                                                    label="Input Width (px)"
+                                                    value={props.inputWidthOverride}
+                                                    onChange={(value) => onPropsChange({ inputWidthOverride: value })}
+                                                    min={50}
+                                                    max={1200}
+                                                    step={10}
+                                                    unit="px"
+                                                />
+                                            )}
+
+                                            {/* Validation Width */}
+                                            <PropertySelect
+                                                label="Validation Width"
+                                                value={getHelpWidthMode()}
+                                                onChange={handleHelpWidthModeChange}
+                                                options={OBJECT_WIDTH_OPTIONS}
+                                                helpText="Width of validation/help text"
+                                            />
+                                            {props.helpWidthOverride !== undefined && (
+                                                <PropertyNumberInput
+                                                    label="Validation Width (px)"
+                                                    value={props.helpWidthOverride}
+                                                    onChange={(value) => onPropsChange({ helpWidthOverride: value })}
+                                                    min={50}
+                                                    max={1200}
+                                                    step={10}
+                                                    unit="px"
+                                                />
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </SubSection>
                     )}
@@ -466,7 +931,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 
                             {/* Spacing: Label to Input */}
                             <SpacingOverride
-                                label={currentLayout === 'horizontal' ? 'Label → Input' : 'Label ↓ Input'}
+                                label={(currentLayout === 'horizontal' || currentLayout === 'mixed') ? 'Label → Input' : 'Label ↓ Input'}
                                 value={'labelGap' in overrides ? overrides.labelGap! : globalStyles.labelGap}
                                 globalValue={globalStyles.labelGap}
                                 baseSpacing={globalStyles.baseSpacing}
@@ -479,59 +944,63 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                 isOverridden={'labelGap' in overrides}
                             />
 
-                            {/* 2. Input Text Card */}
-                            <div className="relative">
-                                <div className="absolute -top-1 right-2 z-10">
-                                    <ChainIndicator 
-                                        isOverridden={inputOverrides > 0} 
-                                        onReset={resetInputStyles}
-                                        overrideCount={inputOverrides}
-                                    />
-                                </div>
-                                <TypographyCard
-                                    title="Input Text"
-                                    icon={Type}
-                                    iconColor="text-blue-500"
-                                    fontFamily={getEffective('fontFamily', 'fontFamily')}
-                                    fontSize={getEffective('fontSize', 'fontSize') ?? 14}
-                                    fontWeight={getEffective('fontWeight', 'fontWeight') ?? '400'}
-                                    fontStyle={getEffective('fontStyle', 'fontStyle') ?? 'normal'}
-                                    color={getEffective('textColor', 'textColor')}
-                                    backgroundColor={getDisplayValue('textBackgroundColor', 'textBackgroundColor')}
-                                    borderColor={getDisplayValue('textBorderColor', 'textBorderColor')}
-                                    borderWidth={getDisplayValue('textBorderWidth', 'textBorderWidth')}
-                                    borderRadius={getDisplayValue('textBorderRadius', 'textBorderRadius')}
-                                    showBorderOptions={true}
-                                    inputHeight={overrides.inputHeight ?? globalStyles.inputHeight}
-                                    onFontFamilyChange={(v) => onOverridesChange({ fontFamily: v })}
-                                    onFontSizeChange={(v) => onOverridesChange({ fontSize: v })}
-                                    onFontWeightChange={(v) => onOverridesChange({ fontWeight: v as FontWeightValue })}
-                                    onFontStyleChange={(v) => onOverridesChange({ fontStyle: v as FontStyleType })}
-                                    onColorChange={(v) => onOverridesChange({ textColor: v })}
-                                    onBackgroundColorChange={(v) => onOverridesChange({ textBackgroundColor: v })}
-                                    onBorderColorChange={inputBorderHandlers.onColorChange}
-                                    onBorderWidthChange={inputBorderHandlers.onWidthChange}
-                                    onBorderRadiusChange={inputBorderHandlers.onRadiusChange}
-                                    onInputHeightChange={(v) => onOverridesChange({ inputHeight: v })}
-                                    minSize={10}
-                                    maxSize={32}
-                                />
-                            </div>
+                            {/* 2. Input Text Card - Hidden for submit-button */}
+                            {componentType !== 'submit-button' && (
+                                <>
+                                    <div className="relative">
+                                        <div className="absolute -top-1 right-2 z-10">
+                                            <ChainIndicator 
+                                                isOverridden={inputOverrides > 0} 
+                                                onReset={resetInputStyles}
+                                                overrideCount={inputOverrides}
+                                            />
+                                        </div>
+                                        <TypographyCard
+                                            title="Input Text"
+                                            icon={Type}
+                                            iconColor="text-blue-500"
+                                            fontFamily={getEffective('fontFamily', 'fontFamily')}
+                                            fontSize={getEffective('fontSize', 'fontSize') ?? 14}
+                                            fontWeight={getEffective('fontWeight', 'fontWeight') ?? '400'}
+                                            fontStyle={getEffective('fontStyle', 'fontStyle') ?? 'normal'}
+                                            color={getEffective('textColor', 'textColor')}
+                                            backgroundColor={getDisplayValue('textBackgroundColor', 'textBackgroundColor')}
+                                            borderColor={getDisplayValue('textBorderColor', 'textBorderColor')}
+                                            borderWidth={getDisplayValue('textBorderWidth', 'textBorderWidth')}
+                                            borderRadius={getDisplayValue('textBorderRadius', 'textBorderRadius')}
+                                            showBorderOptions={true}
+                                            inputHeight={overrides.inputHeight ?? globalStyles.inputHeight}
+                                            onFontFamilyChange={(v) => onOverridesChange({ fontFamily: v })}
+                                            onFontSizeChange={(v) => onOverridesChange({ fontSize: v })}
+                                            onFontWeightChange={(v) => onOverridesChange({ fontWeight: v as FontWeightValue })}
+                                            onFontStyleChange={(v) => onOverridesChange({ fontStyle: v as FontStyleType })}
+                                            onColorChange={(v) => onOverridesChange({ textColor: v })}
+                                            onBackgroundColorChange={(v) => onOverridesChange({ textBackgroundColor: v })}
+                                            onBorderColorChange={inputBorderHandlers.onColorChange}
+                                            onBorderWidthChange={inputBorderHandlers.onWidthChange}
+                                            onBorderRadiusChange={inputBorderHandlers.onRadiusChange}
+                                            onInputHeightChange={(v) => onOverridesChange({ inputHeight: v })}
+                                            minSize={10}
+                                            maxSize={32}
+                                        />
+                                    </div>
 
-                            {/* Spacing: Input to Help */}
-                            <SpacingOverride
-                                label="Input ↓ Help text"
-                                value={'inputHelpGap' in overrides ? overrides.inputHelpGap! : globalStyles.inputHelpGap}
-                                globalValue={globalStyles.inputHelpGap}
-                                baseSpacing={globalStyles.baseSpacing}
-                                onChange={(v) => onOverridesChange({ inputHelpGap: v })}
-                                onReset={() => {
-                                    const updates = { ...overrides };
-                                    delete updates.inputHelpGap;
-                                    onOverridesChange(updates);
-                                }}
-                                isOverridden={'inputHelpGap' in overrides}
-                            />
+                                    {/* Spacing: Input to Help - Hidden for submit-button */}
+                                    <SpacingOverride
+                                        label="Input ↓ Help text"
+                                        value={'inputHelpGap' in overrides ? overrides.inputHelpGap! : globalStyles.inputHelpGap}
+                                        globalValue={globalStyles.inputHelpGap}
+                                        baseSpacing={globalStyles.baseSpacing}
+                                        onChange={(v) => onOverridesChange({ inputHelpGap: v })}
+                                        onReset={() => {
+                                            const updates = { ...overrides };
+                                            delete updates.inputHelpGap;
+                                            onOverridesChange(updates);
+                                        }}
+                                        isOverridden={'inputHelpGap' in overrides}
+                                    />
+                                </>
+                            )}
 
                             {/* 3. Help & Validation Card */}
                             <div className="relative">
@@ -581,6 +1050,28 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                             )}
                         </div>
                     </SubSection>
+                    
+                    {/* ═══════════════════════════════════════════════════════════════ */}
+                    {/* SPACING SUB-SECTION (NEW) */}
+                    {/* ═══════════════════════════════════════════════════════════════ */}
+                    {structure && props && onPropsChange && (
+                        <SubSection
+                            title="Spacing"
+                            icon={ArrowUpDown}
+                            iconColor="text-purple-500"
+                            isExpanded={true}
+                            onToggle={() => {}}
+                        >
+                            <SpacingSection
+                                structure={structure}
+                                currentLayout={(props.objectLayout || globalStyles.defaultObjectLayout || structure.defaultLayout) as ObjectLayoutType}
+                                globalStyles={globalStyles}
+                                objectSpacing={props.objectSpacing}
+                                onGlobalStylesChange={onGlobalStylesChange || (() => {})}
+                                onPropsChange={onPropsChange}
+                            />
+                        </SubSection>
+                    )}
                 </div>
             )}
         </div>

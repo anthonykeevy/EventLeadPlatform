@@ -76,7 +76,7 @@ if ($CreatePR) {
     Write-Host "Install GitHub CLI, then run:"
     Write-Host "gh pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"${StoryId}: ${TaskId} - ${Slug}`" --body `"Implements ${TaskId} for story ${StoryId}. See docs/tasks/${StoryId}/ for completion + UAT.`""
   } else {
-    $title = "$StoryId: $TaskId - $Slug"
+    $title = "${StoryId}: $TaskId - $Slug"
     $body = "Implements $TaskId for story $StoryId. See docs/tasks/$StoryId/ for completion + UAT."
     Show-And-Run -CommandText "gh pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`"" -Command { gh pr create --base $StoryBranch --head $taskBranch --title $title --body $body }
   }

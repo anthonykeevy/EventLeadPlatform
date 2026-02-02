@@ -72,9 +72,9 @@ if ($DraftPR) {
     Write-Host ""
     Write-Host "gh not found; skipping PR creation."
     Write-Host "Install GitHub CLI, then run:"
-    Write-Host "gh pr create --draft --base `"$BaseBranch`" --head `"$storyBranch`" --title `"epic$Epic: Story $Story - $Slug`" --body `"Draft story PR. Task PRs merge into this branch.`""
+    Write-Host "gh pr create --draft --base `"$BaseBranch`" --head `"$storyBranch`" --title `"epic${Epic}: Story $Story - $Slug`" --body `"Draft story PR. Task PRs merge into this branch.`""
   } else {
-    $title = "epic$Epic: Story $Story - $Slug"
+    $title = "epic${Epic}: Story $Story - $Slug"
     $body = "Draft story PR. Task PRs merge into this branch."
     Show-And-Run -CommandText "gh pr create --draft --base `"$BaseBranch`" --head `"$storyBranch`" --title `"$title`" --body `"$body`"" -Command { gh pr create --draft --base $BaseBranch --head $storyBranch --title $title --body $body }
   }

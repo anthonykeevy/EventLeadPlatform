@@ -6,6 +6,27 @@ This document is the **single source of truth** for how we work in this repo.
 
 ---
 
+## Who this is for
+
+- **Humans (primary):** you follow this while planning, coding, and doing UAT.
+- **Agents (secondary):** the agent should treat this as authoritative process guidance.
+
+To make sure agents consistently follow Git discipline, **paste the prompt snippet below** into any story/task prompt you run (PM/SM/dev/ralf) until it becomes muscle memory.
+
+### Agent prompt snippet (copy/paste)
+
+```markdown
+Git discipline (mandatory):
+- Do not implement on `master`.
+- If a branch/PR does not exist for this work, STOP and create:
+  - Story branch + Draft PR to `master` (for story/UAT cycle), or
+  - Task branch + PR into story branch (for a fix task)
+- Push at least once per session so no work is local-only.
+- Follow: docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md
+```
+
+---
+
 ## Principles (non-negotiable)
 
 - **Never lose work:** meaningful changes are **committed and pushed** the same day.

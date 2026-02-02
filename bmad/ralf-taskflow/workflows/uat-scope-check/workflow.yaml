@@ -1,0 +1,40 @@
+# UAT Scope Check Workflow
+# BMAD v6 Workflow for Ralf Taskflow Module
+name: uat-scope-check
+description: "Check if a UAT request is a defect or out-of-scope during testing"
+author: "Ralf Taskflow Module"
+version: "1.0.0"
+
+# Critical variables from config
+config_source: "{project-root}/bmad/ralf-taskflow/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+
+# Workflow components
+installed_path: "{project-root}/bmad/ralf-taskflow/workflows/uat-scope-check"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  task_spec_path: ""
+  user_request: ""
+
+# Output
+outputs:
+  scope_result: "console output with classification and routing"
+
+required_tools:
+  - read_file
+
+tags:
+  - scope-validation
+  - uat
+  - bmad-v6
+
+execution_hints:
+  interactive: true
+  autonomous: false
+
+standalone: true

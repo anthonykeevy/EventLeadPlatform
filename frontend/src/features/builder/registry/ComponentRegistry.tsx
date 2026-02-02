@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { 
   Type, 
   Hash, 
@@ -8,20 +8,120 @@ import {
   List, 
   Calendar, 
   Heading, 
-  Pilcrow,
   User,
   Phone,
   MapPin,
   FileCheck,
   Send,
   Minus,
+  Loader2,
 } from 'lucide-react';
-import { ComponentType, FormComponent } from '../types/builder.types';
-import { FirstNameField } from '../components/fields/FirstNameField';
-import { StandardInput } from '../components/fields/StandardInput';
-import { TermsField } from '../components/fields/TermsField';
-import { SubmitButtonField } from '../components/fields/SubmitButtonField';
-import { AddressField } from '../components/fields/AddressField';
+import { ComponentType, FormComponent, StyleOverrides, GlobalStyles, LayoutType, ComponentStructure } from '../types/builder.types';
+import { getDefaultStructure } from '../utils/structureDefaults';
+import { UniversalFieldShell } from '../components/UniversalFieldShell';
+import { getRenderersForComponent } from '../utils/componentRenderers';
+import { ObjectRenderers } from '../utils/objectRenderers';
+
+// ---------- Toolbox preview helpers (no hooks) ----------
+const FIRST_NAME_STRUCTURE: ComponentStructure = {
+  objects: [
+    { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+    { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+    { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+  ],
+  defaultLayout: 'vertical',
+  defaultRowAlignment: 'center',
+};
+
+const TOOLBOX_FIRST_NAME_COMPONENT: FormComponent = {
+  id: 'toolbox-first-name',
+  type: 'first-name',
+  props: {
+    label: 'First Name',
+    placeholder: 'Enter your first name',
+    required: true,
+    validation: { maxLength: 30 },
+  },
+};
+
+const TOOLBOX_FIRST_NAME_RENDERERS = getRenderersForComponent(
+  'first-name',
+  FIRST_NAME_STRUCTURE,
+  TOOLBOX_FIRST_NAME_COMPONENT
+);
+
+interface ToolboxPreviewProps {
+  globalStyles?: GlobalStyles;
+}
+
+function makeToolboxPreview(args: {
+  type: ComponentType;
+  structure: ComponentStructure;
+  props: FormComponent['props'];
+  renderersOverride?: (base: ObjectRenderers) => ObjectRenderers;
+}): React.ReactNode {
+  const ToolboxPreview: React.FC<ToolboxPreviewProps> = ({ globalStyles }) => {
+    const component: FormComponent = {
+      id: `toolbox-${args.type}`,
+      type: args.type,
+      props: {
+        ...(args.props ?? {}),
+      },
+    };
+    const baseRenderers = getRenderersForComponent(args.type, args.structure, component);
+    const renderers = args.renderersOverride ? args.renderersOverride(baseRenderers) : baseRenderers;
+
+    return (
+      <UniversalFieldShell
+        structure={args.structure}
+        renderers={renderers}
+        surface="toolbox"
+        componentId={component.id}
+        component={component}
+        globalStyles={globalStyles}
+        objectLayout={globalStyles?.defaultObjectLayout}
+        layoutGroups={globalStyles?.defaultLayoutGroups}
+        // Enable builder-mode branches (placeholder validation, sizing guides) AND show SmartBorder
+        // so toolbox previews match canvas behavior.
+        builderMode={{ showBorder: true, borderPadding: 5 }}
+      />
+    );
+  };
+
+  return <ToolboxPreview />;
+}
+
+export interface RuntimeComponentProps {
+  component: FormComponent;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  disabled: boolean;
+  required: boolean;
+  error?: string;
+  /** For submit buttons: all form validation errors */
+  allFormErrors?: Record<string, string>;
+  /** For submit buttons: structured validation context with priority sorting */
+  formValidationContext?: {
+    errors: Record<string, string>;
+    errorsByPriority: Array<{ componentId: string; error: string; tabOrder: number; label: string }>;
+    firstError?: string;
+    errorCount: number;
+  };
+  /** For submit buttons / validation triggers */
+  onSubmit?: () => void;
+  /** Tab order index for keyboard navigation */
+  tabIndex?: number;
+  /** Primary color for focus styling */
+  primaryColor?: string;
+  /** Ref for initial focus (tabOrder: 1) */
+  inputRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+  /** Component-level style overrides */
+  styleOverrides?: StyleOverrides;
+  /** Global styles (fallback when styleOverrides not set) */
+  globalStyles?: GlobalStyles;
+  /** Layout orientation */
+  layout?: LayoutType;
+}
 
 export interface ComponentDefinition {
   type: ComponentType;
@@ -31,6 +131,14 @@ export interface ComponentDefinition {
   defaultProps: Record<string, any>;
   defaultChildren?: FormComponent[];
   previewComponent?: React.ReactNode; 
+  runtimeComponent?: React.FC<RuntimeComponentProps>;
+  
+  // NEW: Component structure definition
+  structure: ComponentStructure;
+  
+  // NEW: For custom components stored in database
+  isCustom?: boolean;
+  customComponentId?: string; // Reference to database record
 }
 
 export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
@@ -46,7 +154,41 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       required: true,
       validation: { maxLength: 30 },
     },
-    previewComponent: <FirstNameField />
+    structure: FIRST_NAME_STRUCTURE,
+    previewComponent: makeToolboxPreview({
+      type: 'first-name',
+      structure: FIRST_NAME_STRUCTURE,
+      props: TOOLBOX_FIRST_NAME_COMPONENT.props,
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? '';
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
   },
 
   // Standard Inputs - Now using Gold Standard visual
@@ -61,12 +203,60 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       required: false,
       validation: { maxLength: 50 },
     },
-    previewComponent: <StandardInput 
-        label="Text Field" 
-        icon={Type} 
-        placeholder="Enter text..." 
-        validationMessage="Validation error example"
-    />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'text',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Text Field',
+        placeholder: 'Enter text...',
+        required: false,
+        validation: { maxLength: 50 },
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? ''
+      
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      )
+    },
   },
   number: {
     type: 'number',
@@ -79,13 +269,60 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       required: false,
       validation: { maxLength: 12 },
     },
-    previewComponent: <StandardInput 
-        label="Number Field" 
-        icon={Hash} 
-        placeholder="0" 
-        type="number"
-        validationMessage="Must be a valid number"
-    />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'number',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Number Field',
+        placeholder: '0',
+        required: false,
+        validation: { maxLength: 12 },
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = String(value ?? '')
+      
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      )
+    },
   },
   email: {
     type: 'email',
@@ -96,14 +333,62 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       label: 'Email Address',
       placeholder: 'example@email.com',
       required: false,
-      validation: { maxLength: 254 },
+      validation: { maxLength: 254, email: true },
     },
-    previewComponent: <StandardInput 
-        label="Email Address" 
-        icon={Box} 
-        placeholder="name@example.com" 
-        validationMessage="Invalid email format"
-    />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'email',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Email Address',
+        placeholder: 'name@example.com',
+        required: false,
+        validation: { maxLength: 254, email: true },
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? ''
+      
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      )
+    },
   },
   textarea: {
     type: 'textarea',
@@ -116,17 +401,66 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       required: false,
       validation: { maxLength: 500 },
     },
-    previewComponent: <StandardInput 
-        label="Long Text" 
-        icon={AlignLeft} 
-        placeholder="Enter details..." 
-        type="textarea"
-        validationMessage="Maximum 500 characters"
-    />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'textarea',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Long Text',
+        placeholder: 'Enter details...',
+        required: false,
+        validation: { maxLength: 500 },
+        // A reasonable tall default so toolbox previews resemble a textarea.
+        styleOverrides: { inputHeight: 120 },
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? ''
+      
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      )
+    },
   },
-  select: {
-    type: 'select',
-    label: 'Select',
+  dropdown: {
+    type: 'dropdown',
+    label: 'Dropdown',
     icon: <List size={18} />,
     category: 'input',
     defaultProps: {
@@ -135,13 +469,64 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       options: [],
       required: false
     },
-    previewComponent: <StandardInput 
-        label="Dropdown" 
-        icon={List} 
-        placeholder="Select option" 
-        type="select"
-        validationMessage="Selection required"
-    />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'dropdown',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Dropdown',
+        placeholder: 'Select option',
+        required: false,
+        options: [
+          { label: 'Option 1', value: 'option_1' },
+          { label: 'Option 2', value: 'option_2' },
+          { label: 'Option 3', value: 'option_3' },
+        ],
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? '';
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
   },
   date: {
     type: 'date',
@@ -152,13 +537,59 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       label: 'Select Date',
       required: false
     },
-    previewComponent: <StandardInput 
-        label="Select Date" 
-        icon={Calendar} 
-        placeholder="DD/MM/YYYY" 
-        type="date"
-        validationMessage="Invalid date"
-    />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'date',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Select Date',
+        placeholder: 'DD/MM/YYYY',
+        required: false,
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? '';
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
   },
 
   checkbox: {
@@ -167,7 +598,68 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     icon: <CheckSquare size={18} />,
     category: 'input',
     defaultProps: { label: 'Checkbox', required: false },
-    previewComponent: <StandardInput label="Checkbox" icon={CheckSquare} placeholder="[ ] Checkbox Option" validationMessage="Required" />
+    structure: {
+      objects: [
+        // Keep canonical object order consistent across components: label → input → validation.
+        // NOTE: Visual placement (e.g. checkbox control beside option labels) is handled inside the input renderer.
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'horizontal',
+      layoutGroups: { row1: ['input', 'label'], row2: ['validation'] },
+      // Parity: align checkbox + label to top so SmartBorder stays level.
+      defaultRowAlignment: 'top'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'checkbox',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'horizontal',
+        layoutGroups: { row1: ['input', 'label'], row2: ['validation'] },
+        defaultRowAlignment: 'top',
+      },
+      props: {
+        label: 'Checkbox',
+        required: false,
+        options: [
+          { label: 'Option 1', value: 'option_1' },
+          { label: 'Option 2', value: 'option_2' },
+        ],
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
   },
   radio: {
     type: 'radio',
@@ -175,7 +667,61 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     icon: <Box size={18} />,
     category: 'input',
     defaultProps: { label: 'Radio Group', required: false },
-    previewComponent: <StandardInput label="Radio Group" icon={Box} placeholder="(o) Option 1" validationMessage="Selection required" />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'radio',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Radio Group',
+        required: false,
+        options: [
+          { label: 'Option 1', value: 'option_1' },
+          { label: 'Option 2', value: 'option_2' },
+        ],
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
   },
 
   // Layout (Row/Column removed per user request)
@@ -193,12 +739,60 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       exportName: 'phone',
       validation: { maxLength: 20 },
     },
-    previewComponent: <StandardInput 
-      label="Phone Number" 
-      icon={Phone} 
-      placeholder="+61 400 000 000" 
-      validationMessage="Invalid phone format"
-    />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'phone',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Phone Number',
+        placeholder: '+61 400 000 000',
+        required: false,
+        validation: { maxLength: 20 },
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? ''
+      
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      )
+    },
   },
 
   // Address Field (Placeholder for future autocomplete)
@@ -214,7 +808,62 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       enableAutocomplete: true,
       exportName: 'address',
     },
-    previewComponent: <AddressField />
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'address',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Address',
+        placeholder: 'Start typing your address...',
+        required: false,
+        enableAutocomplete: true,
+        exportName: 'address',
+        validation: { maxLength: 120 },
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? '';
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
   },
 
   // Terms & Conditions
@@ -231,7 +880,66 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       required: true,
       exportName: 'terms_accepted',
     },
-    previewComponent: <TermsField />
+    structure: {
+      objects: [
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 1 },
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'horizontal',
+      layoutGroups: { row1: ['input', 'label'], row2: ['validation'] },
+      // Allow users to change vertical alignment via Object Layout panel.
+      defaultRowAlignment: 'top'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'terms',
+      structure: {
+        objects: [
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 1 },
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'horizontal',
+        layoutGroups: { row1: ['input', 'label'], row2: ['validation'] },
+        defaultRowAlignment: 'top',
+      },
+      props: {
+        label: 'I agree to the',
+        termsLinkText: 'Terms of Service',
+        termsUrl: '',
+        termsContent: '',
+        required: true,
+        exportName: 'terms_accepted',
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: Boolean(value),
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
   },
 
   // Submit Button
@@ -247,8 +955,79 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       buttonAlign: 'left',
       showLoadingState: true,
       disableUntilValid: true,
+      showIcon: true,
     },
-    previewComponent: <SubmitButtonField />
+    structure: {
+      objects: [
+        { id: 'button', type: 'action', archetype: 'Action', required: true, order: 1 },
+        { id: 'loading', type: 'status', archetype: 'HelperText', required: false, order: 2, conditional: { type: 'prop', prop: 'showLoadingState', showInProperties: false } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'state', condition: (ctx) => ctx.componentState?.hasFocus && ctx.allFormErrors && Object.keys(ctx.allFormErrors).length > 0 } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'submit-button',
+      structure: {
+        objects: [
+          { id: 'button', type: 'action', archetype: 'Action', required: true, order: 1 },
+          { id: 'loading', type: 'status', archetype: 'HelperText', required: false, order: 2, conditional: { type: 'prop', prop: 'showLoadingState', showInProperties: false } },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'state', condition: (ctx) => ctx.componentState?.hasFocus && ctx.allFormErrors && Object.keys(ctx.allFormErrors).length > 0 } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        buttonText: 'Submit',
+        buttonAction: 'submit',
+        buttonWidth: 'auto',
+        buttonAlign: 'left',
+        showLoadingState: true,
+        disableUntilValid: true,
+        showIcon: true,
+      },
+    }),
+    runtimeComponent: ({ component, disabled, onSubmit, error, allFormErrors, formValidationContext, styleOverrides, globalStyles, required }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+
+      const [hasFocus, setHasFocus] = React.useState(false);
+      const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            componentState: { hasFocus },
+            allFormErrors,
+            formValidationContext,
+            validationErrors: error ? { [component.id]: error } : undefined,
+            required,
+            disabled,
+            isLoading: isSubmitting,
+            onClick: () => {
+              if (!onSubmit || disabled) return;
+              void (async () => {
+                try {
+                  setHasFocus(true);
+                  setIsSubmitting(true);
+                  await onSubmit();
+                } finally {
+                  setIsSubmitting(false);
+                  setHasFocus(false);
+                }
+              })();
+            },
+          }}
+        />
+      );
+    },
   },
 
   // Display
@@ -257,28 +1036,100 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
     label: 'Header',
     icon: <Heading size={18} />,
     category: 'display',
-    defaultProps: { label: 'Header' }
+    defaultProps: { label: 'Header' },
+    structure: {
+      objects: [
+        { id: 'content', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'header',
+      structure: {
+        objects: [{ id: 'content', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 }],
+        defaultLayout: 'vertical',
+      },
+      props: { label: 'Header' },
+      renderersOverride: (base) => ({
+        ...base,
+        content: ({ styles, componentId }) => (
+          <h3 id={componentId ? `${componentId}-content` : undefined} style={styles.labelStyle}>
+            Header
+          </h3>
+        ),
+      }),
+    }),
+    runtimeComponent: ({ component, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const baseRenderers = getRenderersForComponent(component.type, structure, component);
+      const renderers: ObjectRenderers = {
+        ...baseRenderers,
+        // Header uses its 'content' object but should render as a heading, not a <label>.
+        content: ({ styles, componentId }) => (
+          <div>
+            <h3 id={componentId ? `${componentId}-content` : undefined} style={styles.labelStyle}>
+              {String(component.props.label ?? '')}
+            </h3>
+            <div style={{ minHeight: 18 }} />
+          </div>
+        ),
+      };
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+        />
+      );
+    },
   },
-  paragraph: {
-    type: 'paragraph',
-    label: 'Paragraph',
-    icon: <Pilcrow size={18} />,
-    category: 'display',
-    defaultProps: { label: 'Paragraph' }
-  },
-  
-  // Divider
+  // Divider - Uses UniversalFieldShell with SmartBorder for collision detection
   divider: {
     type: 'divider',
     label: 'Divider',
     icon: <Minus size={18} />,
     category: 'display',
-    defaultProps: {},
-    previewComponent: (
-      <div className="py-4 flex items-center justify-center">
-        <div className="w-full border-t border-gray-300" />
-      </div>
-    )
+    defaultProps: {
+      // Leave undefined so it falls back to GlobalStyles.dividerWidth.
+    },
+    structure: {
+      objects: [
+        { id: 'line', type: 'divider', archetype: 'Divider', required: true, order: 1 }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'divider',
+      structure: {
+        objects: [{ id: 'line', type: 'divider', archetype: 'Divider', required: true, order: 1 }],
+        defaultLayout: 'vertical',
+      },
+      props: {},
+    }),
+    runtimeComponent: ({ component, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+        />
+      );
+    },
   }
 } as Record<ComponentType, ComponentDefinition>;
 
@@ -294,10 +1145,25 @@ export const generateComponent = (type: ComponentType): FormComponent => {
           children: []
       };
   }
+  
+  // Initialize structure-related props from structure definition
+  const structure = def.structure;
+  const props: any = { ...def.defaultProps };
+  
+  // IMPORTANT:
+  // Components should follow Global Defaults by default.
+  //
+  // - Toolbox previews receive `globalStyles` from `ComponentSidebar`, so they naturally render with
+  //   `globalStyles.defaultObjectLayout` unless a component has an explicit override.
+  // - When adding a component to the canvas, we intentionally do NOT seed `props.objectLayout` /
+  //   `props.layoutGroups` from the structure, otherwise the component would override Global Defaults
+  //   immediately (this is exactly what caused first-name to switch from toolbox-vertical → canvas-mixed).
+  void structure;
+  
   return {
     id: `${type}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     type,
-    props: { ...def.defaultProps },
+    props,
     children: def.defaultChildren ? [...def.defaultChildren] : undefined
   };
 };

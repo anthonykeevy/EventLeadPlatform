@@ -4,7 +4,9 @@ Handles user signup, email verification, login, and password reset endpoints
 """
 import os
 import logging
+import hashlib
 from datetime import datetime
+from typing import Optional
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -51,6 +53,7 @@ from modules.auth.jwt_service import (
 from common.security import verify_password, hash_password
 from models.user import User
 from models.user_company import UserCompany
+from models.user_refresh_token import UserRefreshToken
 from models.ref.user_company_status import UserCompanyStatus
 from models.ref.user_company_role import UserCompanyRole
 from models.ref.user_status import UserStatus
@@ -65,6 +68,15 @@ from common.auth_event_decorator import log_auth_attempts
 from modules.users.external_user_service import ExternalUserService
 
 logger = logging.getLogger(__name__)
+
+# Token fingerprinting (safe for logs)
+def _token_fingerprint(token: Optional[str]) -> str:
+    if not token:
+        return "missing"
+    try:
+        return hashlib.sha256(token.encode("utf-8")).hexdigest()[:12]
+    except Exception:
+        return "unavailable"
 
 # Create router
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -565,6 +577,16 @@ async def login(
     
     # 7. Store refresh token in database (expiry read from config per Story 1.13)
     store_refresh_token(db, user.UserID, refresh_token)
+    logger.info(
+        "Issued refresh token fingerprint: user_id=%s fingerprint=%s",
+        user.UserID,
+        _token_fingerprint(refresh_token)
+    )
+    logger.info(
+        "Issued access token fingerprint: user_id=%s fingerprint=%s",
+        user.UserID,
+        _token_fingerprint(access_token)
+    )
     
     # 8. Get actual token expiry time from configuration (in seconds)
     from config.jwt import get_access_token_expire_minutes
@@ -715,7 +737,11 @@ async def refresh_token_endpoint(
         try:
             payload = decode_token(request_data.refresh_token)
         except JWTError as e:
-            logger.warning(f"Invalid refresh token JWT: {str(e)}")
+            logger.warning(
+                "Invalid refresh token JWT: %s fingerprint=%s",
+                str(e),
+                _token_fingerprint(request_data.refresh_token)
+            )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired refresh token"
@@ -723,6 +749,11 @@ async def refresh_token_endpoint(
         
         # 2. Verify token type
         if not verify_token_type(payload, "refresh"):
+            logger.warning(
+                "Invalid token type for refresh: type=%s fingerprint=%s",
+                payload.get("type"),
+                _token_fingerprint(request_data.refresh_token)
+            )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token type. Expected refresh token."
@@ -732,6 +763,46 @@ async def refresh_token_endpoint(
         token_record = validate_refresh_token(db, request_data.refresh_token)
         
         if not token_record:
+            diagnostic_token = db.query(UserRefreshToken).filter(
+                UserRefreshToken.Token == request_data.refresh_token
+            ).first()
+
+            if not diagnostic_token:
+                logger.warning(
+                    "Refresh token not found in database: fingerprint=%s",
+                    _token_fingerprint(request_data.refresh_token)
+                )
+            else:
+                now = datetime.utcnow()
+                if diagnostic_token.ExpiresAt < now:
+                    logger.warning(
+                        "Refresh token expired: user_id=%s expires_at=%s fingerprint=%s",
+                        diagnostic_token.UserID,
+                        diagnostic_token.ExpiresAt,
+                        _token_fingerprint(request_data.refresh_token)
+                    )
+                elif diagnostic_token.IsUsed:
+                    logger.warning(
+                        "Refresh token already used: user_id=%s token_id=%s fingerprint=%s",
+                        diagnostic_token.UserID,
+                        diagnostic_token.UserRefreshTokenID,
+                        _token_fingerprint(request_data.refresh_token)
+                    )
+                elif diagnostic_token.IsRevoked:
+                    logger.warning(
+                        "Refresh token revoked: user_id=%s token_id=%s fingerprint=%s",
+                        diagnostic_token.UserID,
+                        diagnostic_token.UserRefreshTokenID,
+                        _token_fingerprint(request_data.refresh_token)
+                    )
+                else:
+                    logger.warning(
+                        "Refresh token failed validation for unknown reason: user_id=%s token_id=%s fingerprint=%s",
+                        diagnostic_token.UserID,
+                        diagnostic_token.UserRefreshTokenID,
+                        _token_fingerprint(request_data.refresh_token)
+                    )
+
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired refresh token"
@@ -747,6 +818,13 @@ async def refresh_token_endpoint(
             user = get_user_by_id(db, user_id)
         
         if not user or not user.IsEmailVerified or (user.status and user.status.StatusName not in ["Active"]):
+            logger.warning(
+                "Refresh token rejected due to user status: user_id=%s email=%s is_verified=%s status=%s",
+                user_id,
+                payload.get("email"),
+                user.IsEmailVerified if user else None,
+                user.status.StatusName if user and user.status else None
+            )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User not found, inactive, or email not verified"

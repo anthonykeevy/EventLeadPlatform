@@ -106,18 +106,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('Auto-refresh failed:', error)
-        // Only logout when online - when offline, preserve session state
-        if (navigator.onLine && logoutRef.current) {
-          logoutRef.current()
-        } else {
-          console.log('🌐 Offline: Preserving session despite refresh failure')
-          // Reschedule for when we come back online
-          refreshTimeoutRef.current = setTimeout(() => {
-            if (scheduleTokenRefreshRef.current) {
-              scheduleTokenRefreshRef.current()
-            }
-          }, 60000)
-        }
+        console.log('🔄 Refresh failed - will retry in 60s')
+        refreshTimeoutRef.current = setTimeout(() => {
+          if (scheduleTokenRefreshRef.current) {
+            scheduleTokenRefreshRef.current()
+          }
+        }, 60000)
       }
     }, refreshIn)
   }, [])
@@ -336,9 +330,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Token refresh failed:', error)
-      // Only logout when online - when offline, preserve session state
-      if (navigator.onLine && logoutRef.current) {
-        logoutRef.current()
+      if (navigator.onLine) {
+        console.log('🔄 Refresh failed - will retry in 60s')
+        if (refreshTimeoutRef.current) {
+          clearTimeout(refreshTimeoutRef.current)
+        }
+        refreshTimeoutRef.current = setTimeout(() => {
+          if (refreshTokenRef.current) {
+            refreshTokenRef.current().catch((retryError) => {
+              console.error('Retry refresh failed:', retryError)
+            })
+          }
+        }, 60000)
       } else {
         console.log('🌐 Offline: Preserving session despite refresh failure')
       }
@@ -504,12 +507,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Check if token is expired (only when online)
       if (tokenStorage.isTokenExpired()) {
-        // NOTE: We might want to show the modal here instead of clearing tokens immediately if we want to support "Restore Session" from mount.
-        // But typically if you reload with an expired token, a fresh login is cleaner.
-        // The modal is best for "in-app" expiration.
-        tokenStorage.clearTokens()
-        setState(prev => ({ ...prev, isLoading: false }))
-        return
+        try {
+          const response = await authApi.refreshAccessToken()
+          const expiresIn = response.expires_in || 3600
+          tokenStorage.storeTokens(response.access_token, response.refresh_token, expiresIn)
+        } catch (error) {
+          console.error('Failed to refresh expired token on init:', error)
+          setState(prev => ({ ...prev, isLoading: false }))
+          return
+        }
       }
       
       try {
@@ -566,6 +572,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setShowSessionExpired(true)
     }
     window.addEventListener('eventlead:session-expired', handleSessionExpired)
+
+    const handleRefreshFailed = () => {
+      if (!navigator.onLine) {
+        return
+      }
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current)
+      }
+      refreshTimeoutRef.current = setTimeout(() => {
+        if (refreshTokenRef.current) {
+          refreshTokenRef.current().catch((error) => {
+            console.error('Refresh retry failed:', error)
+          })
+        }
+      }, 60000)
+    }
+    window.addEventListener('eventlead:refresh-failed', handleRefreshFailed)
     
     // Cleanup on unmount
     return () => {
@@ -574,6 +597,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('eventlead:session-expired', handleSessionExpired)
+      window.removeEventListener('eventlead:refresh-failed', handleRefreshFailed)
     }
   }, [scheduleTokenRefresh])
   
@@ -587,7 +611,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       broadcastChannelRef.current = new BroadcastChannel('eventlead_auth')
       
       broadcastChannelRef.current.onmessage = (event) => {
-        const { type, user } = event.data
+        const { type, user, tokens } = event.data
         
         switch (type) {
           case 'LOGIN':
@@ -600,6 +624,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Company switch doesn't require full auth sync
             // Just refresh user data
             refreshUser()
+            break
+          case 'TOKENS_UPDATED':
+            if (tokens?.accessToken && tokens?.refreshToken && tokens?.expiresAt) {
+              const currentTime = Math.floor(Date.now() / 1000)
+              const expiresIn = Math.max(0, tokens.expiresAt - currentTime)
+              tokenStorage.storeTokens(tokens.accessToken, tokens.refreshToken, expiresIn, { suppressEvent: true })
+              if (scheduleTokenRefreshRef.current) {
+                scheduleTokenRefreshRef.current()
+              }
+            }
             break
         }
       }
@@ -655,6 +689,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener('storage', handleStorageChange)
     }
   }, [handleAuthChangeFromOtherTab, refreshUser])
+
+  useEffect(() => {
+    const handleTokensUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent
+      const tokens = customEvent.detail
+
+      if (tokens?.accessToken && tokens?.refreshToken && tokens?.expiresAt) {
+        broadcastAuthChange({ type: 'TOKENS_UPDATED', tokens })
+        if (scheduleTokenRefreshRef.current) {
+          scheduleTokenRefreshRef.current()
+        }
+      }
+    }
+
+    window.addEventListener('eventlead:tokens-updated', handleTokensUpdated)
+
+    return () => {
+      window.removeEventListener('eventlead:tokens-updated', handleTokensUpdated)
+    }
+  }, [broadcastAuthChange])
   
   /**
    * Setup beforeunload warning if unsaved work exists

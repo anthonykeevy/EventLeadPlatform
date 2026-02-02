@@ -1,0 +1,107 @@
+# UAT Failure Patterns - Ralf Taskflow Memory
+# Recurring UAT failure modes and how to prevent them
+# Append-only: Add new patterns after each UAT session
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+failure_patterns:
+
+  # Pattern 1: Missing Edge Case
+  missing_edge_case:
+    name: "Edge Case Not Tested by Dev"
+    symptoms:
+      - "Happy path works, edge case fails"
+      - "Empty input causes crash"
+      - "Boundary values not handled"
+    root_cause: "Task Spec didn't include edge case, or dev didn't test it"
+    prevention:
+      - "ralf-sm: Always include at least 2 edge cases per AC"
+      - "ralf-dev: Add negative tests for each input field"
+    automation: "Add parameterized tests for boundary values"
+    frequency: 0
+    last_seen: null
+
+  # Pattern 2: Integration Failure
+  integration_failure:
+    name: "Works in Isolation, Fails in Context"
+    symptoms:
+      - "Feature works in unit test"
+      - "Feature fails in full application"
+      - "Dependency mismatch"
+    root_cause: "Missing integration test, environment difference"
+    prevention:
+      - "ralf-dev: Run full build before completion"
+      - "ralf-uat: Include integration steps in checklist"
+    automation: "Add E2E test covering this flow"
+    frequency: 0
+    last_seen: null
+
+  # Pattern 3: UI/UX Mismatch
+  ui_ux_mismatch:
+    name: "Functionality Works but UI is Wrong"
+    symptoms:
+      - "Button in wrong place"
+      - "Text doesn't match spec"
+      - "Visual regression"
+    root_cause: "No visual verification in dev testing"
+    prevention:
+      - "ralf-dev: Include screenshot in completion note"
+      - "ralf-uat: Add visual verification steps"
+    automation: "Add visual regression test"
+    frequency: 0
+    last_seen: null
+
+  # Pattern 4: State Not Persisted
+  state_not_persisted:
+    name: "Changes Lost on Refresh"
+    symptoms:
+      - "Data entered disappears"
+      - "Refresh resets state"
+      - "Navigation loses context"
+    root_cause: "Save action missing or async issue"
+    prevention:
+      - "ralf-sm: Include persistence in AC"
+      - "ralf-dev: Test refresh after changes"
+    automation: "Add test: make change, refresh, verify"
+    frequency: 0
+    last_seen: null
+
+  # Pattern 5: Permission/Auth Issue
+  permission_auth_issue:
+    name: "Unauthorized Access or Missing Restriction"
+    symptoms:
+      - "Feature accessible to wrong role"
+      - "Permission check missing"
+      - "Auth token not validated"
+    root_cause: "Auth middleware not applied or misconfigured"
+    prevention:
+      - "ralf-dev: Always test with different roles"
+      - "ralf-uat: Include role-based test steps"
+    automation: "Add auth boundary tests"
+    frequency: 0
+    last_seen: null
+
+  # Pattern 6: Out-of-Scope Disguised as Defect
+  scope_creep_in_uat:
+    name: "Tester Requests New Feature as 'Bug Fix'"
+    symptoms:
+      - "Tester says 'it should also do X'"
+      - "No AC covers the request"
+      - "Request is enhancement, not fix"
+    root_cause: "Unclear distinction between defect and enhancement"
+    prevention:
+      - "ralf-uat: Always run scope-check for failures"
+      - "ralf-sm: Make ACs very explicit"
+    automation: "N/A - process issue"
+    frequency: 0
+    last_seen: null
+
+# Tracking template for new patterns
+template:
+  name: ""
+  symptoms: []
+  root_cause: ""
+  prevention: []
+  automation: ""
+  frequency: 0
+  last_seen: null

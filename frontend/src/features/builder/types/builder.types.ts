@@ -13,7 +13,7 @@ export type ComponentType =
   | 'email' 
   | 'phone'           // Phone number input
   | 'textarea' 
-  | 'select' 
+  | 'dropdown'        // Dropdown/Select field (renamed from 'select')
   | 'radio' 
   | 'checkbox' 
   | 'date'
@@ -24,7 +24,6 @@ export type ComponentType =
   | 'submit-button'   // Form submission button
   // Display/Layout
   | 'header'
-  | 'paragraph'
   | 'divider';        // Visual separator
 
 export type DeviceType = 'desktop' | 'tablet' | 'mobile';
@@ -280,6 +279,21 @@ export interface StyleOverrides {
     helpTextBorderColor?: string;
     helpTextBorderWidth?: number;
     helpTextBorderRadius?: number;
+
+    // Action/Button typography & colors
+    actionFontFamily?: string;
+    actionFontSize?: number;
+    actionFontWeight?: FontWeightValue;
+    actionFontStyle?: FontStyleType;
+    actionTextColor?: string;
+    actionBackgroundColor?: string;
+    actionBorderColor?: string;
+    actionBorderWidth?: number;
+    actionBorderRadius?: number;
+    
+    // Divider styles
+    dividerBorderColor?: string;
+    dividerBorderWidth?: number;
     
     // Legacy colors (for backward compatibility)
     placeholderColor?: string;
@@ -294,6 +308,15 @@ export interface StyleOverrides {
     // Spacing overrides
     labelGap?: number;
     inputHelpGap?: number;
+}
+
+/**
+ * Spacing overrides for preview during resize operations.
+ * Used to temporarily override spacing values while resizing.
+ */
+export interface SpacingOverrides {
+    labelGapOverride?: number;
+    inputHelpGapOverride?: number;
 }
 
 /**
@@ -330,6 +353,15 @@ export interface AddressExportMapping {
 }
 
 /**
+ * Row alignment options for horizontal/mixed layouts.
+ * - top: Align items to the top (flex-start)
+ * - center: Align items to the center (center) - Default for inputs
+ * - bottom: Align items to the bottom (flex-end)
+ * - stretch: Stretch items to fill height (stretch)
+ */
+export type RowAlignment = 'top' | 'center' | 'bottom' | 'stretch';
+
+/**
  * Component properties - supports Unicode text for all string fields.
  */
 export interface ComponentProps {
@@ -350,11 +382,17 @@ export interface ComponentProps {
         value: string;
         /** Option is disabled (greyed out) */
         disabled?: boolean;
-        /** Group name for optgroup (select only) */
+        /** Group/section name (visual only; dropdown may render as <optgroup>) */
         group?: string;
+        /** If true, selecting this option enables an adjacent free-text input */
+        hasExtraText?: boolean;
+        /** Placeholder for the option's extra text input */
+        extraPlaceholder?: string;
     }>;
     /** Layout orientation */
     layout?: LayoutType;
+    /** Row alignment for horizontal layouts */
+    rowAlignment?: RowAlignment;
     /** Label text alignment */
     labelAlign?: AlignType;
     /** Text alignment within input */
@@ -375,6 +413,22 @@ export interface ComponentProps {
     tabOrder?: number;
     /** Checkbox export mode */
     exportMode?: ExportMode;
+
+    // ═══════════════════════════════════════════════════════════════
+    // INITIAL STATE PROPERTIES
+    // ═══════════════════════════════════════════════════════════════
+    /**
+     * Initial visibility state for this component.
+     * Logic rules can override via show/hide actions.
+     * @default 'visible'
+     */
+    initialVisibility?: 'visible' | 'hidden';
+    /**
+     * Initial enabled state for this component.
+     * Logic rules can override via enable/disable actions.
+     * @default 'enabled'
+     */
+    initialEnabled?: 'enabled' | 'disabled';
     
     // ═══════════════════════════════════════════════════════════════
     // DIMENSION PROPERTIES
@@ -388,6 +442,12 @@ export interface ComponentProps {
      * Scales: font sizes, input height, padding, border radius.
      */
     componentScale?: number;
+    /**
+     * Anchor point for component scaling (nw, ne, se, sw).
+     * Determines which corner stays fixed during scaling.
+     * Default: 'nw' (top-left stays fixed, component grows toward bottom-right).
+     */
+    componentScaleAnchor?: 'nw' | 'ne' | 'se' | 'sw';
     
     // ═══════════════════════════════════════════════════════════════
     // INPUT WIDTH & RESPONSIVE BEHAVIOR
@@ -405,12 +465,49 @@ export interface ComponentProps {
     labelWrap?: boolean;
     
     // ═══════════════════════════════════════════════════════════════
+    // OBJECT WIDTH OVERRIDES (for E/W resize affecting internal objects)
+    // ═══════════════════════════════════════════════════════════════
+    /** Override label object width in pixels */
+    labelWidthOverride?: number;
+    /** Override input object width in pixels */
+    inputWidthOverride?: number;
+    /** Override help/validation object width in pixels */
+    helpWidthOverride?: number;
+    /** Override action/button object width in pixels */
+    actionWidthOverride?: number;
+
+    // ═══════════════════════════════════════════════════════════════
     // SPACING OVERRIDES (for resize handles)
     // ═══════════════════════════════════════════════════════════════
     /** Override for gap between label and input (in pixels, not multiplier) */
     labelGapOverride?: number;
     /** Override for gap between input and help text (in pixels, not multiplier) */
     inputHelpGapOverride?: number;
+    
+    // ═══════════════════════════════════════════════════════════════
+    // UNIVERSAL FIELDSHELL - Per-instance layout overrides
+    // ═══════════════════════════════════════════════════════════════
+    /** Override structure.defaultLayout (per-instance layout configuration) */
+    objectLayout?: ObjectLayoutType;
+    /** Override structure.layoutGroups (per-instance group configuration) */
+    layoutGroups?: Record<string, string[]>;
+    
+    /** Object-specific spacing overrides */
+    objectSpacing?: {
+        horizontalGap?: number;      // Gap between objects in same row
+        verticalSpacing?: number;      // Spacing between rows
+        objectGap?: number;           // Generic gap (fallback)
+    };
+    
+    /**
+     * Grid layout configuration (alternative to objectLayout).
+     * When set, this takes precedence over objectLayout for rendering.
+     * - undefined: inherit from global defaults (if available) or use object layout
+     * - null: explicitly opt out of grid mode, use object layout
+     * - GridLayoutConfig: explicit grid layout override
+     * See docs/GRID-LAYOUT-GUIDE.md for full specification.
+     */
+    gridLayout?: GridLayoutConfig | null;
     
     // ═══════════════════════════════════════════════════════════════
     // TEXTAREA-SPECIFIC
@@ -427,6 +524,15 @@ export interface ComponentProps {
     allowOther?: boolean;
     /** Placeholder for "Other" input */
     otherPlaceholder?: string;
+    /** Validation rules for the "Other" text input (when allowOther is enabled and Other is selected) */
+    otherValidation?: ValidationRules;
+    /** Optional validation message override for the "Other" text input */
+    otherValidationMessage?: string;
+    // Unified selection extra text (new; replaces allowOther for new configs)
+    /** Shared validation rules for option extra text inputs */
+    extraTextValidation?: ValidationRules;
+    /** Optional message override for option extra text validation failures */
+    extraTextValidationMessage?: string;
     /** Default selected value */
     defaultValue?: string;
     /** Allow empty selection (show "Select..." placeholder) */
@@ -498,6 +604,8 @@ export interface ComponentProps {
     showLoadingState?: boolean;
     /** Disable until form is valid */
     disableUntilValid?: boolean;
+    /** Show icon in button */
+    showIcon?: boolean;
     
     // ═══════════════════════════════════════════════════════════════
     // ADDRESS SPECIFIC (Placeholder for future)
@@ -549,7 +657,15 @@ export interface FormPage {
 // Runtime evaluation is explicitly deferred to Story 3.7.
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type LogicOperator = 'equals' | 'notEquals' | 'contains' | 'isEmpty';
+export type LogicOperator =
+  | 'equals'
+  | 'notEquals'
+  | 'contains'
+  | 'greaterThan'
+  | 'greaterThanOrEqual'
+  | 'lessThan'
+  | 'lessThanOrEqual'
+  | 'isEmpty';
 export type LogicAction = 'show' | 'hide' | 'require' | 'unrequire' | 'enable' | 'disable';
 
 export interface LogicWhen {
@@ -627,20 +743,40 @@ export interface GlobalStyles {
     helpTextColor: string;
     helpTextBackgroundColor?: string;    // Optional highlight/background
     
+    // Action/Button styles
+    actionFontFamily: string;
+    actionFontSize: number;
+    actionFontWeight: FontWeightValue;
+    actionFontStyle: FontStyleType;
+    actionTextColor: string;
+    actionBackgroundColor: string;
+    actionBorderColor?: string;
+    actionBorderWidth?: number;
+    actionBorderRadius?: number;
+
+    // Divider styles
+    dividerBorderColor: string;
+    dividerBorderWidth: number;
+    /** Default divider length/width (e.g. '100%' or '380px') */
+    dividerWidth: string;
+
     // ═══════════════════════════════════════════════════════════════
     // TEXT BORDERS (per text type - optional)
     // ═══════════════════════════════════════════════════════════════
     // Input text borders (in addition to input field border)
+    textHasBorder?: boolean;          // Explicit border toggle for Input category
     textBorderColor?: string;
     textBorderWidth?: number;
     textBorderRadius?: number;
     
     // Label borders
+    labelHasBorder?: boolean;          // Explicit border toggle for Label category
     labelBorderColor?: string;
     labelBorderWidth?: number;
     labelBorderRadius?: number;
     
     // Help text borders
+    helpTextHasBorder?: boolean;       // Explicit border toggle for Help category
     helpTextBorderColor?: string;
     helpTextBorderWidth?: number;
     helpTextBorderRadius?: number;
@@ -662,6 +798,16 @@ export interface GlobalStyles {
     inputHelpGap: number;   // Multiplier of baseSpacing - gap between input and help text
     inputPaddingX: number;  // Multiplier of baseSpacing (internal padding)
     inputPaddingY: number;  // Multiplier of baseSpacing (internal padding)
+
+    // ═══════════════════════════════════════════════════════════════
+    // OBJECT LAYOUT SPACING DEFAULTS (Layer 3, explicit pixels)
+    // Used by UniversalFieldShell's Object Layout engine when a component does not
+    // provide per-instance `component.props.objectSpacing` overrides.
+    // ═══════════════════════════════════════════════════════════════
+    /** Default vertical gap between Object Layout rows (px) */
+    objectRowGapPx: number;
+    /** Default horizontal gap between objects within a row (px) */
+    objectColumnGapPx: number;
     
     // ═══════════════════════════════════════════════════════════════
     // BORDERS
@@ -678,6 +824,36 @@ export interface GlobalStyles {
     // LAYOUT
     // ═══════════════════════════════════════════════════════════════
     defaultLayout: LayoutType;
+    
+    // ═══════════════════════════════════════════════════════════════
+    // UNIVERSAL FIELDSHELL - Global object layout defaults
+    // These serve as the global defaults that components inherit unless overridden
+    // ═══════════════════════════════════════════════════════════════
+    /** Default object layout for all components (vertical/horizontal/mixed) */
+    defaultObjectLayout?: ObjectLayoutType;
+    /** Default layout groups for mixed layouts */
+    defaultLayoutGroups?: Record<string, string[]>;
+    
+    // ═══════════════════════════════════════════════════════════════
+    // GRID LAYOUT DEFAULTS (GLOBAL)
+    // Alternative to Object Layout - uses CSS Grid for object arrangement
+    // ═══════════════════════════════════════════════════════════════
+    
+    /**
+     * Default grid layout configuration (form-wide defaults).
+     * Applied to all components when component doesn't have gridLayout override.
+     * Components can override individual properties or the entire configuration.
+     * 
+     * When both defaultGridLayout and defaultObjectLayout are defined,
+     * Grid Layout takes precedence if component.props.gridLayout is set.
+     */
+    defaultGridLayout?: Partial<GridLayoutConfig>;
+
+    /**
+     * Per-component grid defaults (form-wide). Used when a component does not
+     * define a gridLayout override, enabling Grid layout as the primary layout mode.
+     */
+    defaultGridLayoutsByComponent?: Record<ComponentType, Partial<GridLayoutConfig>>;
 }
 
 /**
@@ -707,16 +883,38 @@ export const DEFAULT_GLOBAL_STYLES: GlobalStyles = {
     textBackgroundColor: '#FFFFFF',      // White background by default
     labelColor: '#374151',
     labelBackgroundColor: undefined,     // No background by default
-    helpTextColor: '#6B7280',
+    // Default to red so validation/help is easy to spot in builder.
+    // Users can change this via Global Styles → Help & Validation text color.
+    helpTextColor: '#DC2626',
     helpTextBackgroundColor: undefined,  // No background by default
     
+    // Action/Button Styles (Defaults to Label font + Primary color)
+    actionFontFamily: 'Inter',
+    actionFontSize: 14,
+    actionFontWeight: 500,
+    actionFontStyle: 'normal',
+    actionTextColor: '#FFFFFF',          // White text
+    actionBackgroundColor: '#0055FF',    // Primary color (matches primaryColor below)
+    actionBorderColor: undefined,
+    actionBorderWidth: undefined,
+    actionBorderRadius: 6,
+
+    // Divider Styles
+    dividerBorderColor: '#E5E7EB',       // Light gray
+    dividerBorderWidth: 1,
+    // Divider default length (kept as px by default for stable toolbox drag overlay)
+    dividerWidth: '380px',
+
     // Text Borders (optional)
+    textHasBorder: false,              // Default: no border for Input category
     textBorderColor: undefined,
     textBorderWidth: undefined,
     textBorderRadius: undefined,
+    labelHasBorder: false,             // Default: no border for Label category
     labelBorderColor: undefined,
     labelBorderWidth: undefined,
     labelBorderRadius: undefined,
+    helpTextHasBorder: false,          // Default: no border for Help category
     helpTextBorderColor: undefined,
     helpTextBorderWidth: undefined,
     helpTextBorderRadius: undefined,
@@ -734,6 +932,10 @@ export const DEFAULT_GLOBAL_STYLES: GlobalStyles = {
     inputHelpGap: 0.5,  // 4px - gap between input and help text
     inputPaddingX: 1.5, // 12px - internal padding
     inputPaddingY: 1,   // 8px - internal padding
+
+    // Object Layout spacing defaults (Layer 3)
+    objectRowGapPx: 0,
+    objectColumnGapPx: 8,
     
     // Borders
     borderRadius: 6,
@@ -744,6 +946,12 @@ export const DEFAULT_GLOBAL_STYLES: GlobalStyles = {
     
     // Layout
     defaultLayout: 'vertical',
+    defaultObjectLayout: 'vertical',
+    defaultLayoutGroups: undefined,
+    
+    // Grid Layout (opt-in, undefined by default)
+    defaultGridLayout: undefined,
+    defaultGridLayoutsByComponent: undefined,
 };
 
 export interface FormTheme {
@@ -759,6 +967,12 @@ export interface CanvasSettings {
     width: number;   // e.g. 1920
     height: number;  // e.g. 1080
     gridSize: number; // e.g. 8
+    /**
+     * Canvas/artboard background color (builder + renderer).
+     * Note: Page-level backgrounds may also exist on `FormPage.background`; when both are present,
+     * page background wins.
+     */
+    backgroundColor?: string;
 }
 
 /**
@@ -813,4 +1027,237 @@ export function resolveStyleProperty<K extends keyof StyleOverrides>(
     // Map StyleOverrides keys to GlobalStyles keys
     const globalKey = property as keyof GlobalStyles;
     return globalStyles[globalKey];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GRID LAYOUT TYPES
+// Provides CSS Grid-based layout as an alternative to Object Layout.
+// See docs/GRID-LAYOUT-GUIDE.md for full specification.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Grid layout configuration for component objects.
+ * Enables CSS Grid-based arrangement of label, input, validation, etc.
+ * Alternative to the Object Layout system (vertical/horizontal/mixed).
+ */
+export interface GridLayoutConfig {
+    /**
+     * Number of rows in the grid (1-12)
+     * @default 3
+     */
+    rows: number;
+
+    /**
+     * Number of columns in the grid (1-12)
+     * @default 1
+     */
+    columns: number;
+
+    /**
+     * Horizontal gap between grid cells in pixels (default for all columns)
+     * @default 8
+     */
+    columnGap: number;
+
+    /**
+     * Vertical gap between grid cells in pixels (default for all rows)
+     * @default 8
+     */
+    rowGap: number;
+
+    /**
+     * Per-column spacing overrides: allows individual column gaps.
+     * Format: colIndex → gapInPixels
+     * Example: { 0: 16, 1: 8 } - Column 0 has 16px gap to the right
+     * Note: Gap applies TO THE RIGHT of the specified column
+     */
+    columnGaps?: Record<number, number>;
+
+    /**
+     * Per-row spacing overrides: allows individual row gaps.
+     * Format: rowIndex → gapInPixels
+     * Example: { 0: 12, 2: 16 } - Row 0 has 12px gap below
+     * Note: Gap applies BELOW the specified row
+     */
+    rowGaps?: Record<number, number>;
+
+    /**
+     * Grid cell assignments: maps cell coordinates to object IDs.
+     * Format: "row-col" → objectId
+     * Example: { "0-0": "label", "1-0": "input", "2-0": "validation" }
+     */
+    cellAssignments: Record<string, string>;
+
+    /**
+     * Merged cell groups: defines which cells are merged together.
+     * Format: "merged-group-id" → { cells: string[], objectId: string }
+     * Example: { "merge-1": { cells: ["0-0", "0-1"], objectId: "label" } }
+     */
+    mergedCells?: Record<string, { cells: string[]; objectId: string }>;
+
+    /**
+     * Object span configuration: allows objects to span multiple cells.
+     * Format: objectId → { rowSpan?: number, colSpan?: number }
+     * Example: { "input": { rowSpan: 1, colSpan: 2 } }
+     */
+    objectSpans?: Record<string, { rowSpan?: number; colSpan?: number }>;
+
+    /**
+     * Grid alignment: how objects align within their grid cells.
+     * @default 'stretch'
+     */
+    cellAlignment?: 'start' | 'center' | 'end' | 'stretch';
+
+    /**
+     * Grid justification: how grid cells align within the container.
+     * @default 'start'
+     */
+    gridJustification?: 'start' | 'center' | 'end' | 'stretch' | 'space-between' | 'space-around' | 'space-evenly';
+
+    /**
+     * Row track sizing mode for gridTemplateRows.
+     * - 'fr' uses 1fr tracks (default)
+     * - 'auto' uses content-sized tracks
+     */
+    rowSizing?: 'fr' | 'auto';
+
+    /**
+     * Column track sizing mode for gridTemplateColumns.
+     * - 'fr' uses 1fr tracks (default)
+     * - 'auto' uses content-sized tracks
+     */
+    columnSizing?: 'fr' | 'auto';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UNIVERSAL FIELDSHELL ARCHITECTURE - Conditional Context & Rules
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Context for evaluating conditional rules for object visibility.
+ * Used to determine when objects should be shown/hidden based on component state.
+ */
+export interface ConditionalContext {
+    component: FormComponent;
+    componentProps: ComponentProps;
+    componentState?: Record<string, any>; // Runtime state (e.g., hasFocus, isLoading)
+    /** Direct error for this component (simpler than validationErrors map) */
+    error?: string;
+    validationErrors?: Record<string, string>;
+    allFormErrors?: Record<string, string>;
+    /** If true, always show conditional objects (for builder mode) */
+    builderMode?: boolean;
+}
+
+/**
+ * Form-level validation context for action objects (submit button).
+ * Provides aggregated validation state for all components.
+ */
+export interface FormValidationContext {
+    /** All form validation errors, keyed by component ID */
+    errors: Record<string, string>;
+    /** Components sorted by tabOrder for priority display */
+    errorsByPriority: Array<{
+        componentId: string;
+        error: string;
+        tabOrder: number;
+        label: string;
+    }>;
+    /** First error by priority (for single-line display), includes label prefix */
+    firstError?: string;
+    /** Total count of components with errors */
+    errorCount: number;
+}
+
+/**
+ * Rule for conditional object visibility (progressive disclosure).
+ * Determines when an object should be visible based on component properties, state, or validation.
+ */
+export interface ConditionalRule {
+    type: 'prop' | 'state' | 'validation' | 'always';
+    prop?: string; // Property name to check (e.g., 'required', 'showLoadingState')
+    condition?: (context: ConditionalContext) => boolean; // Custom evaluation function
+    showInProperties?: boolean; // Progressive disclosure: show in Properties Panel only when condition met
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UNIVERSAL FIELDSHELL ARCHITECTURE - Component Structure Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Layout type for component objects within FieldShell.
+ * - vertical: Objects stacked vertically (default)
+ * - horizontal: Objects arranged horizontally
+ * - mixed: Custom grouping with layoutGroups
+ */
+export type ObjectLayoutType = 'vertical' | 'horizontal' | 'mixed';
+
+/**
+ * Type of object within a component structure.
+ * - label: Text label for the field
+ * - input: User input element (text, select, checkbox, etc.)
+ * - action: Button or clickable action
+ * - status: Loading/status indicator
+ * - validation: Error/validation message
+ * - divider: Visual separator line
+ * - custom: Custom object type (specify with customType)
+ */
+export type ObjectType = 'label' | 'input' | 'action' | 'status' | 'validation' | 'divider' | 'custom';
+
+/**
+ * Style archetype for an object.
+ * Defines which category of global styles this object inherits from.
+ */
+export type StyleArchetype = 
+    | 'PrimaryLabel'   // Inherits from GlobalStyles.Label (default for type='label')
+    | 'InputControl'   // Inherits from GlobalStyles.Input (default for type='input')
+    | 'HelperText'     // Inherits from GlobalStyles.HelpText (default for type='validation'/'status')
+    | 'Action'         // Inherits from Button/Action styles
+    | 'Divider';       // Inherits from divider styles
+
+/**
+ * Object-level feature configuration map.
+ *
+ * This enables “capabilities” to be attached to any top-level object in a component structure
+ * (label/input/validation/divider/custom), independent of surface (toolbox/canvas/runtime).
+ *
+ * Surface gating (toolbox/canvas/runtime differences) remains in `componentSurfaceCapabilities.ts`.
+ */
+export type ObjectFeatures = {
+    /**
+     * Builder-only TextLengthIndicator overlay.
+     * - Actual surface enablement still uses component surface capabilities.
+     * - Presence here means “this object is eligible for the feature”.
+     */
+    textLengthIndicator?: {
+        enabled?: boolean;
+    };
+    /** Allow future features without schema churn */
+    [featureId: string]: unknown;
+};
+
+/**
+ * Definition of a single object within a component structure.
+ */
+export interface ComponentObject {
+    id: string;                    // Unique identifier within component (e.g., 'label', 'input')
+    type: ObjectType;              // Type of object
+    archetype?: StyleArchetype;    // Style archetype (optional, defaults based on type)
+    required: boolean;              // Must always render?
+    conditional?: ConditionalRule; // When to show/hide (progressive disclosure)
+    order: number;                  // Display order (1, 2, 3...)
+    customType?: string;            // For custom object types (e.g., 'icon', 'helper')
+    /** Optional object-level capabilities/features (attachable by structure, independent of surface) */
+    features?: ObjectFeatures;
+}
+
+/**
+ * Structure definition for a component.
+ * Defines how objects are arranged and when they should be visible.
+ */
+export interface ComponentStructure {
+    objects: ComponentObject[];     // All objects this component contains (1-4+)
+    defaultLayout: ObjectLayoutType; // Default layout (can be overridden per-instance)
+    layoutGroups?: Record<string, string[]>; // For mixed layouts: { row1: ['label', 'input'], row2: ['validation'] }
+    defaultRowAlignment?: RowAlignment; // Default vertical alignment for rows (e.g., 'top' for textarea, 'center' for inputs)
 }

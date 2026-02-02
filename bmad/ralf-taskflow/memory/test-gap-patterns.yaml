@@ -1,0 +1,167 @@
+# Test Gap Patterns - Ralf Taskflow Memory
+# Common missing tests and where to add them
+# Updated from retrospective findings
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+test_gaps:
+
+  # Gap 1: Form Validation Tests
+  form_validation:
+    name: "Missing Form Validation Tests"
+    gap_description: "Form accepts invalid input, validation not tested"
+    symptoms:
+      - "UAT fails on invalid input"
+      - "Error messages not shown"
+    test_to_add:
+      type: "unit"
+      location: "src/features/{feature}/components/__tests__/"
+      template: |
+        describe('Form validation', () => {
+          it('shows error for empty required field', () => {
+            render(<Form />);
+            fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+            expect(screen.getByText(/required/i)).toBeInTheDocument();
+          });
+          
+          it('shows error for invalid format', () => {
+            render(<Form />);
+            fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'invalid' } });
+            expect(screen.getByText(/valid email/i)).toBeInTheDocument();
+          });
+        });
+      command: "npm test -- --testPathPattern=form"
+    priority: "high"
+    frequency: 0
+
+  # Gap 2: API Error Handling Tests
+  api_error_handling:
+    name: "Missing API Error Handling Tests"
+    gap_description: "API errors not handled gracefully"
+    symptoms:
+      - "App crashes on API failure"
+      - "No error message shown to user"
+    test_to_add:
+      type: "unit"
+      location: "src/features/{feature}/api/__tests__/"
+      template: |
+        describe('API error handling', () => {
+          it('shows error message on 400 response', async () => {
+            server.use(
+              rest.post('/api/endpoint', (req, res, ctx) => {
+                return res(ctx.status(400), ctx.json({ message: 'Bad request' }));
+              })
+            );
+            // ... test error handling
+          });
+          
+          it('shows error message on 500 response', async () => {
+            // ... test server error handling
+          });
+        });
+      command: "npm test -- --testPathPattern=api"
+    priority: "high"
+    frequency: 0
+
+  # Gap 3: Auth Boundary Tests
+  auth_boundary:
+    name: "Missing Auth Boundary Tests"
+    gap_description: "Protected routes/endpoints not tested for auth"
+    symptoms:
+      - "Unauthorized user can access protected resource"
+      - "Auth token not validated"
+    test_to_add:
+      type: "integration"
+      location: "src/features/auth/__tests__/"
+      template: |
+        describe('Auth boundaries', () => {
+          it('redirects to login when not authenticated', async () => {
+            render(<ProtectedPage />);
+            expect(screen.getByText(/login/i)).toBeInTheDocument();
+          });
+          
+          it('returns 401 when no auth token', async () => {
+            const response = await fetch('/api/protected');
+            expect(response.status).toBe(401);
+          });
+        });
+      command: "npm test -- --testPathPattern=auth"
+    priority: "high"
+    frequency: 0
+
+  # Gap 4: State Persistence Tests
+  state_persistence:
+    name: "Missing State Persistence Tests"
+    gap_description: "Changes lost on refresh/navigation"
+    symptoms:
+      - "Data disappears after refresh"
+      - "Form data lost on navigation"
+    test_to_add:
+      type: "e2e"
+      location: "e2e/features/"
+      template: |
+        test('data persists after refresh', async ({ page }) => {
+          await page.fill('#input', 'test value');
+          await page.click('#save');
+          await page.reload();
+          expect(await page.inputValue('#input')).toBe('test value');
+        });
+      command: "npm run test:e2e"
+    priority: "medium"
+    frequency: 0
+
+  # Gap 5: Loading State Tests
+  loading_state:
+    name: "Missing Loading State Tests"
+    gap_description: "Loading indicators not shown"
+    symptoms:
+      - "No feedback during slow operations"
+      - "User clicks multiple times"
+    test_to_add:
+      type: "unit"
+      location: "src/features/{feature}/components/__tests__/"
+      template: |
+        describe('Loading states', () => {
+          it('shows loading indicator during submit', async () => {
+            render(<Form />);
+            fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+            expect(screen.getByRole('progressbar')).toBeInTheDocument();
+          });
+          
+          it('disables submit button while loading', async () => {
+            // ... test button disabled state
+          });
+        });
+      command: "npm test -- --testPathPattern=loading"
+    priority: "medium"
+    frequency: 0
+
+# When to add each test type
+test_type_guidance:
+  unit:
+    when: "Testing isolated component/function behavior"
+    location: "Same directory as source, in __tests__/"
+    speed: "Fast (< 1s)"
+    
+  integration:
+    when: "Testing components working together"
+    location: "src/__tests__/integration/"
+    speed: "Medium (1-10s)"
+    
+  e2e:
+    when: "Testing full user flows"
+    location: "e2e/"
+    speed: "Slow (10s+)"
+
+# Template for new test gaps
+template:
+  name: ""
+  gap_description: ""
+  symptoms: []
+  test_to_add:
+    type: ""
+    location: ""
+    template: ""
+    command: ""
+  priority: ""
+  frequency: 0

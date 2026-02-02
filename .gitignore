@@ -101,9 +101,8 @@ coverage/
 # BMAD Method
 bmad/_cfg/
 BMAD-METHOD/
-# BMAD Framework - Exclude from version control
-.cursor/rules/bmad/
-bmad/
+# BMAD framework is versioned in this repo.
+# Only ignore local/generated BMAD config under bmad/_cfg/.
 
 # Docker
 docker-compose.override.yml
@@ -117,3 +116,4 @@ htmlcov/
 # Documentation build
 docs/_build/
 docs/build/
+node_modules/

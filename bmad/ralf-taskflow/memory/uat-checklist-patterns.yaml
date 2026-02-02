@@ -1,0 +1,142 @@
+# UAT Checklist Patterns - Ralf Taskflow Memory
+# Best checklist structures per task type
+# Updated as effective patterns emerge
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+checklist_patterns:
+
+  # Pattern 1: Form Component
+  form_component:
+    name: "Form Component UAT"
+    applies_to:
+      - "New form field"
+      - "Form validation"
+      - "Input component"
+    standard_steps:
+      - category: "Render"
+        steps:
+          - "Component appears in correct location"
+          - "Label text is correct"
+          - "Placeholder text is correct"
+          - "Default value is correct (if any)"
+      - category: "Input"
+        steps:
+          - "Can enter valid value"
+          - "Value displays correctly"
+          - "Can clear value"
+          - "Can modify value"
+      - category: "Validation"
+        steps:
+          - "Required field shows error when empty"
+          - "Invalid format shows error"
+          - "Error message is helpful"
+          - "Error clears when corrected"
+      - category: "Submit"
+        steps:
+          - "Value is included in form submission"
+          - "Value persists after save"
+    negative_tests:
+      - "Submit with empty required field"
+      - "Enter invalid format"
+      - "Enter extremely long value"
+      - "Enter special characters"
+
+  # Pattern 2: API Endpoint
+  api_endpoint:
+    name: "API Endpoint UAT"
+    applies_to:
+      - "New API route"
+      - "Modified endpoint"
+      - "CRUD operation"
+    standard_steps:
+      - category: "Happy Path"
+        steps:
+          - "Request with valid data returns 200/201"
+          - "Response contains expected fields"
+          - "Data is correctly created/updated/deleted"
+      - category: "Authentication"
+        steps:
+          - "Request without auth returns 401"
+          - "Request with wrong role returns 403"
+          - "Request with valid auth succeeds"
+      - category: "Validation"
+        steps:
+          - "Missing required field returns 400/422"
+          - "Invalid format returns 400/422"
+          - "Error message describes the issue"
+      - category: "Persistence"
+        steps:
+          - "Changes are saved to database"
+          - "Changes are visible on refresh"
+    negative_tests:
+      - "Send malformed JSON"
+      - "Send missing required fields"
+      - "Send invalid field types"
+      - "Send without auth token"
+
+  # Pattern 3: UI Flow
+  ui_flow:
+    name: "UI Flow UAT"
+    applies_to:
+      - "Multi-step process"
+      - "Navigation flow"
+      - "Wizard/stepper"
+    standard_steps:
+      - category: "Navigation"
+        steps:
+          - "Can navigate to first step"
+          - "Can proceed to next step"
+          - "Can go back to previous step"
+          - "Can skip optional steps (if applicable)"
+      - category: "State"
+        steps:
+          - "Data entered is preserved between steps"
+          - "Progress indicator shows current step"
+          - "Can resume from where left off"
+      - category: "Completion"
+        steps:
+          - "Final submission works"
+          - "Success message is shown"
+          - "Redirects to correct page"
+    negative_tests:
+      - "Try to skip required step"
+      - "Submit with incomplete data"
+      - "Refresh mid-flow and resume"
+
+  # Pattern 4: Data Display
+  data_display:
+    name: "Data Display UAT"
+    applies_to:
+      - "List/table view"
+      - "Detail view"
+      - "Dashboard widget"
+    standard_steps:
+      - category: "Data Loading"
+        steps:
+          - "Data loads without error"
+          - "Loading indicator shows while loading"
+          - "Empty state shows when no data"
+      - category: "Data Accuracy"
+        steps:
+          - "Displayed values match database"
+          - "Formatting is correct (dates, numbers)"
+          - "All expected fields are shown"
+      - category: "Interaction"
+        steps:
+          - "Can sort (if applicable)"
+          - "Can filter (if applicable)"
+          - "Can click to view details"
+    negative_tests:
+      - "View with no data"
+      - "View with large dataset"
+      - "View with special characters in data"
+
+# Evidence requirements by category
+evidence_requirements:
+  render: "Screenshot"
+  input: "Screenshot or video"
+  validation: "Screenshot of error state"
+  submit: "Screenshot + network log"
+  api: "Request/response log"
+  persistence: "Database query or refresh screenshot"

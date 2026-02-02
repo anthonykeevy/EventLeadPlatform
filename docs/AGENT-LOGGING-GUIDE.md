@@ -1,204 +1,148 @@
-# BMAD Agent Logging Integration Guide
+# Agent Logging Guide (Component Framework + Builder UI)
 
-**Purpose:** Quick reference for BMAD agents on when and how to use diagnostic logs during Epic 2 development.
+**Purpose:** Help agents (and UAT testers) quickly capture and interpret **what the user did** and **what the UI rendered** for Component Framework issues across **Toolbox / Canvas / Properties** (including **Grid Layout** + **resize**).
+
+**Primary reference:** `docs/COMPONENT-FRAMEWORK-REFERENCE.md`
 
 ---
 
-## 🚀 **Quick Start**
+## Quick Start (most common workflow)
 
-### **Basic Commands**
+### 1) Enable frontend dev logs
+
+Create/update `frontend/.env.local` (or `frontend/.env`) with:
+
 ```bash
-# Quick error check (last 5 entries)
-python backend/enhanced_diagnostic_logs.py
-
-# Detailed analysis (last 10 entries)
-python backend/enhanced_diagnostic_logs.py --limit 10
-
-# Analyze specific request
-python backend/enhanced_diagnostic_logs.py --request-id "req_12345"
+VITE_ENABLE_DEV_LOGS=true
+# Optional: mirrors debug/info logs to console (resize + SmartBorder are noisy)
+VITE_LOG_VERBOSE_RESIZE=false
 ```
 
----
+Restart the Vite dev server after editing env vars.
 
-## 🎯 **When to Use Diagnostic Logs**
+### 2) Reproduce the bug and download the log bundle
 
-### **Always Use When:**
-- ❌ **Story implementation fails** - Check for errors and API issues
-- ❌ **User can't login/signup** - Check AuthEvent and ApplicationError
-- ❌ **API returns 4xx/5xx errors** - Check ApiRequest with payloads
-- ❌ **Frontend components crash** - Check ApplicationError with stack traces
-- ❌ **Theme switching not working** - Check UserAction and IntegrationEvent
-- ❌ **Approval workflows failing** - Check ApprovalAuditTrail
+In the Builder UI header you should see **“Dev Logs”** (download button). After reproducing the issue, click it and attach the JSON file to the bug report.
 
-### **Use for Validation:**
-- ✅ **After implementing a story** - Verify logging is working
-- ✅ **After testing integration** - Check cross-domain events
-- ✅ **After performance testing** - Check PerformanceMetric logs
-- ✅ **Before marking story complete** - Ensure all actions are logged
+**Optional local persistence:** if you also set `VITE_LOG_PERSIST_TO_STORAGE=true`, logs are persisted to **browser localStorage** for the current browser tab session. This helps if the page reloads mid-debug.
 
----
+### 3) If the bug might involve backend/API
 
-## 📊 **What to Look For**
+Use the backend diagnostic tool to collect recent API/auth/error context:
 
-### **Authentication Issues**
-```
-RECENT AUTH EVENTS
-[2025-01-15 10:30:00] LOGIN_FAILED
-  UserID: 123
-  Email: user@example.com
-  Reason: {"error": "Invalid password"}
-  IP: 192.168.1.1 | RequestID: req_12345
-```
-
-### **API Errors**
-```
-RECENT API REQUESTS
-[2025-01-15 10:30:00] POST /api/v1/users/profile
-  Status: 400 | Duration: 150ms
-  UserID: 123 | RequestID: req_12345
-  Request Payload: {"theme": "dark", "density": "compact"}
-  Response Payload: {"error": "Invalid theme value"}
-```
-
-### **Frontend Errors**
-```
-RECENT APPLICATION ERRORS
-[2025-01-15 10:30:00] ThemeError - ERROR
-  Path: GET /dashboard
-  Message: Theme 'invalid-theme' not found
-  UserID: 123 | RequestID: req_12345
-  Stack Trace: ThemeProvider.tsx:45:12
-```
-
-### **Epic 2 Audit Trail**
-```
-EPIC 2 AUDIT TRAIL
-[2025-01-15 10:30:00] THEME_CHANGED on User 123
-  User: 123
-  Comments: Changed from light to dark theme
-```
-
----
-
-## 🔧 **Agent Workflow**
-
-### **1. Before Starting a Story**
 ```bash
-# Check current system state
-python backend/enhanced_diagnostic_logs.py --limit 3
-```
-
-### **2. During Implementation**
-```bash
-# Check for errors as you build
-python backend/enhanced_diagnostic_logs.py --limit 5
-```
-
-### **3. After Implementation**
-```bash
-# Verify your story is working and logged
-python backend/enhanced_diagnostic_logs.py --limit 10
-```
-
-### **4. When Debugging Issues**
-```bash
-# Get specific request analysis
-python backend/enhanced_diagnostic_logs.py --request-id "req_12345"
-
-# Check performance impact
-python backend/enhanced_diagnostic_logs.py --performance-hours 24
+python backend/enhanced_diagnostic_logs.py --limit 50
 ```
 
 ---
+## Backend diagnostic tool coverage (what it can capture)
 
-## 📋 **Logging Checklist for Agents**
+`backend/enhanced_diagnostic_logs.py` can pull and print the following log categories:
+- **Auth events**: `log.AuthEvent` (event type, user/email, IP, user agent, session, reason JSON)
+- **Application errors**: `log.ApplicationError` (error type/message, stack trace, exception type, request ID)
+- **API requests**: `log.ApiRequest` (path, status, duration, request/response payloads, headers, query params)
+- **Profile/theme enhancement calls**: filtered `log.ApiRequest` entries for theme/layout/font endpoints
+- **Email deliveries**: `log.EmailDelivery` (status, provider response, error message, retry count)
+- **Epic 2 audit trail**: `audit.ApprovalAuditTrail` (if table exists; otherwise safely skipped)
+- **Correlation analysis**: joins `ApplicationError`, `ApiRequest`, `AuthEvent` by `RequestID`
+- **Performance summary**: request counts, avg/max duration, error counts for a time window
 
-### **For Every Story Implementation:**
-
-**Backend Stories:**
-- [ ] API endpoints log requests with payloads
-- [ ] Errors are logged with stack traces
-- [ ] Business logic decisions are logged in audit trail
-- [ ] Performance metrics are logged for slow operations
-
-**Frontend Stories:**
-- [ ] User actions are logged (theme changes, navigation)
-- [ ] Component errors are logged with stack traces
-- [ ] API calls are logged with request/response
-- [ ] Cross-domain events are logged
-
-**Integration Stories:**
-- [ ] Cross-domain data flow is logged
-- [ ] Real-time updates are logged
-- [ ] Error propagation is logged
-- [ ] Performance impact is measured
+### Useful CLI options (focused modes)
+- `--limit / -l`: rows per table (default 5)
+- `--request-id / -r`: correlation analysis for a specific request
+- `--performance-hours / -p`: time window for performance metrics
+- `--path-filter`: only show API requests matching a path pattern
+- `--no-theme-requests`: hide profile/theme enhancement request section
 
 ---
 
-## 🚨 **Common Issues and Solutions**
+## What’s in the frontend log bundle (devLogger)
 
-### **"No logs found"**
-- Check if you're in the right directory
-- Verify database connection
-- Check if tables exist (Epic 2 tables might not be created yet)
+Frontend logs are emitted via `frontend/src/features/builder/utils/devLogger.ts` and downloaded as a **backend-ready batch**:
 
-### **"Request payload too large"**
-- This is normal for large requests
-- Check the sanitized version in logs
-- Look for the essential data you need
+```json
+{
+  "sessionId": "sess_...",
+  "pageUrl": "http://localhost:3000/...",
+  "browserInfo": "Mozilla/5.0 ...",
+  "entries": [
+    { "ts": 1700000000000, "level": "info", "event": "fieldshell.drag.drop", "payload": { ... } }
+  ]
+}
+```
 
-### **"Missing correlation data"**
-- Ensure RequestID is being passed through all layers
-- Check if request context is maintained
-- Verify logging is happening at the right level
+### Snapshot payloads (key for “what did the UI actually do?”)
 
-### **"Performance impact"**
-- Check PerformanceMetric logs for slow operations
-- Look for database query performance
-- Check API response times
+Many high-signal events carry a `ComponentSnapshot` from `frontend/src/features/builder/utils/componentSnapshot.ts`, including:
+- **Rendered (DOM)**: `bounds`, `objectMetrics.*.rect`, `gridMetrics.*`
+- **Normalized (Canvas px)**: `canvasBounds`, `objectMetrics.*.canvasRect`, `canvasMetrics.screenToCanvasRatio`
+- **Intent (Props subset)**: `props.objectLayout`, `props.gridLayout`, `props.*WidthOverride`, spacing overrides, etc.
 
----
-
-## 📈 **Success Indicators**
-
-### **Good Logging:**
-- ✅ All user actions are logged
-- ✅ All API calls have request/response payloads
-- ✅ All errors have stack traces
-- ✅ All business decisions are in audit trail
-- ✅ Performance metrics show acceptable times
-
-### **Poor Logging:**
-- ❌ Missing user action logs
-- ❌ API calls without payloads
-- ❌ Errors without stack traces
-- ❌ Missing audit trail entries
-- ❌ No performance metrics
+When debugging “it looks wrong”, trust snapshot **Rendered/Normalized** fields first (they match what the user sees).
 
 ---
 
-## 🎯 **Epic 2 Specific Logging**
+## Event cheat-sheet (what to filter for)
 
-### **Theme System:**
-- UserAction: Theme changes, density changes, font size changes
-- IntegrationEvent: Theme changes affecting components
-- PerformanceMetric: Theme switching time
+### Toolbox → Canvas (add / drop / placement)
+- **pointer math**: `drag.pointer.*`
+- **toolbox drops**: `toolbox.component.dropped`, `component.dropped`
+- **boundary clamp**: `collision.boundary.*`
 
-### **Approval Workflows:**
-- ApprovalAuditTrail: Every approval decision, comment, status change
-- UserAction: Approval requests, decisions, comments
-- IntegrationEvent: Approval notifications, status updates
+### Canvas drag (move existing component)
+- **start/grab/drop**: `fieldshell.drag.start`, `fieldshell.drag.grabbed`, `fieldshell.drag.beforeDrop`, `fieldshell.drag.drop`
+- **live constraint enforcement**: `fieldshell.collision.constrained`
+- **post-drop overlap detection**: `fieldshell.collision.detected` (warn)
 
-### **Event Management:**
-- UserAction: Event creation, editing, deletion
-- IntegrationEvent: Event-form relationships
-- PerformanceMetric: Event listing performance
+### Canvas resize (E/W/N/S + corners + input-only handle)
+- **pointer stream**: `resize.pointer.down`, `resize.pointer.move`, `resize.pointer.up`
+- **start/preview/commit**: `fieldshell.resize.start`, `fieldshell.resize.preview`, `fieldshell.resize.beforeDrop`, `fieldshell.resize.commit`
+- **high-signal calculations**: `resize.width.chain`, `resize.width.comparison`, `resize.preview.edge.position`, `resize.commit.edge.position`
+- **constraints/collisions**: `resize.constraints.*`, `resize.collision.*`
+- **preview actually applied**: `resize.preview.applied`
+- **input-only width**: `resize.input.*`
 
-### **Form Foundation:**
-- UserAction: Form creation, access control changes
-- IntegrationEvent: Form-event associations
-- PerformanceMetric: Form loading performance
+### SmartBorder (what boundary the user *actually* sees)
+- `smartborder.calculate.*`, `smartborder.segments.*`, `smartborder.path.calculated`
+- during E/W preview: `smartborder.preview.synthetic-segment`
+
+### Layout editors (Properties Panel)
+- **Object Layout**: `objectlayout.*`, plus `fieldshell.properties.layout.changed`
+- **Grid Layout**: `gridlayout.*`, plus `panel.layout.changed`
+
+### Surface-only visual guides (Toolbox/Canvas parity)
+- **TextLengthIndicator**: `canvas.textlength.*`
+- **Dropdown sizing guide**: `canvas.dropdown.width.*`
+- **Submit button width math**: `button.width.calculated`, `panel.button.width.*`
+
+### Undo/Redo (helps reconstruct “what changed”)
+- `history.push`, `history.undo`, `history.redo`
 
 ---
 
-**Remember: The more you log, the easier it is to debug and validate your implementations!** 🚀
+## Known limitations (important so agents don’t get stuck)
+
+### No backend syncing (by design for now)
+
+This logging is currently **local-only** (browser storage + JSON download). Backend syncing/DB storage is intentionally deferred to a future epic.
+
+### Surface attribution is not consistently explicit in payloads
+
+Some events are named `canvas.*` but may be emitted from toolbox preview render paths too. Future improvement: add `surface: 'toolbox' | 'canvas' | 'runtime'` consistently to payloads.
+
+---
+
+## Bug report “minimum evidence” checklist (for Component Framework UAT)
+
+- **What surface?** toolbox vs canvas vs runtime preview
+- **Component identifiers**: component type + componentId (from Properties debug section if needed)
+- **What action?** add/drop, drag, resize handle used (E/W/N/S/NE/etc), grid/object layout edits
+- **Attach logs**: downloaded `dev-logs-*.json`
+- **If API involved**: include `backend/enhanced_diagnostic_logs.py --limit 10` output
+
+---
+
+## See also
+
+- `docs/COMPONENT-FRAMEWORK-REFERENCE.md` (framework contract + parity rules)
+- `docs/UNIVERSAL-FIELDSHELL-LOGGING-GUIDE.md` (deeper event taxonomy + snapshot examples)

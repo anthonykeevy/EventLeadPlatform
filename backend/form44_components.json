@@ -1,0 +1,264 @@
+{
+  "formId": 44,
+  "formName": "Template D",
+  "globalStyles": {
+    "fontFamily": "Inter",
+    "fontSize": 14,
+    "fontWeight": 400,
+    "fontStyle": "normal",
+    "labelFontFamily": "Inter",
+    "labelFontSize": 14,
+    "labelFontWeight": 500,
+    "labelFontStyle": "normal",
+    "helpTextFontFamily": "Inter",
+    "helpTextFontSize": 12,
+    "helpTextFontWeight": 400,
+    "helpTextFontStyle": "normal",
+    "textColor": "#1F2937",
+    "textBackgroundColor": "#FFFFFF",
+    "labelColor": "#374151",
+    "helpTextColor": "#DC2626",
+    "actionFontFamily": "Inter",
+    "actionFontSize": 14,
+    "actionFontWeight": 500,
+    "actionFontStyle": "normal",
+    "actionTextColor": "#FFFFFF",
+    "actionBackgroundColor": "#0055FF",
+    "actionBorderRadius": 6,
+    "dividerBorderColor": "#E5E7EB",
+    "dividerBorderWidth": 1,
+    "dividerWidth": "380px",
+    "textHasBorder": false,
+    "labelHasBorder": false,
+    "helpTextHasBorder": false,
+    "primaryColor": "#0055FF",
+    "placeholderColor": "#9CA3AF",
+    "backgroundColor": "#FFFFFF",
+    "borderColor": "#D1D5DB",
+    "errorColor": "#DC2626",
+    "baseSpacing": 8,
+    "labelGap": 1,
+    "inputHelpGap": 0.5,
+    "inputPaddingX": 1.5,
+    "inputPaddingY": 1,
+    "objectRowGapPx": 0,
+    "objectColumnGapPx": 8,
+    "borderRadius": 6,
+    "borderWidth": 1,
+    "inputHeight": 40,
+    "defaultLayout": "vertical",
+    "defaultObjectLayout": "vertical"
+  },
+  "canvasSettings": {
+    "width": 1920,
+    "height": 980,
+    "gridSize": 8
+  },
+  "theme": {
+    "primaryColor": "#0055FF",
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter"
+  },
+  "components": [
+    {
+      "id": "radio-1768184158033-653",
+      "type": "radio",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Customer Type",
+        "required": true
+      }
+    },
+    {
+      "id": "text-1768184324292-685",
+      "type": "text",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Company Name",
+        "placeholder": "Enter your company name",
+        "required": false,
+        "validation": {
+          "maxLength": 100,
+          "minLength": 2
+        },
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "dropdown-1768184661121-688",
+      "type": "dropdown",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Overall Satisfaction Rating",
+        "placeholder": "Select your satisfaction level",
+        "required": false
+      }
+    },
+    {
+      "id": "textarea-1768184906171-41",
+      "type": "textarea",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Reason for Your Rating",
+        "placeholder": "Please explain your rating...",
+        "required": false,
+        "validation": {
+          "maxLength": 1000,
+          "minLength": 10
+        }
+      }
+    },
+    {
+      "id": "radio-1768185353302-287",
+      "type": "radio",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Would you recommend us to others?",
+        "required": true
+      }
+    },
+    {
+      "id": "text-1768185546207-573",
+      "type": "text",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Referral Name",
+        "placeholder": "Who would you like to refer?",
+        "required": false,
+        "validation": {
+          "maxLength": 100,
+          "alpha": true
+        },
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "checkbox-1768185931071-664",
+      "type": "checkbox",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "How would you like us to contact you?",
+        "required": false,
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "email-1768186291859-525",
+      "type": "email",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Preferred Contact Email",
+        "placeholder": "your.email@company.com",
+        "required": false,
+        "validation": {
+          "maxLength": 254
+        },
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "phone-1768186518005-100",
+      "type": "phone",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Preferred Contact Phone",
+        "placeholder": "+61 400 000 000",
+        "required": false,
+        "validation": {
+          "maxLength": 20,
+          "countryCodeRequired": true
+        },
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "textarea-1768187698024-896",
+      "type": "textarea",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Additional Comments",
+        "placeholder": "Any other feedback or suggestions?",
+        "required": false,
+        "validation": {
+          "maxLength": 2000
+        }
+      }
+    },
+    {
+      "id": "divider-1768193339825-556",
+      "type": "divider",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {}
+    },
+    {
+      "id": "terms-1768193587614-223",
+      "type": "terms",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "I agree to the",
+        "required": true
+      }
+    },
+    {
+      "id": "submit-button-1768193776622-609",
+      "type": "submit-button",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {}
+    },
+    {
+      "id": "date-1768470069246-312",
+      "type": "date",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Select Date",
+        "required": false,
+        "validation": {
+          "pastOnly": true,
+          "maxDate": "2026-01-15"
+        }
+      }
+    }
+  ]
+}

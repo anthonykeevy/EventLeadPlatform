@@ -31,6 +31,8 @@ const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard'
 const ExternalApprovalPage = lazy(() => import('./features/forms/pages/ExternalApprovalPage').then(module => ({ default: module.ExternalApprovalPage })))
 const BuilderPage = lazy(() => import('./features/builder/pages/BuilderPage').then(module => ({ default: module.BuilderPage })))
 const FormRendererPage = lazy(() => import('./features/renderer/pages/FormRendererPage').then(module => ({ default: module.FormRendererPage })))
+const PublicFormRendererPage = lazy(() => import('./features/renderer/pages/PublicFormRendererPage').then(module => ({ default: module.PublicFormRendererPage })))
+const PublicFormPreviewShellPage = lazy(() => import('./features/renderer/pages/PublicFormPreviewShellPage').then(module => ({ default: module.PublicFormPreviewShellPage })))
 import { RequireAuth } from './features/auth/components/RequireAuth'
 // Forms are now integrated into the dashboard (Company → Event → Form hierarchy)
 // Theme settings now accessible through user menu in dashboard
@@ -278,6 +280,16 @@ function App() {
                   }
                 />
                 <Route
+                  path="/builder"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <BuilderPage />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
                   path="/forms/:formId/render"
                   element={
                     <RequireAuth>
@@ -285,6 +297,22 @@ function App() {
                         <FormRendererPage />
                       </Suspense>
                     </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/forms/:token"
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <PublicFormRendererPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/forms/:token/preview"
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <PublicFormPreviewShellPage />
+                    </Suspense>
                   }
                 />
                 {/* Forms are now integrated into the dashboard (Company → Event → Form hierarchy) */}

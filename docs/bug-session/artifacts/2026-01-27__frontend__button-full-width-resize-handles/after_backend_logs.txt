@@ -1,0 +1,546 @@
+﻿
+====================================================================================================
+FRONTEND EVENTS (Builder Logs) (Last 20)
+====================================================================================================
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.282) smartborder.rendered.bbox
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "isResizing": false,
+  "pathDLength": 126,
+  "pathBBox": {
+    "x": 0,
+    "y": 0.03067861497402191,
+    "width": 1920,
+    "height": 77.9141616821289
+  },
+  "svgRect": {
+    "width": 90,
+    "height": 45
+  }
+}
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.267) resize.wrapper.position.calculated
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "visualRect": {
+    "top": 0.03067861497402191,
+    "left": -1.0596381798677612e-06,
+    "width": 1920,
+    "height": 77.9141616821289
+  },
+  "outerRect": {
+    "width": 576,
+    "height": 24.449981689453125,
+    "top": 467.1968994140625,
+    "left": 383.6000061035156
+  },
+  "calculatedPosition": {
+    "top": 0.03067861497402191,
+    "left": -1.0596381798677612e-06,
+    "width": 1920,
+    "height": 77.9141616821289
+  },
+  "usedPathBBox": tr...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.267) resize.wrapper.position.calculated
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "visualRect": {
+    "top": 0.03067861497402191,
+    "left": -1.0596381798677612e-06,
+    "width": 1920,
+    "height": 77.9141616821289
+  },
+  "outerRect": {
+    "width": 576,
+    "height": 24.449981689453125,
+    "top": 467.1968994140625,
+    "left": 383.6000061035156
+  },
+  "calculatedPosition": {
+    "top": 0.03067861497402191,
+    "left": -1.0596381798677612e-06,
+    "width": 1920,
+    "height": 77.9141616821289
+  },
+  "usedPathBBox": tr...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.path.calculated
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "algorithm": "DualSkyline",
+  "segments": [
+    {
+      "yStart": 0.030678614089021394,
+      "yEnd": 47.25761847881304,
+      "xLeft": 0,
+      "xRight": 1920,
+      "source": {
+        "tag": "div",
+        "dataGridObject": "button",
+        "dataLayoutGroup": null,
+        "dataComponentId": null,
+        "role": null
+      }
+    },
+    {
+      "yStart": 45.30678614089022,
+      "yEnd": 77.94483990429082,
+      "xLeft": 0,
+      "xRight...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.segments.final
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "segmentCount": 2,
+  "segmentSources": [
+    "button",
+    "validation"
+  ],
+  "bounds": {
+    "minX": 0,
+    "maxX": 1920,
+    "minY": 0.030678614089021394,
+    "maxY": 77.94483990429082
+  }
+}
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.segment.created
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "objectId": "validation",
+  "rawRect": {
+    "top": 482.1968994140625,
+    "left": 385.1000061035156,
+    "width": 573,
+    "height": 6.75
+  },
+  "wrapperRect": {
+    "top": 467.1968994140625,
+    "left": 383.6000061035156
+  },
+  "scale": {
+    "x": 0.3,
+    "y": 0.29817050840796494
+  },
+  "unscaled": {
+    "top": 50.30678614089022,
+    "left": 5,
+    "width": 1910,
+    "height": 22.638053763400595,
+    "bottom": 72.94483990429082
+  },
+  "w...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.segment.created
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "objectId": "button",
+  "rawRect": {
+    "top": 468.6968994140625,
+    "left": 385.1000061035156,
+    "width": 573,
+    "height": 11.0999755859375
+  },
+  "wrapperRect": {
+    "top": 467.1968994140625,
+    "left": 383.6000061035156
+  },
+  "scale": {
+    "x": 0.3,
+    "y": 0.29817050840796494
+  },
+  "unscaled": {
+    "top": 5.030678614089021,
+    "left": 5,
+    "width": 1910,
+    "height": 37.226939864724024,
+    "bottom": 42.25761847881304
+ ...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.calculate.gridObjects
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "gridObjectCount": 2,
+  "gridObjectIds": [
+    "button",
+    "validation"
+  ],
+  "gridObjectMetrics": [
+    {
+      "id": "button",
+      "display": "block",
+      "width": 573,
+      "height": 11.0999755859375,
+      "targetTag": "div",
+      "targetWidth": 573,
+      "targetHeight": 11.0999755859375
+    },
+    {
+      "id": "validation",
+      "display": "block",
+      "width": 573,
+      "height": 6.75,
+      "targetTag": "div",
+      "t...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.calculate.start
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "layout": "fill",
+  "padding": 5,
+  "isSelected": true,
+  "isResizing": false,
+  "hasDragListeners": true,
+  "parent": {
+    "width": 1920,
+    "height": 82
+  },
+  "wrapperRect": {
+    "width": 576,
+    "height": 24.449981689453125
+  },
+  "containerRect": {
+    "width": 576,
+    "height": 24.449981689453125
+  },
+  "wrapperOffset": {
+    "x": 0,
+    "y": 0
+  },
+  "scale": {
+    "x": 0.3,
+    "y": 0.29817050840796494
+  },
+  "contentPadding": ...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.path.calculated
+  Component: None (ID: text-1768866112931-605)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "text-1768866112931-605",
+  "algorithm": "DualSkyline",
+  "segments": [
+    {
+      "yStart": 0,
+      "yEnd": 36.99991861979167,
+      "xLeft": 0.00026567487524520317,
+      "xRight": 80.97276625150265,
+      "source": {
+        "tag": "div",
+        "dataGridObject": "label",
+        "dataLayoutGroup": null,
+        "dataComponentId": null,
+        "role": null
+      }
+    },
+    {
+      "yStart": 0,
+      "yEnd": 50,
+      "xLeft": 78.97317098516992,
+      "xRight": 667.003...
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.segments.final
+  Component: None (ID: text-1768866112931-605)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "text-1768866112931-605",
+  "segmentCount": 3,
+  "segmentSources": [
+    "label",
+    "input",
+    "validation"
+  ],
+  "bounds": {
+    "minX": 0.00026567487524520317,
+    "maxX": 882.9997343251248,
+    "minY": 0,
+    "maxY": 50
+  }
+}
+
+[2026-01-27 07:33:45.250000] (client: 18:33:35.266) smartborder.segment.created
+  Component: None (ID: text-1768866112931-605)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "text-1768866112931-605",
+  "objectId": "validation",
+  "rawRect": {
+    "top": 400.70001220703125,
+    "left": 531.964111328125,
+    "width": 62.395263671875,
+    "height": 6.75
+  },
+  "wrapperRect": {
+    "top": 399.20001220703125,
+    "left": 330.97344970703125
+  },
+  "scale": {
+    "x": 0.299984060354438,
+    "y": 0.3
+  },
+  "unscaled": {
+    "top": 5,
+    "left": 670.0044708496135,
+    "width": 207.99526347551125,
+    "height": 22.5,
+    "bottom": 27.5
+  },
+  "wrapperOffs...
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.265) smartborder.segment.created
+  Component: None (ID: text-1768866112931-605)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "text-1768866112931-605",
+  "objectId": "input",
+  "rawRect": {
+    "top": 400.70001220703125,
+    "left": 356.1640625,
+    "width": 173.4000244140625,
+    "height": 12
+  },
+  "wrapperRect": {
+    "top": 399.20001220703125,
+    "left": 330.97344970703125
+  },
+  "scale": {
+    "x": 0.299984060354438,
+    "y": 0.3
+  },
+  "unscaled": {
+    "top": 5,
+    "left": 83.97317098516992,
+    "width": 578.0307934001107,
+    "height": 40,
+    "bottom": 45
+  },
+  "wrapperOffset": {
+    "x":...
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.265) smartborder.segment.created
+  Component: None (ID: text-1768866112931-605)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "text-1768866112931-605",
+  "objectId": "label",
+  "rawRect": {
+    "top": 400.70001220703125,
+    "left": 332.47344970703125,
+    "width": 21.290618896484375,
+    "height": 8.0999755859375
+  },
+  "wrapperRect": {
+    "top": 399.20001220703125,
+    "left": 330.97344970703125
+  },
+  "scale": {
+    "x": 0.299984060354438,
+    "y": 0.3
+  },
+  "unscaled": {
+    "top": 5,
+    "left": 5.000265674875245,
+    "width": 70.9725005766274,
+    "height": 26.999918619791668,
+    "bottom": 3...
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.265) smartborder.calculate.gridObjects
+  Component: None (ID: text-1768866112931-605)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "text-1768866112931-605",
+  "gridObjectCount": 3,
+  "gridObjectIds": [
+    "label",
+    "input",
+    "validation"
+  ],
+  "gridObjectMetrics": [
+    {
+      "id": "label",
+      "display": "block",
+      "width": 21.290618896484375,
+      "height": 8.0999755859375,
+      "targetTag": "div",
+      "targetWidth": 21.290618896484375,
+      "targetHeight": 8.0999755859375
+    },
+    {
+      "id": "input",
+      "display": "block",
+      "width": 173.4000244140625,
+      "height": 1...
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.265) smartborder.calculate.start
+  Component: None (ID: text-1768866112931-605)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "text-1768866112931-605",
+  "layout": "shrink",
+  "padding": 5,
+  "isSelected": false,
+  "isResizing": false,
+  "hasDragListeners": true,
+  "parent": {
+    "width": 883,
+    "height": 50
+  },
+  "wrapperRect": {
+    "width": 264.88592529296875,
+    "height": 15
+  },
+  "containerRect": {
+    "width": 264.88592529296875,
+    "height": 15
+  },
+  "wrapperOffset": {
+    "x": 0,
+    "y": 0
+  },
+  "scale": {
+    "x": 0.299984060354438,
+    "y": 0.3
+  },
+  "contentPadding": {
+    "left...
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.263) smartborder.path.calculated
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "algorithm": "DualSkyline",
+  "segments": [
+    {
+      "yStart": 0.030678614089021394,
+      "yEnd": 47.25761847881304,
+      "xLeft": 0,
+      "xRight": 1920,
+      "source": {
+        "tag": "div",
+        "dataGridObject": "button",
+        "dataLayoutGroup": null,
+        "dataComponentId": null,
+        "role": null
+      }
+    },
+    {
+      "yStart": 45.30678614089022,
+      "yEnd": 77.94483990429082,
+      "xLeft": 0,
+      "xRight...
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.263) smartborder.segments.final
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "segmentCount": 2,
+  "segmentSources": [
+    "button",
+    "validation"
+  ],
+  "bounds": {
+    "minX": 0,
+    "maxX": 1920,
+    "minY": 0.030678614089021394,
+    "maxY": 77.94483990429082
+  }
+}
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.263) smartborder.segment.created
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "objectId": "validation",
+  "rawRect": {
+    "top": 482.1968994140625,
+    "left": 385.1000061035156,
+    "width": 573,
+    "height": 6.75
+  },
+  "wrapperRect": {
+    "top": 467.1968994140625,
+    "left": 383.6000061035156
+  },
+  "scale": {
+    "x": 0.3,
+    "y": 0.29817050840796494
+  },
+  "unscaled": {
+    "top": 50.30678614089022,
+    "left": 5,
+    "width": 1910,
+    "height": 22.638053763400595,
+    "bottom": 72.94483990429082
+  },
+  "w...
+
+[2026-01-27 07:33:35.380000] (client: 18:33:35.263) smartborder.segment.created
+  Component: None (ID: submit-button-1769492061848-479)
+  Session: sess_1769494322353_u...
+  MetricsSummary: HasValidationObject=False
+  Payload: {
+  "componentId": "submit-button-1769492061848-479",
+  "objectId": "button",
+  "rawRect": {
+    "top": 468.6968994140625,
+    "left": 385.1000061035156,
+    "width": 573,
+    "height": 11.0999755859375
+  },
+  "wrapperRect": {
+    "top": 467.1968994140625,
+    "left": 383.6000061035156
+  },
+  "scale": {
+    "x": 0.3,
+    "y": 0.29817050840796494
+  },
+  "unscaled": {
+    "top": 5.030678614089021,
+    "left": 5,
+    "width": 1910,
+    "height": 37.226939864724024,
+    "bottom": 42.25761847881304
+ ...

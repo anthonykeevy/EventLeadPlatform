@@ -2,6 +2,8 @@
 JWT Authentication Middleware
 Validates JWT tokens and injects current user into request state
 """
+import hashlib
+import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -12,6 +14,16 @@ from typing import Callable
 from modules.auth.jwt_service import decode_token
 from modules.auth.models import CurrentUser
 from common.request_context import update_request_context
+
+logger = logging.getLogger(__name__)
+
+def _token_fingerprint(token: str | None) -> str:
+    if not token:
+        return "missing"
+    try:
+        return hashlib.sha256(token.encode("utf-8")).hexdigest()[:12]
+    except Exception:
+        return "unavailable"
 
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):
@@ -148,6 +160,14 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
             role=role,
             company_id=company_id
         )
+
+        if request.url.path.startswith(("/api/forms", "/api/builder", "/api/auth/me", "/api/users/me")):
+            logger.info(
+                "Access token fingerprint: user_id=%s path=%s fingerprint=%s",
+                user_id,
+                request.url.path,
+                _token_fingerprint(token)
+            )
         
         # Update request context for logging (Story 0.2 integration)
         try:

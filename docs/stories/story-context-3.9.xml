@@ -1,0 +1,80 @@
+<story-context>
+    <id>3.9</id>
+    <title>Builder Persistence (Save/Load FormVersion)</title>
+    <epic>3</epic>
+    <domain>Visual Builder (Persistence Bridge)</domain>
+
+    <scope-boundary>
+        <in-scope>
+            <item>Load builder definition from backend FormVersion.DefinitionJSON when opening /forms/{formId}/builder (no mock template by default).</item>
+            <item>Save Draft: persist the current FormDefinition into FormVersion.DefinitionJSON via existing authenticated versioning endpoints.</item>
+            <item>Backend schema validation enforced on save; validation errors surfaced safely in UI.</item>
+            <item>Builder Preview uses token flow: create PREVIEW token and open /forms/{token}, rendering from stored DefinitionJSON.</item>
+            <item>Establish DB as source of truth for renderer contract; localStorage may remain as optional fallback but not primary pipeline.</item>
+        </in-scope>
+        <out-of-scope>
+            <item>Submission transport/outbox/sync pipeline (moved to Story 3.10).</item>
+            <item>Lead persistence, attribution, and submission processing.</item>
+            <item>Collaboration/locking and conflict resolution.</item>
+            <item>Auto-save/offline draft queue (optional future enhancement).</item>
+        </out-of-scope>
+    </scope-boundary>
+
+    <dependencies>
+        <dependency>Backend FormVersion storage and endpoints (Story 3.1) - backend/modules/forms/version_router.py</dependency>
+        <dependency>Backend schema validation (Story 3.2) - backend/schemas/form_definition.py</dependency>
+        <dependency>Builder state/store - frontend/src/features/builder/stores/useBuilderStore.ts</dependency>
+        <dependency>Token-based public links (Story 3.8 implementation) - backend/modules/forms/public_links_router.py and backend/modules/forms/public_form_router.py</dependency>
+    </dependencies>
+
+    <technical-context>
+        <problem>
+            <note>Builder currently initializes with a mock template and localStorage persistence, causing all forms to look identical and preventing end-to-end UAT of Story 3.8.</note>
+            <note>Public renderer consumes FormVersion.DefinitionJSON; without builder persistence to FormVersion, renderer cannot be validated against authored definitions.</note>
+        </problem>
+
+        <backend-contract>
+            <save-draft>
+                <location>POST /api/forms/{form_id}/versions (create draft)</location>
+                <location>PUT /api/forms/{form_id}/versions/{version_number} (update draft)</location>
+                <note>Implementation may choose create-new-version-per-save or update-latest-draft; must be deterministic.</note>
+            </save-draft>
+            <load-definition>
+                <location>GET /api/forms/{form_id}/versions (list versions)</location>
+                <location>GET /api/forms/{form_id}/versions/{version_number} (get specific)</location>
+                <location>GET /api/forms/{form_id}/live (active/published)</location>
+            </load-definition>
+            <public-preview-links>
+                <location>POST /api/forms/{form_id}/public-links (PREVIEW)</location>
+                <location>GET /api/public/forms/{token} (resolve token)</location>
+                <note>PREVIEW tokens should resolve to latest version to support design-time preview without publishing.</note>
+            </public-preview-links>
+        </backend-contract>
+
+        <frontend-entrypoints>
+            <builder-page>
+                <location>frontend/src/features/builder/pages/BuilderPage.tsx</location>
+                <location>frontend/src/features/builder/stores/useBuilderStore.ts (initializeForm/save actions)</location>
+            </builder-page>
+            <builder-header-actions>
+                <location>frontend/src/features/builder/components/BuilderLayout.tsx (Save + Preview buttons)</location>
+            </builder-header-actions>
+        </frontend-entrypoints>
+
+        <definition-json>
+            <note>FormDefinition remains the single source of truth for authored layout, components, and logic rules. Persistence writes/reads the same structure to/from FormVersion.DefinitionJSON.</note>
+        </definition-json>
+    </technical-context>
+
+    <file-structure>
+        <new-files>
+            <file>(recommended) frontend/src/features/builder/api/formVersionsApi.ts</file>
+            <file>(recommended) docs/stories/STORY-3.9-UAT-TEST-GUIDE.md</file>
+        </new-files>
+        <modified-files>
+            <file>frontend/src/features/builder/stores/useBuilderStore.ts (load from DB; remove mock default)</file>
+            <file>frontend/src/features/builder/components/BuilderLayout.tsx (wire Save Draft; preview token flow)</file>
+        </modified-files>
+    </file-structure>
+</story-context>
+

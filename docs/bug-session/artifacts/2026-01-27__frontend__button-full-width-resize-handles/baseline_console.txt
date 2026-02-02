@@ -1,0 +1,567 @@
+﻿[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[log] [DEVLOG] Logger enabled (with backend sync), session: sess_1769494322353_uf4yrsu
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à Offline queue initialized
+[log] Ô£à Offline queue initialized
+[log] Ô£à Offline queue initialized
+[log] Ô£à Offline queue initialized
+[log] Ô£à Offline queue initialized
+[log] Ô£à BroadcastChannel initialized
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[log] [DEVLOG] Logger enabled (with backend sync), session: sess_1769494322353_uf4yrsu
+[log] Ô£à Offline queue initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à BroadcastChannel initialized
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[log] [DEVLOG] Logger enabled (with backend sync), session: sess_1769494322353_uf4yrsu
+[log] Ô£à Offline queue initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à BroadcastChannel initialized
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[log] [DEVLOG] Logger enabled (with backend sync), session: sess_1769494322353_uf4yrsu
+[log] Ô£à Offline queue initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Loading theme preferences from backend for user: user2@test.com
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[log] [DEVLOG] Logger enabled (with backend sync), session: sess_1769494322353_uf4yrsu
+[log] Ô£à Offline queue initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Loading theme preferences from backend for user: user2@test.com
+[log] Loading theme preferences from backend for user: user2@test.com
+[log] Loaded profile from backend: {userId: 84, email: user2@test.com, themePreference: Object, layoutDensity: Object, fontSize: Object}
+[log] Applying theme from backend: High Contrast
+[log] Theme applied: High Contrast (high-contrast)
+[log] Applying layout density from backend: Spacious
+[log] Layout density applied: Spacious (spacious)
+[log] Applying font size from backend: Large
+[log] Font size applied: Large (large)
+[log] Loaded profile from backend: {userId: 84, email: user2@test.com, themePreference: Object, layoutDensity: Object, fontSize: Object}
+[log] Applying theme from backend: High Contrast
+[log] Theme applied: High Contrast (high-contrast)
+[log] Applying layout density from backend: Spacious
+[log] Layout density applied: Spacious (spacious)
+[log] Applying font size from backend: Large
+[log] Font size applied: Large (large)
+[log] Theme preferences saved to localStorage
+[log] Ô£à Form auto-save initialized
+[log] Ô£à Form auto-save initialized
+[error] Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[error] Failed to switch to default company: AxiosError
+[log] [CompanyContainer 1016] Event load check: {isExpanded: true, hasChildren: false, eventCount: 17, isActiveCompany: true, isActiveFromProp: true}
+[log] [CompanyContainer 1016] Loading events (active company, 17 events, prop: true, context: true)...
+[log] [CompanyContainer 1016] Starting to load events... (wasActiveFromProp: true)
+[log] [CompanyContainer 1016] Event load check: {isExpanded: true, hasChildren: false, eventCount: 17, isActiveCompany: true, isActiveFromProp: true}
+[log] [CompanyContainer 1016] Loading events (active company, 17 events, prop: true, context: true)...
+[log] [CompanyContainer 1016] Starting to load events... (wasActiveFromProp: true)
+[log] Loading theme preferences from backend for user: user2@test.com
+[log] [DashboardLayout] loadCompanies preservation check: preserveCompanyId=null, activeCompanyId=1016, companyToPreserve=1016
+[log] [DashboardLayout] Preserving active company 1016 after reload
+[log] Loaded profile from backend: {userId: 84, email: user2@test.com, themePreference: Object, layoutDensity: Object, fontSize: Object}
+[log] Applying theme from backend: High Contrast
+[log] Theme applied: High Contrast (high-contrast)
+[log] Applying layout density from backend: Spacious
+[log] Layout density applied: Spacious (spacious)
+[log] Applying font size from backend: Large
+[log] Font size applied: Large (large)
+[log] [CompanyContainer 1016] Event load check: {isExpanded: true, hasChildren: false, eventCount: 17, isActiveCompany: true, isActiveFromProp: true}
+[log] [CompanyContainer 1016] Loading events (active company, 17 events, prop: true, context: true)...
+[log] [CompanyContainer 1016] Starting to load events... (wasActiveFromProp: true)
+[log] Theme preferences saved to localStorage
+[log] [CompanyContainer 1016] Event load check: {isExpanded: true, hasChildren: false, eventCount: 17, isActiveCompany: true, isActiveFromProp: true}
+[log] [CompanyContainer 1016] Loading events (active company, 17 events, prop: true, context: true)...
+[log] [CompanyContainer 1016] Starting to load events... (wasActiveFromProp: true)
+[log] ­ƒôÑ getEvents - Raw backend response: {events: Array(17), total: 17, page: 1, page_size: 50}
+[log] ­ƒôÑ getEvents - First event from backend: {
+  "EventID": 35,
+  "Name": "Event 55",
+  "Description": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "ShortDescription": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "CompanyID": 1032,
+  "CreatedBy": 116,
+  "StartDateTime": "2026-02-07T00:00:00",
+  "EndDateTime": "2026-02-08T12:00:00",
+  "TimezoneIdentifier": "Australia/Sydney",
+  "VenueName": null,
+  "VenueAddress": null,
+  "City": "Sydney",
+  "State": "NSW",
+  "CountryID": 1,
+  "Latitude": null,
+  "Longitude": null,
+  "EventTypeID": 3,
+  "event_type": {
+    "EventTypeID": 3,
+    "TypeCode": "EXPO",
+    "TypeName": "Expo",
+    "TypeDescription": "Public exhibitions and expositions",
+    "IsActive": true,
+    "SortOrder": 3
+  },
+  "IndustryID": 15,
+  "Industry": {
+    "IndustryID": 15,
+    "IndustryCode": "life-sciences",
+    "IndustryName": "Life Sciences",
+    "Description": "Biotechnology, pharmaceutical research, life sciences innovation",
+    "IsActive": true,
+    "SortOrder": 250
+  },
+  "Tags": null,
+  "IsPublic": true,
+  "IsSharedWithPlatform": true,
+  "IsPublicReviewRequired": true,
+  "PublicReviewStatusID": 1,
+  "public_review_status": {
+    "PublicReviewStatusID": 1,
+    "StatusCode": "PENDING",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event is awaiting admin review for platform-wide visibility. Admin will review content quality before approving.",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "clock-icon",
+    "IsActive": true,
+    "SortOrder": 1
+  },
+  "PublicReviewDate": null,
+  "PublicReviewBy": null,
+  "PublicReviewComments": null,
+  "PublicVisibilityDate": null,
+  "EventStatusID": 2,
+  "event_status": {
+    "EventStatusID": 2,
+    "StatusCode": "PENDING_REVIEW",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event submitted for public review",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "pending-icon",
+    "IsActive": true,
+    "SortOrder": 2
+  },
+  "IsRecurring": false,
+  "OrganizerCompanyID": 1032,
+  "OrganizerContactEmail": null,
+  "OrganizerWebsite": null,
+  "OrganizerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "OwnerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "ExpectedAttendees": null,
+  "ActualAttendees": null,
+  "FormsCreated": 0,
+  "TotalSubmissions": 0,
+  "CreatedDate": "2026-01-24T04:25:52.580000",
+  "UpdatedDate": null,
+  "UpdatedBy": null,
+  "user_role": {
+    "role_code": "agency_form_builder",
+    "role_name": "Agency Form Builder",
+    "has_edit_event": false,
+    "has_delete_event": false,
+    "has_manage_participants": false,
+    "has_view_event": true,
+    "is_legacy": false
+  }
+}
+[log] Ô£à getEvents - Transformed event: {eventId: 35, name: Event 55, description: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, shortDescription: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, companyId: 1032}
+[log] Ô£à getEvents - Event tags: null
+[log] Ô£à getEvents - Event expectedAttendees: null
+[log] Ô£à getEvents - Event latitude: null
+[log] Ô£à getEvents - Event longitude: null
+[log] Ô£à getEvents - Event organizerEmail: null
+[log] Ô£à getEvents - Event organizerWebsite: null
+[log] [CompanyContainer 1016] Loaded 17 events
+[log] ­ƒôÑ getEvents - Raw backend response: {events: Array(17), total: 17, page: 1, page_size: 50}
+[log] ­ƒôÑ getEvents - First event from backend: {
+  "EventID": 35,
+  "Name": "Event 55",
+  "Description": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "ShortDescription": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "CompanyID": 1032,
+  "CreatedBy": 116,
+  "StartDateTime": "2026-02-07T00:00:00",
+  "EndDateTime": "2026-02-08T12:00:00",
+  "TimezoneIdentifier": "Australia/Sydney",
+  "VenueName": null,
+  "VenueAddress": null,
+  "City": "Sydney",
+  "State": "NSW",
+  "CountryID": 1,
+  "Latitude": null,
+  "Longitude": null,
+  "EventTypeID": 3,
+  "event_type": {
+    "EventTypeID": 3,
+    "TypeCode": "EXPO",
+    "TypeName": "Expo",
+    "TypeDescription": "Public exhibitions and expositions",
+    "IsActive": true,
+    "SortOrder": 3
+  },
+  "IndustryID": 15,
+  "Industry": {
+    "IndustryID": 15,
+    "IndustryCode": "life-sciences",
+    "IndustryName": "Life Sciences",
+    "Description": "Biotechnology, pharmaceutical research, life sciences innovation",
+    "IsActive": true,
+    "SortOrder": 250
+  },
+  "Tags": null,
+  "IsPublic": true,
+  "IsSharedWithPlatform": true,
+  "IsPublicReviewRequired": true,
+  "PublicReviewStatusID": 1,
+  "public_review_status": {
+    "PublicReviewStatusID": 1,
+    "StatusCode": "PENDING",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event is awaiting admin review for platform-wide visibility. Admin will review content quality before approving.",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "clock-icon",
+    "IsActive": true,
+    "SortOrder": 1
+  },
+  "PublicReviewDate": null,
+  "PublicReviewBy": null,
+  "PublicReviewComments": null,
+  "PublicVisibilityDate": null,
+  "EventStatusID": 2,
+  "event_status": {
+    "EventStatusID": 2,
+    "StatusCode": "PENDING_REVIEW",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event submitted for public review",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "pending-icon",
+    "IsActive": true,
+    "SortOrder": 2
+  },
+  "IsRecurring": false,
+  "OrganizerCompanyID": 1032,
+  "OrganizerContactEmail": null,
+  "OrganizerWebsite": null,
+  "OrganizerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "OwnerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "ExpectedAttendees": null,
+  "ActualAttendees": null,
+  "FormsCreated": 0,
+  "TotalSubmissions": 0,
+  "CreatedDate": "2026-01-24T04:25:52.580000",
+  "UpdatedDate": null,
+  "UpdatedBy": null,
+  "user_role": {
+    "role_code": "agency_form_builder",
+    "role_name": "Agency Form Builder",
+    "has_edit_event": false,
+    "has_delete_event": false,
+    "has_manage_participants": false,
+    "has_view_event": true,
+    "is_legacy": false
+  }
+}
+[log] Ô£à getEvents - Transformed event: {eventId: 35, name: Event 55, description: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, shortDescription: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, companyId: 1032}
+[log] Ô£à getEvents - Event tags: null
+[log] Ô£à getEvents - Event expectedAttendees: null
+[log] Ô£à getEvents - Event latitude: null
+[log] Ô£à getEvents - Event longitude: null
+[log] Ô£à getEvents - Event organizerEmail: null
+[log] Ô£à getEvents - Event organizerWebsite: null
+[log] [CompanyContainer 1016] Loaded 17 events
+[log] ­ƒôÑ getEvents - Raw backend response: {events: Array(17), total: 17, page: 1, page_size: 50}
+[log] ­ƒôÑ getEvents - First event from backend: {
+  "EventID": 35,
+  "Name": "Event 55",
+  "Description": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "ShortDescription": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "CompanyID": 1032,
+  "CreatedBy": 116,
+  "StartDateTime": "2026-02-07T00:00:00",
+  "EndDateTime": "2026-02-08T12:00:00",
+  "TimezoneIdentifier": "Australia/Sydney",
+  "VenueName": null,
+  "VenueAddress": null,
+  "City": "Sydney",
+  "State": "NSW",
+  "CountryID": 1,
+  "Latitude": null,
+  "Longitude": null,
+  "EventTypeID": 3,
+  "event_type": {
+    "EventTypeID": 3,
+    "TypeCode": "EXPO",
+    "TypeName": "Expo",
+    "TypeDescription": "Public exhibitions and expositions",
+    "IsActive": true,
+    "SortOrder": 3
+  },
+  "IndustryID": 15,
+  "Industry": {
+    "IndustryID": 15,
+    "IndustryCode": "life-sciences",
+    "IndustryName": "Life Sciences",
+    "Description": "Biotechnology, pharmaceutical research, life sciences innovation",
+    "IsActive": true,
+    "SortOrder": 250
+  },
+  "Tags": null,
+  "IsPublic": true,
+  "IsSharedWithPlatform": true,
+  "IsPublicReviewRequired": true,
+  "PublicReviewStatusID": 1,
+  "public_review_status": {
+    "PublicReviewStatusID": 1,
+    "StatusCode": "PENDING",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event is awaiting admin review for platform-wide visibility. Admin will review content quality before approving.",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "clock-icon",
+    "IsActive": true,
+    "SortOrder": 1
+  },
+  "PublicReviewDate": null,
+  "PublicReviewBy": null,
+  "PublicReviewComments": null,
+  "PublicVisibilityDate": null,
+  "EventStatusID": 2,
+  "event_status": {
+    "EventStatusID": 2,
+    "StatusCode": "PENDING_REVIEW",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event submitted for public review",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "pending-icon",
+    "IsActive": true,
+    "SortOrder": 2
+  },
+  "IsRecurring": false,
+  "OrganizerCompanyID": 1032,
+  "OrganizerContactEmail": null,
+  "OrganizerWebsite": null,
+  "OrganizerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "OwnerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "ExpectedAttendees": null,
+  "ActualAttendees": null,
+  "FormsCreated": 0,
+  "TotalSubmissions": 0,
+  "CreatedDate": "2026-01-24T04:25:52.580000",
+  "UpdatedDate": null,
+  "UpdatedBy": null,
+  "user_role": {
+    "role_code": "agency_form_builder",
+    "role_name": "Agency Form Builder",
+    "has_edit_event": false,
+    "has_delete_event": false,
+    "has_manage_participants": false,
+    "has_view_event": true,
+    "is_legacy": false
+  }
+}
+[log] Ô£à getEvents - Transformed event: {eventId: 35, name: Event 55, description: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, shortDescription: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, companyId: 1032}
+[log] Ô£à getEvents - Event tags: null
+[log] Ô£à getEvents - Event expectedAttendees: null
+[log] Ô£à getEvents - Event latitude: null
+[log] Ô£à getEvents - Event longitude: null
+[log] Ô£à getEvents - Event organizerEmail: null
+[log] Ô£à getEvents - Event organizerWebsite: null
+[log] [CompanyContainer 1016] Loaded 17 events
+[log] ­ƒôÑ getEvents - Raw backend response: {events: Array(17), total: 17, page: 1, page_size: 50}
+[log] ­ƒôÑ getEvents - First event from backend: {
+  "EventID": 35,
+  "Name": "Event 55",
+  "Description": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "ShortDescription": "Futuristic Event for Nerds. There will be lots of girls so come and join us nerds",
+  "CompanyID": 1032,
+  "CreatedBy": 116,
+  "StartDateTime": "2026-02-07T00:00:00",
+  "EndDateTime": "2026-02-08T12:00:00",
+  "TimezoneIdentifier": "Australia/Sydney",
+  "VenueName": null,
+  "VenueAddress": null,
+  "City": "Sydney",
+  "State": "NSW",
+  "CountryID": 1,
+  "Latitude": null,
+  "Longitude": null,
+  "EventTypeID": 3,
+  "event_type": {
+    "EventTypeID": 3,
+    "TypeCode": "EXPO",
+    "TypeName": "Expo",
+    "TypeDescription": "Public exhibitions and expositions",
+    "IsActive": true,
+    "SortOrder": 3
+  },
+  "IndustryID": 15,
+  "Industry": {
+    "IndustryID": 15,
+    "IndustryCode": "life-sciences",
+    "IndustryName": "Life Sciences",
+    "Description": "Biotechnology, pharmaceutical research, life sciences innovation",
+    "IsActive": true,
+    "SortOrder": 250
+  },
+  "Tags": null,
+  "IsPublic": true,
+  "IsSharedWithPlatform": true,
+  "IsPublicReviewRequired": true,
+  "PublicReviewStatusID": 1,
+  "public_review_status": {
+    "PublicReviewStatusID": 1,
+    "StatusCode": "PENDING",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event is awaiting admin review for platform-wide visibility. Admin will review content quality before approving.",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "clock-icon",
+    "IsActive": true,
+    "SortOrder": 1
+  },
+  "PublicReviewDate": null,
+  "PublicReviewBy": null,
+  "PublicReviewComments": null,
+  "PublicVisibilityDate": null,
+  "EventStatusID": 2,
+  "event_status": {
+    "EventStatusID": 2,
+    "StatusCode": "PENDING_REVIEW",
+    "StatusName": "Pending Review",
+    "StatusDescription": "Event submitted for public review",
+    "StatusColor": "#FFC107",
+    "StatusIcon": "pending-icon",
+    "IsActive": true,
+    "SortOrder": 2
+  },
+  "IsRecurring": false,
+  "OrganizerCompanyID": 1032,
+  "OrganizerContactEmail": null,
+  "OrganizerWebsite": null,
+  "OrganizerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "OwnerCompany": {
+    "CompanyID": 1032,
+    "CompanyName": "ZHENCHANG HUANG",
+    "LegalEntityName": "ZHENCHANG HUANG",
+    "ABN": "42142473964",
+    "ACN": null,
+    "Website": null,
+    "CountryID": 1
+  },
+  "ExpectedAttendees": null,
+  "ActualAttendees": null,
+  "FormsCreated": 0,
+  "TotalSubmissions": 0,
+  "CreatedDate": "2026-01-24T04:25:52.580000",
+  "UpdatedDate": null,
+  "UpdatedBy": null,
+  "user_role": {
+    "role_code": "agency_form_builder",
+    "role_name": "Agency Form Builder",
+    "has_edit_event": false,
+    "has_delete_event": false,
+    "has_manage_participants": false,
+    "has_view_event": true,
+    "is_legacy": false
+  }
+}
+[log] Ô£à getEvents - Transformed event: {eventId: 35, name: Event 55, description: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, shortDescription: Futuristic Event for Nerds. There will be lots of girls so come and join us nerds, companyId: 1032}
+[log] Ô£à getEvents - Event tags: null
+[log] Ô£à getEvents - Event expectedAttendees: null
+[log] Ô£à getEvents - Event latitude: null
+[log] Ô£à getEvents - Event longitude: null
+[log] Ô£à getEvents - Event organizerEmail: null
+[log] Ô£à getEvents - Event organizerWebsite: null
+[log] [CompanyContainer 1016] Loaded 17 events
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[log] [DEVLOG] Logger enabled (with backend sync), session: sess_1769494322353_uf4yrsu
+[log] Ô£à Offline queue initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Ô£à BroadcastChannel initialized
+[log] Loading theme preferences from backend for user: user2@test.com
+[log] Loaded profile from backend: {userId: 84, email: user2@test.com, themePreference: Object, layoutDensity: Object, fontSize: Object}
+[log] Applying theme from backend: High Contrast
+[log] Theme applied: High Contrast (high-contrast)
+[log] Applying layout density from backend: Spacious
+[log] Layout density applied: Spacious (spacious)
+[log] Applying font size from backend: Large
+[log] Font size applied: Large (large)
+[log] Loading theme preferences from backend for user: user2@test.com
+[log] Theme preferences saved to localStorage
+[log] Loaded profile from backend: {userId: 84, email: user2@test.com, themePreference: Object, layoutDensity: Object, fontSize: Object}
+[log] Applying theme from backend: High Contrast
+[log] Theme applied: High Contrast (high-contrast)
+[log] Applying layout density from backend: Spacious
+[log] Layout density applied: Spacious (spacious)
+[log] Applying font size from backend: Large
+[log] Font size applied: Large (large)
+[log] Theme preferences saved to localStorage
+[warning] [DEVLOG] 2026-01-27T07:15:01.188Z WARN resize.handle.width.measured.fallback {componentId: text-1768866112931-605, propsWidth: undefined, actualDomWidth: null, reason: DOM width not measured yet, ResizeHandles will use default (300px) - resize may be incorrect}
+[warning] [DEVLOG] 2026-01-27T07:15:01.195Z WARN resize.handle.width.measured.fallback {componentId: text-1768866112931-605, propsWidth: undefined, actualDomWidth: null, reason: DOM width not measured yet, ResizeHandles will use default (300px) - resize may be incorrect}
+[warning] [DEVLOG] 2026-01-27T07:15:01.199Z WARN resize.handle.width.measured.fallback {componentId: submit-button-1769492061848-479, propsWidth: undefined, actualDomWidth: null, reason: DOM width not measured yet, ResizeHandles will use default (300px) - resize may be incorrect}
+[warning] [DEVLOG] 2026-01-27T07:15:01.199Z WARN resize.handle.width.measured.fallback {componentId: submit-button-1769492061848-479, propsWidth: undefined, actualDomWidth: null, reason: DOM width not measured yet, ResizeHandles will use default (300px) - resize may be incorrect}

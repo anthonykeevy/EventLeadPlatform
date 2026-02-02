@@ -14,6 +14,8 @@ import { TermsPropertiesSection } from './properties/TermsPropertiesSection';
 import { TextareaPropertiesSection } from './properties/TextareaPropertiesSection';
 import { OptionsSection } from './properties/OptionsSection';
 import { DatePropertiesSection } from './properties/DatePropertiesSection';
+import GridLayoutSection from './properties/GridLayoutSection';
+import { ObjectLayoutSection } from './properties/ObjectLayoutSection';
 import { LogicPanel } from './logic/LogicPanel';
 
 /**
@@ -531,6 +533,14 @@ export const PropertiesPanel: React.FC = () => {
     // ═══════════════════════════════════════════════════════════════════════════════
     // SINGLE-SELECT MODE (original behavior)
     // ═══════════════════════════════════════════════════════════════════════════════
+    const selectedStructure = selectedComponent ? ComponentRegistry[selectedComponent.type]?.structure : undefined;
+    const canShowObjectGridLayout =
+        Boolean(selectedStructure?.objects?.length) && !['divider', 'header', 'paragraph'].includes(selectedComponent?.type || '');
+    const isGridMode =
+        !!selectedComponent &&
+        selectedComponent.props.gridLayout !== null &&
+        (selectedComponent.props.gridLayout !== undefined || Boolean(globalStyles.defaultGridLayout));
+
     return (
         <aside className={panelClassName}>
             <TabsHeader />
@@ -586,8 +596,8 @@ export const PropertiesPanel: React.FC = () => {
                     />
                 )}
 
-                {/* Options Section - for select, checkbox, radio */}
-                {['select', 'checkbox', 'radio'].includes(selectedComponent.type) && (
+                {/* Options Section - for dropdown/select, checkbox, radio */}
+                {['select', 'dropdown', 'checkbox', 'radio'].includes(selectedComponent.type) && (
                     <OptionsSection
                         props={selectedComponent.props}
                         onPropsChange={handlePropsChange}
@@ -613,6 +623,32 @@ export const PropertiesPanel: React.FC = () => {
                         componentType={selectedComponent.type}
                         globalDefaultLayout={globalStyles.defaultLayout}
                     />
+                )}
+
+                {/* ═══════════════════════════════════════════════════════════════ */}
+                {/* LAYOUT MODE (Object Layout vs Grid Layout) */}
+                {/* ═══════════════════════════════════════════════════════════════ */}
+                {canShowObjectGridLayout && selectedStructure && (
+                    <>
+                        <GridLayoutSection
+                            component={selectedComponent}
+                            structure={selectedStructure}
+                            onPropsChange={handlePropsChange}
+                            globalStyles={globalStyles}
+                        />
+                        {/* Only show Object Layout editor when in Object mode */}
+                        {!isGridMode && (
+                            <ObjectLayoutSection
+                                component={selectedComponent}
+                                structure={selectedStructure}
+                                onPropsChange={handlePropsChange}
+                                globalStyles={{
+                                    defaultObjectLayout: globalStyles.defaultObjectLayout,
+                                    defaultLayoutGroups: globalStyles.defaultLayoutGroups,
+                                }}
+                            />
+                        )}
+                    </>
                 )}
 
                 {/* ═══════════════════════════════════════════════════════════════ */}

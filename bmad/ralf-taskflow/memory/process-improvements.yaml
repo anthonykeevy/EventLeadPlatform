@@ -1,0 +1,168 @@
+# Process Improvements - Ralf Taskflow Memory
+# Decomposition and verification tweaks that reduced churn
+# Updated from retrospective findings
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+decomposition_improvements:
+
+  # Improvement 1: Verification-First ACs
+  verification_first:
+    name: "Write Verification Before AC Text"
+    description: "Start with how to verify, then write the AC"
+    applies_to: "ralf-sm"
+    benefits:
+      - "Forces specific, testable ACs"
+      - "Reduces ambiguity"
+      - "Makes test-first development natural"
+    example:
+      before: |
+        AC: User can submit the form
+      after: |
+        AC: User can submit the form
+        Verification: Click Submit, see "Saved" toast, form resets
+        Test: `npm test -- --testPathPattern=submit`
+    frequency: 0
+
+  # Improvement 2: Explicit Forbidden Zones
+  forbidden_zones:
+    name: "Define Forbidden Zones First"
+    description: "Before coding, list files/modules NOT to touch"
+    applies_to: "ralf-sm, ralf-dev"
+    benefits:
+      - "Prevents scope creep"
+      - "Reduces blast radius"
+      - "Clearer boundaries"
+    example:
+      task_spec_section: |
+        ## Forbidden Zones
+        - DO NOT modify: auth/, database schemas, global styles
+        - DO NOT add: new dependencies, new endpoints
+        - If you need to touch these, STOP and ask ralf-sm
+    frequency: 0
+
+  # Improvement 3: Edge Case Checklist
+  edge_case_checklist:
+    name: "Standard Edge Case Checklist"
+    description: "Include standard edge cases in every Task Spec"
+    applies_to: "ralf-sm"
+    benefits:
+      - "Catches common failures early"
+      - "Reduces UAT churn"
+    template: |
+      ## Edge Cases to Handle
+      - [ ] Empty input
+      - [ ] Maximum length input
+      - [ ] Special characters
+      - [ ] Concurrent operations
+      - [ ] Network failure
+      - [ ] Unauthorized access
+    frequency: 0
+
+verification_improvements:
+
+  # Improvement 1: Test Before Complete
+  test_before_complete:
+    name: "Run All Tests Before Marking Complete"
+    description: "Full test suite must pass before completion note"
+    applies_to: "ralf-dev"
+    commands:
+      - "npm run lint"
+      - "npm test"
+      - "npm run build"
+    benefits:
+      - "Catches regressions"
+      - "Validates integration"
+    frequency: 0
+
+  # Improvement 2: Screenshot Evidence
+  screenshot_evidence:
+    name: "Include Screenshots in Completion"
+    description: "Visual proof of AC satisfaction"
+    applies_to: "ralf-dev"
+    benefits:
+      - "UAT can verify visually"
+      - "Documentation for future reference"
+    template: |
+      ## Visual Evidence
+      - [x] Component renders: [screenshot]
+      - [x] Error state: [screenshot]
+      - [x] Success state: [screenshot]
+    frequency: 0
+
+  # Improvement 3: Command + Output
+  command_output:
+    name: "Include Command AND Output"
+    description: "Show exact command and full output"
+    applies_to: "ralf-dev"
+    example:
+      bad: |
+        Tests pass
+      good: |
+        ```
+        $ npm test -- --testPathPattern=form
+        PASS src/features/form/__tests__/Form.test.tsx
+          ✓ renders correctly (45ms)
+          ✓ validates required fields (23ms)
+        Test Suites: 1 passed, 1 total
+        Tests: 2 passed, 2 total
+        ```
+    frequency: 0
+
+uat_improvements:
+
+  # Improvement 1: Scope Check First
+  scope_check_first:
+    name: "Run Scope Check Before Marking Defect"
+    description: "Always verify failure is in-scope before calling it a defect"
+    applies_to: "ralf-uat"
+    benefits:
+      - "Reduces false defects"
+      - "Proper routing of new features"
+    steps:
+      1: "Identify the failing behavior"
+      2: "Find the relevant AC"
+      3: "If no AC covers it, it's OUT OF SCOPE"
+      4: "Only mark DEFECT if AC is violated"
+    frequency: 0
+
+  # Improvement 2: Evidence Template
+  evidence_template:
+    name: "Standard Evidence Template"
+    description: "Consistent evidence format for UAT failures"
+    applies_to: "ralf-uat"
+    template: |
+      ## Failure Evidence
+      - **Step:** [which step failed]
+      - **Expected:** [what should happen per AC]
+      - **Actual:** [what happened]
+      - **Screenshot:** [image]
+      - **Console:** [any errors]
+      - **Reproduction:** [steps to reproduce]
+    frequency: 0
+
+# Patterns that reduced churn
+churn_reduction_patterns:
+
+  - pattern: "Add verification method to every AC"
+    churn_reduced: "Ambiguous AC debates"
+    measured_improvement: "50% fewer UAT clarification questions"
+    
+  - pattern: "Run full test suite before completion"
+    churn_reduced: "Integration failures"
+    measured_improvement: "Caught issues before UAT"
+    
+  - pattern: "Scope check before marking defect"
+    churn_reduced: "False defects / scope creep"
+    measured_improvement: "Proper routing of new requests"
+
+# Template for new improvements
+template:
+  name: ""
+  description: ""
+  applies_to: ""
+  benefits: []
+  example:
+    before: ""
+    after: ""
+  frequency: 0

@@ -1,0 +1,235 @@
+﻿- document:
+  - banner:
+    - link [ref=e1]:
+      - /url: /dashboard
+      - img
+    - 'heading "Form: 46" [level=1]'
+    - text: Draft
+    - button "Undo (Ctrl+Z)" [ref=e2] [disabled]:
+      - img
+    - button "Redo (Ctrl+Y)" [ref=e3] [disabled]:
+      - img
+    - button "Dev Logs" [ref=e4]:
+      - img
+      - text: Dev Logs
+    - button "Builder preview" [ref=e5]:
+      - img
+      - text: Builder preview
+    - button "Public preview" [ref=e6]:
+      - img
+      - text: Public preview
+    - button "Settings" [ref=e7]:
+      - img
+      - text: Settings
+    - button "Save" [ref=e8]:
+      - img
+      - text: Save
+  - complementary:
+    - heading "Toolbox" [ref=e9] [level=3]
+    - paragraph: Drag components to canvas
+    - heading "Input Fields" [ref=e10] [level=4]
+    - button "First Name * ~30 chars (273px)" [ref=e11]:
+      - text: First Name *
+      - textbox "First Name *" [ref=e12]:
+        - /placeholder: Enter your first name
+      - text: ~30 chars (273px)
+      - alert: We only allow a max of 30 Characters
+    - button "Text Field ~50 chars (428px)" [ref=e13]:
+      - text: Text Field
+      - textbox "Text Field" [ref=e14]:
+        - /placeholder: Enter text...
+      - text: ~50 chars (428px)
+      - alert: We only allow a max of 50 Characters
+    - button "Number Field" [ref=e15]:
+      - text: Number Field
+      - spinbutton "Number Field" [ref=e16]
+      - alert: We only allow a max of 12 Characters
+    - button "Email Address ~254 chars (2007px)" [ref=e17]:
+      - text: Email Address
+      - textbox "Email Address" [ref=e18]:
+        - /placeholder: name@example.com
+      - text: ~254 chars (2007px)
+      - alert: We only allow a max of 254 Characters
+    - button "Long Text" [ref=e19]:
+      - text: Long Text
+      - textbox "Long Text" [ref=e20]:
+        - /placeholder: Enter details...
+      - alert: We only allow a max of 500 Characters
+    - button "Dropdown Select option" [ref=e21]:
+      - text: Dropdown
+      - combobox "Dropdown" [ref=e22]:
+        - option "Select option" [ref=e23] [selected]
+        - option "Option 1" [ref=e24]
+        - option "Option 2" [ref=e25]
+        - option "Option 3" [ref=e26]
+      - alert: Validation error message
+    - button "Select Date" [ref=e27]:
+      - text: Select Date
+      - textbox "Select Date" [ref=e28]:
+        - /placeholder: DD/MM/YYYY
+      - alert: Validation error message
+    - button "Checkbox Option 1 Option 2" [ref=e29]:
+      - text: Checkbox
+      - checkbox "Option 1" [ref=e30]
+      - text: Option 1
+      - checkbox "Option 2" [ref=e31]
+      - text: Option 2
+      - alert: Validation error message
+    - button "Radio Group Option 1 Option 2" [ref=e32]:
+      - text: Radio Group
+      - radio "Option 1" [ref=e33]
+      - text: Option 1
+      - radio "Option 2" [ref=e34]
+      - text: Option 2
+      - alert: Validation error message
+    - button "Phone Number" [ref=e35]:
+      - text: Phone Number
+      - textbox "Phone Number" [ref=e36]:
+        - /placeholder: +61 400 000 000
+      - alert: We only allow a max of 20 Characters
+    - button "Address ~120 chars (970px)" [ref=e37]:
+      - text: Address
+      - textbox "Address" [ref=e38]:
+        - /placeholder: Start typing your address...
+      - text: ~120 chars (970px)
+      - alert: We only allow a max of 120 Characters
+    - button "I agree to the Terms of Service *" [ref=e39]:
+      - checkbox "I agree to the Terms of Service *" [ref=e40] [disabled]
+      - text: I agree to the Terms of Service
+      - img
+      - text: "*"
+      - alert: Validation error message
+    - button "Submit" [ref=e41]:
+      - button "Submit" [ref=e42] [nth=1] [disabled]:
+        - img
+        - text: Submit
+      - alert: Validation error message
+    - heading "Display" [ref=e43] [level=4]
+    - button "Header" [ref=e44]:
+      - heading "Header" [ref=e45] [level=3]
+    - button [ref=e46]
+  - main:
+    - text: Page 1
+    - button "Elements" [ref=e47]:
+      - img
+      - text: Elements
+    - button "Background" [ref=e48]:
+      - img
+      - text: Background
+    - text: 30% ÔÇó 1920x980
+    - button "Desktop (1920x980)" [ref=e49]:
+      - img
+    - button "Tablet (768x1024)" [ref=e50]:
+      - img
+    - button "Mobile (375x667)" [ref=e51]:
+      - img
+    - button "Toggle Grid" [ref=e52]:
+      - img
+    - img:
+      - button [ref=e53] [nth=1]
+    - text: Text Field
+    - textbox "Text Field" [ref=e54] [nth=1]:
+      - /placeholder: Enter text...
+    - text: ~50 chars (428px)
+    - alert: We only allow a max of 50 Characters
+  - complementary:
+    - button "Inspector" [ref=e55]:
+      - img
+      - text: Inspector
+    - button "Logic" [ref=e56]:
+      - img
+      - text: Logic
+    - img
+    - heading "Global Styles" [ref=e57] [level=3]
+    - paragraph: These settings apply to all components. Individual components can override these values.
+    - img
+    - heading "Focus Color" [ref=e58] [level=4]
+    - paragraph: Highlight color for focused inputs and interactive elements.
+    - text: Primary
+    - button "#0055FF" [ref=e59]
+    - 'textbox "Hex color code (e.g., #FF0000) or RGB (e.g., rgb(255, 0, 0))"':
+      - /placeholder: "#000000"
+      - text: "#0055FF"
+    - img
+    - textbox [ref=e60]: "#0055ff"
+    - paragraph: Accepts hex (#RRGGBB) or RGB format
+    - img
+    - heading "Typography & Spacing" [ref=e61] [level=4]
+    - paragraph: Ordered to match component layout. Spacing controls show distance between elements.
+    - button "Label Text Text color" [ref=e62]:
+      - img
+      - text: Label Text
+      - img
+    - paragraph: Inter ÔÇó 14px ÔÇó Medium
+    - img
+    - text: Label Ôåö Input gap
+    - slider [ref=e63]: "1"
+    - text: 8px
+    - button "Input Text Text color Background color" [ref=e64]:
+      - img
+      - text: Input Text
+      - img
+    - paragraph: Inter ÔÇó 14px ÔÇó Regular
+    - img
+    - text: Input Ôåô Help text
+    - slider [ref=e65] [nth=1]: "0.5"
+    - text: 4px
+    - button "Help & Validation Text color" [ref=e66]:
+      - img
+      - text: Help & Validation
+      - img
+    - paragraph: Inter ÔÇó 12px ÔÇó Regular
+    - img
+    - text: Dividers & Lines Color
+    - textbox [ref=e67] [nth=1]: "#e5e7eb"
+    - text: Thickness (1px)
+    - slider [ref=e68] [nth=2]: "1"
+    - text: Length
+    - textbox "380px or 100%" [ref=e69]: 380px
+    - img
+    - heading "Grid Layout Defaults" [ref=e70] [level=4]
+    - paragraph: Default grid settings for components using Grid Layout mode
+    - text: Default Rows
+    - button [ref=e71] [nth=2]:
+      - img
+    - spinbutton [ref=e72]: "3"
+    - button [ref=e73] [nth=3]:
+      - img
+    - text: Default Columns
+    - button [ref=e74] [nth=4] [disabled]:
+      - img
+    - spinbutton [ref=e75] [nth=1]: "1"
+    - button [ref=e76] [nth=5]:
+      - img
+    - text: Default Row Gap
+    - slider [ref=e77] [nth=3]: "8"
+    - text: 8px Default Col Gap
+    - slider [ref=e78] [nth=4]: "8"
+    - text: 8px
+    - img
+    - heading "Object Layout" [ref=e79] [level=4]
+    - paragraph: Default object layout for components with structure (UniversalFieldShell). Individual components can override this.
+    - text: Default Object Layout
+    - combobox [ref=e80]:
+      - option "Vertical" [ref=e81] [selected]
+      - option "Horizontal" [ref=e82]
+      - option "Mixed" [ref=e83]
+    - img
+    - paragraph: Default object layout for components with structure (vertical/horizontal/mixed)
+    - text: Default Row Gap (px)
+    - button [ref=e84] [nth=6] [disabled]:
+      - img
+    - spinbutton [ref=e85] [nth=2]: "0"
+    - text: px
+    - button [ref=e86] [nth=7]:
+      - img
+    - paragraph: "Layer 3 spacing: default vertical gap between Object Layout rows. Per-component objectSpacing.verticalSpacing overrides this."
+    - text: Default Column Gap (px)
+    - button [ref=e87] [nth=8]:
+      - img
+    - spinbutton [ref=e88] [nth=3]: "8"
+    - text: px
+    - button [ref=e89] [nth=9]:
+      - img
+    - paragraph: "Layer 3 spacing: default horizontal gap within an Object Layout row. Per-component objectSpacing.horizontalGap overrides this."
+  - status

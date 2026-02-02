@@ -56,5 +56,54 @@ class FormVersion(Base):
     def definition(self, value):
         self.DefinitionJSON = json.dumps(value)
 
+    # -------------------------------------------------------------------------
+    # Pydantic / API compatibility helpers
+    #
+    # The API response schemas use snake_case field names (e.g. form_version_id)
+    # and rely on `from_attributes=True`. The underlying SQLAlchemy model uses
+    # PascalCase column attributes (e.g. FormVersionID). Provide snake_case
+    # properties so FastAPI can serialize FormVersion rows reliably.
+    # -------------------------------------------------------------------------
+
+    @property
+    def form_version_id(self):
+        return self.FormVersionID
+
+    @property
+    def form_id(self):
+        return self.FormID
+
+    @property
+    def version_number(self):
+        return self.VersionNumber
+
+    @property
+    def status(self):
+        return self.Status
+
+    @property
+    def is_active(self):
+        return self.IsActive
+
+    @property
+    def created_date(self):
+        return self.CreatedDate
+
+    @property
+    def created_by(self):
+        return self.CreatedBy
+
+    @property
+    def published_date(self):
+        return self.PublishedDate
+
+    @property
+    def published_by(self):
+        return self.PublishedBy
+
+    @property
+    def version_comment(self):
+        return self.VersionComment
+
     def __repr__(self):
         return f"<FormVersion(ID={self.FormVersionID}, Form={self.FormID}, v{self.VersionNumber}, Status={self.Status})>"

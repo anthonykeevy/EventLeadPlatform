@@ -68,6 +68,11 @@ export function DashboardLayout() {
 
     // Don't try to load companies if user hasn't completed onboarding
     if (user && user.onboarding_complete) {
+      // If we already have a company_id from the JWT, seed activeCompanyId to avoid
+      // unnecessary switch-company token churn on dashboard load.
+      if (activeCompanyId === null && user.company_id) {
+        setActiveCompanyId(user.company_id)
+      }
       // On initial mount, switch to default company (shouldSwitchToDefault = true)
       // This ensures the JWT token matches the default company
       const isInitialLoad = activeCompanyId === null && companies.length === 0
@@ -150,9 +155,12 @@ export function DashboardLayout() {
           if (!selectedCompany) {
             selectedCompany = data.companies[0]
           }
-          
+
           // If default company doesn't match the current active company, switch to it
-          if (selectedCompany.companyId !== activeCompanyId) {
+          const shouldSwitch = selectedCompany.companyId !== activeCompanyId
+            && !(activeCompanyId === null && user.company_id === selectedCompany.companyId)
+
+          if (shouldSwitch) {
             // Switch to the default company (this will update JWT tokens)
             try {
               const response = await switchCompany(selectedCompany.companyId)

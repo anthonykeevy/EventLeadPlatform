@@ -1,0 +1,114 @@
+# Failure Patterns - Ralf Taskflow Memory
+# This file stores learned failure modes to prevent in future decompositions
+# Append-only: Add new patterns, never remove
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+failure_patterns:
+
+  # Pattern 1: Scope Creep in Session
+  scope_creep_in_session:
+    name: "Scope Creep During Dev Session"
+    symptoms:
+      - "Dev agent implements features not in task spec"
+      - "User requests 'small additions' during task execution"
+      - "Task grows beyond original estimate"
+    root_cause: "Task spec scope boundaries not explicit enough"
+    prevention:
+      - "Add explicit 'Out-of-Scope Handling' section to every task"
+      - "List specific forbidden features, not just forbidden files"
+      - "Include 'If user asks for X, route to Y' instructions"
+    detection_test: "Review task spec: Can you list 3 things this task explicitly won't do?"
+
+  # Pattern 2: Context Bleed
+  context_bleed:
+    name: "Context Bleeding Between Tasks"
+    symptoms:
+      - "Task assumes knowledge from previous task"
+      - "Task spec references 'as we discussed' or 'continuing from'"
+      - "Task fails when run in fresh session"
+    root_cause: "Tasks designed as continuation, not isolated units"
+    prevention:
+      - "Each task must include all context needed (file paths, data shapes)"
+      - "Reference story context file, not prior tasks"
+      - "Include 'Starting State' section in task spec"
+    detection_test: "Give task to new agent with no history - does it have everything needed?"
+
+  # Pattern 3: Untestable Criteria
+  untestable_criteria:
+    name: "Acceptance Criteria That Can't Be Verified"
+    symptoms:
+      - "AC uses vague terms: 'works correctly', 'is performant', 'looks good'"
+      - "No specific verification method listed"
+      - "UAT argues about whether AC is met"
+    root_cause: "AC written as requirements, not as tests"
+    prevention:
+      - "Every AC must have a verification method column"
+      - "Verification must be binary (pass/fail)"
+      - "Include specific values/behaviors to check"
+    detection_test: "Can a stranger verify this AC in under 2 minutes?"
+
+  # Pattern 4: Missing Error Cases
+  missing_error_cases:
+    name: "Error Handling Not Specified"
+    symptoms:
+      - "Implementation only covers happy path"
+      - "UAT discovers crashes on edge cases"
+      - "Error messages are generic or missing"
+    root_cause: "Task spec focused on 'what to build', not 'what can go wrong'"
+    prevention:
+      - "Always include 'Expected Error Cases' section"
+      - "List at least 2 error scenarios per task"
+      - "Specify expected behavior for each error"
+    detection_test: "Does the task spec say what happens when inputs are invalid?"
+
+  # Pattern 5: Forbidden Zone Violation
+  forbidden_zone_violation:
+    name: "Changes Made to Protected Files"
+    symptoms:
+      - "Git diff shows changes to files from completed epics"
+      - "Other features break after task completion"
+      - "Regression tests fail"
+    root_cause: "Forbidden zones not explicit or not enforced"
+    prevention:
+      - "List forbidden zones with full paths"
+      - "Explain WHY each zone is forbidden"
+      - "Include forbidden zone check in dev agent instructions"
+    detection_test: "Run git diff and check against forbidden zone list"
+
+  # Pattern 6: Integration Surprise
+  integration_surprise:
+    name: "Tasks Work Alone But Fail Together"
+    symptoms:
+      - "All tasks pass individual testing"
+      - "Combined behavior has bugs"
+      - "Data format mismatches between tasks"
+    root_cause: "No integration verification in task plan"
+    prevention:
+      - "Add integration checkpoint tasks at key points"
+      - "Define data contracts explicitly in dependent tasks"
+      - "Include integration test in final task"
+    detection_test: "Is there a task that verifies all other tasks work together?"
+
+  # Pattern 7: UAT Loop
+  uat_loop:
+    name: "Repeated UAT Failures on Same Issue"
+    symptoms:
+      - "Same type of issue found in UAT across multiple tasks"
+      - "Fix-UAT-fix-UAT cycle"
+      - "Pattern not being learned"
+    root_cause: "Lessons not being recorded or applied"
+    prevention:
+      - "Record every UAT failure in LESSONS-LEARNED.md"
+      - "Before generating new tasks, review lessons file"
+      - "Add common failure modes to task spec template"
+    detection_test: "Has this issue been seen before? If yes, why wasn't it prevented?"
+
+# High-risk indicators to check before approving task plan
+high_risk_indicators:
+  - "Task has more than 5 acceptance criteria"
+  - "Task touches more than 3 source files"
+  - "Task has no automated test requirement"
+  - "Task depends on more than 2 other tasks"
+  - "Task includes 'refactor' or 'improve' in scope"
+  - "Task crosses architectural boundaries (e.g., both backend and frontend changes)"

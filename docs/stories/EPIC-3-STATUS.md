@@ -26,8 +26,8 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 7/9 | 🏃 In Progress |
-| **Current Story** | 3.8 - Public Form Renderer | 🛠️ **Next (Ready for Development)** |
+| **Stories Complete** | 8/11 | 🏃 In Progress |
+| **Current Story** | 3.8 & 3.9 - UAT | 🧪 **In UAT** |
 | **Domains Complete** | 3/4 | 🏃 In Progress |
 | **UAT Tests Passed** | 10 scenarios (Story 3.7) | ✅ Passed |
 
@@ -41,12 +41,14 @@
 *   **Status:** ✅ Complete
 
 ### **Domain 2: Visual Builder**
-*   **Stories:** 3.3, 3.4, 3.5
-*   **Focus:** Drag-and-drop UI, Component library, Property editors
-*   **Status:** ✅ Complete
+*   **Stories:** 3.3, 3.4, 3.5, 3.9, 3.10
+*   **Focus:** Drag-and-drop UI, Component library, Property editors, Grid Layout, Persistence
+*   **Status:** 🏃 In Progress
     *   *Story 3.3:* Canvas Foundation (✅ Complete)
     *   *Story 3.4:* Component Library & Grid (✅ Complete)
     *   *Story 3.5:* Properties Panel (✅ Complete)
+*   *Story 3.9:* Builder Persistence (🧪 In UAT)
+*   *Story 3.10:* Grid Layout System (✅ Complete)
 
 ### **Domain 3: Logic Engine**
 *   **Stories:** 3.6, 3.7
@@ -54,9 +56,9 @@
 *   **Status:** ✅ Complete
 
 ### **Domain 4: Rendering & Submission**
-*   **Stories:** 3.8, 3.9
+*   **Stories:** 3.8, 3.11
 *   **Focus:** Public renderer, Offline support, Async submission queue
-*   **Status:** 📋 Planned
+*   **Status:** 🧪 In UAT
 
 ---
 
@@ -71,25 +73,34 @@
 | **3.5** | **Properties Panel** | ✅ Complete | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. Global vs Individual settings. Layout toggles. |
 | **3.6** | Conditional Logic UI | ✅ Complete | Logic | **The Rules.** Author rules and persist them into DefinitionJSON. |
 | **3.7** | Rule Evaluation Engine | ✅ Complete | Logic | **The Brain.** Frontend engine that runs the rules in real-time (builder preview + renderer parity). |
-| **3.8** | Public Form Renderer | 🛠️ **Next** | Render | **The Player.** Renders the public form exactly on the **selected design canvas/device profile** (no responsive reflow; separate canvases require separate designs). |
-| **3.9** | Dynamic Submission | 📋 Planned | Render | **The Outbox.** Queue system for offline submissions and syncing. |
+| **3.8** | Public Form Renderer | 🧪 **In UAT** | Render | **The Player.** Renders the public form exactly on the **selected design canvas/device profile**. |
+| **3.9** | Builder Persistence | 🧪 **In UAT** | Builder | **The Bridge.** Save and load the builder's `FormDefinition` to/from `FormVersion.DefinitionJSON`. |
+| **3.10** | Grid Layout System | ✅ **Complete** | Builder | **The Grid.** CSS Grid-based layout alternative to Object Layout. Resolves Component Framework issues blocking 3.8/3.9 UAT. |
+| **3.11** | Dynamic Submission | 📋 Planned | Render | **The Outbox.** Queue system for offline submissions and syncing. |
 
 ---
 
-## 🎯 **Story 3.7 Focus Areas**
+## 🎯 **Story 3.10 Focus Areas**
 
-This story activates the Logic Engine at runtime by executing the rules authored in Story 3.6.
+This story delivers **Grid Layout System** ("The Grid") as an alternative layout option alongside Object Layout. Grid Layout resolves Component Framework issues that are blocking UAT testing for Stories 3.8 and 3.9.
 
 ### Key Features
-1. **Runtime Evaluation:** Evaluate `formDefinition.logic.rules` deterministically on relevant value changes.
-2. **Live Effects:** Apply show/hide, enable/disable, require/unrequire in **builder preview** and **renderer**.
-3. **Predictable Ordering:** Persisted rule order matters; conflicts resolve deterministically (last applicable rule wins).
-4. **Resilience:** Missing/broken references are ignored safely and surfaced as non-blocking warnings in UI.
+1. **Grid Layout Modal:** Configure rows, columns, and gaps via a visual editor.
+2. **Object Assignment:** Drag-and-drop component objects (label, input, validation) onto grid cells.
+3. **Cell Merging:** Combine adjacent cells for objects that span multiple cells.
+4. **Individual Spacing:** Per-row and per-column gap customization.
+5. **Global Defaults:** Form-wide default settings with per-component overrides.
+6. **Coexistence:** Works alongside existing Object Layout (user choice per component).
 
 ### Technical Scope
-- **Shared Engine Module:** A pure evaluation function usable by builder preview and renderer.
-- **Runtime State Application:** A computed per-component state (visible/enabled/required) applied during rendering.
-- **Warning Surface:** UI indicator for ignored rules due to broken references or invalid comparisons.
+- **GridLayoutConfig type:** Add to builder.types.ts with rows, columns, gaps, assignments, merging.
+- **Grid Editor Component:** Visual grid with drag-and-drop using @dnd-kit.
+- **UniversalFieldShell integration:** Render grid layout when gridLayout is configured.
+- **CSS Grid generation:** Convert GridLayoutConfig to proper CSS Grid styles.
+- **Testability:** Provides robust layout system for Stories 3.8/3.9 UAT.
+
+### Reference Specification
+See: `docs/GRID-LAYOUT-GUIDE.md` for comprehensive schema, mockups, and implementation details.
 
 ---
 
@@ -104,8 +115,10 @@ This story activates the Logic Engine at runtime by executing the rules authored
 | 3.5 | `story-3.5.md` | `story-context-3.5.xml` | `STORY-3.5-UAT-TEST-GUIDE.md` ✅ |
 | 3.6 | `story-3.6.md` | `story-context-3.6.xml` | `STORY-3.6-UAT-TEST-GUIDE.md` ✅ |
 | 3.7 | `story-3.7.md` | `story-context-3.7.xml` | `STORY-3.7-UAT-TEST-GUIDE.md` ✅ |
-| 3.8 | `story-3.8.md` | `story-context-3.8.xml` | `STORY-3.8-UAT-TEST-GUIDE.md` (TBD) |
-| 3.9 | `story-3.9.md` | `story-context-3.9.xml` | `STORY-3.9-UAT-TEST-GUIDE.md` (TBD) |
+| 3.8 | `story-3.8.md` | `story-context-3.8.xml` | `STORY-3.8-UAT-TEST-GUIDE.md` (In UAT) |
+| 3.9 | `story-3.9.md` | `story-context-3.9.xml` | `STORY-3.9-UAT-TEST-GUIDE.md` (In UAT) |
+| 3.10 | `story-3.10.md` | `story-context-3.10.xml` | `docs/tasks/3.10/T08-integration-coexistence.uat.md` |
+| 3.11 | `story-3.11.md` | `story-context-3.11.xml` | `STORY-3.11-UAT-TEST-GUIDE.md` (TBD) |
 
 ### **Story 3.5 Additional Documentation**
 | Document | Description |
@@ -115,4 +128,4 @@ This story activates the Logic Engine at runtime by executing the rules authored
 ---
 
 *Epic 3 Status Document - Updated by Scrum Master Agent*  
-*Last Updated: 2025-12-14*
+*Last Updated: 2026-01-15 (Story 3.10 Complete; 3.8/3.9 In UAT)*

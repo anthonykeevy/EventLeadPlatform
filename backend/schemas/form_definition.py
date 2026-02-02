@@ -6,10 +6,19 @@ class ComponentType(str, Enum):
     TEXT = "text"
     NUMBER = "number"
     SELECT = "select"
+    DROPDOWN = "dropdown"
     DATE = "date"
     CHECKBOX = "checkbox"
     RADIO = "radio"
     TEXTAREA = "textarea"
+    EMAIL = "email"
+    PHONE = "phone"
+    ADDRESS = "address"
+    FIRST_NAME = "first-name"
+    TERMS = "terms"
+    SUBMIT_BUTTON = "submit-button"
+    HEADER = "header"
+    DIVIDER = "divider"
 
 class FormTheme(BaseModel):
     primaryColor: str = Field(default="#000000")
@@ -17,7 +26,7 @@ class FormTheme(BaseModel):
     fontFamily: str = Field(default="Arial")
 
 class ComponentProps(BaseModel):
-    label: str = Field(..., min_length=1)
+    label: Optional[str] = None
     required: bool = False
     placeholder: Optional[str] = None
     # Allow extra fields for specific component types (e.g., options for select)

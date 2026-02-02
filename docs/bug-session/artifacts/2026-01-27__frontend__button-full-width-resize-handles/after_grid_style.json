@@ -1,0 +1,11 @@
+﻿{
+  "button": {
+    "width": "1910px"
+  },
+  "grid": {
+    "alignItems": "stretch",
+    "justifyItems": "stretch",
+    "placeItems": "stretch",
+    "width": "1910px"
+  }
+}

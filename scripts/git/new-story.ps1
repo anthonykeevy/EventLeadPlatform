@@ -40,7 +40,7 @@ function Show-And-Run {
 }
 
 $storyBranch = "story/epic$Epic-$Story-$Slug"
-$storyWorktreeName = "story-" + ($storyBranch -replace "[/\\\\]", "-")
+$storyWorktreeName = ($storyBranch -replace "[/\\\\]", "-")
 $storyWorktreePath = Join-Path $WorktreeRoot $storyWorktreeName
 
 Write-Host "Story branch: $storyBranch"
@@ -50,10 +50,25 @@ Write-Host "Remote:       $Remote"
 Show-And-Run -CommandText "git fetch $Remote" -Command { git fetch $Remote }
 Show-And-Run -CommandText "git switch $BaseBranch" -Command { git switch $BaseBranch }
 Show-And-Run -CommandText "git pull $Remote $BaseBranch" -Command { git pull $Remote $BaseBranch }
-Show-And-Run -CommandText "git switch -c `"$storyBranch`"" -Command { git switch -c $storyBranch }
-Show-And-Run -CommandText "git push -u $Remote HEAD" -Command { git push -u $Remote HEAD }
 
 if ($CreateWorktree) {
+  # IMPORTANT: A worktree cannot be created for a branch that is already checked out in the main repo.
+  # When using worktrees, we keep the main repo on the base branch and check out the story branch in the worktree.
+
+  # Create branch ref without checking it out in the main repo.
+  $branchExists = $false
+  & git show-ref --verify --quiet "refs/heads/$storyBranch" 2>$null
+  if ($LASTEXITCODE -eq 0) { $branchExists = $true }
+
+  if (-not $branchExists) {
+    Show-And-Run -CommandText "git branch `"$storyBranch`"" -Command { git branch $storyBranch }
+  } else {
+    Write-Host ""
+    Write-Host "Local branch already exists; skipping: $storyBranch"
+  }
+
+  Show-And-Run -CommandText "git push -u $Remote `"$storyBranch`"" -Command { git push -u $Remote $storyBranch }
+
   if (-not $DryRun) {
     New-Item -ItemType Directory -Force -Path $WorktreeRoot | Out-Null
   } else {
@@ -62,8 +77,13 @@ if ($CreateWorktree) {
   }
 
   Show-And-Run -CommandText "git worktree add `"$storyWorktreePath`" `"$storyBranch`"" -Command { git worktree add $storyWorktreePath $storyBranch }
+
   Write-Host ""
   Write-Host "Story worktree path: $storyWorktreePath"
+} else {
+  # Non-worktree mode: check out the branch in the main repo.
+  Show-And-Run -CommandText "git switch -c `"$storyBranch`"" -Command { git switch -c $storyBranch }
+  Show-And-Run -CommandText "git push -u $Remote HEAD" -Command { git push -u $Remote HEAD }
 }
 
 if ($DraftPR) {

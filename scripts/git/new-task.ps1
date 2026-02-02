@@ -50,12 +50,35 @@ Write-Host "Task branch:  $taskBranch"
 Write-Host "Remote:       $Remote"
 
 Show-And-Run -CommandText "git fetch $Remote" -Command { git fetch $Remote }
-Show-And-Run -CommandText "git switch `"$StoryBranch`"" -Command { git switch $StoryBranch }
-Show-And-Run -CommandText "git pull $Remote `"$StoryBranch`"" -Command { git pull $Remote $StoryBranch }
-Show-And-Run -CommandText "git switch -c `"$taskBranch`"" -Command { git switch -c $taskBranch }
-Show-And-Run -CommandText "git push -u $Remote HEAD" -Command { git push -u $Remote HEAD }
 
 if ($CreateWorktree) {
+  # IMPORTANT: A worktree cannot be created for a branch that is already checked out in the main repo.
+  # Create the task branch ref first, then check it out in a worktree.
+
+  # Prefer remote ref if present; fallback to local branch name.
+  $baseRef = "$Remote/$StoryBranch"
+  & git show-ref --verify --quiet "refs/remotes/$Remote/$StoryBranch" 2>$null
+  if ($LASTEXITCODE -ne 0) {
+    $baseRef = $StoryBranch
+    & git show-ref --verify --quiet "refs/heads/$StoryBranch" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+      throw "Story branch not found locally or on remote: $StoryBranch"
+    }
+  }
+
+  $taskBranchExists = $false
+  & git show-ref --verify --quiet "refs/heads/$taskBranch" 2>$null
+  if ($LASTEXITCODE -eq 0) { $taskBranchExists = $true }
+
+  if (-not $taskBranchExists) {
+    Show-And-Run -CommandText "git branch `"$taskBranch`" `"$baseRef`"" -Command { git branch $taskBranch $baseRef }
+  } else {
+    Write-Host ""
+    Write-Host "Local task branch already exists; skipping: $taskBranch"
+  }
+
+  Show-And-Run -CommandText "git push -u $Remote `"$taskBranch`"" -Command { git push -u $Remote $taskBranch }
+
   if (-not $DryRun) {
     New-Item -ItemType Directory -Force -Path $WorktreeRoot | Out-Null
   } else {
@@ -66,6 +89,12 @@ if ($CreateWorktree) {
   Show-And-Run -CommandText "git worktree add `"$taskWorktreePath`" `"$taskBranch`"" -Command { git worktree add $taskWorktreePath $taskBranch }
   Write-Host ""
   Write-Host "Task worktree path: $taskWorktreePath"
+} else {
+  # Non-worktree mode: switch to story branch, branch off it, then work in main repo.
+  Show-And-Run -CommandText "git switch `"$StoryBranch`"" -Command { git switch $StoryBranch }
+  Show-And-Run -CommandText "git pull $Remote `"$StoryBranch`"" -Command { git pull $Remote $StoryBranch }
+  Show-And-Run -CommandText "git switch -c `"$taskBranch`"" -Command { git switch -c $taskBranch }
+  Show-And-Run -CommandText "git push -u $Remote HEAD" -Command { git push -u $Remote HEAD }
 }
 
 if ($CreatePR) {

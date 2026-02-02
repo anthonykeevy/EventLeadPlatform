@@ -67,6 +67,9 @@
       <type name="OutboxItem">
         IndexedDB-stored outbox record with status + retry metadata
       </type>
+      <type name="FormSubmission (DB)">
+        Server-side persistence record. Stores AnswerJSON (NVARCHAR(MAX) JSON) keyed by componentId and references FormVersionID for interpretation.
+      </type>
     </key-types>
 
     <key-files>
@@ -107,6 +110,19 @@
     <criterion id="DC4">Basic idempotency prevents duplicates on retry</criterion>
     <criterion id="DC5">UAT guide completed with evidence</criterion>
   </done-criteria>
+
+  <acceptance-criteria>
+    <criterion id="AC1">Online submissions are persisted in a DB table (e.g., dbo.FormSubmission) with AnswersJSON</criterion>
+    <criterion id="AC2">Offline submissions are queued locally and later synced successfully</criterion>
+    <criterion id="AC3">IdempotencyKey prevents duplicates on retry</criterion>
+    <criterion id="AC4">Token validation enforced on submission endpoint</criterion>
+  </acceptance-criteria>
+
+  <forbidden-zones>
+    <zone>No back-office review/analytics workflows (explicitly out of scope for Story 3.11)</zone>
+    <zone>Do not require authentication for public form submission (must remain token-gated and auth-free)</zone>
+    <zone>Do not introduce schema-breaking changes to FormVersion.DefinitionJSON</zone>
+  </forbidden-zones>
 
   <out-of-scope>
     <item>Advanced conflict resolution / multi-device sync</item>

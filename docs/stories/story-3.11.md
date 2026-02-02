@@ -139,6 +139,56 @@ The existing `frontend/src/utils/offlineQueue.ts` is currently designed for **au
 
 ---
 
+## 🗄️ Response storage model (Database)
+
+`docs/database-schema.md` currently has `dbo.Form` counters like `TotalSubmissions` and `LastSubmissionDate`, but it does **not** define a table to store individual form responses/submissions. For Story 3.11 to deliver “sync” (not just “queue”), we need a real persistence table.
+
+### Recommended approach for dynamic component values
+
+- **Store submissions as JSON** in a new `dbo.FormSubmission` table.
+- **The form definition is the schema**: `FormVersion.DefinitionJSON` already describes each component’s `id`, `type`, and validation rules, so the backend can interpret the stored JSON later.
+- This avoids a brittle “one column per field” design (impossible for a dynamic form builder).
+
+### Proposed minimal table (Story 3.11 scope)
+
+Create `dbo.FormSubmission` with (at minimum):
+- `FormSubmissionID` (PK, BIGINT)
+- `FormID` (FK → `dbo.Form`)
+- `FormVersionID` (FK → `dbo.FormVersion`) — critical to interpret answers even if the form changes later
+- `FormPublicLinkID` (FK → `dbo.FormPublicLink`) or `Token` (if we don’t want the FK)
+- `LinkType` (`PREVIEW` / `PRODUCTION`)
+- `IdempotencyKey` (NVARCHAR, **unique**) — prevents duplicates on retries / flaky networks
+- `SubmittedAtClient` (DATETIME2)
+- `ReceivedAtServer` (DATETIME2, default `GETUTCDATE()`)
+- `AnswersJSON` (NVARCHAR(MAX), JSON) — the dynamic answer payload
+
+Optional (keep lightweight for now):
+- `ClientSubmissionID` (NVARCHAR) — stable client-side UUID for debugging
+- `ContextJSON` (NVARCHAR(MAX)) — device/browser hints, without leaking PII into logs
+
+### What does `AnswersJSON` look like?
+
+Store a single JSON object keyed by **componentId** (the renderer already uses `Record<string, unknown>`):
+- Text/email: JSON string
+- Dropdown/radio: JSON string (selected option id/value)
+- Checkbox: JSON array of strings
+- Terms: JSON boolean
+- Date: JSON object (current UI shape is `{ year, month, day }`), optionally also store a normalized ISO string for convenience
+- Layout-only components (divider, submit button): not included
+
+Example shape (illustrative):
+
+```json
+{
+  "cmp_firstName": "Alice",
+  "cmp_optIn": true,
+  "cmp_interests": ["a", "c"],
+  "cmp_birthDate": { "year": "2026", "month": "02", "day": "02" }
+}
+```
+
+---
+
 ## 🔗 Dependencies
 
 ### Upstream

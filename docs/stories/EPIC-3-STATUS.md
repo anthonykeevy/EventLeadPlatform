@@ -8,6 +8,26 @@
 
 ---
 
+## 🚨 Recovery Update (2026-02-02)
+
+A recovery PR was merged into `master` to restore missing Epic 3 work that existed locally but had not been pushed/merged previously.
+
+**Implications:**
+- `master` is now the correct baseline again (restored builder/framework + grid layout + renderer scaffolding + docs + BMAD assets).
+- Story 3.8 and 3.9 should proceed as **UAT + targeted fix tasks** (do not re-implement from scratch).
+
+---
+
+## ✅ UAT Completion Update (2026-02-02)
+
+- Story 3.8 (Public Form Renderer) and Story 3.9 (Builder Persistence) are now **✅ Complete**.
+- UAT evidence is recorded in `docs/stories/STORY-3.8-3.9-UAT-TEST-GUIDE.md` (Test Summary + Issues Summary + automated browser results).
+- **Blockers resolved:** Builder-to-DB persistence + token-based preview flow unblocked end-to-end renderer validation from stored `DefinitionJSON`.
+- **Integrator step:** Origin currently has only `master` (no remaining `story/*` or `task/*` branches), and the Epic 3 recovery PR merge is present on `master` (merge commit: `60d86bd`), indicating integration work is complete.
+- **Next story:** **Story 3.11 - Dynamic Submission** (Outbox / offline-capable queue + sync).
+
+---
+
 ## 🎯 **Epic 3 Overview**
 
 **Objective:** Build a powerful, visual Form Builder and a flexible Logic Engine that enables users to create complex, dynamic forms without code.
@@ -26,10 +46,10 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Stories Complete** | 8/11 | 🏃 In Progress |
-| **Current Story** | 3.8 & 3.9 - UAT | 🧪 **In UAT** |
+| **Stories Complete** | 10/11 | 🏃 In Progress |
+| **Current Story** | 3.11 - Dynamic Submission | 📋 **Planned** |
 | **Domains Complete** | 3/4 | 🏃 In Progress |
-| **UAT Tests Passed** | 10 scenarios (Story 3.7) | ✅ Passed |
+| **UAT Tests Passed** | 31 scenarios (Stories 3.8/3.9), 10 scenarios (Story 3.7) | ✅ Passed |
 
 ---
 
@@ -43,11 +63,11 @@
 ### **Domain 2: Visual Builder**
 *   **Stories:** 3.3, 3.4, 3.5, 3.9, 3.10
 *   **Focus:** Drag-and-drop UI, Component library, Property editors, Grid Layout, Persistence
-*   **Status:** 🏃 In Progress
+*   **Status:** ✅ Complete
     *   *Story 3.3:* Canvas Foundation (✅ Complete)
     *   *Story 3.4:* Component Library & Grid (✅ Complete)
     *   *Story 3.5:* Properties Panel (✅ Complete)
-*   *Story 3.9:* Builder Persistence (🧪 In UAT)
+*   *Story 3.9:* Builder Persistence (✅ Complete)
 *   *Story 3.10:* Grid Layout System (✅ Complete)
 
 ### **Domain 3: Logic Engine**
@@ -58,7 +78,7 @@
 ### **Domain 4: Rendering & Submission**
 *   **Stories:** 3.8, 3.11
 *   **Focus:** Public renderer, Offline support, Async submission queue
-*   **Status:** 🧪 In UAT
+*   **Status:** 🏃 In Progress
 
 ---
 
@@ -73,8 +93,8 @@
 | **3.5** | **Properties Panel** | ✅ Complete | Builder | **The Inspector.** Click an item to edit Label, Placeholder, Validation rules. Global vs Individual settings. Layout toggles. |
 | **3.6** | Conditional Logic UI | ✅ Complete | Logic | **The Rules.** Author rules and persist them into DefinitionJSON. |
 | **3.7** | Rule Evaluation Engine | ✅ Complete | Logic | **The Brain.** Frontend engine that runs the rules in real-time (builder preview + renderer parity). |
-| **3.8** | Public Form Renderer | 🧪 **In UAT** | Render | **The Player.** Renders the public form exactly on the **selected design canvas/device profile**. |
-| **3.9** | Builder Persistence | 🧪 **In UAT** | Builder | **The Bridge.** Save and load the builder's `FormDefinition` to/from `FormVersion.DefinitionJSON`. |
+| **3.8** | Public Form Renderer | ✅ **Complete** | Render | **The Player.** Renders the public form exactly on the **selected design canvas/device profile**. |
+| **3.9** | Builder Persistence | ✅ **Complete** | Builder | **The Bridge.** Save and load the builder's `FormDefinition` to/from `FormVersion.DefinitionJSON`. |
 | **3.10** | Grid Layout System | ✅ **Complete** | Builder | **The Grid.** CSS Grid-based layout alternative to Object Layout. Resolves Component Framework issues blocking 3.8/3.9 UAT. |
 | **3.11** | Dynamic Submission | 📋 Planned | Render | **The Outbox.** Queue system for offline submissions and syncing. |
 
@@ -115,8 +135,8 @@ See: `docs/GRID-LAYOUT-GUIDE.md` for comprehensive schema, mockups, and implemen
 | 3.5 | `story-3.5.md` | `story-context-3.5.xml` | `STORY-3.5-UAT-TEST-GUIDE.md` ✅ |
 | 3.6 | `story-3.6.md` | `story-context-3.6.xml` | `STORY-3.6-UAT-TEST-GUIDE.md` ✅ |
 | 3.7 | `story-3.7.md` | `story-context-3.7.xml` | `STORY-3.7-UAT-TEST-GUIDE.md` ✅ |
-| 3.8 | `story-3.8.md` | `story-context-3.8.xml` | `STORY-3.8-UAT-TEST-GUIDE.md` (In UAT) |
-| 3.9 | `story-3.9.md` | `story-context-3.9.xml` | `STORY-3.9-UAT-TEST-GUIDE.md` (In UAT) |
+| 3.8 | `story-3.8.md` | `story-context-3.8.xml` | `STORY-3.8-3.9-UAT-TEST-GUIDE.md` ✅ |
+| 3.9 | `story-3.9.md` | `story-context-3.9.xml` | `STORY-3.8-3.9-UAT-TEST-GUIDE.md` ✅ |
 | 3.10 | `story-3.10.md` | `story-context-3.10.xml` | `docs/tasks/3.10/T08-integration-coexistence.uat.md` |
 | 3.11 | `story-3.11.md` | `story-context-3.11.xml` | `STORY-3.11-UAT-TEST-GUIDE.md` (TBD) |
 
@@ -128,4 +148,4 @@ See: `docs/GRID-LAYOUT-GUIDE.md` for comprehensive schema, mockups, and implemen
 ---
 
 *Epic 3 Status Document - Updated by Scrum Master Agent*  
-*Last Updated: 2026-01-15 (Story 3.10 Complete; 3.8/3.9 In UAT)*
+*Last Updated: 2026-02-02 (Recovery merged; Story 3.8/3.9 UAT completed)*

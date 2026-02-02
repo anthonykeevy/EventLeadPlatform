@@ -2,7 +2,7 @@
 
 **Epic:** 3 - Form Builder & Logic Engine  
 **Domain:** Visual Builder (Persistence Bridge)  
-**Status:** 🛠️ Next (Ready for Development)  
+**Status:** ✅ Complete (UAT Passed)  
 **Priority:** High  
 
 ---
@@ -25,7 +25,7 @@
 - **Source of truth clarified:** The database (FormVersion) is the authoritative source for renderer and preview links.
 
 **Out of scope (Story 3.9):**
-- Submission pipeline/outbox/sync (this becomes **Story 3.10**).
+- Submission pipeline/outbox/sync (this becomes **Story 3.11**).
 - Lead creation, attribution, or persistence of responses.
 - Advanced collaboration features (multi-user locking, conflict resolution).
 - Auto-save/offline queue for drafts (can be added later if required).
@@ -62,40 +62,54 @@
 ## ✅ Acceptance Criteria
 
 ### Load-from-DB
-- [ ] Opening the builder loads the latest saved definition from the backend (no fixed mock template by default).
-- [ ] If no saved versions exist, a safe empty-state is shown (no crash).
+- [x] Opening the builder loads the latest saved definition from the backend (no fixed mock template by default).
+- [x] If no saved versions exist, a safe empty-state is shown (no crash).
 
 ### Save Draft
-- [ ] Save Draft persists the current form definition to `FormVersion.DefinitionJSON`.
-- [ ] Backend validation errors are shown to the user and do not crash the UI.
+- [x] Save Draft persists the current form definition to `FormVersion.DefinitionJSON`.
+- [x] Backend validation errors are shown to the user and do not crash the UI.
 
 ### Preview token flow
-- [ ] Builder Preview creates a PREVIEW token and opens `/forms/:token`.
-- [ ] Public renderer loads from stored DefinitionJSON associated with that token.
+- [x] Builder Preview creates a PREVIEW token and opens `/forms/:token`.
+- [x] Public renderer loads from stored DefinitionJSON associated with that token.
 
 ---
 
-## 🧪 UAT Test Guide (PLACEHOLDER)
+## 🧪 UAT Test Guide (COMPLETED)
 
-**Planned (to be authored/approved):** `docs/stories/STORY-3.9-UAT-TEST-GUIDE.md`
+**Guide:** `docs/stories/STORY-3.8-3.9-UAT-TEST-GUIDE.md`
+
+**Core persistence results (Test Summary):**
+- ✅ Scenario 1: Builder loads from DB (no mock template)
+- ✅ Scenario 2: Save Draft persists `DefinitionJSON` to `FormVersion`
+- ✅ Scenario 3: Preview token uses `/forms/:token` and reflects stored definition
+- 🟡 Scenario 4: Permission/access + validation errors are safe and user-visible — **security behavior verified**, UX gaps deferred to Unified Form Workspace story/spec
 
 ---
 
 ## 📋 Completion Criteria
 
-- [ ] All Acceptance Criteria are completed.
-- [ ] UAT Test Guide section above is completed and tests pass.
-- [ ] Story 3.8 can now be executed end-to-end and finalized using stored `DefinitionJSON`.
+- [x] All Acceptance Criteria are completed.
+- [x] UAT Test Guide section above is completed and tests pass (core persistence scenarios passed; deferred UX documented).
+- [x] Story 3.8 can now be executed end-to-end and finalized using stored `DefinitionJSON`.
 
 ---
 
-## ✅ Completion Report (PLACEHOLDER)
+## ✅ Completion Report
 
-**Completed:** TBD  
-**UAT:** TBD  
+**Completed:** 2026-02-02  
+**UAT:** ✅ Passed (see `docs/stories/STORY-3.8-3.9-UAT-TEST-GUIDE.md`)
 
 ### What was delivered
-- TBD
+- Builder loads latest saved definition from the backend (DB is source of truth, not mock/localStorage).
+- Save Draft persists builder `FormDefinition` to `FormVersion.DefinitionJSON` with backend schema validation.
+- Preview uses the same public token flow as production: creates PREVIEW token and opens `/forms/:token` rendering from stored definition.
+
+### UAT blockers resolved
+- Closed the integration gap discovered during Story 3.8: Builder → DB persistence now enables end-to-end renderer and preview verification from stored `DefinitionJSON`.
+
+### Residual issues / deferred (non-blocking)
+- Access control UX gaps (VIEW users / dashboard vs direct URL / view-only mode) are deferred to the Unified Form Workspace specification (`docs/stories/UNIFIED-FORM-WORKSPACE-SPECIFICATION.md`). Security behavior was verified (403/404 show dedicated error pages instead of localStorage fallback).
 
 ---
 

@@ -189,6 +189,39 @@ Example shape (illustrative):
 
 ---
 
+## 🛰️ Client context + device identification (observability)
+
+Yes — we should include **client context** in Story 3.11 so we can:
+- Identify **which laptop/device** produced which submissions
+- Diagnose “one of 4 devices isn’t uploading” (by correlating failures/retries to a device)
+- Detect likely “out-of-country” submissions (best-effort) for an AU-targeted form
+
+### What to capture (recommended, privacy-safe)
+
+**Client-generated (sent with submission):**
+- `clientDeviceId` (UUID) — generated once per browser install and stored locally (IndexedDB/localStorage). **Do not fingerprint.**
+- `clientSessionId` (UUID) — per page load/session to trace issues without correlating forever
+- `clientTimezone` (e.g. `Australia/Sydney`)
+- `clientLocale` (e.g. `en-AU`)
+- `clientUserAgent` (string) + (if available) `userAgentData` brands/platform
+- `clientScreen` (w×h, DPR) and `clientViewport` (w×h)
+- `clientOnlineAtSubmit` (bool) + `effectiveConnectionType` (if available)
+- `appVersion/buildSha` (from frontend build env) for “which version had the bug”
+
+**Server-captured (derived at receipt time):**
+- `receivedAtServer` (already part of submission)
+- `requestIp` (optional; consider retention policy / hashing) and/or `ipCountryCode` (preferred)
+
+> Note on “other countries”: timezone/locale are only **signals**. If you truly need “country”, the backend should derive and store **`ipCountryCode`** using IP geolocation (or store IP for later offline analysis). This is personal data in many jurisdictions, so we should keep it minimal and document retention.
+
+### How this helps the “4 laptops” case
+
+- Every submission row includes `clientDeviceId`, so you can group submissions by device.
+- If one laptop is failing to sync, its submissions will show repeated retries/late upload times tied to that deviceId.
+- Optional extension (still small): add a **device heartbeat** endpoint that pings `clientDeviceId + token + outboxPendingCount` when online, so you can see “Device A last seen 2 days ago with 12 pending”.
+
+---
+
 ## 🔗 Dependencies
 
 ### Upstream

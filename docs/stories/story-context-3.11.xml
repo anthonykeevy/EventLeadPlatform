@@ -34,6 +34,7 @@
     <feature id="F4">Public UX feedback: queued/ syncing/ uploaded + pending count indicator</feature>
     <feature id="F5">Idempotency key support (client + server) to prevent duplicates on retry</feature>
     <feature id="F6">High-signal logging for troubleshooting (no PII)</feature>
+    <feature id="F7">Client context capture (clientDeviceId + timezone/locale + UA) for device-level diagnostics</feature>
   </key-features>
 
   <reference-documents>
@@ -116,6 +117,7 @@
     <criterion id="AC2">Offline submissions are queued locally and later synced successfully</criterion>
     <criterion id="AC3">IdempotencyKey prevents duplicates on retry</criterion>
     <criterion id="AC4">Token validation enforced on submission endpoint</criterion>
+    <criterion id="AC5">Each persisted submission includes a clientDeviceId and minimal client context (privacy-safe; no fingerprinting)</criterion>
   </acceptance-criteria>
 
   <forbidden-zones>

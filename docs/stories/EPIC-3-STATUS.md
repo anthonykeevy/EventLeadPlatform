@@ -15,6 +15,7 @@ A recovery PR was merged into `master` to restore missing Epic 3 work that exist
 **Implications:**
 - `master` is now the correct baseline again (restored builder/framework + grid layout + renderer scaffolding + docs + BMAD assets).
 - Story 3.8 and 3.9 should proceed as **UAT + targeted fix tasks** (do not re-implement from scratch).
+- Git discipline going forward: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md` (Story/UAT branch + task PRs; no long-lived local-only work).
 
 ---
 

@@ -29,27 +29,67 @@ This Epic workflow follows the platform-wide Git rules in:
 
 ---
 
+## 🧭 **Recovery Merge Notice (Current Reality)**
+
+On **2026-02-02**, a recovery PR was merged into `master` to restore missing Epic 3 work (builder framework, grid layout system, renderer scaffolding, docs, BMAD assets).
+
+**How to proceed after recovery:**
+- Do **not** re-implement Story 3.8/3.9/3.10 from scratch.
+- Treat `master` as the **restored baseline**.
+- Run UAT; any failures become **fix tasks** (each with its own branch + PR), per the workflow below.
+
+---
+
+## 👥 **Roles & responsibilities (how you want to work)**
+
+- **Anthony (you / human gate):**
+  - Provide direction and approvals via this workflow + story artifacts
+  - Execute the UAT steps and report pass/fail + notes
+  - Decide when the story is acceptable to close
+- **Agent(s):**
+  - Implement fixes, update documentation, and keep Git/PR discipline
+  - Update UAT documents with results once you report them
+  - Use logging/diagnostics tooling to troubleshoot and to prove fixes
+
+**Important:** `docs/AGENT-LOGGING-GUIDE.md` is an **agent reference**. You only need to download/attach the requested evidence (e.g. Dev Logs JSON) when asked.
+
+---
+
+## 🧱 **Mode A: Next Story Creation (PM → SM → Ralf-SM)**
+
+Use this mode when you are starting a **brand-new story** (new scope, not just UAT fixes):
+
+1. **PM**: review epic status + prior story feedback, then define the next story focus and boundaries.
+2. **SM**: create the story file + story-context XML (with Done Criteria + forbidden zones + placeholder UAT section).
+3. **Ralf-SM**: decompose the story into `TASK-PLAN.md` + task specs (`T01...`).
+
+Then execute tasks and return to Mode B for UAT completion.
+
+---
+
 ## 📋 **Workflow Architecture**
 
-This workflow uses a **Main Chat + Task Chats** pattern:
+This workflow uses a **Main Chat + Task Chats** pattern.
+
+**Default for current focus:** Mode B (UAT completion + fix tasks for Stories 3.8/3.9).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │  MAIN CHAT (persistent throughout story)                            │
 │                                                                     │
-│  Phase 1: @sm.mdc creates Story with Done Criteria                 │
+│  Phase 0: Git setup (create Story/UAT branch + Draft PR)            │
 │                    ↓                                                │
-│  Phase 2: @ralf-sm *decompose-story → TASK-PLAN + T01 spec         │
+│  Phase 1: @pm.mdc kicks off UAT (order + evidence expectations)     │
 │                    ↓                                                │
-│  [User opens Task Chat for T01]                                    │
+│  Human executes UAT (capture failures as notes + evidence)          │
 │                    ↓                                                │
-│  Phase 3: @ralf-sm *next-task → Reviews T01, creates T02           │
+│  Phase 2: @ralf-sm *decompose-story → TASK-PLAN + T01 fix spec      │
 │                    ↓                                                │
-│  [User opens Task Chat for T02]                                    │
+│  [User opens Task Chat for T01 fix]                                 │
 │                    ↓                                                │
-│  [Repeat until all tasks complete]                                 │
+│  Phase 3: Fix task cycle + Integrator merges (repeat)               │
 │                    ↓                                                │
-│  Phase 4: @dev.mdc finalizes story                                 │
+│  Phase 4: @dev.mdc finalizes UAT + merges Story PR to master        │
 └─────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -69,6 +109,23 @@ This workflow uses a **Main Chat + Task Chats** pattern:
 
 ---
 
+## 📋 **Phase 0: Git Setup (Main Chat)**
+
+**When:** Before you start any UAT fix work (so nothing can be “local-only”).  
+**Goal:** Create a single integration branch + Draft PR for this UAT cycle.
+
+**Recommended branch for this combined UAT cycle:**
+- `story/epic3-3.8-3.9-uat-completion`
+
+**Fast path:** use the helper script:
+```powershell
+./scripts/git/new-story.ps1 -Epic 3 -Story "3.8-3.9" -Slug "uat-completion" -CreateWorktree
+```
+
+Then create a Draft PR to `master` (manual if `gh` is not installed).
+
+---
+
 ## 📋 **Phase 1: UAT Kickoff (Main Chat)**
 
 **Current Target:** Stories 3.8 & 3.9  
@@ -78,6 +135,12 @@ This workflow uses a **Main Chat + Task Chats** pattern:
 ```markdown
 @pm.mdc Please initiate UAT completion for Story 3.8 and Story 3.9.
 
+Git discipline (mandatory):
+- Work must happen on a Story/UAT branch (not `master`).
+- A Draft PR must exist from the Story/UAT branch → `master` before any fix work begins.
+- Any fixes found during UAT will be implemented as Task branches/PRs into the Story/UAT branch.
+- Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
+
 Context:
 - Story 3.10 (Grid Layout) is complete and unblocks UAT.
 - Stories 3.8 and 3.9 were previously blocked.
@@ -86,9 +149,12 @@ Requirements:
 1. Confirm UAT readiness from `docs/stories/EPIC-3-STATUS.md`
 2. Identify current UAT guides:
    - docs/stories/STORY-3.8-UAT-TEST-GUIDE.md
-   - docs/stories/STORY-3.9-UAT-TEST-GUIDE.md
+   - docs/stories/STORY-3.8-3.9-UAT-TEST-GUIDE.md
 3. Provide UAT execution order and checklist expectations
 4. Confirm that any UAT failures will be routed into fix tasks via @ralf-sm
+5. Confirm Git discipline for this UAT cycle:
+   - A Story/UAT branch exists and is pushed
+   - A Draft PR exists from the Story/UAT branch → `master`
 
 Deliverables:
 - UAT readiness confirmation
@@ -109,11 +175,16 @@ Deliverables:
 
 *decompose-story
 
+Git discipline (mandatory):
+- Confirm the active Story/UAT branch exists and is pushed (do not work on `master`).
+- Each fix task MUST be implemented on a `task/<story>/<Txx>-<slug>` branch with a PR into the Story/UAT branch.
+- Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
+
 Inputs:
 - Story ID: 3.8 or 3.9
 - Story file: docs/stories/story-3.8.md or docs/stories/story-3.9.md
 - References: 
-  - docs/stories/STORY-3.8-UAT-TEST-GUIDE.md or docs/stories/STORY-3.9-UAT-TEST-GUIDE.md
+  - docs/stories/STORY-3.8-UAT-TEST-GUIDE.md and docs/stories/STORY-3.8-3.9-UAT-TEST-GUIDE.md
   - docs/COMPONENT-FRAMEWORK-REFERENCE.md
   - docs/solution-architecture.md
   - UAT failure notes
@@ -132,9 +203,31 @@ Task decomposition guidance:
 - Prefer smaller tasks over larger ones
 - First task should establish foundation (types, interfaces)
 - Last task(s) should be integration/polish
+- Each fix task must include the Git/PR expectation:
+  - Task branch + PR → into the Story/UAT branch
 ```
 
 ---
+
+## 🐛 **UAT Bugfix Loop (Explicit)**
+
+When a UAT check fails:
+
+1. **Capture evidence** (fast, minimal):
+   - Use `docs/AGENT-LOGGING-GUIDE.md` for UI issues (snapshot/log bundle)
+   - Use `python backend/enhanced_diagnostic_logs.py --limit 20` for backend/auth/API context
+2. **Classify**: defect vs enhancement vs out-of-scope (only AC violations are defects).
+3. **Create a fix task** (via `@ralf-sm *decompose-story` or `*refine-task`) with:
+   - clear acceptance criteria
+   - required verification
+   - forbidden zones / scope boundaries
+4. **Git:** create a task branch + PR into the Story/UAT branch before coding.
+5. Implement + verify (`@ralf-dev *run-task`) → UAT checklist → human UAT → record results → retro.
+6. Integrator merges the task PR into the Story/UAT branch, then re-run the failing UAT scenario.
+
+### Skill shortcut (recommended)
+
+Start a new chat and run the project skill **`uat-bugfix`** to execute this entire loop (intake → branch → fix → UAT → finalize) with Git discipline baked in.
 
 ## ✅ **Phase 3: Task Execution Cycle (Fix Tasks)**
 
@@ -154,12 +247,22 @@ For **each task**, follow this cycle:
 3. Open a PR **into the story branch** (not `master`)
 4. Use a task worktree if desired (recommended for isolation)
 
+**Helper script (prints commands with `-DryRun`):**
+```powershell
+./scripts/git/new-task.ps1 -StoryBranch "<story-branch>" -StoryId "3.8" -TaskId "T01" -Slug "<slug>" -CreateWorktree -CreatePR -DryRun
+```
+
 ### **Step 3b: Execute Task (@ralf-dev)**
 
 Paste in the new Task Chat:
 
 ```markdown
 @ralf-dev
+
+Git discipline (mandatory):
+- Ensure you are on the task branch (NOT `master`).
+- Push at least once per session so nothing is local-only.
+- This task PR must target the Story/UAT branch.
 
 *run-task
 
@@ -222,7 +325,7 @@ Inputs:
 - UAT Results: docs/tasks/3.8/Txx-<slug>.uat-results.md or docs/tasks/3.9/Txx-<slug>.uat-results.md
 
 Outputs:
-- docs/tasks/3.10/Txx-<slug>.retro.md
+- docs/tasks/3.8/Txx-<slug>.retro.md or docs/tasks/3.9/Txx-<slug>.retro.md
 - Append to docs/tasks/3.8/LESSONS-LEARNED.md or docs/tasks/3.9/LESSONS-LEARNED.md
 ```
 
@@ -265,6 +368,11 @@ After UAT passes and retro is recorded for the task:
 ### **Copy/Paste this Prompt for the Developer (@dev.mdc)**
 ```markdown
 @dev.mdc Please finalize UAT for Story 3.8 and Story 3.9.
+
+Git discipline (mandatory):
+- Do not do this work on `master` without a Story/UAT PR.
+- Confirm all fix task PRs were merged into the Story/UAT branch before merging the Story/UAT PR to `master`.
+- Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
 
 Requirements:
 1. Update `docs/stories/story-3.8.md` and `docs/stories/story-3.9.md` with UAT results.

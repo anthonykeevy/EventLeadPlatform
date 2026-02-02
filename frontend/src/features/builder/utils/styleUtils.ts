@@ -16,6 +16,7 @@ import {
     StyleOverrides, 
     DEFAULT_GLOBAL_STYLES,
     FontStyleType,
+    StyleArchetype,
 } from '../types/builder.types';
 
 /**
@@ -25,19 +26,25 @@ export interface ComputedFieldStyles {
     // Container
     containerStyle: React.CSSProperties;
     
-    // Label
+    // Label (PrimaryLabel)
     labelStyle: React.CSSProperties;
     
-    // Input
+    // Input (InputControl)
     inputStyle: React.CSSProperties;
     inputWrapperStyle: React.CSSProperties;
     
-    // Help/Validation text
+    // Help/Validation text (HelperText)
     helpTextStyle: React.CSSProperties;
     errorTextStyle: React.CSSProperties;
     
+    // Action/Button (Action)
+    actionStyle?: React.CSSProperties; // Optional, added for Action archetype
+
     // Computed values for reference (useful for programmatic access)
     computed: {
+        // ... (existing computed values)
+        // Add new computed values if needed for archetypes
+        
         // Input typography
         fontFamily: string;
         fontSize: number;
@@ -56,6 +63,19 @@ export interface ComputedFieldStyles {
         helpTextFontWeight: number;
         helpTextFontStyle: FontStyleType;
         
+        // Action typography
+        actionFontFamily: string;
+        actionFontSize: number;
+        actionFontWeight: number;
+        actionFontStyle: FontStyleType;
+        actionTextColor: string;
+        actionBackgroundColor: string;
+
+        // Divider styles
+        dividerBorderColor: string;
+        dividerBorderWidth: number;
+        dividerWidth: string;
+
         // Colors
         primaryColor: string;
         textColor: string;
@@ -138,6 +158,7 @@ export interface EffectiveStyles {
     helpTextBorderColor?: string;
     helpTextBorderWidth?: number;
     helpTextBorderRadius?: number;
+    helpTextHasBorder?: boolean;
     
     // Spacing
     baseSpacing: number;
@@ -150,6 +171,9 @@ export interface EffectiveStyles {
     borderRadius: number;
     borderWidth: number;
     inputHeight: number;
+
+    // Divider defaults
+    dividerWidth: string;
 }
 
 /**
@@ -181,6 +205,22 @@ export function getEffectiveStyles(
         helpTextFontWeight: overrides?.helpTextFontWeight ?? base.helpTextFontWeight,
         helpTextFontStyle: overrides?.helpTextFontStyle ?? base.helpTextFontStyle,
         
+        // Action/Button typography
+        actionFontFamily: overrides?.actionFontFamily ?? base.actionFontFamily,
+        actionFontSize: overrides?.actionFontSize ?? base.actionFontSize,
+        actionFontWeight: overrides?.actionFontWeight ?? base.actionFontWeight,
+        actionFontStyle: overrides?.actionFontStyle ?? base.actionFontStyle,
+        actionTextColor: overrides?.actionTextColor ?? base.actionTextColor,
+        actionBackgroundColor: overrides?.actionBackgroundColor ?? base.actionBackgroundColor,
+        actionBorderColor: overrides?.actionBorderColor ?? base.actionBorderColor,
+        actionBorderWidth: overrides?.actionBorderWidth ?? base.actionBorderWidth,
+        actionBorderRadius: overrides?.actionBorderRadius ?? base.actionBorderRadius,
+
+        // Divider styles
+        dividerBorderColor: overrides?.dividerBorderColor ?? base.dividerBorderColor,
+        dividerBorderWidth: overrides?.dividerBorderWidth ?? base.dividerBorderWidth,
+        dividerWidth: base.dividerWidth,
+
         // Colors
         primaryColor: base.primaryColor,
         textColor: overrides?.textColor ?? base.textColor,
@@ -206,6 +246,7 @@ export function getEffectiveStyles(
         helpTextBorderColor: overrides && 'helpTextBorderColor' in overrides ? overrides.helpTextBorderColor : base.helpTextBorderColor,
         helpTextBorderWidth: overrides && 'helpTextBorderWidth' in overrides ? overrides.helpTextBorderWidth : base.helpTextBorderWidth,
         helpTextBorderRadius: overrides && 'helpTextBorderRadius' in overrides ? overrides.helpTextBorderRadius : base.helpTextBorderRadius,
+        helpTextHasBorder: overrides && 'helpTextHasBorder' in overrides ? overrides.helpTextHasBorder : base.helpTextHasBorder,
         
         // Spacing
         baseSpacing: base.baseSpacing,
@@ -219,6 +260,100 @@ export function getEffectiveStyles(
         borderWidth: overrides?.borderWidth ?? base.borderWidth,
         inputHeight: overrides?.inputHeight ?? base.inputHeight,
     };
+}
+
+/**
+ * Helper to get style properties for a specific archetype.
+ * This allows resolving styles based on the object's archetype rather than just context.
+ * 
+ * @param archetype - The style archetype to resolve
+ * @param effective - The effective styles (merged global + overrides)
+ * @param scaleFactor - Current scale factor
+ * @returns CSSProperties for the requested archetype
+ */
+export function getArchetypeStyle(
+    archetype: StyleArchetype,
+    effective: EffectiveStyles,
+    scaleFactor: number
+): React.CSSProperties {
+    switch (archetype) {
+        case 'PrimaryLabel':
+            return {
+                fontFamily: effective.labelFontFamily,
+                fontSize: `${Math.round(effective.labelFontSize * scaleFactor)}px`,
+                fontWeight: effective.labelFontWeight,
+                fontStyle: effective.labelFontStyle,
+                color: effective.labelColor,
+                // Optional background and border for labels
+                backgroundColor: effective.labelBackgroundColor || 'transparent',
+                ...(effective.labelBorderColor && (effective.labelBorderWidth ?? 1) > 0 && {
+                    borderColor: effective.labelBorderColor,
+                    borderWidth: `${Math.round((effective.labelBorderWidth || 1) * scaleFactor)}px`,
+                    borderStyle: 'solid',
+                    borderRadius: `${Math.round((effective.labelBorderRadius || 4) * scaleFactor)}px`,
+                    padding: `${Math.round(2 * scaleFactor)}px ${Math.round(6 * scaleFactor)}px`,
+                    display: 'inline-block',
+                }),
+            };
+            
+        case 'HelperText':
+            return {
+                fontFamily: effective.helpTextFontFamily,
+                fontSize: `${Math.round(effective.helpTextFontSize * scaleFactor)}px`,
+                fontWeight: effective.helpTextFontWeight,
+                fontStyle: effective.helpTextFontStyle,
+                color: effective.helpTextColor,
+                // Optional background and border for help text
+                backgroundColor: effective.helpTextBackgroundColor || 'transparent',
+                ...(effective.helpTextHasBorder && effective.helpTextBorderColor && (effective.helpTextBorderWidth ?? 1) > 0 && {
+                    borderColor: effective.helpTextBorderColor,
+                    borderWidth: `${Math.round((effective.helpTextBorderWidth || 1) * scaleFactor)}px`,
+                    borderStyle: 'solid',
+                    borderRadius: `${Math.round((effective.helpTextBorderRadius || 4) * scaleFactor)}px`,
+                    padding: `${Math.round(2 * scaleFactor)}px ${Math.round(6 * scaleFactor)}px`,
+                    display: 'inline-block',
+                }),
+            };
+            
+        case 'InputControl':
+            // Base input text style (without container/border chrome)
+            return {
+                fontFamily: effective.fontFamily,
+                fontSize: `${Math.round(effective.fontSize * scaleFactor)}px`,
+                fontWeight: effective.fontWeight,
+                fontStyle: effective.fontStyle,
+                color: effective.textColor,
+                backgroundColor: effective.textBackgroundColor || 'transparent',
+            };
+
+        case 'Action':
+             // Button/Action style
+             return {
+                fontFamily: effective.actionFontFamily,
+                fontSize: `${Math.round(effective.actionFontSize * scaleFactor)}px`,
+                fontWeight: effective.actionFontWeight,
+                fontStyle: effective.actionFontStyle,
+                color: effective.actionTextColor,
+                backgroundColor: effective.actionBackgroundColor,
+                borderRadius: `${Math.round((effective.actionBorderRadius ?? effective.borderRadius) * scaleFactor)}px`,
+                padding: `${Math.round(10 * scaleFactor)}px ${Math.round(24 * scaleFactor)}px`,
+                ...(effective.actionBorderColor && (effective.actionBorderWidth ?? 1) > 0 && {
+                    border: `${Math.round((effective.actionBorderWidth || 1) * scaleFactor)}px solid ${effective.actionBorderColor}`,
+                }),
+             };
+
+        case 'Divider':
+            return {
+                borderTopWidth: `${Math.round((effective.dividerBorderWidth || 1) * scaleFactor)}px`,
+                borderTopColor: effective.dividerBorderColor,
+                borderTopStyle: 'solid',
+                width: '100%',
+                margin: '0',
+            };
+            
+        default:
+            return {};
+    }
 }
 
 /**
@@ -270,23 +405,8 @@ export function computeFieldStyles(
         },
         
         labelStyle: {
-            fontFamily: effective.labelFontFamily,
-            fontSize: `${scaledLabelFontSize}px`,
-            fontWeight: effective.labelFontWeight,
-            fontStyle: effective.labelFontStyle,
-            color: effective.labelColor,
+            ...getArchetypeStyle('PrimaryLabel', effective, scaleFactor),
             marginBottom: `${labelGapPx}px`,
-            // Optional background and border for labels
-            // Border only shows if color is set AND width > 0 (width:0 = "no border" override)
-            backgroundColor: effective.labelBackgroundColor || 'transparent',
-            ...(effective.labelBorderColor && (effective.labelBorderWidth ?? 1) > 0 && {
-                borderColor: effective.labelBorderColor,
-                borderWidth: `${Math.round((effective.labelBorderWidth || 1) * scaleFactor)}px`,
-                borderStyle: 'solid',
-                borderRadius: `${Math.round((effective.labelBorderRadius || 4) * scaleFactor)}px`,
-                padding: `${Math.round(2 * scaleFactor)}px ${Math.round(6 * scaleFactor)}px`,
-                display: 'inline-block',
-            }),
         },
         
         inputStyle: {
@@ -297,20 +417,20 @@ export function computeFieldStyles(
             color: effective.textColor,
             position: 'relative',
             zIndex: 1,
+            // Default to 100% width so input fills its container (grid cell)
+            width: '100%',
+            boxSizing: 'border-box', // Ensure padding/border are included in width
             // Apply text background if set in Typography > Input Text
             backgroundColor: effective.textBackgroundColor || 'transparent',
-            // Apply border from Typography > Input Text "Add Border" if set, otherwise none
-            // Border only shows if color is set AND width > 0 (width:0 = "no border" override)
-            // SmartBorder handles visual selection feedback separately
-            ...(effective.textBorderColor && (effective.textBorderWidth ?? 1) > 0 ? {
-                borderColor: effective.textBorderColor,
-                borderWidth: `${Math.round((effective.textBorderWidth || 1) * scaleFactor)}px`,
-                borderStyle: 'solid',
-                borderRadius: `${Math.round((effective.textBorderRadius || effective.borderRadius) * scaleFactor)}px`,
-            } : {
-            border: 'none',
-                borderRadius: `${scaledBorderRadius}px`,
-            }),
+            // Border rules:
+            // - Prefer Typography > Input Text border overrides when provided (textBorder*).
+            // - Otherwise fall back to the global/default input border (borderColor/borderWidth/borderRadius).
+            // - Never use `border` shorthand here; mixing shorthand/non-shorthand triggers React warnings
+            //   when callers spread and override border* fields (e.g. dropdown styles).
+            borderColor: effective.textBorderColor ?? effective.borderColor,
+            borderWidth: `${Math.max(0, Math.round(((effective.textBorderWidth ?? effective.borderWidth) || 0) * scaleFactor))}px`,
+            borderStyle: 'solid',
+            borderRadius: `${Math.round((effective.textBorderRadius ?? effective.borderRadius) * scaleFactor)}px`,
             height: `${scaledInputHeight}px`,
             paddingLeft: `${paddingX}px`,
             paddingRight: `${paddingX}px`,
@@ -327,43 +447,18 @@ export function computeFieldStyles(
         },
         
         helpTextStyle: {
-            fontFamily: effective.helpTextFontFamily,
-            fontSize: `${scaledHelpTextFontSize}px`,
-            fontWeight: effective.helpTextFontWeight,
-            fontStyle: effective.helpTextFontStyle,
-            color: effective.helpTextColor,
+            ...getArchetypeStyle('HelperText', effective, scaleFactor),
             marginTop: `${inputHelpGapPx}px`,
-            // Optional background and border for help text
-            // Border only shows if color is set AND width > 0 (width:0 = "no border" override)
-            backgroundColor: effective.helpTextBackgroundColor || 'transparent',
-            ...(effective.helpTextBorderColor && (effective.helpTextBorderWidth ?? 1) > 0 && {
-                borderColor: effective.helpTextBorderColor,
-                borderWidth: `${Math.round((effective.helpTextBorderWidth || 1) * scaleFactor)}px`,
-                borderStyle: 'solid',
-                borderRadius: `${Math.round((effective.helpTextBorderRadius || 4) * scaleFactor)}px`,
-                padding: `${Math.round(2 * scaleFactor)}px ${Math.round(6 * scaleFactor)}px`,
-                display: 'inline-block',
-            }),
         },
         
         errorTextStyle: {
-            fontFamily: effective.helpTextFontFamily,
-            fontSize: `${scaledHelpTextFontSize}px`,
-            fontWeight: effective.helpTextFontWeight,
-            fontStyle: effective.helpTextFontStyle,
+            ...getArchetypeStyle('HelperText', effective, scaleFactor),
             color: effective.errorColor,
             marginTop: `${baseSpacing * scaleFactor * 0.5}px`,
-            // Use same background/border settings as help text
-            backgroundColor: effective.helpTextBackgroundColor || 'transparent',
-            ...(effective.helpTextBorderColor && {
-                borderColor: effective.helpTextBorderColor,
-                borderWidth: `${Math.round((effective.helpTextBorderWidth || 1) * scaleFactor)}px`,
-                borderStyle: 'solid',
-                borderRadius: `${Math.round((effective.helpTextBorderRadius || 4) * scaleFactor)}px`,
-                padding: `${Math.round(2 * scaleFactor)}px ${Math.round(6 * scaleFactor)}px`,
-                display: 'inline-block',
-            }),
         },
+        
+        // New Action Style exposed for use
+        actionStyle: getArchetypeStyle('Action', effective, scaleFactor),
         
         computed: {
             // Input typography (scaled)
@@ -384,6 +479,19 @@ export function computeFieldStyles(
             helpTextFontWeight: effective.helpTextFontWeight,
             helpTextFontStyle: effective.helpTextFontStyle,
             
+            // Action typography (scaled)
+            actionFontFamily: effective.actionFontFamily,
+            actionFontSize: Math.round(effective.actionFontSize * scaleFactor),
+            actionFontWeight: effective.actionFontWeight,
+            actionFontStyle: effective.actionFontStyle,
+            actionTextColor: effective.actionTextColor,
+            actionBackgroundColor: effective.actionBackgroundColor,
+
+            // Divider styles
+            dividerBorderColor: effective.dividerBorderColor,
+            dividerBorderWidth: Math.round(effective.dividerBorderWidth * scaleFactor),
+            dividerWidth: effective.dividerWidth,
+
             // Colors
             primaryColor: effective.primaryColor,
             textColor: effective.textColor,
@@ -484,6 +592,21 @@ export const OVERRIDE_PROPERTY_LABELS: Record<string, string> = {
     helpTextFontWeight: 'Help Text Font Weight',
     helpTextFontStyle: 'Help Text Font Style',
     
+    // Action/Button styles
+    actionFontFamily: 'Button Font Family',
+    actionFontSize: 'Button Font Size',
+    actionFontWeight: 'Button Font Weight',
+    actionFontStyle: 'Button Font Style',
+    actionTextColor: 'Button Text Color',
+    actionBackgroundColor: 'Button Background Color',
+    actionBorderColor: 'Button Border Color',
+    actionBorderWidth: 'Button Border Width',
+    actionBorderRadius: 'Button Border Radius',
+
+    // Divider styles
+    dividerBorderColor: 'Divider Color',
+    dividerBorderWidth: 'Divider Thickness',
+
     // Colors
     textColor: 'Input Text Color',
     labelColor: 'Label Color',

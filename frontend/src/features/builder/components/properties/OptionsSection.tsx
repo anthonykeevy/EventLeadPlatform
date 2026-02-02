@@ -31,7 +31,7 @@ export const OptionsSection: React.FC<OptionsSectionProps> = ({
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
     const options = props.options || [];
-    const isSelect = componentType === 'select';
+    const isSelect = componentType === 'select' || componentType === 'dropdown';
     const isCheckbox = componentType === 'checkbox';
     const isRadio = componentType === 'radio';
 

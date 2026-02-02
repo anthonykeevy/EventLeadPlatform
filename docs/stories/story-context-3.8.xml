@@ -1,0 +1,112 @@
+<story-context>
+    <id>3.8</id>
+    <title>Public Form Renderer</title>
+    <epic>3</epic>
+    <domain>Rendering &amp; Submission</domain>
+
+    <scope-boundary>
+        <in-scope>
+            <item>Public renderer view that loads FormVersion.DefinitionJSON and renders theme/pages/components.</item>
+            <item>Canvas/profile fidelity: render at authored canvas dimensions (no responsive reflow).</item>
+            <item>Registry-driven rendering using the existing Builder Component Registry (no duplication).</item>
+            <item>Runtime rule effects from Story 3.7 (visible/enabled/required) applied live during entry.</item>
+            <item>Client-side field state + required validation UX + validation message area.</item>
+            <item>Safe fallback UI for unknown component types or malformed component props/config (do not crash).</item>
+        </in-scope>
+        <out-of-scope>
+            <item>Submission transport / offline outbox / async sync pipeline (Story 3.10).</item>
+            <item>Server-side submission validation and processing.</item>
+            <item>Responsive reflow into other device profiles; renderer must match authored profile.</item>
+            <item>Multi-profile rendering from one definition; separate designs/profiles are required per canvas.</item>
+        </out-of-scope>
+    </scope-boundary>
+
+    <dependencies>
+        <dependency>Story 3.7 (Runtime rule evaluation engine and parity runtime view)</dependency>
+        <dependency>Component Registry (Builder) - frontend/src/features/builder/registry/ComponentRegistry.tsx</dependency>
+        <dependency>FormDefinition types + canvas settings - frontend/src/features/builder/types/builder.types.ts</dependency>
+        <dependency>Backend schema validation - backend/schemas/form_definition.py</dependency>
+        <dependency>FormVersion storage/service/router - backend/models/form_version.py, backend/modules/forms/version_service.py, backend/modules/forms/version_router.py</dependency>
+    </dependencies>
+
+    <technical-context>
+        <definition-json>
+            <storage>
+                <location>FormVersion.DefinitionJSON</location>
+                <note>Renderer must treat DefinitionJSON as authoritative; no builder-only assumptions.</note>
+            </storage>
+            <shape>
+                <item>theme + globalStyles (styling contract)</item>
+                <item>canvasSettings.width/height (authored canvas/profile dimensions)</item>
+                <item>pages[*].components[*] with absolute positions</item>
+                <item>logic.rules (runtime rule definitions from Story 3.6/3.7)</item>
+            </shape>
+        </definition-json>
+
+        <frontend-entrypoints>
+            <current-internal-parity-route>
+                <location>frontend/src/App.tsx (Route: /forms/:formId/render)</location>
+                <location>frontend/src/features/renderer/pages/FormRendererPage.tsx</location>
+                <note>Story 3.7 parity-only renderer; Story 3.8 introduces the public/optimized renderer.</note>
+            </current-internal-parity-route>
+            <runtime-view>
+                <location>frontend/src/features/builder/components/runtime/RuntimeFormView.tsx</location>
+                <note>Currently contains type-based rendering; Story 3.8 should refactor to use registry-driven runtime rendering.</note>
+            </runtime-view>
+        </frontend-entrypoints>
+
+        <component-framework>
+            <component-registry>
+                <location>frontend/src/features/builder/registry/ComponentRegistry.tsx</location>
+                <note>Story 3.8 must reuse this registry for runtime rendering (no duplicated mapping).</note>
+            </component-registry>
+            <unknown-component-fallback>
+                <rule>Unknown component type must render a stable fallback UI and never crash the renderer.</rule>
+            </unknown-component-fallback>
+        </component-framework>
+
+        <logic-engine>
+            <primary-implementation>
+                <location>frontend/src/features/logic-engine/evaluateRules.ts</location>
+                <location>frontend/src/features/logic-engine/types.ts</location>
+            </primary-implementation>
+            <note>Renderer must apply computed visible/enabled/required state live during entry (parity with builder preview).</note>
+        </logic-engine>
+
+        <backend-contract>
+            <authenticated-active-version>
+                <location>GET /api/forms/{form_id}/live</location>
+                <note>Currently requires auth; public renderer may need a public/token-gated equivalent for unauthenticated access.</note>
+            </authenticated-active-version>
+            <publishing>
+                <location>POST /api/forms/{form_id}/versions/{version_number}/publish</location>
+                <note>Published versions become active; renderer should load the active/published version for runtime.</note>
+            </publishing>
+        </backend-contract>
+
+        <design-fidelity-constraints>
+            <rule>Renderer must respect authored canvasSettings dimensions.</rule>
+            <rule>No auto reflow between profiles/devices.</rule>
+            <rule>Scaling-to-fit viewport is allowed only as visual scaling; layout coordinates remain authored.</rule>
+        </design-fidelity-constraints>
+
+        <validation-ux>
+            <rule>Required validation applies only to visible + required components.</rule>
+            <rule>Validation messages must render in the reserved validation message area.</rule>
+            <rule>Submission transport is deferred; submit interaction should only validate + build payload in memory.</rule>
+        </validation-ux>
+    </technical-context>
+
+    <file-structure>
+        <new-files>
+            <file>(recommended) frontend/src/features/renderer/pages/PublicFormRendererPage.tsx</file>
+            <file>(recommended) frontend/src/features/renderer/components/UnknownComponentFallback.tsx</file>
+            <file>(recommended) frontend/src/features/renderer/hooks/usePublicFormDefinition.ts</file>
+        </new-files>
+        <modified-files>
+            <file>frontend/src/App.tsx (add public route for renderer; remove RequireAuth as appropriate)</file>
+            <file>frontend/src/features/builder/registry/ComponentRegistry.tsx (extend to support runtime rendering contract)</file>
+            <file>frontend/src/features/builder/components/runtime/RuntimeFormView.tsx (refactor to registry-driven runtime rendering)</file>
+        </modified-files>
+    </file-structure>
+</story-context>

@@ -1,0 +1,99 @@
+# Automation Opportunities - Ralf Taskflow Memory
+# Tests that should be added to catch issues earlier
+# Populated during UAT when defects are found
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+# Each entry represents a test that should have existed
+# to catch a defect found during UAT
+
+opportunities:
+
+  # Template for new entries
+  # - id: "AO-001"
+  #   discovered_in_task: "T01-xxx"
+  #   discovered_date: "2026-01-11"
+  #   defect_description: "What failed in UAT"
+  #   proposed_test:
+  #     type: "unit | integration | e2e"
+  #     description: "What the test should verify"
+  #     location: "Where to add the test"
+  #     priority: "high | medium | low"
+  #   status: "proposed | implemented | deferred"
+  #   implemented_in: null
+
+# Categories of tests to consider
+test_categories:
+
+  unit_tests:
+    description: "Fast, isolated tests for individual functions/components"
+    when_to_add:
+      - "Logic error in a single function"
+      - "Edge case not handled"
+      - "Input validation missing"
+    example: |
+      test('rejects empty input', () => {
+        expect(() => processInput('')).toThrow('Input required');
+      });
+
+  integration_tests:
+    description: "Tests that verify components work together"
+    when_to_add:
+      - "Data not flowing correctly between components"
+      - "API and frontend mismatch"
+      - "State not synchronized"
+    example: |
+      test('form submits and updates list', async () => {
+        await submitForm({ name: 'Test' });
+        expect(await getList()).toContain('Test');
+      });
+
+  e2e_tests:
+    description: "Full user flow tests in browser"
+    when_to_add:
+      - "Multi-step flow fails"
+      - "User can't complete workflow"
+      - "Critical path broken"
+    example: |
+      test('user can complete checkout', async () => {
+        await page.goto('/cart');
+        await page.click('button:has-text("Checkout")');
+        await expect(page.locator('.confirmation')).toBeVisible();
+      });
+
+  visual_tests:
+    description: "Screenshot comparison tests"
+    when_to_add:
+      - "UI looks wrong"
+      - "Layout broken"
+      - "Visual regression"
+    example: |
+      test('component matches snapshot', () => {
+        const { container } = render(<Component />);
+        expect(container).toMatchSnapshot();
+      });
+
+  accessibility_tests:
+    description: "Tests for a11y compliance"
+    when_to_add:
+      - "Keyboard navigation broken"
+      - "Screen reader issues"
+      - "Color contrast problems"
+    example: |
+      test('button is accessible', () => {
+        render(<Button>Click me</Button>);
+        expect(screen.getByRole('button')).toHaveAccessibleName('Click me');
+      });
+
+# Priority guidelines
+priority_guidelines:
+  high:
+    - "Defect blocked a user workflow"
+    - "Defect caused data loss"
+    - "Defect is in critical path"
+  medium:
+    - "Defect was inconvenient but workaround exists"
+    - "Defect is edge case but common enough"
+  low:
+    - "Defect is rare edge case"
+    - "Defect is cosmetic"

@@ -18,6 +18,7 @@ import { getComponentSurfaceCapabilities } from '../utils/componentSurfaceCapabi
 import { useToastNotifications } from '../../ux/components/ToastProvider';
 import { buildCanvasRectsForComponents, getComponentDimensions, resolveResizeConstraints } from '../utils/collisionDetection';
 import { cornerToEdges, isCornerHandle } from '../utils/cornerResizeUtils';
+import { getEffectiveGridLayout, resolveComponentDefaultGridLayout } from '../utils/gridLayoutUtils';
 
 interface SortableComponentProps {
     component: FormComponent;
@@ -292,10 +293,12 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         leftShift?: number;
         horizontalHandle?: 'e' | 'w'; // Track which horizontal handle was used
         startWidth?: number;
+        startHeight?: number;
         // Preview object width overrides for E/W resize (input-only adjustment)
         previewLabelWidth?: number;
         previewInputWidth?: number;
         previewHelpWidth?: number;
+        previewActionWidth?: number;
     } | null>(null);
     const lastVerticalPreviewRef = useRef<{ inputHeight?: number; labelGap?: number; inputHelpGap?: number; topShift?: number } | null>(null);
     
@@ -304,6 +307,9 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     // Ensures we always use the correct base width for calculations
     // ═══════════════════════════════════════════════════════════════
     const cornerResizeStartWidthRef = useRef<number | null>(null);
+
+    // Store original submit button height for N/S + corner resizes
+    const submitButtonStartHeightRef = useRef<number | null>(null);
     
     // ═══════════════════════════════════════════════════════════════
     // Ref to store initial object widths captured at E/W resize start
@@ -315,6 +321,10 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         helpWidth: number;
         columnGapPx: number;
         totalExtras: number;
+        // Layout context for width budgeting (only the objects in the same row as input participate)
+        labelInInputRow: boolean;
+        helpInInputRow: boolean;
+        inputRowGapCount: number;
     } | null>(null);
     
     // Track actual DOM width when component.props.width is undefined (Auto) or percentage
@@ -360,30 +370,27 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             cornerResizeStartWidthRef.current = null;
         }
 
+        if (component.type === 'submit-button' && handle) {
+            const snapshot = captureComponentSnapshot(component, smartBorderContainerRef);
+            const measuredButtonHeightScreen =
+                snapshot?.objectMetrics?.button?.rect?.height ??
+                smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
+                fieldStyles.computed.inputHeight;
+            const canvasScaleFactor = scale || 1.0;
+            const scaleFactor = componentScale / 100;
+            const effectiveScaleFactor = canvasScaleFactor * scaleFactor;
+            const measuredButtonHeight =
+                effectiveScaleFactor > 0
+                    ? measuredButtonHeightScreen / effectiveScaleFactor
+                    : measuredButtonHeightScreen;
+            submitButtonStartHeightRef.current = component.props.height ?? measuredButtonHeight;
+        }
+
         devLogger.debug('resize.handle.start', {
             componentId: component.id,
             handle: handle || 'unknown',
             isResizingState: true,
         });
-        
-        // ═══════════════════════════════════════════════════════════════
-        // BUTTON-SPECIFIC RESIZE START LOGGING
-        // ═══════════════════════════════════════════════════════════════
-        if (component.type === 'submit-button') {
-            const currentWidth = component.props.width;
-            const currentActionWidthOverride = component.props.actionWidthOverride;
-            const currentPosition = component.position;
-            
-            devLogger.info('resize.button.start', {
-                componentId: component.id,
-                handle: handle || 'unknown',
-                BEFORE: {
-                    componentWidth: currentWidth,
-                    actionWidthOverride: currentActionWidthOverride,
-                    position: currentPosition,
-                },
-            });
-        }
 
         const isHorizontalHandle = handle === 'e' || handle === 'w';
         const isCornerHandleLocal = handle === 'nw' || handle === 'ne' || handle === 'sw' || handle === 'se';
@@ -431,14 +438,94 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             const helpWidth = component.props.helpWidthOverride ?? measuredHelpWidthBase;
             const inputWidth = component.props.inputWidthOverride ?? measuredInputWidthBase;
             
-            // Get gap and extras - these are from CSS computed styles, also in screen pixels
-            const gapFallback = typeof component.props.labelGapOverride === 'number' ? component.props.labelGapOverride : 8;
-            const rawGap = typeof gridMetrics?.columnGapPx === 'number'
+            // Determine which objects are in the same row as the input for width budgeting.
+            // Rule: Only objects in the same row as the input "consume" horizontal space during E/W resize.
+            const structureObjectIds = componentDef?.structure?.objects?.map(o => o.id) ?? [];
+            const hasLabelObject = structureObjectIds.includes('label');
+            const hasHelpObject = structureObjectIds.includes('validation') || structureObjectIds.includes('help');
+
+            const getInputRowInfo = (): { labelInInputRow: boolean; helpInInputRow: boolean; inputRowGapCount: number } => {
+                const effectiveGridLayout = getEffectiveGridLayout(
+                    component.props.gridLayout,
+                    resolveComponentDefaultGridLayout({
+                        structure: componentDef?.structure ?? getDefaultStructure(component.type),
+                        componentType: component.type,
+                        globalStyles,
+                    }),
+                    globalStyles?.defaultGridLayout
+                );
+
+                if (effectiveGridLayout && typeof effectiveGridLayout.cellAssignments === 'object') {
+                    const rowByObjectId: Record<string, number> = {};
+                    for (const [key, objectId] of Object.entries(effectiveGridLayout.cellAssignments as Record<string, unknown>)) {
+                        if (typeof objectId !== 'string') continue;
+                        const [rowStr] = key.split('-');
+                        const row = Number.parseInt(rowStr, 10);
+                        if (!Number.isFinite(row)) continue;
+                        rowByObjectId[objectId] = row;
+                    }
+
+                    const inputRow = rowByObjectId.input;
+                    if (typeof inputRow === 'number') {
+                        const objectsInRow = Object.entries(rowByObjectId)
+                            .filter(([, row]) => row === inputRow)
+                            .map(([objectId]) => objectId);
+                        const labelInInputRow = hasLabelObject && objectsInRow.includes('label');
+                        const helpInInputRow = hasHelpObject && (objectsInRow.includes('validation') || objectsInRow.includes('help'));
+                        const objectCount = 1 + (labelInInputRow ? 1 : 0) + (helpInInputRow ? 1 : 0);
+                        return {
+                            labelInInputRow,
+                            helpInInputRow,
+                            inputRowGapCount: Math.max(0, objectCount - 1),
+                        };
+                    }
+                }
+
+                const layout = component.props.objectLayout ?? componentDef?.structure?.defaultLayout ?? 'vertical';
+                if (layout === 'vertical') {
+                    return { labelInInputRow: false, helpInInputRow: false, inputRowGapCount: 0 };
+                }
+
+                if (layout === 'mixed') {
+                    const groups = component.props.layoutGroups ?? componentDef?.structure?.layoutGroups;
+                    if (groups && typeof groups === 'object') {
+                        const row = Object.values(groups).find(ids => Array.isArray(ids) && ids.includes('input')) as string[] | undefined;
+                        if (row) {
+                            const labelInInputRow = hasLabelObject && row.includes('label');
+                            const helpInInputRow = hasHelpObject && (row.includes('validation') || row.includes('help'));
+                            const objectCount = 1 + (labelInInputRow ? 1 : 0) + (helpInInputRow ? 1 : 0);
+                            return {
+                                labelInInputRow,
+                                helpInInputRow,
+                                inputRowGapCount: Math.max(0, objectCount - 1),
+                            };
+                        }
+                    }
+                }
+
+                // Horizontal (or fallback): assume label + input + validation when present.
+                const labelInInputRow = hasLabelObject;
+                const helpInInputRow = hasHelpObject;
+                const objectCount = 1 + (labelInInputRow ? 1 : 0) + (helpInInputRow ? 1 : 0);
+                return {
+                    labelInInputRow,
+                    helpInInputRow,
+                    inputRowGapCount: Math.max(0, objectCount - 1),
+                };
+            };
+
+            const inputRowInfo = getInputRowInfo();
+
+            // Get gap and extras - gap/padding/border are measured in screen px; convert to base px.
+            // If DOM gap is unavailable (e.g. gap tracks), fall back to global spacing (already base px).
+            const gapFallbackBase = globalStyles?.objectColumnGapPx ?? globalStyles?.baseSpacing ?? 8;
+            const rawGapScreen = typeof gridMetrics?.columnGapPx === 'number'
                 ? gridMetrics.columnGapPx
                 : (typeof gridMetrics?.columnGap === 'string' ? parseFloat(gridMetrics.columnGap) : NaN);
-            // Convert gap from screen to base pixels
-            const columnGapPxScreen = Number.isFinite(rawGap) ? rawGap : gapFallback;
-            const columnGapPx = effectiveScaleFactor > 0 ? columnGapPxScreen / effectiveScaleFactor : columnGapPxScreen;
+            const columnGapPx =
+                Number.isFinite(rawGapScreen)
+                    ? (effectiveScaleFactor > 0 ? rawGapScreen / effectiveScaleFactor : rawGapScreen)
+                    : gapFallbackBase;
             
             const paddingLeftPxScreen = typeof gridMetrics?.paddingLeftPx === 'number' ? gridMetrics.paddingLeftPx : 0;
             const paddingRightPxScreen = typeof gridMetrics?.paddingRightPx === 'number' ? gridMetrics.paddingRightPx : 0;
@@ -454,7 +541,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             const smartBorderPadding = 5;
             const smartBorderPaddingTotal = smartBorderPadding * 2;
             
-            const totalExtras = (columnGapPx * 2) + paddingLeftPx + paddingRightPx + borderLeftPx + borderRightPx + smartBorderPaddingTotal;
+            const baseExtras = paddingLeftPx + paddingRightPx + borderLeftPx + borderRightPx + smartBorderPaddingTotal;
+            const totalExtras = (columnGapPx * inputRowInfo.inputRowGapCount) + baseExtras;
             
             resizeStartObjectWidthsRef.current = {
                 labelWidth,
@@ -462,6 +550,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 helpWidth,
                 columnGapPx,
                 totalExtras,
+                ...inputRowInfo,
             };
             
             devLogger.info('resize.start.objectWidths.captured', {
@@ -476,7 +565,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     label: measuredLabelWidthScreen,
                     input: measuredInputWidthScreen,
                     help: measuredHelpWidthScreen,
-                    columnGap: columnGapPxScreen,
+                    columnGap: rawGapScreen,
                 },
                 basePixels: {
                     label: labelWidth,
@@ -485,6 +574,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     columnGap: columnGapPx,
                     totalExtras,
                 },
+                inputRowInfo,
+                gapFallbackBase,
                 propsOverrides: {
                     label: component.props.labelWidthOverride,
                     input: component.props.inputWidthOverride,
@@ -577,7 +668,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             handle: handle || 'unknown',
             action: 'grab'
         });
-    }, [component]); // Refs don't need to be in dependencies - they're stable
+    }, [component, componentScale, fieldStyles, scale]); // Refs don't need to be in dependencies - they're stable
 
     // Live preview during resize (for visual feedback)
     const handleResize = useCallback((deltaWidth: number, deltaHeight: number, handle: HandlePosition) => {
@@ -766,7 +857,9 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             if (capturedWidths) {
                 previewLabelWidth = capturedWidths.labelWidth;
                 previewHelpWidth = capturedWidths.helpWidth;
-                const availableForInput = nextWidth - capturedWidths.labelWidth - capturedWidths.helpWidth - capturedWidths.totalExtras;
+                const fixedLabel = capturedWidths.labelInInputRow ? capturedWidths.labelWidth : 0;
+                const fixedHelp = capturedWidths.helpInInputRow ? capturedWidths.helpWidth : 0;
+                const availableForInput = nextWidth - fixedLabel - fixedHelp - capturedWidths.totalExtras;
                 previewInputWidth = Math.max(60, availableForInput);
             }
 
@@ -778,12 +871,52 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 previewLabelWidth,
                 previewInputWidth,
                 previewHelpWidth,
+                ...(component.type === 'submit-button' ? { previewActionWidth: nextWidth } : {}),
             };
 
             // ───────────────────────────────────────────────────────────────
             // VERTICAL PREVIEW (same math as N/S branch)
             // deltaHeight is already normalized by ResizeHandles for corners.
             // ───────────────────────────────────────────────────────────────
+            if (component.type === 'submit-button') {
+                const canvasScaleFactor = scale || 1.0;
+                const scaleFactor = componentScale / 100;
+                const effectiveScaleFactor = canvasScaleFactor * scaleFactor;
+                const baseHeightDelta = effectiveScaleFactor !== 0 ? deltaHeight / effectiveScaleFactor : deltaHeight;
+
+                const measuredButtonHeightScreen =
+                    captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics?.button?.rect?.height ??
+                    smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
+                    fieldStyles.computed.inputHeight;
+                const measuredButtonHeight =
+                    effectiveScaleFactor > 0
+                        ? measuredButtonHeightScreen / effectiveScaleFactor
+                        : measuredButtonHeightScreen;
+
+                const startHeight =
+                    resizePreview?.startHeight ??
+                    submitButtonStartHeightRef.current ??
+                    component.props.height ??
+                    measuredButtonHeight;
+
+                if (submitButtonStartHeightRef.current === null) {
+                    submitButtonStartHeightRef.current = startHeight;
+                }
+
+                const minHeightPx = 28;
+                const maxHeightPx = 240;
+                const unclampedHeight = startHeight + baseHeightDelta;
+                const nextHeight = Math.max(minHeightPx, Math.min(maxHeightPx, unclampedHeight));
+
+                const mergedPreview: typeof resizePreview = {
+                    ...widthPreview,
+                    height: nextHeight,
+                    startHeight,
+                };
+
+                setResizePreview(mergedPreview);
+                return;
+            }
             // Track vertical constraints for corner handles
             const verticalConstraints: string[] = [];
             
@@ -932,31 +1065,6 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             const minWidthPx = computeSelectionMinWidthPx() ?? 100;
             const unclampedWidth = baseWidth + baseWidthDelta;
             let nextWidth = Math.max(minWidthPx, unclampedWidth);
-            
-            // ═══════════════════════════════════════════════════════════════
-            // BUTTON-SPECIFIC LOGGING (for debugging 10x multiplier issue)
-            // ═══════════════════════════════════════════════════════════════
-            if (component.type === 'submit-button') {
-                devLogger.info('resize.button.preview.calculation', {
-                    componentId: component.id,
-                    handle,
-                    deltaWidthScreenPx: deltaWidth,
-                    componentScale,
-                    canvasScaleDecimal: scale,
-                    componentScaleFactor,
-                    canvasScaleFactor,
-                    effectiveScaleFactor,
-                    baseWidthDelta,
-                    startWidth,
-                    baseWidth,
-                    currentWidthPx,
-                    unclampedWidth,
-                    minWidthPx,
-                    nextWidth,
-                    widthDelta: nextWidth - baseWidth,
-                    multiplier: baseWidthDelta !== 0 ? deltaWidth / baseWidthDelta : 0,
-                });
-            }
 
             const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
             const currentPositionX = component.position?.x ?? 0;
@@ -1030,7 +1138,9 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 
                 // Input fills the remaining space
                 // nextWidth is the total component width, so input = total - label - help - gaps
-                const availableForInput = nextWidth - capturedWidths.labelWidth - capturedWidths.helpWidth - capturedWidths.totalExtras;
+                const fixedLabel = capturedWidths.labelInInputRow ? capturedWidths.labelWidth : 0;
+                const fixedHelp = capturedWidths.helpInInputRow ? capturedWidths.helpWidth : 0;
+                const availableForInput = nextWidth - fixedLabel - fixedHelp - capturedWidths.totalExtras;
                 previewInputWidth = Math.max(60, availableForInput); // Minimum 60px for input
                 
                 devLogger.debug('resize.preview.objectWidths', {
@@ -1051,28 +1161,10 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 previewLabelWidth,
                 previewInputWidth,
                 previewHelpWidth,
+                ...(component.type === 'submit-button' ? { previewActionWidth: nextWidth } : {}),
             } as typeof resizePreview & { horizontalHandle?: string; leftShift?: number };
             
             setResizePreview(previewUpdate);
-            
-            // ═══════════════════════════════════════════════════════════════
-            // BUTTON-SPECIFIC PREVIEW LOGGING
-            // ═══════════════════════════════════════════════════════════════
-            if (component.type === 'submit-button') {
-                devLogger.info('resize.button.preview.updated', {
-                    componentId: component.id,
-                    handle,
-                    deltaWidthScreenPx: deltaWidth,
-                    baseWidthDelta,
-                    effectiveWidthDelta,
-                    startWidth,
-                    baseWidth,
-                    currentWidthPx,
-                    nextWidth,
-                    previewWidth: previewUpdate.width,
-                    multiplier: baseWidthDelta !== 0 ? deltaWidth / baseWidthDelta : 0,
-                });
-            }
             
             // Log resize preview state update (for E/W handles)
             devLogger.debug('resize.handle.move', {
@@ -1158,6 +1250,44 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         } else if (handle === 'n' || handle === 's') {
             // Height-first logic: adjust input height within bounds, then spacing with any remaining delta
             // deltaHeight here is already normalized (positive = drag down on S, drag up on N)
+            if (component.type === 'submit-button') {
+                const canvasScaleFactor = scale || 1.0;
+                const scaleFactor = componentScale / 100;
+                const effectiveScaleFactor = canvasScaleFactor * scaleFactor;
+                const baseHeightDelta = effectiveScaleFactor !== 0 ? deltaHeight / effectiveScaleFactor : deltaHeight;
+
+                const measuredButtonHeightScreen =
+                    captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics?.button?.rect?.height ??
+                    smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
+                    fieldStyles.computed.inputHeight;
+                const measuredButtonHeight =
+                    effectiveScaleFactor > 0
+                        ? measuredButtonHeightScreen / effectiveScaleFactor
+                        : measuredButtonHeightScreen;
+
+                const startHeight =
+                    resizePreview?.startHeight ??
+                    submitButtonStartHeightRef.current ??
+                    component.props.height ??
+                    measuredButtonHeight;
+
+                if (submitButtonStartHeightRef.current === null) {
+                    submitButtonStartHeightRef.current = startHeight;
+                }
+
+                const minHeightPx = 28;
+                const maxHeightPx = 240;
+                const unclampedHeight = startHeight + baseHeightDelta;
+                const nextHeight = Math.max(minHeightPx, Math.min(maxHeightPx, unclampedHeight));
+
+                const preview: typeof resizePreview = {
+                    height: nextHeight,
+                    startHeight,
+                };
+
+                setResizePreview(preview);
+                return;
+            }
             let remainingDelta = deltaHeight;
             let newInputHeight = Math.max(minInputHeight, Math.min(maxInputHeight, currentInputHeight + remainingDelta));
             remainingDelta -= (newInputHeight - currentInputHeight);
@@ -1213,7 +1343,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 clampedHeight,
             });
         }
-    }, [component.props.width, component.type, componentScale, fieldStyles.computed.inputHeight, currentLabelGap, currentInputHelpGap, actualDomWidth, resizePreview, scale]);
+    }, [component.props.width, component.props.height, component.type, componentScale, fieldStyles.computed.inputHeight, currentLabelGap, currentInputHelpGap, actualDomWidth, resizePreview, scale]);
 
     // Width change handler (E/W handles)
     const handleWidthChange = useCallback((newWidth: number) => {
@@ -1418,15 +1548,18 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         }
         
         const gridMetrics = snapshotBefore?.gridMetrics;
-        
-        // IMPORTANT: Do NOT use gridMetrics.columnGapPx for gap calculation!
-        // When grid uses explicit columns for gaps (e.g., "70px 8px 332px 8px 208px"),
-        // the CSS column-gap is 0, and the fallback computes gap from object positions,
-        // which becomes incorrect after resize (measures visual gap, not intended gap).
-        // Always use the KNOWN gap value from props or default.
-        const columnGapPx = typeof component.props.labelGapOverride === 'number' 
-            ? component.props.labelGapOverride 
-            : 8;
+
+        // Width budgeting is row-aware: only objects in the same row as the input participate.
+        // We capture this context at resize start so preview and commit match.
+        const capturedWidths = resizeStartObjectWidthsRef.current;
+        const inputRowGapCount = capturedWidths?.inputRowGapCount ?? 2;
+        const labelInInputRow = capturedWidths?.labelInInputRow ?? true;
+        const helpInInputRow = capturedWidths?.helpInInputRow ?? true;
+
+        // Gap: prefer captured DOM-derived gap (converted to base px) when available.
+        // Fallback to global spacing (already base px).
+        const gapFallbackBase = globalStyles?.objectColumnGapPx ?? globalStyles?.baseSpacing ?? 8;
+        const columnGapPx = capturedWidths?.columnGapPx ?? gapFallbackBase;
         
         const paddingLeftPxScreen = typeof gridMetrics?.paddingLeftPx === 'number' ? gridMetrics.paddingLeftPx : 0;
         const paddingRightPxScreen = typeof gridMetrics?.paddingRightPx === 'number' ? gridMetrics.paddingRightPx : 0;
@@ -1444,7 +1577,13 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         const smartBorderPadding = 5; // Default SmartBorder padding
         const smartBorderPaddingTotal = smartBorderPadding * 2; // Left + Right
         
-        const totalExtras = (columnGapPx * 2) + paddingLeftPx + paddingRightPx + borderLeftPx + borderRightPx + smartBorderPaddingTotal;
+        const totalExtras =
+            (columnGapPx * inputRowGapCount) +
+            paddingLeftPx +
+            paddingRightPx +
+            borderLeftPx +
+            borderRightPx +
+            smartBorderPaddingTotal;
         
         // Debug: Log totalExtras breakdown
         devLogger.info('resize.totalExtras.breakdown', {
@@ -1452,9 +1591,14 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             effectiveScaleFactor,
             componentScale,
             canvasScale: scale,
-            gapSource: 'props-or-default (NOT DOM)',
-            propsLabelGapOverride: component.props.labelGapOverride,
+            gapSource: capturedWidths?.columnGapPx ? 'captured(DOM→base)' : 'globalStyles(default)',
+            gapFallbackBase,
             columnGapPx,
+            inputRowContext: {
+                labelInInputRow,
+                helpInInputRow,
+                inputRowGapCount,
+            },
             screenPixels: {
                 paddingLeftPxScreen,
                 paddingRightPxScreen,
@@ -1469,7 +1613,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 smartBorderPaddingTotal,
             },
             calculation: {
-                columnGaps: columnGapPx * 2,
+                columnGaps: columnGapPx * inputRowGapCount,
                 gridPadding: paddingLeftPx + paddingRightPx,
                 gridBorder: borderLeftPx + borderRightPx,
                 smartBorder: smartBorderPaddingTotal,
@@ -1858,19 +2002,21 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 usedMin: lockedHelpWidth === minHelpWidth,
             },
         });
-        const columnGap = currentLabelGap ?? 8; // Use labelGap for object gaps
+
+        const fixedLabelWidth = labelInInputRow ? lockedLabelWidth : 0;
+        const fixedHelpWidth = helpInInputRow ? lockedHelpWidth : 0;
         
         // ═══════════════════════════════════════════════════════════════
         // ATTEMPT 12 v8.3: Calculate input to fill remaining space
-        // Input = newWidth - label - help - totalExtras
+        // Input = newWidth - fixedObjectsInInputRow - totalExtras
         // totalExtras includes: column gaps + grid padding + border + SmartBorder padding
         // This ensures input fills exactly the space between label and help.
         // ═══════════════════════════════════════════════════════════════
-        const remainingForInput = newWidth - lockedLabelWidth - lockedHelpWidth - totalExtras;
+        const remainingForInput = newWidth - fixedLabelWidth - fixedHelpWidth - totalExtras;
         const adjustedInputWidth = Math.max(minInputWidth, Math.round(remainingForInput));
         
         // Calculate what the sum of overrides would be
-        const calculatedWidth = lockedLabelWidth + adjustedInputWidth + lockedHelpWidth + totalExtras;
+        const calculatedWidth = fixedLabelWidth + adjustedInputWidth + fixedHelpWidth + totalExtras;
         
         // If input hit minimum and sum exceeds target width, expand component to fit
         if (calculatedWidth > newWidth) {
@@ -1890,8 +2036,12 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // COMPREHENSIVE WIDTH COMPARISON LOG
         // Shows BEFORE vs AFTER with sum verification
         // ═══════════════════════════════════════════════════════════════
-        const beforeSum = currentLabelWidth + currentInputWidth + currentHelpWidth + totalExtras;
-        const afterSum = lockedLabelWidth + adjustedInputWidth + lockedHelpWidth + totalExtras;
+        const beforeSum =
+            (labelInInputRow ? currentLabelWidth : 0) +
+            currentInputWidth +
+            (helpInInputRow ? currentHelpWidth : 0) +
+            totalExtras;
+        const afterSum = fixedLabelWidth + adjustedInputWidth + fixedHelpWidth + totalExtras;
         // Note: afterSum should now always equal newWidth (after minInput adjustment)
         
         devLogger.info('resize.width.comparison', {
@@ -1901,9 +2051,9 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             
             BEFORE: {
                 componentWidth: oldWidthPx,
-                labelWidth: currentLabelWidth,
+                labelWidth: labelInInputRow ? currentLabelWidth : 0,
                 inputWidth: currentInputWidth,
-                helpWidth: currentHelpWidth,
+                helpWidth: helpInInputRow ? currentHelpWidth : 0,
                 totalExtras: totalExtras,
                 SUM: beforeSum,
                 sumMatchesComponent: Math.abs(beforeSum - oldWidthPx) < 1,
@@ -1911,16 +2061,16 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             
             AFTER: {
                 componentWidth: newWidth,
-                labelWidth: lockedLabelWidth,
+                labelWidth: fixedLabelWidth,
                 inputWidth: adjustedInputWidth,
-                helpWidth: lockedHelpWidth,
+                helpWidth: fixedHelpWidth,
                 totalExtras: totalExtras,
                 SUM: afterSum,
                 sumMatchesComponent: Math.abs(afterSum - newWidth) < 1,
             },
             
             EXTRAS_BREAKDOWN: {
-                columnGaps: columnGap * 2,
+                columnGaps: columnGapPx * inputRowGapCount,
                 smartBorderPadding: 10, // 5px each side
                 gridPaddingLeft: paddingLeftPx,
                 gridPaddingRight: paddingRightPx,
@@ -1930,95 +2080,14 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             },
             
             CHANGES: {
-                labelChange: lockedLabelWidth - currentLabelWidth,
+                labelChange: labelInInputRow ? (lockedLabelWidth - currentLabelWidth) : 0,
                 inputChange: adjustedInputWidth - currentInputWidth,
-                helpChange: lockedHelpWidth - currentHelpWidth,
+                helpChange: helpInInputRow ? (lockedHelpWidth - currentHelpWidth) : 0,
             },
             
             remainingForInput,
             minInputWidth,
         });
-        
-        // ═══════════════════════════════════════════════════════════════
-        // BUTTON COMPONENT HANDLING (action object)
-        // For buttons, update actionWidthOverride instead of inputWidthOverride
-        // Buttons have simpler structure: action object width should match component width
-        // ═══════════════════════════════════════════════════════════════
-        if (component.type === 'submit-button') {
-            // For buttons, the action object width should match the component width
-            // The button element should fill the container (minus SmartBorder padding)
-            // SmartBorder has 5px padding on each side, so the button should be newWidth - 10px
-            // But actually, we want the button to fill the available space, so we set actionWidthOverride
-            // to the component width (the container will handle SmartBorder padding)
-            const actionWidth = Math.max(50, Math.round(newWidth));
-            
-            // ═══════════════════════════════════════════════════════════════
-            // COMPREHENSIVE BUTTON RESIZE LOGGING
-            // ═══════════════════════════════════════════════════════════════
-            const previewData = resizePreview as (typeof resizePreview) & { horizontalHandle?: string; leftShift?: number };
-            const handleUsed = previewData?.horizontalHandle || 'unknown';
-            const previewWidth = previewData?.width;
-            const previewStartWidth = previewData?.startWidth;
-            
-            devLogger.info('resize.width.button.commit', {
-                componentId: component.id,
-                handle: handleUsed,
-                BEFORE: {
-                    componentWidth: oldWidthPx,
-                    componentWidthProp: component.props.width,
-                    actionWidthOverride: component.props.actionWidthOverride,
-                    position: component.position,
-                },
-                PREVIEW: {
-                    previewWidth,
-                    previewStartWidth,
-                    leftShift: previewData?.leftShift,
-                },
-                CALCULATION: {
-                    newWidth,
-                    actionWidth,
-                    widthDelta: newWidth - oldWidthPx,
-                    multiplier: oldWidthPx !== 0 ? newWidth / oldWidthPx : 0,
-                },
-                AFTER: {
-                    componentWidth: newWidth,
-                    actionWidthOverride: actionWidth,
-                },
-                UPDATES: {
-                    width: `${newWidth}px`,
-                    actionWidthOverride: actionWidth,
-                },
-            });
-            
-            // Resize always converts to pixels (user is dragging to a specific pixel width)
-            // Percentage widths are only set via the panel, not via resize
-            const updates: any = {
-                width: `${newWidth}px`,
-                actionWidthOverride: actionWidth,
-            };
-            
-            updateComponentProps(component.id, updates);
-            
-            // Clear resize preview state
-            setResizePreview(null);
-            resizeStartObjectWidthsRef.current = null;
-            
-            // For W handle: adjust position to keep East edge anchored
-            if (isWestHandle && leftShift !== 0) {
-                const newX = currentX + leftShift;
-                updateComponentProps(component.id, { position: { ...component.position, x: newX } });
-                
-                devLogger.info('resize.width.button.position.adjusted', {
-                    componentId: component.id,
-                    handle: 'w',
-                    oldX: currentX,
-                    newX,
-                    leftShift,
-                });
-            }
-            
-            return;
-        }
         
         // Update component width (use preview width - matches user drag position)
         // Grid will use explicit column widths from overrides
@@ -2031,6 +2100,10 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             labelWidthOverride: lockedLabelWidth,
             helpWidthOverride: lockedHelpWidth,
         };
+
+        if (component.type === 'submit-button') {
+            updates.actionWidthOverride = Math.round(newWidth);
+        }
 
         if (!isDropdownSplit) {
             // Input absorbs all width change
@@ -2232,6 +2305,46 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
 
     // Vertical resize commit (N/S) with height-first then spacing behavior
     const handleVerticalResizeEnd = useCallback((handle: 'n' | 's', deltaY: number) => {
+        if (component.type === 'submit-button') {
+            const canvasScaleFactor = scale || 1.0;
+            const scaleFactor = componentScale / 100;
+            const effectiveScaleFactor = canvasScaleFactor * scaleFactor;
+            const baseHeightDelta = effectiveScaleFactor !== 0 ? deltaY / effectiveScaleFactor : deltaY;
+
+            const measuredButtonHeightScreen =
+                captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics?.button?.rect?.height ??
+                smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
+                fieldStyles.computed.inputHeight;
+            const measuredButtonHeight =
+                effectiveScaleFactor > 0
+                    ? measuredButtonHeightScreen / effectiveScaleFactor
+                    : measuredButtonHeightScreen;
+
+            const startHeight =
+                resizePreview?.startHeight ??
+                submitButtonStartHeightRef.current ??
+                component.props.height ??
+                measuredButtonHeight;
+
+            const minHeightPx = 28;
+            const maxHeightPx = 240;
+            const unclampedHeight = startHeight + baseHeightDelta;
+            const finalHeight = resizePreview?.height ?? Math.max(minHeightPx, Math.min(maxHeightPx, unclampedHeight));
+
+            const currentX = component.position?.x ?? 0;
+            const currentY = component.position?.y ?? 0;
+            const appliedShift = 0;
+
+            updateComponent(component.id, {
+                props: { ...component.props, height: Math.round(finalHeight) },
+                position: component.position,
+            });
+
+            setResizePreview(null);
+            submitButtonStartHeightRef.current = null;
+            return;
+        }
+
         const scaleFactor = componentScale / 100;
         const currentInputHeight = fieldStyles.computed.inputHeight;
         const minInputHeight = 28 * scaleFactor;
@@ -2429,7 +2542,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         
         setResizePreview(null);
         lastVerticalPreviewRef.current = null;
-    }, [component, componentScale, currentLabelGap, currentInputHelpGap, fieldStyles.computed.inputHeight, updateComponentProps]);
+    }, [component, componentScale, currentLabelGap, currentInputHelpGap, fieldStyles.computed.inputHeight, resizePreview, scale, updateComponent, updateComponentProps]);
 
     // Corner resize commit (NW/NE/SE/SW): non-proportional 2-axis resize
     // Equivalent to committing E/W width resize + N/S vertical resize.
@@ -2476,8 +2589,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             mouse: {
                 deltaX,
                 deltaY,
-                client: meta ? { x: meta.clientX, y: meta.clientY } : undefined,
-                deltaFromStart: meta ? { x: meta.deltaFromStartX, y: meta.deltaFromStartY } : undefined,
+                client: meta?.client,
+                deltaFromStart: meta?.delta,
             },
             current: {
                 position: currentPosition,
@@ -2884,13 +2997,11 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     // This matches runtime behavior in PublicFormArtboard.tsx
     // Robust check: handle undefined, null, empty string, whitespace, and case variations
     const widthValue = component.props.width;
-    const isSubmitButtonFullWidth = component.type === 'submit-button' && component.props.buttonWidth === 'full';
     const hasExplicitWidth = Boolean(
-        (widthValue && 
-            typeof widthValue === 'string' && 
-            widthValue.trim() !== '' && 
-            widthValue.trim().toLowerCase() !== 'auto') ||
-        isSubmitButtonFullWidth
+        widthValue && 
+        typeof widthValue === 'string' && 
+        widthValue.trim() !== '' && 
+        widthValue.trim().toLowerCase() !== 'auto'
     );
     
     // Debug logging for width issues
@@ -2900,15 +3011,12 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             widthValue,
             widthType: typeof widthValue,
             hasExplicitWidth,
-            isSubmitButtonFullWidth,
             smartBorderLayout: hasExplicitWidth ? 'fill' : 'shrink',
         });
     }
     // During horizontal resize, ALWAYS use resizePreview.width if available
     // This ensures the container width updates during drag
-    const baseWidthPx = resizePreview?.width ?? (hasExplicitWidth
-        ? (widthValue ? parseComponentWidthPx(widthValue) : (isSubmitButtonFullWidth ? canvasWidth : undefined))
-        : undefined);
+    const baseWidthPx = resizePreview?.width ?? (hasExplicitWidth ? parseComponentWidthPx(component.props.width) : undefined);
     // NOTE: DO NOT multiply by displayScale here - the CSS transform: scale() handles visual scaling
     // Multiplying here causes double-scaling which breaks anchor positioning
     const displayWidthPx = baseWidthPx;
@@ -3338,20 +3446,6 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             scheduleResizeCapture('beforeDrop', meta, { force: true, reason: 'before width commit' });
             // Commit using preview width when available (accounts for canvas scale)
             const commitWidth = resizePreview?.width ?? newWidth;
-            
-            // ═══════════════════════════════════════════════════════════════
-            // BUTTON-SPECIFIC COMMIT WIDTH LOGGING
-            // ═══════════════════════════════════════════════════════════════
-            if (component.type === 'submit-button') {
-                devLogger.info('resize.button.commit.width.source', {
-                    componentId: component.id,
-                    previewWidth: resizePreview?.width,
-                    newWidthParam: newWidth,
-                    commitWidth,
-                    usingPreview: resizePreview?.width !== undefined,
-                });
-            }
-            
             handleWidthChange(commitWidth);
             setIsResizingState(false);
             useBuilderStore.getState().setResizingComponentId(null); // Clear to re-enable drag
@@ -3608,16 +3702,19 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     // For E/W resize: Pass previewWidth for border visual update
                     // frozenGridTemplateColumns prevents internal grid layout changes
                     previewWidth={isHorizontalResize ? resizePreview?.width : undefined}
+                    previewHeight={resizePreview?.height}
                     currentWidthPx={currentWidthPxForPreview}
                     previewObjectWidthOverrides={
                         // For E/W resize: pass preview object widths to update grid columns dynamically
                         isHorizontalResize && (resizePreview?.previewLabelWidth !== undefined || 
                                                resizePreview?.previewInputWidth !== undefined || 
-                                               resizePreview?.previewHelpWidth !== undefined)
+                                               resizePreview?.previewHelpWidth !== undefined ||
+                                               resizePreview?.previewActionWidth !== undefined)
                             ? {
                                 labelWidthOverride: resizePreview.previewLabelWidth,
                                 inputWidthOverride: resizePreview.previewInputWidth,
                                 helpWidthOverride: resizePreview.previewHelpWidth,
+                                actionWidthOverride: resizePreview.previewActionWidth,
                             }
                             // For input-only resize handles (not E/W component resize)
                             : resizePreview?.inputWidthOverride !== undefined
@@ -3880,14 +3977,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     <div 
                         className={containerAlignClass}
                         style={{ 
-                            // During resize preview, use previewWidth (in pixels)
-                            // Otherwise, for percentage widths, use component.props.width directly
-                            // For pixel widths, use displayWidth
-                            width: isHorizontalResize && resizePreview?.width
-                                ? `${resizePreview.width}px`
-                                : component.props.width?.endsWith('%') 
-                                    ? component.props.width 
-                                    : displayWidth,
+                            width: displayWidth,
                             transform: scaleTransform,
                             transformOrigin: scaleOrigin,
                         }}
@@ -3903,17 +3993,9 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                             globalStyles={globalStyles}
                             componentId={component.id}
                             component={component}
-                            // For E/W resize: pass previewWidth and actionWidthOverride for live preview
-                            previewWidth={isHorizontalResize ? resizePreview?.width : undefined}
+                            // For E/W resize: DON'T pass previewWidth - keep component frozen during drag
+                            previewWidth={undefined}
                             currentWidthPx={currentWidthPxForPreview}
-                            previewObjectWidthOverrides={
-                                isHorizontalResize && resizePreview?.width
-                                    ? {
-                                        // Calculate action width override from preview width
-                                        actionWidthOverride: Math.max(50, Math.round(resizePreview.width)),
-                                      }
-                                    : undefined
-                            }
                             previewStyleOverrides={isVerticalResize ? previewStyleOverrides : undefined}
                             previewSpacingOverrides={isVerticalResize ? previewSpacingOverrides : undefined}
                             previewScale={undefined}

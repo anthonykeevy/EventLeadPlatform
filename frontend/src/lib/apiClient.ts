@@ -64,15 +64,12 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${tokenResponse.access_token}`
         return apiClient(originalRequest)
       } catch (refreshError) {
-        // Refresh failed - Session is truly expired
-        
-        // Don't clear tokens immediately if we want the user to be able to re-login in the modal
-        // But the old tokens are useless.
-        // The modal will use the email from the decoded token (if valid) or user context.
-        
-        // Trigger Session Expired Event
-        window.dispatchEvent(new CustomEvent('eventlead:session-expired'))
-        
+        // Refresh failed - keep session state but notify for retry
+        window.dispatchEvent(new CustomEvent('eventlead:refresh-failed', {
+          detail: {
+            status: (refreshError as AxiosError | undefined)?.response?.status || 0
+          }
+        }))
         return Promise.reject(refreshError)
       }
     }

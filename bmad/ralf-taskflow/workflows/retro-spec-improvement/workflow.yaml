@@ -1,0 +1,45 @@
+# Spec Improvement Workflow
+# BMAD v6 Workflow for Ralf Taskflow Module
+name: retro-spec-improvement
+description: "Improve Task Spec clarity based on retro findings (no scope expansion)"
+author: "Ralf Taskflow Module"
+version: "1.0.0"
+
+# Critical variables from config
+config_source: "{project-root}/bmad/ralf-taskflow/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+
+# Workflow components
+installed_path: "{project-root}/bmad/ralf-taskflow/workflows/retro-spec-improvement"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  story_id: ""
+  task_id: ""
+  task_spec_path: ""
+  retro_findings: ""
+
+# Output
+outputs:
+  updated_spec: "{output_folder}/{story_id}/{task_id}.md"
+
+required_tools:
+  - read_file
+  - write_file
+
+tags:
+  - spec-improvement
+  - clarity
+  - retrospective
+  - bmad-v6
+
+execution_hints:
+  interactive: true
+  autonomous: false
+
+standalone: true

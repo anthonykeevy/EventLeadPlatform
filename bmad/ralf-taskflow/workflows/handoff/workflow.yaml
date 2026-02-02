@@ -1,0 +1,46 @@
+# Handoff Workflow
+# BMAD v6 Workflow for Ralf Taskflow Module
+name: handoff
+description: "Complete task execution and prepare final handoff documentation"
+author: "Ralf Taskflow Module"
+version: "1.0.0"
+
+# Critical variables from config
+config_source: "{project-root}/bmad/ralf-taskflow/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+
+# Workflow components
+installed_path: "{project-root}/bmad/ralf-taskflow/workflows/handoff"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  task_spec_path: ""
+  story_id: ""
+  task_id: ""
+  files_changed: []
+  test_evidence: ""
+
+# Output files
+outputs:
+  completion_note: "{output_folder}/{story_id}/{task_id}.completion.md"
+  qa_notes: "{output_folder}/{story_id}/{task_id}.qa-notes.md"
+
+required_tools:
+  - read_file
+  - write_file
+
+tags:
+  - handoff
+  - documentation
+  - bmad-v6
+
+execution_hints:
+  interactive: true
+  autonomous: false
+
+standalone: true

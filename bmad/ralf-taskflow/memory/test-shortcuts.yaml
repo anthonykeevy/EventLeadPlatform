@@ -1,0 +1,173 @@
+# Test Shortcuts - Ralf Taskflow Memory
+# High-value tests and commands that catch regressions early
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+# Quick verification commands by category
+quick_tests:
+
+  frontend:
+    all_tests:
+      command: "npm test"
+      timeout: "120s"
+      catches: "All frontend unit test failures"
+      
+    specific_test:
+      command: "npm test -- --grep '{pattern}'"
+      timeout: "30s"
+      catches: "Specific test suite failures"
+      
+    type_check:
+      command: "npx tsc --noEmit"
+      timeout: "60s"
+      catches: "TypeScript errors, type mismatches"
+      
+    lint:
+      command: "npm run lint"
+      timeout: "30s"
+      catches: "Code style issues, unused imports, hooks violations"
+      
+    build:
+      command: "npm run build"
+      timeout: "180s"
+      catches: "Build errors, missing exports, bundling issues"
+
+  backend:
+    all_tests:
+      command: "pytest backend/tests/ -x"
+      timeout: "120s"
+      catches: "All backend test failures, stop at first"
+      
+    specific_test:
+      command: "pytest -xvs -k '{pattern}'"
+      timeout: "30s"
+      catches: "Specific test failures with output"
+      
+    lint:
+      command: "ruff check ."
+      timeout: "15s"
+      catches: "Python style issues, unused imports"
+      
+    import_check:
+      command: "python -c 'from backend.main import app'"
+      timeout: "10s"
+      catches: "Import errors, missing dependencies"
+
+# High-leverage test patterns
+high_leverage_tests:
+
+  component_smoke:
+    name: "Component Smoke Test"
+    pattern: |
+      test('renders without crashing', () => {
+        render(<Component />);
+        expect(screen.getByRole('...')).toBeInTheDocument();
+      });
+    catches:
+      - "Null pointer on undefined props"
+      - "Missing required props"
+      - "Render errors"
+    priority: "Run first for any component change"
+
+  api_auth_check:
+    name: "API Auth Boundary Test"
+    pattern: |
+      def test_requires_auth():
+          response = client.get("/endpoint")
+          assert response.status_code == 401
+    catches:
+      - "Missing authentication"
+      - "Auth bypass"
+    priority: "Run for any new endpoint"
+
+  api_validation:
+    name: "API Input Validation Test"
+    pattern: |
+      @pytest.mark.parametrize("payload,expected", [
+          ({}, 422),
+          ({"field": None}, 422),
+          ({"field": ""}, 422),
+      ])
+      def test_validation(payload, expected):
+          response = client.post("/endpoint", json=payload)
+          assert response.status_code == expected
+    catches:
+      - "Missing validation"
+      - "Accepts invalid input"
+    priority: "Run for any POST/PUT endpoint"
+
+  state_update:
+    name: "State Update Test"
+    pattern: |
+      test('updates state correctly', async () => {
+        render(<Component />);
+        fireEvent.click(screen.getByRole('button'));
+        await waitFor(() => {
+          expect(screen.getByText('updated')).toBeInTheDocument();
+        });
+      });
+    catches:
+      - "State not updating"
+      - "Async issues"
+    priority: "Run for any state-changing component"
+
+# Regression test suites
+regression_suites:
+
+  form_builder:
+    name: "Form Builder Regression"
+    commands:
+      - "npm test -- --grep 'FormBuilder'"
+      - "npm test -- --grep 'Canvas'"
+      - "npm test -- --grep 'Properties'"
+    run_when: "Any change to builder/ directory"
+    
+  auth:
+    name: "Authentication Regression"
+    commands:
+      - "npm test -- --grep 'Auth'"
+      - "pytest -k 'auth'"
+    run_when: "Any change to auth module"
+    
+  api:
+    name: "API Regression"
+    commands:
+      - "pytest backend/tests/test_api.py -x"
+    run_when: "Any change to router or service files"
+
+# Pre-commit checklist
+pre_commit:
+  
+  minimal:
+    - "npm run lint"
+    - "npx tsc --noEmit"
+    - "npm test -- --grep '{changed_components}'"
+    
+  standard:
+    - "npm run lint"
+    - "npx tsc --noEmit"
+    - "npm test"
+    - "npm run build"
+    
+  full:
+    - "npm run lint"
+    - "npx tsc --noEmit"
+    - "npm test"
+    - "npm run build"
+    - "ruff check ."
+    - "pytest backend/tests/ -x"
+
+# Evidence gathering
+evidence_commands:
+  
+  test_output:
+    command: "npm test -- --verbose 2>&1 | tee test-output.txt"
+    use_for: "Capturing test evidence for completion note"
+    
+  build_output:
+    command: "npm run build 2>&1 | tee build-output.txt"
+    use_for: "Capturing build evidence"
+    
+  changed_files:
+    command: "git diff --name-only HEAD~1"
+    use_for: "Listing files changed for completion note"

@@ -5,7 +5,7 @@
  * Different handles have different behaviors:
  * 
  * Handle positions and behaviors:
- *   nw ─── n ─── ne       Corners (nw, ne, se, sw): Proportional scale
+ *   nw ─── n ─── ne       Corners (nw, ne, se, sw): 2-axis resize (width + vertical behavior)
  *   │             │       E/W edges: Width adjustment
  *   w             e       N edge: Label spacing (labelGap)
  *   │             │       S edge: Textarea height OR help spacing
@@ -13,11 +13,23 @@
  */
 
 import React, { useCallback, useRef, useState } from 'react';
+import { devLogger } from '../../utils/devLogger';
 
 export type HandlePosition = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w';
 
 /** Type of action for each handle */
-export type HandleAction = 'scale' | 'width' | 'labelGap' | 'heightOrHelpGap';
+export type HandleAction = 'corner' | 'width' | 'labelGap' | 'heightOrHelpGap';
+
+export type ResizePointerMeta = {
+    /** Pointer location in screen coordinates */
+    client: { x: number; y: number };
+    /** Pointer start position (pointerdown) */
+    start: { x: number; y: number };
+    /** Raw mouse delta from start (screen px) */
+    delta: { x: number; y: number };
+    /** Timestamp for ordering/correlation */
+    ts: number;
+};
 
 interface ResizeHandlesProps {
     /** Is the component selected? Handles only show when selected */
@@ -34,20 +46,43 @@ interface ResizeHandlesProps {
     currentInputHelpGap?: number;
     /** Component type - affects S handle behavior */
     componentType?: string;
+    /** Component ID for capture/log correlation */
+    componentId?: string;
+    /** Hide corner handles (NWSE) - for components that don't support proportional scaling */
+    hideCornerHandles?: boolean;
     /** Callback when resize starts */
-    onResizeStart?: () => void;
+    onResizeStart?: (handle: HandlePosition, meta?: ResizePointerMeta) => void;
     /** Callback during resize with delta values (for live preview) */
-    onResize?: (deltaWidth: number, deltaHeight: number, handle: HandlePosition) => void;
+    onResize?: (deltaWidth: number, deltaHeight: number, handle: HandlePosition, meta?: ResizePointerMeta) => void;
     /** Callback when width changes (E/W handles) */
-    onWidthChange?: (newWidth: number) => void;
-    /** Callback when scale changes (corner handles) */
-    onScaleChange?: (newScale: number) => void;
+    onWidthChange?: (newWidth: number, meta?: ResizePointerMeta) => void;
+    /**
+     * Callback when a corner resize completes (NW/NE/SE/SW).
+     * Deltas are in SCREEN pixels, already signed for the handle direction:
+     * - `deltaX`: positive means expand width to the right
+     * - `deltaY`: positive means expand height downward
+     */
+    onCornerResizeEnd?: (handle: HandlePosition, deltaX: number, deltaY: number, meta?: ResizePointerMeta) => void;
     /** Callback when spacing changes (N/S handles) */
     onSpacingChange?: (spacingType: 'labelGap' | 'inputHelpGap', newValue: number) => void;
     /** Callback when height changes (S handle for textarea) */
     onHeightChange?: (newHeight: number) => void;
     /** Callback for vertical resize end (N/S) to allow custom height-first logic */
-    onVerticalResizeEnd?: (handle: 'n' | 's', deltaY: number) => void;
+    onVerticalResizeEnd?: (handle: 'n' | 's', deltaY: number, meta?: ResizePointerMeta) => void;
+    /** Current input height in pixels (for N/S two-phase logic; optional if handled upstream) */
+    currentInputHeight?: number;
+    /** Minimum input height in pixels (optional if handled upstream) */
+    minInputHeight?: number;
+    /** Maximum input height in pixels (optional if handled upstream) */
+    maxInputHeight?: number;
+    /** Minimum label gap in pixels (optional if handled upstream) */
+    labelGapMin?: number;
+    /** Maximum label gap in pixels (optional if handled upstream) */
+    labelGapMax?: number;
+    /** Minimum input-help gap in pixels (optional if handled upstream) */
+    inputHelpGapMin?: number;
+    /** Maximum input-help gap in pixels (optional if handled upstream) */
+    inputHelpGapMax?: number;
     /** Minimum width in pixels */
     minWidth?: number;
     /** Minimum height in pixels */
@@ -66,17 +101,17 @@ const HANDLE_CONFIG: Record<HandlePosition, {
     resizeY: -1 | 0 | 1; // -1 = top edge, 0 = no vertical, 1 = bottom edge
     action: HandleAction;
 }> = {
-    nw: { cursor: 'nwse-resize', position: { top: -4, left: -4 }, resizeX: -1, resizeY: -1, action: 'scale' },
+    nw: { cursor: 'nwse-resize', position: { top: -4, left: -4 }, resizeX: -1, resizeY: -1, action: 'corner' },
     n:  { cursor: 'ns-resize',   position: { top: -4, left: '50%', transform: 'translateX(-50%)' }, resizeX: 0, resizeY: -1, action: 'labelGap' },
-    ne: { cursor: 'nesw-resize', position: { top: -4, right: -4 }, resizeX: 1, resizeY: -1, action: 'scale' },
+    ne: { cursor: 'nesw-resize', position: { top: -4, right: -4 }, resizeX: 1, resizeY: -1, action: 'corner' },
     e:  { cursor: 'ew-resize',   position: { top: '50%', right: -4, transform: 'translateY(-50%)' }, resizeX: 1, resizeY: 0, action: 'width' },
-    se: { cursor: 'nwse-resize', position: { bottom: -4, right: -4 }, resizeX: 1, resizeY: 1, action: 'scale' },
+    se: { cursor: 'nwse-resize', position: { bottom: -4, right: -4 }, resizeX: 1, resizeY: 1, action: 'corner' },
     s:  { cursor: 'ns-resize',   position: { bottom: -4, left: '50%', transform: 'translateX(-50%)' }, resizeX: 0, resizeY: 1, action: 'heightOrHelpGap' },
-    sw: { cursor: 'nesw-resize', position: { bottom: -4, left: -4 }, resizeX: -1, resizeY: 1, action: 'scale' },
+    sw: { cursor: 'nesw-resize', position: { bottom: -4, left: -4 }, resizeX: -1, resizeY: 1, action: 'corner' },
     w:  { cursor: 'ew-resize',   position: { top: '50%', left: -4, transform: 'translateY(-50%)' }, resizeX: -1, resizeY: 0, action: 'width' },
 };
 
-// Corner handles for proportional scale
+// Corner handles for 2-axis resize
 const CORNER_HANDLES: HandlePosition[] = ['nw', 'ne', 'se', 'sw'];
 
 /**
@@ -85,8 +120,8 @@ const CORNER_HANDLES: HandlePosition[] = ['nw', 'ne', 'se', 'sw'];
 const getHandleTooltip = (position: HandlePosition, componentType?: string): string => {
     const config = HANDLE_CONFIG[position];
     switch (config.action) {
-        case 'scale':
-            return `Proportional scale (${position.toUpperCase()})`;
+        case 'corner':
+            return `Corner resize (${position.toUpperCase()})`;
         case 'width':
             return `Adjust width (${position.toUpperCase()})`;
         case 'labelGap':
@@ -106,14 +141,15 @@ const Handle: React.FC<{
     onMouseDown: (e: React.MouseEvent, position: HandlePosition) => void;
     isCorner: boolean;
     componentType?: string;
-}> = ({ position, onMouseDown, isCorner, componentType }) => {
+    componentId?: string;
+}> = ({ position, onMouseDown, isCorner, componentType, componentId }) => {
     const config = HANDLE_CONFIG[position];
     
     // Different colors for different actions
     const getHandleColor = () => {
         switch (config.action) {
-            case 'scale':
-                return '#3B82F6'; // blue-500 for scale
+            case 'corner':
+                return '#3B82F6'; // blue-500 for corners
             case 'width':
                 return '#10B981'; // emerald-500 for width
             case 'labelGap':
@@ -124,9 +160,30 @@ const Handle: React.FC<{
         }
     };
     
+    // Handle pointer/mouse down - must stop propagation to prevent dnd-kit drag
+    const handlePointerDown = (e: React.PointerEvent) => {
+        // Stop propagation for both pointer and mouse events to prevent drag
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof (e.currentTarget as HTMLElement).setPointerCapture === 'function') {
+            try {
+                (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+            } catch {
+                // Ignore capture failures (e.g. synthetic events / browser quirks)
+            }
+        }
+        // Convert to mouse event-like object for the handler
+        onMouseDown(e as unknown as React.MouseEvent, position);
+    };
+    
     return (
         <div
-            onMouseDown={(e) => onMouseDown(e, position)}
+            onPointerDown={handlePointerDown}
+            onMouseDown={(e) => {
+                // Also stop mouse events for browsers that fire both
+                e.stopPropagation();
+                e.preventDefault();
+            }}
             style={{
                 position: 'absolute',
                 ...config.position,
@@ -138,8 +195,14 @@ const Handle: React.FC<{
                 cursor: config.cursor,
                 zIndex: 50,
                 boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                // Ensure handles capture pointer events (override parent's pointerEvents: none)
+                pointerEvents: 'auto',
+                touchAction: 'none',
             }}
             title={getHandleTooltip(position, componentType)}
+            data-resize-handle={position}
+            data-resize-action={config.action}
+            data-resize-component-id={componentId}
         />
     );
 };
@@ -152,10 +215,12 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     currentLabelGap = 8,
     currentInputHelpGap = 8,
     componentType,
+    componentId,
+    hideCornerHandles = false,
     onResizeStart,
     onResize,
     onWidthChange,
-    onScaleChange,
+    onCornerResizeEnd,
     onSpacingChange,
     onHeightChange,
     onVerticalResizeEnd,
@@ -168,11 +233,12 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     const startPosRef = useRef({ x: 0, y: 0 });
     const startSizeRef = useRef({ width: 0, height: 0, scale: 100, labelGap: 8, inputHelpGap: 8 });
     const activeHandleRef = useRef<HandlePosition | null>(null);
+    const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
     
     // Store callbacks in refs so event listeners always have current values
     const onResizeRef = useRef(onResize);
     const onWidthChangeRef = useRef(onWidthChange);
-    const onScaleChangeRef = useRef(onScaleChange);
+    const onCornerResizeEndRef = useRef(onCornerResizeEnd);
     const onSpacingChangeRef = useRef(onSpacingChange);
     const onHeightChangeRef = useRef(onHeightChange);
     const onVerticalResizeEndRef = useRef(onVerticalResizeEnd);
@@ -180,7 +246,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     // Update refs when props change
     onResizeRef.current = onResize;
     onWidthChangeRef.current = onWidthChange;
-    onScaleChangeRef.current = onScaleChange;
+    onCornerResizeEndRef.current = onCornerResizeEnd;
     onSpacingChangeRef.current = onSpacingChange;
     onHeightChangeRef.current = onHeightChange;
     onVerticalResizeEndRef.current = onVerticalResizeEnd;
@@ -199,67 +265,120 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     }, [currentWidth]);
 
     // Define event handlers that use refs for current callback values
-    const handleMouseMove = useCallback((e: MouseEvent) => {
+    // Use PointerEvent for cross-browser support and to match dnd-kit's event system
+    const handlePointerMove = useCallback((e: PointerEvent) => {
         if (!activeHandleRef.current) return;
         
         const config = HANDLE_CONFIG[activeHandleRef.current];
         const deltaX = e.clientX - startPosRef.current.x;
         const deltaY = e.clientY - startPosRef.current.y;
+        lastPointerRef.current = { x: e.clientX, y: e.clientY };
+        const meta: ResizePointerMeta = {
+            client: { x: e.clientX, y: e.clientY },
+            start: { x: startPosRef.current.x, y: startPosRef.current.y },
+            delta: { x: deltaX, y: deltaY },
+            ts: Date.now(),
+        };
+        
+        devLogger.debug('resize.pointer.move', {
+            componentId,
+            handle: activeHandleRef.current,
+            action: config.action,
+            client: { x: e.clientX, y: e.clientY },
+            start: { x: startPosRef.current.x, y: startPosRef.current.y },
+            delta: { x: deltaX, y: deltaY },
+        });
         
         // Calculate new dimensions based on handle position
         let newWidth = startSizeRef.current.width;
         let newHeight = startSizeRef.current.height;
         
-        if (config.resizeX !== 0) {
-            const widthDelta = config.resizeX === -1 ? -deltaX : deltaX;
-            newWidth = Math.max(minWidth, Math.min(maxWidth, startSizeRef.current.width + widthDelta));
-        }
-        
-        if (config.resizeY !== 0) {
-            const heightDelta = config.resizeY === -1 ? -deltaY : deltaY;
-            newHeight = Math.max(minHeight, Math.min(maxHeight, startSizeRef.current.height + heightDelta));
-        }
-        
         // Call generic resize callback for live preview
         if (config.action === 'labelGap' || config.action === 'heightOrHelpGap') {
             // For vertical handles, pass raw normalized deltaY so downstream can allocate height vs spacing
             const heightDelta = config.resizeY !== 0 ? (config.resizeY === -1 ? -deltaY : deltaY) : 0;
-            onResizeRef.current?.(0, heightDelta, activeHandleRef.current);
+            onResizeRef.current?.(0, heightDelta, activeHandleRef.current, meta);
+        } else if (config.action === 'width') {
+            // For E/W handles, pass raw screen pixel delta - SortableComponent will convert to base pixels
+            // CRITICAL: Do NOT mix screen pixels (deltaX) with base pixels (startSizeRef.current.width)
+            // Pass raw deltaX so SortableComponent can properly convert accounting for canvas zoom and component scale
+            const widthDelta = config.resizeX === -1 ? -deltaX : deltaX;
+            devLogger.debug('resize.pointer.delta', {
+                handle: activeHandleRef.current,
+                resizeX: config.resizeX,
+                deltaX,
+                widthDelta,
+            });
+            const heightDelta = config.resizeY !== 0 ? (config.resizeY === -1 ? -deltaY : deltaY) : 0;
+            onResizeRef.current?.(widthDelta, heightDelta, activeHandleRef.current, meta);
         } else {
-            onResizeRef.current?.(
-                newWidth - startSizeRef.current.width,
-                newHeight - startSizeRef.current.height,
-                activeHandleRef.current
-            );
+            // Corner handles: pass signed raw screen deltas (SortableComponent converts to base px)
+            const widthDelta = config.resizeX !== 0 ? (config.resizeX === -1 ? -deltaX : deltaX) : 0;
+            const heightDelta = config.resizeY !== 0 ? (config.resizeY === -1 ? -deltaY : deltaY) : 0;
+            onResizeRef.current?.(widthDelta, heightDelta, activeHandleRef.current, meta);
         }
     }, [minWidth, maxWidth, minHeight, maxHeight]);
 
-    const handleMouseUp = useCallback((e: MouseEvent) => {
+    const handlePointerUp = useCallback((e: PointerEvent) => {
         if (!activeHandleRef.current) return;
         
         const handle = activeHandleRef.current;
         const config = HANDLE_CONFIG[handle];
         const deltaX = e.clientX - startPosRef.current.x;
         const deltaY = e.clientY - startPosRef.current.y;
+        const meta: ResizePointerMeta = {
+            client: { x: e.clientX, y: e.clientY },
+            start: { x: startPosRef.current.x, y: startPosRef.current.y },
+            delta: { x: deltaX, y: deltaY },
+            ts: Date.now(),
+        };
+        devLogger.info('resize.pointer.up', {
+            componentId,
+            handle,
+            action: config.action,
+            client: { x: e.clientX, y: e.clientY },
+            start: { x: startPosRef.current.x, y: startPosRef.current.y },
+            delta: { x: deltaX, y: deltaY },
+            startSize: { ...startSizeRef.current },
+            componentType,
+        });
         
         // Calculate final values based on handle action
         switch (config.action) {
-            case 'scale': {
-                // Corner handles: calculate scale factor from width change
-                const widthDelta = config.resizeX === -1 ? -deltaX : deltaX;
-                const newWidth = Math.max(minWidth, Math.min(maxWidth, startSizeRef.current.width + widthDelta));
-                const scaleFactor = (newWidth / startSizeRef.current.width) * startSizeRef.current.scale;
-                // Clamp scale between 50% and 200%
-                const clampedScale = Math.max(50, Math.min(200, Math.round(scaleFactor)));
-                onScaleChangeRef.current?.(clampedScale);
+            case 'corner': {
+                const widthDelta = config.resizeX !== 0 ? (config.resizeX === -1 ? -deltaX : deltaX) : 0;
+                const heightDelta = config.resizeY !== 0 ? (config.resizeY === -1 ? -deltaY : deltaY) : 0;
+                if (Math.abs(widthDelta) < 1 && Math.abs(heightDelta) < 1) {
+                    devLogger.info('resize.pointer.up.noop', {
+                        handle,
+                        action: config.action,
+                        delta: { x: deltaX, y: deltaY },
+                        reason: 'no-drag corner commit suppressed',
+                    });
+                    break;
+                }
+                onCornerResizeEndRef.current?.(handle, widthDelta, heightDelta, meta);
                 break;
             }
             
             case 'width': {
-                // E/W handles: just update width
+                // E/W handles: update width
+                // widthDelta is in SCREEN pixels, but we store BASE width
+                // Need to convert screen delta to base delta when scale != 100%
                 const widthDelta = config.resizeX === -1 ? -deltaX : deltaX;
-                const newWidth = Math.max(minWidth, Math.min(maxWidth, startSizeRef.current.width + widthDelta));
-                onWidthChangeRef.current?.(Math.round(newWidth));
+                if (Math.abs(widthDelta) < 1 && Math.abs(deltaY) < 1) {
+                    devLogger.info('resize.pointer.up.noop', {
+                        handle,
+                        action: config.action,
+                        delta: { x: deltaX, y: deltaY },
+                        reason: 'no-drag width commit suppressed',
+                    });
+                    break;
+                }
+                const scaleFactor = startSizeRef.current.scale / 100;
+                const baseWidthDelta = scaleFactor !== 0 ? widthDelta / scaleFactor : widthDelta;
+                const newWidth = Math.max(minWidth, Math.min(maxWidth, startSizeRef.current.width + baseWidthDelta));
+                onWidthChangeRef.current?.(Math.round(newWidth), meta);
                 break;
             }
             
@@ -267,14 +386,14 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
                 // N handle: delegate to vertical resize end for height-first logic with normalized delta
                 // Convert raw mouse deltaY into height delta (top handle inverts sign)
                 const heightDelta = config.resizeY !== 0 ? (config.resizeY === -1 ? -deltaY : deltaY) : 0;
-                onVerticalResizeEndRef.current?.('n', heightDelta);
+                onVerticalResizeEndRef.current?.('n', heightDelta, meta);
                 break;
             }
             
             case 'heightOrHelpGap': {
                 // S handle: delegate with normalized delta
                 const heightDelta = config.resizeY !== 0 ? (config.resizeY === -1 ? -deltaY : deltaY) : 0;
-                onVerticalResizeEndRef.current?.('s', heightDelta);
+                onVerticalResizeEndRef.current?.('s', heightDelta, meta);
                 break;
             }
         }
@@ -282,9 +401,10 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
         // Cleanup
         setIsResizing(false);
         activeHandleRef.current = null;
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-    }, [minWidth, maxWidth, minHeight, maxHeight, componentType, handleMouseMove]);
+        lastPointerRef.current = null;
+        document.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('pointerup', handlePointerUp);
+    }, [minWidth, maxWidth, minHeight, maxHeight, handlePointerMove]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent, position: HandlePosition) => {
         e.preventDefault();
@@ -293,6 +413,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
         setIsResizing(true);
         activeHandleRef.current = position;
         startPosRef.current = { x: e.clientX, y: e.clientY };
+        lastPointerRef.current = { x: e.clientX, y: e.clientY };
         startSizeRef.current = { 
             width: parseWidth(), 
             height: currentHeight || 100,
@@ -300,33 +421,62 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
             labelGap: currentLabelGap,
             inputHelpGap: currentInputHelpGap,
         };
+        devLogger.info('resize.pointer.down', {
+            componentId,
+            handle: position,
+            action: HANDLE_CONFIG[position]?.action,
+            client: { x: e.clientX, y: e.clientY },
+            startSize: { ...startSizeRef.current },
+            componentType,
+        });
         
-        onResizeStart?.();
+        onResizeStart?.(position, {
+            client: { x: e.clientX, y: e.clientY },
+            start: { x: e.clientX, y: e.clientY },
+            delta: { x: 0, y: 0 },
+            ts: Date.now(),
+        });
         
-        // Add global mouse listeners
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-    }, [parseWidth, currentHeight, currentScale, currentLabelGap, currentInputHelpGap, onResizeStart, handleMouseMove, handleMouseUp]);
+        // Add global pointer listeners (works with both mouse and touch)
+        document.addEventListener('pointermove', handlePointerMove);
+        document.addEventListener('pointerup', handlePointerUp);
+    }, [parseWidth, currentHeight, currentScale, currentLabelGap, currentInputHelpGap, onResizeStart, handlePointerMove, handlePointerUp]);
 
     // Don't render if not selected
     if (!isSelected) return null;
 
-    const edgeHandles: HandlePosition[] = ['n', 'e', 's', 'w'];
+    // Determine which edge handles to show based on available callbacks
+    // E/W handles require onWidthChange
+    // N handle requires onSpacingChange or onVerticalResizeEnd (for labelGap)
+    // S handle requires onHeightChange or onSpacingChange or onVerticalResizeEnd
+    const showEWHandles = onWidthChange !== undefined;
+    const showNHandle = onSpacingChange !== undefined || onVerticalResizeEnd !== undefined;
+    const showSHandle = onHeightChange !== undefined || onSpacingChange !== undefined || onVerticalResizeEnd !== undefined;
+    
+    // Build the list of edge handles to show
+    const edgeHandles: HandlePosition[] = [];
+    if (showNHandle) edgeHandles.push('n');
+    if (showEWHandles) {
+        edgeHandles.push('e');
+        edgeHandles.push('w');
+    }
+    if (showSHandle) edgeHandles.push('s');
 
     return (
         <>
-            {/* Corner handles (for proportional scale) */}
-            {CORNER_HANDLES.map((pos) => (
+            {/* Corner handles (2-axis resize) - hidden if hideCornerHandles is true */}
+            {!hideCornerHandles && CORNER_HANDLES.map((pos) => (
                 <Handle
                     key={pos}
                     position={pos}
                     onMouseDown={handleMouseDown}
                     isCorner={true}
                     componentType={componentType}
+                    componentId={componentId}
                 />
             ))}
             
-            {/* Edge handles (for width/spacing) */}
+            {/* Edge handles (for width/spacing) - shown based on available callbacks */}
             {edgeHandles.map((pos) => (
                 <Handle
                     key={pos}
@@ -334,6 +484,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
                     onMouseDown={handleMouseDown}
                     isCorner={false}
                     componentType={componentType}
+                    componentId={componentId}
                 />
             ))}
             

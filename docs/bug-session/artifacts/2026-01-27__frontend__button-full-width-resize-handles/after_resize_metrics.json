@@ -1,0 +1,13 @@
+﻿{
+  "afterResize": {
+    "button": {
+      "height": 11.0999755859375,
+      "width": 26.540618896484375
+    },
+    "validation": null,
+    "wrapper": {
+      "height": 24.449981689453125,
+      "width": 623.7000122070312
+    }
+  }
+}

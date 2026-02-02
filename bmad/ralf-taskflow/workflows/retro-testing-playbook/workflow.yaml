@@ -1,0 +1,41 @@
+# Update Testing Playbook Workflow
+# BMAD v6 Workflow for Ralf Taskflow Module
+name: retro-testing-playbook
+description: "Update testing playbook with patterns from retrospective findings"
+author: "Ralf Taskflow Module"
+version: "1.0.0"
+
+# Critical variables from config
+config_source: "{project-root}/bmad/ralf-taskflow/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+
+# Workflow components
+installed_path: "{project-root}/bmad/ralf-taskflow/workflows/retro-testing-playbook"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  retro_findings: ""
+
+# Output files
+outputs:
+  testing_playbook: "{project-root}/docs/learning/testing-playbook.md"
+
+required_tools:
+  - read_file
+  - write_file
+
+tags:
+  - testing
+  - playbook
+  - learning
+  - bmad-v6
+
+execution_hints:
+  interactive: true
+  autonomous: false
+
+standalone: true

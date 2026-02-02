@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story Context: Story 3.10 - Grid Layout System
+  Epic: Epic 3 - Form Builder & Logic Engine
+  Created: 2026-01-14
+  
+  This context file provides structured metadata for AI agents working on Story 3.10.
+-->
+<story-context version="1.0">
+  <metadata>
+    <story-id>3.10</story-id>
+    <story-title>Grid Layout System</story-title>
+    <epic-id>3</epic-id>
+    <domain>Visual Builder</domain>
+    <status>ready-for-development</status>
+    <priority>high</priority>
+    <created>2026-01-14</created>
+  </metadata>
+
+  <summary>
+    Build a Grid Layout system as an alternative to Object Layout, allowing users to arrange 
+    component objects (label, input, validation, etc.) in a flexible CSS Grid structure with 
+    configurable rows, columns, spacing, and cell merging capabilities.
+  </summary>
+
+  <problem-statement>
+    The current Object Layout system has constraints for complex form layouts. Component Framework 
+    issues are blocking UAT testing for Stories 3.8 and 3.9. Grid Layout provides a more robust 
+    layout system with precise positioning control.
+  </problem-statement>
+
+  <key-features>
+    <feature id="F1">Grid Layout Modal - Configure rows, columns, gaps via visual editor</feature>
+    <feature id="F2">Object Assignment - Drag-and-drop objects onto grid cells</feature>
+    <feature id="F3">Cell Merging - Combine cells for objects spanning multiple cells</feature>
+    <feature id="F4">Individual Spacing - Per-row and per-column gap customization</feature>
+    <feature id="F5">Global Defaults - Form-wide defaults with component overrides</feature>
+    <feature id="F6">Coexistence - Works alongside Object Layout</feature>
+  </key-features>
+
+  <reference-documents>
+    <document type="specification" path="docs/GRID-LAYOUT-GUIDE.md">
+      Comprehensive Grid Layout specification with schema, mockups, and implementation notes
+    </document>
+    <document type="framework" path="docs/COMPONENT-FRAMEWORK-REFERENCE.md">
+      Component Framework reference for object structure and layout patterns
+    </document>
+    <document type="architecture" path="docs/solution-architecture.md">
+      Overall solution architecture
+    </document>
+    <document type="story" path="docs/stories/story-3.10.md">
+      Story 3.10 definition with requirements and acceptance criteria
+    </document>
+  </reference-documents>
+
+  <technical-context>
+    <technology>React</technology>
+    <technology>TypeScript</technology>
+    <technology>CSS Grid</technology>
+    <technology>@dnd-kit (drag-and-drop)</technology>
+    <technology>Zustand (state management)</technology>
+    
+    <key-types>
+      <type name="GridLayoutConfig">
+        Main configuration interface for grid layout (rows, columns, gaps, assignments)
+      </type>
+      <type name="ComponentProps">
+        Extended with gridLayout?: GridLayoutConfig property
+      </type>
+      <type name="GlobalStyles">
+        Extended with defaultGridLayout? for form-wide defaults
+      </type>
+    </key-types>
+
+    <key-files>
+      <file action="create" path="frontend/src/features/builder/components/properties/GridLayoutSection.tsx">
+        Main Grid Layout configuration panel/modal
+      </file>
+      <file action="create" path="frontend/src/features/builder/components/ui/GridLayoutEditor.tsx">
+        Visual grid editor with drag-and-drop
+      </file>
+      <file action="create" path="frontend/src/features/builder/utils/gridLayoutUtils.ts">
+        Grid layout helper functions (CSS generation, cell assignment, merging)
+      </file>
+      <file action="modify" path="frontend/src/features/builder/types/builder.types.ts">
+        Add GridLayoutConfig interface
+      </file>
+      <file action="modify" path="frontend/src/features/builder/components/UniversalFieldShell.tsx">
+        Render grid layout when gridLayout is configured
+      </file>
+      <file action="modify" path="frontend/src/features/builder/stores/useBuilderStore.ts">
+        Grid layout state management
+      </file>
+    </key-files>
+  </technical-context>
+
+  <done-criteria>
+    <criterion id="DC1">Grid Layout modal opens and saves configuration correctly</criterion>
+    <criterion id="DC2">Objects can be assigned to grid cells via drag-and-drop</criterion>
+    <criterion id="DC3">Grid renders correctly on canvas and in runtime preview</criterion>
+    <criterion id="DC4">Component overrides work independently of global defaults</criterion>
+    <criterion id="DC5">Grid Layout does NOT break existing Object Layout functionality</criterion>
+  </done-criteria>
+
+  <out-of-scope>
+    <item>Responsive Grid (adapts to screen sizes)</item>
+    <item>Grid Templates (pre-defined layouts)</item>
+    <item>Nested Grids</item>
+    <item>CSS Grid Subgrid</item>
+    <item>Auto-fit/Auto-fill columns</item>
+    <item>Auto-migration from Object Layout to Grid Layout</item>
+  </out-of-scope>
+
+  <dependencies>
+    <upstream>
+      <dependency story="3.5" status="complete">Properties Panel</dependency>
+    </upstream>
+    <downstream>
+      <dependency story="3.8">Public Form Renderer - benefits from improved layout</dependency>
+      <dependency story="3.9">Builder Persistence - Grid Layout saved in FormVersion</dependency>
+    </downstream>
+  </dependencies>
+
+  <risks>
+    <risk level="medium">
+      New layout system must not break existing Object Layout functionality
+    </risk>
+    <risk level="low">
+      CSS Grid browser compatibility (all modern browsers support it)
+    </risk>
+  </risks>
+
+  <estimation>
+    <complexity>medium-high</complexity>
+    <effort>3-5 days</effort>
+    <task-count>estimated 5-8 tasks</task-count>
+  </estimation>
+</story-context>

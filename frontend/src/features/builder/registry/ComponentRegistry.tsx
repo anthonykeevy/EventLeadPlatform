@@ -50,32 +50,45 @@ const TOOLBOX_FIRST_NAME_RENDERERS = getRenderersForComponent(
   TOOLBOX_FIRST_NAME_COMPONENT
 );
 
+interface ToolboxPreviewProps {
+  globalStyles?: GlobalStyles;
+}
+
 function makeToolboxPreview(args: {
   type: ComponentType;
   structure: ComponentStructure;
   props: FormComponent['props'];
   renderersOverride?: (base: ObjectRenderers) => ObjectRenderers;
 }): React.ReactNode {
-  const component: FormComponent = {
-    id: `toolbox-${args.type}`,
-    type: args.type,
-    props: args.props ?? {},
-  };
-  const baseRenderers = getRenderersForComponent(args.type, args.structure, component);
-  const renderers = args.renderersOverride ? args.renderersOverride(baseRenderers) : baseRenderers;
+  const ToolboxPreview: React.FC<ToolboxPreviewProps> = ({ globalStyles }) => {
+    const component: FormComponent = {
+      id: `toolbox-${args.type}`,
+      type: args.type,
+      props: {
+        ...(args.props ?? {}),
+      },
+    };
+    const baseRenderers = getRenderersForComponent(args.type, args.structure, component);
+    const renderers = args.renderersOverride ? args.renderersOverride(baseRenderers) : baseRenderers;
 
-  return (
-    <UniversalFieldShell
-      structure={args.structure}
-      renderers={renderers}
-      surface="toolbox"
-      componentId={component.id}
-      component={component}
-      // Enable builder-mode branches (placeholder validation, sizing guides) AND show SmartBorder
-      // so toolbox previews match canvas behavior.
-      builderMode={{ showBorder: true, borderPadding: 5 }}
-    />
-  );
+    return (
+      <UniversalFieldShell
+        structure={args.structure}
+        renderers={renderers}
+        surface="toolbox"
+        componentId={component.id}
+        component={component}
+        globalStyles={globalStyles}
+        objectLayout={globalStyles?.defaultObjectLayout}
+        layoutGroups={globalStyles?.defaultLayoutGroups}
+        // Enable builder-mode branches (placeholder validation, sizing guides) AND show SmartBorder
+        // so toolbox previews match canvas behavior.
+        builderMode={{ showBorder: true, borderPadding: 5 }}
+      />
+    );
+  };
+
+  return <ToolboxPreview />;
 }
 
 export interface RuntimeComponentProps {
@@ -320,7 +333,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       label: 'Email Address',
       placeholder: 'example@email.com',
       required: false,
-      validation: { maxLength: 254 },
+      validation: { maxLength: 254, email: true },
     },
     structure: {
       objects: [
@@ -344,7 +357,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
         label: 'Email Address',
         placeholder: 'name@example.com',
         required: false,
-        validation: { maxLength: 254 },
+        validation: { maxLength: 254, email: true },
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {

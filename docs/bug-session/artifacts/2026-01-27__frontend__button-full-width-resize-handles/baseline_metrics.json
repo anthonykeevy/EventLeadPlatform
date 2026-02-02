@@ -1,0 +1,53 @@
+﻿{
+  "dom": {
+    "button": {
+      "height": 11.0999755859375,
+      "width": 26.5406494140625,
+      "x": 579.0999755859375,
+      "y": 468.6968994140625
+    },
+    "validation": {
+      "height": 6.75,
+      "width": 42.9891357421875,
+      "x": 579.0999755859375,
+      "y": 482.1968994140625
+    },
+    "wrapper": {
+      "height": 24.449981689453125,
+      "width": 45.9891357421875,
+      "x": 577.5999755859375,
+      "y": 467.1968994140625
+    }
+  },
+  "id": "submit-button-1769492061848-479",
+  "props": {
+    "buttonAction": "submit",
+    "buttonAlign": "left",
+    "buttonText": "Submit",
+    "buttonWidth": "full",
+    "disableUntilValid": true,
+    "gridLayout": {
+      "cellAlignment": "stretch",
+      "cellAssignments": {
+        "0-0": "button",
+        "1-0": "validation"
+      },
+      "columnGap": 8,
+      "columnSizing": "auto",
+      "columns": 1,
+      "gridJustification": "start",
+      "rowGap": 8,
+      "rowGaps": {
+        "0": 8,
+        "1": 4
+      },
+      "rowSizing": "auto",
+      "rows": 3
+    },
+    "showIcon": true,
+    "showLoadingState": false,
+    "styleOverrides": {
+      "inputHeight": 37
+    }
+  }
+}

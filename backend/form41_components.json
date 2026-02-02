@@ -1,0 +1,317 @@
+{
+  "formId": 41,
+  "formName": "Template C",
+  "globalStyles": {
+    "fontFamily": "Inter",
+    "fontSize": 14,
+    "fontWeight": 400,
+    "fontStyle": "normal",
+    "labelFontFamily": "Inter",
+    "labelFontSize": 14,
+    "labelFontWeight": 500,
+    "labelFontStyle": "normal",
+    "helpTextFontFamily": "Inter",
+    "helpTextFontSize": 12,
+    "helpTextFontWeight": 400,
+    "helpTextFontStyle": "normal",
+    "textColor": "#1F2937",
+    "textBackgroundColor": "#FFFFFF",
+    "labelColor": "#374151",
+    "helpTextColor": "#DC2626",
+    "actionFontFamily": "Inter",
+    "actionFontSize": 14,
+    "actionFontWeight": 500,
+    "actionFontStyle": "normal",
+    "actionTextColor": "#FFFFFF",
+    "actionBackgroundColor": "#0055FF",
+    "actionBorderRadius": 6,
+    "dividerBorderColor": "#E5E7EB",
+    "dividerBorderWidth": 1,
+    "dividerWidth": "380px",
+    "textHasBorder": true,
+    "labelHasBorder": false,
+    "helpTextHasBorder": false,
+    "primaryColor": "#0055FF",
+    "placeholderColor": "#9CA3AF",
+    "backgroundColor": "#FFFFFF",
+    "borderColor": "#D1D5DB",
+    "errorColor": "#DC2626",
+    "baseSpacing": 8,
+    "labelGap": 1,
+    "inputHelpGap": 0.5,
+    "inputPaddingX": 1.5,
+    "inputPaddingY": 1,
+    "borderRadius": 6,
+    "borderWidth": 1,
+    "inputHeight": 28,
+    "defaultLayout": "vertical",
+    "defaultObjectLayout": "vertical",
+    "textBorderColor": "#D1D5DB",
+    "textBorderWidth": 1,
+    "textBorderRadius": 4
+  },
+  "canvasSettings": {
+    "width": 1920,
+    "height": 980,
+    "gridSize": 8
+  },
+  "theme": {
+    "primaryColor": "#0055FF",
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter"
+  },
+  "components": [
+    {
+      "id": "first-name-1767670364588-719",
+      "type": "first-name",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "First Name",
+        "placeholder": "Enter your first name",
+        "required": true,
+        "validation": {
+          "maxLength": 30,
+          "customError": "Only letters and spaces allowed",
+          "pattern": "^[A-Za-z\\s]+$"
+        },
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "text-1767670920558-854",
+      "type": "text",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Last Name",
+        "placeholder": "Enter your last name",
+        "required": true,
+        "validation": {
+          "maxLength": 30,
+          "alphanumeric": true,
+          "customError": "Last name must be letters only, maximum 30 characters"
+        },
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "email-1767671516157-694",
+      "type": "email",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Business Email Address",
+        "placeholder": "name@company.com",
+        "required": true,
+        "validation": {
+          "maxLength": 254,
+          "businessEmailOnly": true,
+          "domainBlacklist": [
+            "\"test.com\"",
+            "\"example.com\""
+          ],
+          "noDisposableEmail": true,
+          "noPlusAddressing": true
+        },
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "phone-1767672150454-640",
+      "type": "phone",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Phone Number",
+        "placeholder": "+61 400 000 000",
+        "required": true,
+        "validation": {
+          "maxLength": 20,
+          "countryCodeRequired": true,
+          "customError": "Phone number must include country code (e.g., +61)"
+        },
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "dropdown-1767672683029-921",
+      "type": "dropdown",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Event Type",
+        "placeholder": "Select event type",
+        "required": true,
+        "objectLayout": "mixed"
+      }
+    },
+    {
+      "id": "text-1767674066622-598",
+      "type": "text",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Other Event Type",
+        "placeholder": "Specify event type",
+        "required": false,
+        "validation": {
+          "maxLength": 50
+        },
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "number-1767674256283-437",
+      "type": "number",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Number of Attendees",
+        "placeholder": "1",
+        "required": true,
+        "validation": {
+          "maxLength": 12,
+          "minValue": 1,
+          "maxValue": 50,
+          "integerOnly": true,
+          "positiveOnly": true,
+          "customError": "Please enter a number between 1 and 50"
+        },
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "text-1767674620568-93",
+      "type": "text",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Company Name",
+        "placeholder": "Enter company name",
+        "required": false,
+        "validation": {
+          "maxLength": 100
+        },
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "checkbox-1767675026709-266",
+      "type": "checkbox",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Dietary Requirements",
+        "required": false,
+        "objectLayout": "mixed"
+      }
+    },
+    {
+      "id": "textarea-1767675464207-854",
+      "type": "textarea",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Allergy Information",
+        "placeholder": "Please list any allergies or dietary restrictions",
+        "required": false,
+        "validation": {
+          "maxLength": 500
+        },
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "textarea-1767675969454-162",
+      "type": "textarea",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Special Requests",
+        "placeholder": "Any special accommodation requests?",
+        "required": false,
+        "validation": {
+          "maxLength": 500
+        },
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "date-1767676188423-906",
+      "type": "date",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Preferred Event Date",
+        "helpText": "Please select a weekday in the future",
+        "required": true,
+        "validation": {
+          "pastOnly": true
+        },
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "terms-1767676429052-134",
+      "type": "terms",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "I agree to the",
+        "required": true,
+        "objectLayout": "horizontal"
+      }
+    },
+    {
+      "id": "submit-button-1767676594487-817",
+      "type": "submit-button",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "objectLayout": "vertical"
+      }
+    },
+    {
+      "id": "radio-1767746968234-637",
+      "type": "radio",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "props": {
+        "label": "Radio Group",
+        "required": false,
+        "objectLayout": "mixed"
+      }
+    }
+  ]
+}

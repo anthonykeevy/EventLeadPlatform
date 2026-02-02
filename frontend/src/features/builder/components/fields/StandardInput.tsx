@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AlertCircle, HelpCircle, LucideIcon } from 'lucide-react';
 import { SmartBorder } from '../ui/SmartBorder';
 import { AlignType, LayoutType, ValidationRules } from '../../types/builder.types';
@@ -539,7 +539,7 @@ const renderInputControl = (
                             zIndex: 4,
                         }}
                     >
-                        Ôëê {lineEstimate.needed} lines for max length{lineEstimate.fits > 0 ? ` (fits ~${lineEstimate.fits})` : ''}
+                        ~ {lineEstimate.needed} lines for max length{lineEstimate.fits > 0 ? ` (fits ~${lineEstimate.fits})` : ''}
                     </div>
                 )}
             </div>
@@ -561,7 +561,7 @@ const renderInputControl = (
                     style={{ ...inputWithIconStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                 >
                     <span style={{ color: computed.placeholderColor }}>{placeholder}</span>
-                    <span style={{ color: computed.placeholderColor }}>Ôû╝</span>
+                    <span style={{ color: computed.placeholderColor }}>{'\u25BC'}</span>
                 </div>
             </div>
         );

@@ -1,0 +1,44 @@
+# Prepare UAT Workflow
+# BMAD v6 Workflow for Ralf Taskflow Module
+name: prepare-uat
+description: "Generate a deterministic UAT checklist from Task Spec and implementation changes"
+author: "Ralf Taskflow Module"
+version: "1.0.0"
+
+# Critical variables from config
+config_source: "{project-root}/bmad/ralf-taskflow/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+
+# Workflow components
+installed_path: "{project-root}/bmad/ralf-taskflow/workflows/prepare-uat"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  task_spec_path: ""
+  story_id: ""
+  task_id: ""
+  changes_summary: ""
+
+# Output
+outputs:
+  uat_checklist: "{output_folder}/{story_id}/{task_id}.uat-checklist.md"
+
+required_tools:
+  - read_file
+  - write_file
+
+tags:
+  - uat
+  - testing
+  - bmad-v6
+
+execution_hints:
+  interactive: true
+  autonomous: false
+
+standalone: true

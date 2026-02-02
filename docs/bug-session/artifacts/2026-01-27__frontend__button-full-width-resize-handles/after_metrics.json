@@ -1,0 +1,14 @@
+﻿{
+  "button": {
+    "height": 11.0999755859375,
+    "width": 573.0001220703125
+  },
+  "grid": {
+    "placeItems": "stretch",
+    "width": "1910px"
+  },
+  "wrapper": {
+    "height": 24.449981689453125,
+    "width": 576.0001220703125
+  }
+}

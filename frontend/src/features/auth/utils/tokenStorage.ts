@@ -23,13 +23,28 @@ export interface StoredTokens {
  * Store JWT tokens securely in localStorage
  * AC-1.9.3: Persist tokens in localStorage/sessionStorage with security considerations
  */
-export function storeTokens(accessToken: string, refreshToken: string, expiresIn: number = 3600): void {
+export function storeTokens(
+  accessToken: string,
+  refreshToken: string,
+  expiresIn: number = 3600,
+  options?: { suppressEvent?: boolean }
+): void {
   try {
     const expiresAt = Math.floor(Date.now() / 1000) + expiresIn
     
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
     localStorage.setItem(TOKEN_EXPIRY_KEY, expiresAt.toString())
+
+    if (!options?.suppressEvent) {
+      window.dispatchEvent(new CustomEvent('eventlead:tokens-updated', {
+        detail: {
+          accessToken,
+          refreshToken,
+          expiresAt
+        }
+      }))
+    }
   } catch (error) {
     console.error('Failed to store tokens:', error)
     throw new Error('Unable to persist authentication. Please check browser storage settings.')

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { 
   DndContext, 
   closestCenter, 
@@ -40,6 +40,7 @@ import { getRenderersForComponent } from '../utils/componentRenderers';
 import { getDefaultStructure } from '../utils/structureDefaults';
 import { apiClient } from '../../../lib/apiClient';
 import { getComponentSurfaceCapabilities } from '../utils/componentSurfaceCapabilities';
+import { PublicFormArtboard } from '../../renderer/components/PublicFormArtboard';
 
 // 8px Grid Snap Modifier
 const snapToGridModifier = createSnapModifier(8);
@@ -55,7 +56,13 @@ const dropAnimationConfig: DropAnimation = {
   };
 
 export const BuilderPage: React.FC = () => {
-  const { formId } = useParams<{ formId: string }>();
+  const { formId: routeFormId } = useParams<{ formId: string }>();
+  const location = useLocation();
+  const queryFormId = React.useMemo(() => {
+    const value = new URLSearchParams(location.search).get('formId');
+    return value?.trim() || null;
+  }, [location.search]);
+  const formId = routeFormId ?? queryFormId ?? undefined;
   // Get scale and showGrid from store
   const { 
       initializeForm, 
@@ -68,15 +75,16 @@ export const BuilderPage: React.FC = () => {
       addComponent, 
       scale,
       showGrid,
-      viewMode,
       isDirty,
       setDragPosition,
       saveDraft,
   } = useBuilderStore();
 
-  const [publicPreviewUrl, setPublicPreviewUrl] = React.useState<string | null>(null);
   const [publicPreviewError, setPublicPreviewError] = React.useState<string | null>(null);
   const [isPublicPreviewLoading, setIsPublicPreviewLoading] = React.useState(false);
+  const [isInlinePreviewOpen, setIsInlinePreviewOpen] = React.useState(false);
+  const [isInlinePreviewLoading, setIsInlinePreviewLoading] = React.useState(false);
+  const previewWindowRef = useRef<Window | null>(null);
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -124,47 +132,81 @@ export const BuilderPage: React.FC = () => {
     }
   }, [formId, initializeForm]);
 
-  // OPTION A: Builder preview renders the *same* public renderer route used in production,
-  // backed by the saved DefinitionJSON (FormVersion). No separate WYSIWYG pipeline.
-  useEffect(() => {
-    let cancelled = false;
-    async function ensurePublicPreviewUrl() {
-      if (viewMode !== 'preview') return;
-      if (!formId) return;
-
-      setIsPublicPreviewLoading(true);
-      setPublicPreviewError(null);
-
-      try {
-        // Ensure the renderer pulls exactly what the user just authored.
-        await saveDraft(formId);
-
-        const res = await apiClient.post(`/api/forms/${formId}/public-links`, { linkType: 'PREVIEW' });
-        const token = res?.data?.link?.token as string | undefined;
-        const url = token ? `${window.location.origin}/forms/${token}?embed=1` : null;
-        if (cancelled) return;
-        if (!url) {
-          setPublicPreviewError('Preview link was created but no token was returned.');
-          setPublicPreviewUrl(null);
-        } else {
-          setPublicPreviewUrl(url);
-        }
-      } catch (e: any) {
-        if (cancelled) return;
-        const msg = e?.response?.data?.detail || e?.message || 'Failed to generate preview link.';
-        setPublicPreviewError(String(msg));
-        setPublicPreviewUrl(null);
-      } finally {
-        if (cancelled) return;
-        setIsPublicPreviewLoading(false);
-      }
+  const buildPreviewToken = async () => {
+    if (!formId) {
+      throw new Error('Missing form id. Unable to open preview.');
     }
 
-    ensurePublicPreviewUrl();
-    return () => {
-      cancelled = true;
-    };
-  }, [viewMode, formId, saveDraft]);
+    try {
+      // Ensure the renderer pulls exactly what the user just authored.
+      await saveDraft(formId);
+
+      const res = await apiClient.post(`/api/forms/${formId}/public-links`, { linkType: 'PREVIEW' });
+      const token = res?.data?.link?.token as string | undefined;
+      if (!token) {
+        throw new Error('Preview link was created but no token was returned.');
+      }
+
+      return token;
+    } catch (e: any) {
+      const msg = e?.response?.data?.detail || e?.message || 'Failed to generate preview link.';
+      throw new Error(String(msg));
+    }
+  };
+
+  const handleToggleInlinePreview = async () => {
+    if (isInlinePreviewOpen) {
+      setIsInlinePreviewOpen(false);
+      return;
+    }
+
+    setIsInlinePreviewLoading(true);
+    setPublicPreviewError(null);
+    try {
+      setIsInlinePreviewOpen(true);
+    } finally {
+      setIsInlinePreviewLoading(false);
+    }
+  };
+
+  const openPreviewInNewTab = async () => {
+    if (isPublicPreviewLoading) return;
+    setIsPublicPreviewLoading(true);
+    setPublicPreviewError(null);
+
+    let previewWindow: Window | null = null;
+    try {
+      // Open a new tab synchronously so popup blockers allow it.
+      previewWindow = window.open('', '_blank');
+      if (!previewWindow) {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+      // Reduce cross-window coupling after open.
+      try {
+        previewWindow.opener = null;
+      } catch {
+        // Ignore if browser blocks opener changes.
+      }
+      previewWindowRef.current = previewWindow;
+
+      const token = await buildPreviewToken();
+      const url = `${window.location.origin}/forms/${token}/preview`;
+      if (previewWindow && !previewWindow.closed) {
+        previewWindow.location.href = url;
+      } else {
+        window.open(url, '_blank');
+      }
+    } catch (err: any) {
+      if (previewWindow && !previewWindow.closed) {
+        previewWindow.close();
+      }
+      const msg = err?.message || 'Failed to generate preview link.';
+      setPublicPreviewError(String(msg));
+      devLogger.error('preview.open.failed', { formId, error: String(msg) });
+    } finally {
+      setIsPublicPreviewLoading(false);
+    }
+  };
 
   // Warn when leaving the builder with unsaved DB changes.
   // localStorage reduces data loss risk, but DB persistence is still important (collaboration, preview links, portability).
@@ -1187,53 +1229,54 @@ export const BuilderPage: React.FC = () => {
       );
   };
 
-  if (viewMode === 'preview' && formDefinition) {
+  if (!formId) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-gray-50">
+        <div className="max-w-md text-center p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">Missing form id</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Open the builder with a valid form id, for example:
+          </p>
+          <div className="text-xs text-gray-700 bg-gray-100 rounded px-3 py-2">
+            /builder?formId=YOUR_FORM_ID
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isInlinePreviewOpen) {
     return (
       <BuilderLayout
         sidebar={<ComponentSidebar />}
         propertiesPanel={<PropertiesPanel />}
         title={formDefinition?.formId ? `Form: ${formDefinition.formId}` : 'Form Builder'}
         formId={formId}
+        onToggleInlinePreview={handleToggleInlinePreview}
+        isInlinePreviewOpen={isInlinePreviewOpen}
+        isInlinePreviewLoading={isInlinePreviewLoading}
+        onOpenPreview={openPreviewInNewTab}
+        isPreviewLoading={isPublicPreviewLoading}
       >
         <div className="flex flex-col h-full">
-          <div className="bg-white border-b px-4 py-2 flex items-center justify-between gap-3">
-            <div className="text-xs text-gray-500">
-              Preview is rendered by the public runtime (`/forms/:token`) from the saved DefinitionJSON.
+          {publicPreviewError && (
+            <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-sm text-red-900">
+              {publicPreviewError}
             </div>
-            <div className="flex items-center gap-2">
-              {publicPreviewUrl && (
-                <a
-                  className="btn-secondary text-xs"
-                  href={publicPreviewUrl.replace('embed=1', '')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Open public preview in a new tab"
-                >
-                  Open in new tab
-                </a>
-              )}
-            </div>
-          </div>
-
+          )}
           <div className="flex-1 min-h-0 bg-gray-50">
-            {isPublicPreviewLoading ? (
+            {isInlinePreviewLoading ? (
               <div className="p-6 text-sm text-gray-600">Preparing preview…</div>
-            ) : publicPreviewError ? (
-              <div className="p-6">
-                <div className="max-w-xl rounded border border-red-200 bg-red-50 p-4 text-red-900">
-                  <div className="font-semibold mb-1">Unable to generate preview</div>
-                  <div className="text-sm">{publicPreviewError}</div>
-                </div>
-              </div>
-            ) : publicPreviewUrl ? (
-              <iframe
-                title="Public form preview"
-                src={publicPreviewUrl}
-                className="w-full h-full"
-                style={{ border: 0 }}
+            ) : formDefinition ? (
+              <PublicFormArtboard
+                definition={formDefinition}
+                embed={true}
+                layoutMode="builder"
+                containerClassName="h-full"
+                containerStyle={{ height: '100%' }}
               />
             ) : (
-              <div className="p-6 text-sm text-gray-600">No preview URL available.</div>
+              <div className="p-6 text-sm text-gray-600">No definition available.</div>
             )}
           </div>
         </div>
@@ -1256,8 +1299,20 @@ export const BuilderPage: React.FC = () => {
         propertiesPanel={<PropertiesPanel />}
         title={formDefinition?.formId ? `Form: ${formDefinition.formId}` : 'Form Builder'}
         formId={formId}
+        onToggleInlinePreview={handleToggleInlinePreview}
+        isInlinePreviewOpen={isInlinePreviewOpen}
+        isInlinePreviewLoading={isInlinePreviewLoading}
+        onOpenPreview={openPreviewInNewTab}
+        isPreviewLoading={isPublicPreviewLoading}
       >
-        <FormBuilderCanvas ref={canvasRef} />
+        <div className="flex flex-col h-full">
+          {publicPreviewError && (
+            <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-sm text-red-900">
+              {publicPreviewError}
+            </div>
+          )}
+          <FormBuilderCanvas ref={canvasRef} />
+        </div>
       </BuilderLayout>
 
       <DragOverlay dropAnimation={dropAnimationConfig}>

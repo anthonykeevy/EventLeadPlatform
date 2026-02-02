@@ -2,15 +2,13 @@ import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { ComponentRegistry, ComponentDefinition } from '../registry/ComponentRegistry';
 import { useBuilderStore } from '../stores/useBuilderStore';
-import { computeFieldStyles, ComputedFieldStyles } from '../utils/styleUtils';
+import type { GlobalStyles } from '../types/builder.types';
 
 export const ComponentSidebar: React.FC = () => {
   const components = Object.values(ComponentRegistry);
   
   // Get global styles from the store to pass to preview components
   const globalStyles = useBuilderStore(state => state.formDefinition?.globalStyles);
-  const fieldStyles = computeFieldStyles(globalStyles);
-  const defaultLayout = globalStyles?.defaultLayout || 'vertical';
   
   const inputComponents = components.filter(c => c.category === 'input');
   const displayComponents = components.filter(c => c.category === 'display');
@@ -30,7 +28,11 @@ export const ComponentSidebar: React.FC = () => {
             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Input Fields</h4>
             <div className="space-y-4">
                 {inputComponents.map(item => (
-                    <DraggableRichItem key={item.type} item={item} fieldStyles={fieldStyles} defaultLayout={defaultLayout} />
+                    <DraggableRichItem
+                        key={item.type}
+                        item={item}
+                        globalStyles={globalStyles}
+                    />
                 ))}
             </div>
         </div>
@@ -40,7 +42,11 @@ export const ComponentSidebar: React.FC = () => {
             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Display</h4>
             <div className="space-y-4">
                 {displayComponents.map(item => (
-                    <DraggableRichItem key={item.type} item={item} fieldStyles={fieldStyles} defaultLayout={defaultLayout} />
+                    <DraggableRichItem
+                        key={item.type}
+                        item={item}
+                        globalStyles={globalStyles}
+                    />
                 ))}
             </div>
         </div>
@@ -51,11 +57,10 @@ export const ComponentSidebar: React.FC = () => {
 
 interface DraggableRichItemProps {
     item: ComponentDefinition;
-    fieldStyles: ComputedFieldStyles;
-    defaultLayout: 'vertical' | 'horizontal';
+    globalStyles?: GlobalStyles;
 }
 
-const DraggableRichItem: React.FC<DraggableRichItemProps> = ({ item, fieldStyles, defaultLayout }) => {
+const DraggableRichItem: React.FC<DraggableRichItemProps> = ({ item, globalStyles }) => {
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
         id: `toolbox-${item.type}`,
         data: {
@@ -70,10 +75,7 @@ const DraggableRichItem: React.FC<DraggableRichItemProps> = ({ item, fieldStyles
         typeof item.previewComponent.type !== 'string';
 
     // Props to pass to component-based previews
-    const componentProps = isReactComponent ? { 
-        fieldStyles, // Pass global styles to preview components
-        layout: defaultLayout, // Pass default layout from global styles
-    } : {};
+    const componentProps = isReactComponent ? { globalStyles } : {};
 
     return (
         <div 

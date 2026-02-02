@@ -10,6 +10,12 @@ interface BuilderLayoutProps {
     sidebar: React.ReactNode;
     propertiesPanel?: React.ReactNode; // Story 3.5
     title?: string;
+    formId?: string;
+    onToggleInlinePreview?: () => void;
+    isInlinePreviewOpen?: boolean;
+    isInlinePreviewLoading?: boolean;
+    onOpenPreview?: () => void;
+    isPreviewLoading?: boolean;
 }
 
 // Default panel widths
@@ -22,16 +28,44 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
     children, 
     sidebar, 
     propertiesPanel,
-    title 
+    title,
+    formId,
+    onToggleInlinePreview,
+    isInlinePreviewOpen,
+    isInlinePreviewLoading,
+    onOpenPreview,
+    isPreviewLoading,
 }) => {
-    const { undo, redo, canUndo, canRedo, togglePreview, viewMode, runtimeWarnings, deleteSelectedComponents, selectedComponentIds, activeLayer, clearRuntimeWarnings } = useBuilderStore();
-    
-    // Safety: ensure runtime warnings never persist outside preview mode
-    useEffect(() => {
-        if (viewMode !== 'preview') {
-            clearRuntimeWarnings();
+    const {
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+        runtimeWarnings,
+        deleteSelectedComponents,
+        selectedComponentIds,
+        activeLayer,
+        saveDraft,
+        isSaving,
+        isDirty,
+    } = useBuilderStore();
+    const canSave = Boolean(formId) && !isSaving;
+    const saveLabel = isSaving ? 'Saving...' : 'Save';
+
+    const handleSave = async () => {
+        if (!formId) {
+            devLogger.warn('form.save.missingFormId');
+            return;
         }
-    }, [viewMode, clearRuntimeWarnings]);
+        try {
+            await saveDraft(formId);
+        } catch (err) {
+            devLogger.error('form.save.failed', {
+                formId,
+                error: err instanceof Error ? err.message : String(err),
+            });
+        }
+    };
     
     // Keyboard shortcuts for undo/redo
     useEffect(() => {
@@ -60,7 +94,7 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
             }
 
             // Delete selected component(s) (edit mode only)
-            if (!isTypingTarget && viewMode === 'edit' && activeLayer === 1 && selectedComponentIds.length > 0) {
+            if (!isTypingTarget && activeLayer === 1 && selectedComponentIds.length > 0) {
                 if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
                     deleteSelectedComponents();
@@ -70,7 +104,7 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [undo, redo, canUndo, canRedo, deleteSelectedComponents, selectedComponentIds, viewMode, activeLayer]);
+    }, [undo, redo, canUndo, canRedo, deleteSelectedComponents, selectedComponentIds, activeLayer]);
 
     return (
         <div className="flex flex-col h-screen bg-gray-100 overflow-hidden">
@@ -115,13 +149,22 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
                         </button>
                     )}
                     <button
-                        className={`btn-secondary text-sm py-1.5 px-3 flex items-center gap-2 ${viewMode === 'preview' ? 'ring-2 ring-teal-400' : ''}`}
-                        onClick={() => togglePreview()}
-                        title="Toggle runtime preview"
+                        className={`btn-secondary text-sm py-1.5 px-3 flex items-center gap-2 ${isInlinePreviewOpen ? 'ring-2 ring-teal-400' : ''}`}
+                        onClick={onToggleInlinePreview}
+                        title="Toggle inline preview"
+                        disabled={!onToggleInlinePreview || isInlinePreviewLoading}
                     >
-                        <Eye size={16} /> {viewMode === 'preview' ? 'Editing' : 'Preview'}
+                        <Eye size={16} /> {isInlinePreviewLoading ? 'Opening...' : (isInlinePreviewOpen ? 'Editing' : 'Preview')}
                     </button>
-                    {viewMode === 'preview' && runtimeWarnings.length > 0 && (
+                    <button
+                        className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-2"
+                        onClick={onOpenPreview}
+                        title="Open runtime preview in a new tab"
+                        disabled={!onOpenPreview || isPreviewLoading}
+                    >
+                        <Eye size={16} /> {isPreviewLoading ? 'Opening...' : 'Open Preview'}
+                    </button>
+                    {runtimeWarnings.length > 0 && (
                         <span
                             className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium"
                             title={`${runtimeWarnings.length} runtime warning(s) (rules ignored safely)`}
@@ -132,8 +175,13 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
                     <button className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-2">
                         <Settings size={16} /> Settings
                     </button>
-                    <button className="btn-primary text-sm py-1.5 px-4 flex items-center gap-2">
-                        <Save size={16} /> Save
+                    <button
+                        className="btn-primary text-sm py-1.5 px-4 flex items-center gap-2"
+                        onClick={handleSave}
+                        disabled={!canSave}
+                        title={!formId ? 'Cannot save: missing form id' : (isDirty ? 'Save draft' : 'No changes to save')}
+                    >
+                        <Save size={16} /> {saveLabel}
                     </button>
                 </div>
             </header>

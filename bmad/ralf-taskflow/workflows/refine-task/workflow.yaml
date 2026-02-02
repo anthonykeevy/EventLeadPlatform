@@ -1,0 +1,50 @@
+# Refine Task Workflow
+# BMAD v6 Workflow for Ralf Taskflow Module
+name: refine-task
+description: "Refine a Task Spec based on UAT feedback, dev feedback, or discovered issues"
+author: "Ralf Taskflow Module"
+version: "1.0.0"
+
+# Critical variables from config
+config_source: "{project-root}/bmad/ralf-taskflow/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/bmad/ralf-taskflow/workflows/refine-task"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  story_id: ""
+  task_id: ""
+  feedback: ""
+
+# Output files
+outputs:
+  refined_task: "{output_folder}/{story_id}/{task_id}-{slug}.md"
+  lessons_update: "{output_folder}/{story_id}/LESSONS-LEARNED.md"
+
+required_tools:
+  - read_file
+  - write_file
+
+recommended_inputs:
+  - task_spec: "Task Spec file to refine"
+  - feedback: "UAT results, dev feedback, or discovered issues"
+
+tags:
+  - task-refinement
+  - uat
+  - bmad-v6
+
+execution_hints:
+  interactive: true
+  autonomous: false
+  iterative: true
+
+standalone: true

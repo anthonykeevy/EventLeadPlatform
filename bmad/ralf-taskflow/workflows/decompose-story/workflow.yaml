@@ -1,0 +1,57 @@
+# Decompose Story Workflow
+# BMAD v6 Workflow for Ralf Taskflow Module
+name: decompose-story
+description: "Transform a BMAD story into a TASK-PLAN and individual Task Spec files"
+author: "Ralf Taskflow Module"
+version: "1.0.0"
+
+# Critical variables from config
+config_source: "{project-root}/bmad/ralf-taskflow/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/bmad/ralf-taskflow/workflows/decompose-story"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: false
+
+# Variables and inputs
+variables:
+  story_id: ""
+  story_content: ""
+  prd_path: "{config_source}:prd_location"
+  architecture_path: "{config_source}:architecture_location"
+  domain_docs: ""
+
+# Output files
+outputs:
+  task_plan: "{output_folder}/{story_id}/TASK-PLAN.md"
+  task_specs: "{output_folder}/{story_id}/T{nn}-{slug}.md"
+  lessons_learned: "{output_folder}/{story_id}/LESSONS-LEARNED.md"
+
+required_tools:
+  - read_file
+  - write_file
+  - create_directory
+  - list_files
+
+recommended_inputs:
+  - story: "Story markdown file or text"
+  - prd: "PRD document"
+  - architecture: "Solution architecture document"
+  - domain_docs: "Optional domain documentation"
+
+tags:
+  - task-decomposition
+  - planning
+  - bmad-v6
+
+execution_hints:
+  interactive: true
+  autonomous: false
+  iterative: true
+
+standalone: true

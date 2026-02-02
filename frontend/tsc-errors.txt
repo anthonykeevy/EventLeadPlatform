@@ -1,0 +1,623 @@
+﻿src/components/common/DataTable.tsx(17,27): error TS6133: 'useMemo' is declared but its value is never read.
+src/components/common/DataTable.tsx(30,69): error TS6133: 'Edit2' is declared but its value is never read.
+src/components/common/DataTable.tsx(30,76): error TS6133: 'X' is declared but its value is never read.
+src/components/common/DataTable.tsx(81,3): error TS6133: 'enableInlineEditing' is declared but its value is never read.
+src/components/common/DataTable.tsx(84,3): error TS6133: 'onRowEdit' is declared but its value is never read.
+src/components/common/DataTable.tsx(85,3): error TS6133: 'onCellEdit' is declared but its value is never read.
+src/components/common/DataTable.tsx(93,10): error TS6133: 'editingCell' is declared but its value is never read.
+src/components/common/DataTable.tsx(93,23): error TS6133: 'setEditingCell' is declared but its value is never read.
+src/examples/FormBuilderExample.tsx(36,20): error TS6133: 'setIsDirty' is declared but its value is never read.
+src/features/admin/components/EventManagementTab.tsx(17,15): error TS2459: Module '"../../events/api/eventsApi"' declares 'EventType' locally, but it is not exported.
+src/features/admin/components/EventManagementTab.tsx(17,26): error TS2459: Module '"../../events/api/eventsApi"' declares 'EventStatus' locally, but it is not exported.
+src/features/admin/components/EventManagementTab.tsx(337,5): error TS6133: 'row' is declared but its value is never read.
+src/features/admin/components/EventManagementTab.tsx(338,5): error TS6133: 'columnId' is declared but its value is never read.
+src/features/admin/components/EventManagementTab.tsx(339,5): error TS6133: 'currentValue' is declared but its value is never read.
+src/features/admin/pages/AdminDashboard.tsx(50,25): error TS2322: Type '{ message: string; }' is not assignable to type 'IntrinsicAttributes & LoadingSpinnerProps'.
+  Property 'message' does not exist on type 'IntrinsicAttributes & LoadingSpinnerProps'.
+src/features/audit/components/AuditTable.tsx(5,8): error TS6133: 'React' is declared but its value is never read.
+src/features/audit/components/AuditTable.tsx(6,22): error TS6133: 'PaginatedActivityLog' is declared but its value is never read.
+src/features/audit/components/AuditTimeline.tsx(5,1): error TS6133: 'React' is declared but its value is never read.
+src/features/audit/components/AuditTimeline.tsx(151,55): error TS18047: 'newData' is possibly 'null'.
+src/features/audit/components/FormAuditReport.tsx(5,8): error TS6133: 'React' is declared but its value is never read.
+src/features/audit/index.ts(12,3): error TS2300: Duplicate identifier 'FormAuditReport'.
+src/features/audit/index.ts(27,10): error TS2300: Duplicate identifier 'FormAuditReport'.
+src/features/auth/components/LoginForm.tsx(16,8): error TS6133: 'React' is declared but its value is never read.
+src/features/auth/components/PasswordStrength.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/auth/components/RequireAuth.tsx(1,1): error TS6192: All imports in import declaration are unused.
+src/features/auth/components/SignupForm.tsx(14,8): error TS6133: 'React' is declared but its value is never read.
+src/features/auth/components/SignupForm.tsx(22,1): error TS6133: 'SignupData' is declared but its value is never read.
+src/features/auth/context/AuthContext.tsx(245,41): error TS18048: 'response.user' is possibly 'undefined'.
+src/features/auth/context/AuthContext.tsx(245,61): error TS18048: 'response.user' is possibly 'undefined'.
+src/features/auth/context/AuthContext.tsx(257,9): error TS2322: Type 'User | undefined' is not assignable to type 'User | null'.
+  Type 'undefined' is not assignable to type 'User | null'.
+src/features/auth/context/AuthContext.tsx(327,18): error TS2345: Argument of type '(prev: AuthState) => { user: User | undefined; isAuthenticated: boolean; isLoading: boolean; error: string | null; }' is not assignable to parameter of type 'SetStateAction<AuthState>'.
+  Type '(prev: AuthState) => { user: User | undefined; isAuthenticated: boolean; isLoading: boolean; error: string | null; }' is not assignable to type '(prevState: AuthState) => AuthState'.
+    Call signature return types '{ user: User | undefined; isAuthenticated: boolean; isLoading: boolean; error: string | null; }' and 'AuthState' are incompatible.
+      The types of 'user' are incompatible between these types.
+        Type 'User | undefined' is not assignable to type 'User | null'.
+src/features/auth/pages/EmailVerificationPage.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/auth/pages/EmailVerificationPage.tsx(10,1): error TS6133: 'authApi' is declared but its value is never read.
+src/features/auth/pages/PasswordResetConfirm.tsx(15,8): error TS6133: 'React' is declared but its value is never read.
+src/features/auth/pages/PasswordResetRequest.tsx(13,8): error TS6133: 'React' is declared but its value is never read.
+src/features/builder/components/ComponentPreview.tsx(4,1): error TS6133: 'RowComponent' is declared but its value is never read.
+src/features/builder/components/ComponentPreview.tsx(5,1): error TS6133: 'ColumnComponent' is declared but its value is never read.
+src/features/builder/components/ComponentPreview.tsx(16,7): error TS2367: This comparison appears to be unintentional because the types 'ComponentType' and '"row"' have no overlap.
+src/features/builder/components/ComponentPreview.tsx(26,7): error TS2367: This comparison appears to be unintentional because the types 'ComponentType' and '"column"' have no overlap.
+src/features/builder/components/fields/DividerField.tsx(5,39): error TS2339: Property 'dividerBorderColor' does not exist on type '{ fontFamily: string; fontSize: number; fontWeight: number; fontStyle: FontStyleType; labelFontFamily: string; labelFontSize: number; labelFontWeight: number; labelFontStyle: FontStyleType; ... 25 more ...; paddingY: number; }'.
+src/features/builder/components/fields/DividerField.tsx(6,39): error TS2339: Property 'dividerBorderWidth' does not exist on type '{ fontFamily: string; fontSize: number; fontWeight: number; fontStyle: FontStyleType; labelFontFamily: string; labelFontSize: number; labelFontWeight: number; labelFontStyle: FontStyleType; ... 25 more ...; paddingY: number; }'.
+src/features/builder/components/fields/DividerField.tsx(7,40): error TS2339: Property 'dividerWidth' does not exist on type '{ fontFamily: string; fontSize: number; fontWeight: number; fontStyle: FontStyleType; labelFontFamily: string; labelFontSize: number; labelFontWeight: number; labelFontStyle: FontStyleType; ... 25 more ...; paddingY: number; }'.
+src/features/builder/components/fields/FirstNameField.tsx(2,23): error TS6133: 'User' is declared but its value is never read.
+src/features/builder/components/fields/FirstNameField.tsx(35,5): error TS6133: 'helpText' is declared but its value is never read.
+src/features/builder/components/fields/StandardInput.tsx(42,11): error TS6133: 'Icon' is declared but its value is never read.
+src/features/builder/components/fields/StandardInput.tsx(155,11): error TS6133: 'baseGuideColor' is declared but its value is never read.
+src/features/builder/components/fields/StandardInput.tsx(281,45): error TS2322: Type '{ size: number; className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & LucideProps'.
+  Property 'title' does not exist on type 'IntrinsicAttributes & LucideProps'.
+src/features/builder/components/fields/StandardInput.tsx(376,33): error TS2322: Type '{ size: number; className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & LucideProps'.
+  Property 'title' does not exist on type 'IntrinsicAttributes & LucideProps'.
+src/features/builder/components/properties/AppearanceSection.tsx(22,99): error TS2305: Module '"../../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/components/properties/AppearanceSection.tsx(22,119): error TS2305: Module '"../../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/components/properties/AppearanceSection.tsx(133,23): error TS6133: 'globalValue' is declared but its value is never read.
+src/features/builder/components/properties/AppearanceSection.tsx(215,65): error TS2345: Argument of type '{}' is not assignable to parameter of type 'ScaleAnchor | (() => ScaleAnchor)'.
+src/features/builder/components/properties/AppearanceSection.tsx(220,28): error TS2345: Argument of type '{} | null' is not assignable to parameter of type 'SetStateAction<ScaleAnchor>'.
+  Type 'null' is not assignable to type 'SetStateAction<ScaleAnchor>'.
+src/features/builder/components/properties/AppearanceSection.tsx(818,53): error TS2322: Type '{} | null' is not assignable to type 'number'.
+  Type 'null' is not assignable to type 'number'.
+src/features/builder/components/properties/AppearanceSection.tsx(838,53): error TS2322: Type '{} | null' is not assignable to type 'number'.
+  Type 'null' is not assignable to type 'number'.
+src/features/builder/components/properties/AppearanceSection.tsx(858,53): error TS2322: Type '{} | null' is not assignable to type 'number'.
+  Type 'null' is not assignable to type 'number'.
+src/features/builder/components/properties/AppearanceSection.tsx(1067,84): error TS2551: Property 'defaultObjectLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(180,60): error TS2339: Property 'imageSize' does not exist on type '{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(181,79): error TS2345: Argument of type '{ imageSize: "auto" | "contain" | "cover" | "tile"; }' is not assignable to parameter of type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+  Object literal may only specify known properties, and 'imageSize' does not exist in type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(187,60): error TS2339: Property 'imagePosition' does not exist on type '{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(188,79): error TS2345: Argument of type '{ imagePosition: string; }' is not assignable to parameter of type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+  Object literal may only specify known properties, and 'imagePosition' does not exist in type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(203,60): error TS2339: Property 'overlayColor' does not exist on type '{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(204,79): error TS2345: Argument of type '{ overlayColor: string; }' is not assignable to parameter of type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+  Object literal may only specify known properties, and 'overlayColor' does not exist in type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(209,60): error TS2339: Property 'overlayOpacity' does not exist on type '{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(210,79): error TS2345: Argument of type '{ overlayOpacity: number; }' is not assignable to parameter of type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+  Object literal may only specify known properties, and 'overlayOpacity' does not exist in type 'Partial<{ type: "image" | "color"; value: string; opacity?: number | undefined; scale?: number | undefined; position?: { x: number; y: number; } | undefined; }>'.
+src/features/builder/components/properties/BackgroundPropertiesPanel.tsx(214,37): error TS2322: Type '{ label: string; value: any; onChange: (value: number) => void; min: number; max: number; step: number; suffix: string; }' is not assignable to type 'IntrinsicAttributes & PropertyNumberInputProps'.
+  Property 'suffix' does not exist on type 'IntrinsicAttributes & PropertyNumberInputProps'.
+src/features/builder/components/properties/DatePropertiesSection.tsx(3,45): error TS6133: 'PropertyToggle' is declared but its value is never read.
+src/features/builder/components/properties/DividerPropertiesSection.tsx(54,41): error TS2339: Property 'dividerBorderColor' does not exist on type 'StyleOverrides'.
+src/features/builder/components/properties/DividerPropertiesSection.tsx(55,41): error TS2339: Property 'dividerBorderWidth' does not exist on type 'StyleOverrides'.
+src/features/builder/components/properties/DividerPropertiesSection.tsx(56,39): error TS2339: Property 'dividerWidth' does not exist on type 'GlobalStyles'.
+src/features/builder/components/properties/DividerPropertiesSection.tsx(88,79): error TS2345: Argument of type '{ dividerBorderColor: string; }' is not assignable to parameter of type 'Partial<StyleOverrides>'.
+  Object literal may only specify known properties, and 'dividerBorderColor' does not exist in type 'Partial<StyleOverrides>'.
+src/features/builder/components/properties/DividerPropertiesSection.tsx(94,69): error TS2345: Argument of type '{ dividerBorderColor: undefined; }' is not assignable to parameter of type 'Partial<StyleOverrides>'.
+  Object literal may only specify known properties, and 'dividerBorderColor' does not exist in type 'Partial<StyleOverrides>'.
+src/features/builder/components/properties/DividerPropertiesSection.tsx(105,79): error TS2345: Argument of type '{ dividerBorderWidth: number; }' is not assignable to parameter of type 'Partial<StyleOverrides>'.
+  Object literal may only specify known properties, and 'dividerBorderWidth' does not exist in type 'Partial<StyleOverrides>'.
+src/features/builder/components/properties/DividerPropertiesSection.tsx(113,69): error TS2345: Argument of type '{ dividerBorderWidth: undefined; }' is not assignable to parameter of type 'Partial<StyleOverrides>'.
+  Object literal may only specify known properties, and 'dividerBorderWidth' does not exist in type 'Partial<StyleOverrides>'.
+src/features/builder/components/properties/GeneralSection.tsx(130,33): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/GlobalStylesPanel.tsx(3,10): error TS6133: 'PropertyNumberInput' is declared but its value is never read.
+src/features/builder/components/properties/GlobalStylesPanel.tsx(7,5): error TS6133: 'FontStyleType' is declared but its value is never read.
+src/features/builder/components/properties/GlobalStylesPanel.tsx(8,5): error TS6133: 'FontWeightValue' is declared but its value is never read.
+src/features/builder/components/properties/GridLayoutSection.tsx(38,30): error TS2305: Module '"../../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/components/properties/GridLayoutSection.tsx(38,66): error TS2305: Module '"../../types/builder.types"' has no exported member 'GridLayoutConfig'.
+src/features/builder/components/properties/GridLayoutSection.tsx(38,84): error TS2305: Module '"../../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/components/properties/GridLayoutSection.tsx(324,41): error TS2345: Argument of type 'GlobalStyles | undefined' is not assignable to parameter of type '{ defaultGridLayout?: any; } | undefined'.
+  Type 'GlobalStyles' has no properties in common with type '{ defaultGridLayout?: any; }'.
+src/features/builder/components/properties/GridLayoutSection.tsx(325,65): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(344,27): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(348,51): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(357,41): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/GridLayoutSection.tsx(376,38): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/GridLayoutSection.tsx(382,32): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/GridLayoutSection.tsx(390,60): error TS2345: Argument of type 'GlobalStyles | undefined' is not assignable to parameter of type '{ defaultGridLayout?: any; } | undefined'.
+src/features/builder/components/properties/GridLayoutSection.tsx(408,31): error TS2551: Property 'defaultObjectLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(413,31): error TS2551: Property 'defaultLayoutGroups' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(417,58): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/GridLayoutSection.tsx(440,49): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(441,52): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(442,59): error TS2339: Property 'verticalSpacing' does not exist on type '{}'.
+src/features/builder/components/properties/GridLayoutSection.tsx(443,62): error TS2339: Property 'horizontalGap' does not exist on type '{}'.
+src/features/builder/components/properties/GridLayoutSection.tsx(468,58): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(469,69): error TS2551: Property 'defaultObjectLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(486,38): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(503,35): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(520,35): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(589,21): error TS2322: Type 'unknown' is not assignable to type 'number'.
+src/features/builder/components/properties/GridLayoutSection.tsx(609,21): error TS2322: Type 'unknown' is not assignable to type 'number'.
+src/features/builder/components/properties/GridLayoutSection.tsx(707,17): error TS18046: 'group' is of type 'unknown'.
+src/features/builder/components/properties/GridLayoutSection.tsx(709,21): error TS2698: Spread types may only be created from object types.
+src/features/builder/components/properties/GridLayoutSection.tsx(960,46): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/GridLayoutSection.tsx(1051,59): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/properties/GridLayoutSection.tsx(1245,69): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/inputs/CategoryFontSelect.tsx(61,5): error TS6133: 'FontCategoryInfo' is declared but its value is never read.
+src/features/builder/components/properties/inputs/CategoryFontSelect.tsx(62,5): error TS6133: 'LANGUAGE_SUPPORT_INFO' is declared but its value is never read.
+src/features/builder/components/properties/inputs/CategoryFontSelect.tsx(438,69): error TS2322: Type '{ size: number; className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & LucideProps'.
+  Property 'title' does not exist on type 'IntrinsicAttributes & LucideProps'.
+src/features/builder/components/properties/inputs/CategoryFontSelect.tsx(441,67): error TS2322: Type '{ size: number; className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & LucideProps'.
+  Property 'title' does not exist on type 'IntrinsicAttributes & LucideProps'.
+src/features/builder/components/properties/inputs/CategoryFontSelect.tsx(449,69): error TS2322: Type '{ size: number; className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & LucideProps'.
+  Property 'title' does not exist on type 'IntrinsicAttributes & LucideProps'.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(15,80): error TS6133: 'X' is declared but its value is never read.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(15,92): error TS6133: 'AlignVerticalJustifyCenter' is declared but its value is never read.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(15,120): error TS6133: 'AlignVerticalSpaceAround' is declared but its value is never read.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(15,146): error TS6133: 'AlignVerticalJustifyStart' is declared but its value is never read.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(15,173): error TS6133: 'AlignVerticalJustifyEnd' is declared but its value is never read.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(18,5): error TS6133: 'closestCenter' is declared but its value is never read.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(38,25): error TS2305: Module '"../../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(38,45): error TS2305: Module '"../../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(38,79): error TS2305: Module '"../../types/builder.types"' has no exported member 'RowAlignment'.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(254,41): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(274,31): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(281,32): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(347,17): error TS18046: 'objectIds' is of type 'unknown'.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(353,47): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(366,21): error TS18046: 'objectIds' is of type 'unknown'.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(382,78): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(431,11): error TS6133: 'handleReorderInGroup' is declared but its value is never read.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(469,46): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(624,69): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(643,37): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/ObjectLayoutSection.tsx(649,48): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/OptionsSection.tsx(2,69): error TS6133: 'Settings2' is declared but its value is never read.
+src/features/builder/components/properties/SpacingSection.tsx(10,10): error TS2305: Module '"../../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/components/properties/SpacingSection.tsx(10,46): error TS2305: Module '"../../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/components/properties/SpacingSection.tsx(30,47): error TS2339: Property 'objectColumnGapPx' does not exist on type 'GlobalStyles'.
+src/features/builder/components/properties/SpacingSection.tsx(31,49): error TS2339: Property 'objectRowGapPx' does not exist on type 'GlobalStyles'.
+src/features/builder/components/properties/SpacingSection.tsx(34,42): error TS2339: Property 'horizontalGap' does not exist on type '{}'.
+src/features/builder/components/properties/SpacingSection.tsx(35,44): error TS2339: Property 'verticalSpacing' does not exist on type '{}'.
+src/features/builder/components/properties/SpacingSection.tsx(36,38): error TS2339: Property 'objectGap' does not exist on type '{}'.
+src/features/builder/components/properties/SpacingSection.tsx(40,24): error TS2339: Property 'horizontalGap' does not exist on type '{}'.
+src/features/builder/components/properties/SpacingSection.tsx(41,27): error TS2339: Property 'verticalSpacing' does not exist on type '{}'.
+src/features/builder/components/properties/SpacingSection.tsx(42,27): error TS2339: Property 'objectGap' does not exist on type '{}'.
+src/features/builder/components/properties/SpacingSection.tsx(57,17): error TS2698: Spread types may only be created from object types.
+src/features/builder/components/properties/SpacingSection.tsx(75,17): error TS2698: Spread types may only be created from object types.
+src/features/builder/components/properties/SpacingSection.tsx(93,17): error TS2698: Spread types may only be created from object types.
+src/features/builder/components/properties/StyleOverridesSection.tsx(73,23): error TS6133: 'globalValue' is declared but its value is never read.
+src/features/builder/components/properties/TypographyColorsSection.tsx(9,17): error TS6133: 'useState' is declared but its value is never read.
+src/features/builder/components/properties/TypographyColorsSection.tsx(11,10): error TS2305: Module '"../../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/components/properties/TypographyColorsSection.tsx(11,60): error TS2305: Module '"../../types/builder.types"' has no exported member 'ObjectType'.
+src/features/builder/components/properties/TypographyColorsSection.tsx(197,66): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/properties/TypographyColorsSection.tsx(256,51): error TS2538: Type 'unknown' cannot be used as an index type.
+src/features/builder/components/properties/TypographyColorsSection.tsx(262,25): error TS2322: Type 'unknown' is not assignable to type 'Key | null | undefined'.
+src/features/builder/components/properties/TypographyColorsSection.tsx(271,85): error TS2345: Argument of type 'keyof GlobalStyles | undefined' is not assignable to parameter of type 'keyof GlobalStyles'.
+  Type 'undefined' is not assignable to type 'keyof GlobalStyles'.
+src/features/builder/components/properties/TypographyColorsSection.tsx(272,77): error TS2345: Argument of type 'keyof GlobalStyles | undefined' is not assignable to parameter of type 'keyof GlobalStyles'.
+src/features/builder/components/properties/TypographyColorsSection.tsx(273,77): error TS2345: Argument of type 'keyof GlobalStyles | undefined' is not assignable to parameter of type 'keyof GlobalStyles'.
+src/features/builder/components/properties/TypographyColorsSection.tsx(274,79): error TS2345: Argument of type 'keyof GlobalStyles | undefined' is not assignable to parameter of type 'keyof GlobalStyles'.
+src/features/builder/components/properties/ValidationSection.tsx(55,7): error TS6133: 'isRuleHidden' is declared but its value is never read.
+src/features/builder/components/properties/ValidationSection.tsx(281,54): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/features/builder/components/properties/ValidationSection.tsx(425,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(426,55): error TS2339: Property 'minSelections' does not exist on type 'ValidationRules'.
+src/features/builder/components/properties/ValidationSection.tsx(427,79): error TS2345: Argument of type '{ minSelections: number | undefined; }' is not assignable to parameter of type 'Partial<ValidationRules>'.
+  Object literal may only specify known properties, and 'minSelections' does not exist in type 'Partial<ValidationRules>'.
+src/features/builder/components/properties/ValidationSection.tsx(433,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(434,55): error TS2339: Property 'maxSelections' does not exist on type 'ValidationRules'.
+src/features/builder/components/properties/ValidationSection.tsx(435,79): error TS2345: Argument of type '{ maxSelections: number | undefined; }' is not assignable to parameter of type 'Partial<ValidationRules>'.
+  Object literal may only specify known properties, and 'maxSelections' does not exist in type 'Partial<ValidationRules>'.
+src/features/builder/components/properties/ValidationSection.tsx(461,45): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(473,45): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(502,45): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(510,45): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(530,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(539,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(547,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(568,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(626,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(660,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(678,45): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(688,45): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(701,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(736,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(814,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(821,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(836,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(845,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(913,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(920,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(934,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(1028,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(1040,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(1059,41): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/properties/ValidationSection.tsx(1088,37): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/features/builder/components/PropertiesPanel.tsx(253,17): error TS7034: Variable 'newOverrides' implicitly has type 'any' in some locations where its type cannot be determined.
+src/features/builder/components/PropertiesPanel.tsx(270,49): error TS7005: Variable 'newOverrides' implicitly has an 'any' type.
+src/features/builder/components/PropertiesPanel.tsx(389,15): error TS6133: 'sharedType' is declared but its value is never read.
+src/features/builder/components/runtime/RuntimeFormView.tsx(19,28): error TS6133: 'type' is declared but its value is never read.
+src/features/builder/components/SortableComponent.tsx(9,41): error TS2614: Module '"./ui/ResizeHandles"' has no exported member 'ResizePointerMeta'. Did you mean to use 'import ResizePointerMeta from "./ui/ResizeHandles"' instead?
+src/features/builder/components/SortableComponent.tsx(279,29): error TS2339: Property 'dragPosition' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(356,36): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(441,17): error TS2322: Type '{}' is not assignable to type 'number'.
+src/features/builder/components/SortableComponent.tsx(442,17): error TS2322: Type '{}' is not assignable to type 'number'.
+src/features/builder/components/SortableComponent.tsx(443,17): error TS2322: Type '{}' is not assignable to type 'number'.
+src/features/builder/components/SortableComponent.tsx(583,54): error TS2551: Property 'defaultGridLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/SortableComponent.tsx(609,17): error TS2322: Type '"percentage-calculated" | "dom-measured"' is not assignable to type '"px-prop" | "dom-measurement" | "parsed-percentage" | "default-fallback"'.
+  Type '"percentage-calculated"' is not assignable to type '"px-prop" | "dom-measurement" | "parsed-percentage" | "default-fallback"'.
+src/features/builder/components/SortableComponent.tsx(616,21): error TS2322: Type '"parsed-percentage-fallback"' is not assignable to type '"px-prop" | "dom-measurement" | "parsed-percentage" | "default-fallback"'.
+src/features/builder/components/SortableComponent.tsx(1160,76): error TS2367: This comparison appears to be unintentional because the types '"number" | "text" | "address" | "header" | "select" | "textarea" | "email" | "date" | "phone" | "first-name" | "terms" | "submit-button" | "paragraph" | "divider"' and '"dropdown"' have no overlap.
+src/features/builder/components/SortableComponent.tsx(1190,21): error TS2367: This comparison appears to be unintentional because the types '"checkbox" | "radio"' and '"dropdown"' have no overlap.
+src/features/builder/components/SortableComponent.tsx(1215,33): error TS2367: This comparison appears to be unintentional because the types 'ComponentType' and '"dropdown"' have no overlap.
+src/features/builder/components/SortableComponent.tsx(1351,46): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1455,44): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1463,43): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1520,25): error TS2365: Operator '+' cannot be applied to types '{}' and '{}'.
+src/features/builder/components/SortableComponent.tsx(1525,42): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1526,41): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1527,43): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1642,44): error TS18048: 'oldPosition.x' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(1643,44): error TS18048: 'oldPosition.y' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(1773,43): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1774,42): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
+src/features/builder/components/SortableComponent.tsx(1775,15): error TS6133: 'currentInputWidthPx' is declared but its value is never read.
+src/features/builder/components/SortableComponent.tsx(1830,27): error TS2365: Operator '+' cannot be applied to types '{}' and '{}'.
+src/features/builder/components/SortableComponent.tsx(1870,49): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/features/builder/components/SortableComponent.tsx(1871,51): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/features/builder/components/SortableComponent.tsx(1872,47): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/features/builder/components/SortableComponent.tsx(2299,72): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/features/builder/components/SortableComponent.tsx(2319,34): error TS18048: 'currentPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2324,34): error TS18048: 'currentPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2347,24): error TS18048: 'expectedPosition.x' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2347,45): error TS18048: 'currentPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2348,24): error TS18048: 'expectedPosition.y' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2348,45): error TS18048: 'currentPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2469,70): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/features/builder/components/SortableComponent.tsx(2487,24): error TS18048: 'finalPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2487,42): error TS18048: 'expectedPosition.x' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2488,24): error TS18048: 'finalPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2488,42): error TS18048: 'expectedPosition.y' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2493,37): error TS18048: 'finalPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2493,55): error TS18048: 'expectedPosition.x' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2494,37): error TS18048: 'finalPosition' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2494,55): error TS18048: 'expectedPosition.y' is possibly 'undefined'.
+src/features/builder/components/SortableComponent.tsx(2500,12): error TS6133: 'parentWidth' is declared but its value is never read.
+src/features/builder/components/SortableComponent.tsx(2545,15): error TS6133: 'isAuto' is declared but its value is never read.
+src/features/builder/components/SortableComponent.tsx(2558,43): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/features/builder/components/SortableComponent.tsx(2714,13): error TS2367: This comparison appears to be unintentional because the types 'ComponentType' and '"dropdown"' have no overlap.
+src/features/builder/components/SortableComponent.tsx(2772,84): error TS2365: Operator '>' cannot be applied to types '{}' and 'number'.
+src/features/builder/components/SortableComponent.tsx(2773,11): error TS2365: Operator '+' cannot be applied to types '{}' and 'number'.
+src/features/builder/components/SortableComponent.tsx(2777,40): error TS2365: Operator '>' cannot be applied to types '{}' and 'number'.
+src/features/builder/components/SortableComponent.tsx(2799,11): error TS6133: 'displayHeight' is declared but its value is never read.
+src/features/builder/components/SortableComponent.tsx(2936,11): error TS6133: 'effectiveLayout' is declared but its value is never read.
+src/features/builder/components/SortableComponent.tsx(2936,75): error TS2551: Property 'defaultObjectLayout' does not exist on type 'GlobalStyles'. Did you mean 'defaultLayout'?
+src/features/builder/components/SortableComponent.tsx(3194,40): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3203,40): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3212,40): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3218,40): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3254,17): error TS2367: This comparison appears to be unintentional because the types 'ComponentType' and '"dropdown"' have no overlap.
+src/features/builder/components/SortableComponent.tsx(3286,36): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3299,13): error TS2367: This comparison appears to be unintentional because the types 'ComponentType' and '"dropdown"' have no overlap.
+src/features/builder/components/SortableComponent.tsx(3345,36): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3440,21): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/components/SortableComponent.tsx(3478,25): error TS2322: Type '{ showBorder: true; borderPadding: number; smartBorderLayout: "fill" | "shrink"; isSelected: boolean; isDragging: boolean; isResizing: boolean; dragListeners: SyntheticListenerMap | undefined; dragAttributes: DraggableAttributes; containerRef: React.MutableRefObject<...>; frozenGridTemplateColumns: string | null; }' is not assignable to type '{ showBorder?: boolean | undefined; borderPadding?: number | undefined; smartBorderLayout?: "fill" | "shrink" | undefined; isSelected?: boolean | undefined; isDragging?: boolean | undefined; isResizing?: boolean | undefined; dragListeners?: any; dragAttributes?: any; containerRef?: RefObject<...> | undefined; }'.
+  Object literal may only specify known properties, and 'frozenGridTemplateColumns' does not exist in type '{ showBorder?: boolean | undefined; borderPadding?: number | undefined; smartBorderLayout?: "fill" | "shrink" | undefined; isSelected?: boolean | undefined; isDragging?: boolean | undefined; isResizing?: boolean | undefined; dragListeners?: any; dragAttributes?: any; containerRef?: RefObject<...> | undefined; }'.
+src/features/builder/components/SortableComponent.tsx(3500,26): error TS2322: Type '{ isSelected: boolean; currentWidth: string | undefined; currentHeight: number; currentScale: number; currentLabelGap: number; currentInputHelpGap: number; currentInputHeight: number; ... 16 more ...; minHeight: number; }' is not assignable to type 'ResizeHandlesProps'.
+  Types of property 'onResizeStart' are incompatible.
+    Type '(handle: HandlePosition, meta?: any) => void' is not assignable to type '() => void'.
+src/features/builder/components/SortableComponent.tsx(3519,72): error TS2339: Property 'dividerWidth' does not exist on type '{ fontFamily: string; fontSize: number; fontWeight: number; fontStyle: FontStyleType; labelFontFamily: string; labelFontSize: number; labelFontWeight: number; labelFontStyle: FontStyleType; ... 25 more ...; paddingY: number; }'.
+src/features/builder/components/SortableComponent.tsx(3630,21): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/components/SortableComponent.tsx(3656,25): error TS2322: Type '{ componentType: string; hideCornerHandles: boolean; currentWidth: string; currentHeight: number; onResize: (deltaWidth: number, deltaHeight: number, handle: HandlePosition) => void; ... 19 more ...; minHeight: number; }' is not assignable to type 'IntrinsicAttributes & ResizeHandlesProps'.
+  Property 'hideCornerHandles' does not exist on type 'IntrinsicAttributes & ResizeHandlesProps'.
+src/features/builder/components/SortableComponent.tsx(3662,56): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3667,56): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3673,56): error TS2339: Property 'setResizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/components/SortableComponent.tsx(3731,29): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/components/SortableComponent.tsx(3758,34): error TS2322: Type '{ isSelected: boolean; currentWidth: string | undefined; currentHeight: number; currentScale: number; currentLabelGap: number; currentInputHelpGap: number; currentInputHeight: number; ... 16 more ...; minHeight: number; }' is not assignable to type 'ResizeHandlesProps'.
+  Types of property 'onResizeStart' are incompatible.
+    Type '(handle: HandlePosition, meta?: any) => void' is not assignable to type '() => void'.
+      Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/features/builder/components/SortableComponent.tsx(3807,25): error TS2322: Type '{ buttonText: string | undefined; buttonAction: ButtonAction | undefined; buttonWidth: ButtonWidth | undefined; buttonAlign: AlignType | undefined; showLoadingState: boolean | undefined; disableUntilValid: boolean | undefined; showIcon: unknown; fieldStyles: ComputedFieldStyles; }' is not assignable to type 'IntrinsicAttributes & SubmitButtonFieldProps'.
+  Property 'showIcon' does not exist on type 'IntrinsicAttributes & SubmitButtonFieldProps'.
+src/features/builder/components/SortableComponent.tsx(3813,22): error TS2322: Type '{ isSelected: boolean; currentWidth: string | undefined; currentHeight: number; currentScale: number; currentLabelGap: number; currentInputHelpGap: number; currentInputHeight: number; ... 16 more ...; minHeight: number; }' is not assignable to type 'ResizeHandlesProps'.
+  Types of property 'onResizeStart' are incompatible.
+    Type '(handle: HandlePosition, meta?: any) => void' is not assignable to type '() => void'.
+src/features/builder/components/SortableComponent.tsx(3837,18): error TS2322: Type '{ isSelected: boolean; currentWidth: string | undefined; currentHeight: number; currentScale: number; currentLabelGap: number; currentInputHelpGap: number; currentInputHeight: number; ... 16 more ...; minHeight: number; }' is not assignable to type 'ResizeHandlesProps'.
+  Types of property 'onResizeStart' are incompatible.
+    Type '(handle: HandlePosition, meta?: any) => void' is not assignable to type '() => void'.
+src/features/builder/components/SortableComponent.tsx(3877,17): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/components/SortableComponent.tsx(3910,21): error TS2322: Type '(node: HTMLDivElement | null) => void' is not assignable to type 'RefObject<HTMLDivElement | null>'.
+src/features/builder/components/SortableComponent.tsx(3914,22): error TS2322: Type '{ isSelected: boolean; currentWidth: string | undefined; currentHeight: number; currentScale: number; currentLabelGap: number; currentInputHelpGap: number; currentInputHeight: number; ... 16 more ...; minHeight: number; }' is not assignable to type 'ResizeHandlesProps'.
+  Types of property 'onResizeStart' are incompatible.
+    Type '(handle: HandlePosition, meta?: any) => void' is not assignable to type '() => void'.
+src/features/builder/components/ui/GridLayoutEditor.tsx(18,15): error TS2305: Module '"../../types/builder.types"' has no exported member 'GridLayoutConfig'.
+src/features/builder/components/ui/GridLayoutEditor.tsx(18,33): error TS2305: Module '"../../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/components/ui/GridLayoutEditor.tsx(24,5): error TS6133: 'getObjectGridArea' is declared but its value is never read.
+src/features/builder/components/ui/GridLayoutEditor.tsx(224,35): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/components/ui/GridLayoutEditor.tsx(235,35): error TS18046: 'group' is of type 'unknown'.
+src/features/builder/components/ui/GridLayoutEditor.tsx(237,55): error TS2322: Type 'unknown' is not assignable to type '{ cells: string[]; objectId: string; }'.
+src/features/builder/components/ui/ObjectFeatureHost.tsx(2,32): error TS2305: Module '"../../types/builder.types"' has no exported member 'ComponentObject'.
+src/features/builder/components/UniversalFieldShell.tsx(7,5): error TS2305: Module '"../types/builder.types"' has no exported member 'SpacingOverrides'.
+src/features/builder/components/UniversalFieldShell.tsx(8,5): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/components/UniversalFieldShell.tsx(9,5): error TS2305: Module '"../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/components/UniversalFieldShell.tsx(10,5): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentObject'.
+src/features/builder/components/UniversalFieldShell.tsx(12,28): error TS6133: 'getComponentSurfaceCapabilities' is declared but its value is never read.
+src/features/builder/components/UniversalFieldShell.tsx(14,30): error TS6133: 'ComputedFieldStyles' is declared but its value is never read.
+src/features/builder/components/UniversalFieldShell.tsx(116,13): error TS6133: 'currentWidthPx' is declared but its value is never read.
+src/features/builder/components/UniversalFieldShell.tsx(120,13): error TS6133: 'previewScale' is declared but its value is never read.
+src/features/builder/components/UniversalFieldShell.tsx(121,13): error TS6133: 'frozenGridTemplateColumns' is declared but its value is never read.
+src/features/builder/components/UniversalFieldShell.tsx(206,17): error TS2322: Type 'string[] | undefined' is not assignable to type 'Record<string, string> | undefined'.
+  Type 'string[]' is not assignable to type 'Record<string, string>'.
+    Index signature for type 'string' is missing in type 'string[]'.
+src/features/builder/components/UniversalFieldShell.tsx(207,17): error TS2322: Type 'Record<string, string[]> | undefined' is not assignable to type 'Record<string, string> | undefined'.
+  Type 'Record<string, string[]>' is not assignable to type 'Record<string, string>'.
+    'string' index signatures are incompatible.
+      Type 'string[]' is not assignable to type 'string'.
+src/features/builder/components/UniversalFieldShell.tsx(231,49): error TS2339: Property 'horizontalGap' does not exist on type 'SpacingResult'.
+src/features/builder/components/UniversalFieldShell.tsx(232,55): error TS2339: Property 'verticalSpacing' does not exist on type 'SpacingResult'.
+src/features/builder/components/UniversalFieldShell.tsx(273,21): error TS2322: Type '{ children: Element; ref: ForwardedRef<HTMLDivElement>; padding: number; layout: "fill" | "shrink"; isSelected: boolean | undefined; isDragging: boolean | undefined; ... 4 more ...; previewWidth: number | undefined; }' is not assignable to type 'IntrinsicAttributes & SmartBorderProps'.
+  Property 'ref' does not exist on type 'IntrinsicAttributes & SmartBorderProps'.
+src/features/builder/hooks/useComponentStyles.ts(44,9): error TS6133: 'effectiveGlobalStyles' is declared but its value is never read.
+src/features/builder/hooks/useComponentStyles.ts(123,9): error TS6133: 'effectiveGlobalStyles' is declared but its value is never read.
+src/features/builder/hooks/useFonts.ts(8,33): error TS6133: 'useQueryClient' is declared but its value is never read.
+src/features/builder/hooks/useFonts.ts(13,5): error TS6133: 'FontFamilyDetail' is declared but its value is never read.
+src/features/builder/hooks/useFonts.ts(14,5): error TS6133: 'FontCategoryInfo' is declared but its value is never read.
+src/features/builder/pages/BuilderPage.tsx(25,1): error TS6133: 'FirstNameField' is declared but its value is never read.
+src/features/builder/pages/BuilderPage.tsx(40,1): error TS6133: 'getDefaultStructure' is declared but its value is never read.
+src/features/builder/pages/BuilderPage.tsx(63,7): error TS2339: Property 'loadError' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(72,7): error TS2339: Property 'isDirty' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(73,7): error TS2339: Property 'setDragPosition' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(74,7): error TS2339: Property 'saveDraft' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(245,9): error TS2739: Type '{ left: number; top: number; width: number; height: number; }' is missing the following properties from type 'ClientRect': right, bottom
+src/features/builder/pages/BuilderPage.tsx(328,23): error TS18048: 'activePage' is possibly 'undefined'.
+src/features/builder/pages/BuilderPage.tsx(364,66): error TS2339: Property 'dragPosition' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(450,43): error TS18048: 'activePage' is possibly 'undefined'.
+src/features/builder/pages/BuilderPage.tsx(460,59): error TS2339: Property 'dragPosition' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(506,59): error TS2339: Property 'dragPosition' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(522,23): error TS6133: 'ghostRect' is declared but its value is never read.
+src/features/builder/pages/BuilderPage.tsx(791,68): error TS2339: Property 'resizingComponentId' does not exist on type 'BuilderState'.
+src/features/builder/pages/BuilderPage.tsx(930,39): error TS18048: 'activePage' is possibly 'undefined'.
+src/features/builder/pages/BuilderPage.tsx(986,50): error TS18048: 'activePage' is possibly 'undefined'.
+src/features/builder/pages/BuilderPage.tsx(1128,15): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/pages/BuilderPage.tsx(1196,9): error TS2322: Type '{ children: Element; sidebar: Element; propertiesPanel: Element; title: string; formId: string | undefined; }' is not assignable to type 'IntrinsicAttributes & BuilderLayoutProps'.
+  Property 'formId' does not exist on type 'IntrinsicAttributes & BuilderLayoutProps'.
+src/features/builder/pages/BuilderPage.tsx(1258,9): error TS2322: Type '{ children: Element; sidebar: Element; propertiesPanel: Element; title: string; formId: string | undefined; }' is not assignable to type 'IntrinsicAttributes & BuilderLayoutProps'.
+  Property 'formId' does not exist on type 'IntrinsicAttributes & BuilderLayoutProps'.
+src/features/builder/registry/ComponentRegistry.tsx(1,17): error TS6133: 'useRef' is declared but its value is never read.
+src/features/builder/registry/ComponentRegistry.tsx(1,25): error TS6133: 'useState' is declared but its value is never read.
+src/features/builder/registry/ComponentRegistry.tsx(1,35): error TS6133: 'useEffect' is declared but its value is never read.
+src/features/builder/registry/ComponentRegistry.tsx(17,3): error TS6133: 'Loader2' is declared but its value is never read.
+src/features/builder/registry/ComponentRegistry.tsx(19,82): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/registry/ComponentRegistry.tsx(47,7): error TS6133: 'TOOLBOX_FIRST_NAME_RENDERERS' is declared but its value is never read.
+src/features/builder/registry/ComponentRegistry.tsx(131,78): error TS2352: Conversion of type '{ 'first-name': { type: "first-name"; label: string; icon: Element; category: "input"; defaultProps: { label: string; placeholder: string; required: boolean; validation: { maxLength: number; }; }; structure: ComponentStructure; previewComponent: ReactNode; runtimeComponent: ({ component, value, onChange, disabled, r...' to type 'Record<ComponentType, ComponentDefinition>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ 'first-name': { type: "first-name"; label: string; icon: Element; category: "input"; defaultProps: { label: string; placeholder: string; required: boolean; validation: { maxLength: number; }; }; structure: ComponentStructure; previewComponent: ReactNode; runtimeComponent: ({ component, value, onChange, disabled, r...' is missing the following properties from type 'Record<ComponentType, ComponentDefinition>': select, paragraph
+src/features/builder/registry/ComponentRegistry.tsx(161,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(229,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(295,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(361,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(429,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(468,7): error TS2322: Type '"dropdown"' is not assignable to type 'ComponentType'.
+src/features/builder/registry/ComponentRegistry.tsx(488,26): error TS7031: Binding element 'component' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,37): error TS7031: Binding element 'value' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,44): error TS7031: Binding element 'onChange' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,54): error TS7031: Binding element 'disabled' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,64): error TS7031: Binding element 'required' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,74): error TS7031: Binding element 'error' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,81): error TS7031: Binding element 'tabIndex' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,91): error TS7031: Binding element 'primaryColor' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,105): error TS7031: Binding element 'inputRef' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,115): error TS7031: Binding element 'styleOverrides' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(488,131): error TS7031: Binding element 'globalStyles' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(489,25): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<ComponentType, ComponentDefinition>'.
+src/features/builder/registry/ComponentRegistry.tsx(504,11): error TS2322: Type '{ structure: any; renderers: ObjectRenderers; surface: "runtime"; objectLayout: any; layoutGroups: any; styleOverrides: any; globalStyles: any; componentId: any; component: any; runtimeMode: { ...; }; }' is not assignable to type 'IntrinsicAttributes & UniversalFieldShellProps & RefAttributes<HTMLDivElement>'.
+  Property 'runtimeMode' does not exist on type 'IntrinsicAttributes & UniversalFieldShellProps & RefAttributes<HTMLDivElement>'.
+src/features/builder/registry/ComponentRegistry.tsx(562,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(632,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(694,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(765,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(836,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(912,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(951,143): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(961,145): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+src/features/builder/registry/ComponentRegistry.tsx(988,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(1071,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/registry/ComponentRegistry.tsx(1112,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, string[]> | undefined'.
+src/features/builder/utils/collisionDetection.ts(349,76): error TS2345: Argument of type 'RefObject<HTMLDivElement> | undefined' is not assignable to parameter of type 'RefObject<HTMLDivElement> | null'.
+  Type 'undefined' is not assignable to type 'RefObject<HTMLDivElement> | null'.
+src/features/builder/utils/collisionDetection.ts(679,10): error TS6133: 'computeAllowedX' is declared but its value is never read.
+src/features/builder/utils/collisionDetection.ts(708,10): error TS6133: 'computeAllowedY' is declared but its value is never read.
+src/features/builder/utils/collisionDetection.ts(889,13): error TS2322: Type '{ rect: CanvasRect; } | null' is not assignable to type '{ rr: CanvasRect; } | null'.
+  Property 'rr' is missing in type '{ rect: CanvasRect; }' but required in type '{ rr: CanvasRect; }'.
+src/features/builder/utils/collisionDetection.ts(901,13): error TS2322: Type '{ rect: CanvasRect; } | null' is not assignable to type '{ rr: CanvasRect; } | null'.
+src/features/builder/utils/collisionDetection.ts(913,13): error TS2322: Type '{ rect: CanvasRect; } | null' is not assignable to type '{ rr: CanvasRect; } | null'.
+src/features/builder/utils/collisionDetection.ts(925,13): error TS2322: Type '{ rect: CanvasRect; } | null' is not assignable to type '{ rr: CanvasRect; } | null'.
+src/features/builder/utils/collisionDetection.ts(940,31): error TS2677: A type predicate's type must be assignable to its parameter's type.
+  Property 'rr' is missing in type '{ rect: CanvasRect; }' but required in type '{ rr: CanvasRect; }'.
+src/features/builder/utils/collisionDetection.ts(941,21): error TS2339: Property 'rect' does not exist on type '{ rr: CanvasRect; } | null'.
+src/features/builder/utils/componentCapabilities.ts(73,10): error TS2678: Type '"dropdown"' is not comparable to type 'ComponentType'.
+src/features/builder/utils/componentRenderers.ts(8,25): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/utils/componentRenderers.ts(16,5): error TS6133: 'componentType' is declared but its value is never read.
+src/features/builder/utils/componentRenderers.ts(18,5): error TS6133: 'component' is declared but its value is never read.
+src/features/builder/utils/componentRenderers.ts(73,5): error TS6133: 'handlers' is declared but its value is never read.
+src/features/builder/utils/componentSurfaceCapabilities.ts(344,3): error TS2322: Type '{ 'first-name': { toolbox: { textLengthIndicator: { enabled: true; showBar: true; showLabel: true; }; }; canvas: { textLengthIndicator: { enabled: true; showBar: true; showLabel: true; }; objectResizeHandles: { ...; }; }; }; ... 11 more ...; divider: { ...; }; }' is not assignable to type 'Partial<Record<ComponentType, Partial<Record<ComponentSurface, Partial<{ textLengthIndicator: Partial<{ enabled: boolean; showBar: boolean; showLabel: boolean; showTextareaLineEstimate: boolean; }>; ... 6 more ...; dragPreview: Partial<...>; }>>>>>'.
+  Object literal may only specify known properties, and 'dropdown' does not exist in type 'Partial<Record<ComponentType, Partial<Record<ComponentSurface, Partial<{ textLengthIndicator: Partial<{ enabled: boolean; showBar: boolean; showLabel: boolean; showTextareaLineEstimate: boolean; }>; ... 6 more ...; dragPreview: Partial<...>; }>>>>>'.
+src/features/builder/utils/conditionalEvaluation.ts(7,10): error TS2305: Module '"../types/builder.types"' has no exported member 'ConditionalRule'.
+src/features/builder/utils/conditionalEvaluation.ts(7,27): error TS2305: Module '"../types/builder.types"' has no exported member 'ConditionalContext'.
+src/features/builder/utils/conditionalEvaluation.ts(7,47): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentObject'.
+src/features/builder/utils/dateSettingsCompatibility.ts(65,48): error TS2538: Type 'undefined' cannot be used as an index type.
+src/features/builder/utils/gridLayoutUtils.ts(14,15): error TS2305: Module '"../types/builder.types"' has no exported member 'GridLayoutConfig'.
+src/features/builder/utils/gridLayoutUtils.ts(14,33): error TS2305: Module '"../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/utils/gridLayoutUtils.ts(171,20): error TS18046: 'group' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(174,36): error TS2339: Property 'cells' does not exist on type '{}'.
+src/features/builder/utils/gridLayoutUtils.ts(176,43): error TS2339: Property 'cells' does not exist on type '{}'.
+src/features/builder/utils/gridLayoutUtils.ts(176,54): error TS7006: Parameter 'key' implicitly has an 'any' type.
+src/features/builder/utils/gridLayoutUtils.ts(178,55): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/features/builder/utils/gridLayoutUtils.ts(179,55): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/features/builder/utils/gridLayoutUtils.ts(180,55): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/features/builder/utils/gridLayoutUtils.ts(181,55): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/features/builder/utils/gridLayoutUtils.ts(390,17): error TS18046: 'gap' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(390,28): error TS18046: 'gap' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(406,17): error TS18046: 'gap' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(406,28): error TS18046: 'gap' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(428,17): error TS18046: 'mergeGroup' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(435,31): error TS18046: 'mergeGroup' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(452,21): error TS18046: 'mergeGroup' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(468,17): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(468,33): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(472,17): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(472,33): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(476,17): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(476,48): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(480,17): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(480,48): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(519,17): error TS18046: 'mergeGroup' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(520,24): error TS18046: 'mergeGroup' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(531,29): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(532,29): error TS18046: 'span' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(561,23): error TS2322: Type 'unknown' is not assignable to type 'string'.
+src/features/builder/utils/gridLayoutUtils.ts(758,13): error TS18046: 'group' is of type 'unknown'.
+src/features/builder/utils/gridLayoutUtils.ts(759,31): error TS2322: Type 'unknown' is not assignable to type '{ cells: string[]; objectId: string; }'.
+src/features/builder/utils/objectRenderers.tsx(10,10): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentObject'.
+src/features/builder/utils/objectRenderers.tsx(10,42): error TS2305: Module '"../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/utils/objectRenderers.tsx(408,55): error TS2339: Property 'maxLength' does not exist on type '{}'.
+src/features/builder/utils/objectRenderers.tsx(408,101): error TS2339: Property 'maxLength' does not exist on type '{}'.
+src/features/builder/utils/objectRenderers.tsx(898,13): error TS2367: This comparison appears to be unintentional because the types '"number" | "text" | "address" | "header" | "select" | "email" | "date" | "phone" | "first-name" | "submit-button" | "paragraph" | "divider"' and '"dropdown"' have no overlap.
+src/features/builder/utils/objectRenderers.tsx(1001,55): error TS2339: Property 'maxLength' does not exist on type '{}'.
+src/features/builder/utils/objectRenderers.tsx(1001,101): error TS2339: Property 'maxLength' does not exist on type '{}'.
+src/features/builder/utils/objectRenderers.tsx(1020,19): error TS6133: 'availableExtraWidthPx' is declared but its value is never read.
+src/features/builder/utils/objectRenderers.tsx(1341,13): error TS2322: Type '{} | null' is not assignable to type 'string | number'.
+  Type 'null' is not assignable to type 'string | number'.
+src/features/builder/utils/objectRenderers.tsx(1489,45): error TS2339: Property 'dividerBorderWidth' does not exist on type '{ fontFamily: string; fontSize: number; fontWeight: number; fontStyle: FontStyleType; labelFontFamily: string; labelFontSize: number; labelFontWeight: number; labelFontStyle: FontStyleType; ... 25 more ...; paddingY: number; }'.
+src/features/builder/utils/objectRenderers.tsx(1490,45): error TS2339: Property 'dividerBorderColor' does not exist on type '{ fontFamily: string; fontSize: number; fontWeight: number; fontStyle: FontStyleType; labelFontFamily: string; labelFontSize: number; labelFontWeight: number; labelFontStyle: FontStyleType; ... 25 more ...; paddingY: number; }'.
+src/features/builder/utils/objectRenderers.tsx(1494,64): error TS2339: Property 'dividerWidth' does not exist on type '{ fontFamily: string; fontSize: number; fontWeight: number; fontStyle: FontStyleType; labelFontFamily: string; labelFontSize: number; labelFontWeight: number; labelFontStyle: FontStyleType; ... 25 more ...; paddingY: number; }'.
+src/features/builder/utils/phoneValidation.ts(10,5): error TS6133: 'isValidPhoneNumber' is declared but its value is never read.
+src/features/builder/utils/phoneValidation.ts(209,25): error TS2554: Expected 2 arguments, but got 1.
+src/features/builder/utils/scaleUtils.ts(97,56): error TS6133: 'canvasScale' is declared but its value is never read.
+src/features/builder/utils/spacingCalculation.ts(7,10): error TS2305: Module '"../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/utils/spacingCalculation.ts(39,44): error TS2339: Property 'objectColumnGapPx' does not exist on type 'GlobalStyles'.
+src/features/builder/utils/spacingCalculation.ts(42,41): error TS2339: Property 'objectRowGapPx' does not exist on type 'GlobalStyles'.
+src/features/builder/utils/spacingCalculation.ts(115,73): error TS2339: Property 'objectColumnGapPx' does not exist on type 'GlobalStyles'.
+src/features/builder/utils/structureDefaults.ts(8,25): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/utils/structureDefaults.ts(8,45): error TS2305: Module '"../types/builder.types"' has no exported member 'ObjectLayoutType'.
+src/features/builder/utils/structureDefaults.ts(8,45): error TS6133: 'ObjectLayoutType' is declared but its value is never read.
+src/features/builder/utils/structureValidation.ts(7,10): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentStructure'.
+src/features/builder/utils/structureValidation.ts(7,30): error TS2305: Module '"../types/builder.types"' has no exported member 'ComponentObject'.
+src/features/builder/utils/structureValidation.ts(32,45): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(35,46): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(35,50): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(40,42): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(40,66): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(40,69): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(69,53): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(79,32): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(79,37): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/features/builder/utils/structureValidation.ts(100,63): error TS6133: 'allObjectIds' is declared but its value is never read.
+src/features/builder/utils/validationEngine.ts(20,5): error TS6133: 'CountryValidationConfig' is declared but its value is never read.
+src/features/builder/utils/validationEngine.ts(23,25): error TS6133: 'formatPhone' is declared but its value is never read.
+src/features/builder/utils/validationEngine.ts(489,5): error TS6133: 'context' is declared but its value is never read.
+src/features/config/ConfigProvider.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/CompanyList.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/DashboardLayout.tsx(7,8): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/DashboardLayout.tsx(27,17): error TS6133: 'logout' is declared but its value is never read.
+src/features/dashboard/components/DashboardLayout.tsx(359,28): error TS2345: Argument of type '"Company Admin" | "Company User" | "Company Viewer"' is not assignable to parameter of type 'SetStateAction<"Company Admin" | "Company User">'.
+  Type '"Company Viewer"' is not assignable to type 'SetStateAction<"Company Admin" | "Company User">'.
+src/features/dashboard/components/DashboardLayout.tsx(645,11): error TS2322: Type '"Company Admin" | "Company User" | "Company Viewer" | undefined' is not assignable to type '"Company Admin" | "Company User" | undefined'.
+  Type '"Company Viewer"' is not assignable to type '"Company Admin" | "Company User" | undefined'.
+src/features/dashboard/components/EditRoleModal.tsx(10,1): error TS6133: 'EditUserRoleRequest' is declared but its value is never read.
+src/features/dashboard/components/EmptyState.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/KPISection.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/TeamManagementPanel.tsx(363,11): error TS2322: Type '"Company Admin" | "Company User" | "Company Viewer"' is not assignable to type '"Company Admin" | "Company User"'.
+  Type '"Company Viewer"' is not assignable to type '"Company Admin" | "Company User"'.
+src/features/dashboard/components/ThemeSettingsPopup.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/ThemeSettingsPopup.tsx(19,75): error TS6133: 'saveToLocalStorage' is declared but its value is never read.
+src/features/dashboard/components/UserMenu.tsx(7,8): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/pages/DashboardPage.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/events/components/DeleteEventConfirmModal.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/events/components/EditEventModal.tsx(7,31): error TS6133: 'Tag' is declared but its value is never read.
+src/features/events/components/EditEventModal.tsx(7,36): error TS6133: 'Globe' is declared but its value is never read.
+src/features/events/components/EditEventModal.tsx(488,35): error TS2322: Type '"medium"' is not assignable to type '"sm" | "md" | "lg" | "xl" | undefined'.
+src/features/events/components/EditEventModal.tsx(906,146): error TS2339: Property 'name' does not exist on type 'IndustrySummary'.
+src/features/events/components/EditEventModal.tsx(928,52): error TS2339: Property 'name' does not exist on type 'IndustrySummary'.
+src/features/events/components/EditEventModal.tsx(1074,39): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | "xl" | undefined'.
+src/features/events/components/EventCard.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/events/components/EventSelector.tsx(2,18): error TS6133: 'Check' is declared but its value is never read.
+src/features/events/components/ReviewStatusBadge.tsx(2,39): error TS6133: 'AlertCircle' is declared but its value is never read.
+src/features/events/components/ShareEventModal.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/features/events/components/ShareEventModal.tsx(2,40): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/features/events/components/ShareEventModal.tsx(2,53): error TS6133: 'Search' is declared but its value is never read.
+src/features/events/components/StatusBadge.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/events/pages/EventsPage.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/events/pages/EventsPage.tsx(18,66): error TS6133: 'FormDetailView' is declared but its value is never read.
+src/features/events/pages/EventsPage.tsx(30,10): error TS6133: 'isLoadingEvents' is declared but its value is never read.
+src/features/events/pages/EventsPage.tsx(38,10): error TS6133: 'filters' is declared but its value is never read.
+src/features/events/pages/EventsPage.tsx(38,19): error TS6133: 'setFilters' is declared but its value is never read.
+src/features/forms/components/BulkTransferOwnershipModal.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/features/forms/components/BulkTransferOwnershipModal.tsx(22,3): error TS6133: 'companyName' is declared but its value is never read.
+src/features/forms/components/CreateFormModal.tsx(150,17): error TS2322: Type '"number"' is not assignable to type '"url" | "text" | "search" | "textarea" | "email" | "password" | "tel" | undefined'.
+src/features/forms/components/CreateFormModal.tsx(151,17): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/features/forms/components/DeleteFormConfirmModal.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/forms/components/FormAccessControlModal.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/forms/components/FormDetailView.tsx(7,8): error TS6133: 'React' is declared but its value is never read.
+src/features/forms/components/FormDetailView.tsx(8,59): error TS6133: 'Globe' is declared but its value is never read.
+src/features/forms/components/FormDetailView.tsx(14,10): error TS6133: 'submitFormForApproval' is declared but its value is never read.
+src/features/forms/components/FormDetailView.tsx(17,1): error TS6133: 'FormAuditReport' is declared but its value is never read.
+src/features/forms/components/FormDetailView.tsx(29,10): error TS6133: 'isLoadingAccess' is declared but its value is never read.
+src/features/forms/components/FormDetailView.tsx(155,9): error TS6133: 'canView' is declared but its value is never read.
+src/features/forms/components/FormDetailView.tsx(508,12): error TS2693: 'FormAuditReport' only refers to a type, but is being used as a value here.
+src/features/forms/components/FormStatusBadge.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/forms/components/FormStatusBadge.tsx(30,9): error TS6133: 'getApprovalColor' is declared but its value is never read.
+src/features/forms/components/GrantAccessForm.tsx(7,45): error TS6133: 'Loader2' is declared but its value is never read.
+src/features/forms/components/GrantAccessForm.tsx(14,3): error TS6133: 'searchUsers' is declared but its value is never read.
+src/features/forms/components/GrantAccessForm.tsx(15,3): error TS6133: 'searchCompanies' is declared but its value is never read.
+src/features/forms/components/GrantAccessForm.tsx(181,47): error TS2345: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+src/features/forms/pages/ExternalApprovalPage.tsx(3,55): error TS6133: 'FileText' is declared but its value is never read.
+src/features/forms/pages/FormsPage.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/forms/pages/FormsPage.tsx(8,62): error TS2459: Module '"../api/formsApi"' declares 'FormFilters' locally, but it is not exported.
+src/features/forms/pages/FormsPage.tsx(23,10): error TS6133: 'formApprovalStatuses' is declared but its value is never read.
+src/features/forms/pages/FormsPage.tsx(25,10): error TS6133: 'isLoadingForms' is declared but its value is never read.
+src/features/forms/pages/FormsPage.tsx(33,10): error TS6133: 'filters' is declared but its value is never read.
+src/features/forms/pages/FormsPage.tsx(33,19): error TS6133: 'setFilters' is declared but its value is never read.
+src/features/forms/pages/FormsPage.tsx(44,11): error TS2339: Property 'showToast' does not exist on type '{ success: (message: string, title?: string | undefined, duration?: number | undefined) => string; error: (message: string, title?: string | undefined, duration?: number | undefined) => string; warning: (message: string, title?: string | undefined, duration?: number | undefined) => string; info: (message: string, ti...'.
+src/features/forms/pages/FormsPage.tsx(229,29): error TS2322: Type '"large"' is not assignable to type '"sm" | "md" | "lg" | "xl" | undefined'.
+src/features/forms/pages/FormsPage.tsx(313,10): error TS2741: Property 'eventId' is missing in type '{ isOpen: true; onClose: () => void; onSuccess: () => void; }' but required in type 'CreateFormModalProps'.
+src/features/onboarding/components/OnboardingModal.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/onboarding/components/OnboardingStep1.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/onboarding/components/OnboardingStep2.tsx(8,41): error TS6133: 'Edit' is declared but its value is never read.
+src/features/onboarding/components/OnboardingStep2.tsx(11,44): error TS6133: 'useCountries' is declared but its value is never read.
+src/features/onboarding/components/OnboardingStep2.tsx(55,9): error TS6133: 'abnValue' is declared but its value is never read.
+src/features/onboarding/components/ProgressIndicator.tsx(14,50): error TS6133: 'totalSteps' is declared but its value is never read.
+src/features/preferences/components/AccountSettingsPopup.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/preferences/components/AccountSettingsPopup.tsx(30,30): error TS6133: 'authUser' is declared but its value is never read.
+src/features/preferences/components/IndustryManager.tsx(7,8): error TS6133: 'React' is declared but its value is never read.
+src/features/preferences/components/IndustrySearch.tsx(9,1): error TS6133: 'useToastNotifications' is declared but its value is never read.
+src/features/profile/components/IndustryManager.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/profile/components/IndustryManager.tsx(8,64): error TS6196: 'ReferenceOption' is declared but never used.
+src/features/profile/components/IndustryManager.tsx(15,3): error TS6133: 'getThemes' is declared but its value is never read.
+src/features/profile/components/IndustryManager.tsx(22,33): error TS6133: 'onClose' is declared but its value is never read.
+src/features/profile/components/IndustryManager.tsx(29,11): error TS2339: Property 'showSuccessToast' does not exist on type '{ success: (message: string, title?: string | undefined, duration?: number | undefined) => string; error: (message: string, title?: string | undefined, duration?: number | undefined) => string; warning: (message: string, title?: string | undefined, duration?: number | undefined) => string; info: (message: string, ti...'.
+src/features/profile/components/IndustryManager.tsx(29,29): error TS2339: Property 'showErrorToast' does not exist on type '{ success: (message: string, title?: string | undefined, duration?: number | undefined) => string; error: (message: string, title?: string | undefined, duration?: number | undefined) => string; warning: (message: string, title?: string | undefined, duration?: number | undefined) => string; info: (message: string, ti...'.
+src/features/profile/components/ProfileEditor.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/profile/components/ProfileEditor.tsx(24,10): error TS6133: 'profile' is declared but its value is never read.
+src/features/profile/components/ProfileEditor.tsx(31,11): error TS2339: Property 'showSuccessToast' does not exist on type '{ success: (message: string, title?: string | undefined, duration?: number | undefined) => string; error: (message: string, title?: string | undefined, duration?: number | undefined) => string; warning: (message: string, title?: string | undefined, duration?: number | undefined) => string; info: (message: string, ti...'.
+src/features/profile/components/ProfileEditor.tsx(31,29): error TS2339: Property 'showErrorToast' does not exist on type '{ success: (message: string, title?: string | undefined, duration?: number | undefined) => string; error: (message: string, title?: string | undefined, duration?: number | undefined) => string; warning: (message: string, title?: string | undefined, duration?: number | undefined) => string; info: (message: string, ti...'.
+src/features/profile/components/ProfileEditor.tsx(255,71): error TS2551: Property 'baseFontSize' does not exist on type 'ReferenceOption'. Did you mean 'base_font_size'?
+src/features/renderer/components/PublicFormArtboard.tsx(2,56): error TS2305: Module '"../../builder/types/builder.types"' has no exported member 'FormValidationContext'.
+src/features/renderer/components/PublicFormArtboard.tsx(140,11): error TS2367: This comparison appears to be unintentional because the types 'ComponentType' and '"dropdown"' have no overlap.
+src/features/renderer/components/PublicFormArtboard.tsx(156,9): error TS2345: Argument of type '{ dateFormat: string | undefined; }' is not assignable to parameter of type 'ValidationContext'.
+  Object literal may only specify known properties, and 'dateFormat' does not exist in type 'ValidationContext'.
+src/features/renderer/components/PublicFormArtboard.tsx(201,28): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/features/renderer/components/PublicFormArtboard.tsx(201,31): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/features/theme/components/DensitySelector.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/theme/components/FontSizeSelector.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/theme/components/ThemeSelector.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/theme/components/ThemeSelector.tsx(9,10): error TS6133: 'getThemes' is declared but its value is never read.
+src/features/theme/components/ThemeSelector.tsx(9,21): error TS6133: 'getLayoutDensities' is declared but its value is never read.
+src/features/theme/components/ThemeSelector.tsx(9,41): error TS6133: 'getFontSizes' is declared but its value is never read.
+src/features/theme/components/ThemeSelector.tsx(25,3): error TS6133: 'compact' is declared but its value is never read.
+src/features/theme/components/ThemeSelector.tsx(377,31): error TS2551: Property 'baseFontSize' does not exist on type 'ReferenceOption'. Did you mean 'base_font_size'?
+src/features/theme/pages/ThemeSettingsPage.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/features/ux/components/ErrorBoundary.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/features/ux/components/OfflineIndicator.tsx(15,34): error TS6133: 'CheckCircle2' is declared but its value is never read.
+src/features/ux/hooks/useFormValidation.ts(100,3): error TS6133: 'validateOnChange' is declared but its value is never read.
+src/features/ux/hooks/useFormValidation.ts(101,3): error TS6133: 'validateOnBlur' is declared but its value is never read.
+src/features/ux/hooks/useFormValidation.ts(175,9): error TS6133: 'debouncedValidateField' is declared but its value is never read.
+src/features/ux/hooks/useFormValidation.ts(231,54): error TS6133: 'validateOnBlur' is declared but its value is never read.
+src/features/ux/utils/mobile.ts(290,27): error TS6133: 'e' is declared but its value is never read.
+src/features/ux/utils/performance.tsx(109,9): error TS6198: All destructured elements are unused.
+src/features/ux/utils/performance.tsx(242,19): error TS2339: Property 'processingStart' does not exist on type 'PerformanceEntry'.
+src/features/ux/utils/performance.tsx(243,41): error TS2339: Property 'processingStart' does not exist on type 'PerformanceEntry'.
+src/features/ux/utils/performance.tsx(311,43): error TS6133: 'type' is declared but its value is never read.
+src/features/validation/components/CountrySelector.tsx(11,8): error TS6133: 'React' is declared but its value is never read.
+src/features/validation/components/PhoneInput.tsx(12,8): error TS6133: 'React' is declared but its value is never read.
+src/features/validation/components/PostalCodeInput.tsx(12,8): error TS6133: 'React' is declared but its value is never read.
+src/lib/apiClient.ts(2,39): error TS6133: 'clearTokens' is declared but its value is never read.
+src/utils/formAutoSave.ts(16,1): error TS6133: 'offlineQueue' is declared but its value is never read.

@@ -1,0 +1,141 @@
+# Common Failures - Ralf Taskflow Memory
+# Known failure modes and how to prevent them
+# Append-only: Add new patterns, never remove
+# Version: 1.0.0
+# Last Updated: 2026-01-11
+
+failure_patterns:
+
+  # Failure 1: Missing Import
+  missing_import:
+    name: "Missing Import After Adding Component"
+    symptoms:
+      - "Module not found error"
+      - "Component is undefined"
+      - "Build fails after adding new file"
+    root_cause: "New component not exported from index.ts"
+    prevention:
+      - "Always update index.ts when adding new files"
+      - "Run build after adding files to catch early"
+    fix: "Add export to appropriate index.ts file"
+    detection_command: "npm run build"
+
+  # Failure 2: Type Mismatch
+  type_mismatch:
+    name: "TypeScript Type Mismatch"
+    symptoms:
+      - "Type error in IDE"
+      - "Build fails with type errors"
+      - "Props not matching interface"
+    root_cause: "Changed props/schema without updating all usages"
+    prevention:
+      - "Update type definitions first"
+      - "Use IDE to find all usages"
+      - "Run tsc --noEmit before committing"
+    fix: "Update all usages to match new type"
+    detection_command: "npx tsc --noEmit"
+
+  # Failure 3: Stale State
+  stale_state:
+    name: "React Stale State/Closure"
+    symptoms:
+      - "Component shows old data"
+      - "Event handler uses stale values"
+      - "useEffect dependencies warning"
+    root_cause: "Missing dependency in useEffect/useCallback"
+    prevention:
+      - "Include all used values in dependency array"
+      - "Use ESLint exhaustive-deps rule"
+    fix: "Add missing dependencies or use refs"
+    detection_command: "npm run lint"
+
+  # Failure 4: Database Migration Conflict
+  migration_conflict:
+    name: "Alembic Migration Conflict"
+    symptoms:
+      - "Multiple heads error"
+      - "Migration fails with constraint error"
+      - "Database schema out of sync"
+    root_cause: "Multiple migrations created without merging"
+    prevention:
+      - "Check for existing migrations before creating"
+      - "Merge heads if multiple exist"
+      - "Test migration on fresh database"
+    fix: "alembic merge heads, then test"
+    detection_command: "alembic heads"
+
+  # Failure 5: Auth Bypass
+  auth_bypass:
+    name: "Endpoint Missing Authentication"
+    symptoms:
+      - "Endpoint accessible without login"
+      - "Security test fails"
+      - "Unauthorized data access"
+    root_cause: "Forgot to add Depends(get_current_user)"
+    prevention:
+      - "Always add auth dependency to protected endpoints"
+      - "Test endpoint without auth token"
+    fix: "Add Depends(get_current_user) to route"
+    detection_command: "curl endpoint without Authorization header"
+
+  # Failure 6: Scope Creep Implementation
+  scope_creep:
+    name: "Implemented Out-of-Scope Feature"
+    symptoms:
+      - "UAT finds unexpected behavior"
+      - "Files modified that weren't in spec"
+      - "Extra tests for unspecified features"
+    root_cause: "Implemented user request without scope check"
+    prevention:
+      - "Always run *scope-check before implementing requests"
+      - "Stick to Task Spec scope exactly"
+      - "Route out-of-scope items to ralf-sm"
+    fix: "Revert changes, create new task if needed"
+
+  # Failure 7: Test Pollution
+  test_pollution:
+    name: "Tests Affect Each Other"
+    symptoms:
+      - "Tests pass individually, fail together"
+      - "Random test failures"
+      - "Test order matters"
+    root_cause: "Shared state between tests, missing cleanup"
+    prevention:
+      - "Use beforeEach/afterEach for setup/cleanup"
+      - "Don't share mutable state between tests"
+      - "Run tests in random order periodically"
+    fix: "Add proper isolation and cleanup"
+    detection_command: "npm test -- --randomize"
+
+  # Failure 8: Forbidden Zone Violation
+  forbidden_zone:
+    name: "Modified Protected File"
+    symptoms:
+      - "Regression in completed epic"
+      - "Unexpected side effects"
+      - "Other feature breaks"
+    root_cause: "Changed file in Forbidden Zones list"
+    prevention:
+      - "Check Forbidden Zones before any edit"
+      - "Use git diff to verify changed files"
+    fix: "Revert changes to forbidden files"
+    detection_command: "git diff --name-only"
+
+# Quick diagnostic commands
+diagnostics:
+  
+  frontend_health:
+    - "npm run lint"
+    - "npx tsc --noEmit"
+    - "npm run build"
+    - "npm test"
+    
+  backend_health:
+    - "ruff check ."
+    - "python -c 'from backend.main import app'"
+    - "pytest backend/tests/ -x"
+    
+  full_check:
+    - "All frontend_health commands"
+    - "All backend_health commands"
+    - "git diff to verify scope"

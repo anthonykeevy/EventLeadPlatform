@@ -356,7 +356,8 @@ class DiagnosticLogger:
             
             # Highlight errors
             if req.get('StatusCode') and req['StatusCode'] >= 400:
-                print(f"  ⚠️  ERROR: Status {req['StatusCode']}")
+                # Avoid unicode symbols (Windows console encoding issues)
+                print(f"  ERROR: Status {req['StatusCode']}")
             
             if req.get('RequestPayload'):
                 payload = self.format_json(req['RequestPayload'])

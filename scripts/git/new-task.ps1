@@ -93,7 +93,24 @@ if ($CreateWorktree) {
   # Non-worktree mode: switch to story branch, branch off it, then work in main repo.
   Show-And-Run -CommandText "git switch `"$StoryBranch`"" -Command { git switch $StoryBranch }
   Show-And-Run -CommandText "git pull $Remote `"$StoryBranch`"" -Command { git pull $Remote $StoryBranch }
-  Show-And-Run -CommandText "git switch -c `"$taskBranch`"" -Command { git switch -c $taskBranch }
+  # Idempotency: if the task branch already exists (locally or on remote), re-use it instead of failing.
+  $taskBranchLocalExists = $false
+  & git show-ref --verify --quiet "refs/heads/$taskBranch" 2>$null
+  if ($LASTEXITCODE -eq 0) { $taskBranchLocalExists = $true }
+
+  if ($taskBranchLocalExists) {
+    Show-And-Run -CommandText "git switch `"$taskBranch`"" -Command { git switch $taskBranch }
+  } else {
+    $taskBranchRemoteExists = $false
+    & git show-ref --verify --quiet "refs/remotes/$Remote/$taskBranch" 2>$null
+    if ($LASTEXITCODE -eq 0) { $taskBranchRemoteExists = $true }
+
+    if ($taskBranchRemoteExists) {
+      Show-And-Run -CommandText "git switch --track `"$Remote/$taskBranch`"" -Command { git switch --track "$Remote/$taskBranch" }
+    } else {
+      Show-And-Run -CommandText "git switch -c `"$taskBranch`"" -Command { git switch -c $taskBranch }
+    }
+  }
   Show-And-Run -CommandText "git push -u $Remote HEAD" -Command { git push -u $Remote HEAD }
 }
 

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story Context: Story 3.11 - Dynamic Submission (Outbox)
+  Epic: Epic 3 - Form Builder & Logic Engine
+  Created: 2026-02-02
+  
+  This context file provides structured metadata for AI agents working on Story 3.11.
+-->
+<story-context version="1.0">
+  <metadata>
+    <story-id>3.11</story-id>
+    <story-title>Dynamic Submission (Outbox / Offline Queue + Sync)</story-title>
+    <epic-id>3</epic-id>
+    <domain>Rendering &amp; Submission</domain>
+    <status>ready-for-development</status>
+    <priority>high</priority>
+    <created>2026-02-02</created>
+  </metadata>
+
+  <summary>
+    Implement an offline-first submission pipeline for public token-based forms: validate client-side,
+    submit immediately when online, queue in IndexedDB when offline, and auto-sync when connectivity returns.
+  </summary>
+
+  <problem-statement>
+    Event environments have unreliable WiFi/cellular. Losing connectivity currently means losing leads.
+    Story 3.11 introduces an Outbox queue so submissions are captured reliably offline and synced when online.
+  </problem-statement>
+
+  <key-features>
+    <feature id="F1">Public submission endpoint (token-gated) with minimal DB persistence</feature>
+    <feature id="F2">Public outbox queue stored in IndexedDB (offline-first)</feature>
+    <feature id="F3">Auto-sync on reconnect with bounded retries and clear status transitions</feature>
+    <feature id="F4">Public UX feedback: queued/ syncing/ uploaded + pending count indicator</feature>
+    <feature id="F5">Idempotency key support (client + server) to prevent duplicates on retry</feature>
+    <feature id="F6">High-signal logging for troubleshooting (no PII)</feature>
+  </key-features>
+
+  <reference-documents>
+    <document type="architecture" path="docs/technical-guides/OFFLINE-LEAD-CAPTURE-ARCHITECTURE.md">
+      Offline-first outbox approach (IndexedDB queue + sync)
+    </document>
+    <document type="story" path="docs/stories/story-3.8.md">
+      Public renderer baseline (submission transport deferred to Story 3.11)
+    </document>
+    <document type="story" path="docs/stories/story-3.9.md">
+      Token preview flow + DB-backed DefinitionJSON
+    </document>
+    <document type="logging" path="docs/AGENT-LOGGING-GUIDE.md">
+      Agent logging reference for evidence capture and troubleshooting
+    </document>
+    <document type="workflow" path="docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md">
+      Git/PR/worktree discipline for story/task execution
+    </document>
+  </reference-documents>
+
+  <technical-context>
+    <technology>React</technology>
+    <technology>TypeScript</technology>
+    <technology>IndexedDB</technology>
+    <technology>FastAPI (public token-gated endpoint)</technology>
+
+    <key-types>
+      <type name="PublicSubmissionPayload">
+        Token-scoped submission payload (answersByComponentId + timestamps + idempotencyKey)
+      </type>
+      <type name="OutboxItem">
+        IndexedDB-stored outbox record with status + retry metadata
+      </type>
+    </key-types>
+
+    <key-files>
+      <!-- Frontend -->
+      <file action="modify" path="frontend/src/features/renderer/components/PublicFormArtboard.tsx">
+        Replace submission-deferred behavior with Outbox submission (online submit + offline queue)
+      </file>
+      <file action="modify" path="frontend/src/features/renderer/pages/PublicFormRendererPage.tsx">
+        Surface public submission status (pending count / syncing indicator) if required
+      </file>
+      <file action="create" path="frontend/src/features/renderer/utils/publicOutbox.ts">
+        Public outbox queue implementation (IndexedDB store, enqueue, processQueue, retry policy)
+      </file>
+      <file action="create" path="frontend/src/features/renderer/api/publicSubmissionApi.ts">
+        API client for submitting token-scoped payloads to backend
+      </file>
+
+      <!-- Backend -->
+      <file action="modify" path="backend/modules/forms/public_form_router.py">
+        Add token-gated submission endpoint (e.g., POST /api/public/forms/{token}/submissions)
+      </file>
+      <file action="create" path="backend/modules/forms/public_submission_schemas.py">
+        Pydantic schemas for public submission request/response
+      </file>
+      <file action="create" path="backend/models/form_submission.py">
+        Minimal submission persistence model (JSON payload + metadata + idempotency key)
+      </file>
+      <file action="create" path="backend/migrations/versions/0xx_form_submissions.py">
+        Migration to create submission persistence table (human executes migration commands)
+      </file>
+    </key-files>
+  </technical-context>
+
+  <done-criteria>
+    <criterion id="DC1">Online submission succeeds end-to-end (UI → API → DB persist)</criterion>
+    <criterion id="DC2">Offline submission queues to IndexedDB and survives reload</criterion>
+    <criterion id="DC3">Queued submissions auto-sync on reconnect with clear status transitions</criterion>
+    <criterion id="DC4">Basic idempotency prevents duplicates on retry</criterion>
+    <criterion id="DC5">UAT guide completed with evidence</criterion>
+  </done-criteria>
+
+  <out-of-scope>
+    <item>Advanced conflict resolution / multi-device sync</item>
+    <item>Admin/back-office submission review workflows</item>
+    <item>Analytics dashboards for submission funnel</item>
+    <item>CRM/export integrations</item>
+  </out-of-scope>
+
+  <dependencies>
+    <upstream>
+      <dependency story="3.8" status="complete">Public Form Renderer</dependency>
+      <dependency story="3.9" status="complete">Builder Persistence + Token Preview Flow</dependency>
+    </upstream>
+    <downstream>
+      <dependency story="future">Lead processing, reporting, analytics</dependency>
+    </downstream>
+  </dependencies>
+
+  <risks>
+    <risk level="medium">
+      Public forms are auth-free; queue/persistence must not depend on authenticated user state.
+    </risk>
+    <risk level="medium">
+      Idempotency and retry behavior must be correct to prevent duplicate submissions during flaky connectivity.
+    </risk>
+    <risk level="low">
+      IndexedDB behavior differences across browsers (mitigate by deterministic API + simple store design).
+    </risk>
+  </risks>
+
+  <estimation>
+    <complexity>high</complexity>
+    <effort>3-6 days</effort>
+    <task-count>estimated 6-10 tasks</task-count>
+  </estimation>
+</story-context>
+

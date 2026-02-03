@@ -139,6 +139,70 @@ Expected:
 
 ---
 
+### Scenario 8 - Shared-device safety (values cleared after capture)
+
+Goal: Ensure previous attendee data is not left on screen after submit.
+
+Steps (online):
+1. Ensure network is online.
+2. Open /forms/:token.
+3. Enter realistic values in all fields.
+4. Click Submit.
+
+Expected:
+- Submission is uploaded successfully (success UI).
+- All form fields are cleared (no previous attendee values remain visible).
+
+Steps (offline queue):
+1. Set DevTools -> Network -> Offline.
+2. Reload /forms/:token.
+3. Enter values.
+4. Click Submit.
+
+Expected:
+- Submission is queued (offline confirmation UI).
+- All form fields are cleared after the queue capture.
+
+Optional (if kiosk auto-reset is enabled for this form/link):
+- A visible countdown is shown and the form returns to a clean state after the configured delay.
+
+---
+
+### Scenario 9 - Validation-blocked telemetry (no raw values)
+
+Goal: Validate that validation failures are observable and don't create fake submissions.
+
+Steps:
+1. Ensure network is online.
+2. Open /forms/:token.
+3. Leave at least one required field empty (or enter an invalid email format).
+4. Click Submit.
+
+Expected:
+- UI shows validation errors and submission is blocked.
+- No submission is queued (pending queue count does not increase).
+- Validation telemetry is generated (componentId + rule/category + value diagnostics), without raw values.
+
+How to verify telemetry (implementation-dependent):
+- Inspect Network requests for a validation event call, OR
+- Inspect DB log table (e.g. log.FormValidationEvent) for an inserted event.
+
+---
+
+### Scenario 10 - Kiosk session rotation (optional)
+
+Goal: In kiosk usage, multiple attendees on one device should not share a single session id.
+
+Steps (if kiosk reset/new submission is enabled):
+1. Submit once successfully.
+2. Start the next submission cycle (auto-reset or New submission).
+3. Submit again.
+
+Expected:
+- The second submission has a different clientSessionId than the first (same clientDeviceId).
+
+---
+
 ## Pass/Fail Recording
 
 Mark each scenario:

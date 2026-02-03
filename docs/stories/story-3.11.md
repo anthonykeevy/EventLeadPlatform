@@ -204,6 +204,11 @@ Optional (keep lightweight for now):
 - `ClientSubmissionID` (NVARCHAR) — stable client-side UUID for debugging
 - `ContextJSON` (NVARCHAR(MAX)) — device/browser hints, without leaking PII into logs
 
+**Database naming + standards (mandatory):**
+- All new DB objects for this story must follow: `docs/database-naming-rules.md`
+  - PascalCase tables/columns, `NVARCHAR` for text, standard audit columns, correct constraint/index naming.
+  - Avoid enum/check-constraint “magic values” patterns; follow existing schema conventions.
+
 ### What does `AnswersJSON` look like?
 
 Store a single JSON object keyed by **componentId** (the renderer already uses `Record<string, unknown>`):

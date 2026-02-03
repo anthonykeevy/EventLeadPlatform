@@ -55,6 +55,9 @@
     <document type="workflow" path="docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md">
       Git/PR/worktree discipline for story/task execution
     </document>
+    <document type="database-standards" path="docs/database-naming-rules.md">
+      Mandatory database naming conventions for all new tables/columns/constraints/indexes
+    </document>
   </reference-documents>
 
   <technical-context>

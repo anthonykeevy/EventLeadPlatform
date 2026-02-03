@@ -112,12 +112,19 @@
 - When a user clicks Submit but validation fails, record a **validation failure event** for diagnostics/analysis.
 - Include:
   - token/linkType, clientDeviceId
+  - `clientSessionId` + `submitAttemptId` so we can measure “resolved vs abandoned” (see below)
   - componentId + componentType
   - validation rule id/code/type (including customer-supplied rules), and error category (required/min/max/pattern/range/etc)
   - **value diagnostics (no raw value):** value type, length/trimmed length, and small “shape” flags (e.g., contains whitespace, contains plus, digit count bucket) so we can understand why rules are blocking
 - Exclude:
   - raw field values (avoid persisting partial PII just because someone couldn’t submit)
 - Optional future enhancement (explicit opt-in + retention policy): store a redacted/encrypted sample to help customers debug misconfigured custom rules.
+
+**Resolved vs “could not resolve”**
+- You can’t know intent directly, but you can infer outcomes:
+  - **Resolved:** one or more `validation_failed_submit` events followed by a successful `submission_captured` (queued or uploaded) for the same `clientSessionId` (or within a short time window on the same `clientDeviceId`).
+  - **Abandoned/unresolved:** validation failures with no subsequent `submission_captured` within a defined window, optionally confirmed by a `session_end` (page unload) event.
+  - Track both: “validation failures” and “validation failures that lead to abandonment” (this is the metric you want for diagnosing bad custom rules).
 
 ---
 
@@ -271,6 +278,7 @@ These features are enabled by Story 3.11 telemetry/persistence, but the **UI sur
 
 - **Form dashboard card**
   - Show **validation-blocked count** (e.g., last 24h / 7d) and top failing fields/rules
+  - Distinguish **resolved vs abandoned** validation failures (derived from `validation_failed_submit` → `submission_captured` correlations)
   - Show submission health: uploaded vs queued vs failed retries
 - **Form settings (organiser)**
   - Kiosk mode toggle + `autoResetSeconds` configuration + countdown enable/disable

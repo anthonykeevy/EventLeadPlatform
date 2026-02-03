@@ -35,6 +35,8 @@
     <feature id="F5">Idempotency key support (client + server) to prevent duplicates on retry</feature>
     <feature id="F6">High-signal logging for troubleshooting (no PII)</feature>
     <feature id="F7">Client context capture (clientDeviceId + timezone/locale + UA) for device-level diagnostics</feature>
+    <feature id="F8">Shared-device safety: reset/clear form values after submit/queue to prevent data leakage</feature>
+    <feature id="F9">Validation-blocked attempt telemetry (rule + component IDs, no raw values)</feature>
   </key-features>
 
   <reference-documents>
@@ -118,12 +120,15 @@
     <criterion id="AC3">IdempotencyKey prevents duplicates on retry</criterion>
     <criterion id="AC4">Token validation enforced on submission endpoint</criterion>
     <criterion id="AC5">Each persisted submission includes a clientDeviceId and minimal client context (privacy-safe; no fingerprinting)</criterion>
+    <criterion id="AC6">After a submission is queued or uploaded, the form values are cleared for the next attendee (shared-device safety)</criterion>
+    <criterion id="AC7">Validation failures generate telemetry for analysis without persisting raw field values</criterion>
   </acceptance-criteria>
 
   <forbidden-zones>
     <zone>No back-office review/analytics workflows (explicitly out of scope for Story 3.11)</zone>
     <zone>Do not require authentication for public form submission (must remain token-gated and auth-free)</zone>
     <zone>Do not introduce schema-breaking changes to FormVersion.DefinitionJSON</zone>
+    <zone>Do not persist partial/invalid responses with raw PII without explicit product decision and retention policy</zone>
   </forbidden-zones>
 
   <out-of-scope>

@@ -98,6 +98,19 @@
 - Queue survives refresh/reload.
 - No PII leaked in logs.
 
+### FR-7: Shared-device safety (kiosk-style reset)
+- After a submission is **uploaded** or **queued offline**, the form must **clear all field values** so the next attendee does not see the previous attendee’s data.
+- UX should provide:
+  - A clear confirmation (“Uploaded” / “Saved offline”)
+  - A primary action: **“Start next submission”**
+  - Optional auto-reset after a short timeout (e.g., 10–30s) to support busy event staff
+
+### FR-8: Validation-blocked attempt telemetry (no PII)
+- When a user clicks Submit but validation fails, record a **validation failure event** for diagnostics/analysis:
+  - Include: token/linkType, clientDeviceId, componentIds, validation rule codes/types, and counts
+  - Exclude: raw field values (avoid storing partial PII just because someone couldn’t submit)
+- This enables analysis like “which validation rules are blocking completion” without persisting incomplete responses.
+
 ---
 
 ## ✅ Acceptance Criteria
@@ -119,6 +132,12 @@
 
 5) **Token validation**
 - [ ] Invalid/expired token submissions are rejected safely and remain queued (or fail with clear status).
+
+6) **Shared device safety**
+- [ ] After a submission is queued or uploaded, the form values are cleared and a “Start next submission” action is available.
+
+7) **Validation-blocked telemetry**
+- [ ] Validation failures on submit generate telemetry that identifies the failing component/rule (without storing raw field values).
 
 ---
 

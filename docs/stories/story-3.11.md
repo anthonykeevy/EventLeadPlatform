@@ -236,6 +236,15 @@ Yes — we should include **client context** in Story 3.11 so we can:
 - `clientOnlineAtSubmit` (bool) + `effectiveConnectionType` (if available)
 - `appVersion/buildSha` (from frontend build env) for “which version had the bug”
 
+**Compatibility + UX signals (optional, still non-fingerprinting):**
+- `clientPlatform` / `clientBrowser` / `clientBrowserVersion` (derived server-side from UA; store raw UA string)
+- `clientDeviceClass` (desktop/tablet/mobile) (derived from UA + viewport)
+- `clientOrientation` + `maxTouchPoints` (helps explain “works on laptop, broken on iPad”)
+- `prefersColorScheme` / `prefersReducedMotion` (helps explain styling/accessibility differences)
+- `deviceMemoryGb` / `hardwareConcurrency` (helps explain performance issues on low-end devices)
+- `supportsIndexedDB` / `supportsServiceWorker` / `storageQuotaMb` (helps explain offline queue failures)
+- `renderCanvasWidth` / `renderCanvasHeight` / `renderScaleAtSubmit` (helps diagnose “designed for Desktop but used on iPad”)
+
 **Server-captured (derived at receipt time):**
 - `receivedAtServer` (already part of submission)
 - `requestIp` (optional; consider retention policy / hashing) and/or `ipCountryCode` (preferred)
@@ -249,6 +258,20 @@ Yes — we should include **client context** in Story 3.11 so we can:
 - Optional extension (still small): add a **device heartbeat** endpoint that pings `clientDeviceId + token + outboxPendingCount` when online, so you can see “Device A last seen 2 days ago with 12 pending”.
 
 ---
+
+## 🧩 Deferred UI wiring (future stories)
+
+These features are enabled by Story 3.11 telemetry/persistence, but the **UI surfacing** can be delivered incrementally in later stories:
+
+- **Form dashboard card**
+  - Show **validation-blocked count** (e.g., last 24h / 7d) and top failing fields/rules
+  - Show submission health: uploaded vs queued vs failed retries
+- **Form settings (organiser)**
+  - Kiosk mode toggle + `autoResetSeconds` configuration + countdown enable/disable
+  - Optional “diagnostics mode” toggle (only if we later decide to persist richer validation samples with explicit consent + retention policy)
+- **Compatibility insights**
+  - Breakdown submissions by browser/OS/viewport/deviceClass to inform canvas/profile choices
+  - Flag high-error combos (e.g., a spike on Safari iPad) for support + product fixes
 
 ## 🔗 Dependencies
 

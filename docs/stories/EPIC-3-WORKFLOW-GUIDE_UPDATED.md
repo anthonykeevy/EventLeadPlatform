@@ -117,12 +117,33 @@ This workflow uses a **Main Chat + Task Chats** pattern.
 **Recommended branch for Story 3.11:**
 - `story/epic3-3.11-dynamic-submission`
 
-**Fast path:** use the helper script:
+**Fast path:** use the helper script (recommended: short worktree root on Windows):
 ```powershell
-./scripts/git/new-story.ps1 -Epic 3 -Story "3.11" -Slug "dynamic-submission" -CreateWorktree
+$env:ELP_WORKTREE_ROOT = "C:\wt\elp"
+./scripts/git/new-story.ps1 -Epic 3 -Story "3.11" -Slug "dynamic-submission" -CreateWorktree -DraftPR
 ```
 
 Then create a Draft PR to `master` (manual if `gh` is not installed).
+
+### **Agent-owned Git setup (recommended for Git novices)**
+
+If you want the agent to do Phase 0 for you (recommended), copy/paste in the **Main Chat**:
+
+```markdown
+@dev.mdc
+
+Please run **Phase 0 Git setup** for Story 3.11.
+
+Requirements:
+- Use a short worktree root: set `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"` for this session.
+- Run: `./scripts/git/new-story.ps1 -Epic 3 -Story "3.11" -Slug "dynamic-submission" -CreateWorktree -DraftPR`
+- If `gh` is not installed, provide the manual steps to create the Draft PR on GitHub UI.
+
+Outputs:
+- Confirm the story branch exists and is pushed
+- Provide the story worktree path that was created
+- Provide the Draft PR link (or the manual GitHub steps)
+```
 
 ---
 
@@ -140,6 +161,7 @@ Git discipline (mandatory):
 - A Draft PR must exist from the Story branch → `master` before implementation begins.
 - All implementation will occur via Task branches/PRs into the Story branch.
 - Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
+- If the Story branch/worktree/Draft PR does not exist yet, STOP and run Phase 0 (agent-owned) using `./scripts/git/new-story.ps1 ... -CreateWorktree -DraftPR` (use `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"`).
 
 Context:
 - Stories 3.8–3.10 are complete; the next planned story is **3.11 - Dynamic Submission**.
@@ -200,6 +222,10 @@ Output requirements:
 2. Create first task spec: `docs/tasks/3.11/T01-*.md` (fully detailed)
 3. Create placeholder specs for remaining tasks (title + brief scope only)
 4. Initialize `docs/tasks/3.11/LESSONS-LEARNED.md`
+5. **Phase 3 readiness sweep (required):**
+   - Create/update `docs/tasks/3.11/STATUS.md` (current task = **T01** initially)
+   - Ensure **ALL** Phase 3 task specs exist (`docs/tasks/3.11/Txx-*.md`)
+   - Ensure each task spec header is consistent with `TASK-PLAN.md` (Status + Dependencies)
 
 Task decomposition guidance:
 - Each task should be completable in ONE chat session
@@ -241,8 +267,9 @@ For **each task**, follow this cycle:
 
 ### **Step 3a: Open New Task Chat**
 
-1. Create a new Cursor chat
-2. Name it: `Epic3-3.11-Txx <slug>`
+1. If you created a task worktree: **open that task worktree folder** in Cursor (recommended: a separate window)
+2. Create a new Cursor chat
+3. Name it: `Epic3-3.11-Txx <slug>`
 
 ### **Step 3b0: Git Setup for Task (Branch + PR)**
 
@@ -255,8 +282,49 @@ For **each task**, follow this cycle:
 
 **Helper script (prints commands with `-DryRun`):**
 ```powershell
-./scripts/git/new-task.ps1 -StoryBranch "<story-branch>" -StoryId "3.11" -TaskId "T01" -Slug "<slug>" -CreateWorktree -CreatePR -DryRun
+./scripts/git/new-task.ps1 -StoryBranch "<story-branch>" -StoryId "3.11" -TaskId "T03" -Slug "<slug>" -CreateWorktree -CreatePR -DryRun
 ```
+
+**Agent-owned Git setup (recommended for Git novices):**
+
+If you want the agent to create the task branch + worktree + PR for you, copy/paste in the **Main Chat** (or at the start of the Task Chat):
+
+```markdown
+@dev.mdc
+
+Please create the Git setup for the next task (agent-owned).
+
+Inputs:
+- Story branch: <story-branch>
+- Story ID: 3.11
+- Task ID: Txx
+- Slug: <slug>
+
+Requirements:
+- Use a short worktree root: set `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"` for this session.
+- Run: `./scripts/git/new-task.ps1 -StoryBranch "<story-branch>" -StoryId "3.11" -TaskId "Txx" -Slug "<slug>" -CreateWorktree -CreatePR`
+- If `gh` is not installed, provide manual PR creation steps (task PR → story branch).
+
+Outputs:
+- Confirm the task branch exists and is pushed
+- Provide the task worktree path that was created
+- Provide the Task PR link (or the manual GitHub steps)
+```
+
+#### Worktrees: `EventLeadPlatform` vs worktree root (read this if you feel “lost”)
+
+- `EventLeadPlatform/` is your **main worktree** (one local clone + the main `.git` store).
+- Your **worktree root** contains **additional worktrees** (extra checkouts) created by the helper scripts:
+  - Default: `..\EventLeadPlatform.wt` (relative to repo root)
+  - Recommended on Windows: `C:\wt\elp` (set `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"`)
+- Each worktree is checked out to **one specific branch**. This lets you work on multiple branches at once without constant switching.
+- **Agents do not “switch workspaces” automatically.** They operate in **whatever folder you opened in Cursor**:
+  - If you open `EventLeadPlatform/`, the agent is working in the main worktree.
+  - If you open the worktree folder (e.g. `C:\wt\elp\<some-branch-worktree>`), the agent is working in that branch’s worktree.
+
+**If you hit “path too long” issues (Windows):**
+- Prefer a **short worktree root** outside OneDrive (example: `C:\wt\elp`)
+- Set `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"` (per machine), or pass `-WorktreeRoot` to the helper scripts.
 
 ### **Step 3b: Execute Task (@ralf-dev)**
 
@@ -269,6 +337,7 @@ Git discipline (mandatory):
 - Ensure you are on the task branch (NOT `master`).
 - Push at least once per session so nothing is local-only.
 - This task PR must target the Story branch.
+- If the task branch/worktree/PR does not exist yet, STOP and create it using `./scripts/git/new-task.ps1 ... -CreateWorktree -CreatePR` (use `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"`), then proceed.
 
 *run-task
 
@@ -353,6 +422,7 @@ This will:
 3. Check if story is complete (all tasks done + Done Criteria met)
 4. If not complete: Create/refine next task spec
 5. Provide new Task Chat instructions
+6. Ensure Phase 3 task specs remain consistent (update Status/Dependencies headers + `docs/tasks/3.11/STATUS.md`)
 ```
 
 ### **Step 3g: Integrator Merge (Task PR → Story Branch)**

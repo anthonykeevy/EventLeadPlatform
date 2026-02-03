@@ -23,6 +23,19 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# Optional per-machine override for shorter worktree paths (Windows path length issues).
+# Usage:
+#   $env:ELP_WORKTREE_ROOT = "C:\wt\elp"
+#   scripts/git/new-task.ps1 ... -CreateWorktree
+#
+# If -WorktreeRoot is explicitly provided, it always wins.
+if (-not $PSBoundParameters.ContainsKey("WorktreeRoot")) {
+  $envRoot = $env:ELP_WORKTREE_ROOT
+  if ($envRoot -and $envRoot.Trim().Length -gt 0) {
+    $WorktreeRoot = $envRoot.Trim()
+  }
+}
+
 function Show-And-Run {
   param(
     [Parameter(Mandatory = $true)][string]$CommandText,
@@ -48,6 +61,7 @@ $taskWorktreePath = Join-Path $WorktreeRoot $taskWorktreeName
 Write-Host "Story branch: $StoryBranch"
 Write-Host "Task branch:  $taskBranch"
 Write-Host "Remote:       $Remote"
+Write-Host "Worktree root: $WorktreeRoot"
 
 Show-And-Run -CommandText "git fetch $Remote" -Command { git fetch $Remote }
 

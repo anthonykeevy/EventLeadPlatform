@@ -13,6 +13,26 @@ All scripts support `-DryRun` to print commands without executing.
 
 ## Examples
 
+## Worktree root (path length on Windows)
+
+By default, the scripts create worktrees under `..\EventLeadPlatform.wt`.
+
+If you hit **Windows path length** issues (common with `node_modules`), use a shorter path outside OneDrive, e.g.:
+
+- One-off per command:
+
+```powershell
+./scripts/git/new-task.ps1 ... -CreateWorktree -WorktreeRoot "C:\wt\elp"
+```
+
+- Recommended (per machine): set an environment variable so you don’t have to pass `-WorktreeRoot` every time:
+
+```powershell
+$env:ELP_WORKTREE_ROOT = "C:\wt\elp"
+```
+
+> Note: `ELP_WORKTREE_ROOT` is **local to your machine** and should not be committed to the repo.
+
 Create a story branch and Draft PR (print only):
 
 ```powershell

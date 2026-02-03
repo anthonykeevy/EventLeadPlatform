@@ -24,5 +24,19 @@ _Append lessons as tasks are completed. Format:_
 
 ## Lessons
 
-_None yet._
+## Task: T02 (2026-02-03)
+
+**Dev Lessons:**
+- Document rollback steps in migration completion notes for safe verification.
+
+**Testing Lessons:**
+- Record AC-level UAT evidence immediately after migration execution.
+
+**Process Lessons:**
+- Update TASK-PLAN status as part of UAT recording to keep story tracking current.
+
+**Links:**
+- Completion: `T02-db-migration-formsubmission.completion.md`
+- UAT: `T02-db-migration-formsubmission.uat-results.md`
+- Retro: `T02-db-migration-formsubmission.retro.md`
 

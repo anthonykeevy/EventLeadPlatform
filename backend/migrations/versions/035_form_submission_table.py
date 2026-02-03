@@ -61,7 +61,11 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(['CreatedBy'], ['dbo.User.UserID'], name='FK_FormSubmission_CreatedBy'),
         sa.ForeignKeyConstraint(['DeletedBy'], ['dbo.User.UserID'], name='FK_FormSubmission_DeletedBy'),
-        sa.UniqueConstraint('IdempotencyKey', name='UQ_FormSubmission_IdempotencyKey'),
+        sa.UniqueConstraint(
+            'FormPublicLinkID',
+            'IdempotencyKey',
+            name='UQ_FormSubmission_FormPublicLinkID_IdempotencyKey',
+        ),
         schema='dbo',
     )
     op.create_index('IX_FormSubmission_FormID', 'FormSubmission', ['FormID'], unique=False, schema='dbo')
@@ -85,11 +89,23 @@ def downgrade() -> None:
     op.drop_index('IX_FormSubmission_FormPublicLinkID', table_name='FormSubmission', schema='dbo')
     op.drop_index('IX_FormSubmission_FormVersionID', table_name='FormSubmission', schema='dbo')
     op.drop_index('IX_FormSubmission_FormID', table_name='FormSubmission', schema='dbo')
-    op.drop_constraint(
-        'UQ_FormSubmission_IdempotencyKey',
-        'FormSubmission',
-        schema='dbo',
-        type_='unique',
+    op.execute(
+        """
+        IF EXISTS (
+            SELECT 1
+            FROM sys.objects
+            WHERE name = 'UQ_FormSubmission_FormPublicLinkID_IdempotencyKey' AND type = 'UQ'
+        )
+        ALTER TABLE [dbo].[FormSubmission]
+        DROP CONSTRAINT [UQ_FormSubmission_FormPublicLinkID_IdempotencyKey];
+        IF EXISTS (
+            SELECT 1
+            FROM sys.objects
+            WHERE name = 'UQ_FormSubmission_IdempotencyKey' AND type = 'UQ'
+        )
+        ALTER TABLE [dbo].[FormSubmission]
+        DROP CONSTRAINT [UQ_FormSubmission_IdempotencyKey];
+        """
     )
     op.drop_constraint(
         'FK_FormSubmission_DeletedBy',

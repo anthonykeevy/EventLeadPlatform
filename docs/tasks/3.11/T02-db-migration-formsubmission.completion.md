@@ -25,7 +25,7 @@ Added a new Alembic migration that creates `dbo.FormSubmission` with required au
 
 ### AC2: Idempotency uniqueness is enforced
 - **Status:** PASS
-- **Evidence:** `UQ_FormSubmission_IdempotencyKey` unique constraint defined on `IdempotencyKey`.
+- **Evidence:** `UQ_FormSubmission_FormPublicLinkID_IdempotencyKey` unique constraint defined on `(FormPublicLinkID, IdempotencyKey)`.
 
 ### AC3: Referential integrity exists
 - **Status:** PASS

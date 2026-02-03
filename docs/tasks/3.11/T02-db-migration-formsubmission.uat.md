@@ -21,7 +21,7 @@
 
 ### AC2: Idempotency uniqueness is enforced
 
-- [ ] Step 1: Inspect constraints on `dbo.FormSubmission` → Verify: `UQ_FormSubmission_IdempotencyKey` exists.
+- [ ] Step 1: Inspect constraints on `dbo.FormSubmission` → Verify: `UQ_FormSubmission_FormPublicLinkID_IdempotencyKey` exists.
 
 ### AC3: Referential integrity exists
 

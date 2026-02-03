@@ -126,6 +126,9 @@
   - **Abandoned/unresolved:** validation failures with no subsequent `submission_captured` within a defined window, optionally confirmed by a `session_end` (page unload) event.
   - Track both: “validation failures” and “validation failures that lead to abandonment” (this is the metric you want for diagnosing bad custom rules).
 
+**Kiosk nuance**
+- In kiosk mode, multiple attendees can use the same open tab for hours. To avoid mixing analytics across attendees, `clientSessionId` must rotate on each reset/new submission cycle.
+
 ---
 
 ## ✅ Acceptance Criteria
@@ -235,7 +238,7 @@ Yes — we should include **client context** in Story 3.11 so we can:
 
 **Client-generated (sent with submission):**
 - `clientDeviceId` (UUID) — generated once per browser install and stored locally (IndexedDB/localStorage). **Do not fingerprint.**
-- `clientSessionId` (UUID) — per page load/session to trace issues without correlating forever
+- `clientSessionId` (UUID) — **per respondent session** (rotates on page load and on kiosk “reset/new submission” so multiple attendees on one device don’t share a session id)
 - `clientTimezone` (e.g. `Australia/Sydney`)
 - `clientLocale` (e.g. `en-AU`)
 - `clientUserAgent` (string) + (if available) `userAgentData` brands/platform

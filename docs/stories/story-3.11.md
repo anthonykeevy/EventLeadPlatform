@@ -98,18 +98,26 @@
 - Queue survives refresh/reload.
 - No PII leaked in logs.
 
-### FR-7: Shared-device safety (kiosk-style reset)
-- After a submission is **uploaded** or **queued offline**, the form must **clear all field values** so the next attendee does not see the previous attendee’s data.
-- UX should provide:
-  - A clear confirmation (“Uploaded” / “Saved offline”)
-  - A primary action: **“Start next submission”**
-  - Optional auto-reset after a short timeout (e.g., 10–30s) to support busy event staff
+### FR-7: Shared-device safety (clear-after-capture + optional kiosk auto-reset)
+- After a submission is **uploaded** or **queued offline**, the form must **clear all field values immediately** so the next attendee does not see the previous attendee’s data.
+- Post-submit UX should be **organiser-controlled** (per form/link setting), because some customers want kiosk behavior and others don’t.
+- Two supported modes:
+  - **Standard mode (default):** Show a confirmation state (“Uploaded” / “Saved offline”). Values are already cleared.
+  - **Kiosk mode (optional):** Auto-reset back to a blank form after a customer-configured delay.
+    - `autoResetSeconds` is configurable per form/link (no hard-coded “one size fits all”).
+    - Show a visible countdown (“Resetting in 15s…”) so staff can verify capture before reset.
+    - Optional secondary action: “New submission” (immediate reset) — keep subtle so it doesn’t confuse respondents.
 
-### FR-8: Validation-blocked attempt telemetry (no PII)
-- When a user clicks Submit but validation fails, record a **validation failure event** for diagnostics/analysis:
-  - Include: token/linkType, clientDeviceId, componentIds, validation rule codes/types, and counts
-  - Exclude: raw field values (avoid storing partial PII just because someone couldn’t submit)
-- This enables analysis like “which validation rules are blocking completion” without persisting incomplete responses.
+### FR-8: Validation-blocked attempt telemetry (privacy-safe diagnostics)
+- When a user clicks Submit but validation fails, record a **validation failure event** for diagnostics/analysis.
+- Include:
+  - token/linkType, clientDeviceId
+  - componentId + componentType
+  - validation rule id/code/type (including customer-supplied rules), and error category (required/min/max/pattern/range/etc)
+  - **value diagnostics (no raw value):** value type, length/trimmed length, and small “shape” flags (e.g., contains whitespace, contains plus, digit count bucket) so we can understand why rules are blocking
+- Exclude:
+  - raw field values (avoid persisting partial PII just because someone couldn’t submit)
+- Optional future enhancement (explicit opt-in + retention policy): store a redacted/encrypted sample to help customers debug misconfigured custom rules.
 
 ---
 
@@ -134,10 +142,11 @@
 - [ ] Invalid/expired token submissions are rejected safely and remain queued (or fail with clear status).
 
 6) **Shared device safety**
-- [ ] After a submission is queued or uploaded, the form values are cleared and a “Start next submission” action is available.
+- [ ] After a submission is queued or uploaded, the form values are cleared (no previous attendee data remains on screen).
+- [ ] If kiosk mode is enabled, the form auto-resets after the configured delay and shows a countdown.
 
 7) **Validation-blocked telemetry**
-- [ ] Validation failures on submit generate telemetry that identifies the failing component/rule (without storing raw field values).
+- [ ] Validation failures on submit generate telemetry that identifies the failing component/rule and includes value diagnostics (type/length/shape) without storing raw field values.
 
 ---
 

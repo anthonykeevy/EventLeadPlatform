@@ -121,7 +121,7 @@
     <criterion id="AC4">Token validation enforced on submission endpoint</criterion>
     <criterion id="AC5">Each persisted submission includes a clientDeviceId and minimal client context (privacy-safe; no fingerprinting)</criterion>
     <criterion id="AC6">After a submission is queued or uploaded, the form values are cleared for the next attendee (shared-device safety)</criterion>
-    <criterion id="AC7">Validation failures generate telemetry for analysis without persisting raw field values</criterion>
+    <criterion id="AC7">Validation failures generate telemetry for analysis without persisting raw field values (include type/length/shape diagnostics)</criterion>
   </acceptance-criteria>
 
   <forbidden-zones>

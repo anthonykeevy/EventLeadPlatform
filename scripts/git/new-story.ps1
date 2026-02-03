@@ -21,6 +21,19 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# Optional per-machine override for shorter worktree paths (Windows path length issues).
+# Usage:
+#   $env:ELP_WORKTREE_ROOT = "C:\wt\elp"
+#   scripts/git/new-story.ps1 ... -CreateWorktree
+#
+# If -WorktreeRoot is explicitly provided, it always wins.
+if (-not $PSBoundParameters.ContainsKey("WorktreeRoot")) {
+  $envRoot = $env:ELP_WORKTREE_ROOT
+  if ($envRoot -and $envRoot.Trim().Length -gt 0) {
+    $WorktreeRoot = $envRoot.Trim()
+  }
+}
+
 function Show-And-Run {
   param(
     [Parameter(Mandatory = $true)][string]$CommandText,
@@ -46,6 +59,7 @@ $storyWorktreePath = Join-Path $WorktreeRoot $storyWorktreeName
 Write-Host "Story branch: $storyBranch"
 Write-Host "Base branch:  $BaseBranch"
 Write-Host "Remote:       $Remote"
+Write-Host "Worktree root: $WorktreeRoot"
 
 Show-And-Run -CommandText "git fetch $Remote" -Command { git fetch $Remote }
 Show-And-Run -CommandText "git switch $BaseBranch" -Command { git switch $BaseBranch }

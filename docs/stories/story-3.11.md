@@ -263,6 +263,12 @@ Yes — we should include **client context** in Story 3.11 so we can:
 
 These features are enabled by Story 3.11 telemetry/persistence, but the **UI surfacing** can be delivered incrementally in later stories:
 
+- **Telemetry storage (so the dashboard can query it)**
+  - Store validation-failure events in a **queryable table** (recommended: `log.FormValidationEvent` or reuse an existing `log.FrontendEvent` table if present).
+  - Minimum columns for fast dashboard queries: `FormID`, `OccurredAtServer`, `EventType`, `LinkType`, `ClientDeviceId`, plus `EventPayloadJSON` for details.
+  - Index recommendation: `(FormID, OccurredAtServer)` and `(FormID, EventType, OccurredAtServer)`.
+  - Retention: keep raw events for a bounded window (e.g., 30–180 days). If longer-term trends are needed, add a roll-up table later.
+
 - **Form dashboard card**
   - Show **validation-blocked count** (e.g., last 24h / 7d) and top failing fields/rules
   - Show submission health: uploaded vs queued vs failed retries

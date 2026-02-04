@@ -72,7 +72,19 @@ Git discipline (mandatory):
 
 ## Worktrees (recommended layout)
 
-Create a dedicated folder outside the repo root for worktrees, e.g.:
+Create a dedicated folder outside the repo root for worktrees.
+
+### Windows path length note (important)
+
+On Windows, deep folders (especially `node_modules`) can hit path-length limits. If you see “path too long” style errors, **use a short worktree root** (outside OneDrive), e.g. `C:\wt\elp`, and keep worktree folder names short.
+
+Recommended per-machine setup:
+
+```powershell
+$env:ELP_WORKTREE_ROOT = "C:\wt\elp"
+```
+
+You can also pass `-WorktreeRoot` to the helper scripts (`scripts/git/new-story.ps1`, `scripts/git/new-task.ps1`).
 
 ```
 C:\Users\tonyk\OneDrive\Projects\

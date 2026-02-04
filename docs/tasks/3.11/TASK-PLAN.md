@@ -32,8 +32,8 @@ Story 3.11 is complete when:
 
 | Task | Title | Status | Depends On | Est. Time | Focus Area |
 |------|-------|--------|------------|-----------|------------|
-| **T01** | Submission Contracts + Foundations | ❌ FailedUAT | - | 2-3 hrs | Foundation |
-| **T02** | DB Migration: `dbo.FormSubmission` (naming rules compliant) | ⏸️ Pending | T01 | 1-2 hrs | Database |
+| **T01** | Submission Contracts + Foundations | ⏳ Ready | - | 2-3 hrs | Foundation |
+| **T02** | DB Migration: `dbo.FormSubmission` (naming rules compliant) | ✅ HumanDone | T01 | 1-2 hrs | Database |
 | **T03** | Backend: Public Submission Endpoint + Idempotency | ⏸️ Pending | T02 | 2-3 hrs | Backend/API |
 | **T04** | Frontend: Public Outbox (IndexedDB) + Client IDs | ✅ HumanDone | T01 | 2-3 hrs | Frontend/Offline |
 | **T03** | Backend: Public Submission Endpoint + Idempotency | ✅ HumanDone | T02 | 2-3 hrs | Backend/API |
@@ -71,8 +71,8 @@ T09 (Integration + UAT) depends on: T03–T08
 
 | Task | Task Spec | Status |
 |------|-----------|--------|
-| T01 | `T01-submission-contracts-and-foundation.md` | ❌ FailedUAT |
-| T02 | `T02-db-migration-formsubmission.md` | ⏸️ Pending |
+| T01 | `T01-submission-contracts-and-foundation.md` | ⏳ Ready |
+| T02 | `T02-db-migration-formsubmission.md` | ✅ HumanDone |
 | T03 | `T03-backend-public-submission-endpoint.md` | ⏸️ Pending |
 | T04 | `T04-frontend-public-outbox-indexeddb.md` | ✅ HumanDone |
 | T03 | `T03-backend-public-submission-endpoint.md` | ✅ HumanDone |

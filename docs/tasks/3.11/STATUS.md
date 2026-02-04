@@ -14,9 +14,9 @@
 | T03 | ✅ HumanDone | 2026-02-03 |
 | T04 | ✅ Done | 2026-02-04 |
 | T05 | ✅ Done | 2026-02-04 |
-| T06 | ⏸️ Pending | - |
-| T07 | ⏸️ Pending | - |
-| T08 | ⏸️ Pending | - |
+| T06 | ⏳ Ready | - |
+| T07 | ⏳ Ready | - |
+| T08 | ⏳ Ready | - |
 | T09 | ⏸️ Pending | - |
 
 ---

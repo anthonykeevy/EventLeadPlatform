@@ -471,7 +471,8 @@ export const PublicFormArtboard: React.FC<{
     }
 
     const outboxItem: PublicOutboxItem = {
-      outboxItemId: createIdempotencyKey(),
+      // Use the same stable identifier as the request for dedupe/retry tracking.
+      outboxItemId: request.idempotencyKey,
       token,
       linkType: normalizedLinkType,
       request,

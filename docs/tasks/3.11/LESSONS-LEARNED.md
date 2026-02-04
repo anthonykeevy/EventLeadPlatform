@@ -24,5 +24,19 @@ _Append lessons as tasks are completed. Format:_
 
 ## Lessons
 
-_None yet._
+## Task: T03 (2026-02-03)
+
+**Dev Lessons:**
+- Provide PowerShell-native verification commands for Windows UAT (`T03-backend-public-submission-endpoint.completion.md`).
+
+**Testing Lessons:**
+- Keep deterministic, copy-pasteable UAT commands (`T03-backend-public-submission-endpoint.uat.md`).
+
+**Process Lessons:**
+- Maintain tight alignment between task scope and public router behavior (`T03-backend-public-submission-endpoint.md`).
+
+**Links:**
+- Completion: `T03-backend-public-submission-endpoint.completion.md`
+- UAT: `T03-backend-public-submission-endpoint.uat-results.md`
+- Retro: `T03-backend-public-submission-endpoint.retro.md`
 

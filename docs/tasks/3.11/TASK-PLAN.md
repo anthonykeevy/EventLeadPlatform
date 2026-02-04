@@ -35,7 +35,7 @@ Story 3.11 is complete when:
 | **T01** | Submission Contracts + Foundations | ❌ FailedUAT | - | 2-3 hrs | Foundation |
 | **T02** | DB Migration: `dbo.FormSubmission` (naming rules compliant) | ⏸️ Pending | T01 | 1-2 hrs | Database |
 | **T03** | Backend: Public Submission Endpoint + Idempotency | ⏸️ Pending | T02 | 2-3 hrs | Backend/API |
-| **T04** | Frontend: Public Outbox (IndexedDB) + Client IDs | ⏸️ Pending | T01 | 2-3 hrs | Frontend/Offline |
+| **T04** | Frontend: Public Outbox (IndexedDB) + Client IDs | ✅ HumanDone | T01 | 2-3 hrs | Frontend/Offline |
 | **T05** | Renderer Integration: Submit → Upload/Queue + Clear-after-capture | ⏸️ Pending | T03, T04 | 2-3 hrs | Frontend/UX |
 | **T06** | Kiosk Mode (optional): Auto-reset + Countdown + Session Rotation | ⏸️ Pending | T05 | 1-2 hrs | UX |
 | **T07** | Validation Telemetry: Diagnostics + Storage + “Resolved vs Abandoned” Signals | ⏸️ Pending | T05 | 2-3 hrs | Observability |
@@ -72,7 +72,7 @@ T09 (Integration + UAT) depends on: T03–T08
 | T01 | `T01-submission-contracts-and-foundation.md` | ❌ FailedUAT |
 | T02 | `T02-db-migration-formsubmission.md` | ⏸️ Pending |
 | T03 | `T03-backend-public-submission-endpoint.md` | ⏸️ Pending |
-| T04 | `T04-frontend-public-outbox-indexeddb.md` | ⏸️ Pending |
+| T04 | `T04-frontend-public-outbox-indexeddb.md` | ✅ HumanDone |
 | T05 | `T05-renderer-submit-integration.md` | ⏸️ Pending |
 | T06 | `T06-kiosk-mode-auto-reset.md` | ⏸️ Pending |
 | T07 | `T07-validation-telemetry-events.md` | ⏸️ Pending |
@@ -136,5 +136,5 @@ These areas are off-limits unless a task explicitly says otherwise:
 ---
 
 *Task Plan created by Ralf-SM*  
-*Last Updated: 2026-02-03*
+*Last Updated: 2026-02-04 (T04 ✅ HumanDone)*
 

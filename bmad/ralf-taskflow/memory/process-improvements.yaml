@@ -109,6 +109,19 @@ verification_improvements:
         ```
     frequency: 0
 
+  # Improvement 4: Tooling Baseline Check
+  tooling_baseline_check:
+    name: "Tooling Baseline Check Before Tests"
+    description: "Verify ESLint config and dependency alignment before running required tests"
+    applies_to: "ralf-dev"
+    commands:
+      - "Test-Path frontend/.eslintrc.*"
+      - "npm ls @dnd-kit/modifiers"
+    benefits:
+      - "Avoids test blocks due to missing config"
+      - "Reduces wasted verification cycles"
+    frequency: 1
+
 uat_improvements:
 
   # Improvement 1: Scope Check First

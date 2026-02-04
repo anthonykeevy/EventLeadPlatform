@@ -40,3 +40,27 @@ _Append lessons as tasks are completed. Format:_
 **Lesson:** Run import checks from the `backend/` directory (e.g., `cd backend; python -c "from main import app"`).  
 **Prevention:** Document the backend cwd/PYTHONPATH expectation; consider standardizing to package-relative imports in a future refactor.
 
+### 2026-02-04 - Process Lesson
+
+**Task:** T04  
+**Context:** Verification required lint/build but baseline tooling was incomplete.  
+**Issue:** ESLint config was missing and repo-wide TS errors blocked automated verification.  
+**Lesson:** Validate tooling baseline (ESLint config + dependency alignment) before running required test commands.  
+**Prevention:** Add a pre-verification checklist step for tooling baseline on frontend tasks.
+
+### 2026-02-04 - Testing Lesson
+
+**Task:** T04  
+**Context:** Outbox behavior required manual UAT steps.  
+**Issue:** Backoff + auth-free headers rely on manual checks.  
+**Lesson:** Add unit/integration tests for outbox retry/backoff and request headers.  
+**Prevention:** Include outbox tests in CI with mocked `fetch` and IndexedDB.
+
+### 2026-02-04 - Process Lesson
+
+**Task:** T04  
+**Context:** UAT evidence captured via DevTools console scripts.  
+**Issue:** Evidence capture steps are ad-hoc.  
+**Lesson:** Provide standardized DevTools scripts for persistence and header validation.  
+**Prevention:** Add scripts to UAT checklist templates for storage + network inspection.
+

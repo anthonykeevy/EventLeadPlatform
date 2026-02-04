@@ -103,6 +103,12 @@ export const PublicFormArtboard: React.FC<{
   containerClassName?: string
   /** Optional style override for the outer container. */
   containerStyle?: React.CSSProperties
+  /** Optional kiosk mode toggle from public link. */
+  kioskEnabled?: boolean
+  /** Auto-reset timeout in seconds when kiosk mode is enabled. */
+  autoResetSeconds?: number
+  /** Countdown window in seconds when kiosk mode is enabled. */
+  countdownSeconds?: number
 }> = ({
   definition,
   onSubmissionDeferred,
@@ -113,6 +119,9 @@ export const PublicFormArtboard: React.FC<{
   layoutMode = 'default',
   containerClassName,
   containerStyle,
+  kioskEnabled,
+  autoResetSeconds,
+  countdownSeconds,
 }) => {
   const pages = selectAuthoredPages(definition)
   const page = pages[0]
@@ -164,6 +173,7 @@ export const PublicFormArtboard: React.FC<{
   const [showValidation, setShowValidation] = React.useState(false)
   const [submitNotice, setSubmitNotice] = React.useState<SubmitNotice | null>(null)
   const [clientSessionId, setClientSessionId] = React.useState(() => createNewClientSessionId())
+  const [kioskCountdownSeconds, setKioskCountdownSeconds] = React.useState<number | null>(null)
   const clientDeviceId = React.useMemo(() => getOrCreateClientDeviceId(), [])
   const normalizedLinkType = React.useMemo(() => {
     const upper = linkType?.toUpperCase()
@@ -173,23 +183,102 @@ export const PublicFormArtboard: React.FC<{
     return undefined
   }, [linkType])
   const inputRefs = React.useRef<Record<string, React.RefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>>>({})
+  const kioskTimerRef = React.useRef<ReturnType<typeof window.setInterval> | null>(null)
+  const kioskDeadlineRef = React.useRef<number | null>(null)
+
+  const kioskConfig = React.useMemo(() => {
+    if (!kioskEnabled) return null
+    if (typeof autoResetSeconds !== 'number' || autoResetSeconds <= 0) return null
+    const rawCountdown =
+      typeof countdownSeconds === 'number' && countdownSeconds > 0 ? countdownSeconds : undefined
+    const resolvedCountdown = Math.min(
+      rawCountdown ?? Math.min(10, autoResetSeconds),
+      autoResetSeconds
+    )
+    return { autoResetMs: autoResetSeconds * 1000, countdownSeconds: resolvedCountdown }
+  }, [kioskEnabled, autoResetSeconds, countdownSeconds])
+
+  const resetFormState = React.useCallback(
+    ({ rotateSession, clearNotice }: { rotateSession: boolean; clearNotice: boolean }) => {
+      setValues({})
+      setShowValidation(false)
+      if (clearNotice) setSubmitNotice(null)
+      if (rotateSession) setClientSessionId(createNewClientSessionId())
+    },
+    []
+  )
+
+  const handleKioskReset = React.useCallback(() => {
+    kioskDeadlineRef.current = null
+    setKioskCountdownSeconds(null)
+    resetFormState({ rotateSession: true, clearNotice: true })
+  }, [resetFormState])
+
+  const handleManualReset = React.useCallback(() => {
+    if (kioskConfig) {
+      handleKioskReset()
+    } else {
+      resetFormState({ rotateSession: false, clearNotice: true })
+    }
+  }, [kioskConfig, handleKioskReset, resetFormState])
+
+  const markActivity = React.useCallback(() => {
+    if (!kioskConfig) return
+    kioskDeadlineRef.current = Date.now() + kioskConfig.autoResetMs
+    setKioskCountdownSeconds(null)
+  }, [kioskConfig])
 
   React.useEffect(() => {
     if (!action) return
     if (action === 'reset') {
-      setValues({})
-      setShowValidation(false)
-      setSubmitNotice(null)
+      handleManualReset()
     }
     if (action === 'validate') {
       setShowValidation(true)
     }
-  }, [action])
+  }, [action, handleManualReset])
 
   React.useEffect(() => {
     registerPublicOutboxOnlineHandler()
     void processPublicOutbox()
   }, [])
+
+  React.useEffect(() => {
+    if (kioskTimerRef.current) {
+      window.clearInterval(kioskTimerRef.current)
+      kioskTimerRef.current = null
+    }
+
+    if (!kioskConfig) {
+      kioskDeadlineRef.current = null
+      setKioskCountdownSeconds(null)
+      return
+    }
+
+    kioskTimerRef.current = window.setInterval(() => {
+      const deadline = kioskDeadlineRef.current
+      if (!deadline) return
+      const remainingMs = deadline - Date.now()
+      if (remainingMs <= 0) {
+        handleKioskReset()
+        return
+      }
+
+      const remainingSeconds = Math.ceil(remainingMs / 1000)
+      if (kioskConfig.countdownSeconds > 0 && remainingSeconds <= kioskConfig.countdownSeconds) {
+        setKioskCountdownSeconds(remainingSeconds)
+      } else {
+        setKioskCountdownSeconds(null)
+      }
+    }, 250)
+
+    return () => {
+      if (kioskTimerRef.current) {
+        window.clearInterval(kioskTimerRef.current)
+        kioskTimerRef.current = null
+      }
+    }
+  }, [kioskConfig, handleKioskReset])
 
   const { stateById, warnings } = React.useMemo(() => {
     return evaluateRules({
@@ -312,6 +401,7 @@ export const PublicFormArtboard: React.FC<{
 
   const setValue = (id: string, v: unknown) => {
     setValues(prev => ({ ...prev, [id]: v }))
+    markActivity()
   }
 
   const onSubmit = async () => {
@@ -366,9 +456,7 @@ export const PublicFormArtboard: React.FC<{
 
     const isOnline = typeof navigator !== 'undefined' ? navigator.onLine !== false : false
     const clearForNextSubmission = () => {
-      setValues({})
-      setShowValidation(false)
-      setClientSessionId(createNewClientSessionId())
+      resetFormState({ rotateSession: true, clearNotice: false })
     }
 
     if (isOnline) {
@@ -459,7 +547,14 @@ export const PublicFormArtboard: React.FC<{
     : `w-full ${containerClassName ?? ''}`.trim()
 
   return (
-    <div ref={containerRef} className={outerClasses} style={outerStyle}>
+    <div
+      ref={containerRef}
+      className={outerClasses}
+      style={outerStyle}
+      onFocusCapture={markActivity}
+      onKeyDownCapture={markActivity}
+      onPointerDownCapture={markActivity}
+    >
       <div className={isBuilderLayout ? 'h-full w-full flex items-center justify-center p-8' : 'h-full overflow-auto p-4'}>
         {!isBuilderLayout && warnings.length > 0 && (
           <div className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-900">
@@ -489,6 +584,12 @@ export const PublicFormArtboard: React.FC<{
             }`}
           >
             {submitNotice.text}
+          </div>
+        )}
+
+        {!isBuilderLayout && kioskCountdownSeconds !== null && kioskCountdownSeconds > 0 && (
+          <div className="mb-4 rounded border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-900">
+            Resetting in {kioskCountdownSeconds}s…
           </div>
         )}
 
@@ -618,9 +719,7 @@ export const PublicFormArtboard: React.FC<{
           <button
             className="btn-secondary text-sm"
             onClick={() => {
-              setValues({})
-              setShowValidation(false)
-              setSubmitNotice(null)
+              handleManualReset()
             }}
           >
             Reset

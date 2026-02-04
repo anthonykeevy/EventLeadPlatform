@@ -19,6 +19,18 @@ export const PublicFormRendererPage: React.FC = () => {
   const searchParams = React.useMemo(() => new URLSearchParams(location.search), [location.search])
   const isEmbed = searchParams.get('embed') === '1'
   const action = searchParams.get('action')
+  const kioskEnabled = searchParams.get('kiosk') === '1'
+  const parseNumberParam = React.useCallback(
+    (key: string) => {
+      const raw = searchParams.get(key)
+      if (!raw) return undefined
+      const value = Number(raw)
+      return Number.isFinite(value) ? value : undefined
+    },
+    [searchParams]
+  )
+  const autoResetSeconds = parseNumberParam('autoResetSeconds')
+  const countdownSeconds = parseNumberParam('countdownSeconds')
 
   React.useEffect(() => {
     let cancelled = false
@@ -97,6 +109,9 @@ export const PublicFormRendererPage: React.FC = () => {
         action={action}
         token={token}
         linkType={linkType}
+        kioskEnabled={kioskEnabled}
+        autoResetSeconds={autoResetSeconds}
+        countdownSeconds={countdownSeconds}
       />
     </div>
   )

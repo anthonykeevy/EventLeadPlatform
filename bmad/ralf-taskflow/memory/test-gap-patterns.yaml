@@ -156,6 +156,27 @@ test_gaps:
     priority: "medium"
     frequency: 1
 
+  # Gap 7: Preview URL Param Passthrough
+  preview_url_params:
+    name: "Missing Preview URL Param Passthrough Test"
+    gap_description: "Preview shell does not verify query params are forwarded to embed/public URLs"
+    symptoms:
+      - "Preview link drops kiosk params"
+      - "Countdown/reset never triggers in preview"
+    test_to_add:
+      type: "unit"
+      location: "frontend/src/features/renderer/pages/__tests__/"
+      template: |
+        describe('PublicFormPreviewShellPage', () => {
+          it('passes location.search params to embed and public URLs', () => {
+            // render with ?kiosk=1&autoResetSeconds=10
+            // assert iframe src and link href include params
+          });
+        });
+      command: "npm test -- --testPathPattern=PublicFormPreviewShellPage"
+    priority: "medium"
+    frequency: 1
+
 # When to add each test type
 test_type_guidance:
   unit:

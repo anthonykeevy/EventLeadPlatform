@@ -78,6 +78,22 @@ root_cause_patterns:
     frequency: 0
     last_seen: null
 
+  # Pattern 6: Tooling Baseline Missing
+  tooling_baseline_missing:
+    name: "Tooling Baseline Missing"
+    symptoms:
+      - "Lint/build cannot run due to missing config"
+      - "Dependency mismatch blocks verification"
+    root_cause: "Repo baseline tooling not aligned (config/deps missing)"
+    prevention:
+      - "ralf-dev: Add tooling baseline checklist before running tests"
+      - "ralf-sm: Keep build-stabilization task current"
+    example:
+      bad: "Run lint/build without ESLint config present"
+      good: "Verify ESLint config + deps before running required tests"
+    frequency: 1
+    last_seen: 2026-02-04
+
 prevention_action_patterns:
 
   # Proven prevention actions from past retros

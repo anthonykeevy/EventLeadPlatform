@@ -66,6 +66,7 @@ from .form import Form
 from .form_version import FormVersion
 from .form_access_control import FormAccessControl
 from .form_approval_token import FormApprovalToken
+from .form_submission import FormSubmission
 
 # Configuration tables (config schema)
 from .config import (
@@ -133,6 +134,7 @@ __all__ = [
     "FormVersion",
     "FormAccessControl",
     "FormApprovalToken",
+    "FormSubmission",
     
     # Reference tables (ref)
     "Country",
@@ -211,7 +213,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 65  # Updated: 16 dbo + 23 ref + 2 config + 4 audit + 4 log + 1 cache + 13 fonts (10 dbo + 3 log)
+    expected_count = 66  # Updated: 17 dbo + 23 ref + 2 config + 4 audit + 4 log + 1 cache + 13 fonts (10 dbo + 3 log)
     actual_count = len(__all__)
     
     if actual_count != expected_count:

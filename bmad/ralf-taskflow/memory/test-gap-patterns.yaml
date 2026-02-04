@@ -136,6 +136,26 @@ test_gaps:
     priority: "medium"
     frequency: 0
 
+  # Gap 6: Outbox Retry/Backoff Tests
+  outbox_retry_backoff:
+    name: "Missing Outbox Retry/Backoff Tests"
+    gap_description: "Outbox retry/backoff behavior verified manually, not automated"
+    symptoms:
+      - "Manual DevTools checks needed for retry timing"
+      - "Headers checked by hand to confirm auth-free behavior"
+    test_to_add:
+      type: "integration"
+      location: "src/features/renderer/outbox/__tests__/"
+      template: |
+        describe('public outbox processor', () => {
+          it('applies backoff and updates retry metadata', async () => {
+            // mock fetch + indexedDB, assert status and retryCount
+          });
+        });
+      command: "npm test -- --testPathPattern=publicOutbox"
+    priority: "medium"
+    frequency: 1
+
 # When to add each test type
 test_type_guidance:
   unit:

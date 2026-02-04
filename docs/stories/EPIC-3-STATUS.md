@@ -27,6 +27,10 @@ A recovery PR was merged into `master` to restore missing Epic 3 work that exist
 - **Integrator step:** Origin currently has only `master` (no remaining `story/*` or `task/*` branches), and the Epic 3 recovery PR merge is present on `master` (merge commit: `60d86bd`), indicating integration work is complete.
 - **Next story:** **Story 3.11 - Dynamic Submission** (Outbox / offline-capable queue + sync).
 
+### Story 3.11 Update (2026-02-03)
+
+- Task T01 UAT: ❌ FailedUAT (AC1 step 3 blocked by frontend `npm run build` TypeScript errors). See `docs/tasks/3.11/T01-submission-contracts-and-foundation.uat-results.md`.
+
 ---
 
 ## 🎯 **Epic 3 Overview**

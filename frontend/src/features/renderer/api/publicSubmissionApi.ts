@@ -3,7 +3,8 @@ import type {
   PublicFormSubmissionResponse,
 } from '../types/publicSubmission.types'
 
-const PUBLIC_SUBMISSION_ENDPOINT = '/api/public/forms'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+const PUBLIC_SUBMISSION_ENDPOINT = `${API_BASE_URL.replace(/\/$/, '')}/api/public/forms`
 
 export async function submitPublicFormSubmission(
   token: string,

@@ -35,17 +35,18 @@ export const PublicFormRendererPage: React.FC = () => {
         if (cancelled) return
         setDefinition(res.data.definition)
         setLinkType(res.data.linkType)
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return
+        const detail = (e as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+        const message = e instanceof Error ? e.message : undefined
         const msg =
-          e?.response?.data?.detail ||
-          e?.message ||
+          (typeof detail === 'string' && detail) ||
+          message ||
           'Failed to load form. The link may be invalid or expired.'
-        setError(String(msg))
+        setError(msg)
         setDefinition(null)
       } finally {
-        if (cancelled) return
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
     run()
@@ -90,8 +91,13 @@ export const PublicFormRendererPage: React.FC = () => {
         </header>
       )}
 
-      {/* Renderer body is implemented in subsequent tasks (artboard + registry + runtime rules). */}
-      <PublicFormArtboard definition={definition} embed={isEmbed} action={action} />
+      <PublicFormArtboard
+        definition={definition}
+        embed={isEmbed}
+        action={action}
+        token={token}
+        linkType={linkType}
+      />
     </div>
   )
 }

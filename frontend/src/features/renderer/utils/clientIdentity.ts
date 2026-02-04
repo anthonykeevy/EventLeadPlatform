@@ -70,3 +70,7 @@ export function createSubmitAttemptId(): string {
   return generateUuidV4()
 }
 
+export function createIdempotencyKey(): string {
+  return generateUuidV4()
+}
+

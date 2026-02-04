@@ -5,9 +5,30 @@ import { validateField } from '../../builder/utils/validationEngine'
 import { evaluateRules } from '../../logic-engine/evaluateRules'
 import type { ComponentRuntimeState } from '../../logic-engine/types'
 import { ComponentErrorBoundary } from './ComponentErrorBoundary'
+import type {
+  PublicFormSubmissionRequest,
+  PublicOutboxItem,
+  PublicSubmissionLinkType,
+} from '../types/publicSubmission.types'
+import { submitPublicFormSubmission } from '../api/publicSubmissionApi'
+import {
+  enqueuePublicOutboxItem,
+  processPublicOutbox,
+  registerPublicOutboxOnlineHandler,
+} from '../outbox/publicOutbox'
+import {
+  createIdempotencyKey,
+  createNewClientSessionId,
+  createSubmitAttemptId,
+  getOrCreateClientDeviceId,
+} from '../utils/clientIdentity'
 
 type ValueMap = Record<string, unknown>
 type FieldErrorMap = Record<string, string>
+type SubmitNotice = {
+  tone: 'success' | 'warning' | 'error'
+  text: string
+}
 
 function getDateValueString(
   value: unknown,
@@ -50,7 +71,11 @@ function sortByPositionStable(a: FormComponent, b: FormComponent): number {
 
 function getBaseRequired(component: FormComponent): boolean {
   const requiredFromProps = component.props.required
-  const requiredFromValidation = (component.props.validation as any)?.required
+  const validation = component.props.validation as unknown
+  const requiredFromValidation =
+    validation && typeof validation === 'object' && 'required' in validation
+      ? (validation as { required?: unknown }).required
+      : undefined
   return Boolean(requiredFromProps ?? requiredFromValidation ?? false)
 }
 
@@ -63,18 +88,32 @@ function selectAuthoredPages(definition: FormDefinition): FormPage[] {
 
 export const PublicFormArtboard: React.FC<{
   definition: FormDefinition
-  onSubmissionDeferred?: (payload: any) => void
+  onSubmissionDeferred?: (payload: PublicFormSubmissionRequest) => void
   /** When true (builder iframe), suppress page chrome like outer borders */
   embed?: boolean
   /** Optional action trigger from query params (validate/reset). */
   action?: string | null
+  /** Public token (used for submission). Optional in builder/preview contexts. */
+  token?: string
+  /** Public link type (preview/production) for context. */
+  linkType?: string
   /** Layout mode for embedding in builder canvas. */
   layoutMode?: 'default' | 'builder'
   /** Optional className for the outer container. */
   containerClassName?: string
   /** Optional style override for the outer container. */
   containerStyle?: React.CSSProperties
-}> = ({ definition, onSubmissionDeferred, embed, action, layoutMode = 'default', containerClassName, containerStyle }) => {
+}> = ({
+  definition,
+  onSubmissionDeferred,
+  embed,
+  action,
+  token,
+  linkType,
+  layoutMode = 'default',
+  containerClassName,
+  containerStyle,
+}) => {
   const pages = selectAuthoredPages(definition)
   const page = pages[0]
   
@@ -123,7 +162,16 @@ export const PublicFormArtboard: React.FC<{
 
   const [values, setValues] = React.useState<ValueMap>({})
   const [showValidation, setShowValidation] = React.useState(false)
-  const [submitMessage, setSubmitMessage] = React.useState<string | null>(null)
+  const [submitNotice, setSubmitNotice] = React.useState<SubmitNotice | null>(null)
+  const [clientSessionId, setClientSessionId] = React.useState(() => createNewClientSessionId())
+  const clientDeviceId = React.useMemo(() => getOrCreateClientDeviceId(), [])
+  const normalizedLinkType = React.useMemo(() => {
+    const upper = linkType?.toUpperCase()
+    if (upper === 'PREVIEW' || upper === 'PRODUCTION') {
+      return upper as PublicSubmissionLinkType
+    }
+    return undefined
+  }, [linkType])
   const inputRefs = React.useRef<Record<string, React.RefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>>>({})
 
   React.useEffect(() => {
@@ -131,12 +179,17 @@ export const PublicFormArtboard: React.FC<{
     if (action === 'reset') {
       setValues({})
       setShowValidation(false)
-      setSubmitMessage(null)
+      setSubmitNotice(null)
     }
     if (action === 'validate') {
       setShowValidation(true)
     }
   }, [action])
+
+  React.useEffect(() => {
+    registerPublicOutboxOnlineHandler()
+    void processPublicOutbox()
+  }, [])
 
   const { stateById, warnings } = React.useMemo(() => {
     return evaluateRules({
@@ -173,9 +226,7 @@ export const PublicFormArtboard: React.FC<{
         componentType = 'date'
       }
 
-      const result = validateField(valueForValidation, effectiveRules, componentType, {
-        dateFormat: c.props?.dateFormat,
-      })
+      const result = validateField(valueForValidation, effectiveRules, componentType)
       if (!result.isValid && result.errors.length > 0) {
         const customMessage = c.props.validationMessage || validation.customError
         next[c.id] = customMessage || result.errors[0].message
@@ -208,8 +259,6 @@ export const PublicFormArtboard: React.FC<{
     if (!showValidation) return {}
     return computeErrors(true)
   }, [showValidation, computeErrors])
-
-  const isValid = Object.keys(errors).length === 0
 
   // Build form-level validation context for submit button
   const formValidationContext: FormValidationContext = React.useMemo(() => {
@@ -265,18 +314,103 @@ export const PublicFormArtboard: React.FC<{
     setValues(prev => ({ ...prev, [id]: v }))
   }
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const nextErrors = computeErrors(true)
     setShowValidation(true)
-    setSubmitMessage(null)
+    setSubmitNotice(null)
     if (Object.keys(nextErrors).length > 0) return
-    const payload = {
-      formId: definition.formId,
+
+    if (!token) {
+      const isPreviewContext = Boolean(embed) || layoutMode === 'builder'
+      setSubmitNotice({
+        tone: isPreviewContext ? 'warning' : 'error',
+        text: isPreviewContext
+          ? 'Submission is disabled in preview mode.'
+          : 'Missing submission token. Please refresh the page.',
+      })
+      return
+    }
+
+    const submitAttemptId = createSubmitAttemptId()
+    const request: PublicFormSubmissionRequest = {
+      idempotencyKey: createIdempotencyKey(),
       submittedAtClient: new Date().toISOString(),
       answersByComponentId: values,
+      context: {
+        clientDeviceId,
+        clientSessionId,
+        submitAttemptId,
+        clientTimezone: typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined,
+        clientLocale:
+          typeof navigator !== 'undefined'
+            ? navigator.languages?.[0] ?? navigator.language
+            : undefined,
+        clientUserAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+        clientScreen:
+          typeof window !== 'undefined' && window.screen
+            ? {
+                width: window.screen.width,
+                height: window.screen.height,
+                dpr: window.devicePixelRatio,
+              }
+            : undefined,
+        clientViewport:
+          typeof window !== 'undefined'
+            ? { width: window.innerWidth, height: window.innerHeight }
+            : undefined,
+        renderCanvasWidth: canvasWidth,
+        renderCanvasHeight: canvasHeight,
+        renderScaleAtSubmit: scale,
+      },
     }
-    setSubmitMessage('Client-side validation passed. Submission transport/outbox is deferred to Story 3.10.')
-    onSubmissionDeferred?.(payload)
+
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine !== false : false
+    const clearForNextSubmission = () => {
+      setValues({})
+      setShowValidation(false)
+      setClientSessionId(createNewClientSessionId())
+    }
+
+    if (isOnline) {
+      try {
+        await submitPublicFormSubmission(token, request)
+        setSubmitNotice({ tone: 'success', text: 'Submission received. Thank you!' })
+        clearForNextSubmission()
+        return
+      } catch {
+        // Fall through to queue the submission.
+      }
+    }
+
+    const outboxItem: PublicOutboxItem = {
+      outboxItemId: createIdempotencyKey(),
+      token,
+      linkType: normalizedLinkType,
+      request,
+      status: 'pending',
+      retryCount: 0,
+      createdAt: Date.now(),
+    }
+
+    try {
+      await enqueuePublicOutboxItem(outboxItem)
+      setSubmitNotice({
+        tone: 'warning',
+        text: isOnline
+          ? 'Upload failed; submission saved and will retry automatically.'
+          : 'You appear offline. Submission saved and will upload when online.',
+      })
+      clearForNextSubmission()
+      onSubmissionDeferred?.(request)
+      if (isOnline) {
+        void processPublicOutbox()
+      }
+    } catch {
+      setSubmitNotice({
+        tone: 'error',
+        text: 'Unable to save your submission. Please try again.',
+      })
+    }
   }
 
   const canvasWidth = definition.canvasSettings?.width ?? 1024
@@ -344,9 +478,17 @@ export const PublicFormArtboard: React.FC<{
           </div>
         )}
 
-        {!isBuilderLayout && submitMessage && (
-          <div className="mb-4 rounded border border-green-200 bg-green-50 p-3 text-sm text-green-900">
-            {submitMessage}
+        {!isBuilderLayout && submitNotice && (
+          <div
+            className={`mb-4 rounded border p-3 text-sm ${
+              submitNotice.tone === 'success'
+                ? 'border-green-200 bg-green-50 text-green-900'
+                : submitNotice.tone === 'warning'
+                  ? 'border-yellow-200 bg-yellow-50 text-yellow-900'
+                  : 'border-red-200 bg-red-50 text-red-900'
+            }`}
+          >
+            {submitNotice.text}
           </div>
         )}
 
@@ -478,7 +620,7 @@ export const PublicFormArtboard: React.FC<{
             onClick={() => {
               setValues({})
               setShowValidation(false)
-              setSubmitMessage(null)
+              setSubmitNotice(null)
             }}
           >
             Reset

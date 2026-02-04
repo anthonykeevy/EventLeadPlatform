@@ -58,3 +58,23 @@ _Append lessons as tasks are completed. Format:_
 - UAT: `T05-renderer-submit-integration.uat-results.md`
 - Retro: `T05-renderer-submit-integration.retro.md`
 
+---
+
+## Task: T06 (2026-02-04)
+
+**Dev Lessons:**
+- Preview shell links must preserve kiosk query params; missing passthrough prevents AC verification.
+
+**Testing Lessons:**
+- Add a unit test that asserts preview URL query params reach the embed/public link.
+
+**Process Lessons:**
+- Verify `npm install` completes before lint/build checks to avoid false failures.
+
+**Links:**
+- Completion: `T06-kiosk-mode-auto-reset.completion.md`
+- UAT: `T06-kiosk-mode-auto-reset.uat-results.md`
+- Retro: `T06-kiosk-mode-auto-reset.retro.md`
+
+---
+

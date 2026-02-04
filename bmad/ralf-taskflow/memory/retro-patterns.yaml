@@ -94,6 +94,23 @@ root_cause_patterns:
     frequency: 1
     last_seen: 2026-02-04
 
+  # Pattern 7: Preview Query Params Lost
+  preview_query_params_lost:
+    name: "Preview Query Params Lost"
+    symptoms:
+      - "Preview URL tests fail while direct public URL works"
+      - "Kiosk mode does not activate in preview"
+    root_cause: "Preview shell did not forward query params to embed/public links"
+    prevention:
+      - "ralf-dev: Add unit test for preview URL param passthrough"
+      - "ralf-uat: Verify preview link preserves params before AC testing"
+      - "ralf-sm: Include preview passthrough verification in task ACs that use preview links"
+    example:
+      bad: "Preview URL drops kiosk params so countdown never appears"
+      good: "Preview URL passes `location.search` to iframe and public link"
+    frequency: 1
+    last_seen: 2026-02-04
+
 prevention_action_patterns:
 
   # Proven prevention actions from past retros

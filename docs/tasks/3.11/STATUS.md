@@ -1,7 +1,7 @@
 # Story 3.11 Status
 
 **Last Updated:** 2026-02-04  
-**Current Task:** T06 - Kiosk Mode (optional): Auto-reset + Countdown + Session Rotation  
+**Current Task:** T06 - Kiosk Mode (optional): Auto-reset + Countdown + Session Rotation (UAT Passed)  
 
 ---
 
@@ -14,7 +14,7 @@
 | T03 | ✅ HumanDone | 2026-02-03 |
 | T04 | ✅ Done | 2026-02-04 |
 | T05 | ✅ Done | 2026-02-04 |
-| T06 | ⏳ Ready | - |
+| T06 | ✅ Done | 2026-02-04 |
 | T07 | ⏳ Ready | - |
 | T08 | ⏳ Ready | - |
 | T09 | ⏸️ Pending | - |

@@ -1,5 +1,6 @@
 # Story 3.11 Status
 
+**Last Updated:** 2026-02-04  
 **Last Updated:** 2026-02-03  
 **Current Task:** T04 - Frontend: Public Outbox (IndexedDB) + Client IDs  
 
@@ -9,6 +10,10 @@
 
 | Task | Status | Completed |
 |------|--------|-----------|
+| T01 | ✅ Done | 2026-02-03 |
+| T02 | ✅ HumanDone | 2026-02-03 |
+| T03 | ✅ HumanDone | 2026-02-03 |
+| T04 | ✅ HumanDone | 2026-02-04 |
 | T00 | ✅ Done | 2026-02-03 |
 | T01 | ✅ Done | 2026-02-03 |
 | T02 | ✅ HumanDone | 2026-02-03 |
@@ -22,6 +27,10 @@
 
 ---
 
+## Blockers / Warnings
+
+1. **Integrator merge step**
+   - Ensure completed task branches are merged into `story/epic3-3.11-dynamic-submission` before starting new task branches.
 ## Blockers
 
 1. **Story branch integration (required by workflow)**

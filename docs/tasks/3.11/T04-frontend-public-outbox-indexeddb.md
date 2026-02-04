@@ -2,7 +2,7 @@
 
 **Story:** 3.11 - Dynamic Submission (Outbox)  
 **Task ID:** T04  
-**Status:** ⏸️ Pending  
+**Status:** ✅ Done  
 **Dependencies:** T01  
 **Estimated Time:** 2-3 hours  
 

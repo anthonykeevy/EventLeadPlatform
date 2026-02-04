@@ -40,3 +40,21 @@ _Append lessons as tasks are completed. Format:_
 - UAT: `T02-db-migration-formsubmission.uat-results.md`
 - Retro: `T02-db-migration-formsubmission.retro.md`
 
+---
+
+## Task: T05 (2026-02-04)
+
+**Dev Lessons:**
+- Ensure the backend worktree includes the public submissions endpoint before testing online submit flows.
+
+**Testing Lessons:**
+- Add a public submissions endpoint smoke test and a frontend API base URL unit test to catch 404s early.
+
+**Process Lessons:**
+- Add a preflight UAT step to verify `POST /api/public/forms/{token}/submissions` is registered before AC2–AC5.
+
+**Links:**
+- Completion: `T05-renderer-submit-integration.completion.md`
+- UAT: `T05-renderer-submit-integration.uat-results.md`
+- Retro: `T05-renderer-submit-integration.retro.md`
+

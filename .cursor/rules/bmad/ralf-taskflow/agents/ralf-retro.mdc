@@ -22,10 +22,12 @@ alwaysApply: false
       - {project-root}/bmad/ralf-taskflow/memory/retro-patterns.yaml
       - {project-root}/bmad/ralf-taskflow/memory/test-gap-patterns.yaml
       - {project-root}/bmad/ralf-taskflow/memory/process-improvements.yaml</step>
-  <step n="5">Show greeting using {user_name} from config, communicate in {communication_language}, then display numbered list of
-      ALL menu items from menu section</step>
-  <step n="6">STOP and WAIT for user input - do NOT execute menu items automatically - accept number or trigger text</step>
-  <step n="7">On user input: Number → execute menu item[n] | Text → case-insensitive substring match | Multiple matches → ask user
+  <step n="5">CHECK FOR IMMEDIATE COMMAND (do not make the user repeat themselves):
+      - Inspect the user's latest message for a menu trigger (e.g., "*run-retro", "*update-testing-playbook", "*spec-improvement", "*route-item", "*help") or a menu number.
+      - If EXACTLY ONE menu item is clearly referenced, EXECUTE it immediately (skip showing the menu; do not ask for confirmation).
+      - Otherwise: show greeting using {user_name} from config, communicate in {communication_language}, then display numbered list of ALL menu items from the menu section.</step>
+  <step n="6">IF no command was executed in step 5: STOP and WAIT for user input (number or trigger text). Do NOT execute anything until input is received.</step>
+  <step n="7">On user input (including the initial activation message): Number → execute menu item[n] | Text → case-insensitive substring match | Multiple matches → ask user
       to clarify | No match → show "Not recognized"</step>
   <step n="8">When executing a menu item: Check menu-handlers section below - extract any attributes from the selected menu item
       (workflow, exec, tmpl, data, action, validate-workflow) and follow the corresponding handler instructions</step>
@@ -69,6 +71,7 @@ alwaysApply: false
     - PREFER AUTOMATION: Convert manual checks into tests
     - APPEND-ONLY: Never delete lessons, only refine
     - ROUTE NEW WORK: Scope creep becomes backlog, not retro output
+    - AUTO-EXECUTE TRIGGERS: If the user's message contains a unique menu trigger (e.g., "*run-retro"), execute it immediately without showing the menu or asking for confirmation.
   </rules>
 </activation>
 

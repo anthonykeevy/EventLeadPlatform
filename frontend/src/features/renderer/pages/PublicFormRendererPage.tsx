@@ -19,6 +19,18 @@ export const PublicFormRendererPage: React.FC = () => {
   const searchParams = React.useMemo(() => new URLSearchParams(location.search), [location.search])
   const isEmbed = searchParams.get('embed') === '1'
   const action = searchParams.get('action')
+  const kioskEnabled = searchParams.get('kiosk') === '1'
+  const parseNumberParam = React.useCallback(
+    (key: string) => {
+      const raw = searchParams.get(key)
+      if (!raw) return undefined
+      const value = Number(raw)
+      return Number.isFinite(value) ? value : undefined
+    },
+    [searchParams]
+  )
+  const autoResetSeconds = parseNumberParam('autoResetSeconds')
+  const countdownSeconds = parseNumberParam('countdownSeconds')
 
   React.useEffect(() => {
     let cancelled = false
@@ -35,17 +47,18 @@ export const PublicFormRendererPage: React.FC = () => {
         if (cancelled) return
         setDefinition(res.data.definition)
         setLinkType(res.data.linkType)
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return
+        const detail = (e as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+        const message = e instanceof Error ? e.message : undefined
         const msg =
-          e?.response?.data?.detail ||
-          e?.message ||
+          (typeof detail === 'string' && detail) ||
+          message ||
           'Failed to load form. The link may be invalid or expired.'
-        setError(String(msg))
+        setError(msg)
         setDefinition(null)
       } finally {
-        if (cancelled) return
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
     run()
@@ -90,8 +103,16 @@ export const PublicFormRendererPage: React.FC = () => {
         </header>
       )}
 
-      {/* Renderer body is implemented in subsequent tasks (artboard + registry + runtime rules). */}
-      <PublicFormArtboard definition={definition} embed={isEmbed} action={action} />
+      <PublicFormArtboard
+        definition={definition}
+        embed={isEmbed}
+        action={action}
+        token={token}
+        linkType={linkType}
+        kioskEnabled={kioskEnabled}
+        autoResetSeconds={autoResetSeconds}
+        countdownSeconds={countdownSeconds}
+      />
     </div>
   )
 }

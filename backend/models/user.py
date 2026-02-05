@@ -131,6 +131,7 @@ class User(Base):
     api_requests = relationship("ApiRequest", back_populates="user")
     application_errors = relationship("ApplicationError", back_populates="user")
     email_deliveries = relationship("EmailDelivery", back_populates="user")
+    frontend_events = relationship("FrontendEvent", back_populates="user")
     
     def __repr__(self) -> str:
         return f"<User(UserID={self.UserID}, Email='{self.Email}', FirstName='{self.FirstName}', LastName='{self.LastName}')>"

@@ -1,7 +1,7 @@
 # Story 3.11 Status
 
 **Last Updated:** 2026-02-05  
-**Current Task:** T09 - Integration + UAT Polish (Scenarios 1–10) (In Progress)  
+**Current Task:** T09 - Integration + UAT Polish (Scenarios 1–10) (✅ Done; ready to close story)  
 
 ---
 
@@ -16,8 +16,8 @@
 | T05 | ✅ Done | 2026-02-04 |
 | T06 | ✅ Done | 2026-02-04 |
 | T07 | ✅ HumanDone | 2026-02-05 |
-| T08 | ⏳ Ready | - |
-| T09 | 🔄 In Progress | - |
+| T08 | ✅ Done | 2026-02-05 |
+| T09 | ✅ Done | 2026-02-05 |
 
 ---
 

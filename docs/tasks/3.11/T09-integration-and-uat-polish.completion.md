@@ -3,7 +3,7 @@
 **Story:** 3.11  
 **Task:** Integration + UAT Polish (Scenarios 1–10)  
 **Completed:** 2026-02-05  
-**Status:** In Progress (UAT complete)
+**Status:** ✅ Done
 
 ---
 
@@ -16,9 +16,9 @@ Bootstrapped T09 with status updates and a scenario-mapped UAT checklist, create
 | File | Change | Reason |
 |------|--------|--------|
 | `docs/tasks/3.11/T09-integration-and-uat-polish.uat.md` | Added | Scenario 1–10 checklist mapped to story UAT guide |
-| `docs/tasks/3.11/T09-integration-and-uat-polish.md` | Modified | Mark task in progress |
+| `docs/tasks/3.11/T09-integration-and-uat-polish.md` | Modified | Mark task done |
 | `docs/tasks/3.11/STATUS.md` | Modified | Set current task and T09 status |
-| `docs/tasks/3.11/TASK-PLAN.md` | Modified | Mark T09 in progress |
+| `docs/tasks/3.11/TASK-PLAN.md` | Modified | Mark T09 done |
 
 ## PR
 
@@ -75,4 +75,4 @@ Result: FAIL (pre-existing frontend lint/TypeScript errors across multiple files
 
 ## Recommended Next Step
 
-1. Mark T09 status as ✅ Done after any final review/sign-off.
+1. Merge PR #16 into the Story branch, then proceed to Story 3.11 finalization (story docs + epic status + story PR → master).

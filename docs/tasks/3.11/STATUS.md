@@ -1,7 +1,7 @@
 # Story 3.11 Status
 
 **Last Updated:** 2026-02-05  
-**Current Task:** T08 - Client Context: Compatibility + Device/Browser Signals (safe) (Ready)  
+**Current Task:** T09 - Integration + UAT Polish (Scenarios 1–10) (In Progress)  
 
 ---
 
@@ -17,7 +17,7 @@
 | T06 | ✅ Done | 2026-02-04 |
 | T07 | ✅ HumanDone | 2026-02-05 |
 | T08 | ⏳ Ready | - |
-| T09 | ⏸️ Pending | - |
+| T09 | 🔄 In Progress | - |
 
 ---
 

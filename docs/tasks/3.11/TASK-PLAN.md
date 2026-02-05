@@ -40,7 +40,7 @@ Story 3.11 is complete when:
 | **T06** | Kiosk Mode (optional): Auto-reset + Countdown + Session Rotation | ✅ Done | T05 | 1-2 hrs | UX |
 | **T07** | Validation Telemetry: Diagnostics + Storage + “Resolved vs Abandoned” Signals | ✅ HumanDone | T05 | 2-3 hrs | Observability |
 | **T08** | Client Context: Compatibility + Device/Browser Signals (safe) | ✅ HumanDone | T03, T04 | 1-2 hrs | Observability |
-| **T09** | Integration + UAT Polish (Scenarios 1–10) | ⏳ Ready | T03-T08 | 2-3 hrs | Integration |
+| **T09** | Integration + UAT Polish (Scenarios 1–10) | 🔄 In Progress | T03-T08 | 2-3 hrs | Integration |
 
 **Total Estimated Time:** 13–21 hours (3–5 days)
 
@@ -77,7 +77,7 @@ T09 (Integration + UAT) depends on: T03–T08
 | T06 | `T06-kiosk-mode-auto-reset.md` | ✅ Done |
 | T07 | `T07-validation-telemetry-events.md` | ✅ HumanDone |
 | T08 | `T08-client-context-and-compatibility.md` | ✅ HumanDone |
-| T09 | `T09-integration-and-uat-polish.md` | ⏳ Ready |
+| T09 | `T09-integration-and-uat-polish.md` | 🔄 In Progress |
 
 ---
 
@@ -137,5 +137,5 @@ These areas are off-limits unless a task explicitly says otherwise:
 ---
 
 *Task Plan created by Ralf-SM*  
-*Last Updated: 2026-02-05 (T08 HumanDone; T09 ready)*
+*Last Updated: 2026-02-05 (T09 in progress)*
 

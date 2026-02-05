@@ -8,7 +8,7 @@ so we keep this router's prefix empty and expose `/forms/{token}` paths.
 import json
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select, desc
 from sqlalchemy.exc import IntegrityError
@@ -20,11 +20,13 @@ from models.form import Form
 from models.form_version import FormVersion
 from models.form_public_link import FormPublicLink
 from models.form_submission import FormSubmission
+from models.log.frontend_event import FrontendEvent
 
 from .public_form_schemas import PublicFormResolveResponse
 from .public_submission_schemas import (
     PublicFormSubmissionRequest,
     PublicFormSubmissionResponse,
+    PublicValidationEventRequest,
 )
 
 logger = get_logger(__name__)
@@ -53,6 +55,21 @@ def _parse_submitted_at_client(submitted_at_client: str) -> datetime:
         parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
 
     return parsed
+
+
+def _parse_occurred_at_client(occurred_at_client: str) -> int | None:
+    try:
+        normalized = occurred_at_client
+        if normalized.endswith("Z"):
+            normalized = normalized[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+
+    return int(parsed.timestamp() * 1000)
 
 
 @router.get(
@@ -249,4 +266,80 @@ async def submit_public_form(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unable to record submission.",
         )
+
+
+@router.post(
+    "/forms/{token}/telemetry/validation",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Store validation failure telemetry",
+)
+async def submit_validation_telemetry(
+    payload: PublicValidationEventRequest,
+    request: Request,
+    token: str = Path(..., description="Public form token"),
+    db: Session = Depends(get_db),
+) -> Response:
+    link = db.execute(
+        select(FormPublicLink)
+        .where(
+            FormPublicLink.Token == token,
+            FormPublicLink.IsActive == True,
+        )
+        .order_by(desc(FormPublicLink.CreatedDate))
+    ).scalars().first()
+
+    if not link:
+        _raise_invalid_link()
+
+    if link.ExpiresAt and link.ExpiresAt < datetime.utcnow():
+        _raise_invalid_link()
+    assert link is not None
+
+    form = db.execute(
+        select(Form).where(
+            Form.FormID == link.FormID,
+            Form.IsDeleted == False,
+        )
+    ).scalar_one_or_none()
+
+    if not form:
+        _raise_invalid_link()
+    assert form is not None
+
+    link_type = str(link.LinkType).upper()
+    failures = payload.failures or []
+    primary_failure = failures[0] if failures else None
+
+    event_payload = payload.dict(by_alias=True)
+    event_payload.update(
+        {
+            "formId": link.FormID,
+            "formPublicLinkId": link.FormPublicLinkID,
+            "linkTypeResolved": link_type,
+        }
+    )
+
+    try:
+        frontend_event = FrontendEvent(
+            EventType=payload.event_type,
+            Level="warn",
+            ComponentID=primary_failure.component_id if primary_failure else None,
+            ComponentType=primary_failure.component_type if primary_failure else None,
+            Payload=json.dumps(event_payload),
+            SessionID=payload.client_session_id,
+            BrowserInfo=request.headers.get("user-agent") if request else None,
+            PageURL=request.headers.get("referer") if request else None,
+            ClientTimestamp=_parse_occurred_at_client(payload.occurred_at_client),
+        )
+        db.add(frontend_event)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.error("Failed to store validation telemetry for token=%s: %s", token, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to store validation telemetry.",
+        ) from exc
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 

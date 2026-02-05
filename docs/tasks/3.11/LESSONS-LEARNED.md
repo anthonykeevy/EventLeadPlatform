@@ -78,3 +78,21 @@ _Append lessons as tasks are completed. Format:_
 
 ---
 
+## Task: T07 (2026-02-05)
+
+**Dev Lessons:**
+- Privacy-safe value diagnostics still provide actionable validation insights without raw values.
+
+**Testing Lessons:**
+- Add a resolved-flow check that verifies a `validation_failed_submit` event occurs before a successful submission in the same session.
+
+**Process Lessons:**
+- Capture telemetry correlation evidence (SessionID ↔ ContextJSON) as part of UAT notes.
+
+**Links:**
+- Completion: `T07-validation-telemetry-events.completion.md`
+- UAT: `T07-validation-telemetry-events.uat-results.md`
+- Retro: `T07-validation-telemetry-events.retro.md`
+
+---
+

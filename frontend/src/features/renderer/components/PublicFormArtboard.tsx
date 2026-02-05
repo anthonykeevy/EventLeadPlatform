@@ -10,7 +10,12 @@ import type {
   PublicOutboxItem,
   PublicSubmissionLinkType,
 } from '../types/publicSubmission.types'
-import { submitPublicFormSubmission } from '../api/publicSubmissionApi'
+import { submitPublicFormSubmission, submitPublicValidationTelemetry } from '../api/publicSubmissionApi'
+import type {
+  PublicValidationErrorCategory,
+  PublicValidationFailure,
+  PublicValidationEventRequest,
+} from '../types/telemetry.types'
 import {
   enqueuePublicOutboxItem,
   processPublicOutbox,
@@ -22,6 +27,7 @@ import {
   createSubmitAttemptId,
   getOrCreateClientDeviceId,
 } from '../utils/clientIdentity'
+import { getValueDiagnostics } from '../utils/valueDiagnostics'
 
 type ValueMap = Record<string, unknown>
 type FieldErrorMap = Record<string, string>
@@ -67,6 +73,29 @@ function sortByPositionStable(a: FormComponent, b: FormComponent): number {
   const bx = b.position?.x ?? 0
   if (ax !== bx) return ax - bx
   return a.id.localeCompare(b.id)
+}
+
+const NON_VALIDATED_COMPONENT_TYPES = new Set([
+  'dropdown',
+  'radio',
+  'checkbox',
+  'terms',
+  'submit-button',
+  'divider',
+])
+
+function toValidationErrorCategory(ruleKey?: string): PublicValidationErrorCategory {
+  if (!ruleKey) return 'unknown'
+  if (ruleKey === 'required') return 'required'
+  if (ruleKey.startsWith('min')) return 'min'
+  if (ruleKey.startsWith('max')) return 'max'
+  if (ruleKey === 'pattern' || ruleKey === 'email' || ruleKey === 'phone' || ruleKey === 'date') {
+    return 'pattern'
+  }
+  if (ruleKey === 'allowedValues' || ruleKey === 'stepIncrement' || ruleKey === 'oddOnly' || ruleKey === 'evenOnly') {
+    return 'range'
+  }
+  return 'custom'
 }
 
 function getBaseRequired(component: FormComponent): boolean {
@@ -344,6 +373,66 @@ export const PublicFormArtboard: React.FC<{
     return next
   }, [components, stateById, values, validationMessages])
 
+  const buildValidationFailures = React.useCallback((): PublicValidationFailure[] => {
+    const failures: PublicValidationFailure[] = []
+
+    for (const c of components) {
+      const runtime = stateById[c.id]
+      if (!runtime?.visible) continue
+
+      const isDate = c.type === 'date'
+      let valueForValidation: unknown = values[c.id]
+      let componentType = c.type
+
+      if (isDate) {
+        const dateValue = getDateValueString(values[c.id], c.props.dateParts)
+        valueForValidation = dateValue
+        componentType = 'date'
+      }
+
+      const isEmpty =
+        valueForValidation === null ||
+        valueForValidation === undefined ||
+        (typeof valueForValidation === 'string' && valueForValidation.trim().length === 0) ||
+        (Array.isArray(valueForValidation) && valueForValidation.length === 0)
+
+      if (runtime.required && isEmpty) {
+        failures.push({
+          componentId: c.id,
+          componentType: c.type,
+          ruleType: 'required',
+          ruleCode: 'validation.general.required',
+          errorCategory: 'required',
+          valueDiagnostics: getValueDiagnostics(valueForValidation),
+        })
+        continue
+      }
+
+      if (NON_VALIDATED_COMPONENT_TYPES.has(c.type)) continue
+
+      const validation = c.props.validation
+      if (!validation) continue
+      if (isDate && typeof valueForValidation === 'string' && valueForValidation.length === 0) continue
+
+      const effectiveRules = { ...validation, required: false }
+      const result = validateField(valueForValidation, effectiveRules, componentType)
+      if (!result.isValid) {
+        for (const error of result.errors) {
+          failures.push({
+            componentId: c.id,
+            componentType: c.type,
+            ruleType: error.ruleKey,
+            ruleCode: error.messageKey,
+            errorCategory: toValidationErrorCategory(error.ruleKey),
+            valueDiagnostics: getValueDiagnostics(valueForValidation),
+          })
+        }
+      }
+    }
+
+    return failures
+  }, [components, stateById, values])
+
   const errors: FieldErrorMap = React.useMemo(() => {
     if (!showValidation) return {}
     return computeErrors(true)
@@ -405,10 +494,28 @@ export const PublicFormArtboard: React.FC<{
   }
 
   const onSubmit = async () => {
+    const submitAttemptId = createSubmitAttemptId()
     const nextErrors = computeErrors(true)
     setShowValidation(true)
     setSubmitNotice(null)
-    if (Object.keys(nextErrors).length > 0) return
+    if (Object.keys(nextErrors).length > 0) {
+      if (token) {
+        const failures = buildValidationFailures()
+        if (failures.length > 0) {
+          const telemetry: PublicValidationEventRequest = {
+            eventType: 'validation_failed_submit',
+            occurredAtClient: new Date().toISOString(),
+            linkType: normalizedLinkType,
+            clientDeviceId,
+            clientSessionId,
+            submitAttemptId,
+            failures,
+          }
+          void submitPublicValidationTelemetry(token, telemetry)
+        }
+      }
+      return
+    }
 
     if (!token) {
       const isPreviewContext = Boolean(embed) || layoutMode === 'builder'
@@ -421,7 +528,6 @@ export const PublicFormArtboard: React.FC<{
       return
     }
 
-    const submitAttemptId = createSubmitAttemptId()
     const request: PublicFormSubmissionRequest = {
       idempotencyKey: createIdempotencyKey(),
       submittedAtClient: new Date().toISOString(),

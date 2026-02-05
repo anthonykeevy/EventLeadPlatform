@@ -2,7 +2,7 @@
 FormSubmission Model (dbo.FormSubmission)
 Stores public form submissions captured via token-gated endpoint.
 """
-from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, ForeignKey, func
+from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 from common.database import Base
 
@@ -13,7 +13,14 @@ class FormSubmission(Base):
     """
 
     __tablename__ = "FormSubmission"
-    __table_args__ = {"schema": "dbo"}
+    __table_args__ = (
+        UniqueConstraint(
+            "FormPublicLinkID",
+            "IdempotencyKey",
+            name="UQ_FormSubmission_FormPublicLinkID_IdempotencyKey",
+        ),
+        {"schema": "dbo"},
+    )
 
     FormSubmissionID = Column(BigInteger, primary_key=True, autoincrement=True)
 

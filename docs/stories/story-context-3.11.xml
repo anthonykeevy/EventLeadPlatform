@@ -3,6 +3,8 @@
   Story Context: Story 3.11 - Dynamic Submission (Outbox)
   Epic: Epic 3 - Form Builder & Logic Engine
   Created: 2026-02-02
+  Completed: 2026-02-05
+  Evidence: docs/stories/STORY-3.11-UAT-TEST-GUIDE.md (Scenarios 1–10 ✅ PASS), PRs #7–#16 (tasks) + #12 (story)
   
   This context file provides structured metadata for AI agents working on Story 3.11.
 -->
@@ -12,9 +14,10 @@
     <story-title>Dynamic Submission (Outbox / Offline Queue + Sync)</story-title>
     <epic-id>3</epic-id>
     <domain>Rendering &amp; Submission</domain>
-    <status>ready-for-development</status>
+    <status>complete</status>
     <priority>high</priority>
     <created>2026-02-02</created>
+    <completed>2026-02-05</completed>
   </metadata>
 
   <summary>

@@ -2,7 +2,7 @@
 
 **Epic:** Epic 3 - Form Builder & Logic Engine  
 **Domain:** Rendering & Submission  
-**Status:** 📋 Planned  
+**Status:** ✅ Complete  
 **Priority:** Critical (Hero feature: no lost leads)  
 **Created:** 2026-02-02  
 **Owner:** Developer Agent  
@@ -309,10 +309,10 @@ These features are enabled by Story 3.11 telemetry/persistence, but the **UI sur
 ## ✅ Done Criteria
 
 Story 3.11 is complete when:
-- [ ] All Acceptance Criteria pass.
-- [ ] `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
-- [ ] Submission UX is reliable offline-first (no lost submissions during UAT scenarios).
-- [ ] Implementation is committed to a Story branch with a PR and merged cleanly to `master`.
+- [x] All Acceptance Criteria pass.
+- [x] `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
+- [x] Submission UX is reliable offline-first (no lost submissions during UAT scenarios).
+- [x] Implementation is committed to a Story branch with a PR and merged cleanly to `master`.
 
 ---
 
@@ -322,12 +322,35 @@ See: `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md`
 
 ---
 
-## 📝 Completion Report (TBD)
+## 📝 Completion Report (2026-02-05)
 
-To be filled when Story 3.11 is completed (evidence, files changed, and UAT results).
+### What shipped
+
+- **Public submission transport (token-gated)**: `POST /api/public/forms/{token}/submissions` persists submissions to `dbo.FormSubmission`.
+- **Offline-first Outbox (public)**: IndexedDB-backed queue with auto-sync on reconnect.
+- **Idempotency**: duplicate detection on server via `(FormPublicLinkID, IdempotencyKey)` unique constraint + safe duplicate response.
+- **Shared-device safety**: clears field values after capture (uploaded or queued) + kiosk session rotation support.
+- **Validation telemetry**: privacy-safe validation failure events (no raw values) for “resolved vs abandoned” analysis.
+- **Client context**: device/browser/compatibility signals (non-fingerprinting) included with submissions.
+
+### Evidence
+
+- **Story UAT:** `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` — ✅ PASSED (Scenarios 1–10).
+- **T09 UAT results:** `docs/tasks/3.11/T09-integration-and-uat-polish.uat-results.md` (scenario matrix).
+- **Idempotency proof:** replay attempts return `{ status: "DUPLICATE" }` with the same idempotency key.
+- **Validation telemetry proof:** network request observed to `/api/public/forms/{token}/telemetry/validation`.
+
+### PRs (Integrator evidence)
+
+- **Task PRs → story:** #7, #8, #9, #10, #11, #13, #14, #15, #16
+- **Story PR → master:** #12
+
+### Residual issues / notes
+
+- **Baseline frontend lint/build errors:** `npm run lint` / `npm run build` may still fail due to pre-existing TypeScript/lint issues outside Story 3.11 scope (recorded in `docs/tasks/3.11/T09-integration-and-uat-polish.completion.md`).
 
 ---
 
 *Story created by Scrum Master Agent (with Git discipline enforced)*  
-*Last Updated: 2026-02-02*
+*Last Updated: 2026-02-05*
 

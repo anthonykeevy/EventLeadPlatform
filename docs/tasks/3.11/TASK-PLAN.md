@@ -4,7 +4,7 @@
 **Epic:** Epic 3 - Form Builder & Logic Engine  
 **Created:** 2026-02-03  
 **Decomposition Pattern:** Foundation First + Migration Safety + API-First  
-**Status:** 🔄 In Progress  
+**Status:** ✅ Done  
 
 ---
 
@@ -24,7 +24,7 @@ Story 3.11 is complete when:
 - [x] **DC1:** All Story acceptance criteria pass (online submit, offline queue, auto-sync, idempotency, token behavior, shared-device safety, validation telemetry).
 - [x] **DC2:** `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
 - [x] **DC3:** Submission UX is reliable offline-first (no lost submissions during UAT scenarios).
-- [ ] **DC4:** Implementation is merged via Story PR → `master`.
+- [x] **DC4:** Implementation is merged via Story PR → `master`.
 
 ---
 

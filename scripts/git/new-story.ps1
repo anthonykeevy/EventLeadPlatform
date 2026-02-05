@@ -52,6 +52,32 @@ function Show-And-Run {
   }
 }
 
+function Resolve-GhPath {
+  $cmd = Get-Command gh -ErrorAction SilentlyContinue
+  if ($cmd -and $cmd.Source) { return $cmd.Source }
+
+  $candidates = @()
+
+  if ($env:ProgramFiles) {
+    $candidates += (Join-Path $env:ProgramFiles "GitHub CLI\gh.exe")
+  }
+
+  $pf86 = [Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
+  if ($pf86) {
+    $candidates += (Join-Path $pf86 "GitHub CLI\gh.exe")
+  }
+
+  if ($env:LOCALAPPDATA) {
+    $candidates += (Join-Path $env:LOCALAPPDATA "Programs\GitHub CLI\gh.exe")
+  }
+
+  foreach ($p in ($candidates | Select-Object -Unique)) {
+    if ($p -and (Test-Path $p)) { return $p }
+  }
+
+  return $null
+}
+
 $storyBranch = "story/epic$Epic-$Story-$Slug"
 $storyWorktreeName = ($storyBranch -replace "[/\\\\]", "-")
 $storyWorktreePath = Join-Path $WorktreeRoot $storyWorktreeName
@@ -101,8 +127,8 @@ if ($CreateWorktree) {
 }
 
 if ($DraftPR) {
-  $gh = Get-Command gh -ErrorAction SilentlyContinue
-  if (-not $gh) {
+  $ghPath = Resolve-GhPath
+  if (-not $ghPath) {
     Write-Host ""
     Write-Host "gh not found; skipping PR creation."
     Write-Host "Install GitHub CLI, then run:"
@@ -110,7 +136,7 @@ if ($DraftPR) {
   } else {
     $title = "epic${Epic}: Story $Story - $Slug"
     $body = "Draft story PR. Task PRs merge into this branch."
-    Show-And-Run -CommandText "gh pr create --draft --base `"$BaseBranch`" --head `"$storyBranch`" --title `"$title`" --body `"$body`"" -Command { gh pr create --draft --base $BaseBranch --head $storyBranch --title $title --body $body }
+    Show-And-Run -CommandText "`"$ghPath`" pr create --draft --base `"$BaseBranch`" --head `"$storyBranch`" --title `"$title`" --body `"$body`"" -Command { & $ghPath pr create --draft --base $BaseBranch --head $storyBranch --title $title --body $body }
   }
 }
 

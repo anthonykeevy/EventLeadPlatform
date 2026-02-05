@@ -54,6 +54,32 @@ function Show-And-Run {
   }
 }
 
+function Resolve-GhPath {
+  $cmd = Get-Command gh -ErrorAction SilentlyContinue
+  if ($cmd -and $cmd.Source) { return $cmd.Source }
+
+  $candidates = @()
+
+  if ($env:ProgramFiles) {
+    $candidates += (Join-Path $env:ProgramFiles "GitHub CLI\gh.exe")
+  }
+
+  $pf86 = [Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
+  if ($pf86) {
+    $candidates += (Join-Path $pf86 "GitHub CLI\gh.exe")
+  }
+
+  if ($env:LOCALAPPDATA) {
+    $candidates += (Join-Path $env:LOCALAPPDATA "Programs\GitHub CLI\gh.exe")
+  }
+
+  foreach ($p in ($candidates | Select-Object -Unique)) {
+    if ($p -and (Test-Path $p)) { return $p }
+  }
+
+  return $null
+}
+
 $taskBranch = "task/$StoryId/$TaskId-$Slug"
 $taskWorktreeName = "task-$StoryId-$TaskId-$Slug" -replace "[/\\\\]", "-"
 $taskWorktreePath = Join-Path $WorktreeRoot $taskWorktreeName
@@ -129,8 +155,8 @@ if ($CreateWorktree) {
 }
 
 if ($CreatePR) {
-  $gh = Get-Command gh -ErrorAction SilentlyContinue
-  if (-not $gh) {
+  $ghPath = Resolve-GhPath
+  if (-not $ghPath) {
     Write-Host ""
     Write-Host "gh not found; skipping PR creation."
     Write-Host "Install GitHub CLI, then run:"
@@ -138,7 +164,7 @@ if ($CreatePR) {
   } else {
     $title = "${StoryId}: $TaskId - $Slug"
     $body = "Implements $TaskId for story $StoryId. See docs/tasks/$StoryId/ for completion + UAT."
-    Show-And-Run -CommandText "gh pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`"" -Command { gh pr create --base $StoryBranch --head $taskBranch --title $title --body $body }
+    Show-And-Run -CommandText "`"$ghPath`" pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`"" -Command { & $ghPath pr create --base $StoryBranch --head $taskBranch --title $title --body $body }
   }
 }
 

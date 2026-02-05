@@ -287,8 +287,11 @@ For **each task**, follow this cycle:
 
 **If GitHub won’t let you open the PR yet (common):**
 
-- If you see `No commits between ...` when creating the PR, it means the branch has no unique commits yet.
-- Fix: make a tiny “start task” commit (example: set the task spec `**Status:** 🔄 In Progress`), then push and create the PR.
+- GitHub requires at least **one commit** on the task branch before it will allow a PR. The error looks like: `No commits between ...`.
+- Standard fix: make a tiny **PR bootstrap** commit in the task worktree, push it, then create the PR:
+  - Recommended: update the task spec `**Status:**` (often `⏸️ Pending → ⏳ Ready`, then `⏳ Ready → 🔄 In Progress` when implementation begins) and keep the status consistent per the “Task Status Model”.
+  - If you don’t want to touch docs yet: create an empty bootstrap commit (`git commit --allow-empty -m "chore(epic3): start Txx"`), then `git push`.
+- If you used `./scripts/git/new-task.ps1 ... -CreatePR`: re-run it after your first push (it’s safe to re-run; it will skip worktree creation if it already exists).
 
 🧑 **Human checkpoint (required, 60 seconds):**
 

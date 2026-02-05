@@ -96,3 +96,39 @@ _Append lessons as tasks are completed. Format:_
 
 ---
 
+## Task: T08 (2026-02-05)
+
+**Dev Lessons:**
+- Record known baseline build failures when lint/build checks fail for unrelated reasons.
+
+**Testing Lessons:**
+- Add an integration test for `CF-IPCountry` header enrichment into `ContextJSON`.
+
+**Process Lessons:**
+- Capture the header used and resulting `ContextJSON` snippet in UAT evidence.
+
+**Links:**
+- Completion: `T08-client-context-and-compatibility.completion.md`
+- UAT: `T08-client-context-and-compatibility.uat-results.md`
+- Retro: `T08-client-context-and-compatibility.retro.md`
+
+---
+
+## Task: T07 (2026-02-05)
+
+**Dev Lessons:**
+- Automated resolved-flow checks reduce manual correlation work.
+
+**Testing Lessons:**
+- Add an integration test that asserts `validation_failed_submit` precedes a successful submission in the same session.
+
+**Process Lessons:**
+- Record SessionID ↔ ContextJSON evidence in UAT notes for correlation ACs.
+
+**Links:**
+- Completion: `T07-validation-telemetry-events.completion.md`
+- UAT: `T07-validation-telemetry-events.uat-results.md`
+- Retro: `T07-validation-telemetry-events.retro.md`
+
+---
+

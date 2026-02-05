@@ -26,6 +26,18 @@ export type PublicSubmissionContext = {
   renderCanvasWidth?: number
   renderCanvasHeight?: number
   renderScaleAtSubmit?: number
+  clientOnlineAtSubmit?: boolean
+  effectiveConnectionType?: string
+  maxTouchPoints?: number
+  clientOrientation?: string
+  prefersColorScheme?: string
+  prefersReducedMotion?: boolean
+  deviceMemoryGb?: number
+  hardwareConcurrency?: number
+  supportsIndexedDB?: boolean
+  supportsServiceWorker?: boolean
+  storageQuotaMb?: number
+  storageUsageMb?: number
   appVersion?: string
   buildSha?: string
 }

@@ -72,6 +72,18 @@ def _parse_occurred_at_client(occurred_at_client: str) -> int | None:
     return int(parsed.timestamp() * 1000)
 
 
+def _extract_ip_country_code(request: Request | None) -> str | None:
+    if not request:
+        return None
+    raw = request.headers.get("CF-IPCountry")
+    if not raw:
+        return None
+    normalized = raw.strip().upper()
+    if len(normalized) == 2 and normalized.isalpha():
+        return normalized
+    return None
+
+
 @router.get(
     "/forms/{token}",
     response_model=PublicFormResolveResponse,
@@ -154,6 +166,7 @@ async def resolve_public_form(
 )
 async def submit_public_form(
     payload: PublicFormSubmissionRequest,
+    request: Request,
     token: str = Path(..., description="Public form token"),
     db: Session = Depends(get_db),
 ) -> PublicFormSubmissionResponse:
@@ -205,6 +218,11 @@ async def submit_public_form(
     assert version is not None
 
     submitted_at_client = _parse_submitted_at_client(payload.submitted_at_client)
+    context_payload = payload.context.dict(by_alias=True, exclude_none=True)
+    ip_country_code = _extract_ip_country_code(request)
+    if ip_country_code:
+        context_payload["ipCountryCode"] = ip_country_code
+
     submission = FormSubmission(
         FormID=link.FormID,
         FormVersionID=version.FormVersionID,
@@ -213,7 +231,7 @@ async def submit_public_form(
         IdempotencyKey=payload.idempotency_key,
         SubmittedAtClient=submitted_at_client,
         AnswersJSON=json.dumps(payload.answers_by_component_id),
-        ContextJSON=json.dumps(payload.context.dict(by_alias=True, exclude_none=True)),
+        ContextJSON=json.dumps(context_payload),
     )
 
     try:

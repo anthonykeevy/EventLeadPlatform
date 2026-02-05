@@ -203,6 +203,10 @@ export const PublicFormArtboard: React.FC<{
   const [submitNotice, setSubmitNotice] = React.useState<SubmitNotice | null>(null)
   const [clientSessionId, setClientSessionId] = React.useState(() => createNewClientSessionId())
   const [kioskCountdownSeconds, setKioskCountdownSeconds] = React.useState<number | null>(null)
+  const [storageEstimate, setStorageEstimate] = React.useState<{
+    quotaMb?: number
+    usageMb?: number
+  } | null>(null)
   const clientDeviceId = React.useMemo(() => getOrCreateClientDeviceId(), [])
   const normalizedLinkType = React.useMemo(() => {
     const upper = linkType?.toUpperCase()
@@ -212,7 +216,7 @@ export const PublicFormArtboard: React.FC<{
     return undefined
   }, [linkType])
   const inputRefs = React.useRef<Record<string, React.RefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>>>({})
-  const kioskTimerRef = React.useRef<ReturnType<typeof window.setInterval> | null>(null)
+  const kioskTimerRef = React.useRef<number | null>(null)
   const kioskDeadlineRef = React.useRef<number | null>(null)
 
   const kioskConfig = React.useMemo(() => {
@@ -270,6 +274,30 @@ export const PublicFormArtboard: React.FC<{
   React.useEffect(() => {
     registerPublicOutboxOnlineHandler()
     void processPublicOutbox()
+  }, [])
+
+  React.useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.storage?.estimate) return
+    let active = true
+    navigator.storage
+      .estimate()
+      .then(result => {
+        if (!active) return
+        const quotaMb =
+          typeof result.quota === 'number' && Number.isFinite(result.quota)
+            ? Math.round((result.quota / 1024 / 1024) * 100) / 100
+            : undefined
+        const usageMb =
+          typeof result.usage === 'number' && Number.isFinite(result.usage)
+            ? Math.round((result.usage / 1024 / 1024) * 100) / 100
+            : undefined
+        if (quotaMb === undefined && usageMb === undefined) return
+        setStorageEstimate({ quotaMb, usageMb })
+      })
+      .catch(() => undefined)
+    return () => {
+      active = false
+    }
   }, [])
 
   React.useEffect(() => {
@@ -528,6 +556,36 @@ export const PublicFormArtboard: React.FC<{
       return
     }
 
+    const nav =
+      typeof navigator !== 'undefined'
+        ? (navigator as Navigator & { deviceMemory?: number; connection?: { effectiveType?: string } })
+        : undefined
+    const prefersReducedMotion =
+      typeof window !== 'undefined' && window.matchMedia
+        ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        : undefined
+    let prefersColorScheme: string | undefined
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        prefersColorScheme = 'dark'
+      } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+        prefersColorScheme = 'light'
+      } else if (window.matchMedia('(prefers-color-scheme: no-preference)').matches) {
+        prefersColorScheme = 'no-preference'
+      }
+    }
+    let clientOrientation: string | undefined
+    if (typeof window !== 'undefined') {
+      const screenOrientation = window.screen?.orientation?.type
+      if (screenOrientation) {
+        clientOrientation = screenOrientation
+      } else if (window.matchMedia?.('(orientation: portrait)')?.matches) {
+        clientOrientation = 'portrait'
+      } else if (window.matchMedia?.('(orientation: landscape)')?.matches) {
+        clientOrientation = 'landscape'
+      }
+    }
+
     const request: PublicFormSubmissionRequest = {
       idempotencyKey: createIdempotencyKey(),
       submittedAtClient: new Date().toISOString(),
@@ -557,6 +615,20 @@ export const PublicFormArtboard: React.FC<{
         renderCanvasWidth: canvasWidth,
         renderCanvasHeight: canvasHeight,
         renderScaleAtSubmit: scale,
+        clientOnlineAtSubmit: typeof navigator !== 'undefined' ? navigator.onLine : undefined,
+        effectiveConnectionType: nav?.connection?.effectiveType,
+        maxTouchPoints: typeof navigator !== 'undefined' ? navigator.maxTouchPoints : undefined,
+        clientOrientation,
+        prefersColorScheme,
+        prefersReducedMotion,
+        deviceMemoryGb: nav?.deviceMemory,
+        hardwareConcurrency: nav?.hardwareConcurrency,
+        supportsIndexedDB: typeof indexedDB !== 'undefined',
+        supportsServiceWorker: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
+        storageQuotaMb: storageEstimate?.quotaMb,
+        storageUsageMb: storageEstimate?.usageMb,
+        appVersion: import.meta.env.VITE_APP_VERSION,
+        buildSha: import.meta.env.VITE_BUILD_SHA,
       },
     }
 

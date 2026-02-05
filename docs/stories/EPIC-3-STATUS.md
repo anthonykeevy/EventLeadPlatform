@@ -35,7 +35,7 @@ A recovery PR was merged into `master` to restore missing Epic 3 work that exist
 
 - Story 3.11 (Dynamic Submission / Outbox) is now **✅ Complete**.
 - UAT evidence is recorded in `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` (Scenarios 1–10 ✅ PASS).
-- **Integrator step:** All task PRs merged into the story branch (#7–#16). Story PR to `master`: #12.
+- **Integrator step:** All task PRs merged into the story branch (#7–#16). Story merged to `master` via PR #12.
 - Residual: frontend `npm run lint` / `npm run build` may fail due to **pre-existing** TS/lint issues (see `docs/tasks/3.11/T09-integration-and-uat-polish.completion.md`).
 - **Next focus:** Post-Epic stabilization (frontend build/lint baseline) + define Epic 4 (lead processing / reporting / export).
 
@@ -161,4 +161,4 @@ See: `docs/GRID-LAYOUT-GUIDE.md` for comprehensive schema, mockups, and implemen
 ---
 
 *Epic 3 Status Document - Updated by Scrum Master Agent*  
-*Last Updated: 2026-02-05 (Story 3.11 complete; story PR #12 ready to merge)*
+*Last Updated: 2026-02-05 (Story 3.11 complete; merged to `master` via PR #12)*

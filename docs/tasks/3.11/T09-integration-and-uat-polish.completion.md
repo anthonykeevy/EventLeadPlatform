@@ -3,13 +3,13 @@
 **Story:** 3.11  
 **Task:** Integration + UAT Polish (Scenarios 1–10)  
 **Completed:** 2026-02-05  
-**Status:** In Progress (Scenario 3 blocked)
+**Status:** In Progress (UAT complete)
 
 ---
 
 ## Summary of Changes
 
-Bootstrapped T09 with status updates and a scenario-mapped UAT checklist, created the task PR, ran required automated checks, and executed scenarios 1–10 locally with one exception (Scenario 3 blocked by offline reload emulation timing).
+Bootstrapped T09 with status updates and a scenario-mapped UAT checklist, created the task PR, ran required automated checks, and executed scenarios 1–10 locally.
 
 ## Files Changed
 
@@ -27,12 +27,12 @@ Bootstrapped T09 with status updates and a scenario-mapped UAT checklist, create
 ## Acceptance Criteria Verification
 
 ### AC1: Execute Scenarios 1–10 (local)
-- **Status:** PARTIAL  
-- **Result:** Scenarios 1, 2, 4, 5, 6, 7, 8, 9, 10 passed; Scenario 3 blocked.
+- **Status:** PASS  
+- **Result:** Scenarios 1–10 passed.
 
 ### AC2: Fix integration defects blocking scenarios
-- **Status:** NOT STARTED  
-- **Reason:** Only Scenario 3 remains blocked (offline reload emulation timing).
+- **Status:** N/A  
+- **Reason:** No blocking defects found during scenarios.
 
 ## Test Evidence
 
@@ -54,7 +54,7 @@ Result: FAIL (pre-existing frontend lint/TypeScript errors across multiple files
 
 - **Scenario 1 (online submit):** PASS — success banner shown, fields cleared.
 - **Scenario 2 (offline queue):** PASS — offline banner shown; outbox count increased (pending=1).
-- **Scenario 3 (queue survives reload):** BLOCKED — reload occurs online before offline emulation patch applies, auto-syncs queued item.
+- **Scenario 3 (queue survives reload):** PASS — manual offline reload confirmed queued item persisted.
 - **Scenario 4 (reconnect auto-sync):** PASS — pending item processed after online event; outbox pending count returned to 0.
 - **Scenario 5 (backend down while online):** PASS — simulated upload failure queued item; restored fetch synced to success.
 - **Scenario 6 (idempotency):** PASS — replay of latest submission returned `status: "DUPLICATE"` with same `submissionId`.
@@ -71,9 +71,8 @@ Result: FAIL (pre-existing frontend lint/TypeScript errors across multiple files
 
 ## Known Limitations / Out-of-Scope Items
 
-- Scenario 3 requires true offline reload; current automation uses runtime fetch/online patch which applies after reload and allows auto-sync.
+- None noted for T09 scenarios.
 
 ## Recommended Next Step
 
-1. Re-run Scenario 3 using real DevTools offline mode (before reload) to confirm queue persistence.
-2. Update UAT results file with final Scenario 3 outcome and mark T09 done if all scenarios pass.
+1. Mark T09 status as ✅ Done after any final review/sign-off.

@@ -17,10 +17,13 @@ export const PublicFormPreviewShellPage: React.FC = () => {
     )
   }
 
-  const passthroughParams = location.search ? `&${location.search.slice(1)}` : ''
-  const embedUrl = `/forms/${token}?embed=1${passthroughParams}${
-    action ? `&action=${action}` : ''
-  }&nonce=${nonce}`
+  const passthroughParams = new URLSearchParams(location.search)
+  passthroughParams.delete('action')
+  passthroughParams.delete('nonce')
+  const passthroughQuery = passthroughParams.toString()
+  const embedUrl = `/forms/${token}?embed=1${
+    passthroughQuery ? `&${passthroughQuery}` : ''
+  }${action ? `&action=${action}` : ''}&nonce=${nonce}`
   const publicUrl = `/forms/${token}${location.search ?? ''}`
 
   return (

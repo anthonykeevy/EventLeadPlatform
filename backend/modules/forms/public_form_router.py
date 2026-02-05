@@ -66,8 +66,10 @@ def _parse_occurred_at_client(occurred_at_client: str) -> int | None:
     except ValueError:
         return None
 
-    if parsed.tzinfo is not None:
-        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    else:
+        parsed = parsed.astimezone(timezone.utc)
 
     return int(parsed.timestamp() * 1000)
 

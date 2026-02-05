@@ -13,7 +13,7 @@
 |----------|--------|-------|
 | 1 — Online submit uploads immediately | ✅ PASS | Success banner shown; fields cleared. |
 | 2 — Offline submit queued | ✅ PASS | Offline banner shown; outbox pending count increased. |
-| 3 — Queue survives reload | ⚠️ BLOCKED | Reload applies before offline emulation patch; queued item auto-syncs. |
+| 3 — Queue survives reload | ✅ PASS | Manual offline reload confirmed queued item persisted. |
 | 4 — Reconnect triggers auto-sync | ✅ PASS | Pending item processed after online event; outbox pending count returned to 0. |
 | 5 — Backend down while online | ✅ PASS | Simulated upload failure queued; restore synced to success. |
 | 6 — Idempotency (no duplicates) | ✅ PASS | Replay returned `status: "DUPLICATE"` for same idempotency key. |
@@ -34,4 +34,4 @@
 
 ## Blocking Issue
 
-- Scenario 3 requires true offline reload using DevTools network offline mode before reload.
+- None.

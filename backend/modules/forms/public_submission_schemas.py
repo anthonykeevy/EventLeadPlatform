@@ -40,8 +40,21 @@ class PublicSubmissionContext(PublicSchemaBase):
     render_canvas_width: Optional[int] = Field(None, alias="renderCanvasWidth")
     render_canvas_height: Optional[int] = Field(None, alias="renderCanvasHeight")
     render_scale_at_submit: Optional[float] = Field(None, alias="renderScaleAtSubmit")
+    client_online_at_submit: Optional[bool] = Field(None, alias="clientOnlineAtSubmit")
+    effective_connection_type: Optional[str] = Field(None, alias="effectiveConnectionType")
+    max_touch_points: Optional[int] = Field(None, alias="maxTouchPoints")
+    client_orientation: Optional[str] = Field(None, alias="clientOrientation")
+    prefers_color_scheme: Optional[str] = Field(None, alias="prefersColorScheme")
+    prefers_reduced_motion: Optional[bool] = Field(None, alias="prefersReducedMotion")
+    device_memory_gb: Optional[float] = Field(None, alias="deviceMemoryGb")
+    hardware_concurrency: Optional[int] = Field(None, alias="hardwareConcurrency")
+    supports_indexed_db: Optional[bool] = Field(None, alias="supportsIndexedDB")
+    supports_service_worker: Optional[bool] = Field(None, alias="supportsServiceWorker")
+    storage_quota_mb: Optional[float] = Field(None, alias="storageQuotaMb")
+    storage_usage_mb: Optional[float] = Field(None, alias="storageUsageMb")
     app_version: Optional[str] = Field(None, alias="appVersion")
     build_sha: Optional[str] = Field(None, alias="buildSha")
+    ip_country_code: Optional[str] = Field(None, alias="ipCountryCode")
 
 
 class PublicFormSubmissionRequest(PublicSchemaBase):

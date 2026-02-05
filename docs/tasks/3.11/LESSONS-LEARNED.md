@@ -96,6 +96,26 @@ _Append lessons as tasks are completed. Format:_
 
 ---
 
+## Task: T09 (2026-02-05)
+
+**Dev Lessons:**
+- Integration/UAT polish is easiest when the UAT guide is treated as the “source of truth” and updated immediately with results.
+
+**Testing Lessons:**
+- Ensure the story UAT guide “Pass/Fail Recording” covers **all** scenarios (1–10) so results can be marked without ambiguity.
+
+**Process Lessons:**
+- When scenarios complete, immediately update:
+  - `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` status to ✅ PASSED
+  - `docs/tasks/3.11/TASK-PLAN.md` DC1–DC3 to checked
+
+**Links:**
+- Completion: `T09-integration-and-uat-polish.completion.md`
+- UAT: `T09-integration-and-uat-polish.uat-results.md`
+- Retro: `T09-integration-and-uat-polish.retro.md`
+
+---
+
 ## Task: T08 (2026-02-05)
 
 **Dev Lessons:**

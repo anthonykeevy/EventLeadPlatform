@@ -2,7 +2,7 @@
 
 **Story:** 3.11  
 **Scope:** Public form submission transport + offline outbox + sync  
-**Status:** 📋 Planned (to be executed during Story 3.11)  
+**Status:** ✅ PASSED (executed 2026-02-05)  
 
 ---
 
@@ -206,17 +206,24 @@ Expected:
 ## Pass/Fail Recording
 
 Mark each scenario:
-- [ ] Scenario 1: ✅ / ❌
-- [ ] Scenario 2: ✅ / ❌
-- [ ] Scenario 3: ✅ / ❌
-- [ ] Scenario 4: ✅ / ❌
-- [ ] Scenario 5: ✅ / ❌
-- [ ] Scenario 6: ✅ / ❌
-- [ ] Scenario 7: ✅ / ❌
+- [x] Scenario 1: ✅ PASS
+- [x] Scenario 2: ✅ PASS
+- [x] Scenario 3: ✅ PASS
+- [x] Scenario 4: ✅ PASS
+- [x] Scenario 5: ✅ PASS
+- [x] Scenario 6: ✅ PASS
+- [x] Scenario 7: ✅ PASS
+- [x] Scenario 8: ✅ PASS
+- [x] Scenario 9: ✅ PASS
+- [x] Scenario 10: ✅ PASS
 
 ---
 
 ## Notes / Issues Found
 
-- 
+- None.
+- Evidence highlights:
+  - Idempotency: `POST /api/public/forms/{token}/submissions` returned `{ status: "DUPLICATE" }` for replay attempts with the same idempotency key.
+  - Validation telemetry: Network request observed to `/api/public/forms/{token}/telemetry/validation`.
+  - Kiosk rotation: same `clientDeviceId` with different `clientSessionId` across two submissions.
 

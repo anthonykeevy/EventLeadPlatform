@@ -24,6 +24,23 @@ _Append lessons as tasks are completed. Format:_
 
 ## Lessons
 
+## Task: T01 (2026-02-03)
+
+**Process Lessons:**
+- Frontend build may fail due to pre-existing TypeScript errors across unrelated features, blocking verification for otherwise-scoped work.
+- Treat “frontend build is green” as a prerequisite when ACs require `cd frontend; npm run build`.
+- Maintain a dedicated build-stabilization task/branch when needed to restore `npm run build` to green before contract-only tasks that depend on it.
+
+**Dev Lessons:**
+- Run backend import smoke checks from the `backend/` directory (top-level imports expect `backend/` as the import root). Example: `cd backend; python -c "from main import app"`.
+- Document the backend cwd/PYTHONPATH expectation; consider standardizing to package-relative imports in a future refactor.
+
+**Links:**
+- Completion: `T01-submission-contracts-and-foundation.completion.md`
+- UAT: `T01-submission-contracts-and-foundation.uat-results.md`
+
+---
+
 ## Task: T02 (2026-02-03)
 
 **Dev Lessons:**
@@ -39,6 +56,44 @@ _Append lessons as tasks are completed. Format:_
 - Completion: `T02-db-migration-formsubmission.completion.md`
 - UAT: `T02-db-migration-formsubmission.uat-results.md`
 - Retro: `T02-db-migration-formsubmission.retro.md`
+
+---
+
+## Task: T03 (2026-02-03)
+
+**Dev Lessons:**
+- Provide PowerShell-native verification commands for Windows UAT (`T03-backend-public-submission-endpoint.completion.md`).
+
+**Testing Lessons:**
+- Keep deterministic, copy-pasteable UAT commands (`T03-backend-public-submission-endpoint.uat.md`).
+
+**Process Lessons:**
+- Maintain tight alignment between task scope and public router behavior (`T03-backend-public-submission-endpoint.md`).
+
+**Links:**
+- Completion: `T03-backend-public-submission-endpoint.completion.md`
+- UAT: `T03-backend-public-submission-endpoint.uat-results.md`
+- Retro: `T03-backend-public-submission-endpoint.retro.md`
+
+---
+
+## Task: T04 (2026-02-04)
+
+**Dev Lessons:**
+- Validate tooling baseline (ESLint config + dependency alignment) before running required frontend lint/build commands (baseline issues can block verification).
+
+**Testing Lessons:**
+- Add unit/integration tests for outbox retry/backoff and request headers.
+- Include outbox tests in CI with mocked `fetch` and IndexedDB.
+
+**Process Lessons:**
+- Provide standardized DevTools scripts for persistence + header validation evidence.
+- Add evidence scripts to UAT checklist templates for storage + network inspection.
+
+**Links:**
+- Completion: `T04-frontend-public-outbox-indexeddb.completion.md`
+- UAT: `T04-frontend-public-outbox-indexeddb.uat-results.md`
+- Retro: `T04-frontend-public-outbox-indexeddb.retro.md`
 
 ---
 

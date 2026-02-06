@@ -4,7 +4,7 @@
 **Epic:** Epic 3 - Form Builder & Logic Engine  
 **Created:** 2026-02-03  
 **Decomposition Pattern:** Foundation First + Migration Safety + API-First  
-**Status:** ⏳ Planned  
+**Status:** ✅ Done  
 
 ---
 
@@ -21,10 +21,11 @@
 
 Story 3.11 is complete when:
 
-- [ ] **DC1:** All Story acceptance criteria pass (online submit, offline queue, auto-sync, idempotency, token behavior, shared-device safety, validation telemetry).
-- [ ] **DC2:** `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
-- [ ] **DC3:** Submission UX is reliable offline-first (no lost submissions during UAT scenarios).
-- [ ] **DC4:** Implementation is merged via Story PR → `master`.
+- [x] **DC1:** All Story acceptance criteria pass (online submit, offline queue, auto-sync, idempotency, token behavior, shared-device safety, validation telemetry).
+- [x] **DC2:** `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
+- [x] **DC3:** Submission UX is reliable offline-first (no lost submissions during UAT scenarios).
+- [x] **DC4:** Implementation is merged via Story PR → `master`.
+- [x] **DC5:** Frontend baseline is green (`npm run lint` + `npm run build`).
 
 ---
 
@@ -32,24 +33,27 @@ Story 3.11 is complete when:
 
 | Task | Title | Status | Depends On | Est. Time | Focus Area |
 |------|-------|--------|------------|-----------|------------|
-| **T01** | Submission Contracts + Foundations | ⏳ Ready | - | 2-3 hrs | Foundation |
+| **T00** | Frontend Build Stabilization (Typecheck Decoupling) | ✅ Done | - | 1-2 hrs | Frontend/Build |
+| **T01** | Submission Contracts + Foundations | ✅ Done | T00 | 2-3 hrs | Foundation |
 | **T02** | DB Migration: `dbo.FormSubmission` (naming rules compliant) | ✅ HumanDone | T01 | 1-2 hrs | Database |
-| **T03** | Backend: Public Submission Endpoint + Idempotency | ⏸️ Pending | T02 | 2-3 hrs | Backend/API |
-| **T04** | Frontend: Public Outbox (IndexedDB) + Client IDs | ⏸️ Pending | T01 | 2-3 hrs | Frontend/Offline |
-| **T05** | Renderer Integration: Submit → Upload/Queue + Clear-after-capture | ⏸️ Pending | T03, T04 | 2-3 hrs | Frontend/UX |
-| **T06** | Kiosk Mode (optional): Auto-reset + Countdown + Session Rotation | ⏸️ Pending | T05 | 1-2 hrs | UX |
-| **T07** | Validation Telemetry: Diagnostics + Storage + “Resolved vs Abandoned” Signals | ⏸️ Pending | T05 | 2-3 hrs | Observability |
-| **T08** | Client Context: Compatibility + Device/Browser Signals (safe) | ⏸️ Pending | T03, T04 | 1-2 hrs | Observability |
-| **T09** | Integration + UAT Polish (Scenarios 1–10) | ⏸️ Pending | T03-T08 | 2-3 hrs | Integration |
+| **T03** | Backend: Public Submission Endpoint + Idempotency | ✅ HumanDone | T02 | 2-3 hrs | Backend/API |
+| **T04** | Frontend: Public Outbox (IndexedDB) + Client IDs | ✅ Done | T01 | 2-3 hrs | Frontend/Offline |
+| **T05** | Renderer Integration: Submit → Upload/Queue + Clear-after-capture | ✅ Done | T03, T04 | 2-3 hrs | Frontend/UX |
+| **T06** | Kiosk Mode (optional): Auto-reset + Countdown + Session Rotation | ✅ Done | T05 | 1-2 hrs | UX |
+| **T07** | Validation Telemetry: Diagnostics + Storage + “Resolved vs Abandoned” Signals | ✅ HumanDone | T05 | 2-3 hrs | Observability |
+| **T08** | Client Context: Compatibility + Device/Browser Signals (safe) | ✅ Done | T03, T04 | 1-2 hrs | Observability |
+| **T09** | Integration + UAT Polish (Scenarios 1–10) | ✅ Done | T03-T08 | 2-3 hrs | Integration |
+| **T10** | Frontend Build Stabilization (lint + build clean) | ✅ Done | T09 | 2-4 hrs | Frontend/Build |
 
-**Total Estimated Time:** 13–21 hours (3–5 days)
+**Total Estimated Time:** 15–25 hours (4–6 days)
 
 ---
 
 ## 🔗 Dependency Graph
 
 ```
-T01 (Contracts + Foundation)
+T00 (Frontend build stabilization)
+ └── T01 (Contracts + Foundation)
  ├── T02 (DB Migration: FormSubmission)
  │    └── T03 (Backend Public Submission + Idempotency)
  │         ├── T05 (Renderer Submit Integration)
@@ -61,6 +65,7 @@ T01 (Contracts + Foundation)
       └── T08 (Client Context)
 
 T09 (Integration + UAT) depends on: T03–T08
+ └── T10 (Frontend Build Stabilization)
 ```
 
 ---
@@ -69,15 +74,17 @@ T09 (Integration + UAT) depends on: T03–T08
 
 | Task | Task Spec | Status |
 |------|-----------|--------|
-| T01 | `T01-submission-contracts-and-foundation.md` | ⏳ Ready |
+| T00 | `T00-frontend-build-stabilization.md` | ✅ Done |
+| T01 | `T01-submission-contracts-and-foundation.md` | ✅ Done |
 | T02 | `T02-db-migration-formsubmission.md` | ✅ HumanDone |
-| T03 | `T03-backend-public-submission-endpoint.md` | ⏸️ Pending |
-| T04 | `T04-frontend-public-outbox-indexeddb.md` | ⏸️ Pending |
-| T05 | `T05-renderer-submit-integration.md` | ⏸️ Pending |
-| T06 | `T06-kiosk-mode-auto-reset.md` | ⏸️ Pending |
-| T07 | `T07-validation-telemetry-events.md` | ⏸️ Pending |
-| T08 | `T08-client-context-and-compatibility.md` | ⏸️ Pending |
-| T09 | `T09-integration-and-uat-polish.md` | ⏸️ Pending |
+| T03 | `T03-backend-public-submission-endpoint.md` | ✅ HumanDone |
+| T04 | `T04-frontend-public-outbox-indexeddb.md` | ✅ Done |
+| T05 | `T05-renderer-submit-integration.md` | ✅ Done |
+| T06 | `T06-kiosk-mode-auto-reset.md` | ✅ Done |
+| T07 | `T07-validation-telemetry-events.md` | ✅ HumanDone |
+| T08 | `T08-client-context-and-compatibility.md` | ✅ Done |
+| T09 | `T09-integration-and-uat-polish.md` | ✅ Done |
+| T10 | `T10-frontend-build-stabilization.md` | ✅ Done |
 
 ---
 
@@ -130,11 +137,12 @@ These areas are off-limits unless a task explicitly says otherwise:
 - ⏳ **Ready** - Can start now (dependencies met)
 - 🔄 **In Progress** - Currently being worked on
 - ✅ **Done** - Completed and merged into story branch
+- ✅ **HumanDone** - Completed with required human execution (e.g., DB migrations) and recorded UAT
 - ❌ **FailedUAT** - UAT failed, needs fix task
 - ⏸️ **Pending** - Waiting on dependencies
 
 ---
 
 *Task Plan created by Ralf-SM*  
-*Last Updated: 2026-02-03*
+*Last Updated: 2026-02-06 (T10 complete; story green on lint/build)*
 

@@ -1,7 +1,7 @@
 # Epic 3 Workflow Guide - BMAD + Ralf Integration
 
 **Current Focus:** Story 3.11 - Dynamic Submission (Outbox)  
-**Status:** 📋 Planned  
+**Status:** 🔄 In Progress  
 
 ---
 
@@ -226,6 +226,8 @@ Output requirements:
    - Create/update `docs/tasks/3.11/STATUS.md` (current task = **T01** initially)
    - Ensure **ALL** Phase 3 task specs exist (`docs/tasks/3.11/Txx-*.md`)
    - Ensure each task spec header is consistent with `TASK-PLAN.md` (Status + Dependencies)
+   - Ensure the task status model is present and consistent (see Phase 3 “Task Status Model”):
+     - `TASK-PLAN.md` skeleton table, `TASK-PLAN.md` task-files table, each `Txx-*.md` header, and `STATUS.md` must agree.
 
 Task decomposition guidance:
 - Each task should be completable in ONE chat session
@@ -265,11 +267,52 @@ Start a new chat and run the project skill **`uat-bugfix`** to execute this enti
 
 For **each task**, follow this cycle:
 
+#### 👤 / 🤖 Legend (Human-in-the-loop)
+
+- 🧑 **Human**: a manual step you perform
+- 🤖 **AI**: a prompt you paste to an agent
+- ✅ **Cross-check rule**:
+  - After 🧑 steps, the **AI** should confirm the state (branch/PR/status) is correct
+  - After 🤖 steps, the **Human** should sanity-check results (files changed, PR base, status consistency)
+
+#### ✅ Task Status Model (Hierarchical, Required)
+
+Statuses must be **meaningful** and **consistent** across:
+- `docs/tasks/<story>/TASK-PLAN.md` (both tables)
+- `docs/tasks/<story>/STATUS.md`
+- `docs/tasks/<story>/Txx-*.md` (task spec header)
+
+**Hierarchy (progress should always move “down” this list):**
+
+| Status | Meaning | Allowed when | Next expected status |
+|--------|---------|--------------|----------------------|
+| ⏸️ **Pending** | Not startable yet (blocked by dependencies or intentionally deferred) | Any dependency not complete | ⏳ Ready |
+| ⏳ **Ready** | Startable now (dependencies complete) | All dependencies are ✅ Done / ✅ HumanDone | 🔄 In Progress |
+| 🔄 **In Progress** | Work is actively happening on a task branch | Task branch + PR exist; at least one push has occurred | ✅ Done / ✅ HumanDone (or ❌ FailedUAT) |
+| ✅ **Done** | Task is complete **and merged into the Story branch** with UAT recorded | PR merged into Story branch; UAT results exist | (next task) |
+| ✅ **HumanDone** | Same as ✅ Done, plus required human-only execution completed (e.g., DB migrations) and recorded | Human steps executed + recorded; PR merged into Story | (next task) |
+| ❌ **FailedUAT** | UAT failed; stop and create a bugfix task | UAT results include failures | 🔄 In Progress (fix task) |
+
+**Hard rules (consistency):**
+- A task cannot be marked ✅ Done / ✅ HumanDone unless **all its dependencies** are ✅ Done / ✅ HumanDone.
+- If you change a task’s status, update it in **all 4 places**:
+  - `Txx-*.md` header
+  - `TASK-PLAN.md` skeleton row
+  - `TASK-PLAN.md` task-files row
+  - `STATUS.md` progress table (and `Current Task`)
+
+---
+
 ### **Step 3a: Open New Task Chat**
 
+🧑 **Human**
 1. If you created a task worktree: **open that task worktree folder** in Cursor (recommended: a separate window)
 2. Create a new Cursor chat
 3. Name it: `Epic3-3.11-Txx <slug>`
+
+✅ **Human check (quick):**
+- Confirm the chat name matches the task spec filename.
+- In the integrated terminal **in the same Cursor window**, run `git branch --show-current` and confirm you are on the expected `task/...` branch. (Agents can’t switch worktrees; they operate in whatever folder you opened.)
 
 ### **Step 3b0: Git Setup for Task (Branch + PR)**
 
@@ -279,6 +322,43 @@ For **each task**, follow this cycle:
 2. Push it immediately
 3. Open a PR **into the story branch** (not `master`)
 4. Use a task worktree if desired (recommended for isolation)
+
+**If GitHub won’t let you open the PR yet (common):**
+
+- GitHub requires at least **one commit** on the task branch before it will allow a PR. The error looks like: `No commits between ...`.
+- Standard fix: make a tiny **PR bootstrap** commit in the task worktree, push it, then create the PR:
+  - Recommended: update the task spec `**Status:**` (often `⏸️ Pending → ⏳ Ready`, then `⏳ Ready → 🔄 In Progress` when implementation begins) and keep the status consistent per the “Task Status Model”.
+  - If you don’t want to touch docs yet: create an empty bootstrap commit (`git commit --allow-empty -m "chore(epic3): start Txx"`), then `git push`.
+- If you used `./scripts/git/new-task.ps1 ... -CreatePR`: re-run it after your first push (it’s safe to re-run; it will skip worktree creation if it already exists).
+
+🧑 **Human checkpoint (required, 60 seconds):**
+
+Run these commands in the **task worktree** and confirm the output makes sense before coding:
+
+```powershell
+git status -sb
+git branch --show-current
+git rev-parse --short HEAD
+```
+
+Confirm on GitHub (UI or `gh`) that:
+- The **Task PR base** is the **Story branch** (NOT `master`)
+- A **Draft Story PR** exists from **Story → `master`** (re-create it if it was merged/closed)
+
+**Avoid the #1 PR mistake (wrong base branch):**
+- Do **not** click GitHub’s “Compare & pull request” banner (it defaults base to `master`).
+- Always create the Task PR with either:
+  - `./scripts/git/new-task.ps1 ... -CreatePR` (preferred), or
+  - `gh pr create --base "<story-branch>" --head "<task-branch>" ...`
+
+**If the Task PR base is wrong (e.g., it targets `master`):**
+- Fix it immediately (recommended via CLI):
+
+```powershell
+& "C:\Program Files\GitHub CLI\gh.exe" pr edit <PR_NUMBER> --base "<story-branch>"
+```
+
+- If GitHub UI won’t let you change base: it’s usually because the branch has **no unique commits yet**. Make the tiny “start task” commit (set the task spec `**Status:** 🔄 In Progress`), push, then edit the PR base.
 
 **Helper script (prints commands with `-DryRun`):**
 ```powershell
@@ -311,6 +391,29 @@ Outputs:
 - Provide the Task PR link (or the manual GitHub steps)
 ```
 
+#### Runtime / worktree preflight (prevents “endpoint missing” confusion)
+
+Before you start services (backend/frontend) or run UAT, verify the runtime folder is **the right branch** and **up-to-date**.
+
+- In the folder you will run the backend from (usually the **Story worktree**), run:
+
+```powershell
+git status -sb
+git branch --show-current
+git rev-parse --short HEAD
+```
+
+- If you see `[behind N]` → `git pull` before testing.
+- If you have local edits (`git status --porcelain` not empty) → commit them to the correct **task branch**, or stash them. Keep the **Story worktree clean**.
+- For new endpoints, do a quick preflight in Swagger (or curl/Postman) to confirm the route is registered before deeper UAT.
+
+**GH CLI note (Windows):**
+- If `gh` is not on PATH, you can run it with:
+
+```powershell
+& "C:\Program Files\GitHub CLI\gh.exe" --version
+```
+
 #### Worktrees: `EventLeadPlatform` vs worktree root (read this if you feel “lost”)
 
 - `EventLeadPlatform/` is your **main worktree** (one local clone + the main `.git` store).
@@ -333,6 +436,10 @@ Paste in the new Task Chat:
 ```markdown
 @ralf-dev
 
+IMPORTANT (do not ask me twice):
+- State the current git branch (`git branch --show-current`). If you are not on the expected `task/...` branch, STOP and tell me exactly which worktree folder to open in Cursor.
+- If the branch is correct and my message already contains a menu trigger (like `*run-task`), execute it immediately (do NOT show a menu and wait).
+
 Git discipline (mandatory):
 - Ensure you are on the task branch (NOT `master`).
 - Push at least once per session so nothing is local-only.
@@ -353,10 +460,14 @@ Outputs:
 - docs/tasks/3.11/Txx-<slug>.uat.md (auto-generated)
 ```
 
+**If you see a menu instead of execution:** reply with `*run-task` (only) and the task spec path (if requested). The goal is one message → execution, not a two-step handshake.
+
 **ralf-dev will:**
 1. Implement the task
 2. Generate completion note with evidence
 3. **Auto-generate UAT checklist** (new feature!)
+
+🧑 **Human check:** skim the diff (`git diff`) and ensure changes match the task scope + forbidden zones before moving to UAT.
 
 ### **Step 3c: Human UAT**
 
@@ -372,6 +483,9 @@ In the **same Task Chat**, paste:
 ```markdown
 @ralf-uat
 
+IMPORTANT (do not ask me twice):
+- If my message already contains a menu trigger (like `*record-uat`), execute it immediately (do NOT show a menu and wait).
+
 *record-uat
 
 Inputs:
@@ -384,6 +498,8 @@ Outputs:
 - docs/tasks/3.11/Txx-<slug>.uat-results.md
 - Update STATUS.md
 ```
+
+**If you see a menu instead of execution:** reply with `*record-uat` (only) and paste your results again.
 
 ### **Step 3e: Run Retrospective (@ralf-retro)**
 
@@ -404,6 +520,21 @@ Outputs:
 - Append to docs/tasks/3.11/LESSONS-LEARNED.md
 ```
 
+### **Step 3e1: Final Commit + Push (Agent-owned)**
+
+After retro output files are created, ensure nothing is “local-only” (this is what makes the PR reliably appear/update in GitHub):
+
+```powershell
+git status --porcelain
+git add -A
+git commit -m "<storyId>: <TaskId> - record UAT + retro"
+git push
+```
+
+- If `git status --porcelain` is empty: still confirm the branch is pushed and the PR shows the latest commit.
+- Confirm the Task PR includes the latest commit before handing off to the Integrator.
+- ✅ **Human checkpoint:** verify the task status is consistent in `Txx-*.md`, `TASK-PLAN.md`, and `STATUS.md` (see “Task Status Model” above).
+
 ### **Step 3f: Return to Main Chat (@ralf-sm)**
 
 Close the Task Chat. In the **Main Chat**, paste:
@@ -421,17 +552,47 @@ This will:
 2. Update TASK-PLAN.md
 3. Check if story is complete (all tasks done + Done Criteria met)
 4. If not complete: Create/refine next task spec
-5. Provide new Task Chat instructions
+5. Provide new Task Chat instructions **with filled-in values**
 6. Ensure Phase 3 task specs remain consistent (update Status/Dependencies headers + `docs/tasks/3.11/STATUS.md`)
 ```
 
+🤖 **Ralf-SM Output Contract (automation required)**
+
+When `*next-task` completes, Ralf-SM must output a **Next Task Launch Kit** with real values (no `<placeholders>`):
+
+1. **Next task chosen** (Task ID + title + why it’s next)
+2. **Chat name** for Step 3a (example: `Epic3-3.11-T06 kiosk-mode-auto-reset`)
+3. **Git setup command** for Step 3b0 (PowerShell) using:
+   - Story branch: `story/epic3-3.11-dynamic-submission`
+   - Story ID: `3.11`
+   - Next Task ID: `Txx`
+   - Slug derived from the task spec filename (everything after `Txx-` and before `.md`)
+4. **Ready-to-paste prompts** for:
+   - 🤖 `@ralf-dev *run-task` (with exact Task Spec path)
+   - 🧑 UAT pointer (exact `*.uat.md` path)
+   - 🤖 `@ralf-uat *record-uat`
+   - 🤖 `@ralf-retro *run-retro`
+5. **Human checkpoints** included inline:
+   - Verify PR base is Story (NOT `master`)
+   - Verify Story→master Draft PR exists (re-create if merged/closed)
+   - Verify status consistency across the 4 places (Task Status Model)
+
+✅ **Human check:** if Ralf-SM outputs any placeholders, stop and ask it to re-emit the Launch Kit with real values.
+
 ### **Step 3g: Integrator Merge (Task PR → Story Branch)**
 
-After UAT passes and retro is recorded for the task:
+This is the “integrator” step: it’s where the task becomes **officially part of the story** (and where conflicts are handled on purpose, not by accident).
+
+After UAT passes, retro is recorded, and Step 3e1 push is done:
 - Merge the **Task PR** into the **Story branch**
 - Resolve conflicts (expected when multiple tasks touch the same files)
 - Run integration checks (frontend typecheck/build, backend tests as applicable)
 - Delete the task worktree (if used)
+
+🧑 **Human checkpoint (required):**
+- Before clicking “Merge”, confirm the PR base is the **Story branch** (not `master`).
+- After merge, `git pull` in the **Story worktree** and confirm your changes landed (then continue to the next task).
+- If anything looks “missing”, verify you are running services from the **Story worktree** (see “Runtime / worktree preflight”).
 
 **Repeat Steps 3a-3g for each task until all tasks are complete.**
 

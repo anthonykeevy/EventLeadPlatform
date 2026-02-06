@@ -94,6 +94,22 @@ root_cause_patterns:
     frequency: 1
     last_seen: 2026-02-04
 
+  # Pattern 8: Typecheck Policy Unclear
+  typecheck_policy_unclear:
+    name: "Typecheck Policy Unclear"
+    symptoms:
+      - "Build fails due to tsc errors late in task"
+      - "Build script changed to bypass typecheck"
+    root_cause: "Task spec does not clarify whether tsc is required for build"
+    prevention:
+      - "ralf-sm: Specify typecheck policy in Task Spec"
+      - "ralf-dev: Run typecheck early and record baseline errors"
+    example:
+      bad: "Discover tsc failures only at final build step"
+      good: "Explicitly document typecheck requirement and baseline errors"
+    frequency: 1
+    last_seen: 2026-02-06
+
   # Pattern 7: Preview Query Params Lost
   preview_query_params_lost:
     name: "Preview Query Params Lost"

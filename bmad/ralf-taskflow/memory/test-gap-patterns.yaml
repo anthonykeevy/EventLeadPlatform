@@ -177,6 +177,25 @@ test_gaps:
     priority: "medium"
     frequency: 1
 
+  # Gap 8: Lint/Build Baseline CI Checks
+  lint_build_baseline:
+    name: "Missing Lint/Build Baseline CI Checks"
+    gap_description: "Lint/build run only manually; warning trends not captured"
+    symptoms:
+      - "Baseline warnings unknown"
+      - "Build regressions discovered late"
+    test_to_add:
+      type: "pipeline"
+      location: ".github/workflows/"
+      template: |
+        - name: Lint (warnings ok)
+          run: npm run lint
+        - name: Build
+          run: npm run build
+      command: "npm run lint && npm run build"
+    priority: "medium"
+    frequency: 1
+
 # When to add each test type
 test_type_guidance:
   unit:

@@ -59,6 +59,21 @@ decomposition_improvements:
       - [ ] Unauthorized access
     frequency: 0
 
+  # Improvement 4: Typecheck Policy Explicit
+  typecheck_policy_explicit:
+    name: "Make Typecheck Policy Explicit"
+    description: "State whether tsc is required as part of build in the Task Spec"
+    applies_to: "ralf-sm"
+    benefits:
+      - "Prevents late build surprises"
+      - "Clarifies verification scope"
+    example:
+      before: |
+        AC: npm run build passes
+      after: |
+        AC: npm run build passes (tsc required: yes/no)
+    frequency: 1
+
 verification_improvements:
 
   # Improvement 1: Test Before Complete
@@ -135,6 +150,21 @@ verification_improvements:
     benefits:
       - "Avoids test blocks due to missing config"
       - "Reduces wasted verification cycles"
+    frequency: 1
+
+  # Improvement 5: Lint/Build Warning Baseline
+  lint_build_warning_baseline:
+    name: "Capture Lint/Build Warning Baseline"
+    description: "Record lint/build warning counts in completion notes"
+    applies_to: "ralf-dev"
+    benefits:
+      - "Distinguishes baseline vs new issues"
+      - "Enables warning trend tracking"
+    example:
+      before: |
+        Build succeeded
+      after: |
+        Build succeeded with 2 warnings (PostCSS from, dynamic import chunk)
     frequency: 1
 
 uat_improvements:

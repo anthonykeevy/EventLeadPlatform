@@ -6,6 +6,23 @@
 
 ---
 
+## Task: T10 (2026-02-06)
+
+**Dev Lessons:**
+- Establish lint/build baseline early and record warning counts to separate baseline vs new issues.
+
+**Testing Lessons:**
+- Add CI runs for `npm run lint` and `npm run build` that capture warning counts.
+
+**Process Lessons:**
+- Make typecheck policy explicit in task specs to avoid late build surprises.
+
+**Links:**
+- Completion: `T10-frontend-build-stabilization.completion.md`
+- UAT: `T10-frontend-build-stabilization.uat-results.md`
+- Retro: `T10-frontend-build-stabilization.retro.md`
+
+---
 ## 📝 Lessons Log
 
 _Append lessons as tasks are completed. Format:_

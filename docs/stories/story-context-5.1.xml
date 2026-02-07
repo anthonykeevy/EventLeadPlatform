@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story Context: Story 5.1 - Background Asset Management (No base64 Data URLs in DefinitionJSON)
+  Epic: Epic 5 - Form Builder Readiness + Review & Publishing
+  Created: 2026-02-08
+  
+  This context file provides structured metadata for AI agents working on Story 5.1.
+  Primary purpose: enable @ralf-sm decomposition into implementation tasks without re-reading the entire repo.
+-->
+<story-context version="1.0">
+  <metadata>
+    <story-id>5.1</story-id>
+    <story-title>Background Asset Management (No base64 Data URLs in DefinitionJSON)</story-title>
+    <epic-id>5</epic-id>
+    <domain>Form Builder Readiness (Assets)</domain>
+    <status>draft</status>
+    <priority>high</priority>
+    <created>2026-02-08</created>
+  </metadata>
+
+  <summary>
+    Replace embedded base64 Data URL backgrounds in form definitions with persisted background assets.
+    Introduce an asset persistence model (DB + storage provider abstraction) and ensure builder preview and
+    public renderer resolve background assets consistently. All upload/runtime limits must be configuration-backed
+    via config.AppSetting (loaded by ConfigurationService).
+  </summary>
+
+  <problem-statement>
+    Background images embedded as base64 Data URLs bloat FormVersion.DefinitionJSON, slow saves/loads, inflate version
+    history, and prevent lifecycle controls (limits, dedupe, deletion, and storage provider swaps). Epic 5 must make the
+    builder production-ready before delivering preview/production and publish governance.
+  </problem-statement>
+
+  <key-features>
+    <feature id="F1">Form definition stores background image as asset reference (no embedded base64/Data URLs)</feature>
+    <feature id="F2">Backend asset persistence model (tenant-scoped metadata + binary storage) with lifecycle fields</feature>
+    <feature id="F3">Storage provider abstraction (Local dev → Azure Blob prod) swappable via configuration</feature>
+    <feature id="F4">Config-backed limits enforced via config.AppSetting and ConfigurationService (no hard-coded limits)</feature>
+    <feature id="F5">Builder + renderer parity plan for resolving assets consistently (avoid absolute hostnames)</feature>
+    <feature id="F6">Defensive guard against embedded Data URLs (no migration expected, but block/sanitize payloads)</feature>
+  </key-features>
+
+  <reference-documents>
+    <document type="story" path="docs/stories/story-5.1.md">
+      Story scope, acceptance criteria, and proposed AppSetting keys
+    </document>
+    <document type="prd" path="docs/prd.md">
+      Epic 5 anchors: Preview &amp; Testing System (4A) and Form Publishing &amp; Hosting (7); publish request flow (deferred for Story 5.5+)
+    </document>
+    <document type="architecture" path="docs/solution-architecture.md">
+      Architecture contract (camelCase API responses; resolver parity; avoid per-feature casing fallbacks)
+    </document>
+    <document type="workflow" path="docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md">
+      Git/PR/worktree discipline for story/task execution
+    </document>
+  </reference-documents>
+
+  <technical-context>
+    <technology>React</technology>
+    <technology>TypeScript</technology>
+    <technology>FastAPI</technology>
+    <technology>SQL Server (config.AppSetting persistence)</technology>
+    <technology>Local filesystem storage provider (dev)</technology>
+    <technology>Azure Blob Storage provider (prod; deferred validation in dev)</technology>
+
+    <key-types>
+      <type name="BackgroundAssetRef">
+        A minimal reference stored in the form definition (e.g., assetId + placement metadata). No bytes.
+      </type>
+      <type name="AssetRecord">
+        Tenant-scoped DB record containing metadata (mime, size, dimensions, sha256) and storage locator (provider + key).
+      </type>
+      <type name="AssetResolver">
+        Runtime component that converts an asset reference into a usable URL/stream for builder preview and public renderer.
+      </type>
+    </key-types>
+
+    <key-files>
+      <!-- Frontend (paths are guidance; exact wiring finalized during decomposition) -->
+      <file action="modify" path="frontend/src/features/builder/">
+        Replace background handling to store asset references and placement (no base64 Data URLs)
+      </file>
+      <file action="modify" path="frontend/src/features/renderer/">
+        Resolve background assets via a shared/runtime resolver path
+      </file>
+
+      <!-- Backend -->
+      <file action="modify" path="backend/modules/forms/">
+        Add asset upload/list/resolve endpoints and persistence service(s)
+      </file>
+      <file action="modify" path="backend/modules/config/">
+        Ensure required AppSetting keys are retrievable via ConfigurationService
+      </file>
+      <file action="create" path="backend/modules/forms/assets_*">
+        Asset schemas/service/storage abstraction (exact file names finalized during decomposition)
+      </file>
+    </key-files>
+  </technical-context>
+
+  <done-criteria>
+    <criterion id="DC1">Background images are referenced by assetId (no base64/Data URLs in DefinitionJSON)</criterion>
+    <criterion id="DC2">Asset upload creates persisted metadata + stored binary in configured provider</criterion>
+    <criterion id="DC3">Builder preview and public renderer both render backgrounds reliably for the same form version</criterion>
+    <criterion id="DC4">Limits are enforced using config.AppSetting values (via ConfigurationService)</criterion>
+    <criterion id="DC5">Defensive guard exists for embedded Data URLs</criterion>
+    <criterion id="DC6">UAT guide executed with evidence</criterion>
+  </done-criteria>
+
+  <acceptance-criteria>
+    <criterion id="AC1">Saving a form with a background does not persist any data:image/* Data URL in DefinitionJSON</criterion>
+    <criterion id="AC2">Asset records are tenant-scoped and include mime, size, dimensions, and storage locator</criterion>
+    <criterion id="AC3">Upload rejects files that violate size/mime/dimension limits based on AppSetting values</criterion>
+    <criterion id="AC4">Storage provider selection is config-based and does not require schema/definition redesign</criterion>
+    <criterion id="AC5">Asset resolution avoids persisting absolute hostnames (supports future custom domains)</criterion>
+    <criterion id="AC6">Embedded Data URL payloads are blocked or stripped deterministically with clear error/warning</criterion>
+  </acceptance-criteria>
+
+  <forbidden-zones>
+    <zone>Do not introduce preview/production governance, publish requests, or admin review workflow (deferred to Story 5.5+)</zone>
+    <zone>Do not introduce company-level defaults/brand inheritance (deferred to Story 5.2)</zone>
+    <zone>Do not introduce schema/validation alignment work beyond the Data URL guard (deferred to Story 5.3)</zone>
+    <zone>Do not introduce payments/invoicing behavior (Epic 6)</zone>
+    <zone>Do not hard-code upload/runtime limits; all must be config-backed via config.AppSetting</zone>
+  </forbidden-zones>
+
+  <out-of-scope>
+    <item>Company-level defaults / brand system (Story 5.2)</item>
+    <item>Schema + validation alignment (Story 5.3)</item>
+    <item>Governance workflow: preview/production + publish request + admin review (Story 5.5+)</item>
+    <item>Payments/invoicing (Epic 6)</item>
+  </out-of-scope>
+
+  <dependencies>
+    <upstream>
+      <dependency epic="3" status="complete">Builder + renderer + submission/outbox foundations</dependency>
+      <dependency module="config" status="existing">ConfigurationService + config.AppSetting storage</dependency>
+    </upstream>
+    <downstream>
+      <dependency story="5.2">Company defaults and inheritance model</dependency>
+      <dependency story="5.3">Backend schema parity/validation alignment</dependency>
+      <dependency story="5.5+">Preview/production governance and publish workflow</dependency>
+    </downstream>
+  </dependencies>
+
+  <risks>
+    <risk level="medium">
+      Asset access control must remain correct across authenticated builder and token-gated public renderer.
+    </risk>
+    <risk level="medium">
+      Implementing provider swap incorrectly can couple the schema to a single storage backend; keep provider abstraction strict.
+    </risk>
+    <risk level="low">
+      Large images can impact rendering performance; enforce AppSetting limits and prefer efficient formats.
+    </risk>
+  </risks>
+
+  <estimation>
+    <complexity>high</complexity>
+    <effort>3-6 days</effort>
+    <task-count>estimated 6-10 tasks</task-count>
+  </estimation>
+</story-context>
+

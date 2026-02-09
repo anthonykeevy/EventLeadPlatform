@@ -1,7 +1,7 @@
 # Story 5.1 Status
 
 **Last Updated:** 2026-02-09  
-**Current Task:** T02 (DB Migration: Asset Metadata Tables)  
+**Current Task:** T03 (Backend: Asset Service + Upload API)  
 
 ---
 
@@ -10,8 +10,8 @@
 | Task | Status | Completed |
 |------|--------|-----------|
 | T01 | ✅ HumanDone | 2026-02-09 |
-| T02 | ⏳ Ready | - |
-| T03 | ⏸️ Pending | - |
+| T02 | ✅ HumanDone | 2026-02-09 |
+| T03 | ⏳ Ready | - |
 | T04 | ⏸️ Pending | - |
 | T05 | ⏸️ Pending | - |
 | T06 | ⏸️ Pending | - |

@@ -67,3 +67,22 @@ Add a new section with:
 - **Why:** Keep task PRs focused and reduce merge churn.
 - **Follow-ups:** If a workflow change is required mid-task, record the note and apply the doc update after the task is merged (story-level commit).
 
+---
+
+## 2026-02-09 — T02 learnings: DB migration sequencing across worktrees, PR bootstrap, and non-interactive retro
+
+- **Trigger:** During Task T02 (DB migration):
+  - Migration was first executed from the wrong checkout (`OneDrive\Projects\EventLeadPlatform`) instead of the task worktree, so tables weren’t created where expected.
+  - Local DB had already been upgraded to KB revision `037`, but the task worktree (branched from the Story) did not contain the KB migration chain (`036/037`), causing Alembic “missing revision” failures.
+  - Retro flow asked for “continue?” confirmations at every step, creating friction and encouraging premature conclusions (“Alembic issue” vs “workflow timing issue”).
+- **Change:**
+  - **PR bootstrap commit (mandatory):** update task spec status → commit/push → create PR (so PR exists before real work).
+  - **DB migration sequencing:** never run `alembic upgrade head` until the migration files exist in the *current task worktree* and the worktree contains the full revision chain already applied to the DB.
+  - **Preflight check:** verify DB `alembic_version.version_num` exists as a migration file in the current worktree before attempting upgrades.
+  - **Retro automation:** use `#yolo` mode for BMAD workflows to avoid per-step confirmations; add a PM sanity-check step to correct misattributed root causes.
+- **Why:** Prevent cross-worktree migration drift, reduce Alembic dead-ends, keep PRs visible early, and make retro fast + accurate.
+- **Follow-ups:**
+  - Add an automated preflight script to compare DB head vs migration files (optional future task).
+  - Ensure KB migration PR(s) are merged into the shared trunk before upgrading DB environments (so new worktrees don’t miss applied revisions).
+- **Evidence:** T02 transcript: `docs/Transcript/cursor_epic_5_story_5_1_task_t02.md`
+

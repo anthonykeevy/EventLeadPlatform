@@ -256,12 +256,39 @@ Each task follows this explicit loop. Do not skip steps.
 ### Step 1: Create task branch + worktree + PR (agent-owned)
 
 ```powershell
-scripts/git/new-task.ps1 -StoryBranch "story/epic5-5.1-background-asset-management" -StoryId 5.1 -TaskId T01 -Slug "asset-contracts-and-config-foundations" -CreateWorktree -CreatePR
+scripts/git/new-task.ps1 -StoryBranch "story/epic5-5.1-background-asset-management" -StoryId 5.1 -TaskId T01 -Slug "asset-contracts-and-config-foundations" -CreateWorktree
 ```
 
-**Important note (PR creation):**
-- If there are **no commits yet** on the task branch, `new-task.ps1 -CreatePR` will **skip** PR creation (“no commits between base/head”).
-- Fix: make a small WIP commit (or your first real commit), push, then re-run the script with `-CreatePR` (safe to re-run).
+#### Step 1A: PR bootstrap commit (mandatory)
+
+**Goal:** Ensure a PR can be created immediately (avoids “no commits between base/head”).
+
+- Edit the task spec `docs/tasks/<story>/<TaskBase>.md`
+  - Update **Status** to: `🔄 In Progress (Approved)`
+- Commit + push that single doc change
+
+**Commit cadence (avoid micro-commits):**
+- Target 2–3 commits per task:
+  - PR bootstrap commit (status → In Progress)
+  - Implementation (+ artifacts)
+  - Closeout updates (if needed)
+- Only do extra commits when they materially reduce risk (e.g., large refactors, checkpoints before risky steps).
+
+#### Step 1B: Create the PR (after bootstrap commit)
+
+Option A (preferred): re-run the task script to create the PR (safe to re-run):
+
+```powershell
+scripts/git/new-task.ps1 -StoryBranch "story/epic5-5.1-background-asset-management" -StoryId 5.1 -TaskId T01 -Slug "asset-contracts-and-config-foundations" -CreatePR
+```
+
+Option B: create the PR directly:
+
+```powershell
+gh pr create --base "story/epic5-5.1-background-asset-management" --head "task/5.1/T01-asset-contracts-and-config-foundations" --title "5.1: T01 - asset-contracts-and-config-foundations"
+```
+
+**PR safety check (mandatory):** verify base/head **before** doing any real work.
 
 ### Step 2: Implement the task (Ralf-Dev)
 
@@ -319,7 +346,8 @@ Automated verification (must do before I run manual UAT):
 ### Step 4: UAT (default agent-owned; human only when required)
 
 **Default (Epic 5):** If Step 3 passes and the task’s acceptance criteria are verifiable via automated checks + deterministic inspection, the dev agent should:
-- Update `${TaskBase}.uat-results.md` with evidence and mark ✅ PASS
+- Create/update `${TaskBase}.uat-results.md` with evidence and mark ✅ PASS  
+  - Preferred: hand results to `@ralf-uat *record-uat` with **Tester = AI/Agent** so the UAT file format + task-plan updates stay consistent.
 - Update `docs/tasks/<story>/TASK-PLAN.md` and `docs/tasks/<story>/STATUS.md`
 - Proceed directly to retro (Step 5)
 
@@ -333,11 +361,63 @@ When human UAT is required:
 - Execute the task’s UAT guide (`${TaskBase}.uat.md`)
 - Record results via `@ralf-uat *record-uat`
 
+**Agent-owned UAT recording (copy/paste snippet):**
+
+```markdown
+#yolo
+@ralf-uat *record-uat
+Tester: AI/Agent
+Results:
+- AC1: PASS — <evidence>
+- AC2: PASS — <evidence>
+```
+
+#### DB migration tasks (special sequencing — prevents Alembic/worktree mismatch)
+
+**Rule:** Never ask a human to run `alembic upgrade head` until the migration files exist in the *current worktree* and the worktree contains **every revision already applied to the DB**.
+
+- **Trunk rule:** Don’t upgrade a shared/dev DB from “temporary” migrations that aren’t merged into your working trunk (Story branch). If you apply a migration from a task branch, merge that task PR into the Story before starting another DB task/worktree.
+
+- **Always run Alembic from the task worktree** (not the OneDrive repo, not another worktree):
+
+```powershell
+cd C:\wt\elp\<task-worktree>\backend
+alembic upgrade head
+```
+
+- **Preflight (prevents “missing revision” errors):**
+  - Human runs: `SELECT version_num FROM alembic_version;`
+  - AI verifies: the file `backend/migrations/versions/<version_num>_*.py` exists in the task worktree
+  - If it does **not** exist: STOP. Fix the branch/worktree first (sync/merge the missing migration chain) before creating/applying any new migration.
+
+- **UAT for DB-only tasks:** migration output + deterministic verification queries count as the UAT evidence. If those pass, AI records ✅ PASS and proceeds (no extra human “checkbox UAT” loop needed).
+
 ### Step 5: Retro (required after UAT pass)
 
 After UAT is ✅ PASS (agent-owned or human):
 - Run `@ralf-retro *run-retro`
 - Ensure story-level learning is captured in `docs/tasks/<story>/LESSONS-LEARNED.md`
+
+**BMAD workflow automation tip:** Use `#yolo` mode when running workflows to avoid per-step “continue?” confirmations (especially for retro):
+
+```markdown
+#yolo
+@ralf-retro *run-retro
+Task: T02
+Story: 5.1
+```
+
+**Epic 5 note:** The retro workflow’s “update memory files” step is treated as optional. In Epic 5, prefer skipping memory-file updates and capture improvements in:
+- `docs/tasks/<story>/LESSONS-LEARNED.md`
+- `docs/stories/EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md`
+
+#### PM sanity-check (prevents wrong root-cause writeups)
+
+After retro, PM (or AI acting as PM) does a quick check:
+- Confirm the retro’s “root cause” matches the transcript/evidence (tool issue vs workflow timing issue).
+- If misattributed, capture the corrected prevention action in:
+  - `docs/tasks/<story>/LESSONS-LEARNED.md` (story learning), and
+  - `docs/stories/EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md` (process change history)
 
 **Epic 5 non-sharing rule (important):**
 - Do **not** commit changes under `bmad/ralf-taskflow/memory/` as part of Epic 5 tasks.

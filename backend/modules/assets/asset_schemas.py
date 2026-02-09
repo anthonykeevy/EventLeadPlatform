@@ -34,6 +34,17 @@ class BackgroundAssetMetadata(BaseModel):
     updatedAt: Optional[datetime] = Field(None, description="Asset update timestamp (UTC)")
 
 
+class BackgroundAssetUploadResponse(BaseModel):
+    """Upload response with asset metadata."""
+    asset: BackgroundAssetMetadata
+    isDuplicate: bool = Field(False, description="True if deduped to an existing asset")
+
+
+class AssetResolveResponse(BaseModel):
+    """Runtime URL resolver response."""
+    url: str = Field(..., description="Resolved runtime URL for asset access")
+
+
 # =====================================================================
 # Background Placement Contract (position, size, crop)
 # =====================================================================

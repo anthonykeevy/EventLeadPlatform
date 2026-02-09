@@ -1,7 +1,7 @@
 """Add Asset metadata tables (AssetType + Asset)
 
-Revision ID: 036
-Revises: 035
+Revision ID: 038
+Revises: 037
 Create Date: 2026-02-09
 
 Story: 5.1 - Background Asset Management
@@ -21,8 +21,8 @@ from sqlalchemy.dialects import mssql
 
 
 # revision identifiers, used by Alembic.
-revision = "036"
-down_revision = "035"
+revision = "038"
+down_revision = "037"
 branch_labels = None
 depends_on = None
 

@@ -16,7 +16,7 @@
 
 ### AC1: Migration file exists and follows naming rules
 
-- [ ] Step 1: Inspect `backend/migrations/versions/036_asset_metadata_tables.py` → Verify: PascalCase names, `ref`/`dbo` schemas, NVARCHAR text fields, audit + soft-delete columns.
+- [ ] Step 1: Inspect `backend/migrations/versions/038_asset_metadata_tables.py` → Verify: PascalCase names, `ref`/`dbo` schemas, NVARCHAR text fields, audit + soft-delete columns.
 
 ### AC2: `ref.AssetType` exists and contains at least `IMAGE`
 

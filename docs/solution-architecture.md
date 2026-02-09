@@ -2,10 +2,81 @@
 
 **Project:** EventLeadPlatform  
 **Date:** 2025-10-12  
+**Last Updated:** 2026-02-07  
 **Architect:** Winston (Architect Agent)  
 **User:** Anthony Keevy  
 **Status:** ✅ COMPLETE - Validated Against PRD and UX Specification  
 **Cohesion Check:** docs/architecture-cohesion-check.md (100% Ready)
+
+---
+
+## BMAD Architecture Contract (Read This First)
+
+This section is the **agent-facing operating contract** for EventLeadPlatform.
+
+BMAD workflows that rely on this file:
+- `@ralf-sm *decompose-story` loads `docs/solution-architecture.md` by default.
+- `@bmad/bmm/workflows/story-context` extracts **constraints** from architecture into `story-context-*.xml`.
+
+**Design goal:** Keep the rules below short, explicit, and near the top so they reliably survive long-context truncation.
+
+### Non‑negotiables (MUST)
+
+- **[API][Contract][Casing]**: All API JSON responses are **camelCase**.
+  - Backend **MUST NOT** emit **PascalCase** (DB casing) or **snake_case** keys in responses.
+  - Backend **MUST** enforce this in Pydantic schemas using either:
+    - `alias_generator` (preferred) **or**
+    - explicit `Field(..., alias="camelCaseKey")` aliases (camelCase only)
+  - Routers **MUST** be typed with `response_model=...` and return those models (avoid ad‑hoc dict responses).
+- **[Frontend][Mapping]**: Frontend **MUST NOT** “guess” backend casing (no `event_id ?? EventID` patterns in feature code).
+  - If legacy endpoints exist during migration, compatibility belongs in a **single shared mapping layer**, not per-feature transforms.
+- **[Backend][Service]**: Routers are thin: HTTP + auth + call service.
+  - Business rules, validation policy, audit/logging policy, and transaction boundaries live in the **service layer**.
+  - **Choose one service style per module** (functions *or* class service) and do not mix styles inside a module.
+- **[Validation]**: Input parsing/normalization belongs in Pydantic validators/schema layer.
+  - Services should assume validated inputs (avoid ad-hoc datetime parsing and “magic value” cleanup scattered across services).
+- **[Builder][State]**: Builder state is modular.
+  - Do not grow a single “god store”; split by concerns (core definition, selection, history, persistence, runtime warnings).
+- **[No Duplication]**: No copy/paste helpers with TODOs.
+  - Shared logic must be extracted into a shared service/util and reused.
+
+### Current drift warnings (observed in repo; fix when touched)
+
+- **[API][Casing]**: `backend/modules/events/schemas.py` aliases fields to **PascalCase** (e.g. `alias="EventTypeID"`). This violates the camelCase API contract and forces client-side casing fallbacks.
+- **[Frontend][Mapping]**: `frontend/src/features/events/api/eventsApi.ts` contains dual-case transforms (`event_id ?? EventID`).
+- **[Auth][Duplication]**: `backend/modules/auth/router.py` contains duplicated `find_user_company` logic (explicitly marked as duplicated).
+- **[Builder][State]**: `frontend/src/features/builder/stores/useBuilderStore.ts` is a combined store (persistence + selection + history + runtime warnings).
+- **[Frontend][Transport]**: core auth uses a dedicated Axios client (`frontend/src/features/auth/api/coreAuth.ts`). This is acceptable, but transport/error/refresh behavior must remain consistent with the shared API client (avoid copy/paste interceptors).
+- **[Frontend][Debug Surface]**: `frontend/src/App.tsx` exposes internals on `window` for debugging. Keep this **dev-only** to avoid accidental public API surface area.
+
+### Task Spec “Architecture Checklist” (copy into every `docs/tasks/<story>/Txx-*.md`)
+
+- [ ] **API casing**: response keys are camelCase (no PascalCase aliases in response schemas).
+- [ ] **Frontend mapping**: no feature-local casing fallbacks; shared mapper/transform layer used.
+- [ ] **Router/service split**: router thin; service owns business rules and cross-cutting policies.
+- [ ] **Validation**: parsing/normalization in schemas; services assume validated inputs.
+- [ ] **Duplication**: no duplicated helpers added; shared helper extracted if needed.
+- [ ] **Builder state**: changes do not increase store coupling; store split if necessary.
+
+### Golden paths (agent defaults)
+
+#### Backend: add/modify an endpoint
+
+1. Define/extend request + response schemas in `backend/modules/<module>/schemas.py` (camelCase output).
+2. Implement logic in `backend/modules/<module>/service.py` (or the module’s established service class file).
+3. Wire endpoint in `backend/modules/<module>/router.py` with `response_model=...`.
+4. Add tests in `backend/tests/` (unit and/or integration).
+5. Verify in Swagger: response keys are camelCase.
+
+#### Frontend: add/modify an API client module
+
+1. Use the shared Axios client and standard interceptors/error handling (avoid copy/paste transports).
+2. Map DTO → UI in a shared transform/mapping layer; keep feature code camelCase-only.
+
+#### Builder: add/modify builder state
+
+- Prefer creating a focused store/module over adding more responsibilities to `useBuilderStore.ts`.
+- Keep boundaries explicit: history, persistence, selection, and runtime warnings should not be tightly coupled.
 
 ---
 
@@ -2842,36 +2913,37 @@ This section analyzes each epic to identify natural component/module boundaries,
 
 ### Epic-to-Module Mapping
 
-Based on domain analysis, we identify **9 core backend modules** and **corresponding frontend modules**:
+Based on domain analysis, we maintain **conceptual epic boundaries**, but for BMAD agents the **repository is the source of truth**.
+
+**Authoritative roots (current repo, 2026-02):**
 
 ```
-Backend Modules:
-  1. auth/          - Authentication & authorization (Epic 1)
-  2. companies/     - Company management & multi-tenancy (Epic 2)
-  3. events/        - Event management (Epic 3)
-  4. team/          - Team collaboration & invitations (Epic 4)
-  5. forms/         - Form builder & management (Epic 5, 6)
-  6. payments/      - Stripe integration, billing, invoicing (Epic 7)
-  7. analytics/     - Lead collection & analytics (Epic 8)
-  8. audit/         - Enterprise audit & data lineage (Epic 9)
-  9. images/        - Image management, storage-database alignment (Shared)
+Backend modules: backend/modules/
+  - auth/          (authentication, JWT, RBAC)
+  - companies/     (tenant/company context, invites)
+  - events/        (event CRUD + admin review)
+  - forms/         (forms CRUD, public renderer links, access control)
+  - invitations/   (invitation acceptance flow)
+  - users/         (user profile + company switching + admin/user utilities)
+  - admin/         (admin dashboard/service endpoints)
+  - audit/         (audit reporting + compliance helpers)
+  - logging/       (frontend event logging endpoints)
+  - config/        (runtime configuration endpoints)
+  - countries/     (validation + reference data)
+  - fonts/         (font registry/sync endpoints)
+  - dashboard/     (dashboard endpoints)
 
-Frontend Modules:
-  1. auth/          - Login, signup, onboarding components
-  2. dashboard/     - Main dashboard, navigation
-  3. events/        - Event list, event dashboard components
-  4. team/          - Team management, invitations
-  5. builder/       - Form builder (canvas, components, properties panel)
-  6. analytics/     - Analytics dashboard, charts, export
-  7. settings/      - Company settings, billing, user profile
+Frontend features: frontend/src/features/
+  - auth/, onboarding/
+  - companies/, dashboard/
+  - events/, forms/
+  - builder/, renderer/, logic-engine/
+  - invitations/, admin/, audit/
+  - validation/, config/
+  - theme/, ux/, profile/, preferences/ (UI-level feature packages)
 
-Shared:
-  1. components/    - Reusable UI components (20 foundation components)
-  2. common/        - Shared utilities, types, constants
-  3. database/      - Migrations, seed data, scripts
-  4. images/        - Image upload, optimization, cleanup (backend module)
-  5. storage/       - Storage abstraction layer (local vs Azure Blob)
-  6. email/         - Email abstraction layer (MailHog vs Azure Communication)
+Planned (not yet first-class modules/features in this repo):
+  - payments/, analytics/, images/
 ```
 
 ---
@@ -2907,32 +2979,24 @@ Shared:
 ```
 auth/
   __init__.py
-  routes.py              # API endpoints (/api/auth/signup, /login, /verify-email)
-  models.py              # User model, token models
+  router.py              # API endpoints (/api/auth/*)
   schemas.py             # Pydantic request/response schemas
+  models.py              # Auth-specific models (token payloads, etc.)
   dependencies.py        # JWT verification, current user dependency
-  middleware.py          # RBAC middleware (checks user role)
-  services/
-    auth_service.py      # Business logic (signup, login, verify)
-    token_service.py     # JWT generation, validation
-    password_service.py  # Hashing, reset logic
-  utils.py               # Helper functions
+  jwt_service.py         # JWT encode/decode + validation
+  token_service.py       # Access/refresh lifecycle
+  user_service.py        # User-related auth flows
+  audit_service.py       # Auth audit events (login, lockouts, etc.)
 ```
 
-**Frontend Module:** `frontend/modules/auth/`
+**Frontend Feature:** `frontend/src/features/auth/`
 ```
 auth/
-  components/
-    SignupForm.tsx       # Email + password signup
-    LoginForm.tsx        # Email + password login
-    OnboardingFlow.tsx   # Multi-step wizard
-    PasswordReset.tsx    # Reset password form
-  hooks/
-    useAuth.tsx          # Authentication state management
-  contexts/
-    AuthContext.tsx      # Global auth state
-  services/
-    authApi.ts           # API calls to backend
+  api/                   # authApi.ts, coreAuth.ts, passwordResetApi.ts
+  components/            # LoginForm, SignupForm, RequireAuth, etc.
+  context/               # AuthContext.tsx
+  pages/                 # EmailVerificationPage, PasswordReset pages
+  utils/                 # tokenStorage.ts
 ```
 
 **Component Boundaries:**
@@ -2970,29 +3034,25 @@ auth/
 ```
 companies/
   __init__.py
-  routes.py              # API endpoints (/api/companies/{id}, /settings)
-  models.py              # Company, ActivityLog, CompanySettings models
+  router.py              # API endpoints (/api/companies/*)
   schemas.py             # Request/response schemas
-  dependencies.py        # current_company dependency (auto-filter by CompanyID)
-  services/
-    company_service.py   # Business logic
-    audit_service.py     # Audit logging (track all actions)
-    lineage_service.py   # Data lineage tracking
-  middleware/
-    tenant_middleware.py # Row-level security enforcement
-  utils.py
+  service.py             # Company business logic (CRUD)
+  relationship_service.py
+  access_request_service.py
+  cache_service.py
+  invitation_service.py  # Company-scoped invitations
+  abr_client.py          # External ABR client (if enabled)
 ```
 
-**Frontend Module:** `frontend/modules/dashboard/`
+**Frontend Features:** `frontend/src/features/dashboard/` and `frontend/src/features/companies/`
 ```
 dashboard/
-  components/
-    CompanySettings.tsx   # Company profile editing
-    ActivityLog.tsx       # Audit trail table
-  hooks/
-    useCompany.tsx        # Company state management
-  contexts/
-    CompanyContext.tsx    # Global company state
+  components/            # CompanyContainer, CompanyList, TeamManagementPanel, etc.
+  api/                   # dashboardApi.ts, teamApi.ts
+
+companies/
+  api/                   # companiesApi.ts
+  components/            # SmartCompanySearch, results, etc.
 ```
 
 **Component Boundaries:**
@@ -3051,27 +3111,23 @@ async def get_events(
 ```
 events/
   __init__.py
-  routes.py              # API endpoints (/api/events, /api/events/{id})
-  models.py              # Event, EventType models
-  schemas.py             # Request/response schemas
-  services/
-    event_service.py     # Business logic (CRUD, filtering)
-    activation_service.py # Activation window management
-  tasks/
-    check_activations.py # Scheduled job (check event times, activate/deactivate forms)
+  router.py              # /api/events/*
+  schemas.py             # Request/response schemas (MUST be camelCase output)
+  service.py             # Event business logic
+  event_company_service.py
+  admin_review_router.py
+  admin_review_schemas.py
+  admin_review_service.py
+  inference_service.py
 ```
 
-**Frontend Module:** `frontend/modules/events/`
+**Frontend Feature:** `frontend/src/features/events/`
 ```
 events/
-  components/
-    EventsList.tsx       # Grid/list of events
-    EventCard.tsx        # Individual event display
-    EventDashboard.tsx   # Single event detail view
-    CreateEventModal.tsx # Event creation form
-    EventFilters.tsx     # Filter by type, date, location
-  hooks/
-    useEvents.tsx        # Event state management
+  api/                   # eventsApi.ts
+  components/            # EventCard, Create/Edit modals, selectors, etc.
+  pages/                 # EventsPage.tsx
+  types/                 # events.types.ts
 ```
 
 **Component Boundaries:**
@@ -3106,30 +3162,32 @@ events/
 - Companies module (invitations scoped to company)
 - Email service (send invitation emails)
 
-**Backend Module:** `backend/modules/team/`
+**Backend Modules (current repo):** `backend/modules/companies/`, `backend/modules/invitations/`, `backend/modules/users/`
 ```
-team/
-  __init__.py
-  routes.py              # API endpoints (/api/team/invitations, /api/team/members)
-  models.py              # Invitation model
-  schemas.py             # Request/response schemas
-  services/
-    invitation_service.py # Create, send, validate invitations
-    team_service.py       # User management (role changes, removal)
-  tasks/
-    check_expired.py      # Scheduled job (mark expired invitations)
+companies/               # Company-scoped invitation endpoints + services
+  router.py              # /api/companies/{company_id}/invite, resend, cancel, list
+  invitation_service.py  # invite_member/resend/cancel
+
+invitations/             # Invitation acceptance flow (token-based)
+  router.py
+  schemas.py
+  service.py
+
+users/                   # Team/member management (roles, switching, profiles)
+  router.py
+  service.py
+  switch_service.py
 ```
 
-**Frontend Module:** `frontend/modules/team/`
+**Frontend Features (current repo):** `frontend/src/features/dashboard/` and `frontend/src/features/invitations/`
 ```
-team/
-  components/
-    TeamMembersList.tsx   # Active users table
-    InviteUserModal.tsx   # Invitation form
-    PendingInvitations.tsx # Pending invites list
-    UserManagement.tsx    # Change roles, remove users
-  hooks/
-    useTeam.tsx           # Team state management
+dashboard/
+  components/            # TeamManagementPanel, InviteUserModal, EditRoleModal, etc.
+  api/                   # teamApi.ts
+
+invitations/
+  api/                   # invitationApi.ts
+  pages/                 # InvitationAcceptancePage.tsx
 ```
 
 **Component Boundaries:**
@@ -3173,59 +3231,34 @@ team/
 ```
 forms/
   __init__.py
-  routes.py              # API endpoints (/api/forms, /api/forms/{id}/draft)
-  models.py              # Form, Template models
+  router.py              # /api/forms CRUD + reference endpoints
   schemas.py             # Request/response schemas
-  services/
-    form_service.py      # CRUD operations, draft management
-    template_service.py  # Template library management
-    rendering_service.py # Proportional scaling logic
+  service.py             # Core form business logic
+  version_router.py      # /api/forms/{id}/versions
+  version_service.py
+  public_router.py       # Public routes aggregator
+  public_form_router.py  # Public renderer endpoints
+  public_links_router.py # Preview/production link token endpoints
+  access_control_router.py
+  access_control_service.py
+  ownership_router.py
+  ownership_service.py
+  approval_service.py
+  validation_service.py
 ```
 
-**Frontend Module:** `frontend/modules/builder/` (MOST COMPLEX)
+**Frontend Feature:** `frontend/src/features/builder/` (MOST COMPLEX)
 ```
 builder/
+  api/
   components/
-    FormBuilder.tsx           # Main builder container (3-panel layout)
-    
-    # Left Panel - Component Library
-    ComponentLibrary.tsx      # Component palette
-    ComponentPalette.tsx      # Draggable field types
-    TemplateGallery.tsx       # Pre-designed templates
-    
-    # Center - Canvas
-    Canvas.tsx                # Drop zone, grid, zoom
-    DraggableComponent.tsx    # Draggable form field
-    BackgroundImage.tsx       # Custom background display
-    SelectionOutline.tsx      # Shows selected component
-    
-    # Right Panel - Properties
-    PropertiesPanel.tsx       # Context-sensitive properties
-    ComponentProperties.tsx   # Label, validation, styling
-    FormSettings.tsx          # Form-level defaults
-    
-    # Preview
-    PreviewPane.tsx           # Desktop/tablet/mobile preview
-    
-  rendering/
-    FreeformRenderer.ts       # Freeform positioning engine
-    GridRenderer.ts           # Grid-based positioning (contingency)
-    RendererFactory.ts        # Factory pattern (selects renderer)
-    
-  state/
-    formBuilderStore.ts       # State management (Zustand recommended)
-    undoRedoManager.ts        # Undo/redo history (50 actions)
-    autoSaveManager.ts        # Dual-layer auto-save (localStorage + database)
-    
-  collision/
-    collisionDetector.ts      # Bounding box overlap detection
-    spatialIndex.ts           # Optimize collision checks (performance)
-    
   hooks/
-    useFormBuilder.tsx        # Form builder state
-    useDragDrop.tsx           # Drag-and-drop logic (dnd-kit wrapper)
-    useAutoSave.tsx           # Auto-save orchestration
-    useUndoRedo.tsx           # Undo/redo logic
+  pages/
+  registry/
+  services/
+  stores/                # (e.g. useBuilderStore.ts) — keep modular
+  types/
+  utils/
 ```
 
 **Component Boundaries:**
@@ -3273,20 +3306,20 @@ builder/
 **Backend Module:** `backend/modules/forms/` (extends forms module)
 ```
 forms/
-  services/
-    publish_service.py    # Publish workflow, approval logic
-    preview_service.py    # Preview mode, test tracking
-    hosting_service.py    # Public URL generation, CDN deployment
+  public_links_router.py   # Preview/production link token endpoints
+  public_links_schemas.py
+  public_form_router.py    # Public renderer endpoints
+  public_form_schemas.py
+  public_router.py         # Public routes aggregator
+  approval_service.py      # Approval/review workflow helpers (where applicable)
+  router.py                # Private /api/forms/* endpoints
 ```
 
-**Frontend Module:** `frontend/modules/builder/` (extends builder)
+**Frontend Features (current repo):** `frontend/src/features/builder/`, `frontend/src/features/forms/`, `frontend/src/features/renderer/`
 ```
 builder/
-  components/
-    PreviewToggle.tsx     # Preview mode switch
-    PublishButton.tsx     # Publish workflow trigger
-    PublishModal.tsx      # Payment screen, approval workflow
-    TestCounter.tsx       # "3 of 5 tests completed" indicator
+forms/
+renderer/
 ```
 
 **Component Boundaries:**
@@ -3323,29 +3356,11 @@ builder/
 - Email service (invoice delivery)
 - Forms module (payment unlocks publish)
 
-**Backend Module:** `backend/modules/payments/`
-```
-payments/
-  __init__.py
-  routes.py              # API endpoints (/api/payments, /api/invoices)
-  models.py              # Payment, Invoice models
-  schemas.py             # Request/response schemas
-  services/
-    stripe_service.py    # Stripe API integration
-    invoice_service.py   # Invoice generation, PDF creation
-    billing_service.py   # Billing history, receipts
-  templates/
-    invoice_template.html # Invoice PDF template (GST-compliant)
-```
+**Backend Module (planned):** `backend/modules/payments/` (not yet implemented as a first-class module in this repo)
 
-**Frontend Module:** `frontend/modules/settings/`
-```
-settings/
-  components/
-    PaymentForm.tsx       # Stripe checkout integration
-    BillingHistory.tsx    # Invoices list
-    InvoiceView.tsx       # Invoice PDF viewer
-```
+- When implemented: follow the standard module layout (`router.py`, `schemas.py`, `service.py`/`*_service.py`) and the camelCase API contract.
+
+**Frontend Feature (planned):** likely `frontend/src/features/payments/` (not yet implemented)
 
 **Component Boundaries:**
 - **Isolated:** Payment logic separate from business logic
@@ -3390,36 +3405,12 @@ settings/
 - WebSocket service (real-time updates)
 - CSV generation library
 
-**Backend Module:** `backend/modules/analytics/`
-```
-analytics/
-  __init__.py
-  routes.py              # API endpoints (/api/submissions, /api/analytics)
-  models.py              # Submission model
-  schemas.py             # Request/response schemas
-  services/
-    submission_service.py  # Store submissions, retrieve data
-    analytics_service.py   # Aggregate data, charts
-    export_service.py      # CSV generation (multiple formats)
-    validation_service.py  # Field-level validation
-  websocket/
-    analytics_socket.py    # Real-time updates (new submission events)
-```
+**Backend Module (planned):** `backend/modules/analytics/` (not yet implemented as a first-class module in this repo)
 
-**Frontend Module:** `frontend/modules/analytics/`
-```
-analytics/
-  components/
-    AnalyticsDashboard.tsx  # Main analytics view
-    StatsCards.tsx          # Lead count, preview/production split
-    SubmissionsChart.tsx    # Timeline chart (Recharts library)
-    LeadsList.tsx           # Table with search/filter
-    LeadDetail.tsx          # Individual lead view
-    ExportModal.tsx         # CSV format selection
-  hooks/
-    useAnalytics.tsx        # Analytics state
-    useWebSocket.tsx        # Real-time updates
-```
+- Note: submission capture and public renderer flows currently live under `backend/modules/forms/` (public routes + schemas).
+- When implemented: keep API casing camelCase and avoid duplicating submission/persistence logic across modules.
+
+**Frontend Feature (planned):** likely `frontend/src/features/analytics/` (not yet implemented)
 
 **Component Boundaries:**
 - **Isolated:** Analytics logic separate
@@ -3455,20 +3446,17 @@ analytics/
 ```
 audit/
   __init__.py
-  routes.py              # API endpoints (/api/audit/trail, /api/audit/lineage)
-  models.py              # DataLineage model (if separate from ActivityLog)
-  services/
-    audit_query_service.py  # Complex audit queries
-    lineage_service.py      # Data lineage tracking
-    retention_service.py    # Data retention policies
+  router.py              # API endpoints (audit reporting)
+  schemas.py
+  compliance_service.py  # Compliance/report helpers
 ```
 
-**Frontend Module:** `frontend/modules/settings/`
+**Frontend Feature:** `frontend/src/features/audit/`
 ```
-settings/
+audit/
+  api/
   components/
-    AuditTrail.tsx        # Audit log table with search/filter
-    LineageView.tsx       # Data lineage visualization
+  types/
 ```
 
 **Component Boundaries:**
@@ -3478,22 +3466,11 @@ settings/
 
 **Audit Integration Pattern:**
 ```python
-# EVERY module action logs to audit
-from modules.companies.services.audit_service import log_action
+# PSEUDOCODE (illustrative): audit utilities live under backend/modules/audit/
 
 async def create_event(event_data, current_user):
-    # 1. Create event
-    event = await db.create(Event(**event_data))
-    
-    # 2. Log action (audit trail)
-    await log_action(
-        user_id=current_user.UserID,
-        action="created",
-        entity_type="event",
-        entity_id=event.EventID,
-        details={"event_name": event.EventName}
-    )
-    
+    event = await create_event_in_db(event_data)  # service-layer business logic
+    # Write ActivityLog row (permanent business audit trail)
     return event
 ```
 
@@ -3893,12 +3870,7 @@ async def cleanup_orphaned_images():
         image.DeletedDate = utcnow()
         
         # 3. Log action (audit trail)
-        await log_action(
-            user_id=None,  # System action
-            action="deleted_orphan",
-            entity_type="image",
-            entity_id=image.ImageID
-        )
+        # Write ActivityLog row (system cleanup action)
     
     await db.commit()
 ```
@@ -3966,95 +3938,24 @@ async def validate_storage_database_alignment():
 
 #### Image Management Service Implementation
 
-**Backend Module:** `backend/modules/images/`
+**Backend Module (planned):** `backend/modules/images/` *(not yet implemented as a first-class module in this repo)*
 ```
 images/
-  __init__.py
-  routes.py                  # API endpoints (/api/images/upload, /api/images/{id})
-  models.py                  # Image model
-  schemas.py                 # Request/response schemas
-  services/
-    image_service.py         # Upload, retrieve, delete
-    optimization_service.py  # Resize, compress, thumbnail generation
-    cleanup_service.py       # Orphan detection and removal
-    validation_service.py    # Alignment validation (storage ↔ database)
-  utils/
-    hash_utils.py            # SHA-256 content hashing
-    image_utils.py           # PIL/Pillow image processing
-  tasks/
-    cleanup_orphans.py       # Scheduled job (daily cleanup)
-    validate_alignment.py    # Scheduled job (weekly validation)
+  router.py                  # /api/images/*
+  schemas.py                 # camelCase API (contract)
+  service.py                 # upload/dedup/soft-delete orchestration
+  # Optional: optimization/cleanup background jobs
 ```
 
-**Image Upload Endpoint:**
-```python
-from fastapi import UploadFile, Depends
-from modules.images.services.image_service import ImageService
-from modules.companies.dependencies import get_current_company
+**Image upload endpoint (design-level flow):**
 
-@router.post("/api/images/upload")
-async def upload_image(
-    file: UploadFile,
-    current_user: User = Depends(get_current_user),
-    current_company: Company = Depends(get_current_company),
-    image_service: ImageService = Depends()
-):
-    """
-    Upload background image with storage-database alignment
-    
-    Process:
-    1. Validate file (size, format)
-    2. Calculate content hash (duplicate detection)
-    3. Check for existing image (same hash, same company)
-    4. If duplicate: Return existing ImageID
-    5. If new: Upload to storage + create database record (transactional)
-    6. Generate thumbnail (async background task)
-    7. Return ImageID
-    """
-    # 1. Validate
-    if file.size > 5_000_000:  # 5MB limit
-        raise HTTPException(400, "File too large")
-    
-    # 2. Calculate hash
-    content = await file.read()
-    content_hash = hashlib.sha256(content).digest()
-    
-    # 3. Check duplicate
-    existing = await db.query(Image).filter(
-        Image.ContentHash == content_hash,
-        Image.CompanyID == current_company.CompanyID,
-        Image.IsDeleted == False
-    ).first()
-    
-    if existing:
-        return {"imageID": existing.ImageID, "duplicate": True}
-    
-    # 4. Upload to storage + create database record (atomic)
-    async with db.transaction():
-        # Upload to storage
-        storage_path = f"company-{current_company.CompanyID}/img-{uuid4()}.jpg"
-        await storage_provider.upload(storage_path, content)
-        
-        # Create database record
-        image = Image(
-            CompanyID=current_company.CompanyID,
-            OriginalFileName=file.filename,
-            StoragePath=storage_path,
-            BlobURL=storage_provider.get_url(storage_path),
-            FileSize=file.size,
-            MimeType=file.content_type,
-            ContentHash=content_hash,
-            CreatedBy=current_user.UserID
-        )
-        db.add(image)
-        await db.commit()
-        
-        # 5. Background tasks (async - don't block response)
-        background_tasks.add_task(generate_thumbnail, image.ImageID)
-        background_tasks.add_task(generate_optimized, image.ImageID)
-    
-    return {"imageID": image.ImageID, "url": image.BlobURL}
-```
+1. Validate file (size, mime, extension)
+2. Hash contents for deduplication (company-scoped)
+3. If duplicate exists: return existing `imageId`
+4. Upload blob to storage
+5. Create DB record (storage path, URL, hash, metadata)
+6. Queue background optimize/thumbnail jobs
+7. Return `{ imageId, url }` (camelCase)
 
 ---
 
@@ -4384,15 +4285,15 @@ User creates form:
 
 #### Architecture Additions Summary
 
-**New Components Added:**
-1. ✅ **Image Table** (database schema with ContentHash for deduplication)
-2. ✅ **Image Management Service** (backend/modules/images/)
-3. ✅ **Upload with alignment** (transactional: storage + database together)
-4. ✅ **Duplicate detection** (ContentHash prevents duplicate storage)
-5. ✅ **Orphan cleanup** (scheduled job removes unused images after 7 days)
-6. ✅ **Alignment validation** (weekly check: storage ↔ database sync)
-7. ✅ **Multi-tenant isolation** (CompanyID on all images, company-scoped storage folders)
-8. ✅ **Image optimization pipeline** (original + optimized + thumbnail)
+**Planned components (verify in repo before use):**
+1. ⏳ **Image Table** (database schema with ContentHash for deduplication)
+2. ⏳ **Image Management Service** (`backend/modules/images/` — planned)
+3. ⏳ **Upload with alignment** (transactional: storage + database together)
+4. ⏳ **Duplicate detection** (ContentHash prevents duplicate storage)
+5. ⏳ **Orphan cleanup** (scheduled job removes unused images after 7 days)
+6. ⏳ **Alignment validation** (weekly check: storage ↔ database sync)
+7. ⏳ **Multi-tenant isolation** (CompanyID on all images, company-scoped storage folders)
+8. ⏳ **Image optimization pipeline** (original + optimized + thumbnail)
 
 **Updated Form Schema:**
 ```sql
@@ -4413,11 +4314,8 @@ Form:
 
 ---
 
-**This architectural pattern is integrated into:**
-- ✅ Shared Infrastructure section (Image Management Service)
-- ✅ Epic 5 tech-spec (Form Builder integrates with Image Service)
-- ✅ Database schema section (Image table)
-- ✅ Story-context for image-related stories (upload, cleanup, validation)
+**This architectural pattern should be integrated into (when implemented):**
+- Story Context constraints for image-related stories (upload, cleanup, validation)
 
 ---
 
@@ -5220,18 +5118,21 @@ logger.info(
 
 #### Logging Service Implementation
 
-**Backend Module:** `backend/common/logging/`
+**Backend logging (current repo):** `backend/common/logger.py`, `backend/common/request_context.py`, `backend/middleware/auth.py`, `backend/modules/logging/`
 ```
-logging/
-  __init__.py
-  config.py              # structlog configuration
-  middleware.py          # Request logging middleware
-  formatters.py          # JSON formatting, PII masking
-  filters.py             # Environment-specific filtering
-  handlers.py            # File handlers, Azure handlers
-  utils/
-    sanitizer.py         # PII masking functions
-    performance.py       # Performance measurement decorators
+backend/common/
+  logger.py              # get_logger() with RequestID injection
+  request_context.py     # contextvars-based request scope
+
+backend/middleware/
+  auth.py                # updates request context after auth
+
+backend/modules/logging/
+  router.py              # frontend event logging endpoints
+  schemas.py
+
+backend/models/log/
+  frontend_event.py      # persisted frontend telemetry/events
 ```
 
 **Example Performance Decorator:**
@@ -5304,35 +5205,15 @@ async def publish_form(form_id, payment_details):
 - Retention: Permanent
 - Queryable via UI (audit trail screen)
 
-**How they work together:**
+**How they work together (pattern):**
 ```python
+# PSEUDOCODE (illustrative): adapt to existing ActivityLog creation patterns.
+# Example reference: backend/modules/forms/version_service.py (ActivityLog writes)
 async def create_event(event_data, current_user):
-    # 1. Operational log (temporary)
-    logger.info(
-        "api.create_event.started",
-        user_id=current_user.UserID,
-        company_id=current_user.CompanyID
-    )
-    
-    # 2. Create event (business logic)
-    event = await db.create(Event(**event_data))
-    
-    # 3. Business audit trail (permanent - ActivityLog table)
-    await log_action(
-        user_id=current_user.UserID,
-        action="created",
-        entity_type="event",
-        entity_id=event.EventID,
-        details={"event_name": event.EventName}
-    )
-    
-    # 4. Operational log (temporary)
-    logger.info(
-        "api.create_event.completed",
-        event_id=event.EventID,
-        duration_ms=45
-    )
-    
+    logger.info("api.create_event.started", user_id=current_user.user_id, company_id=current_user.company_id)
+    event = await create_event_in_db(event_data)  # service-layer business logic
+    # Write ActivityLog row (permanent business audit trail)
+    logger.info("api.create_event.completed", event_id=event.event_id)
     return event
 ```
 
@@ -8974,3 +8855,13 @@ Base Template: validator
 
 ---
 
+## BMAD Architecture Contract (Repeat)
+
+This is a short repeat of the top-of-file contract (placed here intentionally for “end-of-document” recall).
+
+- **[API][Contract][Casing]**: API responses are **camelCase JSON only** (no PascalCase, no snake_case).
+- **[Frontend][Mapping]**: No per-feature casing fallbacks (`event_id ?? EventID`); mapping is centralized.
+- **[Backend][Service]**: Routers are thin; services own business rules and cross-cutting policies.
+- **[Validation]**: Parsing/normalization in schemas; services assume validated inputs.
+- **[Builder][State]**: Builder state stays modular; avoid “god stores”.
+- **[No Duplication]**: No copy/paste helpers with TODOs; extract shared helpers/services.

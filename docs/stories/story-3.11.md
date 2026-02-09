@@ -2,7 +2,7 @@
 
 **Epic:** Epic 3 - Form Builder & Logic Engine  
 **Domain:** Rendering & Submission  
-**Status:** 📋 Planned  
+**Status:** ✅ Complete  
 **Priority:** Critical (Hero feature: no lost leads)  
 **Created:** 2026-02-02  
 **Owner:** Developer Agent  
@@ -134,29 +134,29 @@
 ## ✅ Acceptance Criteria
 
 1) **Immediate submit (online)**
-- [ ] Submitting a valid form while online sends a network request and shows a success confirmation.
-- [ ] The outbox remains empty after successful upload.
+- [x] Submitting a valid form while online sends a network request and shows a success confirmation.
+- [x] The outbox remains empty after successful upload.
 
 2) **Offline submit queues**
-- [ ] Submitting while offline does not crash and stores the submission in IndexedDB.
-- [ ] UI confirms the submission is queued offline.
+- [x] Submitting while offline does not crash and stores the submission in IndexedDB.
+- [x] UI confirms the submission is queued offline.
 
 3) **Auto-sync on reconnect**
-- [ ] When network is restored, queued submissions are uploaded automatically.
-- [ ] Successful uploads are removed from the pending queue (or marked success then cleaned up).
+- [x] When network is restored, queued submissions are uploaded automatically.
+- [x] Successful uploads are removed from the pending queue (or marked success then cleaned up).
 
 4) **Idempotency**
-- [ ] Re-trying the same submission (same idempotency key) does not create duplicates server-side.
+- [x] Re-trying the same submission (same idempotency key) does not create duplicates server-side.
 
 5) **Token validation**
-- [ ] Invalid/expired token submissions are rejected safely and remain queued (or fail with clear status).
+- [x] Invalid/expired token submissions are rejected safely and remain queued (or fail with clear status).
 
 6) **Shared device safety**
-- [ ] After a submission is queued or uploaded, the form values are cleared (no previous attendee data remains on screen).
-- [ ] If kiosk mode is enabled, the form auto-resets after the configured delay and shows a countdown.
+- [x] After a submission is queued or uploaded, the form values are cleared (no previous attendee data remains on screen).
+- [x] If kiosk mode is enabled, the form auto-resets after the configured delay and shows a countdown.
 
 7) **Validation-blocked telemetry**
-- [ ] Validation failures on submit generate telemetry that identifies the failing component/rule and includes value diagnostics (type/length/shape) without storing raw field values.
+- [x] Validation failures on submit generate telemetry that identifies the failing component/rule and includes value diagnostics (type/length/shape) without storing raw field values.
 
 ---
 
@@ -309,10 +309,10 @@ These features are enabled by Story 3.11 telemetry/persistence, but the **UI sur
 ## ✅ Done Criteria
 
 Story 3.11 is complete when:
-- [ ] All Acceptance Criteria pass.
-- [ ] `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
-- [ ] Submission UX is reliable offline-first (no lost submissions during UAT scenarios).
-- [ ] Implementation is committed to a Story branch with a PR and merged cleanly to `master`.
+- [x] All Acceptance Criteria pass.
+- [x] `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
+- [x] Submission UX is reliable offline-first (no lost submissions during UAT scenarios).
+- [x] Implementation is committed to a Story branch with a PR and merged cleanly to `master`.
 
 ---
 
@@ -322,12 +322,26 @@ See: `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md`
 
 ---
 
-## 📝 Completion Report (TBD)
+## 📝 Completion Report
 
-To be filled when Story 3.11 is completed (evidence, files changed, and UAT results).
+**Completed:** 2026-02-06  
+
+### What shipped
+- Public submission endpoint (token-gated) with idempotency and DB persistence
+- Public outbox (IndexedDB) for offline-first capture + auto-sync on reconnect
+- Shared-device safety (clear-after-capture + optional kiosk reset behaviors)
+- Validation telemetry and privacy-safe client context capture
+- Frontend baseline stabilized (lint/build green) as part of story completion hygiene
+
+### Evidence
+- Task plan + task completion status: `docs/tasks/3.11/TASK-PLAN.md`, `docs/tasks/3.11/STATUS.md`
+- Story UAT scenarios: `docs/stories/STORY-3.11-UAT-TEST-GUIDE.md` (✅ PASSED)
+
+### Residual notes
+- Frontend lint/build is green; some lint warnings may remain (documented in task artifacts) and are handled as ongoing hygiene.
 
 ---
 
 *Story created by Scrum Master Agent (with Git discipline enforced)*  
-*Last Updated: 2026-02-02*
+*Last Updated: 2026-02-06*
 

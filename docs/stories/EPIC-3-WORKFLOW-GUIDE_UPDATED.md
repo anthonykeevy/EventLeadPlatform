@@ -1,7 +1,16 @@
 # Epic 3 Workflow Guide - BMAD + Ralf Integration
 
-**Current Focus:** Story 3.11 - Dynamic Submission (Outbox)  
-**Status:** 🔄 In Progress  
+**Current Focus:** Epic 3 CLOSED (Story 3.11 complete)  
+**Status:** ✅ Complete  
+
+---
+
+## ✅ Epic 3 Closure Notice (2026-02-06)
+
+Epic 3 is now **complete** (Stories 3.1 → 3.11).
+
+**Next Focus:** Epic 5 - Review & Publishing (Preview/Test/Publish)  
+- Status/plan: `docs/stories/EPIC-5-STATUS.md`
 
 ---
 

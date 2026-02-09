@@ -2,7 +2,7 @@
 
 **Story:** 3.11  
 **Scope:** Public form submission transport + offline outbox + sync  
-**Status:** 📋 Planned (to be executed during Story 3.11)  
+**Status:** ✅ PASSED (executed 2026-02-06)  
 
 ---
 
@@ -206,17 +206,21 @@ Expected:
 ## Pass/Fail Recording
 
 Mark each scenario:
-- [ ] Scenario 1: ✅ / ❌
-- [ ] Scenario 2: ✅ / ❌
-- [ ] Scenario 3: ✅ / ❌
-- [ ] Scenario 4: ✅ / ❌
-- [ ] Scenario 5: ✅ / ❌
-- [ ] Scenario 6: ✅ / ❌
-- [ ] Scenario 7: ✅ / ❌
+- [x] Scenario 1: ✅ PASS
+- [x] Scenario 2: ✅ PASS
+- [x] Scenario 3: ✅ PASS
+- [x] Scenario 4: ✅ PASS
+- [x] Scenario 5: ✅ PASS
+- [x] Scenario 6: ✅ PASS
+- [x] Scenario 7: ✅ PASS
+- [x] Scenario 8: ✅ PASS
+- [x] Scenario 9: ✅ PASS
+- [x] Scenario 10: ✅ PASS (if enabled)
 
 ---
 
 ## Notes / Issues Found
 
-- 
+- No blocking issues found during final Story 3.11 UAT.
+- Process note (prevention): always verify backend is running from the correct worktree/branch (`git status -sb` + `git pull`) before UAT to avoid “endpoint missing” false failures.
 

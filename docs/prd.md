@@ -232,6 +232,58 @@
 - All users share access to company events and forms
 - Activity log shows which user created/edited/published each form
 
+### Enterprise Onboarding, Domains, SSO, and Internal vs External Usage (Post-MVP Direction)
+
+This expands EventLeadPlatform beyond external lead capture to support internal organisational workflows (bookings, surveys, requests, approvals). Treat this as a **platform capability** (surfaces + identity + access policy), not a single feature.
+
+**Industry-aligned principles (lock early):**
+- **Domains = branding + routing, not a security boundary**
+- **Security = authentication + access policy**, enforced consistently at runtime
+- **SSO authenticates identity; first login does not automatically grant tenant access** (default posture)
+
+#### Surfaces
+- **App UI**: Dashboard/Builder/Admin (authenticated)
+- **Form Runtime**: Published forms (public or internal)
+
+#### Company domains (multi-domain, purpose-based)
+- Company can register **multiple domains/subdomains**, categorised by **purpose**:
+  - **App/UI domain** (authenticated platform surface)
+  - **Forms runtime domain** (public + internal forms; audience controls access)
+  - (Future) other surfaces (email tracking, etc.)
+- Each domain maps to **exactly one** company tenant; domain ownership is **globally unique**
+- Domains are verified via **DNS**; platform manages **TLS/HTTPS**
+- Routing resolves tenant context by **Host header** for customer domains
+
+#### Form audience model (internal vs external)
+- Every published form has an explicit **audience**:
+  - **Public**: anonymous access allowed
+  - **Company-only**: authentication required (non-negotiable)
+  - (Later) **Restricted**: authenticated + allowlist / role / group gate
+- Audience is enforced at runtime **regardless of domain**
+
+#### SSO (per company)
+- Support **Microsoft Entra ID (Azure AD)** and **Google Workspace** via **OIDC** (SAML later if required)
+- SSO integrates with:
+  - App UI login (dashboard/builder)
+  - Internal (Company-only) form access
+- Company admins enable/configure SSO; IdP tenant and/or email domains must be verified before use
+
+#### First SSO login: join policy (explicit design choice)
+- Company-configurable join policy:
+  - **Invite-only** (strict)
+  - **Just-in-time (JIT) + admin approval** (recommended default)
+  - **JIT auto-join (minimal role)** (frictionless)
+- Admin workflows:
+  - View SSO login attempts and pending requests
+  - Approve/reject users; assign roles
+  - Audit trail for access changes
+
+#### Phasing (MVP vs later)
+- **MVP**: email/password auth + invitations; platform-owned domains for app + forms runtime; forms are **Public** by default.
+  - Design constraint for MVP implementation: avoid domain-based security assumptions; keep access checks centralized so internal forms/SSO can be introduced without rework.
+- **Phase 2+ (Enterprise tier)**: custom domains (DNS verification + TLS), SSO (Entra + Google), join policy + approvals UI, internal forms (Company-only audience) enforced in runtime.
+- **Later**: IdP group-to-role mapping, SCIM provisioning, IP allowlists / conditional access integrations.
+
 ---
 
 ## MVP Scope (3 Months)
@@ -338,22 +390,26 @@
 - Both types stored in same table, same validation rules
 
 **Testing Requirements:**
-- **Minimum 5 preview tests** required before form can be published
-- Each test = complete form submission in preview mode
+- Preview testing gate is **optional per company** (can be enabled/disabled).
+- If enabled: **Minimum 5 preview tests** required before form can be published (default).
+- Each test can be recorded as:
+  - Complete form submission in preview mode **or**
+  - Explicit “Record test run” action (supports static/no-input forms)
 - Test counter visible in builder: "3 of 5 tests completed"
-- Publish button disabled until threshold met
+- Publish button disabled **only when testing is enabled** and threshold is not met
 - **Company Admin override:**
-  - Admin can set custom test threshold per company (0-20 tests)
+  - Admin can enable/disable preview testing per company
+  - Admin can set custom test threshold per company (0-20 tests) when enabled
   - Stored in company settings
-  - Default: 5 tests
+  - Default: enabled, 5 tests
 - **Test audit log:**
-  - Track which user completed each test
-  - Timestamp of each test submission
+  - Track which user completed each test run
+  - Timestamp of each test run
   - Stored in ActivityLog table
   - Visible to Company Admins
 
 **Approver Testing Requirement:**
-- When Company User requests publish, Company Admin must test before approving
+- If **publish approval** is enabled and Company User requests publish, Company Admin must ensure testing is satisfied before approving
 - **Exception:** If Admin is also the form creator and already completed required tests
 - Admin review page shows: "You must complete X tests before publishing"
 - Test button on review page opens preview URL
@@ -620,6 +676,9 @@ Each form component consists of three parts:
 - ❌ Advanced analytics (heatmaps, funnels, detailed demographics)
 - ❌ Event Package tier (sell to event organizers as a bundled offering)
 - ❌ Multi-language support (English only for MVP)
+- ❌ Enterprise SSO (Microsoft Entra ID / Google Workspace)
+- ❌ Company-owned custom domains (DNS verification + platform-managed TLS/HTTPS)
+- ❌ Internal-only forms (Company-only audience), access request/approval workflows
 - ❌ White-label/remove branding
 - ❌ Mobile app (web app only, tablet-optimized public forms)
 - ❌ Advanced team permissions (fine-grained permissions beyond Admin/User roles)
@@ -672,7 +731,9 @@ Each form component consists of three parts:
 - `billing_address` (JSON: street, city, state, postcode, country)
 - `company_phone` (optional)
 - `industry` (optional)
-- `test_threshold` (integer, default: 5 - required preview tests before publish)
+- `preview_testing_enabled` (boolean, default: true - gate publish by preview tests)
+- `test_threshold` (integer, default: 5 - required preview tests before publish when enabled)
+- `publish_approval_required` (boolean, default: false - if true, Company Users must request Admin to publish)
 - `usage_analytics_opt_out` (boolean, default: false)
 - `created_by_user_id` (FK to User - first user who created company)
 - `created_at`
@@ -946,36 +1007,41 @@ Each form component consists of three parts:
 8. Auto-save creates draft form
 9. Clicks "Publish" button
 10. **Permission Check:** User role = Company User (NOT Admin)
+11. **Company Policy Check:** `company.publish_approval_required`
 
-**Publish Request Flow (Company User cannot publish directly):**
-11. Modal appears: "Request Admin to Publish"
-    - Message: "Only Company Admins can publish forms. Would you like to notify an Admin?"
+**If `publish_approval_required = true` (separation of duties enabled):**
+12. Modal appears: "Request Admin to Publish"
+    - Message: "Publishing requires Admin approval. Would you like to notify an Admin?"
     - List of Company Admins (select recipient)
     - Optional message to Admin
     - "Send Request" button
-12. System sends notification email to selected Admin(s)
-13. System creates pending publish request record
-14. Success message: "Admin has been notified. They'll publish your form."
-15. Form status remains "draft" with flag "pending_admin_review"
-16. User returns to Event Dashboard
-17. Form shows "Waiting for Admin to Publish" status badge
+13. System sends notification email to selected Admin(s)
+14. System creates pending publish request record
+15. Success message: "Admin has been notified. They'll publish your form."
+16. Form status remains "draft" with flag "pending_admin_review"
+17. User returns to Event Dashboard
+18. Form shows "Waiting for Admin to Publish" status badge
+
+**If `publish_approval_required = false` (direct publish allowed):**
+12. Company User can proceed to publish (subject to preview testing gate if enabled).
+13. Form published, public URL generated (and payment flow if applicable).
 
 **Admin Approves Publish (Company Admin):**
-18. Company Admin receives email: "[User Name] requests to publish form [Form Name] for [Event Name]"
-19. Email has link: "Review and Publish"
-20. Admin clicks link, lands on form preview page
-21. Admin reviews form, sees price: $99 + GST
-22. Options:
+19. Company Admin receives email: "[User Name] requests to publish form [Form Name] for [Event Name]"
+20. Email has link: "Review and Publish"
+21. Admin clicks link, lands on form preview page
+22. Admin reviews form, sees price: $99 + GST
+23. Options:
     - "Publish & Pay" → Triggers Stripe payment flow
     - "Request Changes" → Sends message back to user
     - "Decline" → Notifies user, form stays draft
-23. If Admin clicks "Publish & Pay":
-24. Stripe payment flow (same as flow #2)
-25. Payment succeeds
-26. Form published, public URL generated
-27. Invoice emailed to Admin
-28. User who created form gets notification: "Your form has been published!"
-29. Form appears as "Published" in Event Dashboard
+24. If Admin clicks "Publish & Pay":
+25. Stripe payment flow (same as flow #2)
+26. Payment succeeds
+27. Form published, public URL generated
+28. Invoice emailed to Admin
+29. User who created form gets notification: "Your form has been published!"
+30. Form appears as "Published" in Event Dashboard
 
 ### 5. Return Customer - New Event (Company Admin)
 1. Logs in, lands on dashboard
@@ -1076,20 +1142,30 @@ Each form component consists of three parts:
 
 ### Immediate Priorities (Month 4-6)
 
-**1. Prize Draw Feature (Premium Tier Unlock)**
+**1. Enterprise Onboarding (Domains + SSO + Internal vs External Access) — Enterprise Tier**
+- Company custom domain registration (multi-domain per company, purpose-based)
+- DNS verification + platform-managed TLS/HTTPS
+- Host-header tenant resolution for customer domains
+- Form audience model: Public vs Company-only (auth required), enforced in runtime
+- SSO per company: Microsoft Entra ID + Google Workspace (OIDC)
+- Join policy: invite-only | JIT + admin approval (default) | JIT auto-join (minimal role)
+- Admin workflows: domains, SSO settings, pending access approvals, role assignment, audit log
+- **Monetization note:** Industry norm is to keep domains/SSO/audit/access-controls opt-in and paid (Enterprise tier)
+
+**2. Prize Draw Feature (Premium Tier Unlock)**
 - Gamified prize draw (spin wheel, countdown)
 - Automated SMS reminders 30min before draw
 - Winner announcement and notifications
 - Unlocks $199 Premium tier
 - **Revenue Impact:** 2x ARPU if 50% choose Premium
 
-**2. CRM Integration**
+**3. CRM Integration**
 - Direct sync to Salesforce, HubSpot, Marketing Cloud
 - Automated lead routing
 - Retention hook (customers depend on integration)
 - **Revenue Impact:** Reduces churn, increases LTV
 
-**3. Address Validation Service**
+**4. Address Validation Service**
 - Integration with address validation API
 - Variable pricing for location-based fields
 - Enables demographic mapping
@@ -1101,6 +1177,8 @@ Each form component consists of three parts:
 - Advanced analytics (demographics, heatmaps, funnels)
 - Event Package tier (sell to event organizers for all exhibitors)
 - White-label option (enterprise)
+- SSO group-to-role mapping and SCIM provisioning (enterprise)
+- IP allowlists / conditional access integrations (enterprise add-ons)
 - Designer marketplace (creatives sell form design services)
 
 ### Long-Term Vision (5+ years)

@@ -1,5 +1,154 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+  Story Context: Story 5.1 - Background Asset Management
+  Epic: Epic 5 - Form Builder Readiness + Review & Publishing
+  Created: 2026-02-09
+
+  This context file provides structured metadata for AI agents working on Story 5.1.
+-->
+<story-context version="1.0">
+  <metadata>
+    <story-id>5.1</story-id>
+    <story-title>Background Asset Management</story-title>
+    <epic-id>5</epic-id>
+    <domain>Builder Foundations / Asset Management</domain>
+    <status>draft</status>
+    <priority>critical</priority>
+    <created>2026-02-09</created>
+  </metadata>
+
+  <summary>
+    Replace embedded base64 background images in form definitions with reusable asset references.
+    Introduce storage provider abstraction, config-backed limits, and shared resolver parity.
+  </summary>
+
+  <problem-statement>
+    The builder currently stores background images as Data URLs inside FormVersion.DefinitionJSON,
+    bloating payloads and risking preview/production drift. We need asset-based backgrounds with
+    consistent resolution and storage-backed lifecycle management.
+  </problem-statement>
+
+  <key-features>
+    <feature id="F1">Asset upload/storage for background images (no base64 in DefinitionJSON)</feature>
+    <feature id="F2">Storage provider abstraction (Local dev ↔ Azure Blob via config)</feature>
+    <feature id="F3">Runtime URL generation (no absolute host persisted)</feature>
+    <feature id="F4">Placement + cropping with intersection auto-remove if off-canvas</feature>
+    <feature id="F5">Config-backed limits via config.AppSetting (bytes/dimensions/mime)</feature>
+    <feature id="F6">Asset lifecycle: dedup by hash, soft-delete, rename</feature>
+    <feature id="F7">Defensive guard against embedded Data URL backgrounds</feature>
+  </key-features>
+
+  <reference-documents>
+    <document type="epic-scope" path="docs/stories/EPIC-5-STATUS.md">
+      Epic 5 scope and proposed story roadmap (Story 5.1 foundation)
+    </document>
+    <document type="workflow" path="docs/stories/EPIC-5-WORKFLOW-GUIDE.md">
+      Epic 5 workflow phases and Git discipline
+    </document>
+    <document type="workflow" path="docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md">
+      Git/PR/worktree discipline for story/task execution
+    </document>
+    <document type="prd" path="docs/prd.md">
+      PRD anchors for preview/testing and publishing (downstream dependency)
+    </document>
+    <document type="database-standards" path="docs/database-naming-rules.md">
+      Mandatory naming conventions for any new DB objects
+    </document>
+  </reference-documents>
+
+  <technical-context>
+    <technology>React</technology>
+    <technology>TypeScript</technology>
+    <technology>FastAPI</technology>
+    <technology>SQL Server</technology>
+
+    <key-types>
+      <type name="BackgroundAssetRef">
+        Reference stored in the form definition (asset ID/key + placement metadata)
+      </type>
+      <type name="BackgroundAsset">
+        Stored asset metadata (hash, size, mime, storage path, display name)
+      </type>
+    </key-types>
+
+    <key-files>
+      <!-- Frontend (likely touch points) -->
+      <file action="modify" path="frontend/src/features/builder/components/FormBuilderCanvas.tsx">
+        Replace Data URL background handling with asset references and placement metadata
+      </file>
+
+      <!-- Backend (new or modified modules) -->
+      <file action="create" path="backend/modules/assets/asset_service.py">
+        Asset storage abstraction (Local/Azure) and asset metadata management
+      </file>
+      <file action="create" path="backend/modules/assets/asset_router.py">
+        Asset upload endpoints and retrieval URLs (tokenized/secure if needed)
+      </file>
+      <file action="create" path="backend/models/asset.py">
+        Asset metadata persistence model
+      </file>
+      <file action="create" path="backend/migrations/versions/0xx_background_assets.py">
+        DB migration for asset metadata table (human executes migration commands)
+      </file>
+    </key-files>
+  </technical-context>
+
+  <done-criteria>
+    <criterion id="DC1">DefinitionJSON stores only asset references (no Data URLs)</criterion>
+    <criterion id="DC2">Builder + renderer resolve assets consistently</criterion>
+    <criterion id="DC3">Config-backed limits are enforced</criterion>
+    <criterion id="DC4">UAT guide completed with evidence</criterion>
+  </done-criteria>
+
+  <acceptance-criteria>
+    <criterion id="AC1">Background images are stored as assets, not embedded in JSON</criterion>
+    <criterion id="AC2">Runtime URL resolution is shared and consistent</criterion>
+    <criterion id="AC3">Upload and runtime limits are enforced via config.AppSetting</criterion>
+    <criterion id="AC4">Off-canvas backgrounds auto-remove from canvas while asset remains in library</criterion>
+    <criterion id="AC5">Dedup and soft-delete are supported without breaking existing forms</criterion>
+    <criterion id="AC6">Data URL backgrounds are blocked/stripped with clear errors</criterion>
+  </acceptance-criteria>
+
+  <forbidden-zones>
+    <zone>Do not persist base64 image blobs in FormVersion.DefinitionJSON</zone>
+    <zone>Do not hard-code limits (must use config.AppSetting)</zone>
+    <zone>Do not couple to a single storage provider</zone>
+  </forbidden-zones>
+
+  <out-of-scope>
+    <item>Company defaults / brand system (Story 5.2)</item>
+    <item>Schema validation alignment (Story 5.3)</item>
+    <item>Preview/production governance (Story 5.5+)</item>
+  </out-of-scope>
+
+  <dependencies>
+    <upstream>
+      <dependency story="3.x" status="complete">Builder + renderer baseline from Epic 3</dependency>
+    </upstream>
+    <downstream>
+      <dependency story="5.2" status="planned">Company defaults</dependency>
+      <dependency story="5.3" status="planned">Schema alignment</dependency>
+      <dependency story="5.4" status="planned">Shared resolver parity hardening</dependency>
+    </downstream>
+  </dependencies>
+
+  <risks>
+    <risk level="high">
+      Storage provider abstraction must be correct to avoid production asset access failures.
+    </risk>
+    <risk level="medium">
+      Asset reference migration/guard paths must prevent Data URL regressions.
+    </risk>
+  </risks>
+
+  <estimation>
+    <complexity>high</complexity>
+    <effort>3-6 days</effort>
+    <task-count>estimated 6-10 tasks</task-count>
+  </estimation>
+</story-context>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
   Story Context: Story 5.1 - Background Asset Management (No base64 Data URLs in DefinitionJSON)
   Epic: Epic 5 - Form Builder Readiness + Review & Publishing
   Created: 2026-02-08

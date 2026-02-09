@@ -1,3 +1,148 @@
+# Story 5.1: Background Asset Management
+
+**Epic:** Epic 5 - Form Builder Readiness + Review & Publishing  
+**Domain:** Builder Foundations / Asset Management  
+**Status:** 🟡 Draft  
+**Priority:** Critical (foundation for Epic 5)  
+**Created:** 2026-02-09  
+**Owner:** Developer Agent  
+
+---
+
+## 📖 User Story
+
+**As a** Company User or Admin building forms,  
+**I want** background images managed as reusable assets (not embedded in JSON),  
+**So that** form definitions stay lightweight, assets can be reused, and preview/production rendering stays consistent.
+
+---
+
+## 🧭 Scope Boundary (CRITICAL)
+
+### In scope (Story 5.1)
+
+- **Asset-based backgrounds (no base64 in `DefinitionJSON`)**
+  - Upload/store background images as assets.
+  - Form definitions store **asset references** (IDs/keys), not Data URLs.
+- **Storage provider abstraction**
+  - Local dev storage now; Azure Blob ready via config.
+  - Runtime URL generation (no absolute hosts stored in definitions).
+- **Background placement + cropping**
+  - Store placement in canvas coordinates (allow negative offsets).
+  - **Intersection rule:** if fully off-canvas, auto-remove from the canvas (asset remains in library).
+- **Asset lifecycle basics**
+  - Dedup by hash.
+  - Soft-delete (keep references safe).
+  - Rename support (`displayName` separate from original filename).
+- **Config-backed limits (mandatory)**
+  - Limits must live in `config.AppSetting` (loaded via `ConfigurationService`).
+  - Proposed keys (draft, finalize during decomposition):
+    - `forms.assets.images.max_upload_bytes`
+    - `forms.assets.images.max_width_px`
+    - `forms.assets.images.max_height_px`
+    - `forms.assets.images.allowed_mime_types` (JSON array)
+    - (Later) `forms.assets.images.max_total_bytes_per_company`
+    - (Later) `forms.assets.images.max_count_per_company`
+- **Defensive guard against embedded Data URLs**
+  - If a background image is detected as a Data URL, reject or strip and surface a clear error.
+
+### Out of scope (Story 5.1)
+
+- Company-level defaults (Story 5.2)
+- Schema + validation alignment (Story 5.3)
+- Preview/production governance (Story 5.5+)
+- Publish workflow, admin review, activation windows (Story 5.6+)
+- Payments, invoicing, analytics (Epic 6/7)
+
+---
+
+## 🎯 Functional Requirements (High Level)
+
+### FR-1: Background images are stored as assets
+- Builder uploads images and receives a stored asset reference.
+- `FormVersion.DefinitionJSON` stores a reference, not raw image data.
+
+### FR-2: Storage provider abstraction exists
+- Local filesystem in dev, Azure Blob in prod (config-driven).
+- Definitions never store absolute host URLs.
+
+### FR-3: Runtime URL resolution is shared
+- Builder preview and public renderer resolve assets the same way.
+
+### FR-4: Placement + cropping is reliable
+- Supports negative offsets.
+- Fully off-canvas images are auto-removed from the canvas (asset remains available).
+
+### FR-5: Limits enforced via `config.AppSetting`
+- Upload and runtime limits enforced using config-backed keys.
+
+### FR-6: Asset lifecycle and dedup
+- Uploading an identical image returns the existing asset (dedup via hash).
+- Soft-delete and rename operations are supported.
+
+### FR-7: Data URL guard
+- If a Data URL background is found, it is rejected/stripped with a clear error to avoid bloated JSON.
+
+---
+
+## ✅ Acceptance Criteria
+
+1) Background images are stored as assets, not embedded in `DefinitionJSON`.  
+2) Builder + renderer both resolve background images from asset references (parity).  
+3) Upload limits (bytes/size/mime) are enforced using `config.AppSetting`.  
+4) Asset URLs are generated at runtime (no absolute host persisted).  
+5) Negative offsets are supported; fully off-canvas backgrounds auto-remove from the canvas.  
+6) Duplicate uploads dedupe via hash (no duplicate asset records).  
+7) Soft-delete and rename are supported without breaking existing forms.  
+8) Any embedded Data URL background is blocked/stripped with a clear error.  
+
+---
+
+## 🔧 Technical Notes (Guidance)
+
+- Current builder stores background images via `readAsDataURL`, which bloats `DefinitionJSON`.  
+- Replace Data URL storage with asset references and shared resolver logic.  
+- Ensure all limits are loaded via `ConfigurationService` (config-backed).  
+- Storage provider should be swappable without schema changes (Local ↔ Azure Blob).  
+
+---
+
+## 🔗 Dependencies
+
+### Upstream
+- Epic 3 complete (builder + renderer baseline).
+
+### Downstream
+- Story 5.2 (Company defaults)
+- Story 5.3 (Schema alignment)
+- Story 5.4 (Shared resolver parity hardening)
+- Story 5.5+ (Preview/production governance)
+
+---
+
+## ✅ Done Criteria
+
+Story 5.1 is complete when:
+- All acceptance criteria pass.
+- `docs/stories/STORY-5.1-UAT-TEST-GUIDE.md` is executed and marked ✅ PASSED.
+- Implementation is merged via Story/Task PRs (no direct work on `master`).
+
+---
+
+## 🧪 UAT Test Guide
+
+See: `docs/stories/STORY-5.1-UAT-TEST-GUIDE.md`
+
+---
+
+## 📝 Completion Report
+
+**Completed:** TBD  
+**Evidence:** TBD  
+
+---
+
+*Story created using Epic 5 workflow guide*  
 # Story 5.1: Background Asset Management (No base64 Data URLs in `DefinitionJSON`)
 
 **Epic:** Epic 5 - Form Builder Readiness + Review & Publishing  
@@ -140,16 +285,20 @@ All keys are stored in `config.AppSetting.SettingKey` and loaded via `Configurat
 
 ## 🗄️ Draft Data Model (Guidance)
 
-Exact naming finalized during decomposition, but the model must support:
+Model must support:
 
-- **Asset table** (tenant-scoped), e.g. `dbo.FormAsset` or `dbo.Asset`:
+- **Asset table** (tenant-scoped): `dbo.Asset`
   - `AssetID` (PK, GUID recommended)
   - `CompanyID` (FK)
-  - `AssetType` (e.g. `IMAGE`)
+  - `AssetTypeID` (FK → `ref.AssetType`) — enum-backed reference
   - `MimeType`, `SizeBytes`, `WidthPx`, `HeightPx`, `Sha256`
   - `StorageProvider`, `StorageKey` (path/blob key)
   - `OriginalFilename`, `DisplayName`
   - `CreatedByUserID`, `CreatedAt`, `DeletedAt` (soft delete)
+- **Asset type enum** (reference table): `ref.AssetType`
+  - `AssetTypeID` (PK)
+  - `TypeCode` (unique, e.g. `IMAGE`)
+  - (Optional) `DisplayName`, `SortOrder`, audit fields (per naming rules)
 - **Reference from definitions**:
   - Store only `assetId` + placement metadata in JSON.
   - No bytes/base64; no absolute hostnames.

@@ -1,6 +1,134 @@
 # Story 5.1 UAT Test Guide — Background Asset Management
 
 **Story:** 5.1  
+**Scope:** Background image assets (no base64 in `DefinitionJSON`)  
+**Status:** ⏳ Not Executed  
+
+---
+
+## Preconditions
+
+- Backend is running locally
+- Frontend is running locally
+- You have access to a form in the builder
+- Asset limits exist in `config.AppSetting` (or safe defaults are provided in dev)
+
+---
+
+## Test assets (recommended)
+
+Prepare these images:
+- Small PNG (under size limits)
+- Large JPG (over size limits)
+- Invalid MIME type (e.g., GIF if disallowed)
+
+---
+
+## Scenarios
+
+### Scenario 1 — Upload and apply a background asset
+
+**Goal:** Validate asset upload and use in the builder.
+
+Steps:
+1. Open the builder for a form.
+2. Upload a valid image within size and dimension limits.
+3. Apply it as the background image.
+
+Expected:
+- Upload succeeds and the background renders.
+- The definition stores an **asset reference**, not a Data URL.
+
+---
+
+### Scenario 2 — Reload builder preserves background via asset reference
+
+Steps:
+1. Save the form.
+2. Reload the builder.
+
+Expected:
+- Background image renders correctly.
+- No base64 data appears in `DefinitionJSON`.
+
+---
+
+### Scenario 3 — Renderer parity (preview/public)
+
+Steps:
+1. Open the preview/public renderer for the form.
+
+Expected:
+- The same background image renders in the renderer.
+- No asset host URL is stored in `DefinitionJSON`.
+
+---
+
+### Scenario 4 — Off-canvas intersection rule
+
+Steps:
+1. Move the background image completely off-canvas (if supported).
+
+Expected:
+- The background is removed from the canvas.
+- The asset remains available in the asset library.
+
+---
+
+### Scenario 5 — Upload limit enforcement
+
+Steps:
+1. Try to upload an oversized image (bytes or dimensions).
+2. Try to upload a disallowed MIME type.
+
+Expected:
+- Both uploads are blocked with clear errors.
+- Limits are enforced via config-backed settings (not hard-coded).
+
+---
+
+### Scenario 6 — Dedup behavior
+
+Steps:
+1. Upload the same image twice.
+
+Expected:
+- The system deduplicates by hash (no duplicate asset records).
+
+---
+
+### Scenario 7 — Soft-delete safety (if UI exists)
+
+Steps:
+1. Soft-delete a background asset.
+2. Open a form that references the asset.
+
+Expected:
+- The form handles the missing asset gracefully (clear error or placeholder).
+- No crash or broken UI.
+
+---
+
+## Pass/Fail Recording
+
+Mark each scenario:
+- [ ] Scenario 1: ⬜ PASS / ⬜ FAIL  
+- [ ] Scenario 2: ⬜ PASS / ⬜ FAIL  
+- [ ] Scenario 3: ⬜ PASS / ⬜ FAIL  
+- [ ] Scenario 4: ⬜ PASS / ⬜ FAIL  
+- [ ] Scenario 5: ⬜ PASS / ⬜ FAIL  
+- [ ] Scenario 6: ⬜ PASS / ⬜ FAIL  
+- [ ] Scenario 7: ⬜ PASS / ⬜ FAIL  
+
+---
+
+## Notes / Issues Found
+
+- TBD
+
+# Story 5.1 UAT Test Guide — Background Asset Management
+
+**Story:** 5.1  
 **Scope:** Background image assets (no embedded base64 Data URLs), storage provider abstraction, config-backed limits  
 **Status:** 📝 Draft (not yet executed)  
 

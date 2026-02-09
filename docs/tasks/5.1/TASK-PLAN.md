@@ -34,7 +34,7 @@ Story 5.1 is complete when:
 | Task | Title | Status | Depends On | Est. Time | Focus Area |
 |------|-------|--------|------------|-----------|------------|
 | **T01** | Asset Contracts + Config Foundations | ✅ HumanDone | - | 2-3 hrs | Foundation |
-| **T02** | DB Migration: Asset Metadata Tables | ⏳ Ready | T01 | 1-2 hrs | Database |
+| **T02** | DB Migration: Asset Metadata Tables | ✅ HumanDone | T01 | 1-2 hrs | Database |
 | **T03** | Backend: Asset Service + Upload API | ⏸️ Pending | T02 | 2-3 hrs | Backend/API |
 | **T04** | Frontend: Builder Asset Upload + Library + Ref | ⏸️ Pending | T01, T03 | 3-5 hrs | Frontend/Builder |
 | **T05** | Shared Resolver Parity (Builder + Renderer) | ⏸️ Pending | T03, T04 | 2-3 hrs | Rendering |
@@ -67,7 +67,7 @@ T08 (Integration + UAT) depends on T03–T07
 | Task | Task Spec | Status |
 |------|-----------|--------|
 | T01 | `T01-asset-contracts-and-config-foundations.md` | ✅ HumanDone |
-| T02 | `T02-db-migration-asset-metadata.md` | ⏳ Ready |
+| T02 | `T02-db-migration-asset-metadata.md` | ✅ HumanDone |
 | T03 | `T03-backend-asset-service-and-upload-api.md` | ⏸️ Pending |
 | T04 | `T04-frontend-builder-asset-upload-and-library.md` | ⏸️ Pending |
 | T05 | `T05-shared-resolver-parity.md` | ⏸️ Pending |

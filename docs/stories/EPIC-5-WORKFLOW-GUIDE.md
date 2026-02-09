@@ -256,22 +256,24 @@ Each task follows this explicit loop. Do not skip steps.
 ### Step 1: Create task branch + worktree + PR (agent-owned)
 
 ```powershell
-scripts/git/new-task.ps1 -StoryBranch "story/epic5-5.1-background-asset-management" -StoryId 5.1 -TaskId T01 -Slug "asset-contracts-and-config-foundations" -CreateWorktree
+scripts/git/new-task.ps1 -StoryBranch "story/epic5-5.1-background-asset-management" -StoryId 5.1 -TaskId T01 -Slug "asset-contracts-and-config-foundations" -CreateWorktree -BootstrapPR -CreatePR -WorktreeRoot "C:\wt\elp"
 ```
 
 #### Step 1A: PR bootstrap commit (mandatory)
 
 **Goal:** Ensure a PR can be created immediately (avoids “no commits between base/head”).
 
+- Preferred: let `new-task.ps1 -BootstrapPR` do this automatically.
 - Edit the task spec `docs/tasks/<story>/<TaskBase>.md`
   - Update **Status** to: `🔄 In Progress (Approved)`
 - Commit + push that single doc change
 
 **Commit cadence (avoid micro-commits):**
-- Target 2–3 commits per task:
+- Target 2–4 commits per task:
   - PR bootstrap commit (status → In Progress)
   - Implementation (+ artifacts)
   - Closeout updates (if needed)
+- 4 commits is acceptable when you isolate artifacts (docs/UAT/retro) to keep reviews clean.
 - Only do extra commits when they materially reduce risk (e.g., large refactors, checkpoints before risky steps).
 
 #### Step 1B: Create the PR (after bootstrap commit)
@@ -430,6 +432,22 @@ After retro, PM (or AI acting as PM) does a quick check:
 - Merge Task PR → Story branch
 - Resolve conflicts and run integration checks if needed
 - Update task/status docs as required
+
+#### Step 6A: Tracker closeout (mandatory)
+
+**Goal:** Keep all trackers consistent (prevents “task is done but STATUS.md says Ready” drift).
+
+On the **Story branch** (after the task PR is merged), ensure:
+- **Task spec:** `docs/tasks/<story>/<TaskBase>.md`
+  - Set `**Status:** ✅ HumanDone` (single value; never `Ready -> In Progress` arrows)
+- **Task plan:** `docs/tasks/<story>/TASK-PLAN.md`
+  - Task Skeleton row updated
+  - Task Files table updated
+- **Story status:** `docs/tasks/<story>/STATUS.md`
+  - `Current Task` advanced
+  - Progress table updated (including Completed date)
+- **Next task readiness:** set the next task to `⏳ Ready` when dependencies are satisfied.
+- **Transcript capture (recommended):** export and commit under `docs/Transcripts/` so it survives merges.
 
 ### Step 7: Workflow review (required after each task)
 

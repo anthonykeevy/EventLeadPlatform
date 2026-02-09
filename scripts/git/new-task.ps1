@@ -17,6 +17,7 @@ param(
   [switch]$CreateWorktree,
 
   [switch]$CreatePR,
+  [switch]$BootstrapPR,
   [switch]$DryRun
 )
 
@@ -45,7 +46,11 @@ function Show-And-Run {
   Write-Host ""
   Write-Host $CommandText
 
-  if ($DryRun) { return }
+  if ($DryRun) {
+    # Ensure DRY RUN doesn't leak a non-zero exit code from previous commands.
+    $global:LASTEXITCODE = 0
+    return
+  }
 
   & $Command
 
@@ -78,6 +83,57 @@ function Resolve-GhPath {
   }
 
   return $null
+}
+
+function Invoke-PrBootstrap {
+  param(
+    [Parameter(Mandatory = $true)][string]$RepoRoot
+  )
+
+  $taskBase = "$TaskId-$Slug"
+  $taskSpecRelPath = "docs/tasks/$StoryId/$taskBase.md"
+  $taskSpecAbsPath = Join-Path $RepoRoot $taskSpecRelPath
+
+  Write-Host ""
+  Write-Host "PR bootstrap: updating task spec status -> In Progress (Approved)"
+  Write-Host "  File: $taskSpecRelPath"
+
+  if (-not (Test-Path $taskSpecAbsPath)) {
+    Write-Host "  Task spec not found; skipping PR bootstrap."
+    return
+  }
+
+  $content = Get-Content -Raw -Path $taskSpecAbsPath
+  $desiredLine = "**Status:** 🔄 In Progress (Approved)"
+  $updated = [regex]::Replace($content, "^\*\*Status:\*\*.*$", $desiredLine, [Text.RegularExpressions.RegexOptions]::Multiline)
+
+  if ($updated -eq $content) {
+    Write-Host "  Status line already set; skipping bootstrap commit."
+    return
+  }
+
+  if ($DryRun) {
+    Write-Host "  DRY RUN: would update status line and commit+push."
+    return
+  }
+
+  # Write file (utf8) and commit on the task branch.
+  Set-Content -Path $taskSpecAbsPath -Value $updated -Encoding utf8
+
+  Push-Location $RepoRoot
+  try {
+    & git add -- $taskSpecRelPath
+    if ($LASTEXITCODE -ne 0) { throw "git add failed (exit $LASTEXITCODE): $taskSpecRelPath" }
+
+    $msg = "docs(tasks): mark $TaskId in progress (approved)"
+    & git commit -m $msg
+    if ($LASTEXITCODE -ne 0) { throw "git commit failed (exit $LASTEXITCODE)" }
+
+    & git push
+    if ($LASTEXITCODE -ne 0) { throw "git push failed (exit $LASTEXITCODE)" }
+  } finally {
+    Pop-Location
+  }
 }
 
 function Normalize-PathForCompare {
@@ -236,6 +292,18 @@ if ($CreateWorktree) {
   Show-And-Run -CommandText "git push -u $Remote HEAD" -Command { git push -u $Remote HEAD }
 }
 
+if ($BootstrapPR) {
+  if ($CreateWorktree) {
+    Invoke-PrBootstrap -RepoRoot $taskWorktreePath
+  } else {
+    $repoRoot = (& git rev-parse --show-toplevel 2>$null).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $repoRoot) {
+      throw "Unable to determine git repo root for bootstrap. Are you running from inside a git repo?"
+    }
+    Invoke-PrBootstrap -RepoRoot $repoRoot
+  }
+}
+
 if ($CreatePR) {
   $ghPath = Resolve-GhPath
   if (-not $ghPath) {
@@ -260,6 +328,7 @@ if ($CreatePR) {
       if ($deltaCount -eq 0) {
         Write-Host ""
         Write-Host "Skipping PR creation: no commits between $StoryBranch and $taskBranch yet."
+        Write-Host "Tip: re-run with -BootstrapPR to create a small doc commit first (safe to re-run)."
         Write-Host "After your first commit + push, re-run this script with -CreateWorktree -CreatePR (safe to re-run)."
         Write-Host "Or create manually:"
         Write-Host "`"$ghPath`" pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`""

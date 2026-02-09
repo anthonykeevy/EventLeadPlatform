@@ -2,7 +2,7 @@
 
 **Story:** 5.1 - Background Asset Management  
 **Task ID:** T04  
-**Status:** ⏸️ Pending  
+**Status:** ⏳ Ready  
 **Dependencies:** T01, T03  
 **Estimated Time:** 3-5 hours  
 

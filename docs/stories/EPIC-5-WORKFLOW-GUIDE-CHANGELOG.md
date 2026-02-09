@@ -54,7 +54,7 @@ Add a new section with:
   - **Baseline-broken rule:** If repo baseline build/typecheck is already failing, record baseline evidence and run scoped verification; don’t claim a regression without proof.
 - **Why:** Reduce human friction, avoid duplicated task artifacts, and ensure evidence is accurate/repeatable.
 - **Follow-ups:** After frontend build stabilization, add a reliable scoped typecheck command for builder contract changes.
-- **Evidence:** Task T01 transcript under `docs/Transcript/` in the T01 task worktree / story branch.
+- **Evidence:** Task T01 transcript under `docs/Transcripts/` in the T01 task worktree / story branch.
 
 ---
 
@@ -84,5 +84,23 @@ Add a new section with:
 - **Follow-ups:**
   - Add an automated preflight script to compare DB head vs migration files (optional future task).
   - Ensure KB migration PR(s) are merged into the shared trunk before upgrading DB environments (so new worktrees don’t miss applied revisions).
-- **Evidence:** T02 transcript: `docs/Transcript/cursor_epic_5_story_5_1_task_t02.md`
+- **Evidence:** T02 transcript: `docs/Transcripts/cursor_epic_5_story_5_1_task_t02.md`
+
+---
+
+## 2026-02-09 — T03 learnings: tracker closeout + scriptable PR bootstrap (cost/efficiency)
+
+- **Trigger:** Task T03 completed successfully end-to-end in one prompt, but:
+  - Total token usage was high (process overhead + tool friction is expensive at scale).
+  - Story trackers drifted (e.g., task completed/merged but `STATUS.md` didn’t reflect it).
+  - PR bootstrap is a repeatable mechanical step that should be scriptable.
+- **Change:**
+  - **Tracker closeout step:** make tracker updates an explicit mandatory post-merge step (task spec + `TASK-PLAN.md` + `STATUS.md` + next task readiness).
+  - **Git automation:** update `scripts/git/new-task.ps1` to support `-BootstrapPR` so PRs can be created immediately without manual micro-steps.
+  - **Commit guidance:** accept 2–4 commits when isolating artifacts keeps reviews clean.
+- **Why:** Reduce “workflow tax” tokens, prevent tracker drift, and make PR creation a one-command operation.
+- **Follow-ups:**
+  - Consider adding a lightweight “tracker consistency check” (fails if task spec / task plan / status disagree).
+  - Add a short “browser automation smoke steps” template for UI-heavy tasks (T04+).
+- **Evidence:** T03 transcript: `docs/Transcripts/cursor_epic_5_story_5_1_task_t03.md`
 

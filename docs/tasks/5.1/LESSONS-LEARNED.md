@@ -15,7 +15,7 @@ This file is updated after each task retro.
   - Rename generic `T01.*` artifacts to `${TaskBase}.*` before commit/merge.
 
 **Links (T01):**
-- Transcript: `docs/Transcript/Epic-5-Story-5.1-Task-T01.md`
+- Transcript: `docs/Transcripts/Epic-5-Story-5.1-Task-T01.md`
 - Completion: `T01-asset-contracts-and-config-foundations.completion.md`
 - UAT results: `T01-asset-contracts-and-config-foundations.uat-results.md`
 - Retro: `T01-asset-contracts-and-config-foundations.retro.md`
@@ -38,6 +38,7 @@ This file is updated after each task retro.
 - **Process Lessons:** Include explicit resolver URL expectations (local vs azure) in AC verification.
 
 **Links (T03):**
+- Transcript: `docs/Transcripts/cursor_epic_5_story_5_1_task_t03.md`
 - Completion: `T03-backend-asset-service-and-upload-api.completion.md`
 - UAT results: `T03-backend-asset-service-and-upload-api.uat-results.md`
 - Retro: `T03-backend-asset-service-and-upload-api.retro.md`

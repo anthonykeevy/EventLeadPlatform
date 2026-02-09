@@ -55,6 +55,17 @@ cd backend
 alembic upgrade head
 ```
 
+### Post-migration verification results
+```sql
+-- ref.AssetType seed
+AssetTypeID  TypeCode  TypeName  IsActive  IsDeleted
+1            IMAGE     Image     1         0
+
+-- Dedup index filter
+name                                         is_unique  filter_definition
+UQ_Asset_CompanyID_AssetTypeID_Sha256        1          ([IsDeleted]=(0))
+```
+
 ### Optional rollback (if needed)
 ```powershell
 cd backend

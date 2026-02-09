@@ -31,3 +31,14 @@ This file is updated after each task retro.
 - UAT results: `T02-db-migration-asset-metadata.uat-results.md`
 - Retro: `T02-db-migration-asset-metadata.retro.md`
 
+### 2026-02-09 — T03 (Backend Asset Service + Upload API)
+
+- **Dev Lessons:** SQLite test harness needs schema-attach and explicit IDs when using schema-qualified models.
+- **Testing Lessons:** Add a deterministic dedup integration test (upload same file twice, assert `isDuplicate=true`).
+- **Process Lessons:** Include explicit resolver URL expectations (local vs azure) in AC verification.
+
+**Links (T03):**
+- Completion: `T03-backend-asset-service-and-upload-api.completion.md`
+- UAT results: `T03-backend-asset-service-and-upload-api.uat-results.md`
+- Retro: `T03-backend-asset-service-and-upload-api.retro.md`
+

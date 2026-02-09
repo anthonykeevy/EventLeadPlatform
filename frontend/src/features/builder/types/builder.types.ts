@@ -638,18 +638,87 @@ export interface FormComponent {
     children?: FormComponent[]; 
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// BACKGROUND ASSET CONTRACTS (Story 5.1)
+// Field names intentionally match backend asset_schemas.py
+// Data URL guard: background values must NOT be persisted if value starts with "data:".
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface BackgroundAssetMetadata {
+    assetId: number;
+    assetKey: string;
+    displayName?: string;
+    originalFilename: string;
+    mimeType: string;
+    byteSize: number;
+    widthPx?: number;
+    heightPx?: number;
+    checksumSha256?: string;
+    createdAt?: string; // ISO timestamp
+    updatedAt?: string; // ISO timestamp
+}
+
+export interface BackgroundPosition {
+    /** Canvas coordinates in pixels; negative offsets allowed. */
+    x: number;
+    y: number;
+}
+
+export interface BackgroundSize {
+    width: number;
+    height: number;
+}
+
+export interface BackgroundCrop {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export interface BackgroundPlacement {
+    position: BackgroundPosition;
+    size: BackgroundSize;
+    crop?: BackgroundCrop;
+}
+
+export type BackgroundType = 'color' | 'image';
+
+export interface BackgroundDefinition {
+    type: BackgroundType;
+    /** Hex color or legacy URL (Data URLs are NOT allowed). */
+    value: string;
+    /** Preferred asset reference for background images. */
+    asset?: BackgroundAssetMetadata;
+    /** Placement metadata for image backgrounds. */
+    placement?: BackgroundPlacement;
+    /** Legacy sizing mode (CSS-style). */
+    imageSize?: 'cover' | 'contain' | 'tile' | 'auto';
+    /** Legacy positioning (CSS-style). */
+    imagePosition?: string;
+    /** Overlay tint (hex). */
+    overlayColor?: string;
+    /** Overlay opacity (0-1). */
+    overlayOpacity?: number;
+    /** Background opacity (0-1). */
+    opacity?: number;
+    /** Legacy scale factor. */
+    scale?: number;
+    /** Legacy position (use placement.position instead). */
+    position?: BackgroundPosition;
+}
+
+export interface BackgroundAssetResolver {
+    /** Resolve an asset reference into a runtime URL. */
+    resolveUrl: (asset: BackgroundAssetMetadata, placement?: BackgroundPlacement) => string | Promise<string>;
+}
+
 export interface FormPage {
     id: string;
     title: string;
     components: FormComponent[];
     // Canvas Refactor: Background Settings per page
-    background?: {
-        type: 'color' | 'image';
-        value: string; // Hex code or URL
-        opacity?: number;
-        scale?: number;
-        position?: { x: number, y: number };
-    };
+    background?: BackgroundDefinition;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

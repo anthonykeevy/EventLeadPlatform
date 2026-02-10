@@ -11,7 +11,7 @@
  * - Auto-hides when online and queue empty
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { WifiOff, Wifi, Loader2, CheckCircle2 } from 'lucide-react'
 import { offlineQueue, OfflineQueueStats } from '../../../utils/offlineQueue'
 

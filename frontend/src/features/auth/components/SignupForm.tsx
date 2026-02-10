@@ -11,7 +11,7 @@
  * - Mobile responsive design
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { Eye, EyeOff, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
@@ -19,7 +19,6 @@ import { useAuth } from '../context/AuthContext'
 import { useAuthPageRedirect } from '../hooks/useAuthRedirect'
 import { AuthLayout } from '../components/AuthLayout'
 import { PasswordStrength } from '../components/PasswordStrength'
-import type { SignupData } from '../types/auth.types'
 
 interface SignupFormData {
   email: string

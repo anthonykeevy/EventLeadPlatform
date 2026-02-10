@@ -12,7 +12,7 @@
  * - Mobile responsive design
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle } from 'lucide-react'

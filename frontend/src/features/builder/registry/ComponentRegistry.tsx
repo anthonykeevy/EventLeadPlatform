@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { 
   Type, 
   Hash, 
@@ -14,7 +14,6 @@ import {
   FileCheck,
   Send,
   Minus,
-  Loader2,
 } from 'lucide-react';
 import { ComponentType, FormComponent, StyleOverrides, GlobalStyles, LayoutType, ComponentStructure } from '../types/builder.types';
 import { getDefaultStructure } from '../utils/structureDefaults';
@@ -43,12 +42,6 @@ const TOOLBOX_FIRST_NAME_COMPONENT: FormComponent = {
     validation: { maxLength: 30 },
   },
 };
-
-const TOOLBOX_FIRST_NAME_RENDERERS = getRenderersForComponent(
-  'first-name',
-  FIRST_NAME_STRUCTURE,
-  TOOLBOX_FIRST_NAME_COMPONENT
-);
 
 interface ToolboxPreviewProps {
   globalStyles?: GlobalStyles;
@@ -141,7 +134,7 @@ export interface ComponentDefinition {
   customComponentId?: string; // Reference to database record
 }
 
-export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
+export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinition>> = {
   // POC: First Name
   'first-name': {
     type: 'first-name',
@@ -161,7 +154,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       props: TOOLBOX_FIRST_NAME_COMPONENT.props,
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? '';
 
@@ -229,7 +222,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? ''
       
@@ -295,7 +288,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = String(value ?? '')
       
@@ -361,7 +354,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? ''
       
@@ -429,7 +422,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? ''
       
@@ -499,7 +492,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? '';
 
@@ -562,7 +555,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? '';
 
@@ -633,7 +626,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
 
       return (
@@ -695,7 +688,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
 
       return (
@@ -765,7 +758,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? ''
       
@@ -836,7 +829,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       const valueStr = (value as string) ?? '';
 
@@ -913,7 +906,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
 
       return (
@@ -986,7 +979,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       },
     }),
     runtimeComponent: ({ component, disabled, onSubmit, error, allFormErrors, formValidationContext, styleOverrides, globalStyles, required }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
 
       const [hasFocus, setHasFocus] = React.useState(false);
@@ -1060,7 +1053,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       }),
     }),
     runtimeComponent: ({ component, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const baseRenderers = getRenderersForComponent(component.type, structure, component);
       const renderers: ObjectRenderers = {
         ...baseRenderers,
@@ -1114,7 +1107,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       props: {},
     }),
     runtimeComponent: ({ component, styleOverrides, globalStyles }) => {
-      const structure = ComponentRegistry[component.type].structure || getDefaultStructure(component.type);
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
       const renderers = getRenderersForComponent(component.type, structure, component);
       return (
         <UniversalFieldShell
@@ -1131,7 +1124,7 @@ export const ComponentRegistry: Record<ComponentType, ComponentDefinition> = {
       );
     },
   }
-} as Record<ComponentType, ComponentDefinition>;
+} as Partial<Record<ComponentType, ComponentDefinition>>;
 
 export const generateComponent = (type: ComponentType): FormComponent => {
   const def = ComponentRegistry[type];

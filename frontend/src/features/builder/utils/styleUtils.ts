@@ -501,7 +501,7 @@ export function computeFieldStyles(
             actionBackgroundColor: effective.actionBackgroundColor,
 
             // Divider styles
-            dividerBorderColor: effective.dividerBorderColor,
+            dividerBorderColor: effective.dividerBorderColor ?? '',
             dividerBorderWidth: Math.round((effective.dividerBorderWidth ?? 1) * scaleFactor),
             dividerWidth: effective.dividerWidth,
 

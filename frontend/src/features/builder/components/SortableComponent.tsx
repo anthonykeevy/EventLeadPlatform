@@ -1846,8 +1846,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     before: oldPosition,
                     proposed: proposedPos,
                     delta: {
-                        x: proposedPos.x - oldPosition.x,
-                        y: proposedPos.y - oldPosition.y,
+                        x: proposedPos.x - (oldPosition?.x ?? 0),
+                        y: proposedPos.y - (oldPosition?.y ?? 0),
                     },
                 },
                 otherComponentsCount: others.length,
@@ -2548,7 +2548,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // Capture current component geometry for comparison
         const currentPosition = component.position;
         const currentWidth = parseFloat(component.props.width || '300px');
-        const currentHeight = component.props.inputHeight ? parseFloat(component.props.inputHeight) : undefined;
+        const currentHeight = component.props.inputHeight != null ? parseFloat(String(component.props.inputHeight)) : undefined;
 
         // Preserve vertical preview state BEFORE handleWidthChange clears resizePreview
         const verticalPreviewState = lastVerticalPreviewRef.current ? {
@@ -2563,17 +2563,19 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         const oldWidthBeforeCommit = component.props.width;
 
         // Calculate expected final position/size based on mouse movement
-        const expectedPosition = { ...currentPosition };
+        const baseX = currentPosition?.x ?? 0;
+        const baseY = currentPosition?.y ?? 0;
+        const expectedPosition = { x: baseX, y: baseY };
         const expectedWidth = currentWidth + deltaX * (horizontalHandle === 'w' ? -1 : 1);
         
         // For W handles, position should shift left by deltaX
         if (horizontalHandle === 'w') {
-            expectedPosition.x = currentPosition.x + deltaX;
+            expectedPosition.x = baseX + deltaX;
         }
         
         // For N handles, position should shift up by deltaY
         if (verticalHandle === 'n') {
-            expectedPosition.y = currentPosition.y + deltaY;
+            expectedPosition.y = baseY + deltaY;
         }
 
         devLogger.info('resize.corner.commit.start', {
@@ -2596,26 +2598,25 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 position: expectedPosition,
                 width: expectedWidth,
                 positionShift: {
-                    x: expectedPosition.x - currentPosition.x,
-                    y: expectedPosition.y - currentPosition.y,
+                    x: expectedPosition.x - (currentPosition?.x ?? 0),
+                    y: expectedPosition.y - (currentPosition?.y ?? 0),
                 },
                 widthChange: expectedWidth - currentWidth,
             },
-            // Important invariant: corners must NOT change componentScale
             componentScale,
             preview: {
                 width: widthToCommit,
                 startWidth: startWidthForFallback,
-                horizontalHandle: (resizePreview as any)?.horizontalHandle,
-                leftShift: (resizePreview as any)?.leftShift,
+                horizontalHandle: (resizePreview as { horizontalHandle?: string })?.horizontalHandle,
+                leftShift: (resizePreview as { leftShift?: number })?.leftShift,
                 inputHeight: resizePreview?.inputHeight,
                 labelGap: resizePreview?.labelGap,
                 inputHelpGap: resizePreview?.inputHelpGap,
-                topShift: (resizePreview as any)?.topShift,
+                topShift: (resizePreview as { topShift?: number })?.topShift,
             },
             verticalPreviewState,
             oldWidthBeforeCommit,
-        });
+        } as Record<string, unknown>);
 
         // Commit width first (uses resizePreview.horizontalHandle/leftShift/startWidth)
         let widthCommitted = false;
@@ -2718,7 +2719,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // Capture final state and compare to expected
         const finalPosition = component.position;
         const finalWidth = parseFloat(component.props.width || '300px');
-        const finalHeight = component.props.inputHeight ? parseFloat(component.props.inputHeight) : undefined;
+        const finalHeight = component.props.inputHeight != null ? parseFloat(String(component.props.inputHeight)) : undefined;
 
         devLogger.info('resize.corner.commit.complete', {
             componentId: component.id,
@@ -2736,17 +2737,17 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             },
             discrepancy: {
                 position: {
-                    x: finalPosition.x - expectedPosition.x,
-                    y: finalPosition.y - expectedPosition.y,
+                    x: (finalPosition?.x ?? 0) - expectedPosition.x,
+                    y: (finalPosition?.y ?? 0) - expectedPosition.y,
                 },
                 width: finalWidth - expectedWidth,
             },
             match: {
-                positionX: Math.abs(finalPosition.x - expectedPosition.x) < 1,
-                positionY: Math.abs(finalPosition.y - expectedPosition.y) < 1,
+                positionX: Math.abs((finalPosition?.x ?? 0) - expectedPosition.x) < 1,
+                positionY: Math.abs((finalPosition?.y ?? 0) - expectedPosition.y) < 1,
                 width: Math.abs(finalWidth - expectedWidth) < 1,
             },
-        });
+        } as Record<string, unknown>);
     }, [component.id, component.type, component.props.width, component.position, componentScale, handleWidthChange, handleVerticalResizeEnd, resizePreview, scale]);
 
     const [_parentWidth, setParentWidth] = useState<number | null>(null);
@@ -2806,7 +2807,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         if (isPercentage) {
             const formDef = useBuilderStore.getState().formDefinition;
             const canvasWidth = formDef?.canvasSettings?.width || 1920;
-            const percentage = parseFloat(widthProp);
+            const percentage = parseFloat(widthProp ?? '');
             if (!isNaN(percentage)) {
                 const calculatedWidth = Math.round((canvasWidth * percentage) / 100);
                 setActualDomWidth(calculatedWidth);
@@ -4157,7 +4158,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             {isSelected && !isLocked && (
                 <ResizeHandlesWrapper 
                     smartBorderContainerRef={smartBorderContainerRef}
-                    outerContainerRef={outerRef}
+                    outerContainerRef={outerContainerRef}
                     componentId={component.id}
                     forceUpdateKey={`${component.props.width}-${component.props.inputWidthOverride}-${component.props.labelWidthOverride}-${component.props.helpWidthOverride}`}
                 >

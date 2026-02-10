@@ -252,7 +252,7 @@ export const PropertiesPanel: React.FC = () => {
             const currentOverrides = currentComponent.props.styleOverrides || {};
             
             // Determine new overrides
-            let newOverrides;
+            let newOverrides: StyleOverrides | undefined;
             if (!updates || Object.keys(updates).length === 0) {
                 // Clear all overrides
                 newOverrides = undefined;
@@ -386,9 +386,6 @@ export const PropertiesPanel: React.FC = () => {
             acc[comp.type] = (acc[comp.type] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
-        
-        const allSameType = Object.keys(typeBreakdown).length === 1;
-        const sharedType = allSameType ? selectedComponents[0].type : null;
         
         return (
             <aside className={panelClassName}>

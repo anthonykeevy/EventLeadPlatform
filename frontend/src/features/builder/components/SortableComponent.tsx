@@ -706,7 +706,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // This is critical: when width is "50%", we need the actual rendered width (e.g., 956px),
         // not the parsed percentage value (300px), otherwise resize calculations will be wrong
         let currentWidthPx: number;
-        let widthSource: 'px-prop' | 'dom-measurement' | 'parsed-percentage' | 'default-fallback';
+        let widthSource: 'px-prop' | 'dom-measurement' | 'parsed-percentage' | 'default-fallback' | 'percentage-calculated' | 'dom-measured' | 'parsed-percentage-fallback';
         if (component.props.width?.endsWith('px')) {
             currentWidthPx = parseInt(component.props.width, 10);
             widthSource = 'px-prop';
@@ -1979,7 +1979,6 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         const rawHelpWidth = component.props.helpWidthOverride ?? Math.ceil(measuredHelpWidth ?? currentHelpWidth);
         const lockedLabelWidth = Math.max(rawLabelWidth, minLabelWidth);
         const lockedHelpWidth = Math.max(rawHelpWidth, minHelpWidth);
-        const currentInputWidthPx = component.props.inputWidthOverride ?? measuredInputWidth ?? currentInputWidth;
         
         devLogger.info('resize.lockedWidths.calculated', {
             componentId: component.id,
@@ -2330,10 +2329,6 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             const maxHeightPx = 240;
             const unclampedHeight = startHeight + baseHeightDelta;
             const finalHeight = resizePreview?.height ?? Math.max(minHeightPx, Math.min(maxHeightPx, unclampedHeight));
-
-            const currentX = component.position?.x ?? 0;
-            const currentY = component.position?.y ?? 0;
-            const appliedShift = 0;
 
             updateComponent(component.id, {
                 props: { ...component.props, height: Math.round(finalHeight) },
@@ -2754,7 +2749,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         });
     }, [component.id, component.type, component.props.width, component.position, componentScale, handleWidthChange, handleVerticalResizeEnd, resizePreview, scale]);
 
-    const [parentWidth, setParentWidth] = useState<number | null>(null);
+    const [_parentWidth, setParentWidth] = useState<number | null>(null);
     const componentRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
@@ -2799,7 +2794,6 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     useEffect(() => {
         const widthProp = component.props.width;
         const isPercentage = widthProp?.endsWith('%');
-        const isAuto = !widthProp || widthProp.trim() === '' || widthProp.toLowerCase() === 'auto';
         const isPixelWidth = widthProp?.endsWith('px');
         
         // For explicit pixel widths, don't measure
@@ -3053,7 +3047,6 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             propsWidth: component.props.width
         });
     }
-    const displayHeight = resizePreview?.height ?? component.props.height;
     const previewTopShift = resizePreview?.topShift ?? 0;
     const displayTop = (component.position?.y ?? 0) + previewTopShift;
     // For W handle resize: shift left to keep East edge anchored during preview
@@ -3188,9 +3181,6 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     }
 
     // Selection is now handled by SmartBorder - no additional ring needed
-
-    // Legacy layout removed from UI; use Object Layout defaults for any remaining fallback render paths.
-    const effectiveLayout = component.props.objectLayout || globalStyles?.defaultObjectLayout || 'vertical';
 
     // Common resize handles props
     // Use displayWidth (which includes expansion for inputWidthOverride) so handles align with SmartBorder

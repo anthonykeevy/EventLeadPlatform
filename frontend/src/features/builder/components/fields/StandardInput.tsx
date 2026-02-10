@@ -276,7 +276,7 @@ export const StandardInput: React.FC<StandardInputProps> = ({
                                         <HelpCircle 
                                             size={12} 
                                             className="ml-1 text-gray-400 cursor-help flex-shrink-0" 
-                                            title={helpText}
+                                            aria-label={helpText}
                                         />
                                     )}
                                 </label>
@@ -371,7 +371,7 @@ export const StandardInput: React.FC<StandardInputProps> = ({
                             <HelpCircle 
                                 size={12} 
                                 className="ml-1 text-gray-400 cursor-help flex-shrink-0" 
-                                title={helpText}
+                                aria-label={helpText}
                             />
                         )}
                     </label>

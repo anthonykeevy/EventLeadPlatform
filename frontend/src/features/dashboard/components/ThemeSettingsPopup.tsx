@@ -16,7 +16,7 @@ interface ThemeSettingsPopupProps {
 }
 
 export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps) {
-  const { state, dispatch, applyTheme, applyLayoutDensity, applyFontSize, saveToLocalStorage } = useTheme()
+  const { state, dispatch, applyTheme, applyLayoutDensity, applyFontSize } = useTheme()
   const toast = useToastNotifications()
   
   const [themes, setThemes] = useState<ReferenceOption[]>([])

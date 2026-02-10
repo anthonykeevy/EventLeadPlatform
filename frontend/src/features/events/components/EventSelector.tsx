@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Search, Check, X, Calendar } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Search, X, Calendar } from 'lucide-react'
 import { Event } from '../types/events.types'
 import { getEvents } from '../api/eventsApi'
 import { useToastNotifications } from '../../ux'

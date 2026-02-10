@@ -3,7 +3,6 @@
  * Displays form status and approval status badges
  */
 
-import React from 'react'
 import { FormStatus, FormApprovalStatus } from '../types/form.types'
 
 interface FormStatusBadgeProps {
@@ -27,7 +26,7 @@ export function FormStatusBadge({ status, approvalStatus }: FormStatusBadgeProps
     }
   }
 
-  const getApprovalColor = (approvalCode: string | null): string => {
+  const _getApprovalColor = (approvalCode: string | null): string => {
     if (!approvalCode) return 'bg-gray-100 text-gray-800'
     
     switch (approvalCode.toUpperCase()) {

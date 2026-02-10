@@ -7,8 +7,6 @@
 import React, { useState, useCallback } from 'react'
 import { X, Shield, AlertCircle } from 'lucide-react'
 import { editUserRole } from '../api/teamApi'
-import type { EditUserRoleRequest } from '../types/team.types'
-
 interface EditRoleModalProps {
   companyId: number
   companyName: string

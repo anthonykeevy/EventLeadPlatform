@@ -3,16 +3,14 @@
  * Form for granting access to a form
  */
 
-import React, { useState, useEffect, useRef } from 'react'
-import { User, Building2, Calendar, Search, Loader2, WifiOff, AlertCircle } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { User, Building2, Calendar, Search, WifiOff, AlertCircle } from 'lucide-react'
 import { 
   grantFormAccess, 
   getAccessTypes, 
   getRelationshipTypes, 
   getCompanyMembersForForm,
   getRelatedCompaniesForForm,
-  searchUsers, 
-  searchCompanies, 
   type UserSearchResult, 
   type CompanySearchResult 
 } from '../api/formAccessApi'

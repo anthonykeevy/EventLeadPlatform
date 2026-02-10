@@ -4,7 +4,7 @@
  * AC-1.18.12: Performance - loads within 3 seconds
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth'
 import { OnboardingModal } from '../../onboarding'
@@ -24,7 +24,7 @@ import type { Company, KPIData } from '../types/dashboard.types'
 import { useToastNotifications } from '../../ux'
 
 export function DashboardLayout() {
-  const { user, logout, refreshUser, isLoading: isAuthLoading } = useAuth()
+  const { user, refreshUser, isLoading: isAuthLoading } = useAuth()
   const navigate = useNavigate()
   const toast = useToastNotifications()
   

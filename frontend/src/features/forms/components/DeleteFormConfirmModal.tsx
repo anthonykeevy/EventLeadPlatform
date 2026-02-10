@@ -3,7 +3,7 @@
  * Confirmation dialog for form deletion
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { X, AlertTriangle } from 'lucide-react'
 import { deleteForm } from '../api/formsApi'
 import { Form } from '../types/form.types'

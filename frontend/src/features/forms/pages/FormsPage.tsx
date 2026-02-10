@@ -3,7 +3,7 @@
  * Main form management page with list, search, and filters
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Filter, X } from 'lucide-react'
 import { getForms, getFormStatuses, getFormApprovalStatuses, FormFilters } from '../api/formsApi'
 import { Form, FormStatus, FormApprovalStatus } from '../types/form.types'
@@ -20,9 +20,9 @@ export function FormsPage() {
   // State
   const [forms, setForms] = useState<Form[]>([])
   const [formStatuses, setFormStatuses] = useState<FormStatus[]>([])
-  const [formApprovalStatuses, setFormApprovalStatuses] = useState<FormApprovalStatus[]>([])
+  const [, setFormApprovalStatuses] = useState<FormApprovalStatus[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingForms, setIsLoadingForms] = useState(false)
+  const [, setIsLoadingForms] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -30,7 +30,7 @@ export function FormsPage() {
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<FormFilters>({})
+  const [_filters, setFilters] = useState<FormFilters>({})
   const [showFilters, setShowFilters] = useState(false)
   const [selectedStatusId, setSelectedStatusId] = useState<number | undefined>(undefined)
   const [selectedEventId, setSelectedEventId] = useState<number | undefined>(undefined)

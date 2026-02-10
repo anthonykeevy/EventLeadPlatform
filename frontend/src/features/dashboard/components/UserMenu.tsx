@@ -4,7 +4,7 @@
  * Story 2.6: Added Admin Dashboard access for system admins
  */
 
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { User as UserIcon, LogOut, Settings, Palette, ChevronDown, Shield } from 'lucide-react'
 import { useAuth } from '../../auth'

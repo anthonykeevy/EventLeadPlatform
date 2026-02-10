@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { X, Calendar, MapPin, Tag, Globe, Building2 } from 'lucide-react'
+import { X, Calendar, MapPin, Building2 } from 'lucide-react'
 import { updateEvent, getEventTypes, getEventStatuses } from '../api/eventsApi'
 import { Event, EventUpdateRequest, EventType, EventStatus } from '../types/events.types'
 import { getIndustries, IndustryOption } from '../../profile/api/usersApi'

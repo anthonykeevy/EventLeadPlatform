@@ -3,7 +3,6 @@
  * Displays event status with color coding
  */
 
-import React from 'react'
 import { EventStatus } from '../types/events.types'
 
 interface StatusBadgeProps {

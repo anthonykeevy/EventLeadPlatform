@@ -1,5 +1,4 @@
-import React from 'react'
-import { Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { Clock, CheckCircle, XCircle } from 'lucide-react'
 
 interface ReviewStatusBadgeProps {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | null

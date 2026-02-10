@@ -3,7 +3,6 @@
  * AC-1.18.8: KPI component area at top of dashboard
  */
 
-import React from 'react'
 import { FileText, Users as UsersIcon, Calendar } from 'lucide-react'
 import { KPICard } from './KPICard'
 import type { KPIData } from '../types/dashboard.types'

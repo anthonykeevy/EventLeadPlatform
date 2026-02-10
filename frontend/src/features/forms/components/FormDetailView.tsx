@@ -4,14 +4,14 @@
  * Story 2.13: Added audit report link for admins
  */
 
-import React, { useState, useEffect } from 'react'
-import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, Globe, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle, ClipboardList } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle, ClipboardList } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
 import { ApprovalRequestModal } from './ApprovalRequestModal'
 import { checkFormAccess } from '../api/formAccessApi'
-import { submitFormForApproval, approveForm, rejectForm, updateForm } from '../api/formsApi'
+import { approveForm, rejectForm, updateForm } from '../api/formsApi'
 import { AccessCheckResponse } from '../types/form-access.types'
 import { useAuth } from '../../auth/context/AuthContext'
 import { FormAuditReport } from '../../audit'
@@ -26,7 +26,7 @@ interface FormDetailViewProps {
 export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailViewProps) {
   const { user } = useAuth()
   const [userAccess, setUserAccess] = useState<AccessCheckResponse | null>(null)
-  const [isLoadingAccess, setIsLoadingAccess] = useState(false)
+  const [, setIsLoadingAccess] = useState(false)
   const [showAccessControl, setShowAccessControl] = useState(false)
   const [showApprovalRequest, setShowApprovalRequest] = useState(false)
   const [showAuditReport, setShowAuditReport] = useState(false)
@@ -152,7 +152,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
 
   const canManage = userAccess?.accessLevel === 'MANAGE'
   const canEdit = canManage || userAccess?.accessLevel === 'EDIT'
-  const canView = userAccess?.hasAccess || canEdit || canManage
+  const _canView = userAccess?.hasAccess || canEdit || canManage
 
   // Approval Logic
   const cost = form.deploymentCost || 0

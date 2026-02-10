@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { X, UserCheck, AlertTriangle, ArrowRight, Files, CheckCircle } from 'lucide-react'
 import { transferFormOwnership } from '../api/ownershipApi'
 import { TeamMember } from '../../dashboard/types/dashboard.types'
@@ -19,7 +19,7 @@ export function BulkTransferOwnershipModal({
   onClose,
   fromUser,
   companyId,
-  companyName,
+  companyName: _companyName,
   onSuccess
 }: BulkTransferOwnershipModalProps) {
   const [users, setUsers] = useState<TeamMember[]>([])

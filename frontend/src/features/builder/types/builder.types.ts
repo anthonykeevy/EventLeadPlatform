@@ -231,6 +231,14 @@ export interface ValidationRules {
     maxDateRangeSpan?: number;
     /** Minimum days between start and end date (for date range) */
     minDateRangeSpan?: number;
+
+    // ═══════════════════════════════════════════════════════════════
+    // SELECTION RULES (dropdown, checkbox, radio)
+    // ═══════════════════════════════════════════════════════════════
+    /** Minimum number of options that must be selected */
+    minSelections?: number;
+    /** Maximum number of options that can be selected */
+    maxSelections?: number;
 }
 
 /**

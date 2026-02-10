@@ -2,7 +2,7 @@ import React from 'react';
 import { Minus, Plus } from 'lucide-react';
 
 interface PropertyNumberInputProps {
-    label: string;
+    label: React.ReactNode;
     value: number;
     onChange: (value: number) => void;
     min?: number;

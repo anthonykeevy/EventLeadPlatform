@@ -14,7 +14,7 @@ import { useToastNotifications } from '../../../features/ux'
 import { getEventTypes, getEventStatuses } from '../../events/api/eventsApi'
 import { getIndustries } from '../../profile/api/usersApi'
 import { useCountries } from '../../validation/hooks/useCountries'
-import type { EventType, EventStatus } from '../../events/api/eventsApi'
+import type { EventType, EventStatus } from '../../events/types/events.types'
 import type { IndustryOption } from '../../profile/api/usersApi'
 
 interface EventManagementTabProps {
@@ -334,9 +334,9 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
     onValueChange: (value: number | null) => void
     isLoading?: boolean
   }> = ({
-    row,
-    columnId,
-    currentValue,
+    row: _row,
+    columnId: _columnId,
+    currentValue: _currentValue,
     currentDisplay,
     options,
     isEditing,

@@ -2,7 +2,6 @@
  * AuditTimeline Component (Story 2.13)
  * Visual timeline of audit events for compliance reporting
  */
-import React from 'react';
 import { AuditEntry } from '../types/audit.types';
 
 interface AuditTimelineProps {

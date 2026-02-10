@@ -347,7 +347,7 @@ export function checkCollision(
     
     // Log collision detected (WARN level) with detailed snapshots
     if (collidingComponents.length > 0) {
-        const draggedSnapshot = captureComponentSnapshot(draggedComponent, draggedRef);
+        const draggedSnapshot = captureComponentSnapshot(draggedComponent, draggedRef ?? null);
         const overlapAreas = collidingComponents.map(colliding => {
             const collidingBounds = colliding.bounds;
             if (!collidingBounds || !draggedBounds) return 0;
@@ -460,14 +460,6 @@ function inflateRect(r: CanvasRect, pad: number): CanvasRect {
 }
 function overlapOnAxis(a0: number, a1: number, b0: number, b1: number): number {
     return Math.min(a1, b1) - Math.max(a0, b0);
-}
-function rectsOverlapCanvas(a: CanvasRect, b: CanvasRect): boolean {
-    return !(
-        rectRight(a) <= b.x ||
-        a.x >= rectRight(b) ||
-        rectBottom(a) <= b.y ||
-        a.y >= rectBottom(b)
-    );
 }
 
 function overlapAreaCanvas(a: CanvasRect, b: CanvasRect): number {

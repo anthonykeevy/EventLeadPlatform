@@ -70,6 +70,7 @@ DEFAULT_ASSET_IMAGE_MAX_HEIGHT_PX = 4096
 DEFAULT_ASSET_IMAGE_ALLOWED_MIME_TYPES = [
     "image/jpeg",
     "image/png",
+    "image/gif",
     "image/webp",
 ]
 

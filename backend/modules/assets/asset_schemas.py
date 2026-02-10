@@ -45,6 +45,11 @@ class AssetResolveResponse(BaseModel):
     url: str = Field(..., description="Resolved runtime URL for asset access")
 
 
+class BackgroundAssetListResponse(BaseModel):
+    """List of background assets for the current user's company."""
+    assets: list[BackgroundAssetMetadata] = Field(default_factory=list, description="Company background assets")
+
+
 # =====================================================================
 # Background Placement Contract (position, size, crop)
 # =====================================================================

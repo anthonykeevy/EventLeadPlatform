@@ -684,10 +684,17 @@ export interface BackgroundPlacement {
 
 export type BackgroundType = 'color' | 'image';
 
+/** True if string looks like a hex colour (e.g. #RRGGBB). */
+export function isHexColor(s: string | undefined): boolean {
+    return !!s && /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(s);
+}
+
 export interface BackgroundDefinition {
     type: BackgroundType;
-    /** Hex color or legacy URL (Data URLs are NOT allowed). */
+    /** Hex color or legacy URL (Data URLs are NOT allowed). Active value for current type. */
     value: string;
+    /** Stored colour when type is image so switching back to Colour restores it. */
+    colorValue?: string;
     /** Preferred asset reference for background images. */
     asset?: BackgroundAssetMetadata;
     /** Placement metadata for image backgrounds. */

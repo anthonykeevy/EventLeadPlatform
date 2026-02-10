@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 import hashlib
 import io
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from fastapi import HTTPException, UploadFile, status, Request
 from fastapi.responses import FileResponse, RedirectResponse
@@ -140,13 +140,44 @@ class AssetService:
             )
 
         limits = self._get_limits()
+        filename = file.filename or ""
+        content_type = getattr(file, "content_type", None) or ""
         file_bytes = await file.read()
+        size_bytes = len(file_bytes)
+
+        # Keys in extra must not clash with logging.LogRecord (e.g. "filename", "message")
+        log_ctx = {
+            "asset_filename": filename,
+            "asset_content_type": content_type,
+            "asset_size_bytes": size_bytes,
+            "asset_company_id": current_user.company_id,
+        }
+        logger.info(
+            "Background asset upload start filename=%r content_type=%r size=%s",
+            filename,
+            content_type,
+            size_bytes,
+            extra={"event": "asset_upload_start", **log_ctx},
+        )
+
         if not file_bytes:
+            logger.warning(
+                "Upload rejected: empty file filename=%r",
+                filename,
+                extra={"event": "asset_upload_rejected", **log_ctx, "reason": "empty_file"},
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Empty file uploaded",
             )
-        if len(file_bytes) > limits.max_bytes:
+        if size_bytes > limits.max_bytes:
+            logger.warning(
+                "Upload rejected: file too large filename=%r size=%s max=%s",
+                filename,
+                size_bytes,
+                limits.max_bytes,
+                extra={"event": "asset_upload_rejected", **log_ctx, "reason": "file_too_large", "asset_max_bytes": limits.max_bytes},
+            )
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=f"File too large. Max size is {limits.max_bytes} bytes",
@@ -158,20 +189,69 @@ class AssetService:
                 width_px, height_px = image.size
                 detected_mime = Image.MIME.get(image.format)
                 image_format = image.format or ""
-        except UnidentifiedImageError:
+        except UnidentifiedImageError as e:
+            logger.warning(
+                "Upload rejected: PIL could not identify image filename=%r content_type=%r error=%s",
+                filename,
+                content_type,
+                str(e),
+                extra={
+                    "event": "asset_upload_rejected",
+                    **log_ctx,
+                    "reason": "unidentified_image",
+                    "asset_error": str(e),
+                },
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Unsupported or invalid image file",
             )
 
-        mime_type = detected_mime or file.content_type or "application/octet-stream"
+        mime_type = detected_mime or content_type or "application/octet-stream"
+        # Normalize non-standard MIME (e.g. image/jpg -> image/jpeg) so JPGs always pass
+        if mime_type == "image/jpg":
+            mime_type = "image/jpeg"
         if mime_type not in limits.allowed_mime_types:
+            logger.warning(
+                "Upload rejected: unsupported mime filename=%r mime_type=%r allowed=%r",
+                filename,
+                mime_type,
+                limits.allowed_mime_types,
+                extra={
+                    "event": "asset_upload_rejected",
+                    **log_ctx,
+                    "reason": "unsupported_mime",
+                    "asset_detected_mime": detected_mime,
+                    "asset_mime_type": mime_type,
+                    "asset_allowed_mime_types": limits.allowed_mime_types,
+                    "asset_image_format": image_format,
+                    "asset_width_px": width_px,
+                    "asset_height_px": height_px,
+                },
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Unsupported mime type: {mime_type}",
             )
 
         if width_px > limits.max_width_px or height_px > limits.max_height_px:
+            logger.warning(
+                "Upload rejected: dimensions exceed limit filename=%r %sx%s > %sx%s",
+                filename,
+                width_px,
+                height_px,
+                limits.max_width_px,
+                limits.max_height_px,
+                extra={
+                    "event": "asset_upload_rejected",
+                    **log_ctx,
+                    "reason": "dimensions_exceed_limit",
+                    "asset_width_px": width_px,
+                    "asset_height_px": height_px,
+                    "asset_max_width_px": limits.max_width_px,
+                    "asset_max_height_px": limits.max_height_px,
+                },
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
@@ -230,6 +310,23 @@ class AssetService:
         self.db.refresh(asset)
 
         return self._to_metadata(asset), False
+
+    def list_background_assets(self, *, current_user: CurrentUser) -> List[BackgroundAssetMetadata]:
+        """List all background (IMAGE) assets for the current user's company."""
+        if not current_user.company_id:
+            return []
+        asset_type_id = self._get_asset_type_id()
+        rows = (
+            self.db.query(Asset)
+            .filter(
+                Asset.CompanyID == current_user.company_id,
+                Asset.AssetTypeID == asset_type_id,
+                Asset.IsDeleted == False,  # noqa: E712
+            )
+            .order_by(Asset.UpdatedDate.desc(), Asset.AssetID.desc())
+            .all()
+        )
+        return [self._to_metadata(a) for a in rows]
 
     def resolve_asset_url(self, *, asset_id: int, request: Request) -> str:
         asset = (

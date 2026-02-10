@@ -251,7 +251,7 @@ const ValidationTester: React.FC<{
                                     {result.errors.map((err, i) => (
                                         <div key={i} className="flex items-start gap-1.5">
                                             <span className="text-red-500 mt-0.5">•</span>
-                                            <span>{err.message}</span>
+                                            <span>{String(err.message)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -265,12 +265,12 @@ const ValidationTester: React.FC<{
                                     </div>
                                     {result.autoFixesApplied.map((fix, i) => (
                                         <div key={i} className="ml-4">
-                                            • {fix.description}
+                                            • {String(fix.description)}
                                         </div>
                                     ))}
                                     {result.sanitizedValue !== testValue && (
                                         <div className="mt-1 font-mono">
-                                            Result: "{result.sanitizedValue}"
+                                            Result: "{String(result.sanitizedValue)}"
                                         </div>
                                     )}
                                 </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { 
   DndContext, 
@@ -343,7 +343,7 @@ export const BuilderPage: React.FC = () => {
       const activePage = pages.find(p => p.id === useBuilderStore.getState().activePageId);
       const component = activePage?.components.find(c => c.id === activeId);
       
-      if (component) {
+      if (component && activePage) {
         // Preserve original grab point: compute proposed positions from initial position + delta (not incremental drift)
         dragStartComponentPosRef.current = {
           x: component.position?.x ?? 0,
@@ -442,9 +442,9 @@ export const BuilderPage: React.FC = () => {
       const pages = def?.desktopPages && def.desktopPages.length > 0 ? def.desktopPages : (def?.pages ?? []);
       const activePage = pages.find(p => p.id === useBuilderStore.getState().activePageId);
       const component = activePage?.components.find(c => c.id === rafActiveId);
-      
-      if (component) {
-        const startPos = dragStartComponentPosRef.current ?? { x: component.position?.x ?? 0, y: component.position?.y ?? 0 };
+      if (!activePage || !component) return;
+
+      const startPos = dragStartComponentPosRef.current ?? { x: component.position?.x ?? 0, y: component.position?.y ?? 0 };
         const scaledDeltaX = rafDelta.x / scale;
         const scaledDeltaY = rafDelta.y / scale;
         let newX = startPos.x + scaledDeltaX;
@@ -529,7 +529,6 @@ export const BuilderPage: React.FC = () => {
 
         // Update live drag position (used by SortableComponent for visual positioning)
         setDragPosition({ x: newX, y: newY });
-      }
     });
   };
 
@@ -832,7 +831,7 @@ export const BuilderPage: React.FC = () => {
             const component = activePage?.components.find(c => c.id === active.id);
             const resizingComponentId = useBuilderStore.getState().resizingComponentId;
 
-            if (component) {
+            if (activePage && component) {
                 // Skip position update if this component is being resized (position is handled by resize handlers)
                 if (resizingComponentId === component.id) {
                     devLogger.debug('drag.end.skipped.resizing', {

@@ -5,13 +5,11 @@
  * Includes recently used fonts management via localStorage.
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState, useCallback, useEffect } from 'react';
 import { fontsApi } from '../api/fontsApi';
 import {
     FontFamilySummary,
-    FontFamilyDetail,
-    FontCategoryInfo,
     FontCategory,
     FontUsageContext,
     FontUsageAction,

@@ -11,7 +11,7 @@ import {
 } from '../types/builder.types';
 import { ComponentSurface, getComponentSurfaceCapabilities } from '../utils/componentSurfaceCapabilities';
 import { ObjectRenderer, ObjectRendererProps } from '../utils/objectRenderers';
-import { computeFieldStyles, ComputedFieldStyles } from '../utils/styleUtils';
+import { computeFieldStyles } from '../utils/styleUtils';
 import { calculateSpacing } from '../utils/spacingCalculation';
 import { getEffectiveGridLayout, getObjectGridArea, resolveComponentDefaultGridLayout } from '../utils/gridLayoutUtils';
 
@@ -139,7 +139,7 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
             previewObjectWidthOverrides,
             previewStyleOverrides,
             previewSpacingOverrides,
-            previewScale,
+            previewScale: _previewScale,
             frozenGridTemplateColumns,
             builderMode,
             // Runtime props

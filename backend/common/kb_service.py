@@ -271,6 +271,7 @@ class KnowledgeBaseService:
         snapshot_commit_sha: Optional[str] = None,
         context_note: Optional[str] = None,
         created_by: Optional[int] = None,
+        updated_by: Optional[int] = None,
     ) -> Dict[str, Any]:
         self.assert_kb_ready()
         normalized_path = doc_path.strip()
@@ -281,6 +282,13 @@ class KnowledgeBaseService:
         snapshot = (snapshot_commit_sha or "").strip() or None
 
         with self.engine.begin() as conn:
+            # Audit semantics:
+            # - On INSERT: CreatedBy and UpdatedBy should reflect the creating actor.
+            # - On UPDATE (reuse): UpdatedBy should reflect the modifying actor, without
+            #   overwriting CreatedBy (original creator).
+            insert_user_id = created_by if created_by is not None else updated_by
+            update_user_id = updated_by if updated_by is not None else created_by
+
             existing_id = conn.execute(
                 text(
                     """
@@ -301,11 +309,11 @@ class KnowledgeBaseService:
                         """
                         UPDATE kb.DocRef
                         SET ContextNote = COALESCE(:context_note, ContextNote),
-                            UpdatedBy = :updated_by
+                            UpdatedBy = COALESCE(:updated_by, UpdatedBy)
                         WHERE DocRefID = :id AND IsDeleted = 0
                         """
                     ),
-                    {"context_note": context_note, "updated_by": created_by, "id": int(existing_id)},
+                    {"context_note": context_note, "updated_by": update_user_id, "id": int(existing_id)},
                 )
                 return {
                     "DocRefID": int(existing_id),
@@ -317,7 +325,7 @@ class KnowledgeBaseService:
             sql = """
                 INSERT INTO kb.DocRef (DocPath, AnchorID, SnapshotCommitSHA, ContextNote, CreatedBy, UpdatedBy)
                 OUTPUT inserted.DocRefID
-                VALUES (:p, :a, :s, :context_note, :created_by, :created_by)
+                VALUES (:p, :a, :s, :context_note, :user_id, :user_id)
             """
             new_id = conn.execute(
                 text(sql),
@@ -326,7 +334,7 @@ class KnowledgeBaseService:
                     "a": anchor,
                     "s": snapshot,
                     "context_note": context_note,
-                    "created_by": created_by,
+                    "user_id": insert_user_id,
                 },
             ).scalar()
             if new_id is None:

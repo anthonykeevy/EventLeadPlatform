@@ -13,9 +13,9 @@ import { ObjectRenderers, getDefaultRenderers, createLabelRenderer, createInputR
  * Creates renderers for each object in the structure.
  */
 export function getRenderersForComponent(
-    componentType: ComponentType,
+    _componentType: ComponentType,
     structure: ComponentStructure,
-    component?: FormComponent
+    _component?: FormComponent
 ): ObjectRenderers {
     const defaultRenderers = getDefaultRenderers();
     const renderers: ObjectRenderers = {};
@@ -70,7 +70,7 @@ export function getRenderersForComponent(
 export function getRuntimeRenderers(
     componentType: ComponentType,
     structure: ComponentStructure,
-    handlers: {
+    _handlers: {
         value?: unknown;
         onChange?: (value: unknown) => void;
         disabled?: boolean;

@@ -281,6 +281,7 @@ def main() -> int:
                 snapshot_commit_sha=args.snapshot_commit_sha,
                 context_note=args.context_note,
                 created_by=args.created_by,
+                updated_by=args.created_by,
             )
             _print(result, args.pretty)
             return 0

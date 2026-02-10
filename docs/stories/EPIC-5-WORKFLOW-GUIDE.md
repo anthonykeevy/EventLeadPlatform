@@ -257,10 +257,35 @@ Automated verification (must do before I run manual UAT):
   - UAT execution
   - DB migration execution (if any)
 
+### Commit discipline (T04 learning – mandatory)
+
+After T04, the closeout sometimes committed only **docs** (UAT/retro/status) and left **implementation** uncommitted, so the merged PR did not contain the code.
+
+**Rules for the dev agent:**
+
+1. **Implementation commits first.** Before creating the closeout commit (UAT passed, retro, HumanDone):
+   - Run `git status` in the task worktree.
+   - If any implementation files (backend/ or frontend/ code, or new task-specific files) are modified or untracked, commit them in one or more commits with a clear message (e.g. `feat(T04): ... implementation`). Do not rely on a single "closeout" commit to carry code.
+2. **Closeout commit = docs only.** The final commit that updates status/retro/UAT docs should not be the only commit containing code. If the working tree had code changes, they must already be committed.
+3. **Verify before push.** Before `git push` and "Merge PR": run `git status` again. Working tree should be clean (or only intentionally untracked, e.g. `backend/storage/`). If not, commit remaining changes and then push.
+4. **Build/lint output.** Long `npm run build` or similar output can crash sessions. Prefer: run from the task worktree, cap output (e.g. PowerShell `Select-Object -First 100`), or redirect to a file and report pass/fail + first/last lines only.
+
+**Prompt snippet to add to task run instructions (optional but recommended):**
+
+```markdown
+Before closeout: run `git status`. If implementation files are uncommitted, commit them first (feat(Txx): ...), then create the closeout commit (docs only). Push only when working tree is clean.
+```
+
+### Scope boundary (T04 learning)
+
+If the task spec says "Frontend-only" (or similar) but backend changes become necessary during implementation:
+- Document the scope expansion in the completion note (why backend was touched).
+- Ensure both frontend and backend changes are committed; do not leave backend changes uncommitted because the spec said "frontend-only."
+
 ---
 
 *Epic 5 Workflow Guide - created for Epic 5 cycle start*  
-*Last Updated: 2026-02-07*
+*Last Updated: 2026-02-10*
 
 ---
 
@@ -270,4 +295,5 @@ Automated verification (must do before I run manual UAT):
 |------|--------|-----|
 | 2026-02-07 | Added “Workflow Evolution Goal” + Human/AI responsibilities + Epic kickoff + automation deltas | Start Epic 5 with a streamlined, agent-owned loop and iteratively remove unnecessary human steps |
 | 2026-02-07 | Inserted “pre-UAT automated verification” requirement (dev agent runs what it can; human reviews evidence and retests selectively) | Reduce manual retesting time and make UAT focus on what automation can’t cover |
+| 2026-02-10 | Added "Commit discipline (T04 learning)" and "Scope boundary (T04 learning)" under Phase 3 | T04 closeout committed only docs; implementation was left uncommitted. Rules: implementation commits first, closeout = docs only, verify clean tree before push; cap build/lint output to avoid session crashes; document scope expansion if backend touched despite frontend-only spec |
 

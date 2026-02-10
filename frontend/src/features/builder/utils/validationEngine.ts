@@ -17,10 +17,9 @@ import {
     ValidationResult,
     ValidationError,
     AutoFixResult,
-    CountryValidationConfig,
 } from '../types/validationRule.types';
 import { getCountryConfig } from '../data/validationRuleSeed';
-import { validatePhone, formatPhone } from './phoneValidation';
+import { validatePhone } from './phoneValidation';
 import { isFreeEmailProvider } from '../data/freeEmailProviders';
 import { isDisposableEmailDomain } from '../data/disposableEmailDomains';
 
@@ -486,7 +485,7 @@ function validatePhoneNumber(
 function validateDate(
     value: string | Date,
     rules: ValidationRules,
-    context?: ValidationContext
+    _context?: ValidationContext
 ): ValidationError[] {
     const errors: ValidationError[] = [];
 

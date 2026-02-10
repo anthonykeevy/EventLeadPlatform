@@ -7,13 +7,13 @@
 
 import {
     parsePhoneNumber,
-    isValidPhoneNumber,
     CountryCode,
     getCountryCallingCode,
     getExampleNumber,
     AsYouType,
     PhoneNumber,
 } from 'libphonenumber-js';
+import examples from 'libphonenumber-js/mobile/examples/examples.mobile.json';
 
 /**
  * Phone validation configuration
@@ -206,7 +206,7 @@ export function formatPhone(
  */
 export function getExamplePhoneNumber(country: CountryCode): string {
     try {
-        const example = getExampleNumber(country);
+        const example = getExampleNumber(country, examples);
         return example ? example.formatInternational() : '';
     } catch {
         return '';

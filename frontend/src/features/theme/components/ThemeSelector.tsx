@@ -3,10 +3,10 @@
  * Allows users to select theme, layout density, and font size preferences
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { ReferenceOption } from '../../profile/types/profile.types'
-import { getThemes, getLayoutDensities, getFontSizes, updateProfile } from '../../profile/api/usersApi'
+import { updateProfile } from '../../profile/api/usersApi'
 import { useToastNotifications } from '../../ux'
 
 interface ThemeSelectorProps {
@@ -22,7 +22,7 @@ interface ThemeSelectorProps {
 export function ThemeSelector({ 
   className = '', 
   showLabels = true, 
-  compact = false,
+  compact: _compact = false,
   themes = [],
   densities = [],
   fontSizes = [],
@@ -374,7 +374,7 @@ export function ThemeSelector({
                     {fontSize.name}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {fontSize.baseFontSize}
+                    {fontSize.base_font_size}
                   </div>
                 </div>
                 {state.fontSize?.id === fontSize.id && (

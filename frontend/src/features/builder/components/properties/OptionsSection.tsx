@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { ChevronDown, List, Plus, Trash2, GripVertical, ToggleLeft, Settings2 } from 'lucide-react';
+import { ChevronDown, List, Plus, Trash2, GripVertical, ToggleLeft } from 'lucide-react';
 import { PropertyTextInput, PropertyToggle, PropertyNumberInput } from './inputs';
 import { ComponentProps, ComponentType } from '../../types/builder.types';
 

@@ -10,7 +10,7 @@ import { adminDashboardApi, AdminKPIs } from '../api/adminDashboardApi'
 import { AdminCompanyList } from '../components/AdminCompanyList'
 import { EventManagementTab } from '../components/EventManagementTab'
 import { useRequireAdmin } from '../hooks/useRequireAdmin'
-import { LoadingSpinner } from '../../ux'
+import { PageLoadingSpinner } from '../../ux'
 import { KPIModal } from '../components/KPIModal'
 import { AuditTable } from '../../audit'
 
@@ -47,7 +47,7 @@ export const AdminDashboard: React.FC = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoadingSpinner message="Loading admin dashboard..." />
+        <PageLoadingSpinner message="Loading admin dashboard..." />
       </div>
     )
   }

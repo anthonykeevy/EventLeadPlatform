@@ -3,7 +3,7 @@
  * Allows users to select layout density preference
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { ReferenceOption } from '../../profile/types/profile.types'
 import { updateProfile } from '../../profile/api/usersApi'

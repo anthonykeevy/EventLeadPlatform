@@ -187,11 +187,6 @@ function writeAuthoredPages(def: FormDefinition, pages: FormPage[]): FormDefinit
     return { ...def, pages };
 }
 
-function selectAuthoredPagesForState(state: { formDefinition: FormDefinition | null }): FormPage[] {
-    if (!state.formDefinition) return [];
-    return selectAuthoredPages(state.formDefinition);
-}
-
 function writeAuthoredPagesForState(def: FormDefinition, pages: FormPage[]): FormDefinition {
     return writeAuthoredPages(def, pages);
 }

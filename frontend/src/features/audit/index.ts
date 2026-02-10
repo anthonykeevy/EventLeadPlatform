@@ -3,13 +3,12 @@
  * Provides audit trail and compliance reporting components
  */
 
-// Types
+// Types (FormAuditReport type imported only from types/audit.types where needed to avoid duplicate with component name)
 export type {
   AuditEntry,
   ApprovalChainEntry,
   AccessEntry,
   FormMetadata,
-  FormAuditReport,
   EventAuditReport,
   PaginatedActivityLog
 } from './types/audit.types';

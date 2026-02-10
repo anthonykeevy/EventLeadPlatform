@@ -3,7 +3,6 @@
  * AC-1.18.9: Empty states for dashboard and companies
  */
 
-import React from 'react'
 import { Building2, FileText, Plus, Lock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 

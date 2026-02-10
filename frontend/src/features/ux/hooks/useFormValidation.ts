@@ -31,6 +31,7 @@ export interface UseFormValidationReturn {
   isValid: boolean;
   validateField: (field: string, value: string) => string | null;
   validateForm: (values: Record<string, string>) => ValidationErrors;
+  debouncedValidateField: (field: string, value: string) => void;
   clearError: (field: string) => void;
   clearAllErrors: () => void;
   setError: (field: string, error: string) => void;
@@ -97,8 +98,8 @@ const validators = {
 export const useFormValidation = ({
   rules,
   debounceMs = 300,
-  validateOnChange = true,
-  validateOnBlur = true,
+  validateOnChange: _validateOnChange = true,
+  validateOnBlur: _validateOnBlur = true,
 }: UseFormValidationOptions): UseFormValidationReturn => {
   const [errors, setErrors] = useState<ValidationErrors>({});
 
@@ -215,6 +216,7 @@ export const useFormValidation = ({
     isValid,
     validateField,
     validateForm,
+    debouncedValidateField,
     clearError,
     clearAllErrors,
     setError,
@@ -228,7 +230,7 @@ export const useFieldValidation = (
   rules: ValidationRules,
   options: { debounceMs?: number; validateOnChange?: boolean; validateOnBlur?: boolean } = {}
 ) => {
-  const { debounceMs = 300, validateOnChange = true, validateOnBlur = true } = options;
+  const { debounceMs = 300, validateOnChange = true, validateOnBlur: _validateOnBlurOpt = true } = options;
   const [error, setError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 

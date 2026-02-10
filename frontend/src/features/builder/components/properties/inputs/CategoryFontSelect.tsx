@@ -58,8 +58,6 @@ import {
 import { 
     FontFamilySummary, 
     FontCategory,
-    FontCategoryInfo,
-    LANGUAGE_SUPPORT_INFO,
     RecentlyUsedFont,
 } from '../../../api/fontTypes';
 import { loadGoogleFont } from '../../../utils/fontLoader';
@@ -435,10 +433,10 @@ const FontOption: React.FC<{
                 {/* Badges */}
                 <div className="flex items-center gap-1 flex-shrink-0">
                     {font.is_featured && (
-                        <Crown size={10} className="text-amber-500" title="Featured" />
+                        <Crown size={10} className="text-amber-500" aria-label="Featured" />
                     )}
                     {isPopular && !font.is_featured && (
-                        <Star size={10} className="text-blue-500" title="Popular" />
+                        <Star size={10} className="text-blue-500" aria-label="Popular" />
                     )}
                     {font.is_variable_font && (
                         <span className="px-1 py-0.5 text-[8px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded" title="Variable font">
@@ -446,7 +444,7 @@ const FontOption: React.FC<{
                         </span>
                     )}
                     {languageChips.includes('i18n') && (
-                        <Globe size={10} className="text-green-500" title="International support" />
+                        <Globe size={10} className="text-green-500" aria-label="International support" />
                     )}
                 </div>
             </div>

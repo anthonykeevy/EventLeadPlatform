@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface PropertyTextInputProps {
-    label: string;
+    label: React.ReactNode;
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;

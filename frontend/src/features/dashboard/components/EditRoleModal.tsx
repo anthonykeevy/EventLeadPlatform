@@ -7,15 +7,13 @@
 import React, { useState, useCallback } from 'react'
 import { X, Shield, AlertCircle } from 'lucide-react'
 import { editUserRole } from '../api/teamApi'
-import type { EditUserRoleRequest } from '../types/team.types'
-
 interface EditRoleModalProps {
   companyId: number
   companyName: string
   userId: number
   userName: string
   currentRole: string
-  currentUserRole: 'Company Admin' | 'Company User'
+  currentUserRole: 'Company Admin' | 'Company User' | 'Company Viewer'
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void

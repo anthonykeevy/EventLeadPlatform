@@ -59,10 +59,12 @@ export const getDateSettingsCompatibility = (props: ComponentProps): DateSetting
     };
   }
 
-  if (disabledPickerStyles[pickerStyle]) {
-    autoFix.pickerStyle =
-      (['calendar', 'native', 'dropdown'] as ComponentProps['pickerStyle'][])
-        .find((style) => !disabledPickerStyles[style]) ?? 'native';
+  const pickerStyleKey = pickerStyle != null ? pickerStyle : undefined;
+  if (pickerStyleKey != null && disabledPickerStyles[pickerStyleKey]) {
+    type PickerStyleKey = 'dropdown' | 'calendar' | 'native';
+    const fallback: PickerStyleKey = (['calendar', 'native', 'dropdown'] as PickerStyleKey[])
+      .find((style) => !disabledPickerStyles[style]) ?? 'native';
+    autoFix.pickerStyle = fallback;
     warnings.push({
       key: `pickerStyle.autoFix.${pickerStyle}`,
       reason: `Picker Style "${pickerStyle}" is incompatible with ${dateType}. Auto-selected "${autoFix.pickerStyle}".`,

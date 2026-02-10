@@ -39,7 +39,7 @@ interface StandardInputProps {
 
 export const StandardInput: React.FC<StandardInputProps> = ({ 
     label, 
-    icon: Icon, 
+    icon: _Icon, 
     placeholder = "Input text...", 
     validationMessage = "Validation error message",
     helpText,
@@ -151,8 +151,6 @@ export const StandardInput: React.FC<StandardInputProps> = ({
     const guideDisplayWidth = containerWidthPx
         ? Math.min(guideRequiredWidth, containerWidthPx)
         : guideRequiredWidth;
-
-    const baseGuideColor = 'rgb(34, 197, 94)'; // green-500
 
     const hexToRgb = (hex?: string) => {
         if (!hex) return null;
@@ -278,7 +276,7 @@ export const StandardInput: React.FC<StandardInputProps> = ({
                                         <HelpCircle 
                                             size={12} 
                                             className="ml-1 text-gray-400 cursor-help flex-shrink-0" 
-                                            title={helpText}
+                                            aria-label={helpText}
                                         />
                                     )}
                                 </label>
@@ -373,7 +371,7 @@ export const StandardInput: React.FC<StandardInputProps> = ({
                             <HelpCircle 
                                 size={12} 
                                 className="ml-1 text-gray-400 cursor-help flex-shrink-0" 
-                                title={helpText}
+                                aria-label={helpText}
                             />
                         )}
                     </label>

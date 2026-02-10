@@ -3,11 +3,10 @@
  * Handles email verification via token from URL query parameter
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react'
 import { AuthLayout } from '../components/AuthLayout'
-import * as authApi from '../api/authApi'
 
 type VerificationState = 'verifying' | 'success' | 'error' | 'invalid'
 

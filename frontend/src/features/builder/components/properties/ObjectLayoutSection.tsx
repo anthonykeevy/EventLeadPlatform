@@ -12,10 +12,9 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { LayoutGrid, ArrowUpDown, ArrowLeftRight, Grid3x3, GripVertical, Plus, X, Package, AlignVerticalJustifyCenter, AlignVerticalSpaceAround, AlignVerticalJustifyStart, AlignVerticalJustifyEnd } from 'lucide-react';
+import { LayoutGrid, ArrowUpDown, ArrowLeftRight, Grid3x3, GripVertical, Plus, Package } from 'lucide-react';
 import { 
     DndContext, 
-    closestCenter, 
     KeyboardSensor, 
     PointerSensor, 
     useSensor, 
@@ -425,14 +424,6 @@ export const ObjectLayoutSection: React.FC<ObjectLayoutSectionProps> = ({
             toRow: toRow === 'available-pool' ? null : toRow,
         });
         
-        handleGroupsChange(updatedGroups);
-    };
-    
-    const handleReorderInGroup = (groupKey: string, newOrder: string[]) => {
-        const updatedGroups = {
-            ...currentGroups,
-            [groupKey]: newOrder
-        };
         handleGroupsChange(updatedGroups);
     };
     

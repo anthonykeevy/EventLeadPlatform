@@ -3,7 +3,7 @@
  * AC-1.14.1: Modal overlay on dashboard (cannot dismiss)
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { OnboardingStep1 } from './OnboardingStep1'
 import { OnboardingStep2 } from './OnboardingStep2'
 import { ProgressIndicator } from './ProgressIndicator'

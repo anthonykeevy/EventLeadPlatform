@@ -32,8 +32,8 @@ export function evaluateConditionalRule(
                 return true;
             }
             if (rule.condition) {
-                // Use custom condition function
-                return rule.condition(context);
+                // Use custom condition function (coerce to boolean for strict return type)
+                return rule.condition(context) ?? false;
             }
             // No condition function, show by default
             return true;
@@ -48,7 +48,7 @@ export function evaluateConditionalRule(
             const hasDirectError = Boolean(context.error);
             const hasErrors = context.validationErrors && Object.keys(context.validationErrors).length > 0;
             const hasFormErrors = context.allFormErrors && Object.keys(context.allFormErrors).length > 0;
-            return hasDirectError || hasErrors || hasFormErrors;
+            return Boolean(hasDirectError || hasErrors || hasFormErrors);
             
         default:
             // Unknown rule type, show by default for safety

@@ -41,6 +41,10 @@ interface TypographyCardProps {
     borderRadius?: number;
     /** Show border controls? */
     showBorderOptions?: boolean;
+    /** Controlled border visibility (when set, overrides derived state from border props) */
+    hasBorder?: boolean;
+    /** Callback when border visibility toggle changes */
+    onHasBorderChange?: (hasBorder: boolean) => void;
     /** Input height (optional - for Input Text card) */
     inputHeight?: number;
     /** Callback when font family changes */
@@ -255,6 +259,8 @@ export const TypographyCard: React.FC<TypographyCardProps> = ({
     borderWidth,
     borderRadius,
     showBorderOptions = false,
+    hasBorder: hasBorderProp,
+    onHasBorderChange,
     inputHeight,
     onFontFamilyChange,
     onFontSizeChange,
@@ -269,14 +275,19 @@ export const TypographyCard: React.FC<TypographyCardProps> = ({
     defaultExpanded = false,
 }) => {
     const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-    // Derive showBorders from props - show if any border property has a value
+    // Derive showBorders from props - show if any border property has a value (when hasBorder prop not provided)
     const hasBorderProps = borderColor !== undefined || (borderWidth !== undefined && borderWidth > 0);
-    const [showBorders, setShowBorders] = useState(hasBorderProps);
-    
-    // Sync showBorders state with props (when parent resets values)
+    const [showBorders, setShowBorders] = useState(hasBorderProp ?? hasBorderProps);
+    const effectiveShowBorders = hasBorderProp !== undefined ? hasBorderProp : showBorders;
+
+    // Sync showBorders state with props (when parent resets values or when controlled)
     React.useEffect(() => {
-        setShowBorders(hasBorderProps);
-    }, [hasBorderProps]);
+        if (hasBorderProp !== undefined) {
+            setShowBorders(hasBorderProp);
+        } else {
+            setShowBorders(hasBorderProps);
+        }
+    }, [hasBorderProp, hasBorderProps]);
 
     // Build summary string
     const summaryParts = [
@@ -497,8 +508,9 @@ export const TypographyCard: React.FC<TypographyCardProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        const newShow = !showBorders;
+                                        const newShow = !effectiveShowBorders;
                                         setShowBorders(newShow);
+                                        onHasBorderChange?.(newShow);
                                         if (newShow) {
                                             // Set default values when enabling border
                                             if (!borderColor) onBorderColorChange?.('#D1D5DB');
@@ -513,19 +525,19 @@ export const TypographyCard: React.FC<TypographyCardProps> = ({
                                         }
                                     }}
                                     className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors
-                                        ${showBorders 
-                                            ? 'bg-blue-500 border-blue-500 text-white' 
+                                        ${effectiveShowBorders
+                                            ? 'bg-blue-500 border-blue-500 text-white'
                                             : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                         }`}
                                 >
-                                    {showBorders && <span className="text-[10px]">✓</span>}
+                                    {effectiveShowBorders && <span className="text-[10px]">✓</span>}
                                 </button>
                                 <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">
                                     Add Border
                                 </span>
                             </div>
 
-                            {showBorders && (
+                            {effectiveShowBorders && (
                                 <div className="flex items-end gap-2 pl-6">
                                     {/* Border Color */}
                                     <div className="flex flex-col items-center gap-1">

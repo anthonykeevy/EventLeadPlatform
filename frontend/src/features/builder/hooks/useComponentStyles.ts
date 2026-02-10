@@ -41,8 +41,6 @@ function buildLabelStyles(
   styleOverrides: StyleOverrides | undefined,
   globalStyles: GlobalStyles | undefined
 ): React.CSSProperties {
-  const effectiveGlobalStyles = globalStyles ?? DEFAULT_GLOBAL_STYLES;
-  
   const fontFamily = resolveStyle(styleOverrides, globalStyles, 'labelFontFamily') as string | undefined;
   const fontSize = resolveStyle(styleOverrides, globalStyles, 'labelFontSize') as number | undefined;
   const fontWeight = resolveStyle(styleOverrides, globalStyles, 'labelFontWeight') as number | undefined;
@@ -76,7 +74,7 @@ function buildInputStyles(
   globalStyles: GlobalStyles | undefined,
   disabled: boolean
 ): React.CSSProperties {
-  const effectiveGlobalStyles = globalStyles ?? DEFAULT_GLOBAL_STYLES;
+  const _effectiveGlobalStyles = globalStyles ?? DEFAULT_GLOBAL_STYLES;
   
   const fontFamily = resolveStyle(styleOverrides, globalStyles, 'fontFamily') as string | undefined;
   const fontSize = resolveStyle(styleOverrides, globalStyles, 'fontSize') as number | undefined;
@@ -88,12 +86,12 @@ function buildInputStyles(
   const borderWidth = resolveStyle(styleOverrides, globalStyles, 'borderWidth') as number | undefined;
   const borderRadius = resolveStyle(styleOverrides, globalStyles, 'borderRadius') as number | undefined;
   const inputHeight = resolveStyle(styleOverrides, globalStyles, 'inputHeight') as number | undefined;
-  const inputPaddingX = effectiveGlobalStyles.inputPaddingX * effectiveGlobalStyles.baseSpacing;
-  const inputPaddingY = effectiveGlobalStyles.inputPaddingY * effectiveGlobalStyles.baseSpacing;
+  const inputPaddingX = _effectiveGlobalStyles.inputPaddingX * _effectiveGlobalStyles.baseSpacing;
+  const inputPaddingY = _effectiveGlobalStyles.inputPaddingY * _effectiveGlobalStyles.baseSpacing;
   
-  const defaultBorderColor = borderColor ?? effectiveGlobalStyles.borderColor;
-  const defaultBorderWidth = borderWidth ?? effectiveGlobalStyles.borderWidth;
-  const defaultBorderRadius = borderRadius ?? effectiveGlobalStyles.borderRadius;
+  const defaultBorderColor = borderColor ?? _effectiveGlobalStyles.borderColor;
+  const defaultBorderWidth = borderWidth ?? _effectiveGlobalStyles.borderWidth;
+  const defaultBorderRadius = borderRadius ?? _effectiveGlobalStyles.borderRadius;
   
   return {
     fontFamily: fontFamily,
@@ -101,7 +99,7 @@ function buildInputStyles(
     fontWeight: fontWeight,
     fontStyle: fontStyle,
     color: textColor,
-    backgroundColor: textBackgroundColor ?? (disabled ? '#F3F4F6' : effectiveGlobalStyles.backgroundColor),
+    backgroundColor: textBackgroundColor ?? (disabled ? '#F3F4F6' : _effectiveGlobalStyles.backgroundColor),
     borderColor: defaultBorderColor,
     borderWidth: `${defaultBorderWidth}px`,
     borderRadius: `${defaultBorderRadius}px`,
@@ -120,8 +118,6 @@ function buildHelpTextStyles(
   styleOverrides: StyleOverrides | undefined,
   globalStyles: GlobalStyles | undefined
 ): React.CSSProperties {
-  const effectiveGlobalStyles = globalStyles ?? DEFAULT_GLOBAL_STYLES;
-  
   const fontFamily = resolveStyle(styleOverrides, globalStyles, 'helpTextFontFamily') as string | undefined;
   const fontSize = resolveStyle(styleOverrides, globalStyles, 'helpTextFontSize') as number | undefined;
   const fontWeight = resolveStyle(styleOverrides, globalStyles, 'helpTextFontWeight') as number | undefined;

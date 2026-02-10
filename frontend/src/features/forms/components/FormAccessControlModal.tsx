@@ -3,7 +3,7 @@
  * Modal for managing form access control (grant, revoke, view access list)
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { X, UserPlus, Trash2, Shield, Clock, User, Building2, AlertCircle } from 'lucide-react'
 import { getFormAccessList, revokeFormAccess, checkFormAccess } from '../api/formAccessApi'
 import { AccessControlResponse, AccessCheckResponse } from '../types/form-access.types'

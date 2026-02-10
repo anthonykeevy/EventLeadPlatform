@@ -287,7 +287,7 @@ export const addPullToRefresh = (
     }
   };
 
-  const handleTouchEnd = (e: TouchEvent) => {
+  const handleTouchEnd = (_e: TouchEvent) => {
     if (isRefreshing || !isPulling) return;
 
     const deltaY = currentY - startY;

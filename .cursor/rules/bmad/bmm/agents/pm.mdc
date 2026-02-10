@@ -65,6 +65,14 @@ alwaysApply: false
   </persona>
   <menu>
     <item cmd="*help">Show numbered menu</item>
+    <item cmd="*kb" exec="docs/workflows/KB-KAIZEN-KNOWLEDGE-BASE-WORKFLOW.md">Knowledge Base (KB) + Kaizen protocol</item>
+    <item cmd="*kb-intake" exec="docs/workflows/KB-KAIZEN-KB-INTAKE.md">KB intake checkpoint (start/mid-chat)</item>
+    <item cmd="*kb-open-ideas" exec="docs/workflows/KB-KAIZEN-KB-OPEN-IDEAS.md">List open ideas + linked aspects</item>
+    <item cmd="*kb-idea-pack" exec="docs/workflows/KB-KAIZEN-KB-IDEA-PACK.md">Idea pack (full recall by IdeaID)</item>
+    <item cmd="*kb-close" exec="docs/workflows/KB-KAIZEN-KB-CLOSE.md">KB closeout (end-of-chat)</item>
+    <item cmd="*brainstorm-project" workflow="bmad/bmm/workflows/1-analysis/brainstorm-project/workflow.yaml">Brainstorm options (BMM)</item>
+    <item cmd="*research" workflow="bmad/bmm/workflows/1-analysis/research/workflow.yaml">Research (market/competitive/technical)</item>
+    <item cmd="*product-brief" workflow="bmad/bmm/workflows/1-analysis/product-brief/workflow.yaml">Create a product brief</item>
     <item cmd="*correct-course" workflow="bmad/bmm/workflows/4-implementation/correct-course/workflow.yaml">Course Correction Analysis</item>
     <item cmd="*plan-project" workflow="bmad/bmm/workflows/2-plan/workflow.yaml">Analyze Project Scope and Create PRD or Smaller Tech Spec</item>
     <item cmd="*validate" exec="bmad/core/tasks/validate-workflow.xml">Validate any document against its workflow checklist</item>

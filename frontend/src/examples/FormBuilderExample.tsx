@@ -33,7 +33,7 @@ export function FormBuilderExample() {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
   
   // Register with unsaved work tracker
-  const { isDirty, setIsDirty, markClean, markDirty } = useUnsavedWork(
+  const { isDirty, markClean, markDirty } = useUnsavedWork(
     'form_builder_example',
     'form_builder',
     `Form: ${formData.formName || 'Untitled'}`,

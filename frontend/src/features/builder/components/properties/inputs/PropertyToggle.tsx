@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface PropertyToggleProps {
-    label: string;
+    label: React.ReactNode;
     checked: boolean;
     onChange: (checked: boolean) => void;
     helpText?: string;

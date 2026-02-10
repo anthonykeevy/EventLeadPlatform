@@ -6,16 +6,17 @@
  * This enables international character sets for labels, placeholders, etc.
  */
 
-export type ComponentType = 
+export type ComponentType =
   // Input Fields
-  | 'text' 
-  | 'number' 
-  | 'email' 
+  | 'text'
+  | 'number'
+  | 'email'
   | 'phone'           // Phone number input
-  | 'textarea' 
-  | 'dropdown'        // Dropdown/Select field (renamed from 'select')
-  | 'radio' 
-  | 'checkbox' 
+  | 'textarea'
+  | 'dropdown'        // Dropdown/Select field (canonical)
+  | 'select'          // Alias for dropdown (runtime/legacy)
+  | 'radio'
+  | 'checkbox'
   | 'date'
   | 'address'         // Address with autocomplete (placeholder for future)
   | 'first-name'      // POC component
@@ -24,7 +25,11 @@ export type ComponentType =
   | 'submit-button'   // Form submission button
   // Display/Layout
   | 'header'
-  | 'divider';        // Visual separator
+  | 'paragraph'       // Display text block
+  | 'divider'         // Visual separator
+  // Layout containers (canvas row/column)
+  | 'row'
+  | 'column';
 
 export type DeviceType = 'desktop' | 'tablet' | 'mobile';
 
@@ -231,6 +236,14 @@ export interface ValidationRules {
     maxDateRangeSpan?: number;
     /** Minimum days between start and end date (for date range) */
     minDateRangeSpan?: number;
+
+    // ═══════════════════════════════════════════════════════════════
+    // SELECTION RULES (dropdown, checkbox, radio)
+    // ═══════════════════════════════════════════════════════════════
+    /** Minimum number of options that must be selected */
+    minSelections?: number;
+    /** Maximum number of options that can be selected */
+    maxSelections?: number;
 }
 
 /**
@@ -642,13 +655,21 @@ export interface FormPage {
     id: string;
     title: string;
     components: FormComponent[];
-    // Canvas Refactor: Background Settings per page
+    // Canvas Refactor: Background Settings per page (T04: asset ref + image/overlay options)
     background?: {
         type: 'color' | 'image';
         value: string; // Hex code or URL
         opacity?: number;
         scale?: number;
         position?: { x: number, y: number };
+        /** Stored when type is color so it restores when switching back from image */
+        colorValue?: string;
+        /** Asset reference (T04); when set, value may be content URL or legacy data URL */
+        asset?: { assetId: number };
+        imageSize?: 'auto' | 'contain' | 'cover' | 'tile';
+        imagePosition?: string;
+        overlayColor?: string;
+        overlayOpacity?: number;
     };
 }
 
@@ -853,7 +874,7 @@ export interface GlobalStyles {
      * Per-component grid defaults (form-wide). Used when a component does not
      * define a gridLayout override, enabling Grid layout as the primary layout mode.
      */
-    defaultGridLayoutsByComponent?: Record<ComponentType, Partial<GridLayoutConfig>>;
+    defaultGridLayoutsByComponent?: Partial<Record<ComponentType, Partial<GridLayoutConfig>>>;
 }
 
 /**
@@ -1241,6 +1262,8 @@ export type ObjectFeatures = {
  */
 export interface ComponentObject {
     id: string;                    // Unique identifier within component (e.g., 'label', 'input')
+    /** Optional display label for UI (grid/object layout panels); falls back to id when absent */
+    label?: string;
     type: ObjectType;              // Type of object
     archetype?: StyleArchetype;    // Style archetype (optional, defaults based on type)
     required: boolean;              // Must always render?

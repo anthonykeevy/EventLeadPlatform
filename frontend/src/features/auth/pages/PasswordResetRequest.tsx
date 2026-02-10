@@ -10,7 +10,7 @@
  * - Mobile responsive design
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { Loader2, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'

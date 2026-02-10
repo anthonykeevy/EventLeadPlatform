@@ -94,7 +94,7 @@ export const MAX_SCALE = 200;
  * });
  */
 export function calculateScaleChange(options: ScaleCalculationOptions): ScaleChangeResult {
-    const { dimensions, position, targetScale, anchor, canvasScale = 1, debug = false } = options;
+    const { dimensions, position, targetScale, anchor, canvasScale: _canvasScale = 1, debug = false } = options;
     const { baseWidthPx, baseHeightPx, currentScale } = dimensions;
     
     // Clamp target scale to valid range

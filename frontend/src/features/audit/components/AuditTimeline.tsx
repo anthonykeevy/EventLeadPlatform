@@ -2,7 +2,6 @@
  * AuditTimeline Component (Story 2.13)
  * Visual timeline of audit events for compliance reporting
  */
-import React from 'react';
 import { AuditEntry } from '../types/audit.types';
 
 interface AuditTimelineProps {
@@ -146,12 +145,13 @@ function DetailsTable({ oldValue, newValue, details, action }: {
   
   // Legacy format: For UPDATES with both old and new data (flat structure)
   if (oldData && newData && action?.includes('updated')) {
-    const changedFields = Object.keys(newData)
+    const newObj = newData;
+    const changedFields = Object.keys(newObj)
       .filter(key => !excludeFields.includes(key))
-      .filter(key => valuesAreDifferent(oldData[key], newData[key]));
+      .filter(key => valuesAreDifferent(oldData[key], newObj[key]));
     
     if (changedFields.length === 0) {
-      const detailText = newData.details || details;
+      const detailText = newObj.details || details;
       if (detailText && typeof detailText === 'string' && !detailText.startsWith('{')) {
         return <p className="text-sm text-slate-600 mt-2 bg-slate-50 rounded px-3 py-2">{detailText}</p>;
       }
@@ -173,7 +173,7 @@ function DetailsTable({ oldValue, newValue, details, action }: {
               <tr key={key} className="hover:bg-slate-100">
                 <td className="px-3 py-2 text-slate-700 font-medium">{formatFieldName(key)}</td>
                 <td className="px-3 py-2 text-rose-600 line-through">{formatValue(oldData[key])}</td>
-                <td className="px-3 py-2 text-emerald-600 font-medium">{formatValue(newData![key])}</td>
+                <td className="px-3 py-2 text-emerald-600 font-medium">{formatValue(newObj[key])}</td>
               </tr>
             ))}
           </tbody>

@@ -6,8 +6,8 @@
  * with "Apply to All Components" functionality.
  */
 
-import React, { useState } from 'react';
-import { Type, Tag, MessageSquare, Zap, Loader2, Palette, Wand2 } from 'lucide-react';
+import React from 'react';
+import { Type, Tag, MessageSquare, Zap, Loader2, Palette, Wand2, Minus, type LucideIcon } from 'lucide-react';
 import { ComponentStructure, StyleOverrides, GlobalStyles, ObjectType } from '../../types/builder.types';
 import { TypographyCard } from './inputs';
 import { devLogger } from '../../utils/devLogger';
@@ -23,12 +23,13 @@ interface TypographyColorsSectionProps {
 /**
  * Map object types to display labels and icons
  */
-const OBJECT_TYPE_CONFIG: Record<ObjectType, { label: string; icon: React.ComponentType<any>; iconColor: string }> = {
+const OBJECT_TYPE_CONFIG: Record<ObjectType, { label: string; icon: LucideIcon; iconColor: string }> = {
     label: { label: 'Label Text', icon: Tag, iconColor: 'text-blue-500' },
     input: { label: 'Input Text', icon: Type, iconColor: 'text-green-500' },
     validation: { label: 'Help & Validation', icon: MessageSquare, iconColor: 'text-orange-500' },
     action: { label: 'Button Text', icon: Zap, iconColor: 'text-purple-500' },
     status: { label: 'Status Text', icon: Loader2, iconColor: 'text-gray-500' },
+    divider: { label: 'Divider', icon: Minus, iconColor: 'text-gray-400' },
     custom: { label: 'Custom', icon: Type, iconColor: 'text-gray-500' },
 };
 
@@ -95,6 +96,18 @@ function getOverrideKeysForObjectType(objectType: ObjectType): {
                 borderColor: 'labelBorderColor',
                 borderWidth: 'labelBorderWidth',
                 borderRadius: 'labelBorderRadius',
+            };
+        case 'divider':
+            return {
+                fontFamily: 'fontFamily',
+                fontSize: 'fontSize',
+                fontWeight: 'fontWeight',
+                fontStyle: 'fontStyle',
+                color: 'dividerBorderColor',
+                backgroundColor: 'backgroundColor',
+                borderColor: 'dividerBorderColor',
+                borderWidth: 'dividerBorderWidth',
+                borderRadius: 'borderRadius',
             };
         default:
             // Fallback to input styles
@@ -174,6 +187,18 @@ function getGlobalKeysForObjectType(objectType: ObjectType): {
                 borderColor: 'labelBorderColor',
                 borderWidth: 'labelBorderWidth',
                 borderRadius: 'labelBorderRadius',
+            };
+        case 'divider':
+            return {
+                fontFamily: 'fontFamily',
+                fontSize: 'fontSize',
+                fontWeight: 'fontWeight',
+                fontStyle: 'fontStyle',
+                color: 'dividerBorderColor',
+                backgroundColor: 'backgroundColor',
+                borderColor: 'dividerBorderColor',
+                borderWidth: 'dividerBorderWidth',
+                borderRadius: 'borderRadius',
             };
         default:
             return {
@@ -268,10 +293,10 @@ export const TypographyColorsSection: React.FC<TypographyColorsSectionProps> = (
                         fontWeight={getEffective(overrideKeys.fontWeight, globalKeys.fontWeight)}
                         fontStyle={getEffective(overrideKeys.fontStyle, globalKeys.fontStyle)}
                         color={getEffective(overrideKeys.color, globalKeys.color)}
-                        backgroundColor={getEffective(overrideKeys.backgroundColor, globalKeys.backgroundColor)}
-                        borderColor={getEffective(overrideKeys.borderColor, globalKeys.borderColor)}
-                        borderWidth={getEffective(overrideKeys.borderWidth, globalKeys.borderWidth)}
-                        borderRadius={getEffective(overrideKeys.borderRadius, globalKeys.borderRadius)}
+                        backgroundColor={globalKeys.backgroundColor != null ? getEffective(overrideKeys.backgroundColor, globalKeys.backgroundColor) : undefined}
+                        borderColor={globalKeys.borderColor != null ? getEffective(overrideKeys.borderColor, globalKeys.borderColor) : undefined}
+                        borderWidth={globalKeys.borderWidth != null ? getEffective(overrideKeys.borderWidth, globalKeys.borderWidth) : undefined}
+                        borderRadius={globalKeys.borderRadius != null ? getEffective(overrideKeys.borderRadius, globalKeys.borderRadius) : undefined}
                         showBorderOptions={true}
                         onFontFamilyChange={(value) => {
                             onStyleOverridesChange({ [overrideKeys.fontFamily]: value } as Partial<StyleOverrides>);

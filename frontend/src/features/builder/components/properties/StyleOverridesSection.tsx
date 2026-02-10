@@ -70,7 +70,7 @@ const SpacingOverride: React.FC<{
     onChange: (value: number) => void;
     onReset: () => void;
     isOverridden: boolean;
-}> = ({ label, value, globalValue, baseSpacing, onChange, onReset, isOverridden }) => (
+}> = ({ label, value, globalValue: _globalValue, baseSpacing, onChange, onReset, isOverridden }) => (
     <div className="flex items-center gap-2 py-2 px-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
         <ArrowUpDown size={12} className="text-gray-400" />
         <span className="text-[10px] text-gray-500 dark:text-gray-400 flex-1">{label}</span>

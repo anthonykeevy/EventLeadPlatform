@@ -3,7 +3,7 @@
  * Complete theme customization interface
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { ThemeSelector } from '../components/ThemeSelector'
 import { DensitySelector } from '../components/DensitySelector'
 import { FontSizeSelector } from '../components/FontSizeSelector'

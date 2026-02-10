@@ -3,7 +3,6 @@
  * Main dashboard entry point
  */
 
-import React from 'react'
 import { DashboardLayout } from '../components/DashboardLayout'
 
 export function DashboardPage() {

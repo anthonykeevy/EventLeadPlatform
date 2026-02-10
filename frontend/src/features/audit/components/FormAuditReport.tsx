@@ -2,7 +2,7 @@
  * FormAuditReport Component (Story 2.13)
  * Complete compliance report view for a form
  */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FormAuditReport as FormAuditReportType, ApprovalChainEntry, AccessEntry } from '../types/audit.types';
 import { getFormAuditReport } from '../api/auditApi';
 import { AuditTimeline } from './AuditTimeline';

@@ -5,10 +5,10 @@
 
 import React, { useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-import { Loader2, ArrowLeft, Building2, Edit } from 'lucide-react'
+import { Loader2, ArrowLeft, Building2 } from 'lucide-react'
 import type { OnboardingStep2Data } from '../types/onboarding.types'
 import { getAccessToken, storeTokens } from '../../auth/utils/tokenStorage'
-import { PostalCodeInput, CountrySelector, useCountries } from '../../validation'
+import { PostalCodeInput, CountrySelector } from '../../validation'
 import { getCountryConfig, getStateOptions } from '../../validation/utils/countryConfig'
 import { SmartCompanySearch, parseBusinessAddress, enrichCompanyByABN, type CompanySearchResult } from '../../companies'
 
@@ -52,7 +52,6 @@ export function OnboardingStep2({ initialData, onComplete, onBack, initialCountr
   })
 
   const postcodeValue = watch('billingPostcode')
-  const abnValue = watch('abn')
 
   // Fetch suggested company from history (Story 2.12)
   React.useEffect(() => {

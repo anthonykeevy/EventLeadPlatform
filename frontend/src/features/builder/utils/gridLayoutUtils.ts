@@ -340,8 +340,8 @@ export function extractGridStructureDefaults(config: GridLayoutConfig): Partial<
 export function buildDefaultGridLayoutsByComponent(
     components: Array<{ type: ComponentType; structure: ComponentStructure }>,
     layoutMode: ObjectLayoutType = 'mixed'
-): Record<ComponentType, Partial<GridLayoutConfig>> {
-    return components.reduce<Record<ComponentType, Partial<GridLayoutConfig>>>((acc, component) => {
+): Partial<Record<ComponentType, Partial<GridLayoutConfig>>> {
+    return components.reduce<Partial<Record<ComponentType, Partial<GridLayoutConfig>>>>((acc, component) => {
         const objectIds = component.structure.objects.map((obj) => obj.id);
         const resolvedLayout: ObjectLayoutType =
             layoutMode === 'mixed'
@@ -357,7 +357,7 @@ export function buildDefaultGridLayoutsByComponent(
         acc[component.type] = extractGridStructureDefaults(resolved);
 
         return acc;
-    }, {} as Record<ComponentType, Partial<GridLayoutConfig>>);
+    }, {} as Partial<Record<ComponentType, Partial<GridLayoutConfig>>>);
 }
 
 export function resolveComponentDefaultGridLayout(args: {
@@ -370,7 +370,7 @@ export function resolveComponentDefaultGridLayout(args: {
 
     const objectIds = structure.objects.map((obj) => obj.id);
     const defaultLayoutType = globalStyles.defaultObjectLayout ?? structure.defaultLayout;
-    const verticalOverrides: Record<ComponentType, Partial<GridLayoutConfig>> = {
+    const verticalOverrides: Partial<Record<ComponentType, Partial<GridLayoutConfig>>> = {
         terms: {
             rows: 3,
             columns: 1,
@@ -390,7 +390,7 @@ export function resolveComponentDefaultGridLayout(args: {
             },
         },
     };
-    const horizontalOverrides: Record<ComponentType, Partial<GridLayoutConfig>> = {
+    const horizontalOverrides: Partial<Record<ComponentType, Partial<GridLayoutConfig>>> = {
         terms: {
             rows: 1,
             columns: 3,

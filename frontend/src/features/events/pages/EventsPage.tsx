@@ -3,7 +3,7 @@
  * Main event management page with list, search, and filters
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Filter, X } from 'lucide-react'
 import { getEvents, getEventTypes, getEventStatuses } from '../api/eventsApi'
 import { Event, EventType, EventStatus, EventFilters } from '../types/events.types'

@@ -3,7 +3,7 @@
  * Confirms event deletion before soft delete
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { X, AlertTriangle, Trash2, LogOut } from 'lucide-react'
 import { Event } from '../types/events.types'
 import { deleteEvent, leaveEvent } from '../api/eventsApi'

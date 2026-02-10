@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Share2, Mail, AlertCircle, CheckCircle, Search, Building2, Trash2, Shield } from 'lucide-react'
 import { shareEventByEmail, getEventCompanies, leaveEvent } from '../api/eventsApi'
 import { useToastNotifications } from '../../ux'

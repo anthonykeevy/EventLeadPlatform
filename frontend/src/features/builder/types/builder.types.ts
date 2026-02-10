@@ -6,16 +6,17 @@
  * This enables international character sets for labels, placeholders, etc.
  */
 
-export type ComponentType = 
+export type ComponentType =
   // Input Fields
-  | 'text' 
-  | 'number' 
-  | 'email' 
+  | 'text'
+  | 'number'
+  | 'email'
   | 'phone'           // Phone number input
-  | 'textarea' 
-  | 'dropdown'        // Dropdown/Select field (renamed from 'select')
-  | 'radio' 
-  | 'checkbox' 
+  | 'textarea'
+  | 'dropdown'        // Dropdown/Select field (canonical)
+  | 'select'          // Alias for dropdown (runtime/legacy)
+  | 'radio'
+  | 'checkbox'
   | 'date'
   | 'address'         // Address with autocomplete (placeholder for future)
   | 'first-name'      // POC component
@@ -24,7 +25,11 @@ export type ComponentType =
   | 'submit-button'   // Form submission button
   // Display/Layout
   | 'header'
-  | 'divider';        // Visual separator
+  | 'paragraph'       // Display text block
+  | 'divider'         // Visual separator
+  // Layout containers (canvas row/column)
+  | 'row'
+  | 'column';
 
 export type DeviceType = 'desktop' | 'tablet' | 'mobile';
 

@@ -26,30 +26,7 @@ interface ValidationSectionProps {
     availableFields?: AvailableField[];
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// RULE VISIBILITY CONFIG - which rules to show per component type
-// ═══════════════════════════════════════════════════════════════════════════════
-const _HIDDEN_RULES: Record<string, string[]> = {
-    // Email: hide character rules, length rules, formatting (inherent in email format)
-    email: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength', 
-            'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'mustMatchField'],
-    // Number: hide all text-related rules
-    number: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength',
-             'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'noHtmlScript',
-             'email', 'phone', 'mustMatchField'],
-    // Phone: hide all text-related rules
-    phone: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength',
-            'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'noHtmlScript',
-            'email'],
-    // Date: hide all text-related rules
-    date: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength',
-           'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'noHtmlScript',
-           'email', 'phone', 'mustMatchField'],
-    // Select/Checkbox/Radio: only show selection limits
-    select: ['all-text-rules'],
-    checkbox: ['all-text-rules'],
-    radio: ['all-text-rules'],
-};
+// Rule visibility per component type is defined in utils/validationConflicts (getConflictDefinitions).
 
 /**
  * Wrapper for validation controls that shows disabled state with INLINE explanation

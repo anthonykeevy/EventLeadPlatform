@@ -3,7 +3,7 @@
  * Detailed table view of audit events with filtering and pagination
  */
 import { useState, useEffect, useCallback } from 'react';
-import { AuditEntry, PaginatedActivityLog } from '../types/audit.types';
+import { AuditEntry } from '../types/audit.types';
 import { getCompanyActivityLog } from '../api/auditApi';
 
 /**

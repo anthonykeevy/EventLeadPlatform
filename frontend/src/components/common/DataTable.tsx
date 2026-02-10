@@ -14,7 +14,7 @@
  * - Accessibility (keyboard navigation, ARIA labels)
  */
 
-import { useState, useMemo, useCallback, useEffect, useId, type ReactNode, Fragment } from 'react'
+import { useState, useCallback, useEffect, useId, type ReactNode, Fragment } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -27,7 +27,7 @@ import {
   type ColumnFiltersState,
   type Row,
 } from '@tanstack/react-table'
-import { ChevronDown, ChevronRight, ChevronUp, ChevronLeft, Search, Edit2, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronUp, ChevronLeft, Search } from 'lucide-react'
 
 export interface ColumnFilterConfig {
   columnId: string
@@ -78,11 +78,11 @@ export function DataTable<TData, TValue>({
   pageSizeOptions = [10, 20, 50],
   onPageChange,
   onPageSizeChange,
-  enableInlineEditing = false,
+  enableInlineEditing: _enableInlineEditing = false,
   enableExpandableRows = false,
   renderExpandedRow,
-  onRowEdit,
-  onCellEdit,
+  onRowEdit: _onRowEdit,
+  onCellEdit: _onCellEdit,
   searchPlaceholder = 'Search...',
   emptyMessage = 'No data available',
 }: DataTableProps<TData, TValue>) {
@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({})
-  const [editingCell, setEditingCell] = useState<{ rowId: string; columnId: string } | null>(null)
+  const [_editingCell, _setEditingCell] = useState<{ rowId: string; columnId: string } | null>(null)
   const [internalPagination, setInternalPagination] = useState<{ pageIndex: number; pageSize: number }>({
     pageIndex: 0,
     pageSize,

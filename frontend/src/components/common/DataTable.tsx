@@ -14,7 +14,7 @@
  * - Accessibility (keyboard navigation, ARIA labels)
  */
 
-import React, { useState, useMemo, useCallback, useEffect, useId } from 'react'
+import { useState, useMemo, useCallback, useEffect, useId, type ReactNode, Fragment } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -55,7 +55,7 @@ export interface DataTableProps<TData, TValue> {
   onPageSizeChange?: (pageSize: number) => void
   enableInlineEditing?: boolean
   enableExpandableRows?: boolean
-  renderExpandedRow?: (row: Row<TData>) => React.ReactNode
+  renderExpandedRow?: (row: Row<TData>) => ReactNode
   onRowEdit?: (row: Row<TData>, newData: Partial<TData>) => void
   onCellEdit?: (rowId: string, columnId: string, value: unknown) => void
   searchPlaceholder?: string
@@ -297,7 +297,7 @@ export function DataTable<TData, TValue>({
               </tr>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <React.Fragment key={row.id}>
+                <Fragment key={row.id}>
                   <tr className="hover:bg-gray-50 transition-colors">
                     {enableExpandableRows && (
                       <td className="px-4 py-3 whitespace-nowrap">
@@ -330,7 +330,7 @@ export function DataTable<TData, TValue>({
                       </td>
                     </tr>
                   )}
-                </React.Fragment>
+                </Fragment>
               ))
             )}
           </tbody>

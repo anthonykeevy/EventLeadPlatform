@@ -43,3 +43,14 @@ This file is updated after each task retro.
 - UAT results: `T03-backend-asset-service-and-upload-api.uat-results.md`
 - Retro: `T03-backend-asset-service-and-upload-api.retro.md`
 
+### 2026-02-10 — T04 (Frontend Builder Asset Upload + Library + Ref)
+
+- **Dev Lessons:** Python stdlib logging: first positional arg is message; no `msg=` keyword. Do not put reserved names (e.g. `filename`, `message`) in `extra` — use prefixed keys (e.g. `asset_filename`).
+- **Testing Lessons:** Relax client file-type check when `file.type` is empty but extension is image; normalize `image/jpg` → `image/jpeg` server-side for JPG uploads.
+- **Process Lessons:** When Background Style toggles (Image ↔ Colour), persist both branches (e.g. `colorValue` for colour; keep asset/imageSize/imagePosition when switching to Colour).
+
+**Links (T04):**
+- Completion: `T04-frontend-builder-asset-upload-and-library.completion.md`
+- UAT results: `T04-frontend-builder-asset-upload-and-library.uat-results.md`
+- Retro: `T04-frontend-builder-asset-upload-and-library.retro.md`
+

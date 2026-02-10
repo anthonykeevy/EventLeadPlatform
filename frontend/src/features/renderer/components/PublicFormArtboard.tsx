@@ -209,8 +209,6 @@ export const PublicFormArtboard: React.FC<{
     return computeErrors(true)
   }, [showValidation, computeErrors])
 
-  const isValid = Object.keys(errors).length === 0
-
   // Build form-level validation context for submit button
   const formValidationContext: FormValidationContext = React.useMemo(() => {
     const errorsByPriority: FormValidationContext['errorsByPriority'] = []

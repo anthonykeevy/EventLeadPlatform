@@ -4,7 +4,7 @@
  * Can be used in AccountSettingsPopup and PreferencesPage
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Loader2, Plus, Trash2, Star, StarOff } from 'lucide-react'
 import type { IndustryAssociation, IndustryAssociationRequest } from '../../profile/types/profile.types'
 import { 

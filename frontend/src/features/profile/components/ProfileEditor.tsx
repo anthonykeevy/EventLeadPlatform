@@ -3,7 +3,7 @@
  * Allows users to update bio, theme preferences, layout density, and font size
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader2, Save, X } from 'lucide-react'
 import type { EnhancedUserProfile, ProfileUpdateRequest, ReferenceOption } from '../types/profile.types'
@@ -21,14 +21,14 @@ interface ProfileEditorProps {
 }
 
 export function ProfileEditor({ onClose }: ProfileEditorProps) {
-  const [profile, setProfile] = useState<EnhancedUserProfile | null>(null)
+  const [_profile, setProfile] = useState<EnhancedUserProfile | null>(null)
   const [themes, setThemes] = useState<ReferenceOption[]>([])
   const [densities, setDensities] = useState<ReferenceOption[]>([])
   const [fontSizes, setFontSizes] = useState<ReferenceOption[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
-  const { showSuccessToast, showErrorToast } = useToastNotifications()
+  const toast = useToastNotifications()
 
   const {
     register,
@@ -77,14 +77,14 @@ export function ProfileEditor({ onClose }: ProfileEditorProps) {
         setValue('fontSizeId', profileData.fontSize?.id || null)
       } catch (error) {
         setApiError(error instanceof Error ? error.message : 'Failed to load profile')
-        showErrorToast('Failed to load profile data')
+        toast.error('Failed to load profile data')
       } finally {
         setIsLoading(false)
       }
     }
     
     loadData()
-  }, [setValue, showErrorToast])
+  }, [setValue, toast])
 
   const onSubmit = async (data: ProfileUpdateRequest) => {
     setIsSaving(true)
@@ -93,14 +93,14 @@ export function ProfileEditor({ onClose }: ProfileEditorProps) {
     try {
       await updateProfile(data)
       setProfile(await getEnhancedProfile())
-      showSuccessToast('Profile updated successfully')
+      toast.success('Profile updated successfully')
       
       if (onClose) {
         onClose()
       }
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to update profile')
-      showErrorToast('Failed to update profile')
+      toast.error('Failed to update profile')
     } finally {
       setIsSaving(false)
     }
@@ -252,7 +252,7 @@ export function ProfileEditor({ onClose }: ProfileEditorProps) {
                 <div className="ml-3 flex-1">
                   <div className="font-medium text-gray-900 flex items-center justify-between">
                     <span>{fontSize.name}</span>
-                    <span className="text-xs text-gray-500">{fontSize.baseFontSize}</span>
+                    <span className="text-xs text-gray-500">{fontSize.base_font_size}</span>
                   </div>
                   <div className="text-sm text-gray-500">{fontSize.description}</div>
                 </div>

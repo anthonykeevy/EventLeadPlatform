@@ -3,30 +3,29 @@
  * Allows users to manage their industry associations
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Loader2, Plus, Trash2, Star, StarOff } from 'lucide-react'
-import type { IndustryAssociation, IndustryAssociationRequest, ReferenceOption } from '../types/profile.types'
+import type { IndustryAssociation, IndustryAssociationRequest } from '../types/profile.types'
 import { useToastNotifications } from '../../ux'
 import {
   getUserIndustries,
   addIndustry,
   updateIndustry,
-  removeIndustry,
-  getThemes
+  removeIndustry
 } from '../api/usersApi'
 
 interface IndustryManagerProps {
   onClose?: () => void
 }
 
-export function IndustryManager({ onClose }: IndustryManagerProps) {
+export function IndustryManager({ onClose: _onClose }: IndustryManagerProps) {
   const [industries, setIndustries] = useState<IndustryAssociation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedIndustryId, setSelectedIndustryId] = useState<number | null>(null)
-  const { showSuccessToast, showErrorToast } = useToastNotifications()
+  const toast = useToastNotifications()
 
   // Load industries
   useEffect(() => {
@@ -42,7 +41,7 @@ export function IndustryManager({ onClose }: IndustryManagerProps) {
       setIndustries(data)
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to load industries')
-      showErrorToast('Failed to load industries')
+      toast.error('Failed to load industries')
     } finally {
       setIsLoading(false)
     }
@@ -50,7 +49,7 @@ export function IndustryManager({ onClose }: IndustryManagerProps) {
 
   const handleAddIndustry = async (isPrimary: boolean) => {
     if (!selectedIndustryId) {
-      showErrorToast('Please select an industry')
+      toast.error('Please select an industry')
       return
     }
     
@@ -65,12 +64,12 @@ export function IndustryManager({ onClose }: IndustryManagerProps) {
       
       await addIndustry(request)
       await loadIndustries()
-      showSuccessToast('Industry added successfully')
+      toast.success('Industry added successfully')
       setShowAddModal(false)
       setSelectedIndustryId(null)
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to add industry')
-      showErrorToast('Failed to add industry')
+      toast.error('Failed to add industry')
     } finally {
       setIsProcessing(false)
     }
@@ -91,10 +90,10 @@ export function IndustryManager({ onClose }: IndustryManagerProps) {
       
       await updateIndustry(userIndustryId, request)
       await loadIndustries()
-      showSuccessToast('Primary industry updated')
+      toast.success('Primary industry updated')
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to update industry')
-      showErrorToast('Failed to update industry')
+      toast.error('Failed to update industry')
     } finally {
       setIsProcessing(false)
     }
@@ -111,10 +110,10 @@ export function IndustryManager({ onClose }: IndustryManagerProps) {
     try {
       await removeIndustry(userIndustryId)
       await loadIndustries()
-      showSuccessToast('Industry removed successfully')
+      toast.success('Industry removed successfully')
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to remove industry')
-      showErrorToast('Failed to remove industry')
+      toast.error('Failed to remove industry')
     } finally {
       setIsProcessing(false)
     }

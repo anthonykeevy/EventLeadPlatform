@@ -3,7 +3,7 @@
  * AC-1.14.2, AC-1.14.3: Collect user profile information
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
 import type { OnboardingStep1Data } from '../types/onboarding.types'

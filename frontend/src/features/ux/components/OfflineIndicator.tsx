@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect } from 'react'
-import { WifiOff, Wifi, Loader2, CheckCircle2 } from 'lucide-react'
+import { WifiOff, Wifi, Loader2 } from 'lucide-react'
 import { offlineQueue, OfflineQueueStats } from '../../../utils/offlineQueue'
 
 export const OfflineIndicator: React.FC = () => {

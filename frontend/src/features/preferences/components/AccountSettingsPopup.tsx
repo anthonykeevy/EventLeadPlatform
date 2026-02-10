@@ -3,7 +3,7 @@
  * Shows user profile details and allows editing preferences
  */
 
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, User, Mail, FileText, Briefcase } from 'lucide-react'
 import { useAuth } from '../../auth'
 import { 
@@ -27,7 +27,7 @@ interface AccountSettingsPopupProps {
 }
 
 export function AccountSettingsPopup({ isOpen, onClose }: AccountSettingsPopupProps) {
-  const { refreshUser, user: authUser } = useAuth()
+  const { refreshUser, user: _authUser } = useAuth()
   const toast = useToastNotifications()
   
   const [profile, setProfile] = useState<EnhancedUserProfile | null>(null)

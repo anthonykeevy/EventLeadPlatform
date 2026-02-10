@@ -35,7 +35,7 @@ export function EventsPage() {
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
-  const [_filters, setFilters] = useState<EventFilters>({})
+  const [_filters, _setFilters] = useState<EventFilters>({})
   const [showFilters, setShowFilters] = useState(false)
   const [selectedEventTypeId, setSelectedEventTypeId] = useState<number | undefined>(undefined)
   const [selectedStatusId, setSelectedStatusId] = useState<number | undefined>(undefined)

@@ -3,7 +3,7 @@
  * Compact theme customization interface for the user menu
  */
 
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, Palette, Layout, Type } from 'lucide-react'
 import { useTheme } from '../../theme'
 import { ReferenceOption } from '../../profile/types/profile.types'

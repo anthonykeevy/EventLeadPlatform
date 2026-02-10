@@ -1249,6 +1249,8 @@ export type ObjectFeatures = {
  */
 export interface ComponentObject {
     id: string;                    // Unique identifier within component (e.g., 'label', 'input')
+    /** Optional display label for UI (grid/object layout panels); falls back to id when absent */
+    label?: string;
     type: ObjectType;              // Type of object
     archetype?: StyleArchetype;    // Style archetype (optional, defaults based on type)
     required: boolean;              // Must always render?

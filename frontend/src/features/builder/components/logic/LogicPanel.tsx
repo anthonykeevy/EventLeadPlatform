@@ -217,6 +217,10 @@ export const LogicPanel: React.FC = () => {
             notEquals: 'Not equals',
             contains: 'Contains',
             isEmpty: 'Is empty',
+            greaterThan: 'Greater than',
+            greaterThanOrEqual: 'Greater than or equal',
+            lessThan: 'Less than',
+            lessThanOrEqual: 'Less than or equal',
         };
         return allowed.map(op => ({ value: op, label: labels[op] }));
     };

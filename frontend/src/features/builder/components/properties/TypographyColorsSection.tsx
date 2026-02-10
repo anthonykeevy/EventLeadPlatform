@@ -6,7 +6,7 @@
  * with "Apply to All Components" functionality.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Type, Tag, MessageSquare, Zap, Loader2, Palette, Wand2 } from 'lucide-react';
 import { ComponentStructure, StyleOverrides, GlobalStyles, ObjectType } from '../../types/builder.types';
 import { TypographyCard } from './inputs';

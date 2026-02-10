@@ -1,8 +1,6 @@
 import React from 'react';
 import { FormComponent } from '../types/builder.types';
 import { AlertCircle } from 'lucide-react';
-import { RowComponent } from './ui/RowComponent';
-import { ColumnComponent } from './ui/ColumnComponent';
 
 interface ComponentPreviewProps {
   component: FormComponent;

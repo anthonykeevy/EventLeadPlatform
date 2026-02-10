@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, User } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { SmartBorder } from '../ui/SmartBorder';
 import { LayoutType } from '../../types/builder.types';
 import { ComputedFieldStyles, computeFieldStyles, estimateRequiredInputWidth } from '../../utils/styleUtils';
@@ -32,7 +32,7 @@ export const FirstNameField: React.FC<FirstNameFieldProps> = ({
     label = 'First Name',
     placeholder = 'Enter your first name',
     required = true,
-    helpText,
+    helpText: _helpText,
     dragListeners, 
     dragAttributes, 
     setNodeRef,

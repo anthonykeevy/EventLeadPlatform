@@ -147,12 +147,10 @@ export function CreateFormModal({ isOpen, eventId, userRole = 'Company User', on
               <EnhancedFormInput
                 name="deploymentCost"
                 label="Deployment Cost ($)"
-                type="number"
-                value={formData.deploymentCost !== undefined && formData.deploymentCost !== null ? formData.deploymentCost : ''}
+                type="text"
+                value={formData.deploymentCost !== undefined && formData.deploymentCost !== null ? String(formData.deploymentCost) : ''}
                 onChange={(value) => setFormData(prev => ({ ...prev, deploymentCost: value === '' ? null : Number(value) }))}
                 error={errors.deploymentCost}
-                min={0}
-                step={0.01}
                 placeholder="0.00"
               />
               

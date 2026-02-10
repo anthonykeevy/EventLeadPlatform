@@ -176,7 +176,7 @@ export function GrantAccessForm({ formId, onSuccess, onCancel }: GrantAccessForm
       // We need to convert it to UTC ISO string before sending to the backend
       const requestData: GrantAccessRequest = {
         ...formData,
-        expiryDate: convertLocalDateTimeToUTC(formData.expiryDate)
+        expiryDate: convertLocalDateTimeToUTC(formData.expiryDate ?? null)
       }
       
       await grantFormAccess(formId, requestData)

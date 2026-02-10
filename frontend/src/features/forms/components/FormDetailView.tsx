@@ -152,7 +152,6 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
 
   const canManage = userAccess?.accessLevel === 'MANAGE'
   const canEdit = canManage || userAccess?.accessLevel === 'EDIT'
-  const _canView = userAccess?.hasAccess || canEdit || canManage
 
   // Approval Logic
   const cost = form.deploymentCost || 0

@@ -427,14 +427,6 @@ export const ObjectLayoutSection: React.FC<ObjectLayoutSectionProps> = ({
         handleGroupsChange(updatedGroups);
     };
     
-    const _handleReorderInGroup = (groupKey: string, newOrder: string[]) => {
-        const updatedGroups = {
-            ...currentGroups,
-            [groupKey]: newOrder
-        };
-        handleGroupsChange(updatedGroups);
-    };
-    
     const handleAddNewGroup = () => {
         if (availableObjects.length === 0) return;
         

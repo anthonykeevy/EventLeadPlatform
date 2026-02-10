@@ -58,8 +58,6 @@ import {
 import { 
     FontFamilySummary, 
     FontCategory,
-    FontCategoryInfo,
-    LANGUAGE_SUPPORT_INFO,
     RecentlyUsedFont,
 } from '../../../api/fontTypes';
 import { loadGoogleFont } from '../../../utils/fontLoader';

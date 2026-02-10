@@ -29,7 +29,7 @@ interface ValidationSectionProps {
 // ═══════════════════════════════════════════════════════════════════════════════
 // RULE VISIBILITY CONFIG - which rules to show per component type
 // ═══════════════════════════════════════════════════════════════════════════════
-const HIDDEN_RULES: Record<string, string[]> = {
+const _HIDDEN_RULES: Record<string, string[]> = {
     // Email: hide character rules, length rules, formatting (inherent in email format)
     email: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength', 
             'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'mustMatchField'],
@@ -49,14 +49,6 @@ const HIDDEN_RULES: Record<string, string[]> = {
     select: ['all-text-rules'],
     checkbox: ['all-text-rules'],
     radio: ['all-text-rules'],
-};
-
-// Check if a rule should be hidden for this component type
-const _isRuleHidden = (ruleKey: string, componentType: string): boolean => {
-    const hidden = HIDDEN_RULES[componentType];
-    if (!hidden) return false;
-    if (hidden.includes('all-text-rules')) return true; // Selection types hide everything
-    return hidden.includes(ruleKey);
 };
 
 /**

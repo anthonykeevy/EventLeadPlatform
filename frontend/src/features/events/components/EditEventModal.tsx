@@ -485,7 +485,7 @@ export function EditEventModal({ isOpen, event, onClose, onSuccess }: EditEventM
             <div className="p-6 space-y-6">
               {isLoadingRefData ? (
                 <div className="flex justify-center py-8">
-                  <LoadingSpinner size="medium" />
+                  <LoadingSpinner size="md" />
                 </div>
               ) : (
                 <>
@@ -903,7 +903,7 @@ export function EditEventModal({ isOpen, event, onClose, onSuccess }: EditEventM
                         {!navigator.onLine && industries.length === 0 ? (
                           <div className="w-full px-3 py-2 border border-yellow-400 bg-yellow-50 rounded-md">
                             <p className="text-sm text-yellow-800">
-                              <strong>Offline:</strong> Industry selection requires internet connection. Current value: <strong>{event.industry?.name || event.industryId ? `Industry ID: ${event.industryId}` : 'Not set'}</strong>
+                              <strong>Offline:</strong> Industry selection requires internet connection. Current value: <strong>{event.industry?.industryName || event.industryId ? `Industry ID: ${event.industryId}` : 'Not set'}</strong>
                             </p>
                           </div>
                         ) : (
@@ -925,7 +925,7 @@ export function EditEventModal({ isOpen, event, onClose, onSuccess }: EditEventM
                             ) : (
                               event.industryId && (
                                 <option value={event.industryId}>
-                                  {event.industry?.name || `Industry ID: ${event.industryId}`}
+                                  {event.industry?.industryName || `Industry ID: ${event.industryId}`}
                                 </option>
                               )
                             )}
@@ -1071,7 +1071,7 @@ export function EditEventModal({ isOpen, event, onClose, onSuccess }: EditEventM
                 >
                   {isSubmitting ? (
                     <>
-                      <LoadingSpinner size="small" />
+                      <LoadingSpinner size="sm" />
                       Updating...
                     </>
                   ) : (

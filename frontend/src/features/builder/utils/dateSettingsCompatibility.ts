@@ -59,9 +59,11 @@ export const getDateSettingsCompatibility = (props: ComponentProps): DateSetting
     };
   }
 
-  if (disabledPickerStyles[pickerStyle]) {
+  const pickerStyleKey = pickerStyle != null ? pickerStyle : undefined;
+  if (pickerStyleKey != null && disabledPickerStyles[pickerStyleKey]) {
+    type PickerStyleKey = keyof typeof disabledPickerStyles;
     autoFix.pickerStyle =
-      (['calendar', 'native', 'dropdown'] as ComponentProps['pickerStyle'][])
+      (['calendar', 'native', 'dropdown'] as PickerStyleKey[])
         .find((style) => !disabledPickerStyles[style]) ?? 'native';
     warnings.push({
       key: `pickerStyle.autoFix.${pickerStyle}`,

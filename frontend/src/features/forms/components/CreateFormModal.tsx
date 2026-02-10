@@ -14,7 +14,7 @@ import { EnhancedFormInput } from '../../ux/components/EnhancedFormInput'
 interface CreateFormModalProps {
   isOpen: boolean
   eventId: number | null // Story 2.8: Form must be created in context of an Event
-  userRole?: 'Company Admin' | 'Company User' // User role to determine approval status
+  userRole?: 'Company Admin' | 'Company User' | 'Company Viewer' // User role to determine approval status
   onClose: () => void
   onSuccess: () => void
 }

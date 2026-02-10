@@ -13,7 +13,7 @@ interface EditRoleModalProps {
   userId: number
   userName: string
   currentRole: string
-  currentUserRole: 'Company Admin' | 'Company User'
+  currentUserRole: 'Company Admin' | 'Company User' | 'Company Viewer'
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void

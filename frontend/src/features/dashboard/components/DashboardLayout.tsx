@@ -41,7 +41,7 @@ export function DashboardLayout() {
   // Team panel state
   const [teamPanelCompanyId, setTeamPanelCompanyId] = useState<number | null>(null)
   const [teamPanelCompanyName, setTeamPanelCompanyName] = useState<string>('')
-  const [teamPanelUserRole, setTeamPanelUserRole] = useState<'Company Admin' | 'Company User'>('Company User')
+  const [teamPanelUserRole, setTeamPanelUserRole] = useState<'Company Admin' | 'Company User' | 'Company Viewer'>('Company User')
   
   // Onboarding modal state - AC-1.14.1
   const [showOnboardingModal, setShowOnboardingModal] = useState(false)

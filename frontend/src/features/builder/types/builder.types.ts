@@ -869,7 +869,7 @@ export interface GlobalStyles {
      * Per-component grid defaults (form-wide). Used when a component does not
      * define a gridLayout override, enabling Grid layout as the primary layout mode.
      */
-    defaultGridLayoutsByComponent?: Record<ComponentType, Partial<GridLayoutConfig>>;
+    defaultGridLayoutsByComponent?: Partial<Record<ComponentType, Partial<GridLayoutConfig>>>;
 }
 
 /**

@@ -1,8 +1,8 @@
-﻿# Task T04: Frontend Builder Asset Upload + Library + Reference Wiring
+# Task T04: Frontend Builder Asset Upload + Library + Reference Wiring
 
 **Story:** 5.1 - Background Asset Management  
 **Task ID:** T04  
-**Status:** ðŸ„ In Progress (Approved)
+**Status:** ✅ HumanDone
 **Dependencies:** T01, T03  
 **Estimated Time:** 3-5 hours  
 

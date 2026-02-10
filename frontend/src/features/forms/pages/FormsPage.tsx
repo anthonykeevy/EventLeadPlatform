@@ -5,7 +5,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Filter, X } from 'lucide-react'
-import { getForms, getFormStatuses, getFormApprovalStatuses, FormFilters } from '../api/formsApi'
+import { getForms, getFormStatuses, getFormApprovalStatuses } from '../api/formsApi'
+import { FormFilters } from '../types/form.types'
 import { Form, FormStatus, FormApprovalStatus } from '../types/form.types'
 import { FormCard } from '../components/FormCard'
 import { CreateFormModal } from '../components/CreateFormModal'
@@ -30,7 +31,7 @@ export function FormsPage() {
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
-  const [_filters, setFilters] = useState<FormFilters>({})
+  const [_filters, _setFilters] = useState<FormFilters>({})
   const [showFilters, setShowFilters] = useState(false)
   const [selectedStatusId, setSelectedStatusId] = useState<number | undefined>(undefined)
   const [selectedEventId, setSelectedEventId] = useState<number | undefined>(undefined)
@@ -41,7 +42,7 @@ export function FormsPage() {
   const [deletingForm, setDeletingForm] = useState<Form | null>(null)
   const [viewingForm, setViewingForm] = useState<Form | null>(null)
 
-  const { showToast } = useToastNotifications()
+  const toast = useToastNotifications()
 
   // Load reference data on mount
   useEffect(() => {
@@ -56,12 +57,12 @@ export function FormsPage() {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load reference data'
         setError(errorMessage)
-        showToast.error(errorMessage, 'Failed to load form statuses')
+        toast.error(errorMessage, 'Failed to load form statuses')
       }
     }
 
     loadReferenceData()
-  }, [showToast])
+  }, [toast])
 
   // Load forms
   const loadForms = useCallback(async () => {
@@ -81,12 +82,12 @@ export function FormsPage() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load forms'
       setError(errorMessage)
-      showToast.error(errorMessage, 'Failed to load forms')
+      toast.error(errorMessage, 'Failed to load forms')
     } finally {
       setIsLoadingForms(false)
       setIsLoading(false)
     }
-  }, [page, searchQuery, selectedStatusId, selectedEventId, showToast])
+  }, [page, searchQuery, selectedStatusId, selectedEventId, toast])
 
   // Load forms when filters or page changes
   useEffect(() => {
@@ -96,7 +97,7 @@ export function FormsPage() {
   // Handle create form
   const handleCreateSuccess = () => {
     setShowCreateModal(false)
-    showToast.success('The form has been created successfully', 'Form created')
+    toast.success('The form has been created successfully', 'Form created')
     loadForms()
   }
 
@@ -107,7 +108,7 @@ export function FormsPage() {
 
   const handleEditSuccess = () => {
     setEditingForm(null)
-    showToast.success('The form has been updated successfully', 'Form updated')
+    toast.success('The form has been updated successfully', 'Form updated')
     loadForms()
   }
 
@@ -118,7 +119,7 @@ export function FormsPage() {
 
   const handleDeleteSuccess = () => {
     setDeletingForm(null)
-    showToast.success('The form has been deleted successfully', 'Form deleted')
+    toast.success('The form has been deleted successfully', 'Form deleted')
     loadForms()
   }
 
@@ -226,7 +227,7 @@ export function FormsPage() {
         {/* Loading State */}
         {isLoading && (
           <div className="flex justify-center items-center py-12">
-            <LoadingSpinner size="large" />
+            <LoadingSpinner size="lg" />
           </div>
         )}
 
@@ -312,6 +313,7 @@ export function FormsPage() {
       {showCreateModal && (
         <CreateFormModal
           isOpen={showCreateModal}
+          eventId={selectedEventId ?? null}
           onClose={() => setShowCreateModal(false)}
           onSuccess={handleCreateSuccess}
         />

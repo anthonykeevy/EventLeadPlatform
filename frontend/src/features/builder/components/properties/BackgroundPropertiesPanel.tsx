@@ -1,15 +1,18 @@
 /**
- * BackgroundPropertiesPanel.tsx - Story 3.5
+ * BackgroundPropertiesPanel.tsx - Story 3.5, 5.1 Task T04
  * Panel for editing canvas/page background properties
+ * Updated to use asset upload API instead of Data URLs
  */
 
-import React, { useState } from 'react';
-import { ChevronDown, Palette, Image as ImageIcon, Layers, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, Palette, Image as ImageIcon, Layers, X, FolderOpen, Loader2 } from 'lucide-react';
 import { PropertyColorPicker } from './inputs/PropertyColorPicker';
 import { PropertyNumberInput } from './inputs/PropertyNumberInput';
 import { PropertyTextInput } from './inputs/PropertyTextInput';
 import { PropertySelect } from './inputs/PropertySelect';
-import { FormPage } from '../../types/builder.types';
+import { AssetLibrary } from './AssetLibrary';
+import { FormPage, BackgroundAssetMetadata, isHexColor } from '../../types/builder.types';
+import { assetsApi } from '../../api/assetsApi';
 
 interface BackgroundPropertiesPanelProps {
     pageBackground?: FormPage['background'];
@@ -40,27 +43,115 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     onBackgroundChange,
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
+    const [showAssetLibrary, setShowAssetLibrary] = useState(false);
+    const [recentAssets, setRecentAssets] = useState<BackgroundAssetMetadata[]>([]);
+    const [libraryLoading, setLibraryLoading] = useState(false);
+    const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null);
+
+    const openAssetLibrary = async () => {
+        setLibraryLoading(true);
+        try {
+            const assets = await assetsApi.listBackgrounds();
+            setRecentAssets(assets);
+            setShowAssetLibrary(true);
+        } catch (err) {
+            console.error('Failed to load background asset library:', err);
+            setRecentAssets([]);
+            setShowAssetLibrary(true);
+        } finally {
+            setLibraryLoading(false);
+        }
+    };
 
     const currentType = pageBackground?.type || 'color';
     const currentValue = pageBackground?.value || '#FFFFFF';
+    const currentAsset = pageBackground?.asset;
+
+    // Fetch authenticated blob URL for asset preview so <img> can display it
+    useEffect(() => {
+        const assetId = currentAsset?.assetId;
+        if (assetId == null) {
+            setPreviewBlobUrl(null);
+            return;
+        }
+        let revoked = false;
+        const blobUrlRef: { current: string | null } = { current: null };
+        assetsApi
+            .fetchAssetContentBlobUrl(assetId)
+            .then((url) => {
+                if (!revoked) {
+                    blobUrlRef.current = url;
+                    setPreviewBlobUrl(url);
+                } else {
+                    URL.revokeObjectURL(url);
+                }
+            })
+            .catch(() => setPreviewBlobUrl(null));
+        return () => {
+            revoked = true;
+            if (blobUrlRef.current) {
+                URL.revokeObjectURL(blobUrlRef.current);
+                blobUrlRef.current = null;
+            }
+            setPreviewBlobUrl(null);
+        };
+    }, [currentAsset?.assetId]);
 
     const handleTypeChange = (type: 'color' | 'image') => {
-        onBackgroundChange({ 
-            type, 
-            value: type === 'color' ? '#FFFFFF' : '',
+        if (type === 'color') {
+            // Keep image settings (asset, imageSize, imagePosition); only switch type and set colour from stored colorValue or current value if hex
+            const colour =
+                pageBackground?.colorValue ??
+                (pageBackground?.value && isHexColor(pageBackground.value) ? pageBackground.value : null) ??
+                '#FFFFFF';
+            onBackgroundChange({ type, value: colour });
+        } else {
+            // Keep colour and image settings; only switch type (do not clear value/asset/imageSize/imagePosition)
+            onBackgroundChange({ type });
+        }
+    };
+
+    const handleAssetSelect = (asset: BackgroundAssetMetadata) => {
+        // Store asset reference and resolve URL for preview
+        assetsApi.resolveAssetUrl(asset.assetId).then((url) => {
+            onBackgroundChange({
+                type: 'image',
+                asset: asset,
+                value: url, // Store resolved URL for preview (but asset is the source of truth)
+            });
+            setShowAssetLibrary(false);
+            
+            // Add to recent assets
+            setRecentAssets((prev) => {
+                if (prev.some(a => a.assetId === asset.assetId)) {
+                    return prev;
+                }
+                return [asset, ...prev];
+            });
+        }).catch((err) => {
+            console.error('Failed to resolve asset URL:', err);
+            // Still store the asset reference even if URL resolution fails
+            onBackgroundChange({
+                type: 'image',
+                asset: asset,
+                value: assetsApi.getAssetContentUrl(asset.assetId), // Fallback to content URL
+            });
+            setShowAssetLibrary(false);
         });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                onBackgroundChange({ type: 'image', value: reader.result as string });
-            };
-            reader.readAsDataURL(file);
-        }
+    const handleRemoveAsset = () => {
+        onBackgroundChange({
+            type: 'image',
+            value: '',
+            asset: undefined,
+        });
     };
+
+    // Preview URL: use fetched blob URL for asset (auth-aware), or external URL when no asset
+    const previewUrl = currentAsset
+        ? previewBlobUrl
+        : (currentValue && !currentValue.startsWith('data:') ? currentValue : null);
 
     return (
         <>
@@ -97,27 +188,32 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                 {isExpanded && (
                     <div className="px-4 pb-4 space-y-4">
                         {/* Type Selector */}
-                        <div className="flex space-x-2">
-                            <button 
-                                onClick={() => handleTypeChange('color')}
-                                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                    currentType === 'color' 
-                                        ? 'bg-indigo-600 text-white border-indigo-600' 
-                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'
-                                }`}
-                            >
-                                <Palette size={14} /> Color
-                            </button>
-                            <button 
-                                onClick={() => handleTypeChange('image')}
-                                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                    currentType === 'image' 
-                                        ? 'bg-indigo-600 text-white border-indigo-600' 
-                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'
-                                }`}
-                            >
-                                <ImageIcon size={14} /> Image
-                            </button>
+                        <div className="space-y-2">
+                            <div className="flex space-x-2">
+                                <button 
+                                    onClick={() => handleTypeChange('color')}
+                                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                        currentType === 'color' 
+                                            ? 'bg-indigo-600 text-white border-indigo-600' 
+                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'
+                                    }`}
+                                >
+                                    <Palette size={14} /> Color
+                                </button>
+                                <button 
+                                    onClick={() => handleTypeChange('image')}
+                                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                        currentType === 'image' 
+                                            ? 'bg-indigo-600 text-white border-indigo-600' 
+                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'
+                                    }`}
+                                >
+                                    <ImageIcon size={14} /> Image
+                                </button>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Choose <strong>Image</strong> to upload or select a background from the library.
+                            </p>
                         </div>
 
                         {/* Color Background Options */}
@@ -125,7 +221,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                             <PropertyColorPicker
                                 label="Background Color"
                                 value={currentValue}
-                                onChange={(color) => onBackgroundChange({ value: color })}
+                                onChange={(color) => onBackgroundChange({ value: color, colorValue: color })}
                             />
                         )}
 
@@ -133,47 +229,84 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                         {currentType === 'image' && (
                             <div className="space-y-4">
                                 <div>
-                                    <label 
-                                        htmlFor="background-image-upload" 
-                                        className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block"
-                                    >
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                                         Background Image
                                     </label>
-                                    <input 
-                                        id="background-image-upload" 
-                                        type="file" 
-                                        accept="image/*" 
-                                        onChange={handleFileChange} 
-                                        className="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 dark:file:bg-gray-700 dark:file:text-gray-200"
-                                    />
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        Upload an image or enter a URL below.
+                                    
+                                    {/* Asset Library Button */}
+                                    <button
+                                        onClick={openAssetLibrary}
+                                        disabled={libraryLoading}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {libraryLoading ? (
+                                            <Loader2 size={16} className="animate-spin" />
+                                        ) : (
+                                            <FolderOpen size={16} />
+                                        )}
+                                        {libraryLoading ? 'Loading library...' : (currentAsset ? 'Select or add image' : 'Select from Library')}
+                                    </button>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                                        Opens the library to choose an image or upload more.
                                     </p>
-                                </div>
 
-                                <PropertyTextInput
-                                    label="Image URL"
-                                    value={currentValue.startsWith('data:') ? '' : currentValue}
-                                    onChange={(value) => onBackgroundChange({ value })}
-                                    placeholder="https://example.com/image.jpg"
-                                />
+                                    {/* Preview */}
+                                    {(currentAsset || previewUrl) && (
+                                        <div className="mt-3 relative rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                                            {previewUrl ? (
+                                            <img 
+                                                src={previewUrl} 
+                                                alt={currentAsset?.displayName || currentAsset?.originalFilename || 'Background preview'} 
+                                                className="w-full h-32 object-cover"
+                                            />
+                                            ) : (
+                                            <div className="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                                                <Loader2 className="animate-spin text-gray-400" size={24} />
+                                            </div>
+                                            )}
+                                            <button
+                                                onClick={handleRemoveAsset}
+                                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                title="Remove image"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                            {currentAsset && (
+                                                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-2">
+                                                    <div className="font-medium truncate">
+                                                        {currentAsset.displayName || currentAsset.originalFilename}
+                                                    </div>
+                                                    {currentAsset.widthPx && currentAsset.heightPx && (
+                                                        <div className="text-xs opacity-75">
+                                                            {currentAsset.widthPx} × {currentAsset.heightPx}px
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
 
-                                {currentValue && currentValue.startsWith('data:') && (
-                                    <div className="relative rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
-                                        <img 
-                                            src={currentValue} 
-                                            alt="Preview" 
-                                            className="w-full h-24 object-cover"
+                                    {/* Legacy URL Input (for external URLs) */}
+                                    <div className="mt-3">
+                                        <PropertyTextInput
+                                            label="Or enter image URL"
+                                            value={currentAsset ? '' : (currentValue && !currentValue.startsWith('data:') ? currentValue : '')}
+                                            onChange={(value) => {
+                                                // Only allow non-Data URLs
+                                                if (!value.startsWith('data:')) {
+                                                    onBackgroundChange({ 
+                                                        value,
+                                                        asset: undefined, // Clear asset when using URL
+                                                    });
+                                                }
+                                            }}
+                                            placeholder="https://example.com/image.jpg"
                                         />
-                                        <button
-                                            onClick={() => onBackgroundChange({ value: '' })}
-                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600"
-                                            title="Remove image"
-                                        >
-                                            <X size={14} />
-                                        </button>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            External URLs are supported, but uploading assets is recommended.
+                                        </p>
                                     </div>
-                                )}
+                                </div>
 
                                 <PropertySelect
                                     label="Image Size"
@@ -229,6 +362,14 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                 </p>
             </div>
             </div>
+
+            {/* Asset Library Modal */}
+            <AssetLibrary
+                isOpen={showAssetLibrary}
+                onClose={() => setShowAssetLibrary(false)}
+                onSelect={handleAssetSelect}
+                recentAssets={recentAssets}
+            />
         </>
     );
 };

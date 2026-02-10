@@ -7,6 +7,7 @@ import { Monitor, Tablet, Smartphone, Grid as GridIcon, Image as ImageIcon, Sett
 import { useBuilderStore } from '../stores/useBuilderStore';
 import { SortableComponent } from './SortableComponent';
 import { DEVICE_DIMENSIONS } from '../types/builder.types';
+import { assetsApi } from '../api/assetsApi';
 
 interface FormBuilderCanvasProps {
     // No props needed if we use forwardRef correctly
@@ -28,8 +29,43 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
     } = useBuilderStore();
     const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
-    const activePage = formDefinition?.pages.find(p => p.id === activePageId);
+    const authoredPages = formDefinition?.desktopPages?.length
+        ? formDefinition.desktopPages
+        : formDefinition?.pages ?? [];
+    const activePage = authoredPages.find(p => p.id === activePageId);
     const components = activePage?.components || [];
+
+    const bg = activePage?.background;
+    const bgAssetId = bg?.type === 'image' && bg?.asset ? bg.asset.assetId : null;
+    const [canvasBgBlobUrl, setCanvasBgBlobUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (bgAssetId == null) {
+            setCanvasBgBlobUrl(null);
+            return;
+        }
+        let revoked = false;
+        const ref = { current: null as string | null };
+        assetsApi
+            .fetchAssetContentBlobUrl(bgAssetId)
+            .then((url) => {
+                if (!revoked) {
+                    ref.current = url;
+                    setCanvasBgBlobUrl(url);
+                } else {
+                    URL.revokeObjectURL(url);
+                }
+            })
+            .catch(() => setCanvasBgBlobUrl(null));
+        return () => {
+            revoked = true;
+            if (ref.current) {
+                URL.revokeObjectURL(ref.current);
+                ref.current = null;
+            }
+            setCanvasBgBlobUrl(null);
+        };
+    }, [bgAssetId]);
     
     const { setNodeRef: setDndRef, isOver } = useDroppable({
         id: 'canvas-stage',
@@ -218,12 +254,29 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                         {activePage?.background ? (
                             activePage.background.type === 'image' ? (
-                                <img 
-                                    src={activePage.background.value} 
-                                    className="w-full h-full object-cover" 
-                                    style={{ opacity: activePage.background.opacity ?? 1 }}
-                                    alt="Background"
-                                />
+                                (() => {
+                                    const imageUrl = bgAssetId && canvasBgBlobUrl
+                                        ? canvasBgBlobUrl
+                                        : (activePage.background.value && !activePage.background.value.startsWith('data:')
+                                            ? activePage.background.value
+                                            : null);
+                                    const size = activePage.background.imageSize || 'cover';
+                                    const position = activePage.background.imagePosition || 'center';
+                                    return imageUrl ? (
+                                        <img 
+                                            src={imageUrl} 
+                                            className="w-full h-full" 
+                                            style={{ 
+                                                opacity: activePage.background.opacity ?? 1,
+                                                objectFit: size,
+                                                objectPosition: position,
+                                            }}
+                                            alt="Background"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-100" />
+                                    );
+                                })()
                             ) : (
                                 <div 
                                     className="w-full h-full" 

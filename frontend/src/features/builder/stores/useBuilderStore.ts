@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, StyleOverrides, LogicRule, FormPage } from '../types/builder.types';
+import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, StyleOverrides, LogicRule, FormPage, BackgroundDefinition } from '../types/builder.types';
 import { hasStyleOverrides, getOverriddenProperties } from '../utils/styleUtils';
 import type { RuntimeRuleWarning } from '../../logic-engine/types';
 import { createDraftVersion, formatFormVersionError, listFormVersions, updateDraftVersion } from '../api/formVersionsApi';
@@ -217,9 +217,31 @@ function normalizeDefinitionForSave(def: FormDefinition): FormDefinition {
         });
     };
 
+    // Normalize background definitions: strip Data URLs (Story 5.1 Task T04)
+    const normalizeBackground = (background?: BackgroundDefinition): BackgroundDefinition | undefined => {
+        if (!background) return undefined;
+        
+        // If background value is a Data URL, clear it (asset reference should be used instead)
+        if (background.value && background.value.startsWith('data:')) {
+            // If we have an asset reference, keep it and clear the Data URL value
+            if (background.asset) {
+                return {
+                    ...background,
+                    value: '', // Clear Data URL, asset reference is the source of truth
+                };
+            } else {
+                // No asset reference and Data URL - remove background entirely
+                return undefined;
+            }
+        }
+        
+        return background;
+    };
+
     const normalizedPages = pages.map((page) => ({
         ...page,
         components: normalizeComponents(page.components),
+        background: normalizeBackground(page.background),
     }));
 
     return writeAuthoredPages(clone, normalizedPages);

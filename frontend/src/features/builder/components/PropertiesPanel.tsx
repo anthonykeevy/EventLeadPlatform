@@ -57,8 +57,11 @@ export const PropertiesPanel: React.FC = () => {
     const globalStyles = formDefinition?.globalStyles || DEFAULT_GLOBAL_STYLES;
     const [bulkStyleOverrides, setBulkStyleOverrides] = React.useState<StyleOverrides>({});
     
-    // Get the current page for background settings
-    const currentPage = formDefinition?.pages.find(p => p.id === activePageId);
+    // Use same authored pages as canvas (desktopPages when present, else pages)
+    const authoredPages = formDefinition?.desktopPages?.length
+        ? formDefinition.desktopPages
+        : formDefinition?.pages ?? [];
+    const currentPage = authoredPages.find(p => p.id === activePageId);
     const pageBackground = currentPage?.background;
 
     // Right panel tabs (Inspector/Logic). Logic is form-level and works without selection.
@@ -119,17 +122,17 @@ export const PropertiesPanel: React.FC = () => {
         
         useBuilderStore.setState((state) => {
             if (!state.formDefinition) return state;
-            
-            const newPages = state.formDefinition.pages.map(p => 
-                p.id === activePageId 
-                    ? { ...p, background: newBackground }
-                    : p
+            const def = state.formDefinition;
+            const pages = def.desktopPages?.length ? def.desktopPages : (def.pages ?? []);
+            const newPages = pages.map(p =>
+                p.id === activePageId ? { ...p, background: newBackground } : p
             );
-            
             return {
                 formDefinition: {
-                    ...state.formDefinition,
-                    pages: newPages,
+                    ...def,
+                    ...(def.desktopPages?.length
+                        ? { desktopPages: newPages }
+                        : { pages: newPages }),
                 },
             };
         });

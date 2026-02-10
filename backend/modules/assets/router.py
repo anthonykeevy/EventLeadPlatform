@@ -12,13 +12,32 @@ from common.logger import get_logger
 from modules.auth.dependencies import get_current_user
 from modules.auth.models import CurrentUser
 
-from .asset_schemas import BackgroundAssetUploadResponse, AssetResolveResponse
+from .asset_schemas import (
+    BackgroundAssetListResponse,
+    BackgroundAssetUploadResponse,
+    AssetResolveResponse,
+)
 from .service import AssetService
 
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/assets", tags=["assets"])
+
+
+@router.get(
+    "/backgrounds",
+    response_model=BackgroundAssetListResponse,
+    summary="List company background assets",
+    description="List all background image assets for the current user's company (shared library)",
+)
+def list_background_assets(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> BackgroundAssetListResponse:
+    service = AssetService(db)
+    assets = service.list_background_assets(current_user=current_user)
+    return BackgroundAssetListResponse(assets=assets)
 
 
 @router.post(

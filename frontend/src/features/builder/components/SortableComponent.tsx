@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { FormComponent } from '../types/builder.types';

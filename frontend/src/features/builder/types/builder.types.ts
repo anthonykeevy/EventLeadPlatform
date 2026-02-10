@@ -642,13 +642,21 @@ export interface FormPage {
     id: string;
     title: string;
     components: FormComponent[];
-    // Canvas Refactor: Background Settings per page
+    // Canvas Refactor: Background Settings per page (T04: asset ref + image/overlay options)
     background?: {
         type: 'color' | 'image';
         value: string; // Hex code or URL
         opacity?: number;
         scale?: number;
         position?: { x: number, y: number };
+        /** Stored when type is color so it restores when switching back from image */
+        colorValue?: string;
+        /** Asset reference (T04); when set, value may be content URL or legacy data URL */
+        asset?: { assetId: number };
+        imageSize?: 'auto' | 'contain' | 'cover' | 'tile';
+        imagePosition?: string;
+        overlayColor?: string;
+        overlayOpacity?: number;
     };
 }
 

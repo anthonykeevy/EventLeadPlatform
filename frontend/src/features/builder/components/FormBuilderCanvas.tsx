@@ -8,6 +8,7 @@ import { useBuilderStore } from '../stores/useBuilderStore';
 import { SortableComponent } from './SortableComponent';
 import { DEVICE_DIMENSIONS } from '../types/builder.types';
 import { useBackgroundImageUrl } from '../hooks/useBackgroundImageUrl';
+import { isBackgroundFullyOffCanvas } from '../utils/backgroundPlacementUtils';
 
 interface FormBuilderCanvasProps {
     // No props needed if we use forwardRef correctly
@@ -221,36 +222,99 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
                     `}
                     onClick={handleCanvasClick} // Story 3.5: Deselect on stage click
                 >
-                    {/* LAYER 0: Background */}
+                    {/* LAYER 0: Background - T06: placement/crop when present, off-canvas not rendered */}
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                         {activePage?.background ? (
                             activePage.background.type === 'image' ? (
                                 (() => {
                                     const imageUrl = canvasBgImageUrl;
+                                    const placement = activePage.background.placement;
+                                    const canvasW = targetDim.width;
+                                    const canvasH = targetDim.height;
+                                    const fullyOffCanvas = placement && isBackgroundFullyOffCanvas(placement, canvasW, canvasH);
+                                    if (fullyOffCanvas) {
+                                        return null;
+                                    }
                                     const size = activePage.background.imageSize || 'cover';
                                     const position = activePage.background.imagePosition || 'center';
                                     const objectFit = (size === 'tile' || size === 'auto') ? 'cover' : size;
-                                    return imageUrl ? (
-                                        <img 
-                                            src={imageUrl} 
-                                            className="w-full h-full" 
-                                            style={{ 
-                                                opacity: activePage.background.opacity ?? 1,
+                                    const opacity = activePage.background.opacity ?? 1;
+                                    if (!imageUrl) {
+                                        return canvasBgLoading ? (
+                                            <div className="w-full h-full bg-gray-100 animate-pulse" />
+                                        ) : (
+                                            <div className="w-full h-full bg-gray-100" />
+                                        );
+                                    }
+                                    if (placement) {
+                                        const { position: pos, size: sz, crop } = placement;
+                                        const assetW = activePage.background.asset?.widthPx ?? 1;
+                                        const assetH = activePage.background.asset?.heightPx ?? 1;
+                                        if (crop && assetW > 0 && assetH > 0) {
+                                            const sx = sz.width / crop.width;
+                                            const sy = sz.height / crop.height;
+                                            return (
+                                                <div
+                                                    className="absolute overflow-hidden"
+                                                    style={{
+                                                        left: pos.x,
+                                                        top: pos.y,
+                                                        width: sz.width,
+                                                        height: sz.height,
+                                                        opacity,
+                                                    }}
+                                                >
+                                                    <div
+                                                        className="w-full h-full"
+                                                        style={{
+                                                            backgroundImage: `url(${imageUrl})`,
+                                                            backgroundSize: `${assetW * sx}px ${assetH * sy}px`,
+                                                            backgroundPosition: `${-crop.x * sx}px ${-crop.y * sy}px`,
+                                                        }}
+                                                    />
+                                                </div>
+                                            );
+                                        }
+                                        return (
+                                            <div
+                                                className="absolute overflow-hidden"
+                                                style={{
+                                                    left: pos.x,
+                                                    top: pos.y,
+                                                    width: sz.width,
+                                                    height: sz.height,
+                                                    opacity,
+                                                }}
+                                            >
+                                                <img
+                                                    src={imageUrl}
+                                                    className="w-full h-full"
+                                                    style={{
+                                                        objectFit: objectFit as React.CSSProperties['objectFit'],
+                                                        objectPosition: position,
+                                                    }}
+                                                    alt="Background"
+                                                />
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <img
+                                            src={imageUrl}
+                                            className="w-full h-full"
+                                            style={{
+                                                opacity,
                                                 objectFit: objectFit as React.CSSProperties['objectFit'],
                                                 objectPosition: position,
                                             }}
                                             alt="Background"
                                         />
-                                    ) : canvasBgLoading ? (
-                                        <div className="w-full h-full bg-gray-100 animate-pulse" />
-                                    ) : (
-                                        <div className="w-full h-full bg-gray-100" />
                                     );
                                 })()
                             ) : (
-                                <div 
-                                    className="w-full h-full" 
-                                    style={{ backgroundColor: activePage.background.value }} 
+                                <div
+                                    className="w-full h-full"
+                                    style={{ backgroundColor: activePage.background.value }}
                                 />
                             )
                         ) : (

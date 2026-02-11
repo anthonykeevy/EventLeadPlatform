@@ -1,7 +1,7 @@
 /**
- * BackgroundPropertiesPanel.tsx - Story 3.5, 5.1 Task T04
+ * BackgroundPropertiesPanel.tsx - Story 3.5, 5.1 Task T04, T06
  * Panel for editing canvas/page background properties
- * Updated to use asset upload API instead of Data URLs
+ * T06: placement metadata, cropping, off-canvas auto-remove
  */
 
 import React, { useState, useEffect } from 'react';
@@ -13,10 +13,13 @@ import { PropertySelect } from './inputs/PropertySelect';
 import { AssetLibrary } from './AssetLibrary';
 import { FormPage, BackgroundAssetMetadata, isHexColor } from '../../types/builder.types';
 import { assetsApi } from '../../api/assetsApi';
+import { createDefaultPlacement, isBackgroundFullyOffCanvas } from '../../utils/backgroundPlacementUtils';
 
 interface BackgroundPropertiesPanelProps {
     pageBackground?: FormPage['background'];
     onBackgroundChange: (updates: Partial<NonNullable<FormPage['background']>>) => void;
+    canvasWidth?: number;
+    canvasHeight?: number;
 }
 
 const IMAGE_SIZE_OPTIONS = [
@@ -41,6 +44,8 @@ const IMAGE_POSITION_OPTIONS = [
 export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps> = ({
     pageBackground,
     onBackgroundChange,
+    canvasWidth = 1920,
+    canvasHeight = 980,
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [showAssetLibrary, setShowAssetLibrary] = useState(false);
@@ -112,12 +117,14 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     };
 
     const handleAssetSelect = (asset: BackgroundAssetMetadata) => {
+        const placement = createDefaultPlacement(canvasWidth, canvasHeight);
         // Store asset reference and resolve URL for preview
         assetsApi.resolveAssetUrl(asset.assetId).then((url) => {
             onBackgroundChange({
                 type: 'image',
                 asset: asset,
                 value: url, // Store resolved URL for preview (but asset is the source of truth)
+                placement,
             });
             setShowAssetLibrary(false);
             
@@ -135,6 +142,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                 type: 'image',
                 asset: asset,
                 value: assetsApi.getAssetContentUrl(asset.assetId), // Fallback to content URL
+                placement,
             });
             setShowAssetLibrary(false);
         });
@@ -306,6 +314,84 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                                             External URLs are supported, but uploading assets is recommended.
                                         </p>
                                     </div>
+                                </div>
+
+                                {/* T06: Placement metadata (position, size); supports negative offsets */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">
+                                        Placement (canvas coordinates)
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <PropertyNumberInput
+                                            label="X"
+                                            value={pageBackground?.placement?.position?.x ?? 0}
+                                            min={-9999}
+                                            max={9999}
+                                            onChange={(v) => {
+                                                const p = pageBackground?.placement ?? createDefaultPlacement(canvasWidth, canvasHeight);
+                                                const next = {
+                                                    ...p,
+                                                    position: { ...p.position, x: v },
+                                                };
+                                                onBackgroundChange({ placement: next });
+                                                if (isBackgroundFullyOffCanvas(next, canvasWidth, canvasHeight)) {
+                                                    handleRemoveAsset();
+                                                }
+                                            }}
+                                        />
+                                        <PropertyNumberInput
+                                            label="Y"
+                                            value={pageBackground?.placement?.position?.y ?? 0}
+                                            min={-9999}
+                                            max={9999}
+                                            onChange={(v) => {
+                                                const p = pageBackground?.placement ?? createDefaultPlacement(canvasWidth, canvasHeight);
+                                                const next = {
+                                                    ...p,
+                                                    position: { ...p.position, y: v },
+                                                };
+                                                onBackgroundChange({ placement: next });
+                                                if (isBackgroundFullyOffCanvas(next, canvasWidth, canvasHeight)) {
+                                                    handleRemoveAsset();
+                                                }
+                                            }}
+                                        />
+                                        <PropertyNumberInput
+                                            label="Width"
+                                            value={pageBackground?.placement?.size?.width ?? canvasWidth}
+                                            min={1}
+                                            onChange={(v) => {
+                                                const p = pageBackground?.placement ?? createDefaultPlacement(canvasWidth, canvasHeight);
+                                                const next = {
+                                                    ...p,
+                                                    size: { ...p.size, width: Math.max(1, v) },
+                                                };
+                                                onBackgroundChange({ placement: next });
+                                                if (isBackgroundFullyOffCanvas(next, canvasWidth, canvasHeight)) {
+                                                    handleRemoveAsset();
+                                                }
+                                            }}
+                                        />
+                                        <PropertyNumberInput
+                                            label="Height"
+                                            value={pageBackground?.placement?.size?.height ?? canvasHeight}
+                                            min={1}
+                                            onChange={(v) => {
+                                                const p = pageBackground?.placement ?? createDefaultPlacement(canvasWidth, canvasHeight);
+                                                const next = {
+                                                    ...p,
+                                                    size: { ...p.size, height: Math.max(1, v) },
+                                                };
+                                                onBackgroundChange({ placement: next });
+                                                if (isBackgroundFullyOffCanvas(next, canvasWidth, canvasHeight)) {
+                                                    handleRemoveAsset();
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Move fully off-canvas to remove from page (asset stays in library).
+                                    </p>
                                 </div>
 
                                 <PropertySelect

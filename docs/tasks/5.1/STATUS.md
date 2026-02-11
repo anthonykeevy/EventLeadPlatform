@@ -1,7 +1,7 @@
 # Story 5.1 Status
 
-**Last Updated:** 2026-02-10  
-**Current Task:** T05 (Shared Resolver Parity)  
+**Last Updated:** 2026-02-11  
+**Current Task:** T06 (Placement + Intersection + Cropping)  
 
 ---
 
@@ -13,7 +13,7 @@
 | T02 | ✅ HumanDone | 2026-02-09 |
 | T03 | ✅ HumanDone | 2026-02-09 |
 | T04 | ✅ HumanDone | 2026-02-10 |
-| T05 | ⏳ Ready | - |
+| T05 | ✅ HumanDone | 2026-02-11 |
 | T06 | ⏸️ Pending | - |
 | T07 | ⏸️ Pending | - |
 | T08 | ⏸️ Pending | - |

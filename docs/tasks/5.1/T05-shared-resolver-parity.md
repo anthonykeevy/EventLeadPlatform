@@ -2,7 +2,7 @@
 
 **Story:** 5.1 - Background Asset Management  
 **Task ID:** T05  
-**Status:** 🔄 In Progress  
+**Status:** ✅ Complete (2026-02-11)
 **Dependencies:** T03, T04  
 **Estimated Time:** 2-3 hours  
 
@@ -16,9 +16,9 @@
 
 ## ✅ Scope (In)
 
-- [ ] Implement shared resolver module for asset references
-- [ ] Use the resolver in builder preview and public renderer
-- [ ] Ensure runtime URL generation matches backend contract
+- [x] Implement shared resolver module for asset references
+- [x] Use the resolver in builder preview and public renderer
+- [x] Ensure runtime URL generation matches backend contract
 
 ---
 

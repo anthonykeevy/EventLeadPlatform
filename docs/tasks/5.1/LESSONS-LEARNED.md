@@ -54,3 +54,16 @@ This file is updated after each task retro.
 - UAT results: `T04-frontend-builder-asset-upload-and-library.uat-results.md`
 - Retro: `T04-frontend-builder-asset-upload-and-library.retro.md`
 
+---
+
+### 2026-02-11 — T05 (Shared Resolver Parity — Builder + Renderer)
+
+- **Dev Lessons:** Run `npm run build` after first implementation pass to catch dep drift (libphonenumber), type mismatches (objectFit), and branch-divergence issues (lib/auth). When adding JSX wrappers, verify closing tag count matches.
+- **Testing Lessons:** Add unit test for `resolveAssetContentUrl` output format. Consider E2E for "upload asset → set background → verify builder + renderer show same image."
+- **Process Lessons:** For resolver-parity tasks, include explicit contract verification in AC (e.g. URL format matches backend). UAT results should require explicit Pass/Fail per regression item. Orphan asset 404s (metadata exists, files missing) are data hygiene, not resolver defects.
+
+**Links (T05):**
+- Completion: `T05-shared-resolver-parity.completion.md`
+- UAT results: `T05-shared-resolver-parity.uat-results.md`
+- Retro: `T05-shared-resolver-parity.retro.md`
+

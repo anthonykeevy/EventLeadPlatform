@@ -124,7 +124,18 @@ verification_improvements:
         Load preview URL and confirm iframe/public link includes `kiosk=1`
     frequency: 1
 
-  # Improvement 4: Tooling Baseline Check
+  # Improvement 5: Build After First Pass
+  build_after_first_pass:
+    name: "Run Build After First Implementation Pass"
+    description: "Run npm run build (and dep scan) right after initial implementation, not only at final verification"
+    applies_to: "ralf-dev"
+    benefits:
+      - "Catches dep drift (libphonenumber), type mismatches (objectFit)"
+      - "Catches branch divergence (missing lib/auth)"
+      - "Catches JSX structure errors early"
+    frequency: 1
+
+  # Improvement 6: Tooling Baseline Check
   tooling_baseline_check:
     name: "Tooling Baseline Check Before Tests"
     description: "Verify ESLint config and dependency alignment before running required tests"

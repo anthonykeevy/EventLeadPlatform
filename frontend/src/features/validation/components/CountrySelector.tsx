@@ -8,7 +8,7 @@
  * - Used with PhoneInput for international phone formatting
  */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useCountries } from '../hooks/useCountries'
 import type { Country } from '../hooks/useCountries'
 

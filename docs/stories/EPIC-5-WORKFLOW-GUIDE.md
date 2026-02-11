@@ -29,16 +29,13 @@ This workflow follows the platform-wide Git rules in:
 
 ## 🧭 Workflow Evolution Goal (Epic 5)
 
+Epic 3’s workflow guide (`docs/stories/EPIC-3-WORKFLOW-GUIDE_UPDATED.md`) is the **final, human-heavy reference** for Epic 3 and should remain unchanged.
+
 Epic 5’s goal is to **remove the human from the loop where not needed** by shifting repeatable mechanics to agents (Git/PR hygiene, status consistency, routine checks), while keeping humans for true blockers only.
 
-**After each Task** in Epic 5, we will:
-- Run a short **workflow review** (what worked / what slowed us down).
-- Record the incremental change in: `docs/stories/EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md`
-- If the workflow itself needs an update, apply it as a **Story-branch-only** change (do not include workflow edits inside Task PRs).
-
-**Scope + sharing policy (important):**
-- This workflow is **Epic 5 specific** and **not shared** outside Epic 5.
-- It will change often; avoid copying it into other epics to prevent drift and confusion.
+**After each Story** in Epic 5, we will:
+- Run a short “workflow retro” and update **this file** (streamline prompts/steps).
+- Record the change in the “Workflow Change Log” at the bottom.
 
 ---
 
@@ -46,8 +43,7 @@ Epic 5’s goal is to **remove the human from the loop where not needed** by shi
 
 ### 🧑 Human (only where required)
 - Open the correct worktree folder in Cursor (agents operate in the folder you opened).
-- Execute **manual UAT only when required** (UI/flow validation, high‑risk changes, or when explicitly requested).
-- Execute **final Story UAT** before merging the Story PR → `master`.
+- Execute **manual UAT** and report results.
 - Execute **DB migrations** (agents prepare; humans run).
 - Provide product decisions and approvals (scope, UX trade-offs, “good enough” thresholds).
 - Enter any secrets/credentials (never in chat output).
@@ -57,25 +53,8 @@ Epic 5’s goal is to **remove the human from the loop where not needed** by shi
 - Keep task/status docs consistent (task header + `TASK-PLAN.md` + `STATUS.md`).
 - Commit + push at least once per session; keep PRs updating reliably.
 - Run **as many automated checks as possible** and capture evidence (commands + pass/fail + gaps).
-- If automated verification sufficiently covers the task’s acceptance criteria, **record UAT PASS with evidence** (agent-owned) and proceed to retro without blocking on a human checkpoint.
 - Merge Task PRs into Story (integrator step) when UAT is ✅ PASS.
-- Maintain `EPIC-5-WORKFLOW-GUIDE.md` + `EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md` on the **Story branch** (never in Task PRs).
 - Clean up task branches/worktrees (when safe).
-
----
-
-## 🧠 BMAD / Ralf Agent Map (who does what)
-
-| Stage | Agent / Tool | Owner | Output |
-|------|--------------|-------|--------|
-| Create story artifacts | `@sm.mdc` | AI (prompted by human) | `docs/stories/story-<id>.md`, `story-context-<id>.xml`, `STORY-<id>-UAT-TEST-GUIDE.md` |
-| Decompose story into tasks | `@ralf-sm *decompose-story` | AI | `docs/tasks/<story>/TASK-PLAN.md`, `STATUS.md`, `LESSONS-LEARNED.md`, `T01-*.md` + placeholders |
-| Implement a task | `@ralf-dev *run-task` | AI | Code changes + task artifacts (completion/uat/uat-results/retro) |
-| Record human UAT (only when required) | `@ralf-uat *record-uat` | Human executes UAT; AI records | `${TaskBase}.uat-results.md` |
-| Retro | `@ralf-retro *run-retro` | AI | `${TaskBase}.retro.md` + updates to `LESSONS-LEARNED.md` (story branch) |
-| Git automation | `scripts/git/new-story.ps1`, `scripts/git/new-task.ps1`, `gh` | AI | Branch/worktree/PR creation, merges |
-
-**Rule:** Workflow doc updates are committed on the **Story branch** only (not in Task PRs).
 
 ---
 
@@ -88,8 +67,6 @@ The Epic 5 kickoff path is:
 - Phase 1 Story artifacts (SM)
 - Phase 2 Decompose into tasks (Ralf-SM)
 - Phase 3 Execute tasks (Ralf-dev/uat/retro + integrator merges)
-- Phase 4 Story closeout (final Story UAT + merge Story PR → `master`)
-- Phase 5 Epic closeout (after all Epic 5 stories merged)
 
 ---
 
@@ -238,94 +215,22 @@ Output requirements:
 
 ---
 
-## 📌 Phase 2.5: Commit the Story Artifacts (MANDATORY)
+## ✅ Phase 3: Task Execution Cycle
 
-**Goal:** Ensure every task branch contains the story/task specs to prevent drift and duplicate artifacts.
+Use the hardened task cycle (worktrees + PR base checks + UAT + retro + push discipline) from:
+- `docs/stories/EPIC-3-WORKFLOW-GUIDE_UPDATED.md` (Phase 3 section)
 
-After Phase 1 + Phase 2 outputs are created/updated:
-- Commit the updated Story artifacts and decomposed task files on the **Story branch**
-- Push the Story branch
-- Only then create Task branches from that Story branch
+### Epic 5 automation deltas (reduce human steps)
 
----
-
-## ✅ Phase 3: Task Execution Cycle (Epic 5 Full Workflow)
-
-Each task follows this explicit loop. Do not skip steps.
-
-### Step 1: Create task branch + worktree + PR (agent-owned)
-
-```powershell
-scripts/git/new-task.ps1 -StoryBranch "story/epic5-5.1-background-asset-management" -StoryId 5.1 -TaskId T01 -Slug "asset-contracts-and-config-foundations" -CreateWorktree -BootstrapPR -CreatePR -WorktreeRoot "C:\wt\elp"
-```
-
-#### Step 1A: PR bootstrap commit (mandatory)
-
-**Goal:** Ensure a PR can be created immediately (avoids “no commits between base/head”).
-
-- Preferred: let `new-task.ps1 -BootstrapPR` do this automatically.
-- Edit the task spec `docs/tasks/<story>/<TaskBase>.md`
-  - Update **Status** to: `🔄 In Progress (Approved)`
-- Commit + push that single doc change
-
-**Commit cadence (avoid micro-commits):**
-- Target 2–4 commits per task:
-  - PR bootstrap commit (status → In Progress)
-  - Implementation (+ artifacts)
-  - Closeout updates (if needed)
-- 4 commits is acceptable when you isolate artifacts (docs/UAT/retro) to keep reviews clean.
-- Only do extra commits when they materially reduce risk (e.g., large refactors, checkpoints before risky steps).
-
-#### Step 1B: Create the PR (after bootstrap commit)
-
-Option A (preferred): re-run the task script to create the PR (safe to re-run):
-
-```powershell
-scripts/git/new-task.ps1 -StoryBranch "story/epic5-5.1-background-asset-management" -StoryId 5.1 -TaskId T01 -Slug "asset-contracts-and-config-foundations" -CreatePR
-```
-
-Option B: create the PR directly:
-
-```powershell
-gh pr create --base "story/epic5-5.1-background-asset-management" --head "task/5.1/T01-asset-contracts-and-config-foundations" --title "5.1: T01 - asset-contracts-and-config-foundations"
-```
-
-**PR safety check (mandatory):** verify base/head **before** doing any real work.
-
-### Step 2: Implement the task (Ralf-Dev)
-
-Use `@ralf-dev *run-task` with the task spec path. Keep changes scoped to the task spec.
-
-**Do not re-confirm work that is already approved:**
-- The task spec is the approval artifact. Once a task is approved, the dev agent should **not** ask the human to “confirm scope/ACs again”.
-- In the `*run-task` prompt, explicitly state: “Scope + ACs are pre‑approved; proceed end‑to‑end without waiting for interactive confirmations.”
-- If your internal taskflow normally pauses for `y/n` at each step, **assume yes** and continue (do not block on the human repeating approvals).
-
-**Canonical task artifact filenames (to avoid duplicates):**
-- Let `TaskBase = <task spec filename without .md>` (example: `T01-asset-contracts-and-config-foundations`)
-- Store task artifacts under `docs/tasks/<story>/` using:
-  - `${TaskBase}.completion.md`
-  - `${TaskBase}.uat.md` (checklist)
-  - `${TaskBase}.uat-results.md` (evidence + PASS/FAIL)
-  - `${TaskBase}.retro.md`
-- **Important:** Ralf taskflow may auto-generate generic names like `T01.uat.md` / `T01.completion.md`.
-  - Before committing/merging, **rename** them to `${TaskBase}.*` and update any links.
-  - Do **not** commit the generic `T01.*` artifact filenames (they will collide or duplicate later).
-
-### Step 3: Automated verification (required, before UAT decision)
-
-Before deciding whether human UAT is required, the dev agent must run **all relevant automated checks** and record evidence:
-- Commands run (with working directory)
-- Pass/fail summary
-- What could not be run (and why)
-- What the human should re-test manually
-
-**If the baseline is already broken:**
-- If a standard check fails due to **pre-existing baseline issues**, capture evidence (error count + short summary) and explicitly label it as baseline.
-- Then run the most **scoped** verification you can for the touched area (and document what you did).
-- Do not claim the task “broke the build” unless you can show a new regression.
-
-**Prompt snippet (paste into each task’s `@ralf-dev *run-task` message):**
+- Add a **pre-UAT automated verification step**:
+  - Before the human runs UAT, the dev agent must run **all relevant automated checks** it can (based on touched areas) and write evidence.
+  - The human then reviews evidence and decides what to **retest manually** or what the agent couldn’t test.
+  - Evidence must include:
+    - Commands run (and working directory)
+    - Pass/fail summary
+    - What could not be run (and why)
+    - Any follow-up manual checks recommended
+  - **Prompt snippet (paste into each task’s `@ralf-dev *run-task` message):**
 
 ```markdown
 Automated verification (must do before I run manual UAT):
@@ -337,166 +242,58 @@ Automated verification (must do before I run manual UAT):
 - Suggested defaults:
   - Frontend (if touched):
     - `cd frontend`
-    - `npm install` (only if needed)
     - `npm run lint`
     - `npm run build`
   - Backend (if touched):
     - `python -m pytest` (if tests exist/configured)
     - else minimum: `python -m compileall backend`
 ```
+- Prefer **agent-owned** Git actions:
+  - Create branches/worktrees/PRs with `./scripts/git/new-task.ps1 ... -CreateWorktree -CreatePR`
+  - Fix PR base via `gh pr edit ... --base <story-branch>` if needed
+  - Commit + push after retro output files are created (so PR always updates)
+- Prefer **agent-owned integrator merges** (Task PR → Story) after human UAT is ✅ PASS.
+- Keep humans for:
+  - UAT execution
+  - DB migration execution (if any)
 
-### Step 4: UAT (default agent-owned; human only when required)
+### Commit discipline (T04 learning – mandatory)
 
-**Default (Epic 5):** If Step 3 passes and the task’s acceptance criteria are verifiable via automated checks + deterministic inspection, the dev agent should:
-- Create/update `${TaskBase}.uat-results.md` with evidence and mark ✅ PASS  
-  - Preferred: hand results to `@ralf-uat *record-uat` with **Tester = AI/Agent** so the UAT file format + task-plan updates stay consistent.
-- Update `docs/tasks/<story>/TASK-PLAN.md` and `docs/tasks/<story>/STATUS.md`
-- Proceed directly to retro (Step 5)
+After T04, the closeout sometimes committed only **docs** (UAT/retro/status) and left **implementation** uncommitted, so the merged PR did not contain the code.
 
-**Human UAT is required only when:**
-- The task spec explicitly says “Human UAT required”, or
-- The task changes UI/UX flows that need human validation, or
-- The task includes manual-only steps (DB migrations, credentials), or
-- Automated verification cannot reasonably cover the acceptance criteria
+**Rules for the dev agent:**
 
-When human UAT is required:
-- Execute the task’s UAT guide (`${TaskBase}.uat.md`)
-- Record results via `@ralf-uat *record-uat`
+1. **Implementation commits first.** Before creating the closeout commit (UAT passed, retro, HumanDone):
+   - Run `git status` in the task worktree.
+   - If any implementation files (backend/ or frontend/ code, or new task-specific files) are modified or untracked, commit them in one or more commits with a clear message (e.g. `feat(T04): ... implementation`). Do not rely on a single "closeout" commit to carry code.
+2. **Closeout commit = docs only.** The final commit that updates status/retro/UAT docs should not be the only commit containing code. If the working tree had code changes, they must already be committed.
+3. **Verify before push.** Before `git push` and "Merge PR": run `git status` again. Working tree should be clean (or only intentionally untracked, e.g. `backend/storage/`). If not, commit remaining changes and then push.
+4. **Build/lint output.** Long `npm run build` or similar output can crash sessions. Prefer: run from the task worktree, cap output (e.g. PowerShell `Select-Object -First 100`), or redirect to a file and report pass/fail + first/last lines only.
 
-**Agent-owned UAT recording (copy/paste snippet):**
-
-```markdown
-#yolo
-@ralf-uat *record-uat
-Tester: AI/Agent
-Results:
-- AC1: PASS — <evidence>
-- AC2: PASS — <evidence>
-```
-
-#### DB migration tasks (special sequencing — prevents Alembic/worktree mismatch)
-
-**Rule:** Never ask a human to run `alembic upgrade head` until the migration files exist in the *current worktree* and the worktree contains **every revision already applied to the DB**.
-
-- **Trunk rule:** Don’t upgrade a shared/dev DB from “temporary” migrations that aren’t merged into your working trunk (Story branch). If you apply a migration from a task branch, merge that task PR into the Story before starting another DB task/worktree.
-
-- **Always run Alembic from the task worktree** (not the OneDrive repo, not another worktree):
-
-```powershell
-cd C:\wt\elp\<task-worktree>\backend
-alembic upgrade head
-```
-
-- **Preflight (prevents “missing revision” errors):**
-  - Human runs: `SELECT version_num FROM alembic_version;`
-  - AI verifies: the file `backend/migrations/versions/<version_num>_*.py` exists in the task worktree
-  - If it does **not** exist: STOP. Fix the branch/worktree first (sync/merge the missing migration chain) before creating/applying any new migration.
-
-- **UAT for DB-only tasks:** migration output + deterministic verification queries count as the UAT evidence. If those pass, AI records ✅ PASS and proceeds (no extra human “checkbox UAT” loop needed).
-
-### Step 5: Retro (required after UAT pass)
-
-After UAT is ✅ PASS (agent-owned or human):
-- Run `@ralf-retro *run-retro`
-- Ensure story-level learning is captured in `docs/tasks/<story>/LESSONS-LEARNED.md`
-
-**BMAD workflow automation tip:** Use `#yolo` mode when running workflows to avoid per-step “continue?” confirmations (especially for retro):
+**Prompt snippet to add to task run instructions (optional but recommended):**
 
 ```markdown
-#yolo
-@ralf-retro *run-retro
-Task: T02
-Story: 5.1
+Before closeout: run `git status`. If implementation files are uncommitted, commit them first (feat(Txx): ...), then create the closeout commit (docs only). Push only when working tree is clean.
 ```
 
-**Epic 5 note:** The retro workflow’s “update memory files” step is treated as optional. In Epic 5, prefer skipping memory-file updates and capture improvements in:
-- `docs/tasks/<story>/LESSONS-LEARNED.md`
-- `docs/stories/EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md`
+### Scope boundary (T04 learning)
 
-#### PM sanity-check (prevents wrong root-cause writeups)
-
-After retro, PM (or AI acting as PM) does a quick check:
-- Confirm the retro’s “root cause” matches the transcript/evidence (tool issue vs workflow timing issue).
-- If misattributed, capture the corrected prevention action in:
-  - `docs/tasks/<story>/LESSONS-LEARNED.md` (story learning), and
-  - `docs/stories/EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md` (process change history)
-
-**Epic 5 non-sharing rule (important):**
-- Do **not** commit changes under `bmad/ralf-taskflow/memory/` as part of Epic 5 tasks.
-- Workflow/process improvements must be captured in:
-  - `docs/stories/EPIC-5-WORKFLOW-GUIDE.md` (this file), and
-  - `docs/tasks/<story>/LESSONS-LEARNED.md`
-
-### Step 6: Integrator merge (agent-owned after UAT pass + retro)
-
-- Merge Task PR → Story branch
-- Resolve conflicts and run integration checks if needed
-- Update task/status docs as required
-
-#### Step 6A: Tracker closeout (mandatory)
-
-**Goal:** Keep all trackers consistent (prevents “task is done but STATUS.md says Ready” drift).
-
-On the **Story branch** (after the task PR is merged), ensure:
-- **Task spec:** `docs/tasks/<story>/<TaskBase>.md`
-  - Set `**Status:** ✅ HumanDone` (single value; never `Ready -> In Progress` arrows)
-- **Task plan:** `docs/tasks/<story>/TASK-PLAN.md`
-  - Task Skeleton row updated
-  - Task Files table updated
-- **Story status:** `docs/tasks/<story>/STATUS.md`
-  - `Current Task` advanced
-  - Progress table updated (including Completed date)
-- **Next task readiness:** set the next task to `⏳ Ready` when dependencies are satisfied.
-- **Transcript capture (recommended):** export and commit under `docs/Transcripts/` so it survives merges.
-
-### Step 7: Workflow review (required after each task)
-
-At the end of each task (on the Story branch, after the task PR is merged):
-- Run a **workflow review** (what worked / what slowed us down).
-- If needed, update **this file** (**Story branch only**; do not include workflow edits inside Task PRs).
-- Append an entry to `docs/stories/EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md`.
-
----
-
-## ✅ Phase 4: Story Closeout (after all tasks are merged)
-
-**Goal:** Merge the Story PR → `master` with end-to-end evidence.
-
-### Step 1: Confirm story is ready to close
-- All task PRs are merged into the Story branch.
-- `docs/tasks/<story>/TASK-PLAN.md` shows all tasks ✅ Done / ✅ HumanDone.
-- `docs/tasks/<story>/STATUS.md` is up to date.
-
-### Step 2: Final Story UAT (required)
-- Human runs the story UAT guide: `docs/stories/STORY-<id>-UAT-TEST-GUIDE.md`
-- Record results (recommended): `docs/stories/STORY-<id>-UAT-RESULTS.md`
-- If UAT fails: create a fix task branch/PR (do not patch on the Story branch without a task).
-
-### Step 3: Merge Story PR → `master` (integrator)
-- Ensure Story PR base is `master`
-- Merge (no force push; resolve conflicts; run integration checks if needed)
-
-### Step 4: Update epic tracking
-- Update `docs/stories/EPIC-5-STATUS.md` (mark the story ✅ complete)
-
----
-
-## ✅ Phase 5: Epic Closeout (after all Epic 5 stories are merged)
-
-**Goal:** Close Epic 5 cleanly and move to the next epic.
-
-- Confirm all Epic 5 stories are merged to `master` and reflected in `docs/stories/EPIC-5-STATUS.md`.
-- Update the overall epic tracker (if used): `docs/epic-status.md`
-- Run an Epic retro (recommended) and capture learnings (file name is flexible; keep it under `docs/stories/`).
+If the task spec says "Frontend-only" (or similar) but backend changes become necessary during implementation:
+- Document the scope expansion in the completion note (why backend was touched).
+- Ensure both frontend and backend changes are committed; do not leave backend changes uncommitted because the spec said "frontend-only."
 
 ---
 
 *Epic 5 Workflow Guide - created for Epic 5 cycle start*  
-*Last Updated: 2026-02-09*
+*Last Updated: 2026-02-10*
 
 ---
 
-## 📓 Workflow change history (Epic 5)
+## 📓 Workflow Change Log (Epic 5)
 
-See `docs/stories/EPIC-5-WORKFLOW-GUIDE-CHANGELOG.md`.
+| Date | Change | Why |
+|------|--------|-----|
+| 2026-02-07 | Added “Workflow Evolution Goal” + Human/AI responsibilities + Epic kickoff + automation deltas | Start Epic 5 with a streamlined, agent-owned loop and iteratively remove unnecessary human steps |
+| 2026-02-07 | Inserted “pre-UAT automated verification” requirement (dev agent runs what it can; human reviews evidence and retests selectively) | Reduce manual retesting time and make UAT focus on what automation can’t cover |
+| 2026-02-10 | Added "Commit discipline (T04 learning)" and "Scope boundary (T04 learning)" under Phase 3 | T04 closeout committed only docs; implementation was left uncommitted. Rules: implementation commits first, closeout = docs only, verify clean tree before push; cap build/lint output to avoid session crashes; document scope expansion if backend touched despite frontend-only spec |
 

@@ -172,8 +172,21 @@ export interface EffectiveStyles {
     borderWidth: number;
     inputHeight: number;
 
-    // Divider defaults
+    // Action/Button typography and styling
+    actionFontFamily: string;
+    actionFontSize: number;
+    actionFontWeight: number;
+    actionFontStyle: FontStyleType;
+    actionTextColor: string;
+    actionBackgroundColor: string;
+    actionBorderColor?: string;
+    actionBorderWidth?: number;
+    actionBorderRadius?: number;
+
+    // Divider
     dividerWidth: string;
+    dividerBorderColor?: string;
+    dividerBorderWidth?: number;
 }
 
 /**
@@ -246,7 +259,7 @@ export function getEffectiveStyles(
         helpTextBorderColor: overrides && 'helpTextBorderColor' in overrides ? overrides.helpTextBorderColor : base.helpTextBorderColor,
         helpTextBorderWidth: overrides && 'helpTextBorderWidth' in overrides ? overrides.helpTextBorderWidth : base.helpTextBorderWidth,
         helpTextBorderRadius: overrides && 'helpTextBorderRadius' in overrides ? overrides.helpTextBorderRadius : base.helpTextBorderRadius,
-        helpTextHasBorder: overrides && 'helpTextHasBorder' in overrides ? overrides.helpTextHasBorder : base.helpTextHasBorder,
+        helpTextHasBorder: overrides && 'helpTextHasBorder' in overrides ? Boolean(overrides.helpTextHasBorder) : base.helpTextHasBorder,
         
         // Spacing
         baseSpacing: base.baseSpacing,
@@ -488,8 +501,8 @@ export function computeFieldStyles(
             actionBackgroundColor: effective.actionBackgroundColor,
 
             // Divider styles
-            dividerBorderColor: effective.dividerBorderColor,
-            dividerBorderWidth: Math.round(effective.dividerBorderWidth * scaleFactor),
+            dividerBorderColor: effective.dividerBorderColor ?? '',
+            dividerBorderWidth: Math.round((effective.dividerBorderWidth ?? 1) * scaleFactor),
             dividerWidth: effective.dividerWidth,
 
             // Colors

@@ -5,7 +5,7 @@
  * Ensures backward compatibility during migration.
  */
 
-import { ComponentType, ComponentStructure, ObjectLayoutType } from '../types/builder.types';
+import { ComponentType, ComponentStructure } from '../types/builder.types';
 
 /**
  * Generate default structure for a component type.

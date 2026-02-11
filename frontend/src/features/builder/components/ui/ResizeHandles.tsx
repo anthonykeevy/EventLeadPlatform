@@ -289,10 +289,6 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
             delta: { x: deltaX, y: deltaY },
         });
         
-        // Calculate new dimensions based on handle position
-        let newWidth = startSizeRef.current.width;
-        let newHeight = startSizeRef.current.height;
-        
         // Call generic resize callback for live preview
         if (config.action === 'labelGap' || config.action === 'heightOrHelpGap') {
             // For vertical handles, pass raw normalized deltaY so downstream can allocate height vs spacing

@@ -185,6 +185,9 @@ export interface ValidationContext {
     /** Form's target locale */
     formLocale?: string;
     
+    /** Date format for date field validation (e.g. component dateFormat) */
+    dateFormat?: string;
+    
     /** Country config for country-specific validation */
     countryConfig?: CountryValidationConfig;
 }

@@ -22,7 +22,6 @@ import { ComponentSidebar } from '../components/ComponentSidebar';
 import { FormBuilderCanvas } from '../components/FormBuilderCanvas';
 import { PropertiesPanel } from '../components/PropertiesPanel'; // Story 3.5
 import { ComponentPreview } from '../components/ComponentPreview';
-import { FirstNameField } from '../components/fields/FirstNameField';
 import { ComponentRegistry, generateComponent } from '../registry/ComponentRegistry';
 import { LoadingSpinner } from '../../ux/components/LoadingSpinner';
 import { ComponentType, FormComponent } from '../types/builder.types';
@@ -37,7 +36,6 @@ import {
 } from '../utils/collisionDetection';
 import { UniversalFieldShell } from '../components/UniversalFieldShell';
 import { getRenderersForComponent } from '../utils/componentRenderers';
-import { getDefaultStructure } from '../utils/structureDefaults';
 import { apiClient } from '../../../lib/apiClient';
 import { getComponentSurfaceCapabilities } from '../utils/componentSurfaceCapabilities';
 import { PublicFormArtboard } from '../../renderer/components/PublicFormArtboard';
@@ -284,7 +282,7 @@ export const BuilderPage: React.FC = () => {
         (document.querySelector(`[data-id="${activeId}"]`) as HTMLElement | null);
       if (element) {
         const rect = element.getBoundingClientRect();
-        elementRect = { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+        elementRect = { left: rect.left, top: rect.top, width: rect.width, height: rect.height, right: rect.right, bottom: rect.bottom };
       }
     }
     
@@ -343,7 +341,7 @@ export const BuilderPage: React.FC = () => {
       const activePage = pages.find(p => p.id === useBuilderStore.getState().activePageId);
       const component = activePage?.components.find(c => c.id === activeId);
       
-      if (component) {
+      if (component && activePage) {
         // Preserve original grab point: compute proposed positions from initial position + delta (not incremental drift)
         dragStartComponentPosRef.current = {
           x: component.position?.x ?? 0,
@@ -442,9 +440,9 @@ export const BuilderPage: React.FC = () => {
       const pages = def?.desktopPages && def.desktopPages.length > 0 ? def.desktopPages : (def?.pages ?? []);
       const activePage = pages.find(p => p.id === useBuilderStore.getState().activePageId);
       const component = activePage?.components.find(c => c.id === rafActiveId);
-      
-      if (component) {
-        const startPos = dragStartComponentPosRef.current ?? { x: component.position?.x ?? 0, y: component.position?.y ?? 0 };
+      if (!activePage || !component) return;
+
+      const startPos = dragStartComponentPosRef.current ?? { x: component.position?.x ?? 0, y: component.position?.y ?? 0 };
         const scaledDeltaX = rafDelta.x / scale;
         const scaledDeltaY = rafDelta.y / scale;
         let newX = startPos.x + scaledDeltaX;
@@ -529,7 +527,6 @@ export const BuilderPage: React.FC = () => {
 
         // Update live drag position (used by SortableComponent for visual positioning)
         setDragPosition({ x: newX, y: newY });
-      }
     });
   };
 
@@ -560,9 +557,6 @@ export const BuilderPage: React.FC = () => {
             if (canvasRef.current) {
                 const canvasRect = canvasRef.current.getBoundingClientRect();
                 
-                // Use active.rect.current.translated for precise visual matching
-                const ghostRect = active.rect.current.translated;
-
                 // Use pointer position directly for accurate drop placement
                 // This avoids issues with ghostRect not matching the DragOverlay position
                 const initialPointer = initialPointerPositionRef.current;
@@ -832,7 +826,7 @@ export const BuilderPage: React.FC = () => {
             const component = activePage?.components.find(c => c.id === active.id);
             const resizingComponentId = useBuilderStore.getState().resizingComponentId;
 
-            if (component) {
+            if (activePage && component) {
                 // Skip position update if this component is being resized (position is handled by resize handlers)
                 if (resizingComponentId === component.id) {
                     devLogger.debug('drag.end.skipped.resizing', {

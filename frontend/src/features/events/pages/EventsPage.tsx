@@ -3,7 +3,7 @@
  * Main event management page with list, search, and filters
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Filter, X } from 'lucide-react'
 import { getEvents, getEventTypes, getEventStatuses } from '../api/eventsApi'
 import { Event, EventType, EventStatus, EventFilters } from '../types/events.types'
@@ -15,7 +15,7 @@ import { EventDetailView } from '../components/EventDetailView'
 import { useToastNotifications } from '../../ux'
 import { LoadingSpinner } from '../../ux/components/LoadingSpinner'
 import { ErrorMessage } from '../../ux/components/ErrorMessage'
-import { CreateFormModal, EditFormModal, DeleteFormConfirmModal, FormDetailView } from '../../forms'
+import { CreateFormModal, EditFormModal, DeleteFormConfirmModal } from '../../forms'
 import { Form } from '../../forms/types/form.types'
 import { useAuth } from '../../auth'
 
@@ -27,7 +27,7 @@ export function EventsPage() {
   const [eventTypes, setEventTypes] = useState<EventType[]>([])
   const [eventStatuses, setEventStatuses] = useState<EventStatus[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingEvents, setIsLoadingEvents] = useState(false)
+  const [, setIsLoadingEvents] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -35,7 +35,7 @@ export function EventsPage() {
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<EventFilters>({})
+  const [_filters, _setFilters] = useState<EventFilters>({})
   const [showFilters, setShowFilters] = useState(false)
   const [selectedEventTypeId, setSelectedEventTypeId] = useState<number | undefined>(undefined)
   const [selectedStatusId, setSelectedStatusId] = useState<number | undefined>(undefined)

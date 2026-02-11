@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { ArrowLeft, Settings, Save, Eye, Undo2, Redo2, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ResizablePanel } from './ResizablePanel';

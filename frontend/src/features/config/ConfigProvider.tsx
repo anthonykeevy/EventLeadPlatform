@@ -3,7 +3,7 @@
  * Provides global application configuration context
  * AC-1.13.9: ConfigProvider Context
  */
-import React, { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, ReactNode } from 'react'
 import { useAppConfig, AppConfig } from '../../lib/config'
 
 // Context type

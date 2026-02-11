@@ -97,7 +97,7 @@ export function validateStructure(structure: ComponentStructure): StructureValid
 /**
  * Validate a single component object.
  */
-export function validateComponentObject(obj: ComponentObject, allObjectIds: string[]): StructureValidationResult {
+export function validateComponentObject(obj: ComponentObject, _allObjectIds: string[]): StructureValidationResult {
     const errors: string[] = [];
     
     if (!obj.id || obj.id.trim() === '') {

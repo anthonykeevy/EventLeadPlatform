@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { X, Search, Star } from 'lucide-react'
 import type { IndustryOption } from '../../profile/api/usersApi'
-import { useToastNotifications } from '../../ux'
 
 interface IndustrySearchProps {
   availableIndustries: IndustryOption[]

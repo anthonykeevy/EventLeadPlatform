@@ -9,7 +9,7 @@
  * - Accessible (ARIA labels)
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { useValidation } from '../hooks/useValidation'
 

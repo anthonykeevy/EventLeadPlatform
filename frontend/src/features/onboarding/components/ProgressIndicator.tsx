@@ -11,7 +11,7 @@ interface ProgressIndicatorProps {
   totalSteps: number
 }
 
-export function ProgressIndicator({ currentStep, totalSteps }: ProgressIndicatorProps) {
+export function ProgressIndicator({ currentStep, totalSteps: _totalSteps }: ProgressIndicatorProps) {
   const steps = [
     { number: 1, label: 'User Details' },
     { number: 2, label: 'Company Setup' }

@@ -315,27 +315,27 @@ if ($CreatePR) {
     $title = "${StoryId}: $TaskId - $Slug"
     $body = "Implements $TaskId for story $StoryId. See docs/tasks/$StoryId/ for completion + UAT."
 
-    if ($DryRun) {
+    # GitHub cannot create a PR if there are zero commits between base and head.
+    # (GraphQL: "No commits between ...")
+    if (-not $prBaseRef) { $prBaseRef = "$Remote/$StoryBranch" }
+    $deltaCount = Get-CommitDeltaCount -BaseRef $prBaseRef -HeadRef $taskBranch
+    if ($null -eq $deltaCount) {
       Write-Host ""
-      Write-Host "DRY RUN: PR creation requires at least one unique commit on the task branch."
-      Write-Host "After your first commit + push, create the PR with:"
+      Write-Host "Skipping PR creation: unable to compute commit delta (git rev-list failed)."
+      Write-Host "Ensure base/head refs exist, then re-run with -CreatePR."
+      Write-Host "Or create manually:"
+      Write-Host "`"$ghPath`" pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`""
+    } elseif ($deltaCount -eq 0) {
+      Write-Host ""
+      Write-Host "Skipping PR creation: no commits between $StoryBranch and $taskBranch yet."
+      Write-Host "After your first commit + push, re-run this script with -CreateWorktree -CreatePR (safe to re-run)."
+      Write-Host "Or create manually:"
       Write-Host "`"$ghPath`" pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`""
     } else {
-      # GitHub cannot create a PR if there are zero commits between base and head.
-      # (GraphQL: "No commits between ...")
-      if (-not $prBaseRef) { $prBaseRef = "$Remote/$StoryBranch" }
-      $deltaCount = Get-CommitDeltaCount -BaseRef $prBaseRef -HeadRef $taskBranch
-      if ($deltaCount -eq 0) {
-        Write-Host ""
-        Write-Host "Skipping PR creation: no commits between $StoryBranch and $taskBranch yet."
-        Write-Host "Tip: re-run with -BootstrapPR to create a small doc commit first (safe to re-run)."
-        Write-Host "After your first commit + push, re-run this script with -CreateWorktree -CreatePR (safe to re-run)."
-        Write-Host "Or create manually:"
-        Write-Host "`"$ghPath`" pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`""
-      } else {
-        Write-Host ""
-        Write-Host "`"$ghPath`" pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`""
+      Write-Host ""
+      Write-Host "`"$ghPath`" pr create --base `"$StoryBranch`" --head `"$taskBranch`" --title `"$title`" --body `"$body`""
 
+      if (-not $DryRun) {
         $output = & $ghPath pr create --base $StoryBranch --head $taskBranch --title $title --body $body 2>&1
         if ($LASTEXITCODE -ne 0) {
           Write-Host ""

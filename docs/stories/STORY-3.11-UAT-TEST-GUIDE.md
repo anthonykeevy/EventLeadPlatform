@@ -2,7 +2,7 @@
 
 **Story:** 3.11  
 **Scope:** Public form submission transport + offline outbox + sync  
-**Status:** ✅ PASSED (executed 2026-02-05)  
+**Status:** ✅ PASSED (executed 2026-02-06)  
 
 ---
 
@@ -215,15 +215,12 @@ Mark each scenario:
 - [x] Scenario 7: ✅ PASS
 - [x] Scenario 8: ✅ PASS
 - [x] Scenario 9: ✅ PASS
-- [x] Scenario 10: ✅ PASS
+- [x] Scenario 10: ✅ PASS (if enabled)
 
 ---
 
 ## Notes / Issues Found
 
-- None.
-- Evidence highlights:
-  - Idempotency: `POST /api/public/forms/{token}/submissions` returned `{ status: "DUPLICATE" }` for replay attempts with the same idempotency key.
-  - Validation telemetry: Network request observed to `/api/public/forms/{token}/telemetry/validation`.
-  - Kiosk rotation: same `clientDeviceId` with different `clientSessionId` across two submissions.
+- No blocking issues found during final Story 3.11 UAT.
+- Process note (prevention): always verify backend is running from the correct worktree/branch (`git status -sb` + `git pull`) before UAT to avoid “endpoint missing” false failures.
 

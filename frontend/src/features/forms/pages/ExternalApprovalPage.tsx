@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Shield, CheckCircle, XCircle, AlertTriangle, FileText, Calendar, DollarSign, User } from 'lucide-react'
+import { Shield, CheckCircle, XCircle, AlertTriangle, Calendar, DollarSign, User } from 'lucide-react'
 import { getExternalApprovalContext, submitExternalDecision } from '../api/formsApi'
 
 interface ApprovalContext {

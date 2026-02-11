@@ -8,6 +8,7 @@ interface SubmitButtonFieldProps {
     buttonAction?: ButtonAction;
     buttonWidth?: ButtonWidth;
     buttonAlign?: AlignType;
+    showIcon?: boolean;
     showLoadingState?: boolean;
     disableUntilValid?: boolean;
     fieldStyles?: ComputedFieldStyles;
@@ -30,6 +31,7 @@ export const SubmitButtonField: React.FC<SubmitButtonFieldProps> = ({
     buttonAction = 'submit',
     buttonWidth = 'auto',
     buttonAlign = 'left',
+    showIcon = true,
     showLoadingState = true,
     disableUntilValid = true,
     fieldStyles,
@@ -94,7 +96,7 @@ export const SubmitButtonField: React.FC<SubmitButtonFieldProps> = ({
                         borderRadius: `${borderRadius}px`,
                     }}
                 >
-                    <ActionIcon />
+                    {showIcon && <ActionIcon />}
                     {getActionLabel()}
                 </button>
             </div>

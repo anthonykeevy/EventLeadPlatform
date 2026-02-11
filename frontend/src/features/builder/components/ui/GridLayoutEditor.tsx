@@ -21,7 +21,6 @@ import {
     cellKey, 
     getCellOccupant, 
     getMergeGroupForCell,
-    getObjectGridArea 
 } from '../../utils/gridLayoutUtils';
 
 interface GridLayoutEditorProps {

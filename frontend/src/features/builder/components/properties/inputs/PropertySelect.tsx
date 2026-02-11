@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface PropertySelectProps {
-    label: string;
+    label: React.ReactNode;
     value: string;
     onChange: (value: string) => void;
     options: Array<{ value: string; label: string }>;

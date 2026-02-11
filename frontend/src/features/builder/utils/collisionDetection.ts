@@ -277,8 +277,9 @@ export function getComponentBounds(componentElement: HTMLElement): DOMRect | nul
 export function checkCollision(
     draggedComponent: FormComponent,
     allComponents: FormComponent[],
-    componentRefs: Map<string, React.RefObject<HTMLDivElement>>
+    componentRefs: Map<string, React.RefObject<HTMLDivElement>> | null | undefined
 ): { hasCollision: boolean; collidingComponents: ComponentSnapshot[] } {
+    if (!componentRefs) return { hasCollision: false, collidingComponents: [] };
     // Try to get dragged component bounds from ref first, then fall back to DOM query
     let draggedBounds: DOMRect | null = null;
     const draggedRef = componentRefs.get(draggedComponent.id);
@@ -346,7 +347,7 @@ export function checkCollision(
     
     // Log collision detected (WARN level) with detailed snapshots
     if (collidingComponents.length > 0) {
-        const draggedSnapshot = captureComponentSnapshot(draggedComponent, draggedRef);
+        const draggedSnapshot = captureComponentSnapshot(draggedComponent, draggedRef ?? null);
         const overlapAreas = collidingComponents.map(colliding => {
             const collidingBounds = colliding.bounds;
             if (!collidingBounds || !draggedBounds) return 0;
@@ -459,14 +460,6 @@ function inflateRect(r: CanvasRect, pad: number): CanvasRect {
 }
 function overlapOnAxis(a0: number, a1: number, b0: number, b1: number): number {
     return Math.min(a1, b1) - Math.max(a0, b0);
-}
-function rectsOverlapCanvas(a: CanvasRect, b: CanvasRect): boolean {
-    return !(
-        rectRight(a) <= b.x ||
-        a.x >= rectRight(b) ||
-        rectBottom(a) <= b.y ||
-        a.y >= rectBottom(b)
-    );
 }
 
 function overlapAreaCanvas(a: CanvasRect, b: CanvasRect): number {
@@ -676,61 +669,6 @@ function clampToCanvas(
     return { x: boundary.constrainedPosition.x, y: boundary.constrainedPosition.y, boundary };
 }
 
-function computeAllowedX(
-    start: CanvasRect,
-    desiredX: number,
-    others: Array<{ id: string; rect: CanvasRect }>,
-    collisionPad: number,
-    ignoreIds?: Set<string>
-): number {
-    const movingRight = desiredX > start.x;
-    let x = desiredX;
-    const test: CanvasRect = { ...start, x };
-    for (const o of others) {
-        if (ignoreIds?.has(o.id)) continue;
-        const or = inflateRect(o.rect, collisionPad);
-        // Only relevant if y-interval overlaps.
-        const yOverlap = overlapOnAxis(start.y - collisionPad, rectBottom(start) + collisionPad, or.y, rectBottom(or));
-        if (yOverlap <= 0) continue;
-        if (!rectsOverlapCanvas(inflateRect(test, collisionPad), or)) continue;
-        if (movingRight) {
-            // Place right edge just before obstacle left edge
-            x = Math.min(x, or.x - start.width - collisionPad);
-        } else {
-            // Place left edge just after obstacle right edge
-            x = Math.max(x, rectRight(or) + collisionPad);
-        }
-        test.x = x;
-    }
-    return x;
-}
-
-function computeAllowedY(
-    start: CanvasRect,
-    desiredY: number,
-    others: Array<{ id: string; rect: CanvasRect }>,
-    collisionPad: number,
-    ignoreIds?: Set<string>
-): number {
-    const movingDown = desiredY > start.y;
-    let y = desiredY;
-    const test: CanvasRect = { ...start, y };
-    for (const o of others) {
-        if (ignoreIds?.has(o.id)) continue;
-        const or = inflateRect(o.rect, collisionPad);
-        const xOverlap = overlapOnAxis(start.x - collisionPad, rectRight(start) + collisionPad, or.x, rectRight(or));
-        if (xOverlap <= 0) continue;
-        if (!rectsOverlapCanvas(inflateRect(test, collisionPad), or)) continue;
-        if (movingDown) {
-            y = Math.min(y, or.y - start.height - collisionPad);
-        } else {
-            y = Math.max(y, rectBottom(or) + collisionPad);
-        }
-        test.y = y;
-    }
-    return y;
-}
-
 /**
  * Build component rectangles in canvas coordinates using DOM measurement for size.
  * Uses component.position for x/y (authoritative) and measured SmartBorder bounds for width/height.
@@ -885,7 +823,7 @@ export function resolveMoveConstraints(args: {
         if (ox <= 0 || oy <= 0) break;
 
         // Candidate translations (axis-only), but compute *minimal* polygon-safe displacement along that axis.
-        const axisCandidates: Array<{ rr: CanvasRect } | null> = [
+        const axisCandidates: Array<{ rect: CanvasRect } | null> = [
             findMinimalSeparationAlongAxis({
                 axis: 'x',
                 direction: -1,

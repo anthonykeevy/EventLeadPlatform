@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronDown, Calendar, Clock } from 'lucide-react';
-import { PropertyTextInput, PropertySelect, PropertyToggle } from './inputs';
+import { PropertyTextInput, PropertySelect } from './inputs';
 import { ComponentProps } from '../../types/builder.types';
 
 interface DatePropertiesSectionProps {

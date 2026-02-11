@@ -14,7 +14,7 @@ import { EnhancedFormInput } from '../../ux/components/EnhancedFormInput'
 interface CreateFormModalProps {
   isOpen: boolean
   eventId: number | null // Story 2.8: Form must be created in context of an Event
-  userRole?: 'Company Admin' | 'Company User' // User role to determine approval status
+  userRole?: 'Company Admin' | 'Company User' | 'Company Viewer' // User role to determine approval status
   onClose: () => void
   onSuccess: () => void
 }
@@ -147,12 +147,10 @@ export function CreateFormModal({ isOpen, eventId, userRole = 'Company User', on
               <EnhancedFormInput
                 name="deploymentCost"
                 label="Deployment Cost ($)"
-                type="number"
-                value={formData.deploymentCost !== undefined && formData.deploymentCost !== null ? formData.deploymentCost : ''}
+                type="text"
+                value={formData.deploymentCost !== undefined && formData.deploymentCost !== null ? String(formData.deploymentCost) : ''}
                 onChange={(value) => setFormData(prev => ({ ...prev, deploymentCost: value === '' ? null : Number(value) }))}
                 error={errors.deploymentCost}
-                min={0}
-                step={0.01}
                 placeholder="0.00"
               />
               

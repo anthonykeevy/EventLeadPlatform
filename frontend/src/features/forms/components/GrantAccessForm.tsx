@@ -3,16 +3,14 @@
  * Form for granting access to a form
  */
 
-import React, { useState, useEffect, useRef } from 'react'
-import { User, Building2, Calendar, Search, Loader2, WifiOff, AlertCircle } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { User, Building2, Calendar, Search, WifiOff, AlertCircle } from 'lucide-react'
 import { 
   grantFormAccess, 
   getAccessTypes, 
   getRelationshipTypes, 
   getCompanyMembersForForm,
   getRelatedCompaniesForForm,
-  searchUsers, 
-  searchCompanies, 
   type UserSearchResult, 
   type CompanySearchResult 
 } from '../api/formAccessApi'
@@ -178,7 +176,7 @@ export function GrantAccessForm({ formId, onSuccess, onCancel }: GrantAccessForm
       // We need to convert it to UTC ISO string before sending to the backend
       const requestData: GrantAccessRequest = {
         ...formData,
-        expiryDate: convertLocalDateTimeToUTC(formData.expiryDate)
+        expiryDate: convertLocalDateTimeToUTC(formData.expiryDate ?? null)
       }
       
       await grantFormAccess(formId, requestData)

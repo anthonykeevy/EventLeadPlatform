@@ -16,7 +16,7 @@ function flattenComponents(list: FormComponent[]): FormComponent[] {
   return out;
 }
 
-function isRenderableField(type: FormComponent['type']): boolean {
+function isRenderableField(_type: FormComponent['type']): boolean {
   // Non-input display components are still renderable but not value-bearing.
   return true;
 }

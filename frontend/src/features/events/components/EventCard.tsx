@@ -3,7 +3,6 @@
  * Displays event information in a card format
  */
 
-import React from 'react'
 import { Calendar, MapPin, Tag, Edit2, Trash2 } from 'lucide-react'
 import { Event } from '../types/events.types'
 import { StatusBadge } from './StatusBadge'

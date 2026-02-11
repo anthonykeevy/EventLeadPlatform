@@ -26,38 +26,7 @@ interface ValidationSectionProps {
     availableFields?: AvailableField[];
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// RULE VISIBILITY CONFIG - which rules to show per component type
-// ═══════════════════════════════════════════════════════════════════════════════
-const HIDDEN_RULES: Record<string, string[]> = {
-    // Email: hide character rules, length rules, formatting (inherent in email format)
-    email: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength', 
-            'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'mustMatchField'],
-    // Number: hide all text-related rules
-    number: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength',
-             'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'noHtmlScript',
-             'email', 'phone', 'mustMatchField'],
-    // Phone: hide all text-related rules
-    phone: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength',
-            'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'noHtmlScript',
-            'email'],
-    // Date: hide all text-related rules
-    date: ['alpha', 'alphanumeric', 'blockedCharacters', 'minLength', 'maxLength',
-           'caseTransform', 'noConsecutiveSpaces', 'trimWhitespace', 'pattern', 'noHtmlScript',
-           'email', 'phone', 'mustMatchField'],
-    // Select/Checkbox/Radio: only show selection limits
-    select: ['all-text-rules'],
-    checkbox: ['all-text-rules'],
-    radio: ['all-text-rules'],
-};
-
-// Check if a rule should be hidden for this component type
-const isRuleHidden = (ruleKey: string, componentType: string): boolean => {
-    const hidden = HIDDEN_RULES[componentType];
-    if (!hidden) return false;
-    if (hidden.includes('all-text-rules')) return true; // Selection types hide everything
-    return hidden.includes(ruleKey);
-};
+// Rule visibility per component type is defined in utils/validationConflicts (getConflictDefinitions).
 
 /**
  * Wrapper for validation controls that shows disabled state with INLINE explanation
@@ -259,7 +228,7 @@ const ValidationTester: React.FC<{
                                     {result.errors.map((err, i) => (
                                         <div key={i} className="flex items-start gap-1.5">
                                             <span className="text-red-500 mt-0.5">•</span>
-                                            <span>{err.message}</span>
+                                            <span>{String(err.message)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -273,12 +242,12 @@ const ValidationTester: React.FC<{
                                     </div>
                                     {result.autoFixesApplied.map((fix, i) => (
                                         <div key={i} className="ml-4">
-                                            • {fix.description}
+                                            • {String(fix.description)}
                                         </div>
                                     ))}
                                     {result.sanitizedValue !== testValue && (
                                         <div className="mt-1 font-mono">
-                                            Result: "{result.sanitizedValue}"
+                                            Result: "{String(result.sanitizedValue)}"
                                         </div>
                                     )}
                                 </div>

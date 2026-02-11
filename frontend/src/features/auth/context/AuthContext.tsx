@@ -234,21 +234,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       tokenStorage.storeTokens(response.access_token, response.refresh_token, expiresIn)
       
       // Set current user ID in offline queue (clears previous user's queue if different)
-      if (typeof window !== 'undefined') {
+      const user = response.user ?? null
+      if (typeof window !== 'undefined' && user) {
         import('../../../utils/offlineQueue').then(({ offlineQueue }) => {
-          offlineQueue.setCurrentUserId(response.user.id || response.user.user_id || null)
+          offlineQueue.setCurrentUserId(user.id || user.user_id || null)
         })
       }
       
       // Broadcast login to other tabs
       broadcastAuthChange({ 
         type: 'LOGIN',
-        user: response.user
+        user,
       })
       
       // Update state with user
       setState({
-        user: response.user,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -317,12 +318,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       tokenStorage.storeTokens(response.access_token, response.refresh_token, expiresIn)
       
       // Update user state if provided
-      if (response.user) {
-        setState(prev => ({
-          ...prev,
-          user: response.user,
-        }))
-      }
+      const user = response.user ?? null
+      setState(prev => ({
+        ...prev,
+        user,
+      }))
       
       // Schedule next refresh
       if (scheduleTokenRefreshRef.current) {

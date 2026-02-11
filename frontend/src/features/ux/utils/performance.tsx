@@ -106,12 +106,8 @@ export const optimizeImage = (
     format?: 'webp' | 'jpeg' | 'png' | 'avif';
   } = {}
 ): string => {
-  const {
-    width,
-    height,
-    quality = 80,
-    format = 'webp',
-  } = options;
+  const _opts = options;
+  void _opts;
 
   // For now, return the original src
   // In a real app, you'd integrate with an image optimization service
@@ -239,8 +235,9 @@ export class PerformanceMonitor {
     const fidObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry) => {
-        if (entry.processingStart && entry.startTime) {
-          this.metrics.set('FID', entry.processingStart - entry.startTime);
+        const procStart = (entry as PerformanceEventTiming).processingStart;
+        if (procStart != null && entry.startTime) {
+          this.metrics.set('FID', procStart - entry.startTime);
         }
       });
     });
@@ -308,7 +305,7 @@ export const preloadImage = (src: string): Promise<void> => {
   });
 };
 
-export const preloadFont = (href: string, type: string = 'font/woff2'): void => {
+export const preloadFont = (href: string, _type: string = 'font/woff2'): void => {
   preloadResource(href, 'font');
   
   // Add font-display: swap for better performance

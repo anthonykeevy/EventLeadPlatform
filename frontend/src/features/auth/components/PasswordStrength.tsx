@@ -3,7 +3,6 @@
  * Visual feedback for password strength with requirements display
  */
 
-import React from 'react'
 import { Check, X } from 'lucide-react'
 
 interface PasswordRequirement {

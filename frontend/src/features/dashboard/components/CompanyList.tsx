@@ -3,7 +3,6 @@
  * AC-1.18.1: Display all user's companies with hierarchy
  */
 
-import React from 'react'
 import { Building2 } from 'lucide-react'
 import { CompanyContainer } from './CompanyContainer'
 import type { Company } from '../types/dashboard.types'

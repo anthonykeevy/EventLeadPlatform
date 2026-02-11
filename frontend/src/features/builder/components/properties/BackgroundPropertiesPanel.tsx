@@ -344,7 +344,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                                     min={0}
                                     max={100}
                                     step={5}
-                                    suffix="%"
+                                    unit="%"
                                 />
                             </div>
                         </div>

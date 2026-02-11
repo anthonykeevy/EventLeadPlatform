@@ -13,7 +13,7 @@
  * Storage Key Format: form_draft_{formType}_{formId}_{userId}
  */
 
-import { offlineQueue } from './offlineQueue'
+import { offlineQueue as _offlineQueue } from './offlineQueue'
 
 export type FormType = 'event_create' | 'event_edit' | 'lead_form' | 'invitation' | 'other'
 

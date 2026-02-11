@@ -105,7 +105,7 @@ export interface ObjectRendererProps {
     /** Optional override for primary color (some styled components support it) */
     primaryColor?: string;
     tabIndex?: number;
-    inputRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+    inputRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null>;
     // Additional context based on object type
     value?: unknown;
     onChange?: (value: unknown) => void;
@@ -116,9 +116,9 @@ export interface ObjectRendererProps {
     buttonText?: string;
     onClick?: () => void;
     isLoading?: boolean;
-    // For validation objects
-    validationErrors?: Record<string, string>;
-    allFormErrors?: Record<string, string>;
+    // For validation objects (runtime may pass string[] or Record<string, string[]>)
+    validationErrors?: Record<string, string> | string[];
+    allFormErrors?: Record<string, string> | Record<string, string[]>;
     // Form-level validation context for submit button
     formValidationContext?: {
         errors: Record<string, string>;
@@ -1033,9 +1033,6 @@ export function createInputRenderer(): ObjectRenderer {
                     maxAllowedDropdownWidthPx ?? Number.POSITIVE_INFINITY
                 )
             );
-            const availableExtraWidthPx =
-                anyExtra && componentWidthPx ? Math.max(0, componentWidthPx - dropdownWidthPx - gap) : undefined;
-
             const dropdownStyle: React.CSSProperties = {
                 ...inputStyle,
                 // Ensure StyledSelect receives full border/background info.

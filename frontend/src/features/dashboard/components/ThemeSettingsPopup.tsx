@@ -3,7 +3,7 @@
  * Compact theme customization interface for the user menu
  */
 
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, Palette, Layout, Type } from 'lucide-react'
 import { useTheme } from '../../theme'
 import { ReferenceOption } from '../../profile/types/profile.types'
@@ -16,7 +16,7 @@ interface ThemeSettingsPopupProps {
 }
 
 export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps) {
-  const { state, dispatch, applyTheme, applyLayoutDensity, applyFontSize, saveToLocalStorage } = useTheme()
+  const { state, dispatch, applyTheme, applyLayoutDensity, applyFontSize } = useTheme()
   const toast = useToastNotifications()
   
   const [themes, setThemes] = useState<ReferenceOption[]>([])

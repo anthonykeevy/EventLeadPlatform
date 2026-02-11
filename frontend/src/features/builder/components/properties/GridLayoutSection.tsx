@@ -364,7 +364,7 @@ export const GridLayoutSection: React.FC<GridLayoutSectionProps> = ({
     
     // Check if component has override - memoized to ensure it updates when component changes
     const hasOverride = useMemo(() => {
-        return hasGridLayoutOverride(component.props.gridLayout);
+        return hasGridLayoutOverride(component.props.gridLayout ?? undefined);
     }, [component.props.gridLayout]);
     
     // Get visible objects from structure (same logic as ObjectLayoutSection)

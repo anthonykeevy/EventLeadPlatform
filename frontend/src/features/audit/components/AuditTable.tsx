@@ -2,8 +2,8 @@
  * AuditTable Component (Story 2.13)
  * Detailed table view of audit events with filtering and pagination
  */
-import React, { useState, useEffect, useCallback } from 'react';
-import { AuditEntry, PaginatedActivityLog } from '../types/audit.types';
+import { useState, useEffect, useCallback } from 'react';
+import { AuditEntry } from '../types/audit.types';
 import { getCompanyActivityLog } from '../api/auditApi';
 
 /**

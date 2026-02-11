@@ -38,7 +38,7 @@ Story 5.1 is complete when:
 | **T03** | Backend: Asset Service + Upload API | ✅ HumanDone | T02 | 2-3 hrs | Backend/API |
 | **T04** | Frontend: Builder Asset Upload + Library + Ref | ✅ HumanDone | T01, T03 | 3-5 hrs | Frontend/Builder |
 | **T05** | Shared Resolver Parity (Builder + Renderer) | ✅ HumanDone | T03, T04 | 2-3 hrs | Rendering |
-| **T06** | Placement + Intersection Rule + Cropping | ⏸️ Pending | T04, T05 | 2-3 hrs | UX/Canvas |
+| **T06** | Placement + Intersection Rule + Cropping | 🔄 In Progress | T04, T05 | 2-3 hrs | UX/Canvas |
 | **T07** | Data URL Guard + Regression Cleanup | ⏸️ Pending | T04 | 1-2 hrs | Safety |
 | **T08** | Integration + UAT Polish | ⏸️ Pending | T03-T07 | 2-3 hrs | Integration |
 
@@ -71,7 +71,7 @@ T08 (Integration + UAT) depends on T03–T07
 | T03 | `T03-backend-asset-service-and-upload-api.md` | ✅ HumanDone |
 | T04 | `T04-frontend-builder-asset-upload-and-library.md` | ✅ HumanDone |
 | T05 | `T05-shared-resolver-parity.md` | ✅ HumanDone |
-| T06 | `T06-placement-intersection-and-cropping.md` | ⏸️ Pending |
+| T06 | `T06-placement-intersection-and-cropping.md` | 🔄 In Progress |
 | T07 | `T07-data-url-guard-and-cleanup.md` | ⏸️ Pending |
 | T08 | `T08-integration-and-uat-polish.md` | ⏸️ Pending |
 

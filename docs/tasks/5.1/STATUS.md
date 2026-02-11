@@ -14,7 +14,7 @@
 | T03 | ✅ HumanDone | 2026-02-09 |
 | T04 | ✅ HumanDone | 2026-02-10 |
 | T05 | ✅ HumanDone | 2026-02-11 |
-| T06 | ⏸️ Pending | - |
+| T06 | 🔄 In Progress | implementation done, UAT pending |
 | T07 | ⏸️ Pending | - |
 | T08 | ⏸️ Pending | - |
 

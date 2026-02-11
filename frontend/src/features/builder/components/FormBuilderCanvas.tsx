@@ -7,7 +7,7 @@ import { Monitor, Tablet, Smartphone, Grid as GridIcon, Image as ImageIcon, Sett
 import { useBuilderStore } from '../stores/useBuilderStore';
 import { SortableComponent } from './SortableComponent';
 import { DEVICE_DIMENSIONS } from '../types/builder.types';
-import { assetsApi } from '../api/assetsApi';
+import { useBackgroundImageUrl } from '../hooks/useBackgroundImageUrl';
 
 interface FormBuilderCanvasProps {
     // No props needed if we use forwardRef correctly
@@ -36,36 +36,7 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
     const components = activePage?.components || [];
 
     const bg = activePage?.background;
-    const bgAssetId = bg?.type === 'image' && bg?.asset ? bg.asset.assetId : null;
-    const [canvasBgBlobUrl, setCanvasBgBlobUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (bgAssetId == null) {
-            setCanvasBgBlobUrl(null);
-            return;
-        }
-        let revoked = false;
-        const ref = { current: null as string | null };
-        assetsApi
-            .fetchAssetContentBlobUrl(bgAssetId)
-            .then((url) => {
-                if (!revoked) {
-                    ref.current = url;
-                    setCanvasBgBlobUrl(url);
-                } else {
-                    URL.revokeObjectURL(url);
-                }
-            })
-            .catch(() => setCanvasBgBlobUrl(null));
-        return () => {
-            revoked = true;
-            if (ref.current) {
-                URL.revokeObjectURL(ref.current);
-                ref.current = null;
-            }
-            setCanvasBgBlobUrl(null);
-        };
-    }, [bgAssetId]);
+    const { url: canvasBgImageUrl, isLoading: canvasBgLoading } = useBackgroundImageUrl(bg);
     
     const { setNodeRef: setDndRef, isOver } = useDroppable({
         id: 'canvas-stage',
@@ -255,24 +226,23 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
                         {activePage?.background ? (
                             activePage.background.type === 'image' ? (
                                 (() => {
-                                    const imageUrl = bgAssetId && canvasBgBlobUrl
-                                        ? canvasBgBlobUrl
-                                        : (activePage.background.value && !activePage.background.value.startsWith('data:')
-                                            ? activePage.background.value
-                                            : null);
+                                    const imageUrl = canvasBgImageUrl;
                                     const size = activePage.background.imageSize || 'cover';
                                     const position = activePage.background.imagePosition || 'center';
+                                    const objectFit = (size === 'tile' || size === 'auto') ? 'cover' : size;
                                     return imageUrl ? (
                                         <img 
                                             src={imageUrl} 
                                             className="w-full h-full" 
                                             style={{ 
                                                 opacity: activePage.background.opacity ?? 1,
-                                                objectFit: size,
+                                                objectFit: objectFit as React.CSSProperties['objectFit'],
                                                 objectPosition: position,
                                             }}
                                             alt="Background"
                                         />
+                                    ) : canvasBgLoading ? (
+                                        <div className="w-full h-full bg-gray-100 animate-pulse" />
                                     ) : (
                                         <div className="w-full h-full bg-gray-100" />
                                     );

@@ -1,5 +1,6 @@
 import React from 'react'
 import type { FormComponent, FormDefinition, FormPage, FormValidationContext } from '../../builder/types/builder.types'
+import { useBackgroundImageUrl } from '../../builder/hooks/useBackgroundImageUrl'
 import { ComponentRegistry } from '../../builder/registry/ComponentRegistry'
 import { validateField } from '../../builder/utils/validationEngine'
 import { evaluateRules } from '../../logic-engine/evaluateRules'
@@ -162,6 +163,9 @@ export const PublicFormArtboard: React.FC<{
     }
     return definition.theme?.backgroundColor ?? '#ffffff'
   }, [page, definition.theme])
+
+  // Shared resolver: background image URL (builder preview + public renderer parity)
+  const { url: backgroundImageUrl } = useBackgroundImageUrl(page?.background)
 
   const components = React.useMemo(() => {
     if (!page) return []
@@ -790,6 +794,25 @@ export const PublicFormArtboard: React.FC<{
               fontFamily: definition.theme?.fontFamily ?? 'Inter',
             }}
           >
+            {/* LAYER 0: Background (shared resolver - matches builder) */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              {page?.background?.type === 'image' && backgroundImageUrl ? (
+                <img
+                  src={backgroundImageUrl}
+                  alt=""
+                  className="w-full h-full"
+                  style={{
+                    opacity: page.background.opacity ?? 1,
+                    objectFit: ((s: string) => (s === 'tile' || s === 'auto' ? 'cover' : s || 'cover'))(page.background.imageSize || 'cover') as React.CSSProperties['objectFit'],
+                    objectPosition: page.background.imagePosition || 'center',
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full" style={{ backgroundColor }} />
+              )}
+            </div>
+            {/* LAYER 1: Components */}
+            <div className="absolute inset-0 z-10">
             {components.map(c => {
               const runtime = stateById[c.id] ?? { visible: true, enabled: true, required: getBaseRequired(c) }
               if (!runtime.visible) return null
@@ -886,6 +909,7 @@ export const PublicFormArtboard: React.FC<{
                 </div>
               )
             })}
+            </div>
           </div>
         </div>
       </div>

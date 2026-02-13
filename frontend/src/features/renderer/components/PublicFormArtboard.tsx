@@ -1,5 +1,7 @@
 import React from 'react'
 import type { FormComponent, FormDefinition, FormPage, FormValidationContext } from '../../builder/types/builder.types'
+import { useBackgroundImageUrl } from '../../builder/hooks/useBackgroundImageUrl'
+import { isBackgroundFullyOffCanvas } from '../../builder/utils/backgroundPlacementUtils'
 import { ComponentRegistry } from '../../builder/registry/ComponentRegistry'
 import { validateField } from '../../builder/utils/validationEngine'
 import { evaluateRules } from '../../logic-engine/evaluateRules'
@@ -162,6 +164,9 @@ export const PublicFormArtboard: React.FC<{
     }
     return definition.theme?.backgroundColor ?? '#ffffff'
   }, [page, definition.theme])
+
+  // Shared resolver: background image URL (builder preview + public renderer parity)
+  const { url: backgroundImageUrl } = useBackgroundImageUrl(page?.background)
 
   const components = React.useMemo(() => {
     if (!page) return []
@@ -790,6 +795,119 @@ export const PublicFormArtboard: React.FC<{
               fontFamily: definition.theme?.fontFamily ?? 'Inter',
             }}
           >
+            {/* LAYER 0: Background - T06: placement/crop when present, off-canvas not rendered */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              {page?.background?.type === 'image' && backgroundImageUrl ? (
+                (() => {
+                  const placement = page.background.placement;
+                  const fullyOffCanvas = placement && isBackgroundFullyOffCanvas(placement, canvasWidth, canvasHeight);
+                  if (fullyOffCanvas) return null;
+                  const size = page.background.imageSize || 'contain';
+                  const objectFit = ((s: string) => {
+                    if (s === 'tile' || s === 'auto') return 'cover';
+                    if (s === 'fill') return 'fill';
+                    return s || 'contain';
+                  })(size) as React.CSSProperties['objectFit'];
+                  const position = page.background.imagePosition || 'center';
+                  const opacity = page.background.opacity ?? 1;
+                  if (placement) {
+                    const { position: pos, size: sz, crop } = placement;
+                    const assetW = page.background.asset?.widthPx ?? 1;
+                    const assetH = page.background.asset?.heightPx ?? 1;
+                    if (crop && assetW > 0 && assetH > 0) {
+                      const sx = sz.width / crop.width;
+                      const sy = sz.height / crop.height;
+                      return (
+                        <div
+                          className="absolute overflow-hidden"
+                          style={{
+                            left: pos.x,
+                            top: pos.y,
+                            width: sz.width,
+                            height: sz.height,
+                            opacity,
+                          }}
+                        >
+                          <div
+                            className="w-full h-full"
+                            style={{
+                              backgroundImage: `url(${backgroundImageUrl})`,
+                              backgroundSize: `${assetW * sx}px ${assetH * sy}px`,
+                              backgroundPosition: `${-crop.x * sx}px ${-crop.y * sy}px`,
+                            }}
+                          />
+                        </div>
+                      );
+                    }
+                    if (size === 'tile') {
+                      return (
+                        <div
+                          className="absolute overflow-hidden"
+                          style={{
+                            left: pos.x,
+                            top: pos.y,
+                            width: sz.width,
+                            height: sz.height,
+                            opacity,
+                            backgroundImage: `url(${backgroundImageUrl})`,
+                            backgroundSize: `${assetW}px ${assetH}px`,
+                            backgroundRepeat: 'repeat',
+                            backgroundPosition: position,
+                          }}
+                        />
+                      );
+                    }
+                    return (
+                      <div
+                        className="absolute overflow-hidden"
+                        style={{
+                          left: pos.x,
+                          top: pos.y,
+                          width: sz.width,
+                          height: sz.height,
+                          opacity,
+                        }}
+                      >
+                        <img
+                          src={backgroundImageUrl}
+                          alt=""
+                          className="w-full h-full"
+                          style={{ objectFit, objectPosition: position }}
+                        />
+                      </div>
+                    );
+                  }
+                  if (size === 'tile') {
+                    const assetW = page.background.asset?.widthPx ?? 1;
+                    const assetH = page.background.asset?.heightPx ?? 1;
+                    return (
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          opacity,
+                          backgroundImage: `url(${backgroundImageUrl})`,
+                          backgroundSize: `${assetW}px ${assetH}px`,
+                          backgroundRepeat: 'repeat',
+                          backgroundPosition: position,
+                        }}
+                      />
+                    );
+                  }
+                  return (
+                    <img
+                      src={backgroundImageUrl}
+                      alt=""
+                      className="w-full h-full"
+                      style={{ opacity, objectFit, objectPosition: position }}
+                    />
+                  );
+                })()
+              ) : (
+                <div className="w-full h-full" style={{ backgroundColor }} />
+              )}
+            </div>
+            {/* LAYER 1: Components */}
+            <div className="absolute inset-0 z-10">
             {components.map(c => {
               const runtime = stateById[c.id] ?? { visible: true, enabled: true, required: getBaseRequired(c) }
               if (!runtime.visible) return null
@@ -886,6 +1004,7 @@ export const PublicFormArtboard: React.FC<{
                 </div>
               )
             })}
+            </div>
           </div>
         </div>
       </div>

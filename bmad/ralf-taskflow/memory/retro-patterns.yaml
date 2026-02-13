@@ -94,7 +94,25 @@ root_cause_patterns:
     frequency: 1
     last_seen: 2026-02-04
 
-  # Pattern 7: Preview Query Params Lost
+  # Pattern 7: Build-Blocking Pre-Existing / Branch Divergence
+  build_blocking_pre_existing:
+    name: "Build-Blocking Pre-Existing or Branch Divergence"
+    symptoms:
+      - "Build fails on files not touched by task (lib/auth, formatFileSize)"
+      - "Dep scan or type errors from code outside task scope"
+      - "Worktree missing files that exist on main/story branch"
+    root_cause: "Branch divergence; pre-existing dead code or deprecated imports; external dep API drift"
+    prevention:
+      - "ralf-dev: Run npm run build after first implementation pass"
+      - "Merge master into story branch early when master has parallel changes (EPIC-5-WORKFLOW-GUIDE)"
+      - "ralf-dev: Document build fixes in completion as 'scope expansion: unblock verification'"
+    example:
+      bad: "Complete task, run build at end, discover lib/auth missing"
+      good: "Run build after FormBuilderCanvas refactor; catch lib/auth before completion"
+    frequency: 1
+    last_seen: 2026-02-11
+
+  # Pattern 8: Preview Query Params Lost
   preview_query_params_lost:
     name: "Preview Query Params Lost"
     symptoms:

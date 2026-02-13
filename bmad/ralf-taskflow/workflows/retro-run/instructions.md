@@ -211,7 +211,7 @@ Top 3 changes:
 <output>Lessons appended</output>
 </step>
 
-<step n="11" goal="Update memory files">
+<step n="11" goal="Update memory files" optional="true">
 <action>Update retro-patterns.yaml:</action>
 - Add new root cause patterns
 - Add new prevention patterns

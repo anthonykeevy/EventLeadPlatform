@@ -71,6 +71,11 @@ def test_db():
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
+
+        # Attach schema-like databases for SQLite to emulate SQL Server schemas
+        with engine.connect() as conn:
+            for schema in ("ref", "dbo", "config", "audit", "log", "cache"):
+                conn.exec_driver_sql(f"ATTACH DATABASE ':memory:' AS {schema}")
         
         # Create all tables
         Base.metadata.create_all(bind=engine)

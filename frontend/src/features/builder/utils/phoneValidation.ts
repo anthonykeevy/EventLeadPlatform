@@ -13,7 +13,7 @@ import {
     AsYouType,
     PhoneNumber,
 } from 'libphonenumber-js';
-import examples from 'libphonenumber-js/mobile/examples/examples.mobile.json';
+import examples from 'libphonenumber-js/examples.mobile.json';
 
 /**
  * Phone validation configuration

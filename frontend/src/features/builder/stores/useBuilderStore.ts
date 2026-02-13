@@ -12,6 +12,7 @@ import { hashDefinition } from '../utils/hashUtils';
 import { devLogger } from '../utils/devLogger';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
 import { buildDefaultGridLayoutsByComponent } from '../utils/gridLayoutUtils';
+import { stripDataUrlFromBackground } from '../utils/dataUrlGuard';
 
 /**
  * Info about a component with style overrides
@@ -105,6 +106,8 @@ interface BuilderState {
     addComponent: (component: FormComponent, parentId?: string, index?: number) => void;
     deleteSelectedComponents: () => void; // Delete key support (Story 3.7+)
     updateGlobalStyles: (updates: Partial<GlobalStyles>) => void; // Story 3.5
+    /** Story 5.1 T06: Update current page background (placement, etc.) with undo support */
+    updatePageBackground: (updates: Partial<NonNullable<FormPage['background']>>, description?: string) => void;
     getSelectedComponent: () => FormComponent | null; // Story 3.5 helper - returns first/primary
     getSelectedComponents: () => FormComponent[]; // Multi-select helper - returns all selected
     
@@ -191,6 +194,22 @@ function writeAuthoredPagesForState(def: FormDefinition, pages: FormPage[]): For
     return writeAuthoredPages(def, pages);
 }
 
+/** Strip Data URLs from backgrounds when loading definitions (Story 5.1 T07) */
+function normalizeDefinitionForLoad(def: FormDefinition): FormDefinition {
+    const clone = JSON.parse(JSON.stringify(def)) as FormDefinition;
+    const normalizePage = (page: FormPage): FormPage => ({
+        ...page,
+        background: stripDataUrlFromBackground(page.background),
+    });
+    if (clone.pages?.length) {
+        clone.pages = clone.pages.map(normalizePage);
+    }
+    if (clone.desktopPages?.length) {
+        clone.desktopPages = clone.desktopPages.map(normalizePage);
+    }
+    return clone;
+}
+
 function normalizeDefinitionForSave(def: FormDefinition): FormDefinition {
     const clone = JSON.parse(JSON.stringify(def)) as FormDefinition;
     const pages = selectAuthoredPages(clone);
@@ -212,9 +231,11 @@ function normalizeDefinitionForSave(def: FormDefinition): FormDefinition {
         });
     };
 
+    // Normalize background definitions: strip Data URLs (Story 5.1 T04, T07)
     const normalizedPages = pages.map((page) => ({
         ...page,
         components: normalizeComponents(page.components),
+        background: stripDataUrlFromBackground(page.background),
     }));
 
     return writeAuthoredPages(clone, normalizedPages);
@@ -306,7 +327,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
             // Prefer latest DRAFT; otherwise latest version.
             const preferred = versions.find(v => v.status === 'DRAFT') || versions[0];
-            const loaded = withSafeDefaults(preferred.definition as unknown as FormDefinition, formId);
+            const rawDef = preferred.definition as unknown as FormDefinition;
+            const loaded = withSafeDefaults(normalizeDefinitionForLoad(rawDef), formId);
             
             // Migrate components in authored pages (prefer desktopPages when present)
             const authoredPages = selectAuthoredPages(loaded);
@@ -397,7 +419,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 let loaded: FormDefinition | null = null;
                 try {
                     const raw = localStorage.getItem(getStorageKey(formId));
-                    if (raw) loaded = JSON.parse(raw) as FormDefinition;
+                    if (raw) loaded = normalizeDefinitionForLoad(JSON.parse(raw) as FormDefinition);
                 } catch {
                     loaded = null;
                 }
@@ -953,6 +975,34 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                         ...currentGlobalStyles,
                         ...updates,
                     },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
+        set({ isDirty: true });
+    },
+
+    updatePageBackground: (updates, description = 'Update background') => {
+        get().pushToHistory(description);
+        set((state) => {
+            if (!state.formDefinition || !state.activePageId) return state;
+            const def = state.formDefinition;
+            const pages = def.desktopPages?.length ? def.desktopPages : (def.pages ?? []);
+            const activePage = pages.find(p => p.id === state.activePageId);
+            if (!activePage) return state;
+            const newBackground = {
+                type: activePage.background?.type || 'color',
+                value: activePage.background?.value || '#FFFFFF',
+                ...activePage.background,
+                ...updates,
+            } as FormPage['background'];
+            const newPages = pages.map(p =>
+                p.id === state.activePageId ? { ...p, background: newBackground } : p
+            );
+            return {
+                formDefinition: {
+                    ...def,
+                    ...(def.desktopPages?.length ? { desktopPages: newPages } : { pages: newPages }),
                 },
             };
         });

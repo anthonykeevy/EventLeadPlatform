@@ -45,6 +45,7 @@ export const PropertiesPanel: React.FC = () => {
         updateComponentProps,
         updateMultipleComponentProps,
         updateGlobalStyles,
+        updatePageBackground,
         getSelectedComponent,
         getSelectedComponents,
         activeLayer,
@@ -57,8 +58,11 @@ export const PropertiesPanel: React.FC = () => {
     const globalStyles = formDefinition?.globalStyles || DEFAULT_GLOBAL_STYLES;
     const [bulkStyleOverrides, setBulkStyleOverrides] = React.useState<StyleOverrides>({});
     
-    // Get the current page for background settings
-    const currentPage = formDefinition?.pages.find(p => p.id === activePageId);
+    // Use same authored pages as canvas (desktopPages when present, else pages)
+    const authoredPages = formDefinition?.desktopPages?.length
+        ? formDefinition.desktopPages
+        : formDefinition?.pages ?? [];
+    const currentPage = authoredPages.find(p => p.id === activePageId);
     const pageBackground = currentPage?.background;
 
     // Right panel tabs (Inspector/Logic). Logic is form-level and works without selection.
@@ -105,35 +109,10 @@ export const PropertiesPanel: React.FC = () => {
             }));
     }, [currentPage, selectedComponentId, selectedComponent]);
 
-    // Handler for updating page background
+    // Handler for updating page background (uses store action for undo + persist)
     const handleBackgroundChange = React.useCallback((updates: Partial<NonNullable<FormPage['background']>>) => {
-        if (!formDefinition || !activePageId) return;
-        
-        // Update the current page's background
-        const newBackground = {
-            type: pageBackground?.type || 'color',
-            value: pageBackground?.value || '#FFFFFF',
-            ...pageBackground,
-            ...updates,
-        } as FormPage['background'];
-        
-        useBuilderStore.setState((state) => {
-            if (!state.formDefinition) return state;
-            
-            const newPages = state.formDefinition.pages.map(p => 
-                p.id === activePageId 
-                    ? { ...p, background: newBackground }
-                    : p
-            );
-            
-            return {
-                formDefinition: {
-                    ...state.formDefinition,
-                    pages: newPages,
-                },
-            };
-        });
-    }, [formDefinition, activePageId, pageBackground]);
+        updatePageBackground(updates);
+    }, [updatePageBackground]);
 
     // Handle property updates
     const handlePropsChange = React.useCallback((updates: Partial<NonNullable<typeof selectedComponent>['props']>) => {
@@ -350,6 +329,8 @@ export const PropertiesPanel: React.FC = () => {
                 <BackgroundPropertiesPanel 
                     pageBackground={pageBackground}
                     onBackgroundChange={handleBackgroundChange}
+                    canvasWidth={formDefinition?.canvasSettings?.width ?? 1920}
+                    canvasHeight={formDefinition?.canvasSettings?.height ?? 980}
                 />
             </aside>
         );

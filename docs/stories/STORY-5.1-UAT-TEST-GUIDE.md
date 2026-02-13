@@ -13,6 +13,8 @@
 - You have access to a form in the builder
 - Asset limits exist in `config.AppSetting` (or safe defaults are provided in dev)
 
+**Test credentials (local dev):** user2@test.com / `JChMom7KYLfL88&!` (Company Admin). See `docs/AGENT-LOGGING-GUIDE.md` § UAT test credentials.
+
 ---
 
 ## Test assets (recommended)

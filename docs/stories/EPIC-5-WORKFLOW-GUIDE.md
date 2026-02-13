@@ -1,7 +1,7 @@
 # Epic 5 Workflow Guide - BMAD + Ralf Integration
 
-**Current Focus:** Story 5.1 - Background Asset Management (Epic 5 kickoff)  
-**Status:** ✅ Approved (2026-02-07) · 🔄 In Progress  
+**Current Focus:** Story 5.2 - Company Form Defaults (Epic 5)  
+**Story 5.1 Status:** ✅ Complete (2026-02-13) — All tasks HumanDone; pending merge to master  
 
 ---
 
@@ -220,6 +220,72 @@ Output requirements:
 Use the hardened task cycle (worktrees + PR base checks + UAT + retro + push discipline) from:
 - `docs/stories/EPIC-3-WORKFLOW-GUIDE_UPDATED.md` (Phase 3 section)
 
+### Task kickoff (after worktree creation) — MANDATORY
+
+After running `new-task.ps1` to create the task branch and worktree, **before** starting implementation or creating the PR:
+
+1. **Open the task worktree** in Cursor (e.g. `C:\wt\elp\task-5.1-T07-data-url-guard-and-cleanup`).
+
+2. **Update the task spec** to In Progress:
+   - Edit `docs/tasks/<story>/<Txx>-<slug>.md`
+   - Set `**Status:**` from `⏸️ Pending` to `🔄 In Progress`
+
+3. **Update STATUS.md**:
+   - Edit `docs/tasks/<story>/STATUS.md`
+   - Set `**Current Task:**` to `Txx (<task-title>)`
+
+4. **Commit + push** these doc updates:
+   ```powershell
+   git add docs/tasks/<story>/<Txx>-<slug>.md docs/tasks/<story>/STATUS.md
+   git commit -m "docs: Txx kickoff - status In Progress"
+   git push origin task/<story>/<Txx>-<slug>
+   ```
+
+5. **Create the PR** (GitHub requires at least one commit):
+   ```powershell
+   gh pr create --base "story/epic5-5.1-background-asset-management" --head "task/5.1/<Txx>-<slug>" --title "<StoryId>: <Txx> - <slug>" --body "Implements <Txx> for story <StoryId>. See docs/tasks/<StoryId>/ for completion + UAT."
+   ```
+   Or re-run: `./scripts/git/new-task.ps1 ... -CreateWorktree -CreatePR` (idempotent; will create PR when commits exist).
+
+**Why:** The PR cannot be created with zero commits. Updating status creates the first commit; the PR then has a meaningful base for the implementation diff.
+
+### Single-prompt full cycle (T05 learning – recommended)
+
+After T05, the agent stopped after retro without attempting UAT, closeout commit, or merge. Use this **single prompt** to run the full Phase 3 cycle in one go:
+
+```markdown
+@ralf-dev
+
+*run-task
+
+**FULL CYCLE (do not stop until complete):** Implement → Automated verification → UAT attempt → Retro → Commit all → Push → Merge PR.
+
+Scope + ACs are pre-approved; proceed end-to-end without waiting for interactive confirmations.
+
+Task Spec: docs/tasks/<story>/<TaskBase>.md
+
+**Mandatory steps (in order):**
+1. Implement per task spec.
+2. Automated verification: run lint/build/tests for touched areas; record evidence in completion note.
+3. UAT: Open `${TaskBase}.uat.md` (e.g. T05-shared-resolver-parity.uat.md). For each step:
+   - If automatable (e.g. file existence check, API call, DevTools/browser automation): execute it and record result.
+   - If manual-only: record "Human verification: [step] – not executed by agent."
+   - Create/update `${TaskBase}.uat-results.md` with PASS/FAIL and evidence.
+4. Retro: Run @ralf-retro *run-retro (or equivalent); update `${TaskBase}.retro.md` and LESSONS-LEARNED.md.
+5. Commit: Run `git status`. Commit implementation first (feat(Txx): ...), then closeout (docs: completion, uat-results, retro, Txx-*.md status, TASK-PLAN.md, STATUS.md). Push.
+6. Merge: In the task worktree, run `gh pr merge --squash` (merges the PR for the current branch). If merge fails (e.g. "review required"), output the exact command for the human to run.
+
+**Rules:** PR must target Story branch. Before closeout: working tree clean (implementation committed). Cap long build output.
+```
+
+**Example (T05):**
+```markdown
+Task Spec: docs/tasks/5.1/T05-shared-resolver-parity.md
+```
+*(Replace with your task's spec path.)*
+
+**Caveat:** If the task spec explicitly requires **human UAT** (e.g. DB migration, high-risk UI flow), complete through step 5 (push), then output: "Human: execute `${TaskBase}.uat.md`, then run `gh pr merge --squash` to merge."
+
 ### Epic 5 automation deltas (reduce human steps)
 
 - Add a **pre-UAT automated verification step**:
@@ -249,7 +315,8 @@ Automated verification (must do before I run manual UAT):
     - else minimum: `python -m compileall backend`
 ```
 - Prefer **agent-owned** Git actions:
-  - Create branches/worktrees/PRs with `./scripts/git/new-task.ps1 ... -CreateWorktree -CreatePR`
+  - Create branches/worktrees with `./scripts/git/new-task.ps1 ... -CreateWorktree -WorktreeRoot "C:\wt\elp"`
+  - **After worktree creation:** Update task spec Status to In Progress + STATUS.md; commit + push; then create PR (or re-run with `-CreatePR`). See "Task kickoff" section above.
   - Fix PR base via `gh pr edit ... --base <story-branch>` if needed
   - Commit + push after retro output files are created (so PR always updates)
 - Prefer **agent-owned integrator merges** (Task PR → Story) after human UAT is ✅ PASS.
@@ -268,6 +335,8 @@ After T04, the closeout sometimes committed only **docs** (UAT/retro/status) and
    - If any implementation files (backend/ or frontend/ code, or new task-specific files) are modified or untracked, commit them in one or more commits with a clear message (e.g. `feat(T04): ... implementation`). Do not rely on a single "closeout" commit to carry code.
 2. **Closeout commit = docs only.** The final commit that updates status/retro/UAT docs should not be the only commit containing code. If the working tree had code changes, they must already be committed.
 3. **Verify before push.** Before `git push` and "Merge PR": run `git status` again. Working tree should be clean (or only intentionally untracked, e.g. `backend/storage/`). If not, commit remaining changes and then push.
+
+**Asset storage + worktrees (T08 learning):** Asset files live in directories excluded from git (e.g. `backend/storage/`). Each worktree has its own working tree; untracked files from one worktree are not present in another. For UAT requiring real background images: run from the story worktree where assets were uploaded, or re-upload a test image in the current worktree before verifying display.
 4. **Build/lint output.** Long `npm run build` or similar output can crash sessions. Prefer: run from the task worktree, cap output (e.g. PowerShell `Select-Object -First 100`), or redirect to a file and report pass/fail + first/last lines only.
 
 **Prompt snippet to add to task run instructions (optional but recommended):**
@@ -282,10 +351,27 @@ If the task spec says "Frontend-only" (or similar) but backend changes become ne
 - Document the scope expansion in the completion note (why backend was touched).
 - Ensure both frontend and backend changes are committed; do not leave backend changes uncommitted because the spec said "frontend-only."
 
+### Story branch sync with master (2026-02-09 learning – recommended)
+
+When `master` receives significant merges **after** the Story branch was created (e.g. lint-resolution, other stories), merge `master` into the Story branch **early** rather than at the end.
+
+**Why:** A Story branch created before (e.g.) lint fixes will diverge from master. Merging Story → master at closeout then surfaces many conflicts. Resolving them early keeps the story branch up to date and makes the final merge trivial.
+
+**When:** After a substantial merge to master (chore/lint-resolution, another story PR), or when starting a new task if the story branch is behind.
+
+**How:**
+```powershell
+# In the Story worktree
+git fetch origin master
+git merge origin/master
+# Resolve conflicts; keep both lint fixes from master and story changes
+git push origin <story-branch>
+```
+
 ---
 
 *Epic 5 Workflow Guide - created for Epic 5 cycle start*  
-*Last Updated: 2026-02-10*
+*Last Updated: 2026-02-13*
 
 ---
 
@@ -296,4 +382,7 @@ If the task spec says "Frontend-only" (or similar) but backend changes become ne
 | 2026-02-07 | Added “Workflow Evolution Goal” + Human/AI responsibilities + Epic kickoff + automation deltas | Start Epic 5 with a streamlined, agent-owned loop and iteratively remove unnecessary human steps |
 | 2026-02-07 | Inserted “pre-UAT automated verification” requirement (dev agent runs what it can; human reviews evidence and retests selectively) | Reduce manual retesting time and make UAT focus on what automation can’t cover |
 | 2026-02-10 | Added "Commit discipline (T04 learning)" and "Scope boundary (T04 learning)" under Phase 3 | T04 closeout committed only docs; implementation was left uncommitted. Rules: implementation commits first, closeout = docs only, verify clean tree before push; cap build/lint output to avoid session crashes; document scope expansion if backend touched despite frontend-only spec |
+| 2026-02-09 | Added "Story branch sync with master" (merge master into story branch early when master has parallel work) | Story 5.1 was branched before lint-resolution merged to master; merging master in early avoided painful conflict resolution at closeout |
+| 2026-02-11 | Added "Single-prompt full cycle" (implement → UAT attempt → retro → commit → push → merge in one prompt) | T05: agent stopped after retro; no UAT attempt, no closeout commit, no merge. One prompt now mandates the full cycle |
+| 2026-02-13 | Added "Task kickoff" (after worktree: update task spec to In Progress, STATUS.md, commit+push, then create PR) | T07: PR creation was skipped (0 commits). Status update creates first commit so PR can be created before implementation |
 

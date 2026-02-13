@@ -78,3 +78,14 @@ This file is updated after each task retro.
 - UAT results: `T06-placement-intersection-and-cropping.uat-results.md`
 - Retro: `T06-placement-intersection-and-cropping.retro.md`
 
+### 2026-02-13 — T07 (Data URL Guard + Cleanup)
+
+- **Dev Lessons:** Shared utility pattern (`dataUrlGuard.ts`) for guard logic enables reuse across input, load, and save paths. Add unit tests for pure guard functions (isDataUrl, strip*) alongside implementation.
+- **Testing Lessons:** Unit tests for dataUrlGuard cover isDataUrl, stripDataUrlFromBackground, DATA_URL_ERROR_MESSAGE. UAT automation candidates: AC1 (paste Data URL → assert error) via browser MCP; AC3 (save → assert no data: in definition) via response parsing.
+- **Process Lessons:** Guard/cleanup tasks: list all entry points (input, load path(s), save path) in task spec. Human UAT deferred when agent lacks authenticated session; single-prompt cycle commits and pushes; human runs UAT then merge.
+
+**Links (T07):**
+- Completion: `T07-data-url-guard-and-cleanup.completion.md`
+- UAT results: `T07-data-url-guard-and-cleanup.uat-results.md`
+- Retro: `T07-data-url-guard-and-cleanup.retro.md`
+

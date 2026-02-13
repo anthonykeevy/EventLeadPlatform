@@ -31,3 +31,18 @@ export function createDefaultPlacement(
     size: { width: canvasWidth, height: canvasHeight },
   };
 }
+
+/** True if placement matches default canvas coverage (user has not moved/resized). */
+export function isDefaultPlacement(
+  placement: BackgroundPlacement,
+  canvasWidth: number,
+  canvasHeight: number
+): boolean {
+  const { position, size } = placement;
+  return (
+    Math.abs(position.x) < 1 &&
+    Math.abs(position.y) < 1 &&
+    Math.abs(size.width - canvasWidth) < 1 &&
+    Math.abs(size.height - canvasHeight) < 1
+  );
+}

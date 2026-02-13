@@ -712,8 +712,10 @@ export interface BackgroundDefinition {
     asset?: BackgroundAssetMetadata;
     /** Placement metadata for image backgrounds. */
     placement?: BackgroundPlacement;
-    /** Legacy sizing mode (CSS-style). */
-    imageSize?: 'cover' | 'contain' | 'tile' | 'auto';
+    /** How image fills placement frame. cover=fill+crop, contain=fit, fill=stretch, tile=repeat. */
+    imageSize?: 'cover' | 'contain' | 'tile' | 'auto' | 'fill';
+    /** Lock aspect ratio during resize. true=corner handles only; false=all 8 handles. */
+    lockAspectRatio?: boolean;
     /** Legacy positioning (CSS-style). */
     imagePosition?: string;
     /** Overlay tint (hex). */

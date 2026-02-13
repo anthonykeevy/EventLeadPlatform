@@ -802,8 +802,12 @@ export const PublicFormArtboard: React.FC<{
                   const placement = page.background.placement;
                   const fullyOffCanvas = placement && isBackgroundFullyOffCanvas(placement, canvasWidth, canvasHeight);
                   if (fullyOffCanvas) return null;
-                  const size = page.background.imageSize || 'cover';
-                  const objectFit = ((s: string) => (s === 'tile' || s === 'auto' ? 'cover' : s || 'cover'))(size) as React.CSSProperties['objectFit'];
+                  const size = page.background.imageSize || 'contain';
+                  const objectFit = ((s: string) => {
+                    if (s === 'tile' || s === 'auto') return 'cover';
+                    if (s === 'fill') return 'fill';
+                    return s || 'contain';
+                  })(size) as React.CSSProperties['objectFit'];
                   const position = page.background.imagePosition || 'center';
                   const opacity = page.background.opacity ?? 1;
                   if (placement) {
@@ -835,6 +839,24 @@ export const PublicFormArtboard: React.FC<{
                         </div>
                       );
                     }
+                    if (size === 'tile') {
+                      return (
+                        <div
+                          className="absolute overflow-hidden"
+                          style={{
+                            left: pos.x,
+                            top: pos.y,
+                            width: sz.width,
+                            height: sz.height,
+                            opacity,
+                            backgroundImage: `url(${backgroundImageUrl})`,
+                            backgroundSize: `${assetW}px ${assetH}px`,
+                            backgroundRepeat: 'repeat',
+                            backgroundPosition: position,
+                          }}
+                        />
+                      );
+                    }
                     return (
                       <div
                         className="absolute overflow-hidden"
@@ -853,6 +875,22 @@ export const PublicFormArtboard: React.FC<{
                           style={{ objectFit, objectPosition: position }}
                         />
                       </div>
+                    );
+                  }
+                  if (size === 'tile') {
+                    const assetW = page.background.asset?.widthPx ?? 1;
+                    const assetH = page.background.asset?.heightPx ?? 1;
+                    return (
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          opacity,
+                          backgroundImage: `url(${backgroundImageUrl})`,
+                          backgroundSize: `${assetW}px ${assetH}px`,
+                          backgroundRepeat: 'repeat',
+                          backgroundPosition: position,
+                        }}
+                      />
                     );
                   }
                   return (

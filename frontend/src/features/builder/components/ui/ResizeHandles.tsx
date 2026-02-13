@@ -56,6 +56,10 @@ interface ResizeHandlesProps {
     onResize?: (deltaWidth: number, deltaHeight: number, handle: HandlePosition, meta?: ResizePointerMeta) => void;
     /** Callback when width changes (E/W handles) */
     onWidthChange?: (newWidth: number, meta?: ResizePointerMeta) => void;
+    /** Callback when E/W resize ends, with handle for position update (W needs new x). Use instead of onWidthChange when both width and position matter. */
+    onWidthResizeEnd?: (handle: 'e' | 'w', newWidth: number, meta?: ResizePointerMeta) => void;
+    /** Called when resize gesture ends (pointer up), for cleanup e.g. clearing preview state. */
+    onResizeEnd?: () => void;
     /**
      * Callback when a corner resize completes (NW/NE/SE/SW).
      * Deltas are in SCREEN pixels, already signed for the handle direction:
@@ -91,6 +95,8 @@ interface ResizeHandlesProps {
     maxWidth?: number;
     /** Maximum height in pixels */
     maxHeight?: number;
+    /** Corner handle size in px (default 8, matches component handles) */
+    cornerHandleSizePx?: number;
 }
 
 // Handle configuration with cursor styles and resize behavior
@@ -142,7 +148,8 @@ const Handle: React.FC<{
     isCorner: boolean;
     componentType?: string;
     componentId?: string;
-}> = ({ position, onMouseDown, isCorner, componentType, componentId }) => {
+    sizePx?: number;
+}> = ({ position, onMouseDown, isCorner, componentType, componentId, sizePx = 8 }) => {
     const config = HANDLE_CONFIG[position];
     
     // Different colors for different actions
@@ -187,8 +194,8 @@ const Handle: React.FC<{
             style={{
                 position: 'absolute',
                 ...config.position,
-                width: isCorner ? 8 : 6,
-                height: isCorner ? 8 : 6,
+                width: isCorner ? sizePx : Math.max(6, sizePx - 2),
+                height: isCorner ? sizePx : Math.max(6, sizePx - 2),
                 backgroundColor: getHandleColor(),
                 border: '1px solid white',
                 borderRadius: isCorner ? 2 : 1,
@@ -212,6 +219,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     currentWidth,
     currentHeight,
     currentScale = 100,
+    cornerHandleSizePx = 8,
     currentLabelGap = 8,
     currentInputHelpGap = 8,
     componentType,
@@ -220,6 +228,8 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     onResizeStart,
     onResize,
     onWidthChange,
+    onWidthResizeEnd,
+    onResizeEnd,
     onCornerResizeEnd,
     onSpacingChange,
     onHeightChange,
@@ -238,6 +248,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     // Store callbacks in refs so event listeners always have current values
     const onResizeRef = useRef(onResize);
     const onWidthChangeRef = useRef(onWidthChange);
+    const onWidthResizeEndRef = useRef(onWidthResizeEnd);
     const onCornerResizeEndRef = useRef(onCornerResizeEnd);
     const onSpacingChangeRef = useRef(onSpacingChange);
     const onHeightChangeRef = useRef(onHeightChange);
@@ -246,6 +257,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     // Update refs when props change
     onResizeRef.current = onResize;
     onWidthChangeRef.current = onWidthChange;
+    onWidthResizeEndRef.current = onWidthResizeEnd;
     onCornerResizeEndRef.current = onCornerResizeEnd;
     onSpacingChangeRef.current = onSpacingChange;
     onHeightChangeRef.current = onHeightChange;
@@ -358,9 +370,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
             }
             
             case 'width': {
-                // E/W handles: update width
-                // widthDelta is in SCREEN pixels, but we store BASE width
-                // Need to convert screen delta to base delta when scale != 100%
+                // E/W handles: update width (and position for W handle when onWidthResizeEnd)
                 const widthDelta = config.resizeX === -1 ? -deltaX : deltaX;
                 if (Math.abs(widthDelta) < 1 && Math.abs(deltaY) < 1) {
                     devLogger.info('resize.pointer.up.noop', {
@@ -374,7 +384,12 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
                 const scaleFactor = startSizeRef.current.scale / 100;
                 const baseWidthDelta = scaleFactor !== 0 ? widthDelta / scaleFactor : widthDelta;
                 const newWidth = Math.max(minWidth, Math.min(maxWidth, startSizeRef.current.width + baseWidthDelta));
-                onWidthChangeRef.current?.(Math.round(newWidth), meta);
+                const widthHandle = handle as 'e' | 'w';
+                if (onWidthResizeEndRef.current) {
+                    onWidthResizeEndRef.current(widthHandle, Math.round(newWidth), meta);
+                } else {
+                    onWidthChangeRef.current?.(Math.round(newWidth), meta);
+                }
                 break;
             }
             
@@ -398,9 +413,10 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
         setIsResizing(false);
         activeHandleRef.current = null;
         lastPointerRef.current = null;
+        onResizeEnd?.();
         document.removeEventListener('pointermove', handlePointerMove);
         document.removeEventListener('pointerup', handlePointerUp);
-    }, [minWidth, maxWidth, minHeight, maxHeight, handlePointerMove]);
+    }, [minWidth, maxWidth, minHeight, maxHeight, handlePointerMove, onResizeEnd]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent, position: HandlePosition) => {
         e.preventDefault();
@@ -442,10 +458,10 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     if (!isSelected) return null;
 
     // Determine which edge handles to show based on available callbacks
-    // E/W handles require onWidthChange
+    // E/W handles require onWidthChange or onWidthResizeEnd
     // N handle requires onSpacingChange or onVerticalResizeEnd (for labelGap)
     // S handle requires onHeightChange or onSpacingChange or onVerticalResizeEnd
-    const showEWHandles = onWidthChange !== undefined;
+    const showEWHandles = onWidthChange !== undefined || onWidthResizeEnd !== undefined;
     const showNHandle = onSpacingChange !== undefined || onVerticalResizeEnd !== undefined;
     const showSHandle = onHeightChange !== undefined || onSpacingChange !== undefined || onVerticalResizeEnd !== undefined;
     
@@ -469,6 +485,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
                     isCorner={true}
                     componentType={componentType}
                     componentId={componentId}
+                    sizePx={cornerHandleSizePx}
                 />
             ))}
             
@@ -481,6 +498,7 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
                     isCorner={false}
                     componentType={componentType}
                     componentId={componentId}
+                    sizePx={cornerHandleSizePx}
                 />
             ))}
             

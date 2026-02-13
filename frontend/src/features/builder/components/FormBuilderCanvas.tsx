@@ -8,7 +8,8 @@ import { useBuilderStore } from '../stores/useBuilderStore';
 import { SortableComponent } from './SortableComponent';
 import { DEVICE_DIMENSIONS } from '../types/builder.types';
 import { useBackgroundImageUrl } from '../hooks/useBackgroundImageUrl';
-import { isBackgroundFullyOffCanvas } from '../utils/backgroundPlacementUtils';
+import { isBackgroundFullyOffCanvas, createDefaultPlacement } from '../utils/backgroundPlacementUtils';
+import { BackgroundImageCanvas } from './BackgroundImageCanvas';
 
 interface FormBuilderCanvasProps {
     // No props needed if we use forwardRef correctly
@@ -222,22 +223,34 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
                     `}
                     onClick={handleCanvasClick} // Story 3.5: Deselect on stage click
                 >
-                    {/* LAYER 0: Background - T06: placement/crop when present, off-canvas not rendered */}
-                    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                    {/* LAYER 0: Background - T06 WYSIWYG. overflow-visible when Background mode so full image (including off-canvas) and handles are visible; no SmartBorder. */}
+                    <div className={`absolute inset-0 z-0 ${activeLayer === 0 ? 'overflow-visible' : 'overflow-hidden'} ${activeLayer === 0 ? '' : 'pointer-events-none'}`}>
                         {activePage?.background ? (
                             activePage.background.type === 'image' ? (
                                 (() => {
                                     const imageUrl = canvasBgImageUrl;
-                                    const placement = activePage.background.placement;
+                                    const placement = activePage.background.placement ?? createDefaultPlacement(targetDim.width, targetDim.height);
                                     const canvasW = targetDim.width;
                                     const canvasH = targetDim.height;
-                                    const fullyOffCanvas = placement && isBackgroundFullyOffCanvas(placement, canvasW, canvasH);
-                                    if (fullyOffCanvas) {
-                                        return null;
+                                    const fullyOffCanvas = isBackgroundFullyOffCanvas(placement, canvasW, canvasH);
+                                    if (fullyOffCanvas) return null;
+                                    const isInteractive = activeLayer === 0 && !!imageUrl;
+                                    if (isInteractive && placement) {
+                                        return (
+                                            <BackgroundImageCanvas
+                                                imageUrl={imageUrl}
+                                                background={activePage.background}
+                                                canvasWidth={canvasW}
+                                                canvasHeight={canvasH}
+                                                scale={scale}
+                                                isBackgroundMode={activeLayer === 0}
+                                                isLoading={canvasBgLoading}
+                                            />
+                                        );
                                     }
-                                    const size = activePage.background.imageSize || 'cover';
+                                    const size = activePage.background.imageSize || 'contain';
                                     const position = activePage.background.imagePosition || 'center';
-                                    const objectFit = (size === 'tile' || size === 'auto') ? 'cover' : size;
+                                    const objectFit = (size === 'tile' || size === 'auto') ? 'cover' : (size === 'fill' ? 'fill' : size);
                                     const opacity = activePage.background.opacity ?? 1;
                                     if (!imageUrl) {
                                         return canvasBgLoading ? (
@@ -246,69 +259,43 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
                                             <div className="w-full h-full bg-gray-100" />
                                         );
                                     }
-                                    if (placement) {
-                                        const { position: pos, size: sz, crop } = placement;
-                                        const assetW = activePage.background.asset?.widthPx ?? 1;
-                                        const assetH = activePage.background.asset?.heightPx ?? 1;
-                                        if (crop && assetW > 0 && assetH > 0) {
-                                            const sx = sz.width / crop.width;
-                                            const sy = sz.height / crop.height;
-                                            return (
-                                                <div
-                                                    className="absolute overflow-hidden"
-                                                    style={{
-                                                        left: pos.x,
-                                                        top: pos.y,
-                                                        width: sz.width,
-                                                        height: sz.height,
-                                                        opacity,
-                                                    }}
-                                                >
-                                                    <div
-                                                        className="w-full h-full"
-                                                        style={{
-                                                            backgroundImage: `url(${imageUrl})`,
-                                                            backgroundSize: `${assetW * sx}px ${assetH * sy}px`,
-                                                            backgroundPosition: `${-crop.x * sx}px ${-crop.y * sy}px`,
-                                                        }}
-                                                    />
-                                                </div>
-                                            );
-                                        }
+                                    const { position: pos, size: sz, crop } = placement;
+                                    const assetW = activePage.background.asset?.widthPx ?? 1;
+                                    const assetH = activePage.background.asset?.heightPx ?? 1;
+                                    if (crop && assetW > 0 && assetH > 0) {
+                                        const sx = sz.width / crop.width;
+                                        const sy = sz.height / crop.height;
                                         return (
                                             <div
-                                                className="absolute overflow-hidden"
-                                                style={{
-                                                    left: pos.x,
-                                                    top: pos.y,
-                                                    width: sz.width,
-                                                    height: sz.height,
-                                                    opacity,
-                                                }}
+                                                className="absolute overflow-hidden pointer-events-none"
+                                                style={{ left: pos.x, top: pos.y, width: sz.width, height: sz.height, opacity }}
                                             >
-                                                <img
-                                                    src={imageUrl}
+                                                <div
                                                     className="w-full h-full"
                                                     style={{
-                                                        objectFit: objectFit as React.CSSProperties['objectFit'],
-                                                        objectPosition: position,
+                                                        backgroundImage: `url(${imageUrl})`,
+                                                        backgroundSize: `${assetW * sx}px ${assetH * sy}px`,
+                                                        backgroundPosition: `${-crop.x * sx}px ${-crop.y * sy}px`,
                                                     }}
-                                                    alt="Background"
                                                 />
                                             </div>
                                         );
                                     }
                                     return (
-                                        <img
-                                            src={imageUrl}
-                                            className="w-full h-full"
-                                            style={{
-                                                opacity,
-                                                objectFit: objectFit as React.CSSProperties['objectFit'],
-                                                objectPosition: position,
-                                            }}
-                                            alt="Background"
-                                        />
+                                        <div
+                                            className="absolute overflow-hidden pointer-events-none"
+                                            style={{ left: pos.x, top: pos.y, width: sz.width, height: sz.height, opacity }}
+                                        >
+                                            <img
+                                                src={imageUrl}
+                                                className="w-full h-full"
+                                                style={{
+                                                    objectFit: objectFit as React.CSSProperties['objectFit'],
+                                                    objectPosition: position,
+                                                }}
+                                                alt="Background"
+                                            />
+                                        </div>
                                     );
                                 })()
                             ) : (

@@ -105,6 +105,8 @@ interface BuilderState {
     addComponent: (component: FormComponent, parentId?: string, index?: number) => void;
     deleteSelectedComponents: () => void; // Delete key support (Story 3.7+)
     updateGlobalStyles: (updates: Partial<GlobalStyles>) => void; // Story 3.5
+    /** Story 5.1 T06: Update current page background (placement, etc.) with undo support */
+    updatePageBackground: (updates: Partial<NonNullable<FormPage['background']>>, description?: string) => void;
     getSelectedComponent: () => FormComponent | null; // Story 3.5 helper - returns first/primary
     getSelectedComponents: () => FormComponent[]; // Multi-select helper - returns all selected
     
@@ -975,6 +977,34 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                         ...currentGlobalStyles,
                         ...updates,
                     },
+                },
+            };
+        });
+        persistToStorage(get().formDefinition);
+        set({ isDirty: true });
+    },
+
+    updatePageBackground: (updates, description = 'Update background') => {
+        get().pushToHistory(description);
+        set((state) => {
+            if (!state.formDefinition || !state.activePageId) return state;
+            const def = state.formDefinition;
+            const pages = def.desktopPages?.length ? def.desktopPages : (def.pages ?? []);
+            const activePage = pages.find(p => p.id === state.activePageId);
+            if (!activePage) return state;
+            const newBackground = {
+                type: activePage.background?.type || 'color',
+                value: activePage.background?.value || '#FFFFFF',
+                ...activePage.background,
+                ...updates,
+            } as FormPage['background'];
+            const newPages = pages.map(p =>
+                p.id === state.activePageId ? { ...p, background: newBackground } : p
+            );
+            return {
+                formDefinition: {
+                    ...def,
+                    ...(def.desktopPages?.length ? { desktopPages: newPages } : { pages: newPages }),
                 },
             };
         });

@@ -12,6 +12,12 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.signalplatforms.io',
+      'dev.signalplatforms.io',
+    ],
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8000',

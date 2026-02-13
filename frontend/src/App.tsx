@@ -7,6 +7,7 @@ import { OfflineIndicator } from './features/ux/components/OfflineIndicator'
 import { ThemeProvider } from './features/theme'
 import { unsavedWorkTracker } from './utils/unsavedWorkTracker'
 import { offlineQueue } from './utils/offlineQueue'
+import { getApiBaseUrl } from './lib/apiBaseUrl'
 
 // Create QueryClient instance for TanStack Query
 const queryClient = new QueryClient({
@@ -56,7 +57,7 @@ function HomePage() {
 
   useEffect(() => {
     // Test API connection
-    fetch('http://127.0.0.1:8000/api/health')
+    fetch(`${getApiBaseUrl()}/api/health`)
       .then(res => res.json())
       .then(data => {
         setHealthData(data)
@@ -197,7 +198,7 @@ function HomePage() {
             <ul className="text-sm text-gray-700 space-y-1" role="list">
               <li>
                 <a 
-                  href="http://127.0.0.1:8000/docs" 
+                  href={`${getApiBaseUrl()}/docs`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-teal-600 hover:underline link-color"
@@ -208,7 +209,7 @@ function HomePage() {
               </li>
               <li>
                 <a 
-                  href="http://127.0.0.1:8000/api/test-database" 
+                  href={`${getApiBaseUrl()}/api/test-database`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-teal-600 hover:underline link-color"

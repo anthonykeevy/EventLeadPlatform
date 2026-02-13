@@ -59,12 +59,14 @@ app.add_middleware(JWTAuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # React dev server
-        "http://127.0.0.1:3000",  # React dev server (IPv4)
+        "http://localhost:3000",  # React/Vite dev server
+        "http://127.0.0.1:3000",  # React/Vite dev server (IPv4)
         "http://localhost:5173",  # Vite default port (backup)
         "http://127.0.0.1:5173",  # Vite default port (IPv4)
-        # Add current origin for safety if user is accessing via explicit IP or different port
-        "*"
+        "https://app.signalplatforms.io",  # Production frontend
+        "https://signalplatforms.io",  # Production root
+        "https://www.signalplatforms.io",  # Production www
+        "*"  # Dev convenience; restrict for production deployment
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Explicitly allow all methods including OPTIONS

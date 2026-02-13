@@ -5,8 +5,7 @@
 
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
 
 export interface Country {
   id: number
@@ -47,7 +46,7 @@ export function useCountries(): UseCountriesReturn {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/countries`)
+        const response = await axios.get(`${getApiBaseUrl()}/api/countries`)
         setCountries(response.data)
         setError(null)
       } catch (err) {

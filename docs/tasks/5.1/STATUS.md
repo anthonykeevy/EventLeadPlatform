@@ -1,7 +1,7 @@
 # Story 5.1 Status
 
-**Last Updated:** 2026-02-11  
-**Current Task:** T06 (Placement + Intersection + Cropping)  
+**Last Updated:** 2026-02-13  
+**Current Task:** T07 (Data URL Guard + Regression Cleanup)  
 
 ---
 
@@ -14,7 +14,7 @@
 | T03 | ✅ HumanDone | 2026-02-09 |
 | T04 | ✅ HumanDone | 2026-02-10 |
 | T05 | ✅ HumanDone | 2026-02-11 |
-| T06 | 🔄 In Progress | implementation done, UAT pending |
+| T06 | ✅ HumanDone | 2026-02-13 |
 | T07 | ⏸️ Pending | - |
 | T08 | ⏸️ Pending | - |
 

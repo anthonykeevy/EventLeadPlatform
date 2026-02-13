@@ -67,3 +67,14 @@ This file is updated after each task retro.
 - UAT results: `T05-shared-resolver-parity.uat-results.md`
 - Retro: `T05-shared-resolver-parity.retro.md`
 
+### 2026-02-13 — T06 (Placement + Intersection Rule + Cropping)
+
+- **Dev Lessons:** Placement utils (`isBackgroundFullyOffCanvas`, `createDefaultPlacement`) are pure functions; add unit tests early for edge cases (fully on, fully off, partial overlap). Build after placement changes — canvas rendering is sensitive to placement object shape.
+- **Testing Lessons:** Unit test placement utils. Integration: placement round-trip builder → definition → renderer. UAT automation candidates: console check when loading form with placement; definition check for `page.background.placement`.
+- **Process Lessons:** Explicit regression checklist (color-only, external URL, console, form submit) works well for canvas/rendering tasks. Scope crop UI explicitly in/out to avoid ambiguity. T05 learning applied: explicit Pass/Fail per regression item in UAT results.
+
+**Links (T06):**
+- Completion: `T06-placement-intersection-and-cropping.completion.md`
+- UAT results: `T06-placement-intersection-and-cropping.uat-results.md`
+- Retro: `T06-placement-intersection-and-cropping.retro.md`
+

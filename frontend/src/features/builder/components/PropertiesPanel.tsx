@@ -45,6 +45,7 @@ export const PropertiesPanel: React.FC = () => {
         updateComponentProps,
         updateMultipleComponentProps,
         updateGlobalStyles,
+        updatePageBackground,
         getSelectedComponent,
         getSelectedComponents,
         activeLayer,
@@ -108,35 +109,10 @@ export const PropertiesPanel: React.FC = () => {
             }));
     }, [currentPage, selectedComponentId, selectedComponent]);
 
-    // Handler for updating page background
+    // Handler for updating page background (uses store action for undo + persist)
     const handleBackgroundChange = React.useCallback((updates: Partial<NonNullable<FormPage['background']>>) => {
-        if (!formDefinition || !activePageId) return;
-        
-        // Update the current page's background
-        const newBackground = {
-            type: pageBackground?.type || 'color',
-            value: pageBackground?.value || '#FFFFFF',
-            ...pageBackground,
-            ...updates,
-        } as FormPage['background'];
-        
-        useBuilderStore.setState((state) => {
-            if (!state.formDefinition) return state;
-            const def = state.formDefinition;
-            const pages = def.desktopPages?.length ? def.desktopPages : (def.pages ?? []);
-            const newPages = pages.map(p =>
-                p.id === activePageId ? { ...p, background: newBackground } : p
-            );
-            return {
-                formDefinition: {
-                    ...def,
-                    ...(def.desktopPages?.length
-                        ? { desktopPages: newPages }
-                        : { pages: newPages }),
-                },
-            };
-        });
-    }, [formDefinition, activePageId, pageBackground]);
+        updatePageBackground(updates);
+    }, [updatePageBackground]);
 
     // Handle property updates
     const handlePropsChange = React.useCallback((updates: Partial<NonNullable<typeof selectedComponent>['props']>) => {
@@ -353,6 +329,8 @@ export const PropertiesPanel: React.FC = () => {
                 <BackgroundPropertiesPanel 
                     pageBackground={pageBackground}
                     onBackgroundChange={handleBackgroundChange}
+                    canvasWidth={formDefinition?.canvasSettings?.width ?? 1920}
+                    canvasHeight={formDefinition?.canvasSettings?.height ?? 980}
                 />
             </aside>
         );

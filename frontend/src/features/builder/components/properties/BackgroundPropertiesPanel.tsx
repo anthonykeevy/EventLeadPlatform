@@ -1,7 +1,7 @@
 /**
- * BackgroundPropertiesPanel.tsx - Story 3.5, 5.1 Task T04
+ * BackgroundPropertiesPanel.tsx - Story 3.5, 5.1 Task T04, T06
  * Panel for editing canvas/page background properties
- * Updated to use asset upload API instead of Data URLs
+ * T06: placement metadata, cropping, off-canvas auto-remove
  */
 
 import React, { useState, useEffect } from 'react';
@@ -13,20 +13,17 @@ import { PropertySelect } from './inputs/PropertySelect';
 import { AssetLibrary } from './AssetLibrary';
 import { FormPage, BackgroundAssetMetadata, isHexColor } from '../../types/builder.types';
 import { assetsApi } from '../../api/assetsApi';
+import { createDefaultPlacement } from '../../utils/backgroundPlacementUtils';
 
 interface BackgroundPropertiesPanelProps {
     pageBackground?: FormPage['background'];
     onBackgroundChange: (updates: Partial<NonNullable<FormPage['background']>>) => void;
+    canvasWidth?: number;
+    canvasHeight?: number;
 }
 
-const IMAGE_SIZE_OPTIONS = [
-    { value: 'cover', label: 'Cover' },
-    { value: 'contain', label: 'Contain' },
-    { value: 'tile', label: 'Tile' },
-    { value: 'auto', label: 'Auto' },
-];
-
-const IMAGE_POSITION_OPTIONS = [
+/** When Fit (locked): which part of image stays visible */
+const ANCHOR_OPTIONS = [
     { value: 'center', label: 'Center' },
     { value: 'top', label: 'Top' },
     { value: 'bottom', label: 'Bottom' },
@@ -41,6 +38,8 @@ const IMAGE_POSITION_OPTIONS = [
 export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps> = ({
     pageBackground,
     onBackgroundChange,
+    canvasWidth = 1920,
+    canvasHeight = 980,
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [showAssetLibrary, setShowAssetLibrary] = useState(false);
@@ -112,12 +111,17 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     };
 
     const handleAssetSelect = (asset: BackgroundAssetMetadata) => {
-        // Store asset reference and resolve URL for preview
+        const placement = createDefaultPlacement(canvasWidth, canvasHeight);
+        // Store asset reference and resolve URL for preview. Default: Fit so full image visible, then user can resize frame.
         assetsApi.resolveAssetUrl(asset.assetId).then((url) => {
             onBackgroundChange({
                 type: 'image',
                 asset: asset,
-                value: url, // Store resolved URL for preview (but asset is the source of truth)
+                value: url,
+                placement,
+                imageSize: 'contain',
+                imagePosition: 'center',
+                lockAspectRatio: true,
             });
             setShowAssetLibrary(false);
             
@@ -134,7 +138,11 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
             onBackgroundChange({
                 type: 'image',
                 asset: asset,
-                value: assetsApi.getAssetContentUrl(asset.assetId), // Fallback to content URL
+                value: assetsApi.getAssetContentUrl(asset.assetId),
+                placement,
+                imageSize: 'contain',
+                imagePosition: 'center',
+                lockAspectRatio: true,
             });
             setShowAssetLibrary(false);
         });
@@ -308,19 +316,62 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                                     </div>
                                 </div>
 
-                                <PropertySelect
-                                    label="Image Size"
-                                    value={pageBackground?.imageSize || 'cover'}
-                                    onChange={(value) => onBackgroundChange({ imageSize: value as 'cover' | 'contain' | 'tile' | 'auto' })}
-                                    options={IMAGE_SIZE_OPTIONS}
-                                />
-
-                                <PropertySelect
-                                    label="Image Position"
-                                    value={pageBackground?.imagePosition || 'center'}
-                                    onChange={(value) => onBackgroundChange({ imagePosition: value })}
-                                    options={IMAGE_POSITION_OPTIONS}
-                                />
+                                {/* T06 WYSIWYG: Frame defined by drag/resize; these control how image fills that frame */}
+                                <div className="rounded-md bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 p-3 space-y-3">
+                                    <div>
+                                        <p className="text-sm font-medium text-indigo-800 dark:text-indigo-200">
+                                            Canvas: drag & resize
+                                        </p>
+                                        <p className="text-xs text-indigo-600 dark:text-indigo-300 mt-1">
+                                            Switch to <strong>Background</strong> mode, drag to move, use handles to resize. Off-canvas = remove.
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-3 pt-2 border-t border-indigo-200 dark:border-indigo-700">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-sm font-medium text-indigo-800 dark:text-indigo-200">
+                                                Lock aspect ratio
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const nextLock = !(pageBackground?.lockAspectRatio ?? true);
+                                                    onBackgroundChange({
+                                                        lockAspectRatio: nextLock,
+                                                        imageSize: nextLock ? 'contain' : 'fill',
+                                                    });
+                                                }}
+                                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                                                    (pageBackground?.lockAspectRatio ?? true)
+                                                        ? 'bg-indigo-600'
+                                                        : 'bg-gray-200 dark:bg-gray-600'
+                                                }`}
+                                                role="switch"
+                                            >
+                                                <span
+                                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition ${
+                                                        (pageBackground?.lockAspectRatio ?? true)
+                                                            ? 'translate-x-5'
+                                                            : 'translate-x-1'
+                                                    }`}
+                                                />
+                                            </button>
+                                        </div>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 -mt-2">
+                                            Lock: Fit to frame, corner handles only. Unlock: Stretch to frame, all 8 handles.
+                                        </p>
+                                        <div>
+                                            <PropertySelect
+                                                label="Anchor"
+                                                value={pageBackground?.imagePosition || 'center'}
+                                                onChange={(value) => onBackgroundChange({ imagePosition: value })}
+                                                options={ANCHOR_OPTIONS}
+                                            />
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                When locked, which part of the image stays centered
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 

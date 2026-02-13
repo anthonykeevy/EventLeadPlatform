@@ -14,6 +14,7 @@ import { AssetLibrary } from './AssetLibrary';
 import { FormPage, BackgroundAssetMetadata, isHexColor } from '../../types/builder.types';
 import { assetsApi } from '../../api/assetsApi';
 import { createDefaultPlacement } from '../../utils/backgroundPlacementUtils';
+import { isDataUrl, DATA_URL_ERROR_MESSAGE } from '../../utils/dataUrlGuard';
 
 interface BackgroundPropertiesPanelProps {
     pageBackground?: FormPage['background'];
@@ -46,6 +47,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     const [recentAssets, setRecentAssets] = useState<BackgroundAssetMetadata[]>([]);
     const [libraryLoading, setLibraryLoading] = useState(false);
     const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null);
+    const [dataUrlError, setDataUrlError] = useState<string | null>(null);
 
     const openAssetLibrary = async () => {
         setLibraryLoading(true);
@@ -111,6 +113,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     };
 
     const handleAssetSelect = (asset: BackgroundAssetMetadata) => {
+        setDataUrlError(null);
         const placement = createDefaultPlacement(canvasWidth, canvasHeight);
         // Store asset reference and resolve URL for preview. Default: Fit so full image visible, then user can resize frame.
         assetsApi.resolveAssetUrl(asset.assetId).then((url) => {
@@ -149,6 +152,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     };
 
     const handleRemoveAsset = () => {
+        setDataUrlError(null);
         onBackgroundChange({
             type: 'image',
             value: '',
@@ -298,20 +302,27 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
                                     <div className="mt-3">
                                         <PropertyTextInput
                                             label="Or enter image URL"
-                                            value={currentAsset ? '' : (currentValue && !currentValue.startsWith('data:') ? currentValue : '')}
+                                            value={currentAsset ? '' : (currentValue && !isDataUrl(currentValue) ? currentValue : '')}
                                             onChange={(value) => {
-                                                // Only allow non-Data URLs
-                                                if (!value.startsWith('data:')) {
-                                                    onBackgroundChange({ 
-                                                        value,
-                                                        asset: undefined, // Clear asset when using URL
-                                                    });
+                                                if (isDataUrl(value)) {
+                                                    setDataUrlError(DATA_URL_ERROR_MESSAGE);
+                                                    return;
                                                 }
+                                                setDataUrlError(null);
+                                                onBackgroundChange({
+                                                    value,
+                                                    asset: undefined, // Clear asset when using URL
+                                                });
                                             }}
                                             placeholder="https://example.com/image.jpg"
                                         />
+                                        {dataUrlError && (
+                                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1" role="alert">
+                                                {dataUrlError}
+                                            </p>
+                                        )}
                                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                            External URLs are supported, but uploading assets is recommended.
+                                            External URLs are supported, but uploading assets is recommended. Data URLs are not allowed.
                                         </p>
                                     </div>
                                 </div>

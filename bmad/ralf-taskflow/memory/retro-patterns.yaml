@@ -78,6 +78,57 @@ root_cause_patterns:
     frequency: 0
     last_seen: null
 
+  # Pattern 6: Tooling Baseline Missing
+  tooling_baseline_missing:
+    name: "Tooling Baseline Missing"
+    symptoms:
+      - "Lint/build cannot run due to missing config"
+      - "Dependency mismatch blocks verification"
+    root_cause: "Repo baseline tooling not aligned (config/deps missing)"
+    prevention:
+      - "ralf-dev: Add tooling baseline checklist before running tests"
+      - "ralf-sm: Keep build-stabilization task current"
+    example:
+      bad: "Run lint/build without ESLint config present"
+      good: "Verify ESLint config + deps before running required tests"
+    frequency: 1
+    last_seen: 2026-02-04
+
+  # Pattern 7: Build-Blocking Pre-Existing / Branch Divergence
+  build_blocking_pre_existing:
+    name: "Build-Blocking Pre-Existing or Branch Divergence"
+    symptoms:
+      - "Build fails on files not touched by task (lib/auth, formatFileSize)"
+      - "Dep scan or type errors from code outside task scope"
+      - "Worktree missing files that exist on main/story branch"
+    root_cause: "Branch divergence; pre-existing dead code or deprecated imports; external dep API drift"
+    prevention:
+      - "ralf-dev: Run npm run build after first implementation pass"
+      - "Merge master into story branch early when master has parallel changes (EPIC-5-WORKFLOW-GUIDE)"
+      - "ralf-dev: Document build fixes in completion as 'scope expansion: unblock verification'"
+    example:
+      bad: "Complete task, run build at end, discover lib/auth missing"
+      good: "Run build after FormBuilderCanvas refactor; catch lib/auth before completion"
+    frequency: 1
+    last_seen: 2026-02-11
+
+  # Pattern 8: Preview Query Params Lost
+  preview_query_params_lost:
+    name: "Preview Query Params Lost"
+    symptoms:
+      - "Preview URL tests fail while direct public URL works"
+      - "Kiosk mode does not activate in preview"
+    root_cause: "Preview shell did not forward query params to embed/public links"
+    prevention:
+      - "ralf-dev: Add unit test for preview URL param passthrough"
+      - "ralf-uat: Verify preview link preserves params before AC testing"
+      - "ralf-sm: Include preview passthrough verification in task ACs that use preview links"
+    example:
+      bad: "Preview URL drops kiosk params so countdown never appears"
+      good: "Preview URL passes `location.search` to iframe and public link"
+    frequency: 1
+    last_seen: 2026-02-04
+
 prevention_action_patterns:
 
   # Proven prevention actions from past retros

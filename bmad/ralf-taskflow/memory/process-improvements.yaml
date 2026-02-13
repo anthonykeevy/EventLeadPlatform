@@ -109,6 +109,45 @@ verification_improvements:
         ```
     frequency: 0
 
+  # Improvement 4: Preview Param Preflight
+  preview_param_preflight:
+    name: "Preview Param Passthrough Preflight"
+    description: "Verify preview URLs preserve query params before kiosk UAT"
+    applies_to: "ralf-dev, ralf-uat"
+    benefits:
+      - "Prevents false AC failures due to missing params"
+      - "Catches preview shell regressions early"
+    example:
+      before: |
+        Run kiosk UAT in preview without checking param passthrough
+      after: |
+        Load preview URL and confirm iframe/public link includes `kiosk=1`
+    frequency: 1
+
+  # Improvement 5: Build After First Pass
+  build_after_first_pass:
+    name: "Run Build After First Implementation Pass"
+    description: "Run npm run build (and dep scan) right after initial implementation, not only at final verification"
+    applies_to: "ralf-dev"
+    benefits:
+      - "Catches dep drift (libphonenumber), type mismatches (objectFit)"
+      - "Catches branch divergence (missing lib/auth)"
+      - "Catches JSX structure errors early"
+    frequency: 1
+
+  # Improvement 6: Tooling Baseline Check
+  tooling_baseline_check:
+    name: "Tooling Baseline Check Before Tests"
+    description: "Verify ESLint config and dependency alignment before running required tests"
+    applies_to: "ralf-dev"
+    commands:
+      - "Test-Path frontend/.eslintrc.*"
+      - "npm ls @dnd-kit/modifiers"
+    benefits:
+      - "Avoids test blocks due to missing config"
+      - "Reduces wasted verification cycles"
+    frequency: 1
+
 uat_improvements:
 
   # Improvement 1: Scope Check First

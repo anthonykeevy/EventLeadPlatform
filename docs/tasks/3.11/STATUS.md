@@ -1,7 +1,7 @@
 # Story 3.11 Status
 
 **Last Updated:** 2026-02-06  
-**Current Task:** Story 3.11 complete (all tasks ✅ Done / ✅ HumanDone)  
+**Current Task:** Story 3.11 complete (all tasks ✅ Done / ✅ HumanDone)
 
 ---
 

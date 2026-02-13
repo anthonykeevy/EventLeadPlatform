@@ -1,8 +1,9 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 export const PublicFormPreviewShellPage: React.FC = () => {
   const { token } = useParams<{ token: string }>()
+  const location = useLocation()
   const [action, setAction] = React.useState<string>('')
   const [nonce, setNonce] = React.useState(0)
 
@@ -16,8 +17,14 @@ export const PublicFormPreviewShellPage: React.FC = () => {
     )
   }
 
-  const embedUrl = `/forms/${token}?embed=1${action ? `&action=${action}` : ''}&nonce=${nonce}`
-  const publicUrl = `/forms/${token}`
+  const passthroughParams = new URLSearchParams(location.search)
+  passthroughParams.delete('action')
+  passthroughParams.delete('nonce')
+  const passthroughQuery = passthroughParams.toString()
+  const embedUrl = `/forms/${token}?embed=1${
+    passthroughQuery ? `&${passthroughQuery}` : ''
+  }${action ? `&action=${action}` : ''}&nonce=${nonce}`
+  const publicUrl = `/forms/${token}${location.search ?? ''}`
 
   return (
     <div className="min-h-screen bg-gray-50">

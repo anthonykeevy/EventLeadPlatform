@@ -53,6 +53,37 @@ DEFAULT_LOGGING_EXCLUDED_ENDPOINTS = ["/api/health"]
 
 
 # ============================================================================
+# ASSET LIMIT DEFAULTS (Story 5.1 - Background Asset Management)
+# ============================================================================
+
+# Config.AppSetting keys for asset limits (must exist in config.AppSetting)
+ASSET_IMAGE_MAX_UPLOAD_BYTES_KEY = "forms.assets.images.max_upload_bytes"
+ASSET_IMAGE_MAX_WIDTH_PX_KEY = "forms.assets.images.max_width_px"
+ASSET_IMAGE_MAX_HEIGHT_PX_KEY = "forms.assets.images.max_height_px"
+ASSET_IMAGE_ALLOWED_MIME_TYPES_KEY = "forms.assets.images.allowed_mime_types"
+
+# Default fallback values (used if setting not found or DB unavailable)
+DEFAULT_ASSET_IMAGE_MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
+DEFAULT_ASSET_IMAGE_MAX_WIDTH_PX = 4096
+DEFAULT_ASSET_IMAGE_MAX_HEIGHT_PX = 4096
+# JSON array in config.AppSetting (stored as string)
+DEFAULT_ASSET_IMAGE_ALLOWED_MIME_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+]
+
+# Handy list for documentation or validation checks
+ASSET_IMAGE_LIMIT_SETTING_KEYS = [
+    ASSET_IMAGE_MAX_UPLOAD_BYTES_KEY,
+    ASSET_IMAGE_MAX_WIDTH_PX_KEY,
+    ASSET_IMAGE_MAX_HEIGHT_PX_KEY,
+    ASSET_IMAGE_ALLOWED_MIME_TYPES_KEY,
+]
+
+
+# ============================================================================
 # USER STATUS ENUMS (ref.UserStatus)
 # ============================================================================
 

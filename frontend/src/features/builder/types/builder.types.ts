@@ -651,26 +651,96 @@ export interface FormComponent {
     children?: FormComponent[]; 
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// BACKGROUND ASSET CONTRACTS (Story 5.1)
+// Field names intentionally match backend asset_schemas.py
+// Data URL guard: background values must NOT be persisted if value starts with "data:".
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface BackgroundAssetMetadata {
+    assetId: number;
+    assetKey: string;
+    displayName?: string;
+    originalFilename: string;
+    mimeType: string;
+    byteSize: number;
+    widthPx?: number;
+    heightPx?: number;
+    checksumSha256?: string;
+    createdAt?: string; // ISO timestamp
+    updatedAt?: string; // ISO timestamp
+}
+
+export interface BackgroundPosition {
+    /** Canvas coordinates in pixels; negative offsets allowed. */
+    x: number;
+    y: number;
+}
+
+export interface BackgroundSize {
+    width: number;
+    height: number;
+}
+
+export interface BackgroundCrop {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export interface BackgroundPlacement {
+    position: BackgroundPosition;
+    size: BackgroundSize;
+    crop?: BackgroundCrop;
+}
+
+export type BackgroundType = 'color' | 'image';
+
+/** True if string looks like a hex colour (e.g. #RRGGBB). */
+export function isHexColor(s: string | undefined): boolean {
+    return !!s && /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(s);
+}
+
+export interface BackgroundDefinition {
+    type: BackgroundType;
+    /** Hex color or legacy URL (Data URLs are NOT allowed). Active value for current type. */
+    value: string;
+    /** Stored colour when type is image so switching back to Colour restores it. */
+    colorValue?: string;
+    /** Preferred asset reference for background images. */
+    asset?: BackgroundAssetMetadata;
+    /** Placement metadata for image backgrounds. */
+    placement?: BackgroundPlacement;
+    /** How image fills placement frame. cover=fill+crop, contain=fit, fill=stretch, tile=repeat. */
+    imageSize?: 'cover' | 'contain' | 'tile' | 'auto' | 'fill';
+    /** Lock aspect ratio during resize. true=corner handles only; false=all 8 handles. */
+    lockAspectRatio?: boolean;
+    /** Legacy positioning (CSS-style). */
+    imagePosition?: string;
+    /** Overlay tint (hex). */
+    overlayColor?: string;
+    /** Overlay opacity (0-1). */
+    overlayOpacity?: number;
+    /** Background opacity (0-1). */
+    opacity?: number;
+    /** Legacy scale factor. */
+    scale?: number;
+    /** Legacy position (use placement.position instead). */
+    position?: BackgroundPosition;
+}
+
+export interface BackgroundAssetResolver {
+    /** Resolve an asset reference into a runtime URL. */
+    resolveUrl: (asset: BackgroundAssetMetadata, placement?: BackgroundPlacement) => string | Promise<string>;
+}
+
 export interface FormPage {
     id: string;
     title: string;
     components: FormComponent[];
     // Canvas Refactor: Background Settings per page (T04: asset ref + image/overlay options)
-    background?: {
-        type: 'color' | 'image';
-        value: string; // Hex code or URL
-        opacity?: number;
-        scale?: number;
-        position?: { x: number, y: number };
-        /** Stored when type is color so it restores when switching back from image */
-        colorValue?: string;
-        /** Asset reference (T04); when set, value may be content URL or legacy data URL */
-        asset?: { assetId: number };
-        imageSize?: 'auto' | 'contain' | 'cover' | 'tile';
-        imagePosition?: string;
-        overlayColor?: string;
-        overlayOpacity?: number;
-    };
+    background?: BackgroundDefinition;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

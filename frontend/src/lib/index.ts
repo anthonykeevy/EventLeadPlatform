@@ -1,19 +1,6 @@
 /**
  * Library exports
+ * Note: Auth exports moved to features/auth - use features/auth/api for auth API
  */
-export { 
-  signup, 
-  verifyEmail, 
-  resendVerification, 
-  login, 
-  calculatePasswordStrength, 
-  isValidEmail,
-  type SignupRequest,
-  type SignupResponse,
-  type VerifyEmailResponse,
-  type LoginRequest,
-  type TokenResponse,
-  type ApiError
-} from './auth'
 export * from './config'
 

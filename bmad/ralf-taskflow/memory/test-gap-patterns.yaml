@@ -136,6 +136,67 @@ test_gaps:
     priority: "medium"
     frequency: 0
 
+  # Gap 6: Outbox Retry/Backoff Tests
+  outbox_retry_backoff:
+    name: "Missing Outbox Retry/Backoff Tests"
+    gap_description: "Outbox retry/backoff behavior verified manually, not automated"
+    symptoms:
+      - "Manual DevTools checks needed for retry timing"
+      - "Headers checked by hand to confirm auth-free behavior"
+    test_to_add:
+      type: "integration"
+      location: "src/features/renderer/outbox/__tests__/"
+      template: |
+        describe('public outbox processor', () => {
+          it('applies backoff and updates retry metadata', async () => {
+            // mock fetch + indexedDB, assert status and retryCount
+          });
+        });
+      command: "npm test -- --testPathPattern=publicOutbox"
+    priority: "medium"
+    frequency: 1
+
+  # Gap 7: Resolver/URL Contract Tests
+  resolver_contract:
+    name: "Missing Resolver URL Contract Test"
+    gap_description: "Resolver output format not verified against backend contract"
+    symptoms:
+      - "Builder and renderer might diverge on URL format"
+      - "Backend contract change not caught"
+    test_to_add:
+      type: "unit"
+      location: "frontend/src/features/builder/utils/__tests__/"
+      template: |
+        describe('backgroundAssetResolver', () => {
+          it('resolveAssetContentUrl returns {base}/api/assets/{id}/content', () => {
+            expect(resolveAssetContentUrl(1)).toMatch(/\/api\/assets\/1\/content$/);
+          });
+        });
+      command: "npm test -- --testPathPattern=backgroundAssetResolver"
+    priority: "medium"
+    frequency: 1
+
+  # Gap 8: Preview URL Param Passthrough
+  preview_url_params:
+    name: "Missing Preview URL Param Passthrough Test"
+    gap_description: "Preview shell does not verify query params are forwarded to embed/public URLs"
+    symptoms:
+      - "Preview link drops kiosk params"
+      - "Countdown/reset never triggers in preview"
+    test_to_add:
+      type: "unit"
+      location: "frontend/src/features/renderer/pages/__tests__/"
+      template: |
+        describe('PublicFormPreviewShellPage', () => {
+          it('passes location.search params to embed and public URLs', () => {
+            // render with ?kiosk=1&autoResetSeconds=10
+            // assert iframe src and link href include params
+          });
+        });
+      command: "npm test -- --testPathPattern=PublicFormPreviewShellPage"
+    priority: "medium"
+    frequency: 1
+
 # When to add each test type
 test_type_guidance:
   unit:

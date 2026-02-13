@@ -1,13 +1,42 @@
 import React from 'react'
 import type { FormComponent, FormDefinition, FormPage, FormValidationContext } from '../../builder/types/builder.types'
+import { useBackgroundImageUrl } from '../../builder/hooks/useBackgroundImageUrl'
+import { isBackgroundFullyOffCanvas } from '../../builder/utils/backgroundPlacementUtils'
 import { ComponentRegistry } from '../../builder/registry/ComponentRegistry'
 import { validateField } from '../../builder/utils/validationEngine'
 import { evaluateRules } from '../../logic-engine/evaluateRules'
 import type { ComponentRuntimeState } from '../../logic-engine/types'
 import { ComponentErrorBoundary } from './ComponentErrorBoundary'
+import type {
+  PublicFormSubmissionRequest,
+  PublicOutboxItem,
+  PublicSubmissionLinkType,
+} from '../types/publicSubmission.types'
+import { submitPublicFormSubmission, submitPublicValidationTelemetry } from '../api/publicSubmissionApi'
+import type {
+  PublicValidationErrorCategory,
+  PublicValidationFailure,
+  PublicValidationEventRequest,
+} from '../types/telemetry.types'
+import {
+  enqueuePublicOutboxItem,
+  processPublicOutbox,
+  registerPublicOutboxOnlineHandler,
+} from '../outbox/publicOutbox'
+import {
+  createIdempotencyKey,
+  createNewClientSessionId,
+  createSubmitAttemptId,
+  getOrCreateClientDeviceId,
+} from '../utils/clientIdentity'
+import { getValueDiagnostics } from '../utils/valueDiagnostics'
 
 type ValueMap = Record<string, unknown>
 type FieldErrorMap = Record<string, string>
+type SubmitNotice = {
+  tone: 'success' | 'warning' | 'error'
+  text: string
+}
 
 function getDateValueString(
   value: unknown,
@@ -48,9 +77,36 @@ function sortByPositionStable(a: FormComponent, b: FormComponent): number {
   return a.id.localeCompare(b.id)
 }
 
+const NON_VALIDATED_COMPONENT_TYPES = new Set([
+  'dropdown',
+  'radio',
+  'checkbox',
+  'terms',
+  'submit-button',
+  'divider',
+])
+
+function toValidationErrorCategory(ruleKey?: string): PublicValidationErrorCategory {
+  if (!ruleKey) return 'unknown'
+  if (ruleKey === 'required') return 'required'
+  if (ruleKey.startsWith('min')) return 'min'
+  if (ruleKey.startsWith('max')) return 'max'
+  if (ruleKey === 'pattern' || ruleKey === 'email' || ruleKey === 'phone' || ruleKey === 'date') {
+    return 'pattern'
+  }
+  if (ruleKey === 'allowedValues' || ruleKey === 'stepIncrement' || ruleKey === 'oddOnly' || ruleKey === 'evenOnly') {
+    return 'range'
+  }
+  return 'custom'
+}
+
 function getBaseRequired(component: FormComponent): boolean {
   const requiredFromProps = component.props.required
-  const requiredFromValidation = (component.props.validation as any)?.required
+  const validation = component.props.validation as unknown
+  const requiredFromValidation =
+    validation && typeof validation === 'object' && 'required' in validation
+      ? (validation as { required?: unknown }).required
+      : undefined
   return Boolean(requiredFromProps ?? requiredFromValidation ?? false)
 }
 
@@ -63,18 +119,41 @@ function selectAuthoredPages(definition: FormDefinition): FormPage[] {
 
 export const PublicFormArtboard: React.FC<{
   definition: FormDefinition
-  onSubmissionDeferred?: (payload: any) => void
+  onSubmissionDeferred?: (payload: PublicFormSubmissionRequest) => void
   /** When true (builder iframe), suppress page chrome like outer borders */
   embed?: boolean
   /** Optional action trigger from query params (validate/reset). */
   action?: string | null
+  /** Public token (used for submission). Optional in builder/preview contexts. */
+  token?: string
+  /** Public link type (preview/production) for context. */
+  linkType?: string
   /** Layout mode for embedding in builder canvas. */
   layoutMode?: 'default' | 'builder'
   /** Optional className for the outer container. */
   containerClassName?: string
   /** Optional style override for the outer container. */
   containerStyle?: React.CSSProperties
-}> = ({ definition, onSubmissionDeferred, embed, action, layoutMode = 'default', containerClassName, containerStyle }) => {
+  /** Optional kiosk mode toggle from public link. */
+  kioskEnabled?: boolean
+  /** Auto-reset timeout in seconds when kiosk mode is enabled. */
+  autoResetSeconds?: number
+  /** Countdown window in seconds when kiosk mode is enabled. */
+  countdownSeconds?: number
+}> = ({
+  definition,
+  onSubmissionDeferred,
+  embed,
+  action,
+  token,
+  linkType,
+  layoutMode = 'default',
+  containerClassName,
+  containerStyle,
+  kioskEnabled,
+  autoResetSeconds,
+  countdownSeconds,
+}) => {
   const pages = selectAuthoredPages(definition)
   const page = pages[0]
   
@@ -85,6 +164,9 @@ export const PublicFormArtboard: React.FC<{
     }
     return definition.theme?.backgroundColor ?? '#ffffff'
   }, [page, definition.theme])
+
+  // Shared resolver: background image URL (builder preview + public renderer parity)
+  const { url: backgroundImageUrl } = useBackgroundImageUrl(page?.background)
 
   const components = React.useMemo(() => {
     if (!page) return []
@@ -123,20 +205,142 @@ export const PublicFormArtboard: React.FC<{
 
   const [values, setValues] = React.useState<ValueMap>({})
   const [showValidation, setShowValidation] = React.useState(false)
-  const [submitMessage, setSubmitMessage] = React.useState<string | null>(null)
+  const [submitNotice, setSubmitNotice] = React.useState<SubmitNotice | null>(null)
+  const [clientSessionId, setClientSessionId] = React.useState(() => createNewClientSessionId())
+  const [kioskCountdownSeconds, setKioskCountdownSeconds] = React.useState<number | null>(null)
+  const [storageEstimate, setStorageEstimate] = React.useState<{
+    quotaMb?: number
+    usageMb?: number
+  } | null>(null)
+  const clientDeviceId = React.useMemo(() => getOrCreateClientDeviceId(), [])
+  const normalizedLinkType = React.useMemo(() => {
+    const upper = linkType?.toUpperCase()
+    if (upper === 'PREVIEW' || upper === 'PRODUCTION') {
+      return upper as PublicSubmissionLinkType
+    }
+    return undefined
+  }, [linkType])
   const inputRefs = React.useRef<Record<string, React.RefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>>>({})
+  const kioskTimerRef = React.useRef<number | null>(null)
+  const kioskDeadlineRef = React.useRef<number | null>(null)
+
+  const kioskConfig = React.useMemo(() => {
+    if (!kioskEnabled) return null
+    if (typeof autoResetSeconds !== 'number' || autoResetSeconds <= 0) return null
+    const rawCountdown =
+      typeof countdownSeconds === 'number' && countdownSeconds > 0 ? countdownSeconds : undefined
+    const resolvedCountdown = Math.min(
+      rawCountdown ?? Math.min(10, autoResetSeconds),
+      autoResetSeconds
+    )
+    return { autoResetMs: autoResetSeconds * 1000, countdownSeconds: resolvedCountdown }
+  }, [kioskEnabled, autoResetSeconds, countdownSeconds])
+
+  const resetFormState = React.useCallback(
+    ({ rotateSession, clearNotice }: { rotateSession: boolean; clearNotice: boolean }) => {
+      setValues({})
+      setShowValidation(false)
+      if (clearNotice) setSubmitNotice(null)
+      if (rotateSession) setClientSessionId(createNewClientSessionId())
+    },
+    []
+  )
+
+  const handleKioskReset = React.useCallback(() => {
+    kioskDeadlineRef.current = null
+    setKioskCountdownSeconds(null)
+    resetFormState({ rotateSession: true, clearNotice: true })
+  }, [resetFormState])
+
+  const handleManualReset = React.useCallback(() => {
+    if (kioskConfig) {
+      handleKioskReset()
+    } else {
+      resetFormState({ rotateSession: false, clearNotice: true })
+    }
+  }, [kioskConfig, handleKioskReset, resetFormState])
+
+  const markActivity = React.useCallback(() => {
+    if (!kioskConfig) return
+    kioskDeadlineRef.current = Date.now() + kioskConfig.autoResetMs
+    setKioskCountdownSeconds(null)
+  }, [kioskConfig])
 
   React.useEffect(() => {
     if (!action) return
     if (action === 'reset') {
-      setValues({})
-      setShowValidation(false)
-      setSubmitMessage(null)
+      handleManualReset()
     }
     if (action === 'validate') {
       setShowValidation(true)
     }
-  }, [action])
+  }, [action, handleManualReset])
+
+  React.useEffect(() => {
+    registerPublicOutboxOnlineHandler()
+    void processPublicOutbox()
+  }, [])
+
+  React.useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.storage?.estimate) return
+    let active = true
+    navigator.storage
+      .estimate()
+      .then(result => {
+        if (!active) return
+        const quotaMb =
+          typeof result.quota === 'number' && Number.isFinite(result.quota)
+            ? Math.round((result.quota / 1024 / 1024) * 100) / 100
+            : undefined
+        const usageMb =
+          typeof result.usage === 'number' && Number.isFinite(result.usage)
+            ? Math.round((result.usage / 1024 / 1024) * 100) / 100
+            : undefined
+        if (quotaMb === undefined && usageMb === undefined) return
+        setStorageEstimate({ quotaMb, usageMb })
+      })
+      .catch(() => undefined)
+    return () => {
+      active = false
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (kioskTimerRef.current) {
+      window.clearInterval(kioskTimerRef.current)
+      kioskTimerRef.current = null
+    }
+
+    if (!kioskConfig) {
+      kioskDeadlineRef.current = null
+      setKioskCountdownSeconds(null)
+      return
+    }
+
+    kioskTimerRef.current = window.setInterval(() => {
+      const deadline = kioskDeadlineRef.current
+      if (!deadline) return
+      const remainingMs = deadline - Date.now()
+      if (remainingMs <= 0) {
+        handleKioskReset()
+        return
+      }
+
+      const remainingSeconds = Math.ceil(remainingMs / 1000)
+      if (kioskConfig.countdownSeconds > 0 && remainingSeconds <= kioskConfig.countdownSeconds) {
+        setKioskCountdownSeconds(remainingSeconds)
+      } else {
+        setKioskCountdownSeconds(null)
+      }
+    }, 250)
+
+    return () => {
+      if (kioskTimerRef.current) {
+        window.clearInterval(kioskTimerRef.current)
+        kioskTimerRef.current = null
+      }
+    }
+  }, [kioskConfig, handleKioskReset])
 
   const { stateById, warnings } = React.useMemo(() => {
     return evaluateRules({
@@ -173,9 +377,7 @@ export const PublicFormArtboard: React.FC<{
         componentType = 'date'
       }
 
-      const result = validateField(valueForValidation, effectiveRules, componentType, {
-        dateFormat: c.props?.dateFormat,
-      })
+      const result = validateField(valueForValidation, effectiveRules, componentType)
       if (!result.isValid && result.errors.length > 0) {
         const customMessage = c.props.validationMessage || validation.customError
         next[c.id] = customMessage || result.errors[0].message
@@ -203,6 +405,66 @@ export const PublicFormArtboard: React.FC<{
     }
     return next
   }, [components, stateById, values, validationMessages])
+
+  const buildValidationFailures = React.useCallback((): PublicValidationFailure[] => {
+    const failures: PublicValidationFailure[] = []
+
+    for (const c of components) {
+      const runtime = stateById[c.id]
+      if (!runtime?.visible) continue
+
+      const isDate = c.type === 'date'
+      let valueForValidation: unknown = values[c.id]
+      let componentType = c.type
+
+      if (isDate) {
+        const dateValue = getDateValueString(values[c.id], c.props.dateParts)
+        valueForValidation = dateValue
+        componentType = 'date'
+      }
+
+      const isEmpty =
+        valueForValidation === null ||
+        valueForValidation === undefined ||
+        (typeof valueForValidation === 'string' && valueForValidation.trim().length === 0) ||
+        (Array.isArray(valueForValidation) && valueForValidation.length === 0)
+
+      if (runtime.required && isEmpty) {
+        failures.push({
+          componentId: c.id,
+          componentType: c.type,
+          ruleType: 'required',
+          ruleCode: 'validation.general.required',
+          errorCategory: 'required',
+          valueDiagnostics: getValueDiagnostics(valueForValidation),
+        })
+        continue
+      }
+
+      if (NON_VALIDATED_COMPONENT_TYPES.has(c.type)) continue
+
+      const validation = c.props.validation
+      if (!validation) continue
+      if (isDate && typeof valueForValidation === 'string' && valueForValidation.length === 0) continue
+
+      const effectiveRules = { ...validation, required: false }
+      const result = validateField(valueForValidation, effectiveRules, componentType)
+      if (!result.isValid) {
+        for (const error of result.errors) {
+          failures.push({
+            componentId: c.id,
+            componentType: c.type,
+            ruleType: error.ruleKey,
+            ruleCode: error.messageKey,
+            errorCategory: toValidationErrorCategory(error.ruleKey),
+            valueDiagnostics: getValueDiagnostics(valueForValidation),
+          })
+        }
+      }
+    }
+
+    return failures
+  }, [components, stateById, values])
 
   const errors: FieldErrorMap = React.useMemo(() => {
     if (!showValidation) return {}
@@ -261,20 +523,166 @@ export const PublicFormArtboard: React.FC<{
 
   const setValue = (id: string, v: unknown) => {
     setValues(prev => ({ ...prev, [id]: v }))
+    markActivity()
   }
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    const submitAttemptId = createSubmitAttemptId()
     const nextErrors = computeErrors(true)
     setShowValidation(true)
-    setSubmitMessage(null)
-    if (Object.keys(nextErrors).length > 0) return
-    const payload = {
-      formId: definition.formId,
+    setSubmitNotice(null)
+    if (Object.keys(nextErrors).length > 0) {
+      if (token) {
+        const failures = buildValidationFailures()
+        if (failures.length > 0) {
+          const telemetry: PublicValidationEventRequest = {
+            eventType: 'validation_failed_submit',
+            occurredAtClient: new Date().toISOString(),
+            linkType: normalizedLinkType,
+            clientDeviceId,
+            clientSessionId,
+            submitAttemptId,
+            failures,
+          }
+          void submitPublicValidationTelemetry(token, telemetry)
+        }
+      }
+      return
+    }
+
+    if (!token) {
+      const isPreviewContext = Boolean(embed) || layoutMode === 'builder'
+      setSubmitNotice({
+        tone: isPreviewContext ? 'warning' : 'error',
+        text: isPreviewContext
+          ? 'Submission is disabled in preview mode.'
+          : 'Missing submission token. Please refresh the page.',
+      })
+      return
+    }
+
+    const nav =
+      typeof navigator !== 'undefined'
+        ? (navigator as Navigator & { deviceMemory?: number; connection?: { effectiveType?: string } })
+        : undefined
+    const prefersReducedMotion =
+      typeof window !== 'undefined' && window.matchMedia
+        ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        : undefined
+    let prefersColorScheme: string | undefined
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        prefersColorScheme = 'dark'
+      } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+        prefersColorScheme = 'light'
+      } else if (window.matchMedia('(prefers-color-scheme: no-preference)').matches) {
+        prefersColorScheme = 'no-preference'
+      }
+    }
+    let clientOrientation: string | undefined
+    if (typeof window !== 'undefined') {
+      const screenOrientation = window.screen?.orientation?.type
+      if (screenOrientation) {
+        clientOrientation = screenOrientation
+      } else if (window.matchMedia?.('(orientation: portrait)')?.matches) {
+        clientOrientation = 'portrait'
+      } else if (window.matchMedia?.('(orientation: landscape)')?.matches) {
+        clientOrientation = 'landscape'
+      }
+    }
+
+    const request: PublicFormSubmissionRequest = {
+      idempotencyKey: createIdempotencyKey(),
       submittedAtClient: new Date().toISOString(),
       answersByComponentId: values,
+      context: {
+        clientDeviceId,
+        clientSessionId,
+        submitAttemptId,
+        clientTimezone: typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined,
+        clientLocale:
+          typeof navigator !== 'undefined'
+            ? navigator.languages?.[0] ?? navigator.language
+            : undefined,
+        clientUserAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+        clientScreen:
+          typeof window !== 'undefined' && window.screen
+            ? {
+                width: window.screen.width,
+                height: window.screen.height,
+                dpr: window.devicePixelRatio,
+              }
+            : undefined,
+        clientViewport:
+          typeof window !== 'undefined'
+            ? { width: window.innerWidth, height: window.innerHeight }
+            : undefined,
+        renderCanvasWidth: canvasWidth,
+        renderCanvasHeight: canvasHeight,
+        renderScaleAtSubmit: scale,
+        clientOnlineAtSubmit: typeof navigator !== 'undefined' ? navigator.onLine : undefined,
+        effectiveConnectionType: nav?.connection?.effectiveType,
+        maxTouchPoints: typeof navigator !== 'undefined' ? navigator.maxTouchPoints : undefined,
+        clientOrientation,
+        prefersColorScheme,
+        prefersReducedMotion,
+        deviceMemoryGb: nav?.deviceMemory,
+        hardwareConcurrency: nav?.hardwareConcurrency,
+        supportsIndexedDB: typeof indexedDB !== 'undefined',
+        supportsServiceWorker: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
+        storageQuotaMb: storageEstimate?.quotaMb,
+        storageUsageMb: storageEstimate?.usageMb,
+        appVersion: import.meta.env.VITE_APP_VERSION,
+        buildSha: import.meta.env.VITE_BUILD_SHA,
+      },
     }
-    setSubmitMessage('Client-side validation passed. Submission transport/outbox is deferred to Story 3.10.')
-    onSubmissionDeferred?.(payload)
+
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine !== false : false
+    const clearForNextSubmission = () => {
+      resetFormState({ rotateSession: true, clearNotice: false })
+    }
+
+    if (isOnline) {
+      try {
+        await submitPublicFormSubmission(token, request)
+        setSubmitNotice({ tone: 'success', text: 'Submission received. Thank you!' })
+        clearForNextSubmission()
+        return
+      } catch {
+        // Fall through to queue the submission.
+      }
+    }
+
+    const outboxItem: PublicOutboxItem = {
+      // Use the same stable identifier as the request for dedupe/retry tracking.
+      outboxItemId: request.idempotencyKey,
+      token,
+      linkType: normalizedLinkType,
+      request,
+      status: 'pending',
+      retryCount: 0,
+      createdAt: Date.now(),
+    }
+
+    try {
+      await enqueuePublicOutboxItem(outboxItem)
+      setSubmitNotice({
+        tone: 'warning',
+        text: isOnline
+          ? 'Upload failed; submission saved and will retry automatically.'
+          : 'You appear offline. Submission saved and will upload when online.',
+      })
+      clearForNextSubmission()
+      onSubmissionDeferred?.(request)
+      if (isOnline) {
+        void processPublicOutbox()
+      }
+    } catch {
+      setSubmitNotice({
+        tone: 'error',
+        text: 'Unable to save your submission. Please try again.',
+      })
+    }
   }
 
   const canvasWidth = definition.canvasSettings?.width ?? 1024
@@ -323,7 +731,14 @@ export const PublicFormArtboard: React.FC<{
     : `w-full ${containerClassName ?? ''}`.trim()
 
   return (
-    <div ref={containerRef} className={outerClasses} style={outerStyle}>
+    <div
+      ref={containerRef}
+      className={outerClasses}
+      style={outerStyle}
+      onFocusCapture={markActivity}
+      onKeyDownCapture={markActivity}
+      onPointerDownCapture={markActivity}
+    >
       <div className={isBuilderLayout ? 'h-full w-full flex items-center justify-center p-8' : 'h-full overflow-auto p-4'}>
         {!isBuilderLayout && warnings.length > 0 && (
           <div className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-900">
@@ -342,9 +757,23 @@ export const PublicFormArtboard: React.FC<{
           </div>
         )}
 
-        {!isBuilderLayout && submitMessage && (
-          <div className="mb-4 rounded border border-green-200 bg-green-50 p-3 text-sm text-green-900">
-            {submitMessage}
+        {!isBuilderLayout && submitNotice && (
+          <div
+            className={`mb-4 rounded border p-3 text-sm ${
+              submitNotice.tone === 'success'
+                ? 'border-green-200 bg-green-50 text-green-900'
+                : submitNotice.tone === 'warning'
+                  ? 'border-yellow-200 bg-yellow-50 text-yellow-900'
+                  : 'border-red-200 bg-red-50 text-red-900'
+            }`}
+          >
+            {submitNotice.text}
+          </div>
+        )}
+
+        {!isBuilderLayout && kioskCountdownSeconds !== null && kioskCountdownSeconds > 0 && (
+          <div className="mb-4 rounded border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-900">
+            Resetting in {kioskCountdownSeconds}s…
           </div>
         )}
 
@@ -366,6 +795,119 @@ export const PublicFormArtboard: React.FC<{
               fontFamily: definition.theme?.fontFamily ?? 'Inter',
             }}
           >
+            {/* LAYER 0: Background - T06: placement/crop when present, off-canvas not rendered */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              {page?.background?.type === 'image' && backgroundImageUrl ? (
+                (() => {
+                  const placement = page.background.placement;
+                  const fullyOffCanvas = placement && isBackgroundFullyOffCanvas(placement, canvasWidth, canvasHeight);
+                  if (fullyOffCanvas) return null;
+                  const size = page.background.imageSize || 'contain';
+                  const objectFit = ((s: string) => {
+                    if (s === 'tile' || s === 'auto') return 'cover';
+                    if (s === 'fill') return 'fill';
+                    return s || 'contain';
+                  })(size) as React.CSSProperties['objectFit'];
+                  const position = page.background.imagePosition || 'center';
+                  const opacity = page.background.opacity ?? 1;
+                  if (placement) {
+                    const { position: pos, size: sz, crop } = placement;
+                    const assetW = page.background.asset?.widthPx ?? 1;
+                    const assetH = page.background.asset?.heightPx ?? 1;
+                    if (crop && assetW > 0 && assetH > 0) {
+                      const sx = sz.width / crop.width;
+                      const sy = sz.height / crop.height;
+                      return (
+                        <div
+                          className="absolute overflow-hidden"
+                          style={{
+                            left: pos.x,
+                            top: pos.y,
+                            width: sz.width,
+                            height: sz.height,
+                            opacity,
+                          }}
+                        >
+                          <div
+                            className="w-full h-full"
+                            style={{
+                              backgroundImage: `url(${backgroundImageUrl})`,
+                              backgroundSize: `${assetW * sx}px ${assetH * sy}px`,
+                              backgroundPosition: `${-crop.x * sx}px ${-crop.y * sy}px`,
+                            }}
+                          />
+                        </div>
+                      );
+                    }
+                    if (size === 'tile') {
+                      return (
+                        <div
+                          className="absolute overflow-hidden"
+                          style={{
+                            left: pos.x,
+                            top: pos.y,
+                            width: sz.width,
+                            height: sz.height,
+                            opacity,
+                            backgroundImage: `url(${backgroundImageUrl})`,
+                            backgroundSize: `${assetW}px ${assetH}px`,
+                            backgroundRepeat: 'repeat',
+                            backgroundPosition: position,
+                          }}
+                        />
+                      );
+                    }
+                    return (
+                      <div
+                        className="absolute overflow-hidden"
+                        style={{
+                          left: pos.x,
+                          top: pos.y,
+                          width: sz.width,
+                          height: sz.height,
+                          opacity,
+                        }}
+                      >
+                        <img
+                          src={backgroundImageUrl}
+                          alt=""
+                          className="w-full h-full"
+                          style={{ objectFit, objectPosition: position }}
+                        />
+                      </div>
+                    );
+                  }
+                  if (size === 'tile') {
+                    const assetW = page.background.asset?.widthPx ?? 1;
+                    const assetH = page.background.asset?.heightPx ?? 1;
+                    return (
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          opacity,
+                          backgroundImage: `url(${backgroundImageUrl})`,
+                          backgroundSize: `${assetW}px ${assetH}px`,
+                          backgroundRepeat: 'repeat',
+                          backgroundPosition: position,
+                        }}
+                      />
+                    );
+                  }
+                  return (
+                    <img
+                      src={backgroundImageUrl}
+                      alt=""
+                      className="w-full h-full"
+                      style={{ opacity, objectFit, objectPosition: position }}
+                    />
+                  );
+                })()
+              ) : (
+                <div className="w-full h-full" style={{ backgroundColor }} />
+              )}
+            </div>
+            {/* LAYER 1: Components */}
+            <div className="absolute inset-0 z-10">
             {components.map(c => {
               const runtime = stateById[c.id] ?? { visible: true, enabled: true, required: getBaseRequired(c) }
               if (!runtime.visible) return null
@@ -462,6 +1004,7 @@ export const PublicFormArtboard: React.FC<{
                 </div>
               )
             })}
+            </div>
           </div>
         </div>
       </div>
@@ -474,9 +1017,7 @@ export const PublicFormArtboard: React.FC<{
           <button
             className="btn-secondary text-sm"
             onClick={() => {
-              setValues({})
-              setShowValidation(false)
-              setSubmitMessage(null)
+              handleManualReset()
             }}
           >
             Reset

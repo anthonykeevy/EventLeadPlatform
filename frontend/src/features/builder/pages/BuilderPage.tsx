@@ -34,6 +34,7 @@ import {
   getComponentDimensions,
   resolveMoveConstraints,
 } from '../utils/collisionDetection';
+import { isBackgroundFullyOffCanvas, createDefaultPlacement } from '../utils/backgroundPlacementUtils';
 import { UniversalFieldShell } from '../components/UniversalFieldShell';
 import { getRenderersForComponent } from '../utils/componentRenderers';
 import { apiClient } from '../../../lib/apiClient';
@@ -76,6 +77,7 @@ export const BuilderPage: React.FC = () => {
       isDirty,
       setDragPosition,
       saveDraft,
+      updatePageBackground,
   } = useBuilderStore();
 
   const [publicPreviewError, setPublicPreviewError] = React.useState<string | null>(null);
@@ -817,7 +819,33 @@ export const BuilderPage: React.FC = () => {
             return;
         }
 
-        // 2. Handle Moving Existing Component
+        // 2. Handle Page Background Drag (T06 WYSIWYG)
+        if (active.id === 'page-background') {
+            const def = useBuilderStore.getState().formDefinition;
+            const pages = def?.desktopPages?.length ? def.desktopPages : (def?.pages ?? []);
+            const activePage = pages.find(p => p.id === useBuilderStore.getState().activePageId);
+            const canvasSettings = def?.canvasSettings;
+            const canvasW = canvasSettings?.width || 1920;
+            const canvasH = canvasSettings?.height || 980;
+            const placement = activePage?.background?.placement ?? createDefaultPlacement(canvasW, canvasH);
+            if (activePage?.background?.type === 'image') {
+                const scaledDx = delta.x / scale;
+                const scaledDy = delta.y / scale;
+                const newPos = {
+                    x: placement.position.x + scaledDx,
+                    y: placement.position.y + scaledDy,
+                };
+                const next = { ...placement, position: newPos };
+                if (isBackgroundFullyOffCanvas(next, canvasW, canvasH)) {
+                    updatePageBackground({ asset: undefined, value: '', placement: undefined }, 'Remove background');
+                } else {
+                    updatePageBackground({ placement: next }, 'Move background');
+                }
+            }
+            return;
+        }
+
+        // 3. Handle Moving Existing Component
         // Skip position update if this component is currently being resized
         if (active.id) {
             const def = useBuilderStore.getState().formDefinition;

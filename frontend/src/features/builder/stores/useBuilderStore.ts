@@ -12,6 +12,7 @@ import { hashDefinition } from '../utils/hashUtils';
 import { devLogger } from '../utils/devLogger';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
 import { buildDefaultGridLayoutsByComponent } from '../utils/gridLayoutUtils';
+import { stripDataUrlFromBackground } from '../utils/dataUrlGuard';
 
 /**
  * Info about a component with style overrides
@@ -193,6 +194,22 @@ function writeAuthoredPagesForState(def: FormDefinition, pages: FormPage[]): For
     return writeAuthoredPages(def, pages);
 }
 
+/** Strip Data URLs from backgrounds when loading definitions (Story 5.1 T07) */
+function normalizeDefinitionForLoad(def: FormDefinition): FormDefinition {
+    const clone = JSON.parse(JSON.stringify(def)) as FormDefinition;
+    const normalizePage = (page: FormPage): FormPage => ({
+        ...page,
+        background: stripDataUrlFromBackground(page.background),
+    });
+    if (clone.pages?.length) {
+        clone.pages = clone.pages.map(normalizePage);
+    }
+    if (clone.desktopPages?.length) {
+        clone.desktopPages = clone.desktopPages.map(normalizePage);
+    }
+    return clone;
+}
+
 function normalizeDefinitionForSave(def: FormDefinition): FormDefinition {
     const clone = JSON.parse(JSON.stringify(def)) as FormDefinition;
     const pages = selectAuthoredPages(clone);
@@ -214,31 +231,11 @@ function normalizeDefinitionForSave(def: FormDefinition): FormDefinition {
         });
     };
 
-    // Normalize background definitions: strip Data URLs (Story 5.1 Task T04)
-    const normalizeBackground = (background?: BackgroundDefinition): BackgroundDefinition | undefined => {
-        if (!background) return undefined;
-        
-        // If background value is a Data URL, clear it (asset reference should be used instead)
-        if (background.value && background.value.startsWith('data:')) {
-            // If we have an asset reference, keep it and clear the Data URL value
-            if (background.asset) {
-                return {
-                    ...background,
-                    value: '', // Clear Data URL, asset reference is the source of truth
-                };
-            } else {
-                // No asset reference and Data URL - remove background entirely
-                return undefined;
-            }
-        }
-        
-        return background;
-    };
-
+    // Normalize background definitions: strip Data URLs (Story 5.1 T04, T07)
     const normalizedPages = pages.map((page) => ({
         ...page,
         components: normalizeComponents(page.components),
-        background: normalizeBackground(page.background),
+        background: stripDataUrlFromBackground(page.background),
     }));
 
     return writeAuthoredPages(clone, normalizedPages);
@@ -330,7 +327,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
             // Prefer latest DRAFT; otherwise latest version.
             const preferred = versions.find(v => v.status === 'DRAFT') || versions[0];
-            const loaded = withSafeDefaults(preferred.definition as unknown as FormDefinition, formId);
+            const rawDef = preferred.definition as unknown as FormDefinition;
+            const loaded = withSafeDefaults(normalizeDefinitionForLoad(rawDef), formId);
             
             // Migrate components in authored pages (prefer desktopPages when present)
             const authoredPages = selectAuthoredPages(loaded);
@@ -421,7 +419,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 let loaded: FormDefinition | null = null;
                 try {
                     const raw = localStorage.getItem(getStorageKey(formId));
-                    if (raw) loaded = JSON.parse(raw) as FormDefinition;
+                    if (raw) loaded = normalizeDefinitionForLoad(JSON.parse(raw) as FormDefinition);
                 } catch {
                     loaded = null;
                 }

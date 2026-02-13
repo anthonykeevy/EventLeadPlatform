@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, StyleOverrides, LogicRule, FormPage, BackgroundDefinition } from '../types/builder.types';
+import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, StyleOverrides, LogicRule, FormPage } from '../types/builder.types';
 import { hasStyleOverrides, getOverriddenProperties } from '../utils/styleUtils';
 import type { RuntimeRuleWarning } from '../../logic-engine/types';
 import { createDraftVersion, formatFormVersionError, listFormVersions, updateDraftVersion } from '../api/formVersionsApi';

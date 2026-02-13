@@ -39,7 +39,7 @@ Story 5.1 is complete when:
 | **T04** | Frontend: Builder Asset Upload + Library + Ref | ✅ HumanDone | T01, T03 | 3-5 hrs | Frontend/Builder |
 | **T05** | Shared Resolver Parity (Builder + Renderer) | ✅ HumanDone | T03, T04 | 2-3 hrs | Rendering |
 | **T06** | Placement + Intersection Rule + Cropping | ✅ HumanDone | T04, T05 | 2-3 hrs | UX/Canvas |
-| **T07** | Data URL Guard + Regression Cleanup | ✅ Done | T04 | 1-2 hrs | Safety |
+| **T07** | Data URL Guard + Regression Cleanup | ✅ HumanDone | T04 | 1-2 hrs | Safety |
 | **T08** | Integration + UAT Polish | ⏸️ Pending | T03-T07 | 2-3 hrs | Integration |
 
 **Total Estimated Time:** 15–24 hours (4–6 days)
@@ -72,7 +72,7 @@ T08 (Integration + UAT) depends on T03–T07
 | T04 | `T04-frontend-builder-asset-upload-and-library.md` | ✅ HumanDone |
 | T05 | `T05-shared-resolver-parity.md` | ✅ HumanDone |
 | T06 | `T06-placement-intersection-and-cropping.md` | ✅ HumanDone |
-| T07 | `T07-data-url-guard-and-cleanup.md` | ✅ Done |
+| T07 | `T07-data-url-guard-and-cleanup.md` | ✅ HumanDone |
 | T08 | `T08-integration-and-uat-polish.md` | ⏸️ Pending |
 
 ---

@@ -5,8 +5,7 @@
 
 import { useState, useCallback } from 'react'
 import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
 
 export interface ValidationResult {
   isValid: boolean
@@ -46,7 +45,7 @@ export function useValidation(countryId: number = 1): UseValidationReturn {
 
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/countries/${countryId}/validate`,
+        `${getApiBaseUrl()}/api/countries/${countryId}/validate`,
         {
           rule_type: ruleType,  // Backend expects snake_case
           value: value.trim()

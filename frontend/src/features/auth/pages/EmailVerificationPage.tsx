@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react'
 import { AuthLayout } from '../components/AuthLayout'
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
 
 type VerificationState = 'verifying' | 'success' | 'error' | 'invalid'
 
@@ -32,8 +33,7 @@ export function EmailVerificationPage() {
   
   const verifyEmail = async (token: string) => {
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-      const response = await fetch(`${API_BASE_URL}/api/auth/verify-email`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/auth/verify-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })

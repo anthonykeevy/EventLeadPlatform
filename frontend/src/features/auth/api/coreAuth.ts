@@ -7,11 +7,11 @@ import axios, { AxiosInstance, AxiosError } from 'axios'
 import { LoginCredentials, SignupData, TokenResponse } from '../types/auth.types'
 import { getAccessToken, getRefreshToken, clearTokens } from '../utils/tokenStorage'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
 
 // Create axios instance for core auth requests (no auto-refresh interceptor)
 const coreAuthClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

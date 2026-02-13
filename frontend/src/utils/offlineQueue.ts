@@ -355,7 +355,7 @@ class OfflineQueue {
     try {
       // Call the appropriate API based on item type
       let response: Response
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+      const API_BASE_URL = (await import('../lib/apiBaseUrl')).getApiBaseUrl()
       
       // Get access token for authenticated requests
       const getAccessToken = () => {

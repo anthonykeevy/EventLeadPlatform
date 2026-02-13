@@ -2,7 +2,7 @@
 
 **Story:** 5.1 - Background Asset Management  
 **Task ID:** T08  
-**Status:** 🔄 In Progress  
+**Status:** ✅ HumanDone  
 **Dependencies:** T03-T07  
 **Estimated Time:** 2-3 hours  
 
@@ -16,9 +16,9 @@
 
 ## ✅ Scope (In)
 
-- [ ] Run relevant automated checks (frontend lint/build; backend smoke tests if touched)
-- [ ] Validate builder + renderer parity
-- [ ] Update UAT guide with evidence notes if needed
+- [x] Run relevant automated checks (frontend lint/build; backend smoke tests if touched)
+- [x] Validate builder + renderer parity
+- [x] Update UAT guide with evidence notes if needed
 
 ---
 

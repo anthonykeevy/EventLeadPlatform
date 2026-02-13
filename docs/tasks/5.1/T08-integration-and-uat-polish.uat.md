@@ -10,7 +10,7 @@
 
 - [ ] Backend server is running (http://127.0.0.1:8000)
 - [ ] Frontend is running (http://localhost:3000)
-- [ ] Test credentials available (see `docs/AGENT-LOGGING-GUIDE.md` for test accounts; logging setup for debug)
+- [ ] Test credentials: user2@test.com / `JChMom7KYLfL88&!` (see `docs/AGENT-LOGGING-GUIDE.md` § UAT test credentials)
 - [ ] User is logged in with access to Builder and forms
 
 ---
@@ -62,7 +62,7 @@ Execute `docs/stories/STORY-5.1-UAT-TEST-GUIDE.md` in full. Summary:
 
 ---
 
-**Test credentials:** See `docs/AGENT-LOGGING-GUIDE.md` § UAT test credentials (user1@test.com, user2@test.com; check seed data for password).
+**Test credentials:** See `docs/AGENT-LOGGING-GUIDE.md` § UAT test credentials. Default: user2@test.com / `JChMom7KYLfL88&!` (local dev only).
 
 **Instructions for Human Tester:**
 1. Execute each step in order

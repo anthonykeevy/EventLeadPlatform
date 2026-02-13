@@ -89,3 +89,14 @@ This file is updated after each task retro.
 - UAT results: `T07-data-url-guard-and-cleanup.uat-results.md`
 - Retro: `T07-data-url-guard-and-cleanup.retro.md`
 
+### 2026-02-13 — T08 (Integration + UAT Polish)
+
+- **Dev Lessons:** Run `npm run build` early in integration tasks; one-line fixes (unused imports) are in-scope for unblocking verification. Use network request inspection to verify DefinitionJSON structure (faster than DB query).
+- **Testing Lessons:** Mark UAT scenarios as "Automated" vs "Human" in checklists. DefinitionJSON verification (no data:image) is automatable via API or browser MCP.
+- **Process Lessons:** Full-cycle single prompt (implement → UAT → retro → commit → push → merge) works; build fix before UAT prevents rework. Orphan asset 404s remain data hygiene (T05), not resolver defect.
+
+**Links (T08):**
+- Completion: `T08-integration-and-uat-polish.completion.md`
+- UAT results: `T08-integration-and-uat-polish.uat-results.md`
+- Retro: `T08-integration-and-uat-polish.retro.md`
+

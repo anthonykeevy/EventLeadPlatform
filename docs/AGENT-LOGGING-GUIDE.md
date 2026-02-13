@@ -6,6 +6,20 @@
 
 ---
 
+## UAT test credentials (local dev)
+
+For Builder/UAT sessions, use this seeded test account:
+
+| Email | Password | Role | Notes |
+|-------|----------|------|-------|
+| user2@test.com | `JChMom7KYLfL88&!` | Company Admin | Use for builder UAT and admin flows |
+
+**⚠️ Local/dev only** — Do not use in production. Rotate if exposed.
+
+**If no seed users:** Sign up a new user via the app, verify email (MailHog at http://localhost:8025), then login.
+
+---
+
 ## Quick Start (most common workflow)
 
 ### 1) Enable frontend dev logs

@@ -11,6 +11,8 @@ All scripts support `-DryRun` to print commands without executing.
 - `scripts/git/new-story.ps1` — create a story branch, push, (optional) create story worktree, (optional) open Draft PR to `master`.
 - `scripts/git/new-task.ps1` — create a task branch off a story branch, push, (optional) create task worktree, (optional) open PR into the story branch.
 
+**After creating the worktree:** Update the task spec (`docs/tasks/<story>/<Txx>-<slug>.md`) Status to `In Progress`, update `STATUS.md`, commit + push, then create the PR. GitHub requires at least one commit to open a PR. See `docs/stories/EPIC-5-WORKFLOW-GUIDE.md` § Task kickoff.
+
 ## Examples
 
 ## Worktree root (path length on Windows)

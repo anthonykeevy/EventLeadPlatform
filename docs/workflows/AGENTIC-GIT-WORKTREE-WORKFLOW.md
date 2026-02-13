@@ -207,6 +207,8 @@ git push -u origin HEAD
 git worktree add "..\\EventLeadPlatform.wt\\task-3.10-T03-grid-css" "task/3.10/T03-grid-css-rendering"
 ```
 
+2b) **Task kickoff (before implementation or PR):** In the task worktree, update the task spec Status to `In Progress`, update `STATUS.md`, commit + push. This creates the first commit so the PR can be opened. See Epic 5 workflow: `docs/stories/EPIC-5-WORKFLOW-GUIDE.md` § Task kickoff.
+
 3) Implement in the task worktree (Task Chat):
 - `@ralf-dev *run-task` using the task spec path.
 - Commit **small and often** (but always coherent).

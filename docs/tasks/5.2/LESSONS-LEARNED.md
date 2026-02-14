@@ -27,4 +27,14 @@ This file is updated after each task retro.
 
 ---
 
+### T03 — Form Builder Init API (2026-02-14)
+
+**Pattern: Raw SQL when ORM model absent**
+
+- **FormBuilderComponent:** Migration 039 creates table but no SQLAlchemy model. Used `sqlalchemy.text()` with parameterized query for component resolution. Consider adding model in future for type safety.
+- **CountryID fallback:** Event.CountryID → Company.CountryID when Event.CountryID is null; validate Event belongs to Company before resolution.
+- **defaults shape:** API design requires `defaults.defaultGridLayoutsByComponent` at top level; merged from T02 has it inside `globalStyles`. Build response with both; filter by allowed component codes only.
+
+---
+
 ### (Previous entries above)

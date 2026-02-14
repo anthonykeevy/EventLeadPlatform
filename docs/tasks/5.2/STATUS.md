@@ -1,7 +1,7 @@
 # Story 5.2 Status
 
 **Last Updated:** 2026-02-14  
-**Current Task:** T03 (Form Builder Init API)  
+**Current Task:** T03, T04 (parallel)  
 **Story Status:** 🔄 In Progress  
 
 ---
@@ -12,8 +12,8 @@
 |------|--------|-----------|
 | T01 | ✅ HumanDone | Database schema + seeds; UAT passed 2026-02-14 |
 | T02 | ✅ HumanDone | CRUD + merge resolver; UAT passed 2026-02-14 |
-| T03 | ⏸️ Pending | — |
-| T04 | ⏸️ Pending | — |
+| T03 | ✅ HumanDone | Init API implemented; UAT agent-verified 2026-02-14 |
+| T04 | 🔄 In Progress | — |
 | T05 | ⏸️ Pending | — |
 | T06 | ⏸️ Pending | — |
 | T07 | ⏸️ Pending | — |

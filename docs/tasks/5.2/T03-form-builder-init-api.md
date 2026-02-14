@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T03  
-**Status:** ⏸️ Pending  
+**Status:** ✅ HumanDone (pending merge)
 **Dependencies:** T01, T02  
 **Estimated Time:** 2–3 hours  
 
@@ -18,13 +18,13 @@
 
 ## ✅ Scope (In)
 
-- [ ] Endpoint `POST /api/form-builder/init` with body `{ companyId, eventId }`
-- [ ] Resolve CountryID from EventID (Event.CountryID or equivalent)
-- [ ] Load and merge Global + Company defaults (use T02 resolver)
-- [ ] Load components: Global ∪ Country(CountryID) ∪ Company(CompanyID)
-- [ ] Assemble defaultGridLayoutsByComponent for allowed components only
-- [ ] Generate initial DefinitionJSON skeleton (empty pages, schemaVersion)
-- [ ] Return: schemaVersion, context, defaults, components, definitionJSON
+- [x] Endpoint `POST /api/form-builder/init` with body `{ companyId, eventId }`
+- [x] Resolve CountryID from EventID (Event.CountryID or equivalent)
+- [x] Load and merge Global + Company defaults (use T02 resolver)
+- [x] Load components: Global ∪ Country(CountryID) ∪ Company(CompanyID)
+- [x] Assemble defaultGridLayoutsByComponent for allowed components only
+- [x] Generate initial DefinitionJSON skeleton (empty pages, schemaVersion)
+- [x] Return: schemaVersion, context, defaults, components, definitionJSON
 
 ---
 

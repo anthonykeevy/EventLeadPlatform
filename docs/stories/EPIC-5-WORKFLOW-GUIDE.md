@@ -218,6 +218,20 @@ Story 5.2 artifacts are **already created** (scope finalized 2026-02-13):
 
 ## 📋 Phase 2: Story Decomposition (Ralf-SM - Main Chat)
 
+**⚠️ CRITICAL — Worktree / Branch requirement (2026-02-13):**
+
+Decomposition outputs (`TASK-PLAN.md`, `Txx-*.md`, `STATUS.md`, `LESSONS-LEARNED.md`) **must** be created in the **Story worktree** on the **Story branch**. If Ralf-SM runs in the main repo on `master` or another branch (e.g. `chore/lint-resolution`), task worktrees created from the story branch will **not** see the task specs.
+
+**Before invoking Ralf-SM:**
+1. Open the Story worktree in Cursor (e.g. `C:\wt\elp\story-epic5-5.2-company-form-defaults`).
+2. Confirm branch: `git branch --show-current` → Story branch (e.g. `story/epic5-5.2-company-form-defaults`).
+3. Run `@ralf-sm *decompose-story` in that window.
+4. Commit and push the decomposition from the Story worktree **before** creating task branches/worktrees.
+
+**If decomposition was written to the wrong branch:** Copy the `docs/tasks/<story>/` files to the Story worktree, remove any obsolete task specs, `git add`, commit, push. Do **not** merge from the wrong branch into story (it mixes unrelated changes).
+
+---
+
 ### Story 5.1 Prompt (`@ralf-sm`)
 
 ```markdown
@@ -226,6 +240,7 @@ Story 5.2 artifacts are **already created** (scope finalized 2026-02-13):
 *decompose-story
 
 Git discipline (mandatory):
+- **Run in the Story worktree** with Story branch checked out. Do NOT run in main repo on master/chore branches — task worktrees would miss the specs.
 - Confirm the active Story branch exists and is pushed (do not work on `master`).
 - Each task MUST be implemented on a `task/<story>/<Txx>-<slug>` branch with a PR into the Story branch.
 - Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
@@ -254,6 +269,7 @@ Output requirements:
 *decompose-story
 
 Git discipline (mandatory):
+- **Run in the Story worktree** (e.g. C:\wt\elp\story-epic5-5.2-company-form-defaults) with Story branch checked out. Do NOT run in main repo on master/chore branches — task worktrees would miss the specs.
 - Confirm the active Story branch exists and is pushed (do not work on `master`).
 - Each task MUST be implemented on a `task/5.2/Txx-<slug>` branch with a PR into the Story branch.
 - Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
@@ -450,4 +466,5 @@ git push origin <story-branch>
 | 2026-02-09 | Added "Story branch sync with master" (merge master into story branch early when master has parallel work) | Story 5.1 was branched before lint-resolution merged to master; merging master in early avoided painful conflict resolution at closeout |
 | 2026-02-11 | Added "Single-prompt full cycle" (implement → UAT attempt → retro → commit → push → merge in one prompt) | T05: agent stopped after retro; no UAT attempt, no closeout commit, no merge. One prompt now mandates the full cycle |
 | 2026-02-13 | Added "Task kickoff" (after worktree: update task spec to In Progress, STATUS.md, commit+push, then create PR) | T07: PR creation was skipped (0 commits). Status update creates first commit so PR can be created before implementation |
+| 2026-02-13 | Added "CRITICAL — Worktree/Branch requirement" for Phase 2 (Ralf-SM decomposition) | Ralf-SM ran in main repo on chore branch; decomposition was not on story branch; task worktrees lacked specs. Fix: run decomposition in Story worktree, commit there before creating task branches |
 

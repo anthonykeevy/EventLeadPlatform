@@ -1,7 +1,7 @@
 # Story 5.2 Status
 
 **Last Updated:** 2026-02-14  
-**Current Task:** T02 (Defaults API: CRUD + Merge Resolver)  
+**Current Task:** T03 (Form Builder Init API)  
 **Story Status:** 🔄 In Progress  
 
 ---
@@ -11,7 +11,7 @@
 | Task | Status | Completed |
 |------|--------|-----------|
 | T01 | ✅ HumanDone | Database schema + seeds; UAT passed 2026-02-14 |
-| T02 | 🔄 In Progress | — |
+| T02 | ✅ HumanDone | CRUD + merge resolver; UAT passed 2026-02-14 |
 | T03 | ⏸️ Pending | — |
 | T04 | ⏸️ Pending | — |
 | T05 | ⏸️ Pending | — |

@@ -289,14 +289,31 @@ Inputs:
 
 Output requirements:
 1. Create `docs/tasks/5.2/TASK-PLAN.md` from scratch (your decomposition)
-2. Create full task specs for each task in your plan (first task = database)
+2. Create full task specs for each task in your plan (first task = database). Use naming: `T{id}-{slug}.md` (e.g. T03-form-builder-init-api.md).
 3. Initialize `docs/tasks/5.2/LESSONS-LEARNED.md` if missing
 4. Create/update `docs/tasks/5.2/STATUS.md` (current task = your first task — database)
+
+**Task doc naming:** All task docs follow `T{id}-{slug}.{type}.md` (see Phase 3 "Task document naming").
 ```
 
 ---
 
 ## ✅ Phase 3: Task Execution Cycle
+
+### Task document naming (mandatory)
+
+Task-related docs MUST use the pattern `T{id}-{slug}.{type}.md`:
+
+| Document | Filename pattern | Example |
+|----------|------------------|---------|
+| Spec | `T{id}-{slug}.md` | `T02-defaults-api-crud-merge-resolver.md` |
+| UAT checklist | `T{id}-{slug}.uat.md` | `T02-defaults-api-crud-merge-resolver.uat.md` |
+| UAT results | `T{id}-{slug}.uat-results.md` | `T02-defaults-api-crud-merge-resolver.uat-results.md` |
+| Retro | `T{id}-{slug}.retro.md` | `T02-defaults-api-crud-merge-resolver.retro.md` |
+
+**Do not use:** `T02-uat-results.md`, `T02.retro.md`, or any variant missing the task slug.
+
+---
 
 Use the hardened task cycle (worktrees + PR base checks + UAT + retro + push discipline) from:
 - `docs/stories/EPIC-3-WORKFLOW-GUIDE_UPDATED.md` (Phase 3 section)

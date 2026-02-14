@@ -37,7 +37,7 @@ Full UAT requires:
 ## UAT Status
 
 **Agent verification:** PASS (endpoints registered, auth enforced, unit tests pass)  
-**Full manual UAT:** Pending user execution with DB + JWT
+**Full manual UAT:** Run per uat.md before T03 (optional human checkpoint)
 
 ---
 

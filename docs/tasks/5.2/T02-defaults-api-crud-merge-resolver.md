@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T02  
-**Status:** In Progress  
+**Status:** ✅ Done (UAT passed 2026-02-14)  
 **Dependencies:** T01  
 **Estimated Time:** 2–3 hours  
 
@@ -16,11 +16,11 @@
 
 ## ✅ Scope (In)
 
-- [ ] Models: GlobalFormDefaults, CompanyFormDefaults (and Version tables)
-- [ ] CRUD: GET/PUT global defaults (admin); GET/PUT company defaults (company admin)
-- [ ] Version history endpoints (audit trail)
-- [ ] Merge resolver: given CompanyID, return Global deep-merged with Company overrides
-- [ ] RBAC: company-scoped access; global admin for global defaults
+- [x] Models: GlobalFormDefaults, CompanyFormDefaults (and Version tables)
+- [x] CRUD: GET/PUT global defaults (admin); GET/PUT company defaults (company admin)
+- [x] Version history endpoints (audit trail)
+- [x] Merge resolver: given CompanyID, return Global deep-merged with Company overrides
+- [x] RBAC: company-scoped access; global admin for global defaults
 
 ---
 

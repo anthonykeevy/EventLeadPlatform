@@ -10,7 +10,7 @@
 
 | Task | Status | Completed |
 |------|--------|-----------|
-| T01 | ⏸️ Pending | Database schema + seeds |
+| T01 | 🔄 In Progress | Database schema + seeds |
 | T02 | ⏸️ Pending | — |
 | T03 | ⏸️ Pending | — |
 | T04 | ⏸️ Pending | — |

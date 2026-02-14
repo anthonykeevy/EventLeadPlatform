@@ -1,8 +1,8 @@
 # Story 5.2 Status
 
 **Last Updated:** 2026-02-13  
-**Current Task:** —  
-**Story Status:** ⏳ Ready (preparing kickoff)  
+**Current Task:** T01 (Database: Form Defaults + Component Catalog)  
+**Story Status:** ⏳ Ready  
 
 ---
 
@@ -10,20 +10,21 @@
 
 | Task | Status | Completed |
 |------|--------|-----------|
-| T00 | ⏸️ Pending | Database schema (defaults + component catalog) |
-| T01 | ⏸️ Pending | — |
-| T06 | ⏸️ Pending | Form Builder Init API |
+| T01 | ⏸️ Pending | Database schema + seeds |
 | T02 | ⏸️ Pending | — |
 | T03 | ⏸️ Pending | — |
 | T04 | ⏸️ Pending | — |
 | T05 | ⏸️ Pending | — |
+| T06 | ⏸️ Pending | — |
+| T07 | ⏸️ Pending | — |
 
 ---
 
 ## Blockers / Warnings
 
 - None.
+- **Start with T01** — database is prerequisite for all other tasks.
 
 ---
 
-*Story 5.2 status*
+*Story 5.2 — Ralf-SM decomposition 2026-02-13*

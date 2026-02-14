@@ -1,8 +1,8 @@
 # Story 5.2 Status
 
-**Last Updated:** 2026-02-13  
-**Current Task:** T01 (Database: Form Defaults + Component Catalog)  
-**Story Status:** ⏳ Ready  
+**Last Updated:** 2026-02-14  
+**Current Task:** T02 (Defaults API: CRUD + Merge Resolver)  
+**Story Status:** 🔄 In Progress  
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Task | Status | Completed |
 |------|--------|-----------|
-| T01 | 🔄 In Progress | Database schema + seeds |
+| T01 | ✅ HumanDone | Database schema + seeds; UAT passed 2026-02-14 |
 | T02 | ⏸️ Pending | — |
 | T03 | ⏸️ Pending | — |
 | T04 | ⏸️ Pending | — |

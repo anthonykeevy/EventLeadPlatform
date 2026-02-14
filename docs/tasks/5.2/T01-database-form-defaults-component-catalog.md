@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T01  
-**Status:** In Progress 
+**Status:** ✅ Done (UAT passed 2026-02-14)
 **Dependencies:** None (first task)  
 **Estimated Time:** 4–6 hours  
 

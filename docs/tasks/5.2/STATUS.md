@@ -12,7 +12,7 @@
 |------|--------|-----------|
 | T01 | ✅ HumanDone | Database schema + seeds; UAT passed 2026-02-14 |
 | T02 | ✅ HumanDone | CRUD + merge resolver; UAT passed 2026-02-14 |
-| T03 | 🔄 In Progress | — |
+| T03 | ✅ HumanDone | Init API implemented; UAT agent-verified 2026-02-14 |
 | T04 | 🔄 In Progress | — |
 | T05 | ⏸️ Pending | — |
 | T06 | ⏸️ Pending | — |

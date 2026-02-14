@@ -18,4 +18,13 @@ This file is updated after each task retro.
 
 ---
 
+### T02 — Defaults API CRUD + Merge Resolver (2026-02-14)
+
+**Pattern: Company-scoped routes under /api/companies/{id}/**
+
+- **Spec alignment:** AC2 required GET/PUT `/api/companies/{id}/form-defaults` and `/history`. These live in the companies router, not a separate form-defaults prefix, to match REST conventions.
+- **Global vs company:** Global endpoints in form_defaults router (`/api/form-defaults/global`); company endpoints in companies router (`/api/companies/{id}/form-defaults`).
+
+---
+
 ### (Previous entries above)

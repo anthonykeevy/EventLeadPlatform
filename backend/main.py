@@ -34,6 +34,7 @@ from modules.forms.public_links_router import router as forms_public_links_route
 from modules.audit.router import router as audit_router  # Story 2.13: Audit Trail & Compliance
 from modules.fonts.router import router as fonts_router  # Google Fonts caching
 from modules.assets.router import router as assets_router  # Story 5.1: Background assets
+from modules.form_defaults.router import router as form_defaults_router  # Story 5.2: Form Defaults API
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -99,6 +100,7 @@ app.include_router(forms_router)  # Story 2.8: Form Header Foundation
 app.include_router(audit_router, prefix="/api")  # Story 2.13: Audit Trail & Compliance
 app.include_router(fonts_router)  # Google Fonts caching
 app.include_router(assets_router)  # Story 5.1: Background assets
+app.include_router(form_defaults_router)  # Story 5.2: Form Defaults API (global)
 
 @app.get("/")
 async def root():

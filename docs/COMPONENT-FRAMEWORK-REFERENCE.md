@@ -2,6 +2,8 @@
 
 **Purpose:** Comprehensive reference for the EventLead Form Builder component framework, including component definitions, properties, resize behavior, and state management.
 
+**Design objective:** The component framework was designed with the objective to **move defaults to the database**. Frontend structures (globalStyles, theme, defaultGridLayoutsByComponent, etc.) were built to validate the data shape; the intent is to drive these from Global → Company → Form defaults in the database. A **Component Catalog** (multi-country, multi-company) will deliver components + schemas per form context. See [Inheritance Model & Data Defaults](#-inheritance-model--data-defaults-for-components) below, `docs/stories/STORY-5.2-DATA-SCHEMA.md`, and `docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md`.
+
 > **Quick Reference:** [Component Framework Guide](./COMPONENT-FRAMEWORK-GUIDE.md) - Concise implementation guide for agents (read this first for any component work).
 
 ## 🧭 Quick Start (Agents & Developers)
@@ -151,58 +153,110 @@ To make spacing easier for non-frontend users and to keep all components consist
 
 ### Future Architecture (Database-Driven)
 
+The framework was designed with the objective to drive defaults from the database. Inheritance model (Story 5.2):
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                       Configuration Hierarchy                            │
+│             Inheritance Model: Global → Company → Form → Component       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
 │  ┌──────────────────┐                                                   │
-│  │ System Defaults  │ ← Hardcoded application defaults                  │
+│  │ Global Defaults   │ ← Database: dbo.GlobalFormDefaults                 │
+│  │ (Platform-wide)  │   theme, globalStyles, defaultGridLayoutsByComponent│
+│  └────────┬─────────┘   canvasSettings (Story 5.2)                       │
+│           ↓ overrides                                                   │
+│  ┌──────────────────┐                                                   │
+│  │ Company Defaults │ ← Database: dbo.CompanyFormDefaults               │
+│  │  (Per Company)   │   Company Settings → Form Branding Defaults       │
 │  └────────┬─────────┘                                                   │
 │           ↓ overrides                                                   │
 │  ┌──────────────────┐                                                   │
-│  │ Company Defaults │ ← Database: company.CompanyDefaults               │
-│  │  (Per Company)   │   Set during company onboarding                   │
+│  │ Form Overrides   │ ← FormVersion.DefinitionJSON (theme, globalStyles)│
+│  │   (Per Form)     │   User overrides in Global Properties Panel       │
 │  └────────┬─────────┘                                                   │
 │           ↓ overrides                                                   │
 │  ┌──────────────────┐                                                   │
-│  │  Form Defaults   │ ← Database: form.FormDefinition.globalStyles      │
-│  │   (Per Form)     │   User can override company defaults              │
-│  └────────┬─────────┘                                                   │
-│           ↓ overrides                                                   │
-│  ┌──────────────────┐                                                   │
-│  │ Component Props  │ ← Database: form.FormComponent.props              │
-│  │ (Per Component)  │   Individual component overrides                  │
+│  │ Component Props  │ ← FormVersion.DefinitionJSON → component.props     │
+│  │ (Per Component)  │   styleOverrides, objectLayout, layoutGroups       │
 │  └──────────────────┘                                                   │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Database Tables (Proposed)
+### Database Tables (Story 5.2)
 
 | Table | Schema | Purpose |
 |-------|--------|---------|
-| `company.CompanyDefaults` | `company` | Company-wide styling defaults |
-| `form.FormDefinition` | `form` | Form-level definition with globalStyles |
-| `form.FormComponent` | `form` | Individual component properties |
-| `form.ComponentStructure` | `form` | Custom component structures |
-| `config.SystemDefaults` | `config` | System-wide fallback defaults |
+| `ref.FormDefaultsSchemaVersion` | `ref` | Schema versioning for DefaultsJSON evolution |
+| `dbo.GlobalFormDefaults` | `dbo` | Platform-wide theme, globalStyles, canvasSettings, defaultGridLayoutsByComponent |
+| `dbo.CompanyFormDefaults` | `dbo` | Per-company defaults (versioned + audit trail) |
+| `FormVersion.DefinitionJSON` | `dbo` | Form-level overrides + pages + logic |
+
+See `docs/stories/STORY-5.2-DATA-SCHEMA.md`.
 
 ### Style Resolution Order
 
 ```
-1. System Defaults (hardcoded)
+1. Global Defaults (database: dbo.GlobalFormDefaults)
        ↓
-2. Company Defaults (database: company.CompanyDefaults)
+2. Company Defaults (database: dbo.CompanyFormDefaults)
        ↓
-3. Form Global Styles (database: form.FormDefinition.globalStyles)
+3. Form Overrides (FormVersion.DefinitionJSON.theme, .globalStyles)
        ↓
-4. Component Style Overrides (database: form.FormComponent.props.styleOverrides)
+4. Component Style Overrides (component.props.styleOverrides)
        ↓
 5. Component Scale (component.props.componentScale)
        ↓
 6. Final Computed Styles
 ```
+
+---
+
+## 📦 Inheritance Model & Data Defaults for Components
+
+This section documents **what data each tier provides** and **how components consume it**. The resolver merges Global → Company → Form; the component receives the merged result plus its own overrides.
+
+### Data Provided by Each Tier
+
+| Tier | Data keys | Source | What components receive |
+|------|-----------|--------|-------------------------|
+| **Global** | `theme`, `globalStyles`, `defaultGridLayoutsByComponent`, `canvasSettings` | `dbo.GlobalFormDefaults.DefaultsJSON` | Baseline for all forms in the platform |
+| **Company** | Same structure (partial override) | `dbo.CompanyFormDefaults.DefaultsJSON` | Deep-merge over Global; company branding |
+| **Form** | `theme`, `globalStyles` (partial), `pages`, `logic`, `canvasSettings` | `FormVersion.DefinitionJSON` | Form-specific overrides; pages + components |
+| **Component** | `props.styleOverrides`, `props.objectLayout`, `props.objectSpacing`, etc. | `component.props` within DefinitionJSON | Per-instance overrides |
+
+### How Components Use the Data
+
+| Data category | Consumed by | Resolution path |
+|---------------|-------------|-----------------|
+| **globalStyles** (typography, spacing, colors) | UniversalFieldShell, objectRenderers, computeFieldStyles, getArchetypeStyle | Merged Global+Company+Form → `getResolvedGlobalStyles(definition)` → component reads resolved object |
+| **defaultGridLayoutsByComponent** | UniversalFieldShell, layout engine | By component type; uses `vertical` or `horizontal` per `defaultLayout`/`defaultObjectLayout` |
+| **theme** | Action buttons, primary color accents | Merged into resolved styles; `primaryColor`, `fontFamily` etc. |
+| **canvasSettings** | Builder canvas (width, height, gridSize) | From definition; global-level baseline |
+| **styleOverrides** | Per-component | Applied last; overrides resolved globalStyles for that component |
+
+### Component Resolution Flow (Conceptual)
+
+```
+1. Resolver loads Global + Company + Form defaults
+2. Deep-merge: Company overrides Global, Form overrides result
+3. Component renderer receives: resolvedGlobalStyles + component.props
+4. For each object (label, input, validation): 
+   - Base style from resolvedGlobalStyles (e.g. labelFontFamily, textColor)
+   - Override from component.props.styleOverrides if present
+5. For layout: defaultGridLayoutsByComponent[type][vertical|horizontal]
+   - Selected by defaultLayout / defaultObjectLayout
+   - Per-component objectLayout overrides structure if present
+```
+
+### Mapping: Global Properties Panel ↔ Inheritance
+
+The Global Properties Panel controls map to `globalStyles`. When database-driven:
+
+- **Global level:** Set in Administration Settings (Global Defaults screen — backlog)
+- **Company level:** Set in Company Settings → Form Branding Defaults
+- **Form level:** Set in Builder Global Properties Panel (today); saves to FormVersion.DefinitionJSON
+- **Component level:** Set in Component Properties (styleOverrides, objectLayout, etc.)
 
 ---
 

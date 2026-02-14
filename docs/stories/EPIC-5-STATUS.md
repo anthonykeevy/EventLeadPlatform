@@ -249,6 +249,18 @@ Epic 5 is complete when:
 
 ---
 
+## 📋 Backlog (Future Work)
+
+Items added during Epic 5 planning; not in current story scope.
+
+| Item | Description | Source |
+|------|-------------|--------|
+| **Global Defaults screen** | Administration Settings page for Global Form Defaults — mirror of Company Defaults page (Global Properties controls + Toolbox visual guide). System Admin only. | PM review 2026-02-13 (Story 5.2) |
+
+**Note:** APIs for Form Builder defaults and Component Catalog (multi-country, multi-company) are now **in scope** for Story 5.2. Form Builder Init API delivers single payload (defaults + components + DefinitionJSON skeleton) per `docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md`.
+
+---
+
 ## 🔗 Key References
 
 - Product requirements: `docs/prd.md`

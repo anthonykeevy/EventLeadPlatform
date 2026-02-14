@@ -22,12 +22,14 @@
 
 Story 5.2 is complete when:
 
-- [ ] **DC1:** Company defaults are persisted (DB or config-backed).
-- [ ] **DC2:** Dashboard has a UI to manage company form branding defaults.
-- [ ] **DC3:** Builder inherits company defaults and shows "inherited vs overridden".
-- [ ] **DC4:** Inheritance model is documented and consistently applied (builder + renderer).
-- [ ] **DC5:** UAT guide executed and marked PASSED.
-- [ ] **DC6:** Story PR merged to `master`.
+- [ ] **DC1:** Company defaults are persisted in DB with versioning + audit trail.
+- [ ] **DC2:** Company Settings (cog entry) includes Form Branding Defaults page with Global Properties controls + Toolbox visual guide.
+- [ ] **DC3:** Builder inherits company defaults and shows "inherited vs overridden"; has "Save to Company Defaults" button on Global Properties Panel.
+- [ ] **DC4:** Inheritance model (Global → Company → Form → Component) is documented and consistently applied (builder + renderer).
+- [ ] **DC5:** Audit trail viewable in Company Settings → Form Branding Defaults.
+- [ ] **DC6:** UAT guide executed and marked PASSED.
+- [ ] **DC7:** Form Builder receives all component data and defaults via Form Builder Init API; frontend replaces hardcoded values; persists DefinitionJSON on save.
+- [ ] **DC8:** Story PR merged to `master`.
 
 ---
 
@@ -35,32 +37,44 @@ Story 5.2 is complete when:
 
 | Task | Title | Status | Depends On | Est. Time | Focus Area |
 |------|-------|--------|------------|-----------|------------|
-| **T01** | Company Defaults Model + API | ⏸️ Pending | - | 2-3 hrs | Backend |
+| **T00** | Database: Defaults + Component Catalog | ⏸️ Pending | - | 4-6 hrs | Database |
+| **T01** | Company Defaults Model + API | ⏸️ Pending | T00 | 2-3 hrs | Backend |
+| **T06** | Form Builder Init API (single payload) | ⏸️ Pending | T00, T01 | 2-3 hrs | Backend |
 | **T02** | Dashboard: Form Branding Defaults UI | ⏸️ Pending | T01 | 2-3 hrs | Dashboard |
-| **T03** | Builder: Inherit Defaults + Override UX | ⏸️ Pending | T01 | 2-3 hrs | Builder |
+| **T03** | Builder: Inherit Defaults + Override UX | ⏸️ Pending | T01, T06 | 2-3 hrs | Builder |
 | **T04** | Resolver: Apply Defaults in Renderer | ⏸️ Pending | T01, T03 | 1-2 hrs | Rendering |
-| **T05** | Integration + UAT | ⏸️ Pending | T02-T04 | 2-3 hrs | Integration |
+| **T05** | Integration + UAT | ⏸️ Pending | T02-T06 | 2-3 hrs | Integration |
 
-**Total Estimated Time:** 9–14 hours (2–3 days)
+**Total Estimated Time:** 15–23 hours (2–3 days)
+
+**Rule:** T00 must complete before T01. T00 includes both defaults and component catalog schema + seed data. Backend (T01, T06) built first; test against existing frontend; then replace frontend defaults with APIs.
 
 ---
 
 ## 🔗 Dependency Graph
 
 ```
-T01 (Company defaults model + API)
- ├── T02 (Dashboard UI)
- ├── T03 (Builder inherit + override UX)
- └── T04 (Resolver in renderer)
+T00 (Database: defaults + component catalog) — PREREQUISITE
+ ├── T01 (Company defaults model + API)
+ │    └── T02 (Dashboard UI)
+ └── T06 (Form Builder Init API)
+      └── T03 (Builder: inherit + override; consume Init API)
+           └── T04 (Resolver in renderer)
 
-T05 (Integration + UAT) depends on T02–T04
+T05 (Integration + UAT) depends on T02, T03, T04, T06
 ```
 
 ---
 
 ## 📚 Reference Documents
 
+- **T00 spec:** `docs/tasks/5.2/T00-database-form-defaults-schema.md`
+- **T06 spec:** `docs/tasks/5.2/T06-form-builder-init-api.md`
+- **Form Builder Init API:** `docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md`
+- **Component catalog:** `docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md`
 - Story: `docs/stories/story-5.2.md`
+- **UX Expert consultation:** `docs/stories/STORY-5.2-UX-EXPERT-CONSULTATION.md`
+- **Data schema:** `docs/stories/STORY-5.2-DATA-SCHEMA.md`
 - Epic scope: `docs/stories/EPIC-5-STATUS.md`
 - UX ideation: `docs/stories/EPIC-5-UX-IDEATION.md`
 - Workflow: `docs/stories/EPIC-5-WORKFLOW-GUIDE.md`

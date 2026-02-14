@@ -183,9 +183,43 @@ Deliverables:
 
 ---
 
+## 📋 Phase 0: Git Setup for Story 5.2
+
+**When:** Before starting Story 5.2 implementation.  
+**Goal:** Create Story 5.2 branch + Draft PR.
+
+- **Story 5.2:** Company Form Defaults (Brand System)
+- **Branch:** `story/epic5-5.2-company-form-defaults`
+
+```powershell
+./scripts/git/new-story.ps1 -Epic 5 -Story "5.2" -Slug "company-form-defaults" -CreateWorktree -DraftPR -WorktreeRoot "C:\wt\elp"
+```
+
+🧑 **Human checkpoint:** If the script creates a worktree, open it in Cursor: `C:\wt\elp\story-epic5-5.2-company-form-defaults`
+
+---
+
+## 📋 Phase 1: Story 5.2 Artifacts (Ready)
+
+Story 5.2 artifacts are **already created** (scope finalized 2026-02-13):
+
+- `docs/stories/story-5.2.md` — Full scope including Form Builder Init API, component catalog, single payload
+- `docs/stories/story-context-5.2.xml` — Context file for ralf-sm decomposition
+- `docs/tasks/5.2/TASK-PLAN.md` — Task skeleton (T00, T01, T06, T02–T05)
+- `docs/tasks/5.2/T00-database-form-defaults-schema.md` — T00 spec (defaults + component catalog)
+- `docs/tasks/5.2/T06-form-builder-init-api.md` — T06 spec
+
+**Optional:** If SM updates are needed, use:
+
+```markdown
+@sm.mdc Please create/update Story 5.2 artifacts. Story file and context file exist at docs/stories/story-5.2.md and docs/stories/story-context-5.2.xml. Add or refine STORY-5.2-UAT-TEST-GUIDE.md if needed. Scope is finalized per docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md and docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md.
+```
+
+---
+
 ## 📋 Phase 2: Story Decomposition (Ralf-SM - Main Chat)
 
-### Copy/Paste this Prompt (`@ralf-sm`)
+### Story 5.1 Prompt (`@ralf-sm`)
 
 ```markdown
 @ralf-sm
@@ -211,6 +245,36 @@ Output requirements:
 3. Create placeholder specs for remaining tasks
 4. Initialize `docs/tasks/5.1/LESSONS-LEARNED.md`
 5. Create/update `docs/tasks/5.1/STATUS.md` (current task = **T01** initially)
+```
+
+### Story 5.2 Prompt (`@ralf-sm`)
+
+```markdown
+@ralf-sm
+
+*decompose-story
+
+Git discipline (mandatory):
+- Confirm the active Story branch exists and is pushed (do not work on `master`).
+- Each task MUST be implemented on a `task/5.2/Txx-<slug>` branch with a PR into the Story branch.
+- Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
+
+Inputs:
+- Story ID: 5.2
+- Story file: `docs/stories/story-5.2.md`
+- Context file: `docs/stories/story-context-5.2.xml`
+- References:
+  - `docs/prd.md`
+  - `docs/stories/EPIC-5-STATUS.md`
+  - `docs/stories/STORY-5.2-DATA-SCHEMA.md`
+  - `docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md`
+  - `docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md`
+
+Output requirements:
+1. Create/refine `docs/tasks/5.2/TASK-PLAN.md` (T00, T01, T06, T02–T05 already defined)
+2. Create full task specs for T00, T01, T06, T02, T03, T04, T05 (T00 and T06 specs exist; refine or confirm)
+3. Initialize `docs/tasks/5.2/LESSONS-LEARNED.md` if missing
+4. Create/update `docs/tasks/5.2/STATUS.md` (current task = **T00** initially — database first)
 ```
 
 ---

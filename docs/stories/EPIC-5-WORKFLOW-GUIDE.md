@@ -204,10 +204,9 @@ Deliverables:
 Story 5.2 artifacts are **already created** (scope finalized 2026-02-13):
 
 - `docs/stories/story-5.2.md` — Full scope including Form Builder Init API, component catalog, single payload
-- `docs/stories/story-context-5.2.xml` — Context file for ralf-sm decomposition
-- `docs/tasks/5.2/TASK-PLAN.md` — Task skeleton (T00, T01, T06, T02–T05)
-- `docs/tasks/5.2/T00-database-form-defaults-schema.md` — T00 spec (defaults + component catalog)
-- `docs/tasks/5.2/T06-form-builder-init-api.md` — T06 spec
+- `docs/stories/story-context-5.2.xml` — Context file for ralf-sm decomposition (directive: ralf-sm creates full task breakdown; database first)
+- `docs/tasks/5.2/TASK-PLAN.md` — Draft; ralf-sm will create/replace during Phase 2 decomposition
+- `docs/tasks/5.2/T00-*.md`, `T06-*.md` — Design-reference specs; ralf-sm uses as input, creates own task specs
 
 **Optional:** If SM updates are needed, use:
 
@@ -270,11 +269,13 @@ Inputs:
   - `docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md`
   - `docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md`
 
+**Critical:** Ralf-SM creates the full task breakdown from the story and context. Do NOT feel constrained by any pre-existing TASK-PLAN or task specs. The context file defines: (1) database task must be first (schema + seeds for defaults + component catalog), (2) reference docs describe approved design — use them to inform tasks but you decide structure, granularity, and dependencies.
+
 Output requirements:
-1. Create/refine `docs/tasks/5.2/TASK-PLAN.md` (T00, T01, T06, T02–T05 already defined)
-2. Create full task specs for T00, T01, T06, T02, T03, T04, T05 (T00 and T06 specs exist; refine or confirm)
+1. Create `docs/tasks/5.2/TASK-PLAN.md` from scratch (your decomposition)
+2. Create full task specs for each task in your plan (first task = database)
 3. Initialize `docs/tasks/5.2/LESSONS-LEARNED.md` if missing
-4. Create/update `docs/tasks/5.2/STATUS.md` (current task = **T00** initially — database first)
+4. Create/update `docs/tasks/5.2/STATUS.md` (current task = your first task — database)
 ```
 
 ---

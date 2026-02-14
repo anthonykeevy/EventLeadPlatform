@@ -46,36 +46,11 @@
     <dc id="8">Story PR merged to master</dc>
   </done-criteria>
 
-  <task-skeleton>
-    <task id="T00" depends-on="" estimate="4-6hrs" area="Database">
-      <title>Database: Defaults + Component Catalog</title>
-      <scope>ref.FormDefaultsSchemaVersion, dbo.GlobalFormDefaults, dbo.CompanyFormDefaults, ref.ComponentType, ref.ComponentScope, dbo.FormBuilderComponent; seed all</scope>
-    </task>
-    <task id="T01" depends-on="T00" estimate="2-3hrs" area="Backend">
-      <title>Company Defaults Model + API</title>
-      <scope>CRUD for defaults; merge resolver</scope>
-    </task>
-    <task id="T06" depends-on="T00,T01" estimate="2-3hrs" area="Backend">
-      <title>Form Builder Init API (single payload)</title>
-      <scope>POST /api/form-builder/init; merged defaults + component catalog + DefinitionJSON skeleton</scope>
-    </task>
-    <task id="T02" depends-on="T01" estimate="2-3hrs" area="Dashboard">
-      <title>Dashboard: Form Branding Defaults UI</title>
-      <scope>Company Settings page with Global Properties controls + Toolbox preview</scope>
-    </task>
-    <task id="T03" depends-on="T01,T06" estimate="2-3hrs" area="Builder">
-      <title>Builder: Inherit Defaults + Override UX</title>
-      <scope>Consume Init API; inherited vs overridden; Save to Company Defaults</scope>
-    </task>
-    <task id="T04" depends-on="T01,T03" estimate="1-2hrs" area="Rendering">
-      <title>Resolver: Apply Defaults in Renderer</title>
-      <scope>Shared resolver in preview + public renderer</scope>
-    </task>
-    <task id="T05" depends-on="T02,T03,T04,T06" estimate="2-3hrs" area="Integration">
-      <title>Integration + UAT</title>
-      <scope>End-to-end verification; UAT execution</scope>
-    </task>
-  </task-skeleton>
+  <task-decomposition>
+    <directive>Ralf-SM creates the full task breakdown from this story and context. Do not feel constrained by any pre-existing TASK-PLAN or task specs.</directive>
+    <constraint type="ordering">Database task MUST be first: schema + seeds for form defaults and component catalog must exist before any API or frontend work. See STORY-5.2-DATA-SCHEMA.md and COMPONENT-CATALOG-SCHEMA-DESIGN.md.</constraint>
+    <constraint type="design">Reference docs (below) describe approved schema and API design; use them to inform tasks but ralf-sm decides task structure, granularity, and dependencies.</constraint>
+  </task-decomposition>
 
   <references>
     <doc path="docs/stories/story-5.2.md" purpose="Story file" />
@@ -83,8 +58,6 @@
     <doc path="docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md" purpose="Component catalog tables" />
     <doc path="docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md" purpose="Single payload API design" />
     <doc path="docs/stories/STORY-5.2-UX-EXPERT-CONSULTATION.md" purpose="UX spec" />
-    <doc path="docs/tasks/5.2/T00-database-form-defaults-schema.md" purpose="T00 spec" />
-    <doc path="docs/tasks/5.2/T06-form-builder-init-api.md" purpose="T06 spec" />
     <doc path="docs/database-naming-rules.md" purpose="MANDATORY naming" />
     <doc path="docs/COMPONENT-FRAMEWORK-REFERENCE.md" purpose="Builder framework" />
     <doc path="docs/stories/EPIC-5-STATUS.md" purpose="Epic scope" />

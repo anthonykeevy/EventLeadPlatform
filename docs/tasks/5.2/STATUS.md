@@ -11,7 +11,7 @@
 | Task | Status | Completed |
 |------|--------|-----------|
 | T01 | ✅ HumanDone | Database schema + seeds; UAT passed 2026-02-14 |
-| T02 | ⏸️ Pending | — |
+| T02 | 🔄 In Progress | — |
 | T03 | ⏸️ Pending | — |
 | T04 | ⏸️ Pending | — |
 | T05 | ⏸️ Pending | — |

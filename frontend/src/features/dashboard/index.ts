@@ -17,6 +17,7 @@ export { EditRoleModal } from './components/EditRoleModal'
 
 // Pages
 export { DashboardPage } from './pages/DashboardPage'
+export { FormBrandingDefaultsPage } from './pages/FormBrandingDefaultsPage'
 
 // API
 export * as dashboardApi from './api/dashboardApi'

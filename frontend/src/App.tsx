@@ -27,6 +27,7 @@ const LoginForm = lazy(() => import('./features/auth').then(module => ({ default
 const PasswordResetRequest = lazy(() => import('./features/auth').then(module => ({ default: module.PasswordResetRequest })))
 const PasswordResetConfirm = lazy(() => import('./features/auth').then(module => ({ default: module.PasswordResetConfirm })))
 const DashboardPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.DashboardPage })))
+const FormBrandingDefaultsPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.FormBrandingDefaultsPage })))
 const InvitationAcceptancePage = lazy(() => import('./features/invitations').then(module => ({ default: module.InvitationAcceptancePage })))
 const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
 const ExternalApprovalPage = lazy(() => import('./features/forms/pages/ExternalApprovalPage').then(module => ({ default: module.ExternalApprovalPage })))
@@ -260,6 +261,16 @@ function App() {
                 <Route path="/invitations/accept" element={<InvitationAcceptancePage />} />
                 <Route path="/approval/external/:token" element={<ExternalApprovalPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route
+                  path="/dashboard/companies/:companyId/form-branding-defaults"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <FormBrandingDefaultsPage />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
                 <Route
                   path="/admin/dashboard"
                   element={

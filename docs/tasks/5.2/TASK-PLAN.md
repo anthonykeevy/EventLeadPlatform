@@ -36,7 +36,7 @@
 
 | Task | Title | Status | Depends On | Est. Time | Focus Area |
 |------|-------|--------|------------|-----------|------------|
-| **T01** | Database: Form Defaults + Component Catalog Schema + Seeds | ⏸️ Pending | — | 4–6 hrs | Database |
+| **T01** | Database: Form Defaults + Component Catalog Schema + Seeds | ✅ HumanDone | — | 4–6 hrs | Database |
 | **T02** | Defaults API: CRUD + Merge Resolver | ⏸️ Pending | T01 | 2–3 hrs | Backend |
 | **T03** | Form Builder Init API (single payload) | ⏸️ Pending | T01, T02 | 2–3 hrs | Backend |
 | **T04** | Dashboard: Form Branding Defaults Page | ⏸️ Pending | T02 | 2–3 hrs | Dashboard |

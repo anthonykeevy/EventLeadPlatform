@@ -35,6 +35,15 @@ This file is updated after each task retro.
 - **CountryID fallback:** Event.CountryID → Company.CountryID when Event.CountryID is null; validate Event belongs to Company before resolution.
 - **defaults shape:** API design requires `defaults.defaultGridLayoutsByComponent` at top level; merged from T02 has it inside `globalStyles`. Build response with both; filter by allowed component codes only.
 
+**Retro additions (Ralf-Retro 2026-02-14):**
+
+- **UAT:** Agent UAT got 404 when backend ran from different worktree (e.g. T04). Add "Backend started from worktree with task code" to UAT prerequisites.
+- **Testing:** Automated integration tests deferred due to TestClient/anyio; manual UAT required. Future: add integration test for POST /api/form-builder/init.
+- **Process:** Smoke-test endpoint from this worktree before marking dev complete.
+
+**Links:**
+- UAT: T03-form-builder-init-api.uat-results.md
+- Retro: T03-form-builder-init-api.retro.md
 ---
 
 ### (Previous entries above)

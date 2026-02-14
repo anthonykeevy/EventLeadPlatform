@@ -38,7 +38,7 @@
 |------|-------|--------|------------|-----------|------------|
 | **T01** | Database: Form Defaults + Component Catalog Schema + Seeds | ✅ HumanDone | — | 4–6 hrs | Database |
 | **T02** | Defaults API: CRUD + Merge Resolver | ✅ HumanDone | T01 | 2–3 hrs | Backend |
-| **T03** | Form Builder Init API (single payload) | ⏸️ Pending | T01, T02 | 2–3 hrs | Backend |
+| **T03** | Form Builder Init API (single payload) | ✅ HumanDone | T01, T02 | 2–3 hrs | Backend |
 | **T04** | Dashboard: Form Branding Defaults Page | ⏸️ Pending | T02 | 2–3 hrs | Dashboard |
 | **T05** | Builder: Inherit Defaults + Override UX + Init API Integration | ⏸️ Pending | T02, T03 | 3–4 hrs | Builder |
 | **T06** | Resolver: Apply Defaults in Renderer | ⏸️ Pending | T02, T05 | 1–2 hrs | Rendering |

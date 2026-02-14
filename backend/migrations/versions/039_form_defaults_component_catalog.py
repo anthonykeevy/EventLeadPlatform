@@ -435,6 +435,15 @@ def upgrade() -> None:
     _seed_form_builder_components(op)
 
 
+def _escape_json_for_sqlalchemy(s: str) -> str:
+    """Escape JSON so SQLAlchemy does not treat :true, :false, :1, etc. as bind parameters."""
+    s = s.replace(":true", ": true").replace(":false", ": false")
+    # Escape :N (numeric) - e.g. "order":1, "rows":3
+    for i in range(10):
+        s = s.replace(f":{i}", f": {i}")
+    return s
+
+
 def _seed_form_builder_components(op) -> None:
     """Insert global-scoped MVP components with schemas and layouts."""
     scope_global_id = "SELECT ComponentScopeID FROM [ref].[ComponentScope] WHERE ScopeCode = 'Global'"
@@ -470,6 +479,7 @@ def _seed_form_builder_components(op) -> None:
     ]
 
     for code, display_name, struct, layout_v, layout_h, props, sort_order in components:
+        esc = lambda x: _escape_json_for_sqlalchemy(x.replace("'", "''"))
         op.execute(
             f"""
             INSERT INTO [dbo].[FormBuilderComponent] (
@@ -477,8 +487,8 @@ def _seed_form_builder_components(op) -> None:
                 PropertiesSchemaJSON, StructureJSON, DefaultGridLayoutVerticalJSON, DefaultGridLayoutHorizontalJSON
             )
             SELECT ct.ComponentTypeID, ({scope_global_id}), N'{code}', N'{display_name}', {sort_order},
-                N'{props.replace("'", "''")}', N'{struct.replace("'", "''")}',
-                N'{layout_v.replace("'", "''")}', N'{layout_h.replace("'", "''")}'
+                N'{esc(props)}', N'{esc(struct)}',
+                N'{esc(layout_v)}', N'{esc(layout_h)}'
             FROM [ref].[ComponentType] ct
             WHERE ct.ComponentTypeCode = N'{code}' AND ct.IsActive = 1
             AND NOT EXISTS (SELECT 1 FROM [dbo].[FormBuilderComponent] fbc

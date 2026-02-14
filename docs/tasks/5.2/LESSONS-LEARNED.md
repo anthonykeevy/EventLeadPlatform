@@ -27,4 +27,14 @@ This file is updated after each task retro.
 
 ---
 
+### T04 — Dashboard Form Branding Defaults (2026-02-14)
+
+**Pattern: Standalone dashboard sub-pages**
+
+- **Route structure:** Add routes like `/dashboard/companies/:companyId/form-branding-defaults` without nesting under DashboardLayout; page provides own Back button.
+- **API alignment:** T02 company endpoints (`GET/PUT /api/companies/{id}/form-defaults`) were ready; T04 only needed frontend API client + page.
+- **Entry point:** CompanyContainer Settings cog (Company Admin only) navigates directly to Form Branding Defaults.
+
+---
+
 ### (Previous entries above)

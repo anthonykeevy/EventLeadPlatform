@@ -1,7 +1,7 @@
 # Story 5.2 Status
 
 **Last Updated:** 2026-02-15  
-**Current Task:** T06 (Resolver: Apply Defaults in Renderer)  
+**Current Task:** T07 (Integration UAT)  
 **Story Status:** 🔄 In Progress  
 
 ---
@@ -15,7 +15,7 @@
 | T03 | ✅ HumanDone | Init API implemented; UAT agent-verified 2026-02-14 |
 | T04 | ✅ HumanDone | Form Branding Defaults page; UAT passed 2026-02-15 |
 | T05 | ✅ HumanDone | Builder Init API + inherit/override; UAT passed 2026-02-15 |
-| T06 | 🔄 In Progress | — |
+| T06 | ✅ HumanDone | Resolver in preview + public renderer; UAT passed 2026-02-15 |
 | T07 | ⏸️ Pending | — |
 
 ---

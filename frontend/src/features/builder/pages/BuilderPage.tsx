@@ -40,6 +40,7 @@ import { getRenderersForComponent } from '../utils/componentRenderers';
 import { apiClient } from '../../../lib/apiClient';
 import { getComponentSurfaceCapabilities } from '../utils/componentSurfaceCapabilities';
 import { PublicFormArtboard } from '../../renderer/components/PublicFormArtboard';
+import { resolveDefinitionForRender } from '../utils/definitionResolver';
 
 // 8px Grid Snap Modifier
 const snapToGridModifier = createSnapModifier(8);
@@ -67,7 +68,8 @@ export const BuilderPage: React.FC = () => {
       initializeForm, 
       isLoading, 
       loadError,
-      formDefinition, 
+      formDefinition,
+      initDefaults,
       activeId, 
       setActiveId, 
       updateComponent, 
@@ -1291,7 +1293,7 @@ export const BuilderPage: React.FC = () => {
               <div className="p-6 text-sm text-gray-600">Preparing preview…</div>
             ) : formDefinition ? (
               <PublicFormArtboard
-                definition={formDefinition}
+                definition={resolveDefinitionForRender(initDefaults ?? null, formDefinition)}
                 embed={true}
                 layoutMode="builder"
                 containerClassName="h-full"

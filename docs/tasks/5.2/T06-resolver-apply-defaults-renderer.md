@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T06  
-**Status:** ⏸️ Pending  
+**Status:** ✅ Complete
 **Dependencies:** T02, T05  
 **Estimated Time:** 1–2 hours  
 
@@ -16,11 +16,11 @@
 
 ## ✅ Scope (In)
 
-- [ ] Resolver logic: merge Global + Company + Form overrides for a given form
-- [ ] Preview mode: use resolver when rendering
-- [ ] Public renderer: use resolver when rendering
-- [ ] Inheritance model documented (builder + renderer alignment)
-- [ ] Consistency: same resolution rules in Builder preview and public runtime
+- [x] Resolver logic: merge Global + Company + Form overrides for a given form
+- [x] Preview mode: use resolver when rendering
+- [x] Public renderer: use resolver when rendering
+- [x] Inheritance model documented (builder + renderer alignment)
+- [x] Consistency: same resolution rules in Builder preview and public runtime
 
 ---
 

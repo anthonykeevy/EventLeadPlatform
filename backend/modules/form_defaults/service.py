@@ -68,6 +68,43 @@ def resolve_merged_defaults(db: Session, company_id: int) -> Dict[str, Any]:
     return deep_merge(base, override)
 
 
+def resolve_definition_for_render(
+    db: Session,
+    company_id: int,
+    form_definition: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Resolve full definition for render: Global -> Company -> Form (Story 5.2 T06).
+    Merges merged defaults (Global+Company) with form-level overrides from DefinitionJSON.
+    Returns complete definition suitable for preview and public renderer.
+    """
+    merged = resolve_merged_defaults(db, company_id)
+    # Form overrides: theme, globalStyles, canvasSettings from form_definition
+    form_theme = form_definition.get("theme")
+    form_global_styles = form_definition.get("globalStyles")
+    form_canvas = form_definition.get("canvasSettings")
+
+    result = dict(form_definition)
+    if form_theme is not None and isinstance(form_theme, dict):
+        result["theme"] = deep_merge(merged.get("theme") or {}, form_theme)
+    elif merged.get("theme"):
+        result["theme"] = copy.deepcopy(merged["theme"])
+
+    if form_global_styles is not None and isinstance(form_global_styles, dict):
+        base_gs = merged.get("globalStyles") or {}
+        result["globalStyles"] = deep_merge(base_gs, form_global_styles)
+    elif merged.get("globalStyles"):
+        result["globalStyles"] = copy.deepcopy(merged["globalStyles"])
+
+    if form_canvas is not None and isinstance(form_canvas, dict):
+        base_canvas = merged.get("canvasSettings") or {}
+        result["canvasSettings"] = deep_merge(base_canvas, form_canvas)
+    elif merged.get("canvasSettings"):
+        result["canvasSettings"] = copy.deepcopy(merged["canvasSettings"])
+
+    return result
+
+
 def update_global_defaults(
     db: Session,
     defaults: Dict[str, Any],

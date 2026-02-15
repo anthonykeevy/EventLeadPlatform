@@ -14,9 +14,13 @@ export { Breadcrumbs } from './components/Breadcrumbs'
 export { EmptyState } from './components/EmptyState'
 export { InviteUserModal } from './components/InviteUserModal'
 export { EditRoleModal } from './components/EditRoleModal'
+export { CompanySettingsLayout } from './components/CompanySettingsLayout'
 
 // Pages
 export { DashboardPage } from './pages/DashboardPage'
+export { FormBrandingDefaultsPage } from './pages/FormBrandingDefaultsPage'
+export { CompanyImagesPage } from './pages/CompanyImagesPage'
+export { CompanyTeamPage } from './pages/CompanyTeamPage'
 
 // API
 export * as dashboardApi from './api/dashboardApi'

@@ -44,6 +44,37 @@ This file is updated after each task retro.
 **Links:**
 - UAT: T03-form-builder-init-api.uat-results.md
 - Retro: T03-form-builder-init-api.retro.md
+
+---
+
+### T04 — Dashboard Form Branding Defaults (2026-02-14)
+
+**Pattern: Standalone dashboard sub-pages**
+
+- **Route structure:** Add routes like `/dashboard/companies/:companyId/form-branding-defaults` without nesting under DashboardLayout; page provides own Back button.
+- **API alignment:** T02 company endpoints (`GET/PUT /api/companies/{id}/form-defaults`) were ready; T04 only needed frontend API client + page.
+- **Entry point:** CompanyContainer Settings cog (Company Admin only) navigates directly to Form Branding Defaults.
+
+---
+
+### T04 — Full Retro (2026-02-15)
+
+**Dev Lessons:**
+- When implementing audit trails, prefer user-identifiable fields (email) over internal IDs when available.
+- Run frontend build before completion to catch unused imports (e.g. PropertySelect) and type errors.
+
+**Testing Lessons:**
+- For layout controls (row gap, spacing): add UAT step "verify spacing uniform between object rows" if that's the expected UX.
+- UAT automation candidate: persistence check (change → save → navigate → return → verify) could be e2e.
+
+**Process Lessons:**
+- AC5 "who, when, what" should specify: who = user email or display name when available; what = change summary or modified fields when available.
+- Enhancements discovered during UAT (email vs User ID, change summary, row gap) were correctly classified; none were defects.
+
+**Links:**
+- Completion: `T04-dashboard-form-branding-defaults.completion.md`
+- UAT: `T04-dashboard-form-branding-defaults.uat-results.md`
+- Retro: `T04-dashboard-form-branding-defaults.retro.md`
 ---
 
 ### (Previous entries above)

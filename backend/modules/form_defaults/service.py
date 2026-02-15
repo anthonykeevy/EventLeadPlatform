@@ -13,6 +13,7 @@ from models.global_form_defaults_version import GlobalFormDefaultsVersion
 from models.company_form_defaults import CompanyFormDefaults
 from models.company_form_defaults_version import CompanyFormDefaultsVersion
 from models.ref.form_defaults_schema_version import FormDefaultsSchemaVersion
+from models.user import User
 
 
 def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
@@ -183,18 +184,25 @@ def get_global_history(db: Session, limit: int = 50) -> List[Tuple[int, str, Opt
     return rows
 
 
-def get_company_history(db: Session, company_id: int, limit: int = 50) -> List[Tuple[int, str, Optional[str], str, Optional[int]]]:
-    """Get company defaults version history."""
-    rows = db.execute(
-        select(
-            CompanyFormDefaultsVersion.VersionNumber,
-            CompanyFormDefaultsVersion.DefaultsJSON,
-            CompanyFormDefaultsVersion.ChangeSummary,
-            CompanyFormDefaultsVersion.CreatedDate,
-            CompanyFormDefaultsVersion.CreatedBy,
+def get_company_history(
+    db: Session, company_id: int, limit: int = 50
+) -> List[Tuple[int, str, Optional[str], str, Optional[int], Optional[str]]]:
+    """Get company defaults version history with creator email."""
+    rows = (
+        db.execute(
+            select(
+                CompanyFormDefaultsVersion.VersionNumber,
+                CompanyFormDefaultsVersion.DefaultsJSON,
+                CompanyFormDefaultsVersion.ChangeSummary,
+                CompanyFormDefaultsVersion.CreatedDate,
+                CompanyFormDefaultsVersion.CreatedBy,
+                User.Email,
+            )
+            .outerjoin(User, CompanyFormDefaultsVersion.CreatedBy == User.UserID)
+            .where(CompanyFormDefaultsVersion.CompanyID == company_id)
+            .order_by(CompanyFormDefaultsVersion.VersionNumber.desc())
+            .limit(limit)
         )
-        .where(CompanyFormDefaultsVersion.CompanyID == company_id)
-        .order_by(CompanyFormDefaultsVersion.VersionNumber.desc())
-        .limit(limit)
-    ).all()
+        .all()
+    )
     return rows

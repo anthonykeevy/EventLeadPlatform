@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T04  
-**Status:** ⏸️ Pending  
+**Status:** ✅ Done
 **Dependencies:** T02  
 **Estimated Time:** 2–3 hours  
 
@@ -16,13 +16,13 @@
 
 ## ✅ Scope (In)
 
-- [ ] New route/page: Company Settings → Form Branding Defaults
-- [ ] Controls matching Global Properties Panel (theme, globalStyles, canvasSettings)
-- [ ] Toolbox components as visual guide (live preview)
-- [ ] Load defaults via GET `/api/companies/{id}/form-defaults`
-- [ ] Save via PUT `/api/companies/{id}/form-defaults`
-- [ ] Audit trail: version history viewable (GET history endpoint)
-- [ ] Access: Company Admin only
+- [x] New route/page: Company Settings → Form Branding Defaults
+- [x] Controls matching Global Properties Panel (theme, globalStyles, canvasSettings)
+- [x] Toolbox components as visual guide (live preview)
+- [x] Load defaults via GET `/api/companies/{id}/form-defaults`
+- [x] Save via PUT `/api/companies/{id}/form-defaults`
+- [x] Audit trail: version history viewable (GET history endpoint)
+- [x] Access: Company Admin only
 
 ---
 

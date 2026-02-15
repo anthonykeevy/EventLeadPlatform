@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut, Layout } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { Company } from '../types/dashboard.types'
 import { getEvents } from '../../events/api/eventsApi'
 import type { Event } from '../../events/types/events.types'
@@ -54,6 +54,7 @@ export function CompanyContainer({
   depth = 0,
   maxDepth = 5
 }: CompanyContainerProps) {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const hasChildren = company.childCompanies && company.childCompanies.length > 0
   const isAdmin = company.userRole === 'Company Admin'
@@ -447,10 +448,10 @@ export function CompanyContainer({
               </button>
             )}
 
-            {/* Settings Icon - Only for admins */}
+            {/* Settings Icon - Only for admins (Story 5.2 T04: Form Branding Defaults) */}
             {isAdmin && (
               <button
-                onClick={() => {/* TODO: Story 1.16 - Company settings */}}
+                onClick={() => navigate(`/dashboard/companies/${company.companyId}/settings`)}
                 className="p-2 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
                 aria-label="Company Settings"
                 title="Company Settings"

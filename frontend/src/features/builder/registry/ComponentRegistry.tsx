@@ -45,6 +45,8 @@ const TOOLBOX_FIRST_NAME_COMPONENT: FormComponent = {
 
 interface ToolboxPreviewProps {
   globalStyles?: GlobalStyles;
+  /** When true, render input object with focus styling (e.g. Focus Color cycling) */
+  simulateFocus?: boolean;
 }
 
 function makeToolboxPreview(args: {
@@ -53,7 +55,7 @@ function makeToolboxPreview(args: {
   props: FormComponent['props'];
   renderersOverride?: (base: ObjectRenderers) => ObjectRenderers;
 }): React.ReactNode {
-  const ToolboxPreview: React.FC<ToolboxPreviewProps> = ({ globalStyles }) => {
+  const ToolboxPreview: React.FC<ToolboxPreviewProps> = ({ globalStyles, simulateFocus }) => {
     const component: FormComponent = {
       id: `toolbox-${args.type}`,
       type: args.type,
@@ -74,6 +76,7 @@ function makeToolboxPreview(args: {
         globalStyles={globalStyles}
         objectLayout={globalStyles?.defaultObjectLayout}
         layoutGroups={globalStyles?.defaultLayoutGroups}
+        simulateFocus={simulateFocus}
         // Enable builder-mode branches (placeholder validation, sizing guides) AND show SmartBorder
         // so toolbox previews match canvas behavior.
         builderMode={{ showBorder: true, borderPadding: 5 }}

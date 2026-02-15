@@ -32,6 +32,7 @@ class FormDefaultsVersionEntry(BaseModel):
     changeSummary: Optional[str] = None
     createdDate: str
     createdBy: Optional[int] = None
+    createdByEmail: Optional[str] = None
 
     class Config:
         from_attributes = True

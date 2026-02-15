@@ -22,6 +22,8 @@ from models.form_public_link import FormPublicLink
 from models.form_submission import FormSubmission
 from models.log.frontend_event import FrontendEvent
 
+from modules.form_defaults.service import resolve_definition_for_render
+
 from .public_form_schemas import PublicFormResolveResponse
 from .public_submission_schemas import (
     PublicFormSubmissionRequest,
@@ -147,6 +149,15 @@ async def resolve_public_form(
     if not version:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No form version found for this link.")
 
+    # T06: Resolve definition with Global -> Company -> Form inheritance for renderer parity
+    try:
+        resolved_def = resolve_definition_for_render(
+            db, form.CompanyID, version.definition
+        )
+    except ValueError:
+        # Global defaults not found (e.g. migration 039 not run); fall back to raw definition
+        resolved_def = version.definition
+
     # Update last accessed (best-effort)
     try:
         link.LastAccessedAt = datetime.utcnow()  # type: ignore[assignment]
@@ -157,7 +168,7 @@ async def resolve_public_form(
 
     return PublicFormResolveResponse(
         linkType=str(link.LinkType),
-        definition=version.definition,
+        definition=resolved_def,
     )
 
 

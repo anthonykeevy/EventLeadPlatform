@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useBuilderStore } from '../../builder/stores/useBuilderStore';
 import { RuntimeFormView } from '../../builder/components/runtime/RuntimeFormView';
+import { resolveDefinitionForRender } from '../../builder/utils/definitionResolver';
 
 /**
  * Minimal internal renderer for Story 3.7 runtime parity.
@@ -10,7 +11,7 @@ import { RuntimeFormView } from '../../builder/components/runtime/RuntimeFormVie
  */
 export const FormRendererPage: React.FC = () => {
   const { formId } = useParams<{ formId: string }>();
-  const { initializeForm, formDefinition, isLoading } = useBuilderStore();
+  const { initializeForm, formDefinition, initDefaults, isLoading } = useBuilderStore();
 
   useEffect(() => {
     if (formId) initializeForm(formId);
@@ -35,7 +36,10 @@ export const FormRendererPage: React.FC = () => {
         </Link>
         <div className="font-semibold text-gray-900">Renderer (Story 3.7 runtime)</div>
       </header>
-      <RuntimeFormView definition={formDefinition} title="Renderer Runtime" />
+      <RuntimeFormView
+        definition={resolveDefinitionForRender(initDefaults ?? null, formDefinition)}
+        title="Renderer Runtime"
+      />
     </div>
   );
 };

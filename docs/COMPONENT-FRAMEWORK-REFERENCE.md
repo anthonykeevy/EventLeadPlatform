@@ -249,6 +249,18 @@ This section documents **what data each tier provides** and **how components con
    - Per-component objectLayout overrides structure if present
 ```
 
+### Resolver Implementation (Story 5.2 T06)
+
+Same resolution rules in **Builder preview** and **Public renderer**:
+
+| Context | Resolver | Source |
+|---------|----------|--------|
+| **Builder preview** (inline / canvas) | `resolveDefinitionForRender(initDefaults, formDefinition)` | Frontend: `frontend/src/features/builder/utils/definitionResolver.ts` |
+| **Form Renderer page** (internal runtime) | Same as builder preview | Uses `initDefaults` from Init API |
+| **Public form** (GET /api/public/forms/{token}) | `resolve_definition_for_render(db, company_id, version.definition)` | Backend: `backend/modules/form_defaults/service.py` |
+
+Resolution order: **Global → Company → Form → Component**. Form overrides from DefinitionJSON override company defaults. Aligned with `docs/stories/STORY-5.2-DATA-SCHEMA.md`.
+
 ### Mapping: Global Properties Panel ↔ Inheritance
 
 The Global Properties Panel controls map to `globalStyles`. When database-driven:

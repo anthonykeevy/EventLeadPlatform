@@ -1,5 +1,5 @@
 import { useEffect, useState, Suspense, lazy } from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './features/auth'
 import { UXProvider, LoadingSpinner, PageLoadingSpinner, useToastNotifications } from './features/ux'
@@ -28,6 +28,9 @@ const PasswordResetRequest = lazy(() => import('./features/auth').then(module =>
 const PasswordResetConfirm = lazy(() => import('./features/auth').then(module => ({ default: module.PasswordResetConfirm })))
 const DashboardPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.DashboardPage })))
 const FormBrandingDefaultsPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.FormBrandingDefaultsPage })))
+const CompanySettingsLayout = lazy(() => import('./features/dashboard').then(module => ({ default: module.CompanySettingsLayout })))
+const CompanyImagesPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.CompanyImagesPage })))
+const CompanyTeamPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.CompanyTeamPage })))
 const InvitationAcceptancePage = lazy(() => import('./features/invitations').then(module => ({ default: module.InvitationAcceptancePage })))
 const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
 const ExternalApprovalPage = lazy(() => import('./features/forms/pages/ExternalApprovalPage').then(module => ({ default: module.ExternalApprovalPage })))
@@ -262,15 +265,20 @@ function App() {
                 <Route path="/approval/external/:token" element={<ExternalApprovalPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route
-                  path="/dashboard/companies/:companyId/form-branding-defaults"
+                  path="/dashboard/companies/:companyId/settings"
                   element={
                     <RequireAuth>
                       <Suspense fallback={<PageLoadingSpinner />}>
-                        <FormBrandingDefaultsPage />
+                        <CompanySettingsLayout />
                       </Suspense>
                     </RequireAuth>
                   }
-                />
+                >
+                  <Route index element={<Navigate to="form-branding-defaults" replace />} />
+                  <Route path="form-branding-defaults" element={<FormBrandingDefaultsPage />} />
+                  <Route path="images" element={<CompanyImagesPage />} />
+                  <Route path="team" element={<CompanyTeamPage />} />
+                </Route>
                 <Route
                   path="/admin/dashboard"
                   element={

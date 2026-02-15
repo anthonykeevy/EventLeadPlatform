@@ -451,10 +451,10 @@ export function CompanyContainer({
             {/* Settings Icon - Only for admins (Story 5.2 T04: Form Branding Defaults) */}
             {isAdmin && (
               <button
-                onClick={() => navigate(`/dashboard/companies/${company.companyId}/form-branding-defaults`)}
+                onClick={() => navigate(`/dashboard/companies/${company.companyId}/settings`)}
                 className="p-2 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
                 aria-label="Company Settings"
-                title="Form Branding Defaults"
+                title="Company Settings"
               >
                 <Settings className="w-5 h-5" />
               </button>

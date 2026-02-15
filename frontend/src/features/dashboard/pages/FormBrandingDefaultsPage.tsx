@@ -1,12 +1,12 @@
 /**
  * Form Branding Defaults Page - Story 5.2 T04
  * Company Settings → Form Branding Defaults
- * Controls matching Global Properties Panel + Toolbox preview + Audit trail
+ * Uses same controls as Global Properties Panel + Toolbox-style component preview
  */
 
-import { useState, useEffect, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Save, History } from 'lucide-react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useParams } from 'react-router-dom'
+import { Save, History, Palette, ChevronDown, ChevronRight, Grid3x3, Focus, Type, Minus } from 'lucide-react'
 import {
   getCompanyFormDefaults,
   putCompanyFormDefaults,
@@ -15,17 +15,76 @@ import {
   type FormDefaultsVersionEntry
 } from '../api/formDefaultsApi'
 import { useToastNotifications } from '../../ux'
+import {
+  FocusColorSection,
+  TypographySpacingSection,
+  DividersLinesSection,
+  GridLayoutDefaultsSection
+} from '../../builder/components/properties/GlobalStylesPanel'
+import { PropertyColorPicker, PropertyNumberInput } from '../../builder/components/properties/inputs'
+import { ComponentRegistry } from '../../builder/registry/ComponentRegistry'
+import {
+  DEFAULT_GLOBAL_STYLES,
+  type GlobalStyles
+} from '../../builder/types/builder.types'
+
+type AccordionSection = 'theme' | 'focusColor' | 'typographySpacing' | 'dividersLines' | 'gridLayoutDefaults' | 'canvas'
+
+/** Human-readable labels for defaults keys */
+const DEFAULTS_LABELS: Record<string, string> = {
+  primaryColor: 'Primary colour',
+  backgroundColor: 'Background colour',
+  fontFamily: 'Font family',
+  fontSize: 'Font size',
+  labelFontFamily: 'Label font',
+  defaultLayout: 'Default layout',
+  defaultObjectLayout: 'Object layout',
+  rowGap: 'Default row gap',
+  columnGap: 'Default column gap',
+  width: 'Canvas width',
+  height: 'Canvas height',
+  gridSize: 'Grid size',
+}
+
+function computeChangeSummary(prev: FormDefaultsPayload | null, next: FormDefaultsPayload): string {
+  if (!prev || !next) return 'Updated from Company Settings'
+  const changed: string[] = []
+  const th = next.theme ?? {}
+  const ph = prev.theme ?? {}
+  if (th.primaryColor !== ph.primaryColor) changed.push(DEFAULTS_LABELS.primaryColor)
+  if (th.backgroundColor !== ph.backgroundColor) changed.push(DEFAULTS_LABELS.backgroundColor)
+  if (th.fontFamily !== ph.fontFamily) changed.push(DEFAULTS_LABELS.fontFamily)
+  const gs = (next.globalStyles ?? {}) as Record<string, unknown>
+  const pgs = (prev.globalStyles ?? {}) as Record<string, unknown>
+  if (gs.fontSize !== pgs.fontSize) changed.push(DEFAULTS_LABELS.fontSize)
+  if (gs.labelFontFamily !== pgs.labelFontFamily) changed.push(DEFAULTS_LABELS.labelFontFamily)
+  if (gs.defaultLayout !== pgs.defaultLayout) changed.push(DEFAULTS_LABELS.defaultLayout)
+  if (gs.defaultObjectLayout !== pgs.defaultObjectLayout) changed.push(DEFAULTS_LABELS.defaultObjectLayout)
+  const dgl = (gs.defaultGridLayout ?? {}) as Record<string, unknown>
+  const pdgl = (pgs.defaultGridLayout ?? {}) as Record<string, unknown>
+  if (dgl.rowGap !== pdgl.rowGap) changed.push(DEFAULTS_LABELS.rowGap)
+  if (dgl.columnGap !== pdgl.columnGap) changed.push(DEFAULTS_LABELS.columnGap)
+  const cs = next.canvasSettings ?? {}
+  const pcs = prev.canvasSettings ?? {}
+  if (cs.width !== pcs.width) changed.push(DEFAULTS_LABELS.width)
+  if (cs.height !== pcs.height) changed.push(DEFAULTS_LABELS.height)
+  if (cs.gridSize !== pcs.gridSize) changed.push(DEFAULTS_LABELS.gridSize)
+  if (changed.length === 0) return 'Updated from Company Settings'
+  return changed.join(', ')
+}
 
 export function FormBrandingDefaultsPage() {
   const { companyId } = useParams<{ companyId: string }>()
-  const navigate = useNavigate()
   const toast = useToastNotifications()
 
   const [defaults, setDefaults] = useState<FormDefaultsPayload | null>(null)
+  const lastLoadedDefaults = useRef<FormDefaultsPayload | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [history, setHistory] = useState<FormDefaultsVersionEntry[]>([])
   const [showHistory, setShowHistory] = useState(false)
+  const [expandedSection, setExpandedSection] = useState<AccordionSection>('theme')
+  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
 
   const id = companyId ? parseInt(companyId, 10) : NaN
 
@@ -34,14 +93,17 @@ export function FormBrandingDefaultsPage() {
     setIsLoading(true)
     try {
       const res = await getCompanyFormDefaults(id)
-      setDefaults(res.defaults ?? {})
+      const d = res.defaults ?? {}
+      setDefaults(d)
+      lastLoadedDefaults.current = d
     } catch (err) {
       toast.error('Failed to load form defaults', 'Error')
       setDefaults({})
     } finally {
       setIsLoading(false)
     }
-  }, [id, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- toast causes infinite re-fetch
+  }, [id])
 
   const loadHistory = useCallback(async () => {
     if (isNaN(id)) return
@@ -63,9 +125,10 @@ export function FormBrandingDefaultsPage() {
 
   const handleSave = async () => {
     if (isNaN(id) || !defaults) return
+    const changeSummary = computeChangeSummary(lastLoadedDefaults.current, defaults)
     setIsSaving(true)
     try {
-      await putCompanyFormDefaults(id, defaults, 'Updated from Company Settings')
+      await putCompanyFormDefaults(id, defaults, changeSummary)
       toast.success('Form branding defaults saved', 'Success')
       loadDefaults()
       if (showHistory) loadHistory()
@@ -76,322 +139,341 @@ export function FormBrandingDefaultsPage() {
     }
   }
 
+  const effectiveGlobalStyles = useMemo((): GlobalStyles => {
+    const gs = (defaults?.globalStyles ?? {}) as Partial<GlobalStyles>
+    const theme = defaults?.theme ?? {}
+    const base = gs.baseSpacing ?? 8
+    const rowGap = gs.defaultGridLayout?.rowGap
+    const derivedGap = rowGap != null ? rowGap / base : undefined
+    return {
+      ...DEFAULT_GLOBAL_STYLES,
+      ...gs,
+      primaryColor: (theme.primaryColor as string) ?? gs.primaryColor ?? DEFAULT_GLOBAL_STYLES.primaryColor,
+      // When Default Row Gap controls spacing: use grid rowGap only, zero margins to avoid double spacing
+      ...(derivedGap != null && {
+        labelGap: 0,
+        inputHelpGap: 0,
+        objectRowGapPx: 0,
+      }),
+    }
+  }, [defaults])
+
+  const onGlobalStylesChange = useCallback((updates: Partial<GlobalStyles>) => {
+    setDefaults((prev) => {
+      const next = { ...prev } as FormDefaultsPayload
+      let gs = { ...(prev?.globalStyles ?? {}), ...updates } as Partial<GlobalStyles>
+      // Deep-merge defaultGridLayout to avoid overwriting rows/columns/columnGap
+      if (updates.defaultGridLayout) {
+        gs.defaultGridLayout = { ...(gs.defaultGridLayout ?? {}), ...updates.defaultGridLayout }
+        const rowGap = gs.defaultGridLayout?.rowGap
+        if (rowGap != null) {
+          // Spacing comes from grid rowGap only; zero margins avoid double spacing between rows
+          gs.labelGap = 0
+          gs.inputHelpGap = 0
+          gs.objectRowGapPx = 0
+        }
+      }
+      // Sync primaryColor to theme
+      if (updates.primaryColor != null) {
+        next.theme = { ...(prev?.theme ?? {}), primaryColor: updates.primaryColor }
+      }
+      next.globalStyles = gs
+      return next
+    })
+  }, [])
+
+  const theme = defaults?.theme ?? {}
+  const canvas = defaults?.canvasSettings ?? {}
+
   const updateTheme = (key: string, value: string) => {
     setDefaults((prev) => ({
       ...prev,
-      theme: {
-        ...(prev?.theme ?? {}),
-        [key]: value
-      }
-    }))
-  }
-
-  const updateGlobalStyle = (key: string, value: string | number) => {
-    setDefaults((prev) => ({
-      ...prev,
-      globalStyles: {
-        ...(prev?.globalStyles ?? {}),
-        [key]: value
-      }
+      theme: { ...(prev?.theme ?? {}), [key]: value }
     }))
   }
 
   const updateCanvas = (key: string, value: number) => {
     setDefaults((prev) => ({
       ...prev,
-      canvasSettings: {
-        ...(prev?.canvasSettings ?? {}),
-        [key]: value
-      }
+      canvasSettings: { ...(prev?.canvasSettings ?? {}), [key]: value }
     }))
   }
 
-  const theme = defaults?.theme ?? {}
-  const gs = (defaults?.globalStyles ?? {}) as Record<string, unknown>
-  const canvas = defaults?.canvasSettings ?? {}
-  const primaryColor = (theme.primaryColor as string) ?? '#0055FF'
-  const backgroundColor = (theme.backgroundColor as string) ?? '#FFFFFF'
-  const fontFamily = (theme.fontFamily as string) ?? 'Inter'
+  const allComponents = useMemo(
+    () => Object.values(ComponentRegistry).filter((c) => c?.previewComponent),
+    []
+  )
+
+  // Input components only (have input object) - for Focus Color cycling
+  const inputComponents = useMemo(
+    () => allComponents.filter((c) => c.category === 'input'),
+    [allComponents]
+  )
+
+  // When Focus Color section is open, cycle through INPUT components only every 1s
+  useEffect(() => {
+    if (expandedSection !== 'focusColor' || !inputComponents.length) return
+    setFocusedComponentIndex(0)
+    const id = setInterval(() => {
+      setFocusedComponentIndex((i) => (i + 1) % inputComponents.length)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [expandedSection, inputComponents.length])
+
+  const toggleSection = (section: AccordionSection) => {
+    setExpandedSection((prev) => (prev === section ? prev : section))
+  }
 
   if (isNaN(id)) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <p className="text-red-600">Invalid company ID</p>
-        <button onClick={() => navigate('/dashboard')} className="mt-4 text-teal-600 hover:underline">
-          Back to Dashboard
-        </button>
-      </div>
-    )
+    return <div className="p-8 text-red-600">Invalid company ID</div>
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex items-center gap-4 mb-6">
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Page toolbar */}
+      <div className="flex-shrink-0 flex items-center justify-end gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <button
-          onClick={() => navigate('/dashboard')}
-          className="p-2 rounded hover:bg-gray-100 text-gray-600"
-          aria-label="Back to Dashboard"
+          onClick={() => setShowHistory(!showHistory)}
+          className="inline-flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <History className="w-4 h-4" />
+          {showHistory ? 'Hide' : 'Show'} History
         </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Form Branding Defaults</h1>
-          <p className="text-sm text-gray-500">Configure default styling for all forms in this company</p>
-        </div>
+        <button
+          onClick={handleSave}
+          disabled={isSaving || !defaults}
+          className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+        >
+          <Save className="w-4 h-4" />
+          {isSaving ? 'Saving...' : 'Save'}
+        </button>
       </div>
 
       {isLoading ? (
-        <div className="bg-white rounded-lg border p-8 text-center text-gray-500">Loading...</div>
+        <div className="flex-1 flex items-center justify-center text-gray-500">Loading...</div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Controls */}
-          <div className="space-y-6">
-            {/* Theme */}
-            <section className="bg-white rounded-lg border p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Theme</h2>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Primary Color</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => updateTheme('primaryColor', e.target.value)}
-                      className="w-10 h-10 rounded border cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => updateTheme('primaryColor', e.target.value)}
-                      className="flex-1 px-2 py-1.5 border rounded text-sm"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={backgroundColor}
-                      onChange={(e) => updateTheme('backgroundColor', e.target.value)}
-                      className="w-10 h-10 rounded border cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={backgroundColor}
-                      onChange={(e) => updateTheme('backgroundColor', e.target.value)}
-                      className="flex-1 px-2 py-1.5 border rounded text-sm"
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left: Accordion controls */}
+          <div className="w-[380px] flex-shrink-0 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="flex-1 overflow-y-auto min-h-0">
+              {/* Theme accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('theme')}
+                  className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {expandedSection === 'theme' ? (
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                  )}
+                  <Palette className="w-4 h-4 text-teal-500" />
+                  <span className="font-medium text-sm">Theme</span>
+                </button>
+                {expandedSection === 'theme' && (
+                  <div className="px-4 pb-4 pt-0 space-y-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                      Base theme applied across all forms.
+                    </p>
+                    <PropertyColorPicker
+                      label="Background Color"
+                      value={(theme.backgroundColor as string) ?? '#FFFFFF'}
+                      onChange={(v) => updateTheme('backgroundColor', v)}
                     />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Font Family</label>
-                  <select
-                    value={fontFamily}
-                    onChange={(e) => updateTheme('fontFamily', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
-                  >
-                    <option value="Inter">Inter</option>
-                    <option value="Roboto">Roboto</option>
-                    <option value="Open Sans">Open Sans</option>
-                    <option value="Lato">Lato</option>
-                    <option value="Arial">Arial</option>
-                  </select>
-                </div>
+                )}
               </div>
-            </section>
 
-            {/* Global Styles (Typography) */}
-            <section className="bg-white rounded-lg border p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Typography</h2>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Base Font Family</label>
-                  <input
-                    type="text"
-                    value={(gs.fontFamily as string) ?? 'Inter'}
-                    onChange={(e) => updateGlobalStyle('fontFamily', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
+              {/* Focus Color accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('focusColor')}
+                  className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {expandedSection === 'focusColor' ? (
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                  )}
+                  <Focus className="w-4 h-4 text-blue-500" />
+                  <span className="font-medium text-sm">Focus Color</span>
+                </button>
+                {expandedSection === 'focusColor' && (
+                  <FocusColorSection
+                    globalStyles={effectiveGlobalStyles}
+                    onGlobalStylesChange={onGlobalStylesChange}
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Base Font Size (px)</label>
-                  <input
-                    type="number"
-                    value={(gs.fontSize as number) ?? 14}
-                    onChange={(e) => updateGlobalStyle('fontSize', parseInt(e.target.value, 10) || 14)}
-                    min={10}
-                    max={24}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Label Font Family</label>
-                  <input
-                    type="text"
-                    value={(gs.labelFontFamily as string) ?? 'Inter'}
-                    onChange={(e) => updateGlobalStyle('labelFontFamily', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Label Color</label>
-                  <input
-                    type="text"
-                    value={(gs.labelColor as string) ?? '#374151'}
-                    onChange={(e) => updateGlobalStyle('labelColor', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Input Text Color</label>
-                  <input
-                    type="text"
-                    value={(gs.textColor as string) ?? '#111827'}
-                    onChange={(e) => updateGlobalStyle('textColor', e.target.value)}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
-                  />
-                </div>
+                )}
               </div>
-            </section>
 
-            {/* Canvas Settings */}
-            <section className="bg-white rounded-lg border p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Canvas Settings</h2>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Width</label>
-                  <input
-                    type="number"
-                    value={(canvas.width as number) ?? 1920}
-                    onChange={(e) => updateCanvas('width', parseInt(e.target.value, 10) || 1920)}
-                    min={800}
-                    max={3840}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
+              {/* Typography & Spacing accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('typographySpacing')}
+                  className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {expandedSection === 'typographySpacing' ? (
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                  )}
+                  <Type className="w-4 h-4 text-gray-500" />
+                  <span className="font-medium text-sm">Typography & Spacing</span>
+                </button>
+                {expandedSection === 'typographySpacing' && (
+                  <TypographySpacingSection
+                    globalStyles={effectiveGlobalStyles}
+                    onGlobalStylesChange={onGlobalStylesChange}
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Height</label>
-                  <input
-                    type="number"
-                    value={(canvas.height as number) ?? 980}
-                    onChange={(e) => updateCanvas('height', parseInt(e.target.value, 10) || 980)}
-                    min={400}
-                    max={2160}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Grid Size</label>
-                  <input
-                    type="number"
-                    value={(canvas.gridSize as number) ?? 8}
-                    onChange={(e) => updateCanvas('gridSize', parseInt(e.target.value, 10) || 8)}
-                    min={4}
-                    max={32}
-                    className="w-full px-2 py-1.5 border rounded text-sm"
-                  />
-                </div>
+                )}
               </div>
-            </section>
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                {isSaving ? 'Saving...' : 'Save'}
-              </button>
-              <button
-                onClick={() => setShowHistory(!showHistory)}
-                className="inline-flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50"
-              >
-                <History className="w-4 h-4" />
-                {showHistory ? 'Hide' : 'Show'} History
-              </button>
+              {/* Dividers & Lines accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('dividersLines')}
+                  className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {expandedSection === 'dividersLines' ? (
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                  )}
+                  <Minus className="w-4 h-4 text-gray-500" />
+                  <span className="font-medium text-sm">Dividers & Lines</span>
+                </button>
+                {expandedSection === 'dividersLines' && (
+                  <DividersLinesSection
+                    globalStyles={effectiveGlobalStyles}
+                    onGlobalStylesChange={onGlobalStylesChange}
+                  />
+                )}
+              </div>
+
+              {/* Grid Layout Defaults accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('gridLayoutDefaults')}
+                  className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {expandedSection === 'gridLayoutDefaults' ? (
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                  )}
+                  <Grid3x3 className="w-4 h-4 text-gray-500" />
+                  <span className="font-medium text-sm">Grid Layout Defaults</span>
+                </button>
+                {expandedSection === 'gridLayoutDefaults' && (
+                  <GridLayoutDefaultsSection
+                    globalStyles={effectiveGlobalStyles}
+                    onGlobalStylesChange={onGlobalStylesChange}
+                  />
+                )}
+              </div>
+
+              {/* Canvas Settings accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('canvas')}
+                  className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {expandedSection === 'canvas' ? (
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                  )}
+                  <Grid3x3 className="w-4 h-4 text-gray-500" />
+                  <span className="font-medium text-sm">Canvas Settings</span>
+                </button>
+                {expandedSection === 'canvas' && (
+                  <div className="px-4 pb-4 pt-0 space-y-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                      Default canvas dimensions for the form builder.
+                    </p>
+                    <div className="space-y-3">
+                      <PropertyNumberInput
+                        label="Width"
+                        value={(canvas.width as number) ?? 1920}
+                        onChange={(v) => updateCanvas('width', v)}
+                        min={800}
+                        max={3840}
+                      />
+                      <PropertyNumberInput
+                        label="Height"
+                        value={(canvas.height as number) ?? 980}
+                        onChange={(v) => updateCanvas('height', v)}
+                        min={400}
+                        max={2160}
+                      />
+                      <PropertyNumberInput
+                        label="Grid Size"
+                        value={(canvas.gridSize as number) ?? 8}
+                        onChange={(v) => updateCanvas('gridSize', v)}
+                        min={4}
+                        max={32}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Right: Toolbox Preview */}
-          <div className="space-y-6">
-            <section className="bg-white rounded-lg border p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Component Preview</h2>
-              <p className="text-sm text-gray-500 mb-4">Live preview of components with current defaults</p>
+          {/* Right: Toolbox grid preview */}
+          <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900">
+            <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="font-semibold text-gray-700 dark:text-gray-300">Toolbox</h3>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Live preview of all components with current defaults
+              </p>
+            </div>
+            <div
+              className="p-4"
+              style={{
+                backgroundColor: (theme.backgroundColor as string) ?? '#FFFFFF',
+                fontFamily: effectiveGlobalStyles.fontFamily ?? 'Inter'
+              }}
+            >
               <div
-                className="rounded-lg border p-6 space-y-4"
+                className="grid"
                 style={{
-                  backgroundColor: backgroundColor as string,
-                  fontFamily: (gs.fontFamily as string) ?? 'Inter'
+                  gridTemplateColumns: `repeat(auto-fill, minmax(${
+                    effectiveGlobalStyles.defaultObjectLayout === 'horizontal' ? 420 : 280
+                  }px, 1fr))`,
+                  gridAutoRows: 'minmax(min-content, auto)',
+                  gap: 0
                 }}
               >
-                {/* Text field preview */}
-                <div>
-                  <label
-                    className="block text-sm mb-1"
-                    style={{
-                      fontFamily: (gs.labelFontFamily as string) ?? 'Inter',
-                      fontSize: `${(gs.labelFontSize as number) ?? (gs.fontSize as number) ?? 14}px`,
-                      color: (gs.labelColor as string) ?? '#374151'
-                    }}
+                {allComponents.map((item) => (
+                  <div
+                    key={item.type}
+                    className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-3 min-w-0"
                   >
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    readOnly
-                    className="w-full px-3 py-2 border rounded"
-                    style={{
-                      fontFamily: (gs.fontFamily as string) ?? 'Inter',
-                      fontSize: `${(gs.fontSize as number) ?? 14}px`,
-                      color: (gs.textColor as string) ?? '#111827',
-                      borderColor: (gs.textBorderColor as string) ?? '#d1d5db'
-                    }}
-                  />
-                </div>
-                {/* Email field preview */}
-                <div>
-                  <label
-                    className="block text-sm mb-1"
-                    style={{
-                      fontFamily: (gs.labelFontFamily as string) ?? 'Inter',
-                      fontSize: `${(gs.labelFontSize as number) ?? (gs.fontSize as number) ?? 14}px`,
-                      color: (gs.labelColor as string) ?? '#374151'
-                    }}
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="you@example.com"
-                    readOnly
-                    className="w-full px-3 py-2 border rounded"
-                    style={{
-                      fontFamily: (gs.fontFamily as string) ?? 'Inter',
-                      fontSize: `${(gs.fontSize as number) ?? 14}px`,
-                      color: (gs.textColor as string) ?? '#111827',
-                      borderColor: (gs.textBorderColor as string) ?? '#d1d5db'
-                    }}
-                  />
-                </div>
-                {/* Primary color sample */}
-                <button
-                  type="button"
-                  disabled
-                  className="px-4 py-2 rounded text-white text-sm font-medium"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  Submit (primary color)
-                </button>
+                    {React.isValidElement(item.previewComponent)
+                      ? React.cloneElement(item.previewComponent as React.ReactElement, {
+                          globalStyles: effectiveGlobalStyles,
+                          simulateFocus:
+                            expandedSection === 'focusColor' &&
+                            inputComponents[focusedComponentIndex]?.type === item.type
+                        })
+                      : item.previewComponent}
+                  </div>
+                ))}
               </div>
-            </section>
+            </div>
 
-            {/* Version History */}
             {showHistory && (
-              <section className="bg-white rounded-lg border p-4">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Change History</h2>
+              <div className="m-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Change History
+                </h4>
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {history.length === 0 ? (
                     <p className="text-sm text-gray-500">No changes yet</p>
@@ -399,23 +481,31 @@ export function FormBrandingDefaultsPage() {
                     history.map((entry) => (
                       <div
                         key={entry.versionNumber}
-                        className="flex justify-between items-start gap-2 p-2 rounded bg-gray-50 text-sm"
+                        className="flex justify-between items-start gap-2 p-2 rounded bg-gray-50 dark:bg-gray-800 text-sm"
                       >
                         <div>
                           <span className="font-medium">Version {entry.versionNumber}</span>
                           {entry.changeSummary && (
-                            <span className="text-gray-600 ml-2">— {entry.changeSummary}</span>
+                            <span className="text-gray-600 dark:text-gray-400 ml-2">
+                              — {entry.changeSummary}
+                            </span>
                           )}
                           <div className="text-xs text-gray-500 mt-0.5">
-                            {entry.createdDate ? new Date(entry.createdDate).toLocaleString() : ''}
-                            {entry.createdBy && ` • User ID ${entry.createdBy}`}
+                            {entry.createdDate
+                              ? new Date(entry.createdDate).toLocaleString()
+                              : ''}
+                            {entry.createdByEmail
+                              ? ` • ${entry.createdByEmail}`
+                              : entry.createdBy
+                                ? ` • User ID ${entry.createdBy}`
+                                : ''}
                           </div>
                         </div>
                       </div>
                     ))
                   )}
                 </div>
-              </section>
+              </div>
             )}
           </div>
         </div>

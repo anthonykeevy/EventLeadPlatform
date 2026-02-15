@@ -37,4 +37,25 @@ This file is updated after each task retro.
 
 ---
 
+### T04 — Full Retro (2026-02-15)
+
+**Dev Lessons:**
+- When implementing audit trails, prefer user-identifiable fields (email) over internal IDs when available.
+- Run frontend build before completion to catch unused imports (e.g. PropertySelect) and type errors.
+
+**Testing Lessons:**
+- For layout controls (row gap, spacing): add UAT step "verify spacing uniform between object rows" if that's the expected UX.
+- UAT automation candidate: persistence check (change → save → navigate → return → verify) could be e2e.
+
+**Process Lessons:**
+- AC5 "who, when, what" should specify: who = user email or display name when available; what = change summary or modified fields when available.
+- Enhancements discovered during UAT (email vs User ID, change summary, row gap) were correctly classified; none were defects.
+
+**Links:**
+- Completion: `T04-dashboard-form-branding-defaults.completion.md`
+- UAT: `T04-dashboard-form-branding-defaults.uat-results.md`
+- Retro: `T04-dashboard-form-branding-defaults.retro.md`
+
+---
+
 ### (Previous entries above)

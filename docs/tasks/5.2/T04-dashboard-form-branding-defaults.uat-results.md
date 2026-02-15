@@ -2,8 +2,9 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task:** T04 - Dashboard Form Branding Defaults  
-**Executed:** 2026-02-14  
-**Tester:** Agent (automated attempt) + Human verification required  
+**Executed:** 2026-02-15  
+**Tester:** Anthony Keevy  
+**Result:** ✅ **PASS**
 
 ---
 
@@ -11,11 +12,11 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Backend server running | ⏸️ | Human to verify |
-| Frontend running (T04 worktree) | ⏸️ | Human to verify |
-| User logged in as Company Admin | ⏸️ | Human to verify |
-| Migration 039 run | ✅ | From T01/T02 |
-| Company selected on Dashboard | ⏸️ | Human to verify |
+| Backend server running | ✅ Pass | Verified |
+| Frontend running (T04 worktree) | ✅ Pass | Verified |
+| User logged in as Company Admin | ✅ Pass | Verified |
+| Migration 039 run | ✅ Pass | From T01/T02 |
+| Company selected on Dashboard | ✅ Pass | Verified |
 
 ---
 
@@ -25,54 +26,42 @@
 
 | Step | Status | Notes |
 |------|--------|-------|
-| Navigate via Settings cog | ✅ Implemented | CompanyContainer navigates to `/dashboard/companies/{id}/form-branding-defaults` |
-| Page title "Form Branding Defaults" | ✅ Implemented | FormBrandingDefaultsPage renders title |
-| URL correct | ✅ Implemented | Route in App.tsx |
-
-**Agent verification:** Implementation complete. Entry path: Dashboard → Company (cog) → Form Branding Defaults. Cog visible only for Company Admin.
-
----
+| Navigate via Settings cog | ✅ Pass | CompanyContainer → Form Branding Defaults |
+| Page title "Form Branding Defaults" | ✅ Pass | FormBrandingDefaultsPage renders title |
+| URL correct | ✅ Pass | `/dashboard/companies/{id}/form-branding-defaults` |
 
 ### AC2: Controls match Global Properties Panel
 
-| Control | Status | Location |
-|---------|--------|----------|
-| Theme: primaryColor, backgroundColor, fontFamily | ✅ | Theme section |
-| Typography: fontFamily, fontSize, labelFontFamily, labelColor, textColor | ✅ | Typography section |
-| Canvas: width, height, gridSize | ✅ | Canvas Settings section |
-
-**Agent verification:** All controls implemented per task spec.
-
----
+| Control | Status | Notes |
+|---------|--------|-------|
+| Theme: primaryColor, backgroundColor, fontFamily | ✅ Pass | Theme section |
+| Typography: fontFamily, fontSize, labelFontFamily, labelColor, textColor | ✅ Pass | Typography section |
+| Canvas: width, height, gridSize | ✅ Pass | Canvas Settings section |
 
 ### AC3: Toolbox preview visible
 
 | Step | Status | Notes |
 |------|--------|-------|
-| Component Preview section | ✅ Implemented | Right column, shows Text + Email + primary button |
-| Live preview with current defaults | ✅ Implemented | Styled with theme + globalStyles |
-| Updates when controls change | ✅ Implemented | State-driven, no save required for preview |
-
----
+| Component Preview section | ✅ Pass | Right column, styled inputs |
+| Live preview with current defaults | ✅ Pass | Theme + globalStyles applied |
+| Updates when controls change | ✅ Pass | State-driven, real-time |
 
 ### AC4: Save persists to company defaults
 
 | Step | Status | Notes |
 |------|--------|-------|
-| Save button | ✅ Implemented | Calls PUT `/api/companies/{id}/form-defaults` |
-| Toast on success | ✅ Implemented | "Form branding defaults saved" |
-| Version history updated | ✅ Implemented | Backend inserts into CompanyFormDefaultsVersion |
-| Persistence across navigation | ⏸️ | Human to verify |
-
----
+| Save button | ✅ Pass | PUT `/api/companies/{id}/form-defaults` |
+| Toast on success | ✅ Pass | "Form branding defaults saved" |
+| Version history updated | ✅ Pass | CompanyFormDefaultsVersion |
+| Persistence across navigation | ✅ Pass | Primary color persists on return |
 
 ### AC5: Audit trail viewable
 
 | Step | Status | Notes |
 |------|--------|-------|
-| Show History button | ✅ Implemented | Toggles Change History section |
-| Version entries | ✅ Implemented | GET `/api/companies/{id}/form-defaults/history` |
-| Who, when, what | ✅ Implemented | versionNumber, changeSummary, createdDate, createdBy |
+| Show History button | ✅ Pass | Toggles Change History section |
+| Version entries | ✅ Pass | versionNumber, changeSummary, createdDate |
+| Who, when, what | ✅ Pass | Shows user email (not User ID); change summary lists modified defaults |
 
 ---
 
@@ -80,16 +69,60 @@
 
 | Item | Status |
 |------|--------|
-| Dashboard loads | ⏸️ Human |
-| Company selection works | ⏸️ Human |
-| Team panel works | ⏸️ Human |
-| No console errors | ⏸️ Human |
-| Back button works | ✅ Implemented |
+| Dashboard loads | ✅ Pass |
+| Company selection works | ✅ Pass |
+| Team panel works | ✅ Pass |
+| No console errors | ✅ Pass |
+| Back button works | ✅ Pass |
+
+---
+
+## Access Control (Company Admin only)
+
+| Step | Status | Notes |
+|------|--------|-------|
+| Cog not visible for Company User/Viewer | ✅ Pass | Settings icon hidden for non-admin |
+| Cog visible only for admin companies | ✅ Pass | Per-company scoped |
+
+---
+
+## Post-conditions
+
+| Item | Status |
+|------|--------|
+| Form Branding Defaults page functional | ✅ Pass |
+| Data persists via PUT | ✅ Pass |
+| Version history stored and retrievable | ✅ Pass |
+
+---
+
+## Defects
+
+None.
+
+---
+
+## Out-of-scope / Enhancements (implemented during UAT)
+
+| Item | Classification | Notes |
+|------|----------------|-------|
+| Change History: show email instead of User ID | Enhancement | Implemented — improves usability |
+| Change History: show which defaults changed | Enhancement | Implemented — change summary lists modified fields |
+| Default Row Gap: even spacing between rows | Enhancement | Implemented — fixed double spacing between input and validation |
 
 ---
 
 ## Summary
 
-**Implementation:** Complete. All ACs implemented.
+**Overall:** ✅ **PASS** — All acceptance criteria met.
 
-**Human UAT required:** Start frontend in T04 worktree (`C:\wt\elp\task-5.2-T04-dashboard-form-branding-defaults`), ensure backend runs, execute `T04-dashboard-form-branding-defaults.uat.md` steps, and update this file with pass/fail for each item.
+**Files Updated:**
+- `docs/tasks/5.2/T04-dashboard-form-branding-defaults.uat-results.md` (this file)
+- `docs/tasks/5.2/TASK-PLAN.md` (T04 status → HumanDone)
+
+**Next Step:** Run retrospective:
+```
+@ralf-retro *run-retro
+Task: T04-dashboard-form-branding-defaults
+Story: 5.2
+```

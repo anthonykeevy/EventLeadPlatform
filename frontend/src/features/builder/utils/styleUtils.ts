@@ -149,6 +149,7 @@ export interface EffectiveStyles {
     helpTextBackgroundColor?: string;
     
     // Text borders (optional - per text type)
+    textHasBorder?: boolean;
     textBorderColor?: string;
     textBorderWidth?: number;
     textBorderRadius?: number;
@@ -250,6 +251,7 @@ export function getEffectiveStyles(
         helpTextBackgroundColor: overrides && 'helpTextBackgroundColor' in overrides ? overrides.helpTextBackgroundColor : base.helpTextBackgroundColor,
         
         // Text borders (allow component overrides - respects undefined as "no border")
+        textHasBorder: overrides && 'textHasBorder' in overrides ? Boolean(overrides.textHasBorder) : base.textHasBorder,
         textBorderColor: overrides && 'textBorderColor' in overrides ? overrides.textBorderColor : base.textBorderColor,
         textBorderWidth: overrides && 'textBorderWidth' in overrides ? overrides.textBorderWidth : base.textBorderWidth,
         textBorderRadius: overrides && 'textBorderRadius' in overrides ? overrides.textBorderRadius : base.textBorderRadius,
@@ -436,12 +438,15 @@ export function computeFieldStyles(
             // Apply text background if set in Typography > Input Text
             backgroundColor: effective.textBackgroundColor || 'transparent',
             // Border rules:
+            // - When textHasBorder is false, no border (borderWidth 0).
             // - Prefer Typography > Input Text border overrides when provided (textBorder*).
             // - Otherwise fall back to the global/default input border (borderColor/borderWidth/borderRadius).
             // - Never use `border` shorthand here; mixing shorthand/non-shorthand triggers React warnings
             //   when callers spread and override border* fields (e.g. dropdown styles).
-            borderColor: effective.textBorderColor ?? effective.borderColor,
-            borderWidth: `${Math.max(0, Math.round(((effective.textBorderWidth ?? effective.borderWidth) || 0) * scaleFactor))}px`,
+            borderColor: effective.textHasBorder ? (effective.textBorderColor ?? effective.borderColor) : 'transparent',
+            borderWidth: effective.textHasBorder
+                ? `${Math.max(0, Math.round(((effective.textBorderWidth ?? effective.borderWidth) || 0) * scaleFactor))}px`
+                : '0px',
             borderStyle: 'solid',
             borderRadius: `${Math.round((effective.textBorderRadius ?? effective.borderRadius) * scaleFactor)}px`,
             height: `${scaledInputHeight}px`,

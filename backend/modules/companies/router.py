@@ -1344,6 +1344,7 @@ async def get_company_form_defaults_history(
             changeSummary=r[2],
             createdDate=r[3].isoformat() if r[3] else "",
             createdBy=r[4],
+            createdByEmail=r[5] if len(r) > 5 else None,
         )
         for r in rows
     ]

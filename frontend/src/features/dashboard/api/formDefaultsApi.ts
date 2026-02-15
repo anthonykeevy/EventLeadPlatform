@@ -32,6 +32,7 @@ export interface FormDefaultsVersionEntry {
   changeSummary?: string | null
   createdDate: string
   createdBy?: number | null
+  createdByEmail?: string | null
 }
 
 export interface FormDefaultsHistoryResponse {

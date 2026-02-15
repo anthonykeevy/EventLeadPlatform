@@ -1,6 +1,6 @@
 # Story 5.2 Status
 
-**Last Updated:** 2026-02-14  
+**Last Updated:** 2026-02-15  
 **Current Task:** T03, T05  
 **Story Status:** 🔄 In Progress  
 
@@ -13,7 +13,7 @@
 | T01 | ✅ HumanDone | Database schema + seeds; UAT passed 2026-02-14 |
 | T02 | ✅ HumanDone | CRUD + merge resolver; UAT passed 2026-02-14 |
 | T03 | 🔄 In Progress | — |
-| T04 | ✅ HumanDone | Form Branding Defaults page; impl complete 2026-02-14 |
+| T04 | ✅ HumanDone | Form Branding Defaults page; UAT passed 2026-02-15 |
 | T05 | ⏸️ Pending | — |
 | T06 | ⏸️ Pending | — |
 | T07 | ⏸️ Pending | — |

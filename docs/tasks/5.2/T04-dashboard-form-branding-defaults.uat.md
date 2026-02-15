@@ -59,7 +59,7 @@
 
 - [ ] Step 1: Click **Show History**
 - [ ] **Verify:** Change History section appears
-- [ ] **Verify:** Entries show Version number, change summary (if any), date, User ID
+- [ ] **Verify:** Entries show Version number, change summary (lists modified defaults or generic), date, user email (or User ID if email unavailable)
 - [ ] **Verify:** After a save, latest version appears at top
 
 ---

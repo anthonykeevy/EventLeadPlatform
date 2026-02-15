@@ -8,6 +8,10 @@ import { FormDefinition, FormComponent, GlobalStyles, DEFAULT_GLOBAL_STYLES, Sty
 import { hasStyleOverrides, getOverriddenProperties } from '../utils/styleUtils';
 import type { RuntimeRuleWarning } from '../../logic-engine/types';
 import { createDraftVersion, formatFormVersionError, listFormVersions, updateDraftVersion } from '../api/formVersionsApi';
+import { formBuilderInit } from '../api/formBuilderInitApi';
+import type { FormBuilderInitResponse, FormBuilderInitComponent } from '../api/formBuilderInitApi';
+import { putCompanyFormDefaults } from '../api/formDefaultsApi';
+import { getForm } from '../../forms/api/formsApi';
 import { hashDefinition } from '../utils/hashUtils';
 import { devLogger } from '../utils/devLogger';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
@@ -50,8 +54,20 @@ function persistToStorage(def: FormDefinition | null) {
     }
 }
 
+/** Story 5.2 T05: Form context for Init API and company defaults */
+export interface FormContext {
+    companyId: number;
+    eventId: number | null;
+}
+
 interface BuilderState {
     formDefinition: FormDefinition | null;
+    /** Story 5.2 T05: Form company/event context from Form header */
+    formContext: FormContext | null;
+    /** Story 5.2 T05: Merged defaults from Init API (Global+Company) for inherited display */
+    initDefaults: { theme?: unknown; globalStyles?: unknown; canvasSettings?: unknown } | null;
+    /** Story 5.2 T05: Component catalog from Init API for toolbox */
+    initComponents: FormBuilderInitComponent[] | null;
     activeId: string | null; // ID of the component currently being dragged
     selectedComponentId: string | null; // ID of the PRIMARY selected component (for single select mode)
     selectedComponentIds: string[]; // IDs of ALL selected components (for multi-select mode)
@@ -134,6 +150,9 @@ interface BuilderState {
     getComponentsAffectedByGlobalChange: (propertyKey: keyof StyleOverrides) => ComponentWithOverrides[];
     clearAllOverrides: () => void;
     clearOverridesForProperty: (propertyKey: keyof StyleOverrides) => void;
+
+    /** Story 5.2 T05: Save current form overrides to company defaults (Company Admin only) */
+    saveToCompanyDefaults: (companyId: number) => Promise<boolean>;
 }
 
 function buildDefaultGlobalStyles(): GlobalStyles {
@@ -269,8 +288,46 @@ function withSafeDefaults(def: FormDefinition, formId: string): FormDefinition {
     };
 }
 
+/** Build FormDefinition from Init API response (Story 5.2 T05) */
+function formDefinitionFromInit(
+    formId: string,
+    init: FormBuilderInitResponse
+): FormDefinition {
+    const def = init.definitionJSON as Partial<FormDefinition>;
+    const defaults = init.defaults;
+    const theme = defaults.theme as FormDefinition['theme'] ?? def.theme ?? {
+        primaryColor: '#0055FF',
+        backgroundColor: '#FFFFFF',
+        fontFamily: 'Inter',
+    };
+    const globalStyles = (defaults.globalStyles ?? def.globalStyles) as GlobalStyles;
+    const baseGlobalStyles = globalStyles
+        ? { ...DEFAULT_GLOBAL_STYLES, ...globalStyles }
+        : buildDefaultGlobalStyles();
+    const canvasSettings = defaults.canvasSettings as FormDefinition['canvasSettings'] ?? def.canvasSettings ?? {
+        width: 1920,
+        height: 980,
+        gridSize: 8,
+    };
+    const pages = def.pages && def.pages.length > 0
+        ? def.pages
+        : [{ id: 'page-1', title: 'Page 1', components: [] }];
+    return {
+        schemaVersion: def.schemaVersion ?? '1.0',
+        formId,
+        theme,
+        globalStyles: baseGlobalStyles,
+        logic: def.logic ?? { rules: [] },
+        canvasSettings,
+        pages,
+    } as FormDefinition;
+}
+
 export const useBuilderStore = create<BuilderState>((set, get) => ({
     formDefinition: null,
+    formContext: null,
+    initDefaults: null,
+    initComponents: null,
     activeId: null,
     selectedComponentId: null, // Story 3.5 - primary selection
     selectedComponentIds: [], // Story 3.5 - all selections (multi-select)
@@ -301,12 +358,36 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     historyFuture: [],
 
     initializeForm: async (formId: string) => {
-        set({ isLoading: true, loadError: null, hasNoVersions: false });
+        set({ isLoading: true, loadError: null, hasNoVersions: false, formContext: null, initDefaults: null, initComponents: null });
 
         try {
+            // Story 5.2 T05: Fetch form header for companyId/eventId, then Init API
+            let formContext: FormContext | null = null;
+            let initResponse: FormBuilderInitResponse | null = null;
+            try {
+                const form = await getForm(Number(formId));
+                if (form?.companyId && form?.eventId) {
+                    formContext = { companyId: form.companyId, eventId: form.eventId };
+                    initResponse = await formBuilderInit({ companyId: form.companyId, eventId: form.eventId });
+                }
+            } catch (e) {
+                devLogger.warn('form.init.context', { formId, error: String(e) });
+            }
+
             const versions = await listFormVersions(formId);
             if (!versions || versions.length === 0) {
-                const empty = createEmptyFormDefinition(formId);
+                // New form: use Init API response if available, else hardcoded defaults
+                let empty: FormDefinition;
+                if (initResponse) {
+                    empty = formDefinitionFromInit(formId, initResponse);
+                    set({
+                        formContext,
+                        initDefaults: initResponse.defaults,
+                        initComponents: initResponse.components,
+                    });
+                } else {
+                    empty = createEmptyFormDefinition(formId);
+                }
                 set({
                     formDefinition: empty,
                     activePageId: empty.pages[0].id,
@@ -323,6 +404,11 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                 });
                 persistToStorage(empty);
                 return;
+            }
+
+            // Existing form: load from versions; store init data for inherited display and toolbox
+            if (formContext && initResponse) {
+                set({ formContext, initDefaults: initResponse.defaults, initComponents: initResponse.components });
             }
 
             // Prefer latest DRAFT; otherwise latest version.
@@ -1393,5 +1479,22 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         });
         persistToStorage(get().formDefinition);
         set({ isDirty: true });
+    },
+
+    /** Story 5.2 T05: Save current form's theme + globalStyles to company defaults */
+    saveToCompanyDefaults: async (companyId: number) => {
+        const def = get().formDefinition;
+        if (!def) return false;
+        try {
+            await putCompanyFormDefaults(companyId, {
+                theme: def.theme ?? undefined,
+                globalStyles: (def.globalStyles ?? undefined) as Record<string, unknown> | undefined,
+                canvasSettings: def.canvasSettings ?? undefined,
+            });
+            return true;
+        } catch (e) {
+            devLogger.error('saveToCompanyDefaults.error', { companyId, error: String(e) });
+            return false;
+        }
     },
 }));

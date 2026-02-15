@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T05  
-**Status:** ⏸️ Pending  
+**Status:** ✅ HumanDone (PR #37 merged 2026-02-15)  
 **Dependencies:** T02, T03  
 **Estimated Time:** 3–4 hours  
 
@@ -16,13 +16,13 @@
 
 ## ✅ Scope (In)
 
-- [ ] Call `POST /api/form-builder/init` when starting new form (companyId, eventId from form context)
-- [ ] Replace hardcoded defaults and component catalog with API response
-- [ ] Global Properties Panel: show inherited values (read-only) with "Override" action
-- [ ] Link: "Edit company defaults" → opens Company Settings (Dashboard)
-- [ ] "Save to Company Defaults" button on Global Properties Panel (Company Admin only)
-- [ ] Save full DefinitionJSON to FormVersion on form save
-- [ ] Toolbox populated from Init API `components` array
+- [x] Call `POST /api/form-builder/init` when starting new form (companyId, eventId from form context)
+- [x] Replace hardcoded defaults and component catalog with API response
+- [x] Global Properties Panel: show inherited values (read-only) with "Override" action
+- [x] Link: "Edit company defaults" → opens Company Settings (Dashboard)
+- [x] "Save to Company Defaults" button on Global Properties Panel (Company Admin only)
+- [x] Save full DefinitionJSON to FormVersion on form save
+- [x] Toolbox populated from Init API `components` array
 
 ---
 

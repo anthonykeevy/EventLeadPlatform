@@ -1,7 +1,7 @@
 # Story 5.2 Status
 
 **Last Updated:** 2026-02-15  
-**Current Task:** T05 (Builder: Inherit Defaults + Override UX + Init API)  
+**Current Task:** T06  
 **Story Status:** 🔄 In Progress  
 
 ---
@@ -9,12 +9,12 @@
 ## Progress
 
 | Task | Status | Completed |
-|------|--------|-----------|
+|------|--------|----------|
 | T01 | ✅ HumanDone | Database schema + seeds; UAT passed 2026-02-14 |
 | T02 | ✅ HumanDone | CRUD + merge resolver; UAT passed 2026-02-14 |
 | T03 | ✅ HumanDone | Init API implemented; UAT agent-verified 2026-02-14 |
 | T04 | ✅ HumanDone | Form Branding Defaults page; UAT passed 2026-02-15 |
-| T05 | 🔄 In Progress | — |
+| T05 | ✅ HumanDone | Builder Init API + inherit/override; UAT passed 2026-02-15 |
 | T06 | ⏸️ Pending | — |
 | T07 | ⏸️ Pending | — |
 

@@ -41,7 +41,7 @@
 | **T03** | Form Builder Init API (single payload) | ✅ HumanDone | T01, T02 | 2–3 hrs | Backend |
 | **T04** | Dashboard: Form Branding Defaults Page | ✅ HumanDone | T02 | 2–3 hrs | Dashboard |
 | **T05** | Builder: Inherit Defaults + Override UX + Init API Integration | ✅ HumanDone | T02, T03 | 3–4 hrs | Builder |
-| **T06** | Resolver: Apply Defaults in Renderer | ⏸️ Pending | T02, T05 | 1–2 hrs | Rendering |
+| **T06** | Resolver: Apply Defaults in Renderer | ✅ HumanDone | T02, T05 | 1–2 hrs | Rendering |
 | **T07** | Integration + UAT | ⏸️ Pending | T04, T05, T06 | 2–3 hrs | Integration |
 
 **Total Estimated Time:** 16–24 hours (2–3 days)

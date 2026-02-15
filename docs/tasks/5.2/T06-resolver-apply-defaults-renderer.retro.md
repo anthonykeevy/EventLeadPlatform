@@ -39,3 +39,7 @@
 
 - Same approach: backend resolver in form_defaults.service; frontend in definitionResolver.ts; both consumers updated.
 - Could add unit tests for `resolveDefinitionForRender` with mock defaults + formDefinition.
+
+---
+
+*Retro completed 2026-02-15*

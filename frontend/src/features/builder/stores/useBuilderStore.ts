@@ -361,14 +361,18 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         set({ isLoading: true, loadError: null, hasNoVersions: false, formContext: null, initDefaults: null, initComponents: null });
 
         try {
-            // Story 5.2 T05: Fetch form header for companyId/eventId, then Init API
+            // Story 5.2 T05/T07: Fetch form header for companyId/eventId, then Init API
+            // Set formContext whenever companyId exists (enables Save to Company Defaults button)
+            // Call Init API only when both companyId and eventId present (API requires eventId)
             let formContext: FormContext | null = null;
             let initResponse: FormBuilderInitResponse | null = null;
             try {
                 const form = await getForm(Number(formId));
-                if (form?.companyId && form?.eventId) {
-                    formContext = { companyId: form.companyId, eventId: form.eventId };
-                    initResponse = await formBuilderInit({ companyId: form.companyId, eventId: form.eventId });
+                if (form?.companyId) {
+                    formContext = { companyId: form.companyId, eventId: form.eventId ?? null };
+                    if (form.eventId != null && form.eventId > 0) {
+                        initResponse = await formBuilderInit({ companyId: form.companyId, eventId: form.eventId });
+                    }
                 }
             } catch (e) {
                 devLogger.warn('form.init.context', { formId, error: String(e) });

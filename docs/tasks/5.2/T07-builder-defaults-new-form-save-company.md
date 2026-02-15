@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T07  
-**Status:** In Progress  
+**Status:** Done  
 **Dependencies:** T05  
 **Estimated Time:** 1–2 hours  
 

@@ -5,7 +5,13 @@ import { useBuilderStore } from '../stores/useBuilderStore';
 import type { GlobalStyles } from '../types/builder.types';
 
 export const ComponentSidebar: React.FC = () => {
-  const components = Object.values(ComponentRegistry);
+  // Story 5.2 T05: Use Init API components when available, else full ComponentRegistry
+  const initComponents = useBuilderStore(state => state.initComponents);
+  const baseComponents = Object.values(ComponentRegistry);
+  const allowedTypes = initComponents?.map(c => c.componentCode) ?? null;
+  const components = allowedTypes
+    ? baseComponents.filter(c => allowedTypes.includes(c.type))
+    : baseComponents;
   
   // Get global styles from the store to pass to preview components
   const globalStyles = useBuilderStore(state => state.formDefinition?.globalStyles);

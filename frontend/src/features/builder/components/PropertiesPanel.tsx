@@ -1,6 +1,7 @@
 import React from 'react';
 import { Settings, X, Layers, Users, GitBranch, SlidersHorizontal } from 'lucide-react';
 import { useBuilderStore } from '../stores/useBuilderStore';
+import { useAuth } from '../../auth/context/AuthContext';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
 import { DEFAULT_GLOBAL_STYLES, FormPage, FormComponent, StyleOverrides } from '../types/builder.types';
 import { GeneralSection } from './properties/GeneralSection';
@@ -36,21 +37,25 @@ const TYPE_COMPATIBILITY: Record<string, string[]> = {
 };
 
 export const PropertiesPanel: React.FC = () => {
+    const { user } = useAuth();
     const { 
         selectedComponentId, 
         selectedComponentIds,
         selectComponent,
         clearSelection,
         formDefinition,
+        formContext,
         updateComponentProps,
         updateMultipleComponentProps,
         updateGlobalStyles,
         updatePageBackground,
+        saveToCompanyDefaults,
         getSelectedComponent,
         getSelectedComponents,
         activeLayer,
         activePageId,
     } = useBuilderStore();
+    const isCompanyAdmin = user?.role === 'company_admin' || user?.role === 'system_admin';
 
     const selectedComponent = getSelectedComponent();
     const selectedComponents = getSelectedComponents();
@@ -344,6 +349,9 @@ export const PropertiesPanel: React.FC = () => {
                 <GlobalStylesPanel 
                     globalStyles={globalStyles}
                     onGlobalStylesChange={updateGlobalStyles}
+                    companyId={formContext?.companyId ?? null}
+                    isCompanyAdmin={isCompanyAdmin}
+                    onSaveToCompanyDefaults={saveToCompanyDefaults}
                 />
             </aside>
         );

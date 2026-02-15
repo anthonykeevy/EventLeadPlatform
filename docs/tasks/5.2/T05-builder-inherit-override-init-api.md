@@ -2,7 +2,7 @@
 
 **Story:** 5.2 - Company Form Defaults (Brand System)  
 **Task ID:** T05  
-**Status:** 🔄 In Progress  
+**Status:** ⏸️ Pending  
 **Dependencies:** T02, T03  
 **Estimated Time:** 3–4 hours  
 

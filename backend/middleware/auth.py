@@ -59,6 +59,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         "/api/companies/smart-search",  # ABR search for onboarding (Story 1.19)
         "/api/users/reference/",  # Theme reference endpoints (Story 2.2)
         "/api/public/", # External Approval and other public endpoints (Story 2.12)
+        "/api/form-schema/",  # DefinitionJSON schema from DB (Story 5.3) - public for Form Builder init
         "/docs",
         "/openapi.json",
         "/redoc",

@@ -29,3 +29,8 @@ This file is updated after each task retro.
 - Completion: T07-builder-defaults-new-form-save-company.completion.md
 - UAT: T07-builder-defaults-new-form-save-company.uat-results.md
 - Retro: T07-builder-defaults-new-form-save-company.retro.md
+
+### T08 (2026-02-16): Integration + UAT
+
+- **API payload alignment:** Builder `putCompanyFormDefaults` sent flat `{ theme, globalStyles }`; backend expects `{ defaults, changeSummary }`. Dashboard API already wrapped correctly; Builder API did not. Fix: wrap payload in `defaults` in builder `formDefaultsApi.ts`.
+- **Unified API clients:** Consider single `formDefaultsApi` shared by Dashboard and Builder, or explicit contract doc, to avoid payload drift.

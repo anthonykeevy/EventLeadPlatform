@@ -52,13 +52,13 @@
 
 ## 🎯 Done Criteria
 
-- [ ] **DC1:** Submissions store preview vs production flag; backend and API support filtering by mode.
-- [ ] **DC2:** Test threshold configurable per company (enabled/disabled, threshold value); stored in DB or `config.AppSetting`.
-- [ ] **DC3:** Test runs (preview submissions + "Record test run") are counted and audited (who, when).
-- [ ] **DC4:** Publish is blocked when threshold enabled and not met; UI shows clear message (e.g. "X more test runs needed").
-- [ ] **DC5:** Readiness badge or equivalent visible in Builder or Dashboard.
-- [ ] **DC6:** UAT guide executed and marked PASSED.
-- [ ] **DC7:** Story PR merged to `master`.
+- [x] **DC1:** Submissions store preview vs production flag; backend and API support filtering by mode.
+- [x] **DC2:** Test threshold configurable per company (enabled/disabled, threshold value); stored in DB or `config.AppSetting`.
+- [x] **DC3:** Test runs (preview submissions + "Record test run") are counted and audited (who, when).
+- [x] **DC4:** Publish is blocked when threshold enabled and not met; UI shows clear message (e.g. "X more test runs needed").
+- [x] **DC5:** Readiness badge or equivalent visible in Builder or Dashboard.
+- [x] **DC6:** UAT guide executed and marked PASSED.
+- [x] **DC7:** Story PR merged to `master`.
 
 ---
 

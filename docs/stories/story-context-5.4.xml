@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 5.4 - Shared Resolver Parity
+     Used by dev for single-session implementation. -->
+<story-context>
+  <story>
+    <id>5.4</id>
+    <title>Shared Resolver Parity</title>
+    <epic>5</epic>
+    <epic-title>Form Builder Readiness &amp; Review &amp; Publishing</epic-title>
+    <domain>Form Builder + Public Renderer integration</domain>
+    <status>Ready</status>
+  </story>
+
+  <principle>Single resolver for defaults and assets across builder preview, public renderer, and (future) admin review. Preview and production must render identically.</principle>
+
+  <scope-boundary>
+    <in-scope>
+      <item>Verify backend (Python) and frontend (TypeScript) defaults merge logic produce identical output</item>
+      <item>Add parity tests with shared fixtures (merged defaults + form overrides)</item>
+      <item>Fix any drift; document merge algorithm in STORY-5.4-RESOLUTION-RULES.md</item>
+      <item>Audit: builder preview and public renderer use useBackgroundImageUrl/getBackgroundImageSource; no divergent asset paths</item>
+      <item>Document resolver contract for future Review and Publish (Story 5.6)</item>
+    </in-scope>
+    <out-of-scope>
+      <item>Preview vs production mode toggle (Story 5.5)</item>
+      <item>Publish request workflow (Story 5.6)</item>
+      <item>Changing Init API or Form Builder save flow</item>
+      <item>Anonymous asset access for public forms</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <done-criteria>
+    <dc id="1">Backend and frontend defaults resolution produce identical theme, globalStyles, canvasSettings (parity tests pass)</dc>
+    <dc id="2">Parity tests in backend/tests/ with shared fixtures</dc>
+    <dc id="3">docs/stories/STORY-5.4-RESOLUTION-RULES.md documents merge algorithm and asset resolution</dc>
+    <dc id="4">Builder preview and public renderer use same asset resolution path; audit confirms</dc>
+    <dc id="5">Future Review and Publish integration documented</dc>
+    <dc id="6">UAT guide executed and marked PASSED</dc>
+    <dc id="7">Story PR merged to master</dc>
+  </done-criteria>
+
+  <current-paths>
+    <defaults>
+      <backend>modules/form_defaults/service.py: resolve_definition_for_render, resolve_merged_defaults, deep_merge</backend>
+      <frontend>definitionResolver.ts: resolveDefinitionForRender, deepMerge</frontend>
+      <usage>Backend: public_form_router serves pre-resolved definition. Frontend: BuilderPage, FormRendererPage merge initDefaults + formDefinition.</usage>
+    </defaults>
+    <assets>
+      <resolver>backgroundAssetResolver.ts: getBackgroundImageSource, resolveAssetContentUrl</resolver>
+      <hook>useBackgroundImageUrl.ts: fetches asset blob URL or external URL</hook>
+      <usage>FormBuilderCanvas and PublicFormArtboard both use useBackgroundImageUrl for backgrounds</usage>
+    </assets>
+  </current-paths>
+
+  <references>
+    <ref path="docs/stories/EPIC-5-STATUS.md" purpose="Epic scope" />
+    <ref path="backend/modules/form_defaults/service.py" purpose="Backend merge logic" />
+    <ref path="frontend/src/features/builder/utils/definitionResolver.ts" purpose="Frontend merge logic" />
+    <ref path="frontend/src/features/builder/hooks/useBackgroundImageUrl.ts" purpose="Asset URL resolution" />
+    <ref path="frontend/src/features/builder/utils/backgroundAssetResolver.ts" purpose="Asset resolver helpers" />
+    <ref path="docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md" purpose="Init API response structure" />
+  </references>
+</story-context>

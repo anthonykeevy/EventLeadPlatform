@@ -68,18 +68,22 @@ def resolve_merged_defaults(db: Session, company_id: int) -> Dict[str, Any]:
     return deep_merge(base, override)
 
 
-def resolve_definition_for_render(
-    db: Session,
-    company_id: int,
+def resolve_definition_for_render_from_defaults(
+    merged_defaults: Dict[str, Any],
     form_definition: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
-    Resolve full definition for render: Global -> Company -> Form (Story 5.2 T06).
-    Merges merged defaults (Global+Company) with form-level overrides from DefinitionJSON.
-    Returns complete definition suitable for preview and public renderer.
+    Resolve definition using pre-merged defaults (no DB). For parity tests.
+    Same merge logic as resolve_definition_for_render.
     """
-    merged = resolve_merged_defaults(db, company_id)
-    # Form overrides: theme, globalStyles, canvasSettings from form_definition
+    return _resolve_definition_with_merged(merged_defaults, form_definition)
+
+
+def _resolve_definition_with_merged(
+    merged: Dict[str, Any],
+    form_definition: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Shared logic: merge merged_defaults with form overrides."""
     form_theme = form_definition.get("theme")
     form_global_styles = form_definition.get("globalStyles")
     form_canvas = form_definition.get("canvasSettings")
@@ -103,6 +107,20 @@ def resolve_definition_for_render(
         result["canvasSettings"] = copy.deepcopy(merged["canvasSettings"])
 
     return result
+
+
+def resolve_definition_for_render(
+    db: Session,
+    company_id: int,
+    form_definition: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Resolve full definition for render: Global -> Company -> Form (Story 5.2 T06).
+    Merges merged defaults (Global+Company) with form-level overrides from DefinitionJSON.
+    Returns complete definition suitable for preview and public renderer.
+    """
+    merged = resolve_merged_defaults(db, company_id)
+    return _resolve_definition_with_merged(merged, form_definition)
 
 
 def update_global_defaults(

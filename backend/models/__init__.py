@@ -74,6 +74,8 @@ from .global_form_defaults import GlobalFormDefaults
 from .global_form_defaults_version import GlobalFormDefaultsVersion
 from .company_form_defaults import CompanyFormDefaults
 from .company_form_defaults_version import CompanyFormDefaultsVersion
+from .company_form_test_config import CompanyFormTestConfig
+from .form_publish_request import FormPublishRequest
 
 # Configuration tables (config schema)
 from .config import (
@@ -147,6 +149,8 @@ __all__ = [
     "GlobalFormDefaultsVersion",
     "CompanyFormDefaults",
     "CompanyFormDefaultsVersion",
+    "CompanyFormTestConfig",
+    "FormPublishRequest",
     
     # Reference tables (ref)
     "Country",
@@ -227,7 +231,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 73  # +5 form defaults (FormDefaultsSchemaVersion ref + 4 dbo)
+    expected_count = 75  # +2 Story 5.6 (CompanyFormTestConfig, FormPublishRequest)
     actual_count = len(__all__)
     
     if actual_count != expected_count:

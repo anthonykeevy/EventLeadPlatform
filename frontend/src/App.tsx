@@ -35,6 +35,7 @@ const InvitationAcceptancePage = lazy(() => import('./features/invitations').the
 const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
 const ExternalApprovalPage = lazy(() => import('./features/forms/pages/ExternalApprovalPage').then(module => ({ default: module.ExternalApprovalPage })))
 const BuilderPage = lazy(() => import('./features/builder/pages/BuilderPage').then(module => ({ default: module.BuilderPage })))
+const FormReviewPage = lazy(() => import('./features/forms/pages/FormReviewPage').then(module => ({ default: module.FormReviewPage })))
 const FormRendererPage = lazy(() => import('./features/renderer/pages/FormRendererPage').then(module => ({ default: module.FormRendererPage })))
 const PublicFormRendererPage = lazy(() => import('./features/renderer/pages/PublicFormRendererPage').then(module => ({ default: module.PublicFormRendererPage })))
 const PublicFormPreviewShellPage = lazy(() => import('./features/renderer/pages/PublicFormPreviewShellPage').then(module => ({ default: module.PublicFormPreviewShellPage })))
@@ -285,6 +286,16 @@ function App() {
                     <RequireAuth>
                       <Suspense fallback={<PageLoadingSpinner />}>
                         <AdminDashboard />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/forms/:formId/review"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <FormReviewPage />
                       </Suspense>
                     </RequireAuth>
                   }

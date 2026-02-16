@@ -16,6 +16,8 @@ interface BuilderLayoutProps {
     isInlinePreviewLoading?: boolean;
     onOpenPreview?: () => void;
     isPreviewLoading?: boolean;
+    /** Story 5.6: Optional header action (e.g. Request Publish / Publish button) */
+    headerAction?: React.ReactNode;
 }
 
 // Default panel widths
@@ -35,6 +37,7 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
     isInlinePreviewLoading,
     onOpenPreview,
     isPreviewLoading,
+    headerAction,
 }) => {
     const {
         undo,
@@ -175,6 +178,7 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
                     <button className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-2">
                         <Settings size={16} /> Settings
                     </button>
+                    {headerAction}
                     <button
                         className="btn-primary text-sm py-1.5 px-4 flex items-center gap-2"
                         onClick={handleSave}

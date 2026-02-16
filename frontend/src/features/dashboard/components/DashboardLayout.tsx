@@ -15,6 +15,7 @@ import type { Form } from '../../forms/types/form.types'
 import { UserMenu } from './UserMenu'
 import { KPISection } from './KPISection'
 import { CompanyList } from './CompanyList'
+import { PendingPublishRequestsCard } from './PendingPublishRequestsCard'
 import { TeamManagementPanel } from './TeamManagementPanel'
 import { Breadcrumbs } from './Breadcrumbs'
 import { EmptyState } from './EmptyState'
@@ -555,6 +556,11 @@ export function DashboardLayout() {
 
         {/* KPI Section - AC-1.18.8 */}
         <KPISection kpiData={kpiData} isLoading={isLoadingKPIs} />
+
+        {/* Story 5.6: Pending Publish Requests (Admin only) */}
+        {user && (user.role === 'company_admin' || user.role === 'system_admin') && companies.length > 0 && (
+          <PendingPublishRequestsCard />
+        )}
 
         {/* Empty State: Guest Access (Unauthenticated) */}
         {!isLoadingCompanies && !user && (

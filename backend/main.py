@@ -38,6 +38,7 @@ from modules.form_defaults.router import router as form_defaults_router  # Story
 from modules.form_builder.router import router as form_builder_router  # Story 5.2 T03: Form Builder Init API
 from modules.form_schema.router import router as form_schema_router  # Story 5.3: DefinitionJSON schema from DB
 from modules.forms.readiness_router import router as forms_readiness_router  # Story 5.5: Preview/Production Governance
+from modules.forms.publish_request_router import router as publish_request_router  # Story 5.6: Publish Request Workflow
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -107,6 +108,7 @@ app.include_router(form_defaults_router)  # Story 5.2: Form Defaults API (global
 app.include_router(form_builder_router)  # Story 5.2 T03: Form Builder Init API
 app.include_router(form_schema_router)  # Story 5.3: DefinitionJSON schema from DB
 app.include_router(forms_readiness_router)  # Story 5.5: Readiness, record-test-run, company test config
+app.include_router(publish_request_router)  # Story 5.6: Publish request create, list pending
 
 @app.get("/")
 async def root():

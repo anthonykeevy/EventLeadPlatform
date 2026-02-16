@@ -12,18 +12,22 @@ from models.form_version import FormVersion
 from models.company_form_test_config import CompanyFormTestConfig
 
 
-def get_company_test_config(db: Session, company_id: int) -> tuple[bool, int]:
+def get_company_test_config(db: Session, company_id: int) -> tuple[bool, int, bool]:
     """
     Get test threshold config for company.
-    Returns (enabled, threshold_value). Default (False, 3) if not configured.
+    Returns (enabled, threshold_value, require_publish_approval). Default (False, 3, False) if not configured.
     """
     row = db.execute(
         select(CompanyFormTestConfig).where(CompanyFormTestConfig.CompanyID == company_id)
     ).scalars().first()
 
     if not row:
-        return False, 3
-    return bool(row.TestThresholdEnabled), int(row.TestThresholdValue or 3)
+        return False, 3, False
+    return (
+        bool(row.TestThresholdEnabled),
+        int(row.TestThresholdValue or 3),
+        bool(getattr(row, "RequirePublishApproval", False)),
+    )
 
 
 def get_test_run_count(db: Session, form_id: int) -> int:
@@ -54,7 +58,7 @@ def check_publish_readiness(
     Check if form meets test threshold for publish.
     Returns dict with canPublish, testRunCount, testThresholdRequired, testRunsNeeded, message.
     """
-    enabled, threshold = get_company_test_config(db, company_id)
+    enabled, threshold, _ = get_company_test_config(db, company_id)
     count = get_test_run_count(db, form_id)
 
     if not enabled:

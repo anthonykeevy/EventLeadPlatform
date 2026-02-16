@@ -353,3 +353,102 @@ export async function recordTestRun(formId: number): Promise<void> {
     throw formatError(error)
   }
 }
+
+// =====================================================================
+// Story 5.5: Company Test Config (includes RequirePublishApproval for 5.6)
+// =====================================================================
+
+export type CompanyTestConfig = {
+  testThresholdEnabled: boolean
+  testThresholdValue: number
+  requirePublishApproval: boolean
+}
+
+export async function getCompanyTestConfig(): Promise<CompanyTestConfig> {
+  try {
+    const response = await apiClient.get('/api/forms/company-test-config')
+    const d = response.data
+    return {
+      testThresholdEnabled: d.testThresholdEnabled ?? d.test_threshold_enabled ?? false,
+      testThresholdValue: d.testThresholdValue ?? d.test_threshold_value ?? 3,
+      requirePublishApproval: d.requirePublishApproval ?? d.require_publish_approval ?? false,
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export type CompanyTestConfigUpdate = Partial<CompanyTestConfig>
+
+/** Requires full config - pass result of getCompanyTestConfig() with desired changes. */
+export async function putCompanyTestConfig(update: CompanyTestConfigUpdate): Promise<CompanyTestConfig> {
+  try {
+    const payload = {
+      testThresholdEnabled: update.testThresholdEnabled ?? false,
+      testThresholdValue: update.testThresholdValue ?? 3,
+      requirePublishApproval: update.requirePublishApproval ?? false,
+    }
+    const response = await apiClient.put('/api/forms/company-test-config', payload)
+    const d = response.data
+    return {
+      testThresholdEnabled: d.testThresholdEnabled ?? d.test_threshold_enabled ?? false,
+      testThresholdValue: d.testThresholdValue ?? d.test_threshold_value ?? 3,
+      requirePublishApproval: d.requirePublishApproval ?? d.require_publish_approval ?? false,
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+// =====================================================================
+// Story 5.6: Publish Request Workflow
+// =====================================================================
+
+export type PublishRequest = {
+  formPublishRequestId: number
+  formId: number
+  formName: string
+  requestedBy: number
+  requestedByEmail: string | null
+  requestedAt: string
+  message: string | null
+  status: string
+}
+
+export async function createPublishRequest(formId: number, message?: string): Promise<PublishRequest> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/publish-request`, { message: message ?? '' })
+    const d = response.data
+    return {
+      formPublishRequestId: d.formPublishRequestId ?? d.form_publish_request_id ?? 0,
+      formId: d.formId ?? d.form_id ?? formId,
+      formName: d.formName ?? d.form_name ?? '',
+      requestedBy: d.requestedBy ?? d.requested_by ?? 0,
+      requestedByEmail: d.requestedByEmail ?? d.requested_by_email ?? null,
+      requestedAt: d.requestedAt ?? d.requested_at ?? '',
+      message: d.message ?? null,
+      status: d.status ?? 'pending',
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export async function getPendingPublishRequests(): Promise<PublishRequest[]> {
+  try {
+    const response = await apiClient.get('/api/forms/publish-requests/pending')
+    const arr = response.data
+    return (Array.isArray(arr) ? arr : []).map((d: any) => ({
+      formPublishRequestId: d.formPublishRequestId ?? d.form_publish_request_id ?? 0,
+      formId: d.formId ?? d.form_id ?? 0,
+      formName: d.formName ?? d.form_name ?? '',
+      requestedBy: d.requestedBy ?? d.requested_by ?? 0,
+      requestedByEmail: d.requestedByEmail ?? d.requested_by_email ?? null,
+      requestedAt: d.requestedAt ?? d.requested_at ?? '',
+      message: d.message ?? null,
+      status: d.status ?? 'pending',
+    }))
+  } catch (error) {
+    throw formatError(error)
+  }
+}

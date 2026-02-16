@@ -17,6 +17,8 @@ export function FormStatusBadge({ status, approvalStatus }: FormStatusBadgeProps
     switch (statusCode.toUpperCase()) {
       case 'DRAFT':
         return 'bg-yellow-100 text-yellow-800'
+      case 'PENDING_REVIEW':
+        return 'bg-amber-100 text-amber-800'
       case 'PUBLISHED':
         return 'bg-green-100 text-green-800'
       case 'ARCHIVED':

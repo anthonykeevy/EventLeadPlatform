@@ -12,8 +12,9 @@ import { ReadinessBadge } from './ReadinessBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
 import { ApprovalRequestModal } from './ApprovalRequestModal'
 import { checkFormAccess } from '../api/formAccessApi'
-import { approveForm, rejectForm, updateForm, getFormReadiness, recordTestRun } from '../api/formsApi'
+import { approveForm, rejectForm, updateForm, getFormReadiness, recordTestRun, getCompanyTestConfig } from '../api/formsApi'
 import type { FormReadiness } from '../api/formsApi'
+import { RequestPublishModal } from './RequestPublishModal'
 import { AccessCheckResponse } from '../types/form-access.types'
 import { useAuth } from '../../auth/context/AuthContext'
 import { useToastNotifications } from '../../ux'
@@ -37,11 +38,14 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   const [isProcessing, setIsProcessing] = useState(false)
   const [readiness, setReadiness] = useState<FormReadiness | null>(null)
   const [readinessLoading, setReadinessLoading] = useState(false)
+  const [requirePublishApproval, setRequirePublishApproval] = useState(false)
+  const [showRequestPublishModal, setShowRequestPublishModal] = useState(false)
 
   useEffect(() => {
     if (form) {
       loadUserAccess()
       loadReadiness()
+      getCompanyTestConfig().then((c) => setRequirePublishApproval(c.requirePublishApproval)).catch(() => {})
     }
   }, [form])
 
@@ -189,6 +193,9 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   const canManage = userAccess?.accessLevel === 'MANAGE'
   const canEdit = canManage || userAccess?.accessLevel === 'EDIT'
 
+  // Story 5.6: Pending Review status
+  const isPendingReview = form.formStatus?.statusCode === 'PENDING_REVIEW'
+
   // Approval Logic
   const cost = form.deploymentCost || 0
   const isPending = form.formApprovalStatus?.approvalStatusCode === 'PENDING'
@@ -218,6 +225,16 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   
   // Show "Publish" (Request Approval) if: Draft/Rejected, Cost > 100, Can Edit
   const showSmartPublish = canEdit && (isNoApproval || isRejected) && cost > 100
+
+  // Story 5.6: Request Publish when Company User + RequirePublishApproval + readiness met + not already pending
+  const showRequestPublish =
+    !isCompanyAdmin &&
+    requirePublishApproval &&
+    canEdit &&
+    (isNoApproval || isRejected) &&
+    (readiness?.canPublish ?? false) &&
+    form.formStatus?.statusCode !== 'PUBLISHED' &&
+    !isPendingReview
   
   // Show Approve/Reject ONLY if: User is Admin AND Form is Pending
   // PRE-APPROVAL: Also show if Draft (No Approval) AND Cost > 100 (Scenario 4)
@@ -461,9 +478,28 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           >
             Close
           </button>
+
+          {/* Story 5.6: Pending Admin Review indicator */}
+          {isPendingReview && !isCompanyAdmin && (
+            <span className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-100 rounded-md">
+              Pending Admin Review
+            </span>
+          )}
+
+          {/* Story 5.6: Request Publish (Company User + approval required) */}
+          {showRequestPublish && (
+            <button
+              onClick={() => setShowRequestPublishModal(true)}
+              disabled={isProcessing}
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-2"
+            >
+              <Send className="w-4 h-4" />
+              Request Publish
+            </button>
+          )}
           
-          {/* Smart Publish Button (Replaces manual Submit) */}
-          {showSmartPublish && (
+          {/* Smart Publish Button (when NOT using Request Publish flow) */}
+          {showSmartPublish && !showRequestPublish && (
              <button
                onClick={handleSubmitForApproval}
                disabled={isProcessing}
@@ -520,6 +556,19 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           )}
         </div>
       </div>
+
+      {/* Story 5.6: Request Publish Modal */}
+      {showRequestPublishModal && form && (
+        <RequestPublishModal
+          formId={form.formId}
+          formName={form.formName}
+          onClose={() => setShowRequestPublishModal(false)}
+          onSuccess={() => {
+            onClose()
+            window.location.reload()
+          }}
+        />
+      )}
 
       {/* Access Control Modal */}
       {showAccessControl && (

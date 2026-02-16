@@ -38,6 +38,7 @@ class ReadinessResponse(BaseModel):
 class CompanyTestConfigResponse(BaseModel):
     testThresholdEnabled: bool = Field(..., alias="testThresholdEnabled")
     testThresholdValue: int = Field(..., alias="testThresholdValue")
+    requirePublishApproval: bool = Field(..., alias="requirePublishApproval")
 
     class Config:
         populate_by_name = True
@@ -46,6 +47,7 @@ class CompanyTestConfigResponse(BaseModel):
 class CompanyTestConfigUpdate(BaseModel):
     testThresholdEnabled: bool = Field(..., alias="testThresholdEnabled")
     testThresholdValue: int = Field(..., ge=0, le=100, alias="testThresholdValue")
+    requirePublishApproval: bool | None = Field(None, alias="requirePublishApproval")
 
     class Config:
         populate_by_name = True
@@ -103,10 +105,11 @@ async def get_company_test_config_endpoint(
     db: Session = Depends(get_db),
 ):
     """Returns test threshold config for current user's company."""
-    enabled, value = get_company_test_config(db, current_user.company_id)
+    enabled, value, require_approval = get_company_test_config(db, current_user.company_id)
     return CompanyTestConfigResponse(
         testThresholdEnabled=enabled,
         testThresholdValue=value,
+        requirePublishApproval=require_approval,
     )
 
 
@@ -134,6 +137,8 @@ async def put_company_test_config(
     if row:
         row.TestThresholdEnabled = body.testThresholdEnabled
         row.TestThresholdValue = body.testThresholdValue
+        if body.requirePublishApproval is not None:
+            row.RequirePublishApproval = body.requirePublishApproval
         row.UpdatedDate = datetime.utcnow()
         row.UpdatedBy = current_user.user_id
     else:
@@ -141,6 +146,7 @@ async def put_company_test_config(
             CompanyID=current_user.company_id,
             TestThresholdEnabled=body.testThresholdEnabled,
             TestThresholdValue=body.testThresholdValue,
+            RequirePublishApproval=body.requirePublishApproval if body.requirePublishApproval is not None else False,
             CreatedBy=current_user.user_id,
         )
         db.add(row)
@@ -150,4 +156,5 @@ async def put_company_test_config(
     return CompanyTestConfigResponse(
         testThresholdEnabled=bool(row.TestThresholdEnabled),
         testThresholdValue=int(row.TestThresholdValue),
+        requirePublishApproval=bool(getattr(row, "RequirePublishApproval", False)),
     )

@@ -37,14 +37,14 @@
 | Live preview (toolbox) | ✅ | First Name, Text Field, Number, Email, etc. visible |
 | Controls match Global Properties Panel | ✅ | Same sections and controls |
 
-### DC3: Builder inherits; Save to Company Defaults ⚠️ PARTIAL → FIX APPLIED
+### DC3: Builder inherits; Save to Company Defaults ✅ PASS (retest 2026-02-16)
 
 | Step | Result | Evidence |
 |------|--------|----------|
 | "Edit company defaults" link visible | ✅ | Link to /dashboard/companies/1016/form-branding-defaults |
 | "Save to Company Defaults" button visible | ✅ | Company Admin only |
-| Change Primary Color, click Save | ⚠️→✅ | Initially failed (422); **fix applied** — Builder was sending `{ theme, globalStyles }` directly; backend expects `{ defaults, changeSummary }`. `formDefaultsApi.ts` updated to wrap payload. **Requires frontend restart from T08 worktree to verify.** |
-| Form Branding Defaults version history updated | ⏭️ | Blocked by Save failure; will pass after fix verification |
+| Change Primary Color, click Save | ✅ | Toast "Form branding defaults saved" |
+| Form Branding Defaults version history updated | ✅ | Version 15 — 16/02/2026, 02:26:40 • user2@test.com |
 
 ### DC4: Inheritance model (resolver) ✅ PASS
 
@@ -94,13 +94,13 @@
 |----|-----------|-------|
 | DC1 | ✅ PASS | |
 | DC2 | ✅ PASS | |
-| DC3 | ⚠️→✅ | Fix applied; re-verify after frontend restart from T08 worktree |
+| DC3 | ✅ PASS | Verified after payload fix; retest 2026-02-16 |
 | DC4 | ✅ PASS | |
 | DC5 | ✅ PASS | |
 | DC7 | ✅ PASS | |
 | Regression | ✅ PASS | R1, R3; R2 deferred to human |
 
-**Overall: PASS** (with D1 fix; DC3 re-verification recommended)
+**Overall: PASS** (D1 fix verified; DC3 retest passed 2026-02-16)
 
 ---
 

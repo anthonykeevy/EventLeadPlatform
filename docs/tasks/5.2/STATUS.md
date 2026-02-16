@@ -1,7 +1,7 @@
 # Story 5.2 Status
 
 **Last Updated:** 2026-02-16  
-**Current Task:** T07 (Done)  
+**Current Task:** T08 (Done)  
 **Story Status:** 🔄 In Progress  
 
 ---
@@ -17,6 +17,7 @@
 | T05 | ✅ HumanDone | Builder Init API + inherit/override; UAT passed 2026-02-15 |
 | T06 | ✅ HumanDone | Resolver in preview + public renderer; UAT passed 2026-02-15 |
 | T07 | ✅ HumanDone | Builder defaults on new form + Save to Company Defaults; 2026-02-16 |
+| T08 | ✅ Done | Integration UAT; Builder Save payload fix; 2026-02-16 |
 
 ---
 

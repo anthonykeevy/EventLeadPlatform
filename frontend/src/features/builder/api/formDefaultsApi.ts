@@ -35,14 +35,15 @@ export async function getCompanyFormDefaults(
 
 /**
  * Update company form defaults. Used by "Save to Company Defaults" in Builder.
+ * Backend expects { defaults, changeSummary }; we wrap payload in defaults.
  */
 export async function putCompanyFormDefaults(
   companyId: number,
   payload: FormDefaultsPayload
 ): Promise<FormDefaultsPayload> {
-  const res = await apiClient.put<FormDefaultsPayload>(
+  const res = await apiClient.put<{ defaults: FormDefaultsPayload }>(
     `/api/companies/${companyId}/form-defaults`,
-    payload
+    { defaults: payload, changeSummary: null }
   );
-  return res.data ?? {};
+  return (res.data as { defaults?: FormDefaultsPayload })?.defaults ?? {};
 }

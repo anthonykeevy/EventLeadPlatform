@@ -8,12 +8,15 @@ import { useState, useEffect } from 'react'
 import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle, ClipboardList } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
+import { ReadinessBadge } from './ReadinessBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
 import { ApprovalRequestModal } from './ApprovalRequestModal'
 import { checkFormAccess } from '../api/formAccessApi'
-import { approveForm, rejectForm, updateForm } from '../api/formsApi'
+import { approveForm, rejectForm, updateForm, getFormReadiness, recordTestRun } from '../api/formsApi'
+import type { FormReadiness } from '../api/formsApi'
 import { AccessCheckResponse } from '../types/form-access.types'
 import { useAuth } from '../../auth/context/AuthContext'
+import { useToastNotifications } from '../../ux'
 import { FormAuditReport } from '../../audit'
 
 interface FormDetailViewProps {
@@ -25,16 +28,20 @@ interface FormDetailViewProps {
 
 export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailViewProps) {
   const { user } = useAuth()
+  const toast = useToastNotifications()
   const [userAccess, setUserAccess] = useState<AccessCheckResponse | null>(null)
   const [, setIsLoadingAccess] = useState(false)
   const [showAccessControl, setShowAccessControl] = useState(false)
   const [showApprovalRequest, setShowApprovalRequest] = useState(false)
   const [showAuditReport, setShowAuditReport] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [readiness, setReadiness] = useState<FormReadiness | null>(null)
+  const [readinessLoading, setReadinessLoading] = useState(false)
 
   useEffect(() => {
     if (form) {
       loadUserAccess()
+      loadReadiness()
     }
   }, [form])
 
@@ -48,6 +55,35 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
       console.error('Failed to check form access:', err)
     } finally {
       setIsLoadingAccess(false)
+    }
+  }
+
+  const loadReadiness = async () => {
+    if (!form) return
+    try {
+      setReadinessLoading(true)
+      const r = await getFormReadiness(form.formId)
+      setReadiness(r)
+    } catch (err) {
+      console.error('Failed to load readiness:', err)
+      setReadiness(null)
+    } finally {
+      setReadinessLoading(false)
+    }
+  }
+
+  const handleRecordTestRun = async () => {
+    if (!form) return
+    try {
+      setIsProcessing(true)
+      await recordTestRun(form.formId)
+      toast.success('Test run recorded', 'Success')
+      loadReadiness()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to record test run'
+      toast.error(msg, 'Error')
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -75,9 +111,9 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                 alert('Form Published Successfully')
                 onClose()
                 window.location.reload()
-             } catch (err) {
+             } catch (err: unknown) {
                  console.error(err)
-                 alert('Failed to publish form')
+                 alert(err instanceof Error ? err.message : 'Failed to publish form')
              } finally {
                  setIsProcessing(false)
              }
@@ -97,9 +133,9 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           alert('Form published')
           onClose()
           window.location.reload()
-        } catch (err) {
+        } catch (err: unknown) {
            console.error('Failed to publish:', err)
-           alert('Failed to publish form')
+           alert(err instanceof Error ? err.message : 'Failed to publish form')
         } finally {
            setIsProcessing(false)
         }
@@ -276,6 +312,14 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                   <div>
                     <span className="font-medium text-gray-700">Public Access:</span>{' '}
                     <span className="text-gray-600">{form.isPublic ? 'Yes' : 'No'}</span>
+                  </div>
+                  {/* Story 5.5: Readiness badge */}
+                  <div className="pt-2">
+                    <ReadinessBadge
+                      readiness={readiness ?? { canPublish: true, testRunCount: 0, testThresholdRequired: 0, testRunsNeeded: 0, message: 'Ready to publish' }}
+                      onRecordTestRun={canEdit ? handleRecordTestRun : undefined}
+                      loading={readinessLoading}
+                    />
                   </div>
                 </div>
               </section>

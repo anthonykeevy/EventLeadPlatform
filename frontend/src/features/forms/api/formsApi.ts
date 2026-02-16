@@ -311,3 +311,45 @@ export async function rejectForm(formId: number, reason: string): Promise<Update
     throw formatError(error)
   }
 }
+
+// =====================================================================
+// Story 5.5: Preview/Production Governance
+// =====================================================================
+
+export type FormReadiness = {
+  canPublish: boolean
+  testRunCount: number
+  testThresholdRequired: number
+  testRunsNeeded: number
+  message: string
+}
+
+/**
+ * Get form publish readiness (test run count vs threshold)
+ */
+export async function getFormReadiness(formId: number): Promise<FormReadiness> {
+  try {
+    const response = await apiClient.get(`/api/forms/${formId}/readiness`)
+    const d = response.data
+    return {
+      canPublish: d.canPublish ?? d.can_publish ?? false,
+      testRunCount: d.testRunCount ?? d.test_run_count ?? 0,
+      testThresholdRequired: d.testThresholdRequired ?? d.test_threshold_required ?? 0,
+      testRunsNeeded: d.testRunsNeeded ?? d.test_runs_needed ?? 0,
+      message: d.message ?? 'Ready to publish',
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+/**
+ * Record explicit test run (for static/no-input forms)
+ */
+export async function recordTestRun(formId: number): Promise<void> {
+  try {
+    await apiClient.post(`/api/forms/${formId}/record-test-run`)
+  } catch (error) {
+    throw formatError(error)
+  }
+}

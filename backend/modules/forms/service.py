@@ -415,6 +415,12 @@ async def update_form(
                 if not approval_status_row or approval_status_row.ApprovalStatusCode != 'APPROVED':
                      raise ValueError(f"Form requires approval (Cost ${cost} > ${threshold}) before publishing.")
 
+            # Story 5.5: Test threshold check
+            from .readiness_service import check_publish_readiness
+            readiness = check_publish_readiness(db, form.FormID, form.CompanyID)
+            if not readiness["canPublish"]:
+                raise ValueError(readiness["message"])
+
     # Validate form approval status if provided
     if form_data.get('form_approval_status_id'):
         form_approval_status = db.execute(

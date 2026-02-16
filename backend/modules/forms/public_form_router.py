@@ -241,6 +241,7 @@ async def submit_public_form(
         FormVersionID=version.FormVersionID,
         FormPublicLinkID=link.FormPublicLinkID,
         LinkType=link_type,
+        IsPreview=(link_type == "PREVIEW"),
         IdempotencyKey=payload.idempotency_key,
         SubmittedAtClient=submitted_at_client,
         AnswersJSON=json.dumps(payload.answers_by_component_id),

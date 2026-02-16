@@ -29,6 +29,7 @@ class FormSubmission(Base):
     FormPublicLinkID = Column(BigInteger, ForeignKey("dbo.FormPublicLink.FormPublicLinkID"), nullable=False, index=True)
 
     LinkType = Column(String(20), nullable=False)
+    IsPreview = Column(Boolean, nullable=False, server_default="0")  # Story 5.5: preview vs production
     IdempotencyKey = Column(String(255), nullable=False)
 
     SubmittedAtClient = Column(DateTime, nullable=False)

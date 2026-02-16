@@ -24,6 +24,8 @@ export interface StyledTextareaProps extends React.TextareaHTMLAttributes<HTMLTe
   autoGrowMaxHeight?: number;
   /** Resize mode (overrides default vertical) */
   resizeMode?: 'none' | 'vertical' | 'horizontal' | 'both' | 'auto-grow';
+  /** When true, always show focus styling (for demo/preview e.g. Focus Color cycling) */
+  simulateFocus?: boolean;
 }
 
 /**
@@ -39,6 +41,7 @@ export const StyledTextarea = forwardRef<HTMLTextAreaElement, StyledTextareaProp
     autoGrow,
     autoGrowMaxHeight,
     resizeMode,
+    simulateFocus,
     onFocus,
     onBlur,
     onInput,
@@ -46,6 +49,7 @@ export const StyledTextarea = forwardRef<HTMLTextAreaElement, StyledTextareaProp
     ...textareaProps
   }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
+    const effectiveFocused = isFocused || !!simulateFocus;
     const internalRef = useRef<HTMLTextAreaElement | null>(null);
     
     const defaultBorderColor = styles.borderColor as string;
@@ -55,12 +59,12 @@ export const StyledTextarea = forwardRef<HTMLTextAreaElement, StyledTextareaProp
     // Determine border color: error > focus > default
     const borderColor = error 
       ? '#DC2626' // Red for errors
-      : (isFocused && primaryColor ? primaryColor : defaultBorderColor);
+      : (effectiveFocused && primaryColor ? primaryColor : defaultBorderColor);
     
     // Determine box shadow: error > focus > none
     const boxShadow = error
       ? '0 0 0 2px rgba(220, 38, 38, 0.1)' // Subtle red glow for errors
-      : (isFocused && primaryColor 
+      : (effectiveFocused && primaryColor 
           ? `0 0 0 2px ${primaryColor}33, 0 0 0 4px ${primaryColor}11` // Double ring for better visibility
           : undefined);
     
@@ -80,7 +84,7 @@ export const StyledTextarea = forwardRef<HTMLTextAreaElement, StyledTextareaProp
       cursor: disabled ? 'not-allowed' : 'text',
       borderColor,
       boxShadow,
-      outline: isFocused && primaryColor ? `2px solid ${primaryColor}` : 'none', // Fallback for browsers that don't support boxShadow
+      outline: effectiveFocused && primaryColor ? `2px solid ${primaryColor}` : 'none', // Fallback for browsers that don't support boxShadow
       outlineOffset: '2px', // Prevents outline from overlapping border
       transition: 'border-color 0.2s ease, box-shadow 0.2s ease', // Smooth transitions
       resize: resolvedResize,

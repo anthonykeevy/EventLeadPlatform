@@ -61,6 +61,8 @@ export interface UniversalFieldShellProps {
     allFormErrors?: Record<string, string[]>;
     isLoading?: boolean;
     formValidationContext?: any;
+    /** When true, input objects render with focus styling (e.g. Focus Color cycling in Form Branding Defaults) */
+    simulateFocus?: boolean;
     // Runtime mode (bundled) - used by ComponentRegistry
     runtimeMode?: {
         value?: any;
@@ -152,6 +154,7 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
             isLoading,
             formValidationContext,
             runtimeMode,
+            simulateFocus,
         } = props;
 
         const effectiveFrozenGridTemplateColumns =
@@ -304,6 +307,7 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                 primaryColor: runtimePrimaryColor,
                 tabIndex: runtimeTabIndex,
                 inputRef: runtimeInputRef,
+                simulateFocus: obj.type === 'input' ? simulateFocus : undefined,
                 // Layout context
                 inRowGroup,
                 isGridLayout: isGridLayoutEnabled,

@@ -8,6 +8,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // Bypass libphonenumber-js package exports (subpath not in exports map)
+      'libphonenumber-js/mobile/examples/examples.mobile.json': path.resolve(
+        __dirname,
+        'node_modules/libphonenumber-js/mobile/examples/examples.mobile.json'
+      ),
     },
   },
   server: {

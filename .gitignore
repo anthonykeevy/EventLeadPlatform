@@ -118,3 +118,6 @@ htmlcov/
 docs/_build/
 docs/build/
 node_modules/
+
+# TypeScript output
+frontend/tsc-out.txt

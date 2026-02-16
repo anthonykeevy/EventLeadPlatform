@@ -16,7 +16,7 @@ from modules.auth.dependencies import get_current_user, get_current_user_optiona
 from modules.auth.models import CurrentUser
 from modules.auth.jwt_service import create_access_token, create_refresh_token
 from modules.auth.token_service import store_refresh_token
-from common.rbac import require_company_admin_for_company
+from common.rbac import require_company_admin_for_company, require_company_access
 from models.user import User
 from models.company import Company
 from models.ref.user_company_role import UserCompanyRole
@@ -54,6 +54,17 @@ from models.company_relationship import CompanyRelationship
 from models.ref.company_relationship_type import CompanyRelationshipType
 from models.company_switch_request import CompanySwitchRequest
 from models.ref.company_switch_request_status import CompanySwitchRequestStatus
+from modules.form_defaults.schemas import (
+    FormDefaultsResponse,
+    FormDefaultsHistoryResponse,
+    FormDefaultsVersionEntry,
+    UpdateFormDefaultsRequest,
+)
+from modules.form_defaults.service import (
+    resolve_merged_defaults,
+    update_company_defaults,
+    get_company_history,
+)
 
 
 logger = get_logger(__name__)
@@ -1255,3 +1266,86 @@ async def edit_user_role(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update user role"
         )
+
+
+# =============================================================================
+# Form Defaults (Story 5.2)
+# =============================================================================
+
+@router.get(
+    "/{company_id}/form-defaults",
+    response_model=FormDefaultsResponse,
+    summary="Get merged company form defaults",
+    description="Get form defaults merged from Global + Company (Story 5.2)",
+)
+async def get_company_form_defaults(
+    company_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> FormDefaultsResponse:
+    """GET /api/companies/{id}/form-defaults — merged defaults."""
+    require_company_access(current_user, company_id)
+    try:
+        merged = resolve_merged_defaults(db, company_id)
+        return FormDefaultsResponse(defaults=merged)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.put(
+    "/{company_id}/form-defaults",
+    response_model=FormDefaultsResponse,
+    summary="Update company form defaults",
+    description="Update company form defaults (company admin only, Story 5.2)",
+)
+async def put_company_form_defaults(
+    company_id: int,
+    body: UpdateFormDefaultsRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> FormDefaultsResponse:
+    """PUT /api/companies/{id}/form-defaults — update company defaults."""
+    require_company_admin_for_company(current_user, company_id)
+    try:
+        row = update_company_defaults(
+            db=db,
+            company_id=company_id,
+            defaults=body.defaults,
+            user_id=current_user.user_id,
+            change_summary=body.changeSummary,
+        )
+        return FormDefaultsResponse(
+            defaults=json.loads(row.DefaultsJSON),
+            versionNumber=row.VersionNumber,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get(
+    "/{company_id}/form-defaults/history",
+    response_model=FormDefaultsHistoryResponse,
+    summary="Get company form defaults history",
+    description="Get version history for company form defaults (Story 5.2)",
+)
+async def get_company_form_defaults_history(
+    company_id: int,
+    limit: int = Query(50, ge=1, le=200),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> FormDefaultsHistoryResponse:
+    """GET /api/companies/{id}/form-defaults/history — audit trail."""
+    require_company_admin_for_company(current_user, company_id)
+    rows = get_company_history(db, company_id, limit=limit)
+    items = [
+        FormDefaultsVersionEntry(
+            versionNumber=r[0],
+            defaults=json.loads(r[1]),
+            changeSummary=r[2],
+            createdDate=r[3].isoformat() if r[3] else "",
+            createdBy=r[4],
+            createdByEmail=r[5] if len(r) > 5 else None,
+        )
+        for r in rows
+    ]
+    return FormDefaultsHistoryResponse(items=items, total=len(items))

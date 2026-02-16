@@ -13,7 +13,10 @@ import {
     AsYouType,
     PhoneNumber,
 } from 'libphonenumber-js';
-import examples from 'libphonenumber-js/examples.mobile.json';
+// Resolved via tsconfig path + vite alias (package excludes this subpath from exports)
+import examplesJson from 'libphonenumber-js/mobile/examples/examples.mobile.json';
+import type { Examples } from 'libphonenumber-js';
+const examples = examplesJson as unknown as Examples;
 
 /**
  * Phone validation configuration

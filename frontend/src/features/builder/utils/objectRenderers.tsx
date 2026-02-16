@@ -142,6 +142,8 @@ export interface ObjectRendererProps {
     actionHeightOverride?: number;
     // True when rendering inside a Grid Layout cell
     isGridLayout?: boolean;
+    /** When true, render with focus styling (e.g. Focus Color cycling in Form Branding Defaults) */
+    simulateFocus?: boolean;
 }
 
 export type ObjectRenderer = (props: ObjectRendererProps) => React.ReactNode;
@@ -223,7 +225,7 @@ export function createLabelRenderer(): ObjectRenderer {
  * Create a standard input renderer with StyledInput.
  */
 export function createInputRenderer(): ObjectRenderer {
-    return ({ component, styles, value, onChange, disabled, required, error, componentId, primaryColor, inputRef, tabIndex, inputWidthOverride, builderMode, layout, surface, isGridLayout }) => {
+    return ({ component, styles, value, onChange, disabled, required, error, componentId, primaryColor, inputRef, tabIndex, inputWidthOverride, builderMode, layout, surface, isGridLayout, simulateFocus }) => {
         const inputId = componentId ? `${componentId}-input` : undefined;
         const placeholder = component.props.placeholder;
         
@@ -291,6 +293,7 @@ export function createInputRenderer(): ObjectRenderer {
         
         // Terms (canvas/builder): checkbox input (single option)
         if (component.type === 'terms') {
+            const primary = primaryColor || styles.computed.primaryColor;
             return (
                 <input
                     id={inputId}
@@ -304,9 +307,13 @@ export function createInputRenderer(): ObjectRenderer {
                     style={{
                         width: 16,
                         height: 16,
-                        // Keep top edges aligned in horizontal object layouts (prevents jagged SmartBorder)
                         marginTop: 0,
-                        accentColor: primaryColor || styles.computed.primaryColor,
+                        accentColor: primary,
+                        ...(simulateFocus && primary && {
+                            outline: `2px solid ${primary}`,
+                            outlineOffset: '2px',
+                            boxShadow: `0 0 0 2px ${primary}33`,
+                        }),
                     }}
                 />
             );
@@ -527,7 +534,14 @@ export function createInputRenderer(): ObjectRenderer {
                                                         }}
                                                         aria-invalid={!!error}
                                                         aria-required={required}
-                                                        style={controlStyle}
+                                                        style={{
+                                                            ...controlStyle,
+                                                            ...(idx === 0 && simulateFocus && (primaryColor || styles.computed.primaryColor) && {
+                                                                outline: `2px solid ${primaryColor || styles.computed.primaryColor}`,
+                                                                outlineOffset: '2px',
+                                                                boxShadow: `0 0 0 2px ${(primaryColor || styles.computed.primaryColor)}33`,
+                                                            }),
+                                                        }}
                                                     />
                                                     <div style={{ lineHeight: '1.3', maxWidth: direction === 'horizontal' ? 240 : undefined }}>
                                                         {optLabel}
@@ -629,6 +643,7 @@ export function createInputRenderer(): ObjectRenderer {
                         id={inputId}
                         styles={textareaInputStyle}
                         primaryColor={primaryColor || styles.computed.primaryColor}
+                        simulateFocus={simulateFocus}
                         disabled={disabled}
                         error={error}
                         componentId={componentId}
@@ -852,6 +867,7 @@ export function createInputRenderer(): ObjectRenderer {
                             id={`${inputId}-day`}
                             styles={{ ...inputStyle, flex: 1, minWidth: 0 }}
                             primaryColor={primaryColor || styles.computed.primaryColor}
+                            simulateFocus={simulateFocus}
                             disabled={disabled}
                             error={error}
                             componentId={componentId}
@@ -872,6 +888,7 @@ export function createInputRenderer(): ObjectRenderer {
                             id={`${inputId}-month`}
                             styles={{ ...inputStyle, flex: 1, minWidth: 0 }}
                             primaryColor={primaryColor || styles.computed.primaryColor}
+                            simulateFocus={simulateFocus}
                             disabled={disabled}
                             error={error}
                             componentId={componentId}
@@ -891,6 +908,7 @@ export function createInputRenderer(): ObjectRenderer {
                         id={`${inputId}-year`}
                         styles={{ ...inputStyle, flex: 1.2, minWidth: 0 }}
                         primaryColor={primaryColor || styles.computed.primaryColor}
+                        simulateFocus={simulateFocus}
                         disabled={disabled}
                         error={error}
                         componentId={componentId}
@@ -1075,6 +1093,7 @@ export function createInputRenderer(): ObjectRenderer {
                                 id={inputId}
                                 styles={dropdownStyle}
                                 primaryColor={primaryColor || styles.computed.primaryColor}
+                                simulateFocus={simulateFocus}
                                 disabled={false}
                                 error={error}
                                 componentId={componentId}
@@ -1155,6 +1174,7 @@ export function createInputRenderer(): ObjectRenderer {
                         id={inputId}
                         styles={dropdownStyle}
                         primaryColor={primaryColor || styles.computed.primaryColor}
+                        simulateFocus={simulateFocus}
                         disabled={disabled}
                         error={error}
                         componentId={componentId}
@@ -1220,6 +1240,7 @@ export function createInputRenderer(): ObjectRenderer {
                 id={inputId}
                 styles={inputStyle}
                 primaryColor={primaryColor || styles.computed.primaryColor}
+                simulateFocus={simulateFocus}
                 disabled={disabled}
                 error={error}
                 componentId={componentId}

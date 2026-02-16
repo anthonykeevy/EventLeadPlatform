@@ -21,6 +21,8 @@ export interface StyledInputProps extends React.InputHTMLAttributes<HTMLInputEle
   error?: string;
   /** Component ID for ARIA linking */
   componentId?: string;
+  /** When true, always show focus styling (for demo/preview e.g. Focus Color cycling) */
+  simulateFocus?: boolean;
 }
 
 /**
@@ -33,8 +35,9 @@ export interface StyledInputProps extends React.InputHTMLAttributes<HTMLInputEle
  * - Disabled state styling
  */
 export const StyledInput = forwardRef<HTMLInputElement, StyledInputProps>(
-  ({ styles, primaryColor, disabled, error, componentId, onFocus, onBlur, id, ...inputProps }, ref) => {
+  ({ styles, primaryColor, disabled, error, componentId, simulateFocus, onFocus, onBlur, id, ...inputProps }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
+    const effectiveFocused = isFocused || !!simulateFocus;
     
     const defaultBorderColor = styles.borderColor as string;
     const inputId = id || (componentId ? `${componentId}-input` : undefined);
@@ -43,12 +46,12 @@ export const StyledInput = forwardRef<HTMLInputElement, StyledInputProps>(
     // Determine border color: error > focus > default
     const borderColor = error 
       ? '#DC2626' // Red for errors
-      : (isFocused && primaryColor ? primaryColor : defaultBorderColor);
+      : (effectiveFocused && primaryColor ? primaryColor : defaultBorderColor);
     
     // Determine box shadow: error > focus > none
     const boxShadow = error
       ? '0 0 0 2px rgba(220, 38, 38, 0.1)' // Subtle red glow for errors
-      : (isFocused && primaryColor 
+      : (effectiveFocused && primaryColor 
           ? `0 0 0 2px ${primaryColor}33, 0 0 0 4px ${primaryColor}11` // Double ring for better visibility
           : undefined);
     
@@ -60,7 +63,7 @@ export const StyledInput = forwardRef<HTMLInputElement, StyledInputProps>(
       cursor: disabled ? 'not-allowed' : 'text',
       borderColor,
       boxShadow,
-      outline: isFocused && primaryColor ? `2px solid ${primaryColor}` : 'none', // Fallback for browsers that don't support boxShadow
+      outline: effectiveFocused && primaryColor ? `2px solid ${primaryColor}` : 'none', // Fallback for browsers that don't support boxShadow
       outlineOffset: '2px', // Prevents outline from overlapping border
       transition: 'border-color 0.2s ease, box-shadow 0.2s ease', // Smooth transitions
     };

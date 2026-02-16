@@ -17,7 +17,8 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "libphonenumber-js/mobile/examples/examples.mobile.json": ["node_modules/libphonenumber-js/mobile/examples/examples.mobile.json"]
     },
 
     /* Linting */

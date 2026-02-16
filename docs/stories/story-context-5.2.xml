@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 5.2 - Company Form Defaults (Brand System)
+     Used by ralf-sm for task decomposition. Assemble from latest docs. -->
+<story-context>
+  <story>
+    <id>5.2</id>
+    <title>Company Form Defaults (Brand System)</title>
+    <epic>5</epic>
+    <epic-title>Form Builder Readiness + Review &amp; Publishing</epic-title>
+    <domain>Form Builder + Dashboard</domain>
+    <status>Ready</status>
+  </story>
+
+  <scope-boundary>
+    <in-scope>
+      <item>Inheritance model: Global Defaults → Company Defaults → Form Overrides → Component Overrides (four tiers)</item>
+      <item>Company Settings: Form Branding Defaults page (Dashboard → Company container → Company Settings)</item>
+      <item>Page contains: Global Properties controls + Toolbox components as visual guide (live preview)</item>
+      <item>Company-level defaults persistence in DB with versioning + audit trail</item>
+      <item>Builder UX: inherited vs overridden; "Save to Company Defaults" button on Global Properties Panel</item>
+      <item>Link: "Edit company defaults" (opens Company Settings)</item>
+      <item>Audit trail viewable in Company Settings → Form Branding Defaults</item>
+      <item>Shared resolver applies defaults; Preview + renderer use same resolution rules</item>
+      <item>Form Builder Init API: POST /api/form-builder/init with companyId, eventId; single payload (defaults + component catalog + DefinitionJSON skeleton)</item>
+      <item>Form context: CompanyID + EventID (Event.CountryID) define criteria; API returns components (Global ∪ Country ∪ Company)</item>
+      <item>Frontend manages changes; writes complete DefinitionJSON back on save</item>
+      <item>Component catalog (database-driven): components scoped Global, Country, or Company</item>
+    </in-scope>
+    <out-of-scope>
+      <item>Preview vs production mode toggle (Story 5.5)</item>
+      <item>Publish request workflow (Story 5.6+)</item>
+      <item>Schema/validation alignment (Story 5.3)</item>
+      <item>Per-component override UI beyond inherited vs overridden</item>
+      <item>Global Defaults screen (Epic 5 backlog)</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <done-criteria>
+    <dc id="1">Company defaults persisted in DB with versioning + audit trail</dc>
+    <dc id="2">Company Settings includes Form Branding Defaults page with Global Properties controls + Toolbox visual guide</dc>
+    <dc id="3">Builder inherits company defaults; shows inherited vs overridden; has Save to Company Defaults button</dc>
+    <dc id="4">Inheritance model documented and consistently applied (builder + renderer)</dc>
+    <dc id="5">Audit trail viewable in Company Settings → Form Branding Defaults</dc>
+    <dc id="6">UAT guide executed and marked PASSED</dc>
+    <dc id="7">Form Builder receives all component data/defaults via Form Builder Init API; frontend replaces hardcoded; persists DefinitionJSON on save</dc>
+    <dc id="8">Story PR merged to master</dc>
+  </done-criteria>
+
+  <task-decomposition>
+    <directive>Ralf-SM creates the full task breakdown from this story and context. Do not feel constrained by any pre-existing TASK-PLAN or task specs.</directive>
+    <constraint type="ordering">Database task MUST be first: schema + seeds for form defaults and component catalog must exist before any API or frontend work. See STORY-5.2-DATA-SCHEMA.md and COMPONENT-CATALOG-SCHEMA-DESIGN.md.</constraint>
+    <constraint type="design">Reference docs (below) describe approved schema and API design; use them to inform tasks but ralf-sm decides task structure, granularity, and dependencies.</constraint>
+  </task-decomposition>
+
+  <references>
+    <doc path="docs/stories/story-5.2.md" purpose="Story file" />
+    <doc path="docs/stories/STORY-5.2-DATA-SCHEMA.md" purpose="Defaults schema DDL" />
+    <doc path="docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md" purpose="Component catalog tables" />
+    <doc path="docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md" purpose="Single payload API design" />
+    <doc path="docs/stories/STORY-5.2-UX-EXPERT-CONSULTATION.md" purpose="UX spec" />
+    <doc path="docs/database-naming-rules.md" purpose="MANDATORY naming" />
+    <doc path="docs/COMPONENT-FRAMEWORK-REFERENCE.md" purpose="Builder framework" />
+    <doc path="docs/stories/EPIC-5-STATUS.md" purpose="Epic scope" />
+    <doc path="docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md" purpose="Git discipline" />
+  </references>
+
+  <constraints>
+    <constraint type="git">Story branch: story/epic5-5.2-company-form-defaults; never work on master</constraint>
+    <constraint type="git">Task branches: task/5.2/Txx-&lt;slug&gt;; PR into story branch</constraint>
+    <constraint type="database">Human runs migrations; agent never runs Alembic directly (per .cursorrules)</constraint>
+    <constraint type="database">All tables follow docs/database-naming-rules.md (PascalCase, NVARCHAR)</constraint>
+    <constraint type="implementation">T00 PREREQUISITE: Database schema + seeds before any API or frontend</constraint>
+    <constraint type="implementation">Backend built first; test against existing frontend; then replace hardcoded with APIs</constraint>
+  </constraints>
+</story-context>

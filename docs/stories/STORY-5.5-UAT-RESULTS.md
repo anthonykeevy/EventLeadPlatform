@@ -2,7 +2,7 @@
 
 **Story:** 5.5  
 **Epic:** 5 - Form Builder Readiness + Review & Publishing  
-**Status:** Implementation Complete — Human verification required  
+**Status:** UAT PASSED (Step 0 + Step 1.1–1.4); rest deferred to later story  
 **Created:** 2026-02-16  
 
 ---
@@ -45,14 +45,16 @@ alembic -c backend/alembic.ini upgrade head
 
 ## Manual UAT Checklist
 
-- [ ] Run migration
-- [ ] Submit form via PREVIEW link → verify `FormSubmission.IsPreview = 1` in DB
-- [ ] Submit form via PRODUCTION link → verify `IsPreview = 0`
-- [ ] Enable test threshold for company (PUT company-test-config)
-- [ ] With 0 test runs, attempt publish → blocked with "X more test runs needed"
-- [ ] Record test run or submit via preview until threshold met
-- [ ] Publish succeeds; readiness badge shows "Ready to publish"
+| Step | Check | Result |
+|------|-------|--------|
+| 0 | Run migration | PASSED |
+| 1.1 | Submit form via PREVIEW link → verify `FormSubmission.IsPreview = 1` in DB | PASSED |
+| 1.2 | Enable test threshold for company (PUT company-test-config) | PASSED |
+| 1.3 | With 0 test runs, attempt publish → blocked with "X more test runs needed" | PASSED |
+| 1.4 | Record test run or submit via preview until threshold met | PASSED |
+| 1.5+ | Publish succeeds; readiness badge shows "Ready to publish" | Deferred to later story |
+| — | Production link test (`IsPreview = 0`) | Deferred (no UI to create PRODUCTION links until 5.6+) |
 
 ---
 
-*UAT results for Story 5.5 — Human handoff: run migration, verify manually, then merge PR.*
+*UAT results for Story 5.5 — Step 0 + Step 1.1–1.4 PASSED; merge approved.*

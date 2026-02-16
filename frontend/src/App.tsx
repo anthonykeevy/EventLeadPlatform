@@ -44,8 +44,8 @@ import { RequireAuth } from './features/auth/components/RequireAuth'
 
 // Make utilities available globally for testing in browser console
 if (typeof window !== 'undefined') {
-  (window as any).unsavedWorkTracker = unsavedWorkTracker;
-  (window as any).offlineQueue = offlineQueue
+  window.unsavedWorkTracker = unsavedWorkTracker;
+  window.offlineQueue = offlineQueue;
 }
 
 interface HealthStatus {

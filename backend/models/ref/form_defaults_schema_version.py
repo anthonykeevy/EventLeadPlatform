@@ -16,6 +16,7 @@ class FormDefaultsSchemaVersion(Base):
 
     FormDefaultsSchemaVersionID = Column(BigInteger, primary_key=True, autoincrement=True)
     SchemaVersion = Column(Integer, nullable=False, unique=True)
+    SchemaVersionString = Column(String(20), nullable=True)  # e.g. "1.0" for API (Story 5.3)
     SchemaName = Column(String(100), nullable=False)
     Description = Column(String(500), nullable=True)
     SchemaDocument = Column(String(None), nullable=True)  # NVARCHAR(MAX)

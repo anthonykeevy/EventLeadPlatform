@@ -1,0 +1,48 @@
+{
+  "merged_defaults_1": {
+    "theme": {
+      "primaryColor": "#0055FF",
+      "fontFamily": "Inter",
+      "fontSize": 16
+    },
+    "globalStyles": {
+      "defaultGridLayoutsByComponent": {
+        "text": { "vertical": { "rows": 1 }, "horizontal": { "rows": 1 } }
+      },
+      "labelAlign": "left"
+    },
+    "canvasSettings": {
+      "pageWidth": 800,
+      "backgroundColor": "#FFFFFF"
+    }
+  },
+  "form_overrides_1": {
+    "theme": { "primaryColor": "#FF0000" },
+    "globalStyles": { "labelAlign": "right" },
+    "canvasSettings": { "backgroundColor": "#F5F5F5" }
+  },
+  "merged_defaults_2": {
+    "theme": {
+      "primaryColor": "#003366",
+      "secondaryColor": "#6699CC",
+      "fontFamily": "Roboto"
+    },
+    "globalStyles": {
+      "defaultGridLayoutsByComponent": {
+        "dropdown": { "vertical": { "rows": 2 } }
+      }
+    },
+    "canvasSettings": {}
+  },
+  "form_overrides_2": {
+    "theme": { "secondaryColor": "#999999" },
+    "globalStyles": {},
+    "canvasSettings": { "pageWidth": 600 }
+  },
+  "form_overrides_empty": {},
+  "form_overrides_null_theme": {
+    "theme": null,
+    "globalStyles": { "labelAlign": "center" },
+    "canvasSettings": null
+  }
+}

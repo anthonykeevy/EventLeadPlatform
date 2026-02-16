@@ -2,7 +2,7 @@
 
 **Epic:** Epic 5 - Form Builder Readiness + Review & Publishing  
 **Domain:** Form Builder + Public Renderer integration  
-**Status:** ⏳ Ready  
+**Status:** Complete (UAT passed; merge pending)
 **Priority:** High (preview/production parity)  
 **Created:** 2026-02-16  
 **Owner:** Developer Agent  
@@ -49,12 +49,12 @@
 
 ## 🎯 Done Criteria
 
-- [ ] **DC1:** Backend and frontend defaults resolution produce identical theme, globalStyles, canvasSettings for the same inputs (parity tests pass).
-- [ ] **DC2:** Parity tests added in `backend/tests/` (or equivalent) using shared fixtures.
-- [ ] **DC3:** `docs/stories/STORY-5.4-RESOLUTION-RULES.md` documents merge algorithm and asset resolution rules.
-- [ ] **DC4:** Builder preview and public renderer use the same asset resolution path (`useBackgroundImageUrl` / `getBackgroundImageSource`); audit confirms no divergence.
-- [ ] **DC5:** Future Review and Publish integration documented (resolver contract for Story 5.6).
-- [ ] **DC6:** UAT guide executed and marked PASSED.
+- [x] **DC1:** Backend and frontend defaults resolution produce identical theme, globalStyles, canvasSettings for the same inputs (parity tests pass).
+- [x] **DC2:** Parity tests added in `backend/tests/` (or equivalent) using shared fixtures.
+- [x] **DC3:** `docs/stories/STORY-5.4-RESOLUTION-RULES.md` documents merge algorithm and asset resolution rules.
+- [x] **DC4:** Builder preview and public renderer use the same asset resolution path (`useBackgroundImageUrl` / `getBackgroundImageSource`); audit confirms no divergence.
+- [x] **DC5:** Future Review and Publish integration documented (resolver contract for Story 5.6).
+- [x] **DC6:** UAT guide executed and marked PASSED.
 - [ ] **DC7:** Story PR merged to `master`.
 
 ---

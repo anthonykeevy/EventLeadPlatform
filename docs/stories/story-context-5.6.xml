@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 5.6 - Publish Request Workflow
+     Created by SM (Scrum Master); used by dev for single-session implementation. -->
+<story-context>
+  <story>
+    <id>5.6</id>
+    <title>Publish Request Workflow</title>
+    <epic>5</epic>
+    <epic-title>Form Builder Readiness &amp; Review &amp; Publishing</epic-title>
+    <domain>Form Builder, Dashboard, Publish Workflow</domain>
+    <status>Ready</status>
+  </story>
+
+  <principle>Company User requests publish when approval required; Admin receives queue with deep link to Review and Publish.</principle>
+
+  <scope-boundary>
+    <in-scope>
+      <item>Company-level RequirePublishApproval toggle; when enabled, Company User sees Request Publish</item>
+      <item>FormPublishRequest table: FormID, RequestedBy, RequestedAt, Message, Status (pending/approved/declined/changes_requested)</item>
+      <item>POST /api/forms/{form_id}/publish-request — create request; validate readiness; form status → Pending Review</item>
+      <item>Request Publish modal in Builder: select admin(s), optional message</item>
+      <item>Admin Dashboard: pending publish requests queue; deep link to Review and Publish (route; full review UI in 5.7)</item>
+      <item>Duplicate requests handled (idempotent or "already pending")</item>
+      <item>Form status PENDING_REVIEW in ref.FormStatus (add if missing)</item>
+    </in-scope>
+    <out-of-scope>
+      <item>Admin Review &amp; Publish screen (approve/decline/request changes) — Story 5.7</item>
+      <item>Actual publish/unpublish from review — Story 5.7</item>
+      <item>Stable public URL, activation windows — Story 5.7</item>
+      <item>Email notifications — optional; in-app queue is MVP</item>
+      <item>Payment/Stripe — Epic 6</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <done-criteria>
+    <dc id="1">Company-level RequirePublishApproval config; Company User sees Request Publish when enabled</dc>
+    <dc id="2">FormPublishRequest table + API; create request; validate readiness; form status → Pending Review</dc>
+    <dc id="3">Request Publish modal in Builder: select admin(s), optional message; success = Pending Admin Review</dc>
+    <dc id="4">Admin Dashboard: pending publish requests queue; deep link to Review and Publish</dc>
+    <dc id="5">Duplicate requests handled (idempotent or "already pending")</dc>
+    <dc id="6">UAT guide executed and marked PASSED</dc>
+    <dc id="7">Story PR merged to master</dc>
+  </done-criteria>
+
+  <story-5.5-integration>
+    <note>Story 5.5 delivered readiness badges and publish block (test threshold). This story adds the request flow: Company User creates publish request; Admin sees queue. Publish readiness must be validated before creating request (same check as 5.5).</note>
+  </story-5.5-integration>
+
+  <existing-models>
+    <model name="Form">FormStatusID, FormApprovalStatusID; ref.FormStatus (StatusCode: DRAFT, PUBLISHED, etc.)</model>
+    <model name="CompanyFormTestConfig">Story 5.5; TestThresholdEnabled, TestThresholdValue. May extend for RequirePublishApproval or add CompanyFormPublishConfig.</model>
+  </existing-models>
+
+  <references>
+    <ref path="docs/stories/EPIC-5-STATUS.md" purpose="Epic scope, Phase B" />
+    <ref path="docs/prd.md" purpose="Create Form &amp; Request Publish flow" />
+    <ref path="docs/ux-specification.md" purpose="User Flow 4" />
+    <ref path="docs/stories/EPIC-5-UX-IDEATION.md" purpose="Journey 1, Journey 2" />
+    <ref path="backend/models/ref/form_status.py" purpose="FormStatus reference" />
+    <ref path="backend/models/company_form_test_config.py" purpose="Company test config; may extend" />
+  </references>
+</story-context>

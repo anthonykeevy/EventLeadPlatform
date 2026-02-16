@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 5.5 - Preview/Production Governance Foundations
+     Created by SM (Scrum Master); used by dev for single-session implementation. -->
+<story-context>
+  <story>
+    <id>5.5</id>
+    <title>Preview/Production Governance Foundations</title>
+    <epic>5</epic>
+    <epic-title>Form Builder Readiness &amp; Review &amp; Publishing</epic-title>
+    <domain>Form Builder, Public Runtime, Submissions</domain>
+    <status>Ready</status>
+  </story>
+
+  <principle>Clear separation between preview and production; configurable test threshold; readiness visibility before publish.</principle>
+
+  <scope-boundary>
+    <in-scope>
+      <item>Preview vs production flag on submissions; filter/separate by mode</item>
+      <item>Test threshold: optional per company, adjustable, stored in config/DB</item>
+      <item>Test runs: preview submission or "Record test run"; counted and audited (who, when)</item>
+      <item>Block publish when threshold enabled and not met; clear UI message</item>
+      <item>Readiness badge in Builder or Dashboard</item>
+      <item>Form status: draft / pending / published / unpublished (minimal for this story)</item>
+    </in-scope>
+    <out-of-scope>
+      <item>Publish request + review flow (Story 5.6)</item>
+      <item>Admin Review and Publish UI (Story 5.6+)</item>
+      <item>Public URL + activation windows (Story 5.7)</item>
+      <item>Full publish/unpublish workflow (extends into 5.6/5.7)</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <done-criteria>
+    <dc id="1">Submissions store preview vs production flag; backend/API support filtering</dc>
+    <dc id="2">Test threshold configurable per company (enabled/disabled, value); stored in DB/config</dc>
+    <dc id="3">Test runs counted and audited (who, when)</dc>
+    <dc id="4">Publish blocked when threshold enabled and not met; clear UI message</dc>
+    <dc id="5">Readiness badge visible in Builder or Dashboard</dc>
+    <dc id="6">UAT guide executed and marked PASSED</dc>
+    <dc id="7">Story PR merged to master</dc>
+  </done-criteria>
+
+  <story-5.4-integration>
+    <note>Story 5.4 delivered shared resolver parity. Preview and production use same resolution; this story adds mode separation and test gating.</note>
+  </story-5.4-integration>
+
+  <references>
+    <ref path="docs/stories/EPIC-5-STATUS.md" purpose="Epic scope, Phase B" />
+    <ref path="docs/prd.md" purpose="Preview/Testing, Publish flow" />
+    <ref path="docs/stories/STORY-5.4-RESOLUTION-RULES.md" purpose="Resolver parity" />
+  </references>
+</story-context>

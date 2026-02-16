@@ -336,6 +336,7 @@ export const PropertiesPanel: React.FC = () => {
                     onBackgroundChange={handleBackgroundChange}
                     canvasWidth={formDefinition?.canvasSettings?.width ?? 1920}
                     canvasHeight={formDefinition?.canvasSettings?.height ?? 980}
+                    themeBackgroundColor={formDefinition?.theme?.backgroundColor ?? '#FFFFFF'}
                 />
             </aside>
         );

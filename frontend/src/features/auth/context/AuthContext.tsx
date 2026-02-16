@@ -317,11 +317,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const expiresIn = response.expires_in || 3600
       tokenStorage.storeTokens(response.access_token, response.refresh_token, expiresIn)
       
-      // Update user state if provided
-      const user = response.user ?? null
+      // Only update user if response includes one; preserve existing user otherwise.
+      // Backend refresh endpoint typically returns tokens only, so response.user is undefined.
+      // Updating with user: null would clear auth state and redirect to login despite valid tokens.
+      const user = response.user ?? undefined
       setState(prev => ({
         ...prev,
-        user,
+        ...(user !== undefined && { user }),
       }))
       
       // Schedule next refresh
@@ -618,7 +620,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             handleAuthChangeFromOtherTab(user, 'login')
             break
           case 'LOGOUT':
-            handleAuthChangeFromOtherTab(null, 'logout')
+            // Only trust logout when tokens are actually cleared (another tab has cleared storage).
+            // Protects against spurious messages (e.g. extension, race) - refresh would otherwise restore session.
+            if (!tokenStorage.getStoredTokens()) {
+              handleAuthChangeFromOtherTab(null, 'logout')
+            } else {
+              console.warn('⚠️ Ignoring LOGOUT from other tab - tokens still present (possibly spurious)')
+            }
             break
           case 'SWITCH_COMPANY':
             // Company switch doesn't require full auth sync
@@ -649,9 +657,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Storage event fires when localStorage changes in OTHER tabs
       if (e.key === 'eventlead_access_token' || e.key === null) {
         if (!e.newValue) {
-          // Token was removed (logout in another tab)
-          console.log('🔄 Logout detected in another tab (storage event)')
-          handleAuthChangeFromOtherTab(null, 'logout')
+          // Token was removed (logout in another tab). Verify tokens are actually gone.
+          if (!tokenStorage.getStoredTokens()) {
+            console.log('🔄 Logout detected in another tab (storage event)')
+            handleAuthChangeFromOtherTab(null, 'logout')
+          }
         } else {
           // Token was added/updated (login in another tab)
           console.log('🔄 Login detected in another tab (storage event)')

@@ -128,12 +128,12 @@ def build_init_payload(
 
     page_id = f"page-{uuid.uuid4().hex[:8]}"
     definition_skeleton = {
-        "schemaVersion": 1,
+        "schemaVersion": "1.0",
         "theme": None,
         "globalStyles": None,
         "canvasSettings": None,
-        "pages": [{"id": page_id, "components": []}],
-        "logic": [],
+        "pages": [{"id": page_id, "title": "Page 1", "components": []}],
+        "logic": {"rules": []},
     }
 
     return {

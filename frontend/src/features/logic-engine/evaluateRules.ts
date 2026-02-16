@@ -20,18 +20,40 @@ export interface EvaluateRulesResult {
   warnings: RuntimeRuleWarning[];
 }
 
+/**
+ * Extracts the logical value from component payloads.
+ * Radio/dropdown emit { value: string, extraTextByValue? }.
+ * Checkbox with options emits { values: string[], extraTextByValue? }.
+ * Logic rules compare against these logical values, not the raw JSON.
+ */
+function extractLogicalValue(v: unknown): unknown {
+  if (v === null || v === undefined) return v;
+  if (typeof v !== 'object' || Array.isArray(v)) return v;
+  const o = v as Record<string, unknown>;
+  if (typeof o.value === 'string') return o.value;
+  if (Array.isArray(o.values)) return o.values;
+  return v;
+}
+
 function isEmptyValue(v: unknown): boolean {
-  if (v === null || v === undefined) return true;
-  if (typeof v === 'string') return v.trim().length === 0;
-  if (Array.isArray(v)) return v.length === 0;
+  const logical = extractLogicalValue(v);
+  if (logical === null || logical === undefined) return true;
+  if (typeof logical === 'string') return logical.trim().length === 0;
+  if (Array.isArray(logical)) return logical.length === 0;
   return false;
 }
 
 function normalizeToString(v: unknown): string {
-  if (v === null || v === undefined) return '';
-  if (typeof v === 'string') return v;
-  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
-  // Best-effort fallback
+  const logical = extractLogicalValue(v);
+  if (logical === null || logical === undefined) return '';
+  if (typeof logical === 'string') return logical;
+  if (typeof logical === 'number' || typeof logical === 'boolean') return String(logical);
+  if (Array.isArray(logical)) {
+    if (logical.length === 0) return '';
+    if (logical.length === 1) return String(logical[0]);
+    return logical.map((x) => String(x)).join(',');
+  }
+  // Best-effort fallback for other objects
   try {
     return JSON.stringify(v);
   } catch {

@@ -740,9 +740,9 @@ export const PublicFormArtboard: React.FC<{
       onPointerDownCapture={markActivity}
     >
       <div className={isBuilderLayout ? 'h-full w-full flex items-center justify-center p-8' : 'h-full overflow-auto p-4'}>
-        {!isBuilderLayout && warnings.length > 0 && (
-          <div className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-900">
-            <div className="font-medium">Warnings</div>
+        {warnings.length > 0 && (
+          <div className={`mb-4 rounded border p-3 text-sm ${isBuilderLayout ? 'border-yellow-300 bg-yellow-50/90 text-yellow-900' : 'border-yellow-200 bg-yellow-50 text-yellow-900'}`}>
+            <div className="font-medium">Logic rule warnings</div>
             <ul className="list-disc pl-5 mt-1">
               {warnings.map(w => (
                 <li key={`${w.ruleId}-${w.code}-${w.sourceComponentId ?? ''}-${w.targetComponentId ?? ''}`}>{w.message}</li>

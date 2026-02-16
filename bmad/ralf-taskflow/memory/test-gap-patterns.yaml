@@ -176,7 +176,37 @@ test_gaps:
     priority: "medium"
     frequency: 1
 
-  # Gap 8: Preview URL Param Passthrough
+  # Gap 8: Logic Engine Value Extraction
+  logic_engine_value_extraction:
+    name: "Missing Logic Engine Compound Value Tests"
+    gap_description: "evaluateRules compares rule values against raw component payloads; radio/dropdown emit {value, extraTextByValue}"
+    symptoms:
+      - "Logic rules (show/hide, require/unrequire) don't apply for radio/dropdown in Preview"
+      - "Rule 'equals yes' fails when value is {value:'yes', extraTextByValue:{}}"
+    test_to_add:
+      type: "unit"
+      location: "frontend/src/features/logic-engine/__tests__/evaluateRules.test.ts"
+      template: |
+        describe('evaluateRules compound values', () => {
+          it('extracts value from {value, extraTextByValue} for equals', () => {
+            const result = evaluateRules({
+              rules: [{ when: { sourceComponentId: 'r1', operator: 'equals', value: 'yes' }, then: { targetComponentId: 'e1', action: 'require' } }],
+              valuesByComponentId: { r1: { value: 'yes', extraTextByValue: {} } },
+              componentsById: { r1: {}, e1: {} },
+              baseStateById: { e1: { visible: true, enabled: true, required: false } }
+            });
+            expect(result.stateById.e1?.required).toBe(true);
+          });
+          
+          it('extracts values from {values} for checkbox-with-options contains', () => {
+            // ...
+          });
+        });
+      command: "npm test -- --testPathPattern=evaluateRules"
+    priority: "medium"
+    frequency: 1
+
+  # Gap 9: Preview URL Param Passthrough
   preview_url_params:
     name: "Missing Preview URL Param Passthrough Test"
     gap_description: "Preview shell does not verify query params are forwarded to embed/public URLs"

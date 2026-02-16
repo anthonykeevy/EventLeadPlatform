@@ -32,13 +32,13 @@ class FormBuilderComponentItem(BaseModel):
 
 
 class FormBuilderDefinitionJSON(BaseModel):
-    """Initial DefinitionJSON skeleton."""
-    schemaVersion: int = 1
+    """Initial DefinitionJSON skeleton. Aligns with FormDefinition schema for version save."""
+    schemaVersion: str = "1.0"
     theme: Optional[Dict[str, Any]] = None
     globalStyles: Optional[Dict[str, Any]] = None
     canvasSettings: Optional[Dict[str, Any]] = None
-    pages: List[Dict[str, Any]] = Field(default_factory=lambda: [{"id": "page-1", "components": []}])
-    logic: List[Any] = Field(default_factory=list)
+    pages: List[Dict[str, Any]] = Field(default_factory=lambda: [{"id": "page-1", "title": "Page 1", "components": []}])
+    logic: Dict[str, Any] = Field(default_factory=lambda: {"rules": []})
 
 
 class FormBuilderInitResponse(BaseModel):

@@ -4,11 +4,14 @@
  * Shared hook for resolving and displaying background images.
  * Used by builder preview (FormBuilderCanvas) and public renderer (PublicFormArtboard)
  * to ensure identical resolution logic and display parity.
+ *
+ * Note: Asset content requires auth. We only use blob URLs from fetch() (which sends
+ * the token). We do NOT fall back to the content URL on failure, because img src
+ * / CSS background cannot send Authorization, which would cause 401s.
  */
 
 import { useState, useEffect } from 'react';
 import type { BackgroundDefinition } from '../types/builder.types';
-import { resolveAssetContentUrl } from '../utils/backgroundAssetResolver';
 import { assetsApi } from '../api/assetsApi';
 
 export interface UseBackgroundImageUrlResult {
@@ -56,9 +59,8 @@ export function useBackgroundImageUrl(
           }
         })
         .catch(() => {
-          if (!revoked) {
-            setUrl(resolveAssetContentUrl(assetId));
-          }
+          // Do not fall back to content URL: img src / CSS cannot send Authorization
+          if (!revoked) setUrl(null);
         })
         .finally(() => {
           if (!revoked) setIsLoading(false);

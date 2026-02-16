@@ -21,6 +21,8 @@ interface BackgroundPropertiesPanelProps {
     onBackgroundChange: (updates: Partial<NonNullable<FormPage['background']>>) => void;
     canvasWidth?: number;
     canvasHeight?: number;
+    /** Fallback when no background value is set (e.g. from theme/company defaults) */
+    themeBackgroundColor?: string;
 }
 
 /** When Fit (locked): which part of image stays visible */
@@ -41,6 +43,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     onBackgroundChange,
     canvasWidth = 1920,
     canvasHeight = 980,
+    themeBackgroundColor = '#FFFFFF',
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [showAssetLibrary, setShowAssetLibrary] = useState(false);
@@ -65,7 +68,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
     };
 
     const currentType = pageBackground?.type || 'color';
-    const currentValue = pageBackground?.value || '#FFFFFF';
+    const currentValue = pageBackground?.value || themeBackgroundColor;
     const currentAsset = pageBackground?.asset;
 
     // Fetch authenticated blob URL for asset preview so <img> can display it
@@ -104,7 +107,7 @@ export const BackgroundPropertiesPanel: React.FC<BackgroundPropertiesPanelProps>
             const colour =
                 pageBackground?.colorValue ??
                 (pageBackground?.value && isHexColor(pageBackground.value) ? pageBackground.value : null) ??
-                '#FFFFFF';
+                themeBackgroundColor;
             onBackgroundChange({ type, value: colour });
         } else {
             // Keep colour and image settings; only switch type (do not clear value/asset/imageSize/imagePosition)

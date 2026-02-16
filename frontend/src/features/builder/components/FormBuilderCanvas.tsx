@@ -39,6 +39,7 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
 
     const bg = activePage?.background;
     const { url: canvasBgImageUrl, isLoading: canvasBgLoading } = useBackgroundImageUrl(bg);
+    const themeBgColor = formDefinition?.theme?.backgroundColor ?? '#FFFFFF';
     
     const { setNodeRef: setDndRef, isOver } = useDroppable({
         id: 'canvas-stage',
@@ -254,9 +255,9 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
                                     const opacity = activePage.background.opacity ?? 1;
                                     if (!imageUrl) {
                                         return canvasBgLoading ? (
-                                            <div className="w-full h-full bg-gray-100 animate-pulse" />
+                                            <div className="w-full h-full animate-pulse" style={{ backgroundColor: themeBgColor }} />
                                         ) : (
-                                            <div className="w-full h-full bg-gray-100" />
+                                            <div className="w-full h-full" style={{ backgroundColor: themeBgColor }} />
                                         );
                                     }
                                     const { position: pos, size: sz, crop } = placement;
@@ -301,11 +302,11 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
                             ) : (
                                 <div
                                     className="w-full h-full"
-                                    style={{ backgroundColor: activePage.background.value }}
+                                    style={{ backgroundColor: activePage.background.value || themeBgColor }}
                                 />
                             )
                         ) : (
-                            <div className="w-full h-full bg-white" />
+                            <div className="w-full h-full" style={{ backgroundColor: themeBgColor }} />
                         )}
                     </div>
 

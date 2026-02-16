@@ -41,6 +41,7 @@ import { apiClient } from '../../../lib/apiClient';
 import { getComponentSurfaceCapabilities } from '../utils/componentSurfaceCapabilities';
 import { PublicFormArtboard } from '../../renderer/components/PublicFormArtboard';
 import { resolveDefinitionForRender } from '../utils/definitionResolver';
+import { unsavedWorkTracker } from '../../../utils/unsavedWorkTracker';
 
 // 8px Grid Snap Modifier
 const snapToGridModifier = createSnapModifier(8);
@@ -89,6 +90,27 @@ export const BuilderPage: React.FC = () => {
   const previewWindowRef = useRef<Window | null>(null);
 
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Story 1.16: Register Form Builder with unsaved work tracker so auth-change-from-other-tab
+  // shows Save banner instead of immediately redirecting (avoids data loss)
+  const builderSourceId = formId ? `builder-${formId}` : null;
+  useEffect(() => {
+    if (!builderSourceId) return;
+    unsavedWorkTracker.register({
+      id: builderSourceId,
+      type: 'form_builder',
+      description: `Form ${formId} (unsaved changes)`,
+      isDirty,
+      autoSaveEnabled: false,
+      onSave: async () => {
+        if (formId) await saveDraft(formId);
+      },
+    });
+    return () => unsavedWorkTracker.unregister(builderSourceId);
+  }, [builderSourceId, formId, saveDraft]);
+  useEffect(() => {
+    if (builderSourceId) unsavedWorkTracker.update(builderSourceId, { isDirty, description: `Form ${formId} (unsaved changes)` });
+  }, [builderSourceId, isDirty, formId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

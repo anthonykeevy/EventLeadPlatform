@@ -82,7 +82,9 @@ export const LogicPanel: React.FC = () => {
     const savedRules = formDefinition?.logic?.rules || [];
     const isCreatingNew = !!(editingRuleId && draft && !savedRules.some(r => r.id === editingRuleId));
     const displayRules: LogicRule[] = isCreatingNew && draft ? [...savedRules, draft as LogicRule] : savedRules;
-    const currentPage = formDefinition?.pages.find(p => p.id === activePageId);
+    // Use authored pages (desktopPages when present, else pages) — same as canvas/renderer
+    const authoredPages = formDefinition?.desktopPages?.length ? formDefinition.desktopPages : (formDefinition?.pages ?? []);
+    const currentPage = authoredPages.find(p => p.id === activePageId);
     const allComponents = currentPage ? flattenComponents(currentPage.components) : [];
     const fieldComponents = allComponents.filter(c => isFieldLike(c.type));
 

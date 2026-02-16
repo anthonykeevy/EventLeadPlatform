@@ -112,7 +112,24 @@ root_cause_patterns:
     frequency: 1
     last_seen: 2026-02-11
 
-  # Pattern 8: Preview Query Params Lost
+  # Pattern 8: Component Value Shape Mismatch
+  component_value_shape_mismatch:
+    name: "Component Value Shape Mismatch in Logic Engine"
+    symptoms:
+      - "Logic rules visible in Logic Panel but don't apply in Preview"
+      - "Radio/dropdown/checkbox-with-options rules fail"
+    root_cause: "Components emit compound objects ({value}, {values}); logic engine compared JSON.stringify output vs rule string"
+    prevention:
+      - "ralf-dev: Add unit tests for evaluateRules with {value}, {values} payloads"
+      - "ralf-uat: Add regression step for logic rules with radio/dropdown"
+      - "Document component onChange value shapes in COMPONENT-FRAMEWORK-REFERENCE"
+    example:
+      bad: "normalizeToString(actual) returns JSON.stringify({value:'yes'}) === '{\"value\":\"yes\",...}'"
+      good: "extractLogicalValue extracts .value; normalizeToString returns 'yes'"
+    frequency: 1
+    last_seen: 2026-02-16
+
+  # Pattern 9: Preview Query Params Lost
   preview_query_params_lost:
     name: "Preview Query Params Lost"
     symptoms:

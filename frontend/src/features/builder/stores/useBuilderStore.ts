@@ -231,6 +231,9 @@ function normalizeDefinitionForLoad(def: FormDefinition): FormDefinition {
 
 function normalizeDefinitionForSave(def: FormDefinition): FormDefinition {
     const clone = JSON.parse(JSON.stringify(def)) as FormDefinition;
+    // Backend FormDefinition expects schemaVersion "1.0" (string) and logic { rules: [] }
+    if (clone.schemaVersion !== '1.0') clone.schemaVersion = '1.0';
+    if (!clone.logic || Array.isArray(clone.logic)) clone.logic = { rules: [] };
     const pages = selectAuthoredPages(clone);
 
     const normalizeComponents = (components: FormComponent[]): FormComponent[] => {

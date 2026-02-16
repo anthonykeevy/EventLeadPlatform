@@ -237,9 +237,9 @@ Epic 5 is complete when:
 
 | Story | Title | Goal | Notes / Dependencies |
 |------|-------|------|----------------------|
-| **5.1** | Background Asset Management | Replace embedded base64 backgrounds with asset upload/store/reference (local → Azure ready) | ✅ **Complete 2026-02-13** — T01–T08 HumanDone; merge to master pending. |
-| **5.2** | Company Form Defaults (Brand System) | Persist company-level defaults and apply inheritance across forms | **Next** — Dashboard-first management; builder shows inherited vs overridden. |
-| **5.3** | Schema + Validation Alignment | Bring backend definition schema in line with builder output; prevent drift | Includes schema versioning + compatibility tests. |
+| **5.1** | Background Asset Management | Replace embedded base64 backgrounds with asset upload/store/reference (local → Azure ready) | ✅ **Complete 2026-02-13** — T01–T08 HumanDone; merged to master 2026-02-13. |
+| **5.2** | Company Form Defaults (Brand System) | Persist company-level defaults and apply inheritance across forms | ✅ **Complete 2026-02-16** — T01–T08 HumanDone; merged to master (#32). |
+| **5.3** | Schema + Validation Alignment | Bring backend definition schema in line with builder output; prevent drift | **Next** — Includes schema versioning + compatibility tests. |
 | **5.4** | Shared Resolver Parity | Single resolver for defaults/assets used by preview + public + review | Guarantees preview/production parity. |
 | **5.5** | Preview/Production Governance Foundations | Toggle preview vs production + test counter + readiness badges | Builds directly on 5.1–5.4. |
 | **5.6** | Publish Request Workflow | Company User requests publish; admin receives review queue/link | Surfaces: Builder modal + Dashboard queue. |

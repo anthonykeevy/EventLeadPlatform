@@ -39,7 +39,6 @@ def upgrade() -> None:
         "IsPreview",
         existing_type=mssql.BIT(),
         nullable=False,
-        server_default=sa.text("0"),
         schema="dbo",
     )
 

@@ -1,7 +1,26 @@
 # Epic 5 Workflow Guide - BMAD + Ralf Integration
 
-**Current Focus:** Story 5.2 - Company Form Defaults (Epic 5)  
-**Story 5.1 Status:** ✅ Complete (2026-02-13) — All tasks HumanDone; pending merge to master  
+**Current Focus:** Story 5.4 - Shared Resolver Parity (Epic 5)  
+**Story 5.1 Status:** ✅ Complete (2026-02-13) — Merged to master  
+**Story 5.2 Status:** ✅ Complete (2026-02-16) — Merged to master (#32)  
+**Story 5.3 Status:** ✅ Complete (2026-02-16) — Single-session; UAT passed; retro done; merge pending  
+
+---
+
+## ⚡ Single-Session Story Workflow (Story 5.3 validated)
+
+**When:** Backend-heavy stories with clear DCs; schema/API/tests; limited or no frontend. Story 5.3 proved this path works.
+
+| Step | Human | Agent |
+|------|-------|-------|
+| 1 | Run `new-story.ps1`; open Story worktree in Cursor | — |
+| 2 | Paste single-session Dev prompt (see `docs/stories/STORY-5.3-SINGLE-SESSION-DEV-PROMPT.md`) | @dev implements full story; runs automated UAT; records evidence in STORY-5.x-UAT-RESULTS.md |
+| 3 | Run migration (`alembic upgrade head`) if migration created | — |
+| 4 | Manual UAT (Form Builder save/load, etc.); verify evidence | — |
+| 5 | Run retro; update EPIC-5-WORKFLOW-GUIDE | — |
+| 6 | Merge Story PR to master | — |
+
+**Artifacts:** `docs/stories/STORY-5.x-SINGLE-SESSION-DEV-PROMPT.md` (copy from 5.3, adapt scope). Human runs migrations only. See `docs/stories/STORY-5.3-RETRO.md` and `docs/tasks/5.3/LESSONS-LEARNED.md`.
 
 ---
 
@@ -484,4 +503,5 @@ git push origin <story-branch>
 | 2026-02-11 | Added "Single-prompt full cycle" (implement → UAT attempt → retro → commit → push → merge in one prompt) | T05: agent stopped after retro; no UAT attempt, no closeout commit, no merge. One prompt now mandates the full cycle |
 | 2026-02-13 | Added "Task kickoff" (after worktree: update task spec to In Progress, STATUS.md, commit+push, then create PR) | T07: PR creation was skipped (0 commits). Status update creates first commit so PR can be created before implementation |
 | 2026-02-13 | Added "CRITICAL — Worktree/Branch requirement" for Phase 2 (Ralf-SM decomposition) | Ralf-SM ran in main repo on chore branch; decomposition was not on story branch; task worktrees lacked specs. Fix: run decomposition in Story worktree, commit there before creating task branches |
+| 2026-02-16 | Added "Single-Session Story Workflow" (Story 5.3 validated) | Story 5.3 delivered in one chat without Ralf decomposition. Backend-heavy stories with clear DCs can use single-session prompt; human runs migrations, manual UAT, retro, merge. See STORY-5.3-RETRO, docs/tasks/5.3/LESSONS-LEARNED |
 

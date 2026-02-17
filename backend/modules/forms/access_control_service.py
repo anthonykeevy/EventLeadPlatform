@@ -509,13 +509,20 @@ async def get_user_accessible_forms(
         List of Form objects user has access to
     """
     # Get company-owned forms (user has Manage access)
-    company_forms_query = select(Form).where(
+    # joinedload ensures form_status and form_approval_status are loaded for list responses
+    company_forms_query = select(Form).options(
+        joinedload(Form.form_status),
+        joinedload(Form.form_approval_status),
+    ).where(
         Form.CompanyID == company_id,
         Form.IsDeleted == False
     )
     
     # Get forms with granted access
-    granted_forms_query = select(Form).join(
+    granted_forms_query = select(Form).options(
+        joinedload(Form.form_status),
+        joinedload(Form.form_approval_status),
+    ).join(
         FormAccessControl, Form.FormID == FormAccessControl.FormID
     ).where(
         FormAccessControl.UserID == user_id,

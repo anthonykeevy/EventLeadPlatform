@@ -19,7 +19,7 @@ export function BuilderPublishAction({ formId, formName: fallbackFormName }: Bui
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [formStatus, setFormStatus] = useState<string | null>(null)
-  const [readiness, setReadiness] = useState<{ canPublish: boolean } | null>(null)
+  const [readiness, setReadiness] = useState<{ canPublish: boolean; message?: string } | null>(null)
   const [requireApproval, setRequireApproval] = useState(false)
   const [formName, setFormName] = useState(fallbackFormName ?? '')
 
@@ -53,11 +53,9 @@ export function BuilderPublishAction({ formId, formName: fallbackFormName }: Bui
   if (formStatus === 'PUBLISHED') return null
 
   const isPendingReview = formStatus === 'PENDING_REVIEW'
-  const showRequestPublish =
-    !isCompanyAdmin &&
-    requireApproval &&
-    (readiness?.canPublish ?? false) &&
-    !isPendingReview
+  const canRequestPublish = !isCompanyAdmin && requireApproval && !isPendingReview
+  const isReadyToRequest = readiness?.canPublish ?? false
+  const showRequestPublish = canRequestPublish && isReadyToRequest
 
   if (isPendingReview && !isCompanyAdmin) {
     return (
@@ -67,16 +65,29 @@ export function BuilderPublishAction({ formId, formName: fallbackFormName }: Bui
     )
   }
 
-  if (showRequestPublish) {
+  // Show Request Publish when Company User + approval required; disable with tooltip if not ready
+  if (canRequestPublish) {
+    const notReadyMessage = !isReadyToRequest && readiness?.message
+      ? readiness.message
+      : 'Complete required test runs to request publish'
     return (
       <>
-        <button
-          type="button"
-          onClick={() => setShowModal(true)}
-          className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-2"
-        >
-          <Send size={16} /> Request Publish
-        </button>
+        <div className="relative group">
+          <button
+            type="button"
+            onClick={() => isReadyToRequest && setShowModal(true)}
+            disabled={!isReadyToRequest}
+            className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            title={!isReadyToRequest ? notReadyMessage : 'Request that a Company Admin publish this form'}
+          >
+            <Send size={16} /> Request Publish
+          </button>
+          {!isReadyToRequest && (
+            <div className="absolute bottom-full left-0 mb-1 px-2 py-1.5 text-xs text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 max-w-xs">
+              {notReadyMessage}
+            </div>
+          )}
+        </div>
         {showModal && (
           <RequestPublishModal
             formId={formIdNum}

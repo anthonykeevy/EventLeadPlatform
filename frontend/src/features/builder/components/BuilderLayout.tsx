@@ -18,6 +18,8 @@ interface BuilderLayoutProps {
     isPreviewLoading?: boolean;
     /** Story 5.6: Optional header action (e.g. Request Publish / Publish button) */
     headerAction?: React.ReactNode;
+    /** Story 5.6: Optional status badge (replaces hardcoded Draft with actual form status) */
+    formStatusBadge?: React.ReactNode;
 }
 
 // Default panel widths
@@ -38,6 +40,7 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
     onOpenPreview,
     isPreviewLoading,
     headerAction,
+    formStatusBadge,
 }) => {
     const {
         undo,
@@ -119,7 +122,9 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
                     </Link>
                     <div className="h-6 w-px bg-gray-200"></div>
                     <h1 className="font-semibold text-gray-800 text-lg">{title || 'Untitled Form'}</h1>
-                    <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium">Draft</span>
+                    {formStatusBadge ?? (
+                      <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium">Draft</span>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-3">

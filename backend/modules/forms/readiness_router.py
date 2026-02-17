@@ -53,48 +53,9 @@ class CompanyTestConfigUpdate(BaseModel):
         populate_by_name = True
 
 
-@router.get(
-    "/{form_id}/readiness",
-    response_model=ReadinessResponse,
-    summary="Get form publish readiness (Story 5.5)",
-)
-async def get_form_readiness(
-    form_id: int,
-    current_user: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Returns readiness status for publish (test run count vs threshold)."""
-    form = await check_form_access_guard(db, form_id, current_user.user_id, "VIEW")
-    result = check_publish_readiness(db, form_id, form.CompanyID)
-    return ReadinessResponse(
-        canPublish=result["canPublish"],
-        testRunCount=result["testRunCount"],
-        testThresholdRequired=result["testThresholdRequired"],
-        testRunsNeeded=result["testRunsNeeded"],
-        message=result["message"],
-    )
-
-
-@router.post(
-    "/{form_id}/record-test-run",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Record explicit test run (Story 5.5)",
-)
-async def post_record_test_run(
-    form_id: int,
-    current_user: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Records explicit 'Record test run' for forms without submission (e.g. static forms)."""
-    form = await check_form_access_guard(db, form_id, current_user.user_id, "EDIT")
-    try:
-        record_test_run(db, form_id, current_user.user_id, current_user.company_id)
-        db.commit()
-    except ValueError as e:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-
+# IMPORTANT: /company-test-config must be defined BEFORE /{form_id}/... routes,
+# otherwise GET /api/forms/company-test-config matches form_id="company-test-config"
+# and fails with 422 (path param validation).
 @router.get(
     "/company-test-config",
     response_model=CompanyTestConfigResponse,
@@ -158,3 +119,45 @@ async def put_company_test_config(
         testThresholdValue=int(row.TestThresholdValue),
         requirePublishApproval=bool(getattr(row, "RequirePublishApproval", False)),
     )
+
+
+@router.get(
+    "/{form_id}/readiness",
+    response_model=ReadinessResponse,
+    summary="Get form publish readiness (Story 5.5)",
+)
+async def get_form_readiness(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Returns readiness status for publish (test run count vs threshold)."""
+    form = await check_form_access_guard(db, form_id, current_user.user_id, "VIEW")
+    result = check_publish_readiness(db, form_id, form.CompanyID)
+    return ReadinessResponse(
+        canPublish=result["canPublish"],
+        testRunCount=result["testRunCount"],
+        testThresholdRequired=result["testThresholdRequired"],
+        testRunsNeeded=result["testRunsNeeded"],
+        message=result["message"],
+    )
+
+
+@router.post(
+    "/{form_id}/record-test-run",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Record explicit test run (Story 5.5)",
+)
+async def post_record_test_run(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Records explicit 'Record test run' for forms without submission (e.g. static forms)."""
+    form = await check_form_access_guard(db, form_id, current_user.user_id, "EDIT")
+    try:
+        record_test_run(db, form_id, current_user.user_id, current_user.company_id)
+        db.commit()
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

@@ -2,6 +2,8 @@
 Form Publish Request Router (Story 5.6)
 Endpoints for create publish request and list pending requests.
 """
+from datetime import datetime
+
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -204,3 +206,143 @@ async def get_pending_publish_requests(
             )
         )
     return results
+
+
+class PublishRequestApproveBody(BaseModel):
+    comment: str | None = Field(None, max_length=1000, alias="comment")
+
+    class Config:
+        populate_by_name = True
+
+
+class PublishRequestRejectBody(BaseModel):
+    reason: str | None = Field(None, max_length=1000, alias="reason")
+
+    class Config:
+        populate_by_name = True
+
+
+@router.post(
+    "/{form_id}/publish-request/approve",
+    response_model=PublishRequestResponse,
+    summary="Approve publish request (Story 5.6, Admin only)",
+)
+async def approve_publish_request(
+    form_id: int,
+    body: PublishRequestApproveBody | None = Body(default=None),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Company Admin approves a pending publish request. Sets form to PUBLISHED, request to approved.
+    """
+    require_company_admin_for_company(current_user, current_user.company_id)
+    form = await check_form_access_guard(db, form_id, current_user.user_id, "MANAGE")
+    if form.CompanyID != current_user.company_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
+
+    req = (
+        db.execute(
+            select(FormPublishRequest).where(
+                FormPublishRequest.FormID == form_id,
+                FormPublishRequest.Status == "pending",
+                FormPublishRequest.CompanyID == current_user.company_id,
+            )
+        )
+        .scalars().first()
+    )
+    if not req:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No pending publish request found for this form.",
+        )
+
+    published_status = db.execute(select(FormStatus).where(FormStatus.StatusCode == "PUBLISHED")).scalars().first()
+    if not published_status:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PUBLISHED status not configured.")
+
+    req.Status = "approved"
+    req.UpdatedBy = current_user.user_id
+    req.UpdatedDate = datetime.utcnow()
+    form.FormStatusID = published_status.FormStatusID
+    form.UpdatedBy = current_user.user_id
+    form.UpdatedDate = datetime.utcnow()
+
+    db.commit()
+    db.refresh(req)
+
+    from models.user import User
+    requester = db.execute(select(User).where(User.UserID == req.RequestedBy)).scalars().first()
+    return PublishRequestResponse(
+        formPublishRequestId=req.FormPublishRequestID,
+        formId=form_id,
+        formName=form.FormName,
+        requestedBy=req.RequestedBy,
+        requestedByEmail=requester.Email if requester else None,
+        requestedAt=req.RequestedAt.isoformat() if req.RequestedAt else "",
+        message=req.Message,
+        status=req.Status,
+    )
+
+
+@router.post(
+    "/{form_id}/publish-request/reject",
+    response_model=PublishRequestResponse,
+    summary="Reject publish request (Story 5.6, Admin only)",
+)
+async def reject_publish_request(
+    form_id: int,
+    body: PublishRequestRejectBody | None = Body(default=None),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Company Admin rejects a pending publish request. Sets form back to DRAFT, request to declined.
+    """
+    require_company_admin_for_company(current_user, current_user.company_id)
+    form = await check_form_access_guard(db, form_id, current_user.user_id, "MANAGE")
+    if form.CompanyID != current_user.company_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
+
+    req = (
+        db.execute(
+            select(FormPublishRequest).where(
+                FormPublishRequest.FormID == form_id,
+                FormPublishRequest.Status == "pending",
+                FormPublishRequest.CompanyID == current_user.company_id,
+            )
+        )
+        .scalars().first()
+    )
+    if not req:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No pending publish request found for this form.",
+        )
+
+    draft_status = db.execute(select(FormStatus).where(FormStatus.StatusCode == "DRAFT")).scalars().first()
+    if not draft_status:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DRAFT status not configured.")
+
+    req.Status = "declined"
+    req.UpdatedBy = current_user.user_id
+    req.UpdatedDate = datetime.utcnow()
+    form.FormStatusID = draft_status.FormStatusID
+    form.UpdatedBy = current_user.user_id
+    form.UpdatedDate = datetime.utcnow()
+
+    db.commit()
+    db.refresh(req)
+
+    from models.user import User
+    requester = db.execute(select(User).where(User.UserID == req.RequestedBy)).scalars().first()
+    return PublishRequestResponse(
+        formPublishRequestId=req.FormPublishRequestID,
+        formId=form_id,
+        formName=form.FormName,
+        requestedBy=req.RequestedBy,
+        requestedByEmail=requester.Email if requester else None,
+        requestedAt=req.RequestedAt.isoformat() if req.RequestedAt else "",
+        message=req.Message,
+        status=req.Status,
+    )

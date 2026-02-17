@@ -354,6 +354,20 @@ export async function recordTestRun(formId: number): Promise<void> {
   }
 }
 
+/**
+ * Create a preview link and return the preview URL.
+ * Used to open form in preview so user can complete a real test submission.
+ */
+export async function createPreviewLink(formId: number): Promise<string> {
+  const response = await apiClient.post(`/api/forms/${formId}/public-links`, { linkType: 'PREVIEW' })
+  const link = response?.data?.link
+  const token = link?.token ?? link?.Token
+  if (!token) {
+    throw new Error('Preview link was created but no token was returned.')
+  }
+  return `${window.location.origin}/forms/${token}/preview`
+}
+
 // =====================================================================
 // Story 5.5: Company Test Config (includes RequirePublishApproval for 5.6)
 // =====================================================================
@@ -448,6 +462,44 @@ export async function getPendingPublishRequests(): Promise<PublishRequest[]> {
       message: d.message ?? null,
       status: d.status ?? 'pending',
     }))
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export async function approvePublishRequest(formId: number, comment?: string): Promise<PublishRequest> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/publish-request/approve`, { comment: comment ?? '' })
+    const d = response.data
+    return {
+      formPublishRequestId: d.formPublishRequestId ?? d.form_publish_request_id ?? 0,
+      formId: d.formId ?? d.form_id ?? formId,
+      formName: d.formName ?? d.form_name ?? '',
+      requestedBy: d.requestedBy ?? d.requested_by ?? 0,
+      requestedByEmail: d.requestedByEmail ?? d.requested_by_email ?? null,
+      requestedAt: d.requestedAt ?? d.requested_at ?? '',
+      message: d.message ?? null,
+      status: d.status ?? 'approved',
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export async function rejectPublishRequest(formId: number, reason?: string): Promise<PublishRequest> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/publish-request/reject`, { reason: reason ?? '' })
+    const d = response.data
+    return {
+      formPublishRequestId: d.formPublishRequestId ?? d.form_publish_request_id ?? 0,
+      formId: d.formId ?? d.form_id ?? formId,
+      formName: d.formName ?? d.form_name ?? '',
+      requestedBy: d.requestedBy ?? d.requested_by ?? 0,
+      requestedByEmail: d.requestedByEmail ?? d.requested_by_email ?? null,
+      requestedAt: d.requestedAt ?? d.requested_at ?? '',
+      message: d.message ?? null,
+      status: d.status ?? 'declined',
+    }
   } catch (error) {
     throw formatError(error)
   }

@@ -12,9 +12,10 @@ import { ReadinessBadge } from './ReadinessBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
 import { ApprovalRequestModal } from './ApprovalRequestModal'
 import { checkFormAccess } from '../api/formAccessApi'
-import { approveForm, rejectForm, updateForm, getFormReadiness, recordTestRun, getCompanyTestConfig } from '../api/formsApi'
+import { approveForm, rejectForm, updateForm, getFormReadiness, recordTestRun, createPreviewLink, getCompanyTestConfig } from '../api/formsApi'
 import type { FormReadiness } from '../api/formsApi'
 import { RequestPublishModal } from './RequestPublishModal'
+import { PublishWorkflowStatus } from './PublishWorkflowStatus'
 import { AccessCheckResponse } from '../types/form-access.types'
 import { useAuth } from '../../auth/context/AuthContext'
 import { useToastNotifications } from '../../ux'
@@ -85,6 +86,22 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
       loadReadiness()
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to record test run'
+      toast.error(msg, 'Error')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  /** Open form in preview so user can complete a real test submission (fills + submits). */
+  const handleOpenPreview = async () => {
+    if (!form) return
+    try {
+      setIsProcessing(true)
+      const previewUrl = await createPreviewLink(form.formId)
+      window.open(previewUrl, '_blank', 'noopener,noreferrer')
+      toast.success('Preview opened in new tab. Complete and submit the form to count as a test run.', 'Info')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to open preview'
       toast.error(msg, 'Error')
     } finally {
       setIsProcessing(false)
@@ -226,15 +243,20 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   // Show "Publish" (Request Approval) if: Draft/Rejected, Cost > 100, Can Edit
   const showSmartPublish = canEdit && (isNoApproval || isRejected) && cost > 100
 
-  // Story 5.6: Request Publish when Company User + RequirePublishApproval + readiness met + not already pending
+  // Story 5.6: Request Publish when Company User + RequirePublishApproval + not already pending
+  // Show button even when threshold not met (UAT: disabled with tooltip); don't hide it
   const showRequestPublish =
     !isCompanyAdmin &&
     requirePublishApproval &&
     canEdit &&
     (isNoApproval || isRejected) &&
-    (readiness?.canPublish ?? false) &&
     form.formStatus?.statusCode !== 'PUBLISHED' &&
     !isPendingReview
+
+  const requestPublishDisabled = !(readiness?.canPublish ?? false)
+  const requestPublishTooltip = requestPublishDisabled && readiness?.message
+    ? readiness.message
+    : undefined
   
   // Show Approve/Reject ONLY if: User is Admin AND Form is Pending
   // PRE-APPROVAL: Also show if Draft (No Approval) AND Cost > 100 (Scenario 4)
@@ -323,9 +345,17 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                     <span className="text-gray-600">{form.formStatus?.statusName || 'Unknown'}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Approval Status:</span>{' '}
+                    <span className="font-medium text-gray-700">Approval Status (high-cost):</span>{' '}
                     <span className="text-gray-600">{form.formApprovalStatus?.approvalStatusName || 'Unknown'}</span>
+                    <span className="text-xs text-gray-500 ml-1">(deployment cost &gt; $100)</span>
                   </div>
+                  {requirePublishApproval && !isCompanyAdmin && (
+                    <div>
+                      <span className="font-medium text-gray-700">Publish approval (Story 5.6):</span>{' '}
+                      <span className="text-amber-700 font-medium">Required</span>
+                      <span className="text-xs text-gray-500 ml-1">(Company Admin must approve)</span>
+                    </div>
+                  )}
                   <div>
                     <span className="font-medium text-gray-700">Public Access:</span>{' '}
                     <span className="text-gray-600">{form.isPublic ? 'Yes' : 'No'}</span>
@@ -334,10 +364,19 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                   <div className="pt-2">
                     <ReadinessBadge
                       readiness={readiness ?? { canPublish: true, testRunCount: 0, testThresholdRequired: 0, testRunsNeeded: 0, message: 'Ready to publish' }}
-                      onRecordTestRun={canEdit ? handleRecordTestRun : undefined}
+                      onOpenPreview={canManage ? handleOpenPreview : undefined}
+                      onRecordTestRun={canEdit && !canManage ? handleRecordTestRun : undefined}
                       loading={readinessLoading}
                     />
                   </div>
+                  {/* Story 5.6: Next steps for Company Users */}
+                  <PublishWorkflowStatus
+                    isCompanyUser={!isCompanyAdmin}
+                    requirePublishApproval={requirePublishApproval}
+                    formStatusCode={form.formStatus?.statusCode ?? null}
+                    readiness={readiness}
+                    loading={readinessLoading}
+                  />
                 </div>
               </section>
 
@@ -489,9 +528,14 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           {/* Story 5.6: Request Publish (Company User + approval required) */}
           {showRequestPublish && (
             <button
-              onClick={() => setShowRequestPublishModal(true)}
-              disabled={isProcessing}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              onClick={() => !requestPublishDisabled && !isProcessing && setShowRequestPublishModal(true)}
+              disabled={isProcessing || requestPublishDisabled}
+              title={requestPublishTooltip}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                requestPublishDisabled
+                  ? 'text-gray-400 bg-gray-300 cursor-not-allowed'
+                  : 'text-white bg-indigo-600 hover:bg-indigo-700'
+              }`}
             >
               <Send className="w-4 h-4" />
               Request Publish

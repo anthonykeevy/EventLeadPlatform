@@ -100,6 +100,9 @@ app.include_router(public_forms_router, prefix="/api/public")  # Story 3.8: Publ
 app.include_router(versions_router)  # Story 3.1: Form Versioning
 app.include_router(active_version_router)  # Story 3.1: Form Versioning - Live/Active Endpoint
 app.include_router(forms_public_links_router, prefix="/api/forms")  # Story 3.8: Public renderer links
+# CRITICAL: forms_readiness_router BEFORE forms_router so GET /api/forms/company-test-config
+# matches /company-test-config, not /{form_id} (which would 422 on form_id="company-test-config")
+app.include_router(forms_readiness_router)  # Story 5.5: Readiness, record-test-run, company test config
 app.include_router(forms_router)  # Story 2.8: Form Header Foundation
 app.include_router(audit_router, prefix="/api")  # Story 2.13: Audit Trail & Compliance
 app.include_router(fonts_router)  # Google Fonts caching
@@ -107,7 +110,6 @@ app.include_router(assets_router)  # Story 5.1: Background assets
 app.include_router(form_defaults_router)  # Story 5.2: Form Defaults API (global)
 app.include_router(form_builder_router)  # Story 5.2 T03: Form Builder Init API
 app.include_router(form_schema_router)  # Story 5.3: DefinitionJSON schema from DB
-app.include_router(forms_readiness_router)  # Story 5.5: Readiness, record-test-run, company test config
 app.include_router(publish_request_router)  # Story 5.6: Publish request create, list pending
 
 @app.get("/")

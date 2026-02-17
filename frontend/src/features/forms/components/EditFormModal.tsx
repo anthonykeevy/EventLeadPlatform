@@ -4,14 +4,15 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
-import { updateForm, getForm, getFormStatuses, getFormApprovalStatuses, submitFormForApproval, approveForm } from '../api/formsApi'
+import { X, Send } from 'lucide-react'
+import { updateForm, getForm, getFormStatuses, getFormApprovalStatuses, submitFormForApproval, approveForm, getCompanyTestConfig, getFormReadiness } from '../api/formsApi'
 // Note: Form Status and Approval Status are kept for edit as they can change through approval workflow
 import { Form, FormUpdateRequest, FormStatus, FormApprovalStatus } from '../types/form.types'
 import { useToastNotifications } from '../../ux'
 import { LoadingSpinner } from '../../ux/components/LoadingSpinner'
 import { EnhancedFormInput } from '../../ux/components/EnhancedFormInput'
 import { useAuth } from '../../auth/context/AuthContext'
+import { RequestPublishModal } from './RequestPublishModal'
 
 interface EditFormModalProps {
   isOpen: boolean
@@ -28,6 +29,9 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
   const [isLoadingRefData, setIsLoadingRefData] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [requireApproval, setRequireApproval] = useState(false)
+  const [readiness, setReadiness] = useState<{ canPublish: boolean; message?: string } | null>(null)
+  const [showRequestPublishModal, setShowRequestPublishModal] = useState(false)
 
   const toast = useToastNotifications()
 
@@ -56,6 +60,9 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
       setFormData({})
       setFormStatuses([])
       setFormApprovalStatuses([])
+      setRequireApproval(false)
+      setReadiness(null)
+      setShowRequestPublishModal(false)
       return
     }
 
@@ -63,7 +70,7 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
       setIsLoadingRefData(true)
       setErrors({})
       try {
-        // Fetch fresh form data from API to ensure we have the latest data
+        // Load core form data first; don't let company-test-config failure block form statuses
         const [freshForm, statuses, approvalStatuses] = await Promise.all([
           getForm(form.formId),
           getFormStatuses(),
@@ -71,10 +78,6 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
         ])
         setFormStatuses(statuses)
         setFormApprovalStatuses(approvalStatuses)
-        
-          // Initialize form data with editable fields only
-        // Non-editable fields (isPublic, formThumbnailUrl, formPreviewUrl) are auto-managed
-        // deploymentCost is now editable for Approval Workflow testing (Story 2.11)
         setFormData({
           formName: freshForm.formName ?? '',
           formDescription: freshForm.formDescription ?? null,
@@ -83,6 +86,20 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
           formApprovalStatusId: freshForm.formApprovalStatusId !== undefined && freshForm.formApprovalStatusId !== null ? freshForm.formApprovalStatusId : undefined,
           deploymentCost: freshForm.deploymentCost,
         })
+        // Load company config + readiness separately; failure does not block form edit
+        if (!isCompanyAdmin) {
+          try {
+            const [config, r] = await Promise.all([getCompanyTestConfig(), getFormReadiness(form.formId)])
+            setRequireApproval(config?.requirePublishApproval ?? false)
+            setReadiness(r ?? null)
+          } catch {
+            setRequireApproval(false)
+            setReadiness(null)
+          }
+        } else {
+          setRequireApproval(false)
+          setReadiness(null)
+        }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load form data'
         toast.error(errorMessage, 'Failed to load form')
@@ -94,7 +111,7 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
 
     loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, form?.formId])
+  }, [isOpen, form?.formId, isCompanyAdmin])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -217,6 +234,11 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
   }
 
   if (!isOpen || !form) return null
+
+  const currentStatusId = formData.formStatusId !== undefined ? formData.formStatusId : form.formStatusId
+  const currentStatusCode = formStatuses.find(s => s.formStatusId === currentStatusId)?.statusCode ?? form.formStatus?.statusCode ?? 'DRAFT'
+  const showRequestPublishBtn = !isCompanyAdmin && requireApproval && currentStatusCode === 'DRAFT'
+  const canRequestPublish = showRequestPublishBtn && (readiness?.canPublish ?? false)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -364,22 +386,56 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
         </form>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting || isLoadingRefData}
-            className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? 'Updating...' : 'Update Form'}
-          </button>
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+          <div>
+            {showRequestPublishBtn && (
+              <div className="relative group">
+                <button
+                  type="button"
+                  onClick={() => canRequestPublish && setShowRequestPublishModal(true)}
+                  disabled={!canRequestPublish}
+                  className="px-4 py-2 text-sm font-medium text-amber-800 bg-amber-100 border border-amber-300 rounded-md hover:bg-amber-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                  title={!canRequestPublish ? (readiness?.message ?? 'Complete required test runs to request publish') : 'Submit form for admin approval'}
+                >
+                  <Send size={16} /> Request Publish
+                </button>
+                {!canRequestPublish && (
+                  <div className="absolute bottom-full left-0 mb-1 px-2 py-1.5 text-xs text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 max-w-xs">
+                    {readiness?.message ?? 'Complete required test runs to request publish'}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || isLoadingRefData}
+              className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Updating...' : 'Update Form'}
+            </button>
+          </div>
         </div>
+        {showRequestPublishModal && (
+          <RequestPublishModal
+            formId={form.formId}
+            formName={form.formName || 'Form'}
+            onClose={() => setShowRequestPublishModal(false)}
+            onSuccess={() => {
+              setShowRequestPublishModal(false)
+              onSuccess()
+              onClose()
+            }}
+          />
+        )}
       </div>
     </div>
   )

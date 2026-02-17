@@ -43,6 +43,7 @@ import { PublicFormArtboard } from '../../renderer/components/PublicFormArtboard
 import { resolveDefinitionForRender } from '../utils/definitionResolver';
 import { unsavedWorkTracker } from '../../../utils/unsavedWorkTracker';
 import { BuilderPublishAction } from '../components/BuilderPublishAction';
+import { BuilderFormStatusBadge } from '../components/BuilderFormStatusBadge';
 
 // 8px Grid Snap Modifier
 const snapToGridModifier = createSnapModifier(8);
@@ -1305,6 +1306,7 @@ export const BuilderPage: React.FC = () => {
         onOpenPreview={openPreviewInNewTab}
         isPreviewLoading={isPublicPreviewLoading}
         headerAction={formId ? <BuilderPublishAction formId={formId} formName={formDefinition?.formId} /> : undefined}
+        formStatusBadge={formId ? <BuilderFormStatusBadge formId={formId} /> : undefined}
       >
         <div className="flex flex-col h-full">
           {publicPreviewError && (
@@ -1353,6 +1355,7 @@ export const BuilderPage: React.FC = () => {
         onOpenPreview={openPreviewInNewTab}
         isPreviewLoading={isPublicPreviewLoading}
         headerAction={formId ? <BuilderPublishAction formId={formId} formName={formDefinition?.formId} /> : undefined}
+        formStatusBadge={formId ? <BuilderFormStatusBadge formId={formId} /> : undefined}
       >
         <div className="flex flex-col h-full">
           {publicPreviewError && (

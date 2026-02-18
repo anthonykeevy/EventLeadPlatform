@@ -2,7 +2,7 @@
 
 **Epic:** Epic 5 - Form Builder Readiness + Review & Publishing  
 **Domain:** Company Settings, Dashboard, Billing, Assets  
-**Status:** ⏳ Ready  
+**Status:** In Progress
 **Priority:** High (foundation for invoicing, governance, future settings)  
 **Created:** 2026-02-17  
 **Owner:** Developer Agent  

@@ -19,6 +19,7 @@ from modules.auth.token_service import store_refresh_token
 from common.rbac import require_company_admin_for_company, require_company_access
 from models.user import User
 from models.company import Company
+from models.company_billing_details import CompanyBillingDetails
 from models.ref.user_company_role import UserCompanyRole
 from models.ref.user_invitation_status import UserInvitationStatus
 from models.audit.activity_log import ActivityLog
@@ -33,7 +34,8 @@ from .schemas import (
     CreateRelationshipRequest, CreateRelationshipResponse, RelationshipResponse,
     CreateAccessRequestSchema, CreateAccessRequestResponse, AccessRequestResponse,
     RejectAccessRequestSchema, UpdateRelationshipStatusRequest,
-    EditUserRoleRequest, EditUserRoleResponse
+    EditUserRoleRequest, EditUserRoleResponse,
+    CompanySettingsDetailsResponse, UpdateCompanySettingsDetailsRequest,
 )
 from .service import create_company
 from .invitation_service import (
@@ -1266,6 +1268,177 @@ async def edit_user_role(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update user role"
         )
+
+
+# =============================================================================
+# Story 5.7: Company Settings — Company Details + Billing
+# =============================================================================
+
+def _effective_display_name(company: Company) -> str:
+    """Resolve display name from CustomDisplayName, LegalEntityName, or CompanyName."""
+    if company.CustomDisplayName:
+        return str(company.CustomDisplayName)
+    if company.LegalEntityName:
+        return str(company.LegalEntityName)
+    return str(company.CompanyName)
+
+
+@router.get(
+    "/{company_id}/details",
+    response_model=CompanySettingsDetailsResponse,
+    summary="Get company details for settings",
+    description="Get company + billing details (Story 5.7, company admin)",
+)
+async def get_company_settings_details(
+    company_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> CompanySettingsDetailsResponse:
+    """GET /api/companies/{id}/details — company + billing for Company Settings."""
+    require_company_admin_for_company(current_user, company_id)
+    company = db.get(Company, company_id)
+    if not company or company.IsDeleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    billing = db.execute(
+        select(CompanyBillingDetails).where(
+            CompanyBillingDetails.CompanyID == company_id,
+            CompanyBillingDetails.IsDeleted == False,
+        )
+    ).scalar_one_or_none()
+    return CompanySettingsDetailsResponse(
+        company_id=int(company.CompanyID),
+        display_name=_effective_display_name(company),
+        legal_entity_name=company.LegalEntityName,
+        company_name=str(company.CompanyName),
+        custom_display_name=company.CustomDisplayName,
+        display_name_source=str(company.DisplayNameSource or "User"),
+        abn=company.ABN,
+        acn=company.ACN,
+        phone=company.Phone,
+        email=company.Email,
+        website=company.Website,
+        country_id=int(company.CountryID),
+        industry_id=int(company.IndustryID) if company.IndustryID else None,
+        billing_contact_name=billing.BillingContactName if billing else None,
+        billing_email=billing.BillingEmail if billing else None,
+        billing_phone=billing.BillingPhone if billing else None,
+        billing_address_line1=billing.BillingAddressLine1 if billing else None,
+        billing_address_line2=billing.BillingAddressLine2 if billing else None,
+        billing_city=billing.BillingCity if billing else None,
+        billing_state=billing.BillingState if billing else None,
+        billing_postal_code=billing.BillingPostalCode if billing else None,
+        billing_country_id=int(billing.BillingCountryID) if billing and billing.BillingCountryID else None,
+    )
+
+
+@router.put(
+    "/{company_id}/details",
+    response_model=CompanySettingsDetailsResponse,
+    summary="Update company details",
+    description="Update company + billing details (Story 5.7, company admin)",
+)
+async def put_company_settings_details(
+    company_id: int,
+    body: UpdateCompanySettingsDetailsRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> CompanySettingsDetailsResponse:
+    """PUT /api/companies/{id}/details — update company + billing."""
+    require_company_admin_for_company(current_user, company_id)
+    company = db.get(Company, company_id)
+    if not company or company.IsDeleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    # Update Company fields
+    if body.display_name is not None:
+        company.CustomDisplayName = body.display_name
+        company.DisplayNameSource = "Custom"
+    if body.legal_entity_name is not None:
+        company.LegalEntityName = body.legal_entity_name
+    if body.company_name is not None:
+        company.CompanyName = body.company_name
+    if body.abn is not None:
+        company.ABN = body.abn
+    if body.acn is not None:
+        company.ACN = body.acn
+    if body.phone is not None:
+        company.Phone = body.phone
+    if body.email is not None:
+        company.Email = body.email
+    if body.website is not None:
+        company.Website = body.website
+    if body.country_id is not None:
+        company.CountryID = body.country_id
+    company.UpdatedBy = current_user.user_id
+    company.UpdatedDate = datetime.utcnow()
+    # Billing: get or create
+    billing = db.execute(
+        select(CompanyBillingDetails).where(
+            CompanyBillingDetails.CompanyID == company_id,
+            CompanyBillingDetails.IsDeleted == False,
+        )
+    ).scalar_one_or_none()
+    if not billing:
+        billing = CompanyBillingDetails(
+            CompanyID=company_id,
+            BillingContactName=body.billing_contact_name,
+            BillingEmail=body.billing_email,
+            BillingPhone=body.billing_phone,
+            BillingAddressLine1=body.billing_address_line1,
+            BillingAddressLine2=body.billing_address_line2,
+            BillingCity=body.billing_city,
+            BillingState=body.billing_state,
+            BillingPostalCode=body.billing_postal_code,
+            BillingCountryID=body.billing_country_id,
+            CreatedBy=current_user.user_id,
+        )
+        db.add(billing)
+    else:
+        if body.billing_contact_name is not None:
+            billing.BillingContactName = body.billing_contact_name
+        if body.billing_email is not None:
+            billing.BillingEmail = body.billing_email
+        if body.billing_phone is not None:
+            billing.BillingPhone = body.billing_phone
+        if body.billing_address_line1 is not None:
+            billing.BillingAddressLine1 = body.billing_address_line1
+        if body.billing_address_line2 is not None:
+            billing.BillingAddressLine2 = body.billing_address_line2
+        if body.billing_city is not None:
+            billing.BillingCity = body.billing_city
+        if body.billing_state is not None:
+            billing.BillingState = body.billing_state
+        if body.billing_postal_code is not None:
+            billing.BillingPostalCode = body.billing_postal_code
+        if body.billing_country_id is not None:
+            billing.BillingCountryID = body.billing_country_id
+        billing.UpdatedBy = current_user.user_id
+    db.commit()
+    db.refresh(company)
+    db.refresh(billing) if billing else None
+    return CompanySettingsDetailsResponse(
+        company_id=int(company.CompanyID),
+        display_name=_effective_display_name(company),
+        legal_entity_name=company.LegalEntityName,
+        company_name=str(company.CompanyName),
+        custom_display_name=company.CustomDisplayName,
+        display_name_source=str(company.DisplayNameSource or "User"),
+        abn=company.ABN,
+        acn=company.ACN,
+        phone=company.Phone,
+        email=company.Email,
+        website=company.Website,
+        country_id=int(company.CountryID),
+        industry_id=int(company.IndustryID) if company.IndustryID else None,
+        billing_contact_name=billing.BillingContactName if billing else None,
+        billing_email=billing.BillingEmail if billing else None,
+        billing_phone=billing.BillingPhone if billing else None,
+        billing_address_line1=billing.BillingAddressLine1 if billing else None,
+        billing_address_line2=billing.BillingAddressLine2 if billing else None,
+        billing_city=billing.BillingCity if billing else None,
+        billing_state=billing.BillingState if billing else None,
+        billing_postal_code=billing.BillingPostalCode if billing else None,
+        billing_country_id=int(billing.BillingCountryID) if billing and billing.BillingCountryID else None,
+    )
 
 
 # =============================================================================

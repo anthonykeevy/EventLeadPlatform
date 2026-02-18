@@ -19,6 +19,12 @@ export { CompanySettingsLayout } from './components/CompanySettingsLayout'
 // Pages
 export { DashboardPage } from './pages/DashboardPage'
 export { FormBrandingDefaultsPage } from './pages/FormBrandingDefaultsPage'
+export { CompanyDetailsPage } from './pages/CompanyDetailsPage'
+export { FormApprovalWorkflowPage } from './pages/FormApprovalWorkflowPage'
+export { AssetsImagesPage } from './pages/AssetsImagesPage'
+export { AssetsTermsPage } from './pages/AssetsTermsPage'
+export { AssetsDocumentsPage } from './pages/AssetsDocumentsPage'
+export { AssetsVideoPage } from './pages/AssetsVideoPage'
 export { CompanyImagesPage } from './pages/CompanyImagesPage'
 export { CompanyTeamPage } from './pages/CompanyTeamPage'
 

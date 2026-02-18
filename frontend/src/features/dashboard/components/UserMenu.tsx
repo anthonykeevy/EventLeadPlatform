@@ -2,11 +2,12 @@
  * User Menu Component for Dashboard
  * Provides user settings and theme customization access
  * Story 2.6: Added Admin Dashboard access for system admins
+ * Story 5.7: Company Settings link (hide if user is not admin for active company)
  */
 
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User as UserIcon, LogOut, Settings, Palette, ChevronDown, Shield } from 'lucide-react'
+import { User as UserIcon, LogOut, Settings, Palette, ChevronDown, Shield, Building2 } from 'lucide-react'
 import { useAuth } from '../../auth'
 import { ThemeSettingsPopup } from './ThemeSettingsPopup'
 import { AccountSettingsPopup } from '../../preferences/components/AccountSettingsPopup'
@@ -18,9 +19,11 @@ interface UserMenuProps {
     email: string
     role?: string  // Story 2.6: System role (e.g., 'system_admin') or company role
   }
+  /** Story 5.7: Show Company Settings link when user is admin for active company */
+  companySettingsLink?: string | null
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ user, companySettingsLink }: UserMenuProps) {
   const { logout } = useAuth()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
@@ -120,6 +123,20 @@ export function UserMenu({ user }: UserMenuProps) {
                   </button>
                   <div className="border-t border-gray-100 my-2"></div>
                 </>
+              )}
+
+              {/* Company Settings - Story 5.7: Only show when admin for active company */}
+              {companySettingsLink && (
+                <button
+                  onClick={() => {
+                    navigate(companySettingsLink)
+                    setIsOpen(false)
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Building2 className="w-4 h-4 text-gray-500" />
+                  <span>Company Settings</span>
+                </button>
               )}
 
               {/* Theme Settings */}

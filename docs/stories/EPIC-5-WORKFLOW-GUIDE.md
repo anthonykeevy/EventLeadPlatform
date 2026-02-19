@@ -1,28 +1,32 @@
-# Epic 5 Workflow Guide - BMAD + Ralf Integration
+# Epic 5 Workflow Guide — BMAD Method (No Ralf)
 
-**Current Focus:** Story 5.6 - Publish Request Workflow (Epic 5)  
-**Story 5.1 Status:** ✅ Complete (2026-02-13) — Merged to master  
-**Story 5.2 Status:** ✅ Complete (2026-02-16) — Merged to master (#32)  
-**Story 5.3 Status:** ✅ Complete (2026-02-16) — Single-session; merged to master (#42)  
-**Story 5.4 Status:** ✅ Complete (2026-02-16) — Single-session; merged to master (#43)  
-**Story 5.5 Status:** ✅ Complete (2026-02-16) — Single-session; merged to master  
+**Workflow:** BMAD method only. SM agent prepares Story, context, and UAT; SM reviews artifacts; Dev agent builds via single-session prompt. No Ralf decomposition or task cycle.
+
+**Current Focus:** Story 5.8 - Admin Review & Publish + Activation (Epic 5)  
+**Story 5.1–5.5 Status:** ✅ Complete — Merged to master  
+**Story 5.6 Status:** ✅ Complete (2026-02-17) — Publish Request Workflow  
+**Story 5.7 Status:** ✅ Complete (2026-02-18) — Company Settings Hub  
+**Story 5.8 Status:** ⏳ Ready — Context and UAT created; SM review pending  
 
 ---
 
-## ⚡ Single-Session Story Workflow (Story 5.3 validated)
+## ⚡ Epic 5 Story Workflow (BMAD — Validated Stories 5.3–5.7)
 
-**When:** Backend-heavy stories with clear DCs; schema/API/tests; limited or no frontend. Story 5.3 proved this path works.
+**When:** All Epic 5 stories now use this path. No Ralf decomposition.
 
 | Step | Human | Agent |
 |------|-------|-------|
-| 1 | Run `new-story.ps1`; open Story worktree in Cursor | — |
-| 2 | Paste single-session Dev prompt (see `docs/stories/STORY-5.3-SINGLE-SESSION-DEV-PROMPT.md`) | @dev implements full story; runs automated UAT; records evidence in STORY-5.x-UAT-RESULTS.md |
-| 3 | Run migration (`alembic upgrade head`) if migration created | — |
-| 4 | Manual UAT (Form Builder save/load, etc.); verify evidence | — |
-| 5 | Run retro; update EPIC-5-WORKFLOW-GUIDE | — |
-| 6 | Merge Story PR to master | — |
+| 1 | PM approves scope; PM decisions doc finalized | — |
+| 2 | — | **@sm** prepares Story, context (XML), UAT guide; SM reviews and suggests improvements |
+| 3 | Run `new-story.ps1`; open Story worktree in Cursor | — |
+| 4 | Create STORY-5.x-SINGLE-SESSION-DEV-PROMPT.md (copy from 5.7/5.8 template, adapt scope) | — |
+| 5 | Paste Dev prompt into new chat | **@dev** implements full story; runs automated checks; records evidence |
+| 6 | Run migration (`alembic upgrade head`) if migration created | — |
+| 7 | Manual UAT per STORY-5.x-UAT-TEST-GUIDE.md; verify evidence | — |
+| 8 | Merge Story PR to master | — |
+| 9 | (Optional) Retro; update EPIC-5-WORKFLOW-GUIDE | — |
 
-**Artifacts:** `docs/stories/STORY-5.x-SINGLE-SESSION-DEV-PROMPT.md` (copy from 5.3, adapt scope). Human runs migrations only. See `docs/stories/STORY-5.3-RETRO.md` and `docs/tasks/5.3/LESSONS-LEARNED.md`.
+**Artifacts:** `story-5.x.md`, `story-context-5.x.xml`, `STORY-5.x-UAT-TEST-GUIDE.md`, `STORY-5.x-PM-DECISIONS.md`, `STORY-5.x-SINGLE-SESSION-DEV-PROMPT.md`
 
 ---
 
@@ -34,9 +38,8 @@ This workflow follows the platform-wide Git rules in:
 **Rules:**
 - **Never work directly on `master`.**
 - **One Draft PR per Story** (opened immediately) → `master`
-- **One PR per Task (Txx)** → into the Story branch
+- **Implementation on Story branch** — no task branches; Dev works directly on story branch
 - **Push daily:** no multi-day local-only changes
-- **Integrator step is required:** task PR merges + conflict resolution + integration checks are explicit work (not an afterthought)
 
 ---
 
@@ -85,9 +88,9 @@ The Epic 5 kickoff path is:
 
 - (Optional) Phase -1 UX Ideation → output: `docs/stories/EPIC-5-UX-IDEATION.md`
 - Phase 0 Story bootstrap (branch/worktree + Draft PR)
-- Phase 1 Story artifacts (SM)
-- Phase 2 Decompose into tasks (Ralf-SM)
-- Phase 3 Execute tasks (Ralf-dev/uat/retro + integrator merges)
+- Phase 1 Story artifacts (SM prepares Story, context, UAT — SM reviews and suggests)
+- Phase 2 Dev single-session prompt (copy STORY-5.x-SINGLE-SESSION-DEV-PROMPT.md; paste into new chat with @dev)
+- Phase 3 Human: migrations, UAT, merge PR
 
 ---
 
@@ -199,7 +202,7 @@ Requirements:
 
 Deliverables:
 - Story 5.1 artifacts created/updated
-- Ready handoff to @ralf-sm for decomposition
+- Ready for Dev single-session prompt (no Ralf decomposition)
 ```
 
 ---
@@ -220,190 +223,53 @@ Deliverables:
 
 ---
 
-## 📋 Phase 1: Story 5.2 Artifacts (Ready)
+## 📋 Phase 1: Story 5.8 — SM Review (Current)
 
-Story 5.2 artifacts are **already created** (scope finalized 2026-02-13):
+Story 5.8 artifacts are **ready** (PM approved 2026-02-18):
 
-- `docs/stories/story-5.2.md` — Full scope including Form Builder Init API, component catalog, single payload
-- `docs/stories/story-context-5.2.xml` — Context file for ralf-sm decomposition (directive: ralf-sm creates full task breakdown; database first)
-- `docs/tasks/5.2/TASK-PLAN.md` — Draft; ralf-sm will create/replace during Phase 2 decomposition
-- `docs/tasks/5.2/T00-*.md`, `T06-*.md` — Design-reference specs; ralf-sm uses as input, creates own task specs
+- `docs/stories/story-5.8.md` — Admin Review & Publish + Activation
+- `docs/stories/story-context-5.8.xml` — Context for Dev
+- `docs/stories/STORY-5.8-UAT-TEST-GUIDE.md` — UAT coverage
+- `docs/stories/STORY-5.8-PM-DECISIONS.md` — PM decisions
 
-**Optional:** If SM updates are needed, use:
-
-```markdown
-@sm.mdc Please create/update Story 5.2 artifacts. Story file and context file exist at docs/stories/story-5.2.md and docs/stories/story-context-5.2.xml. Add or refine STORY-5.2-UAT-TEST-GUIDE.md if needed. Scope is finalized per docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md and docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md.
-```
+**SM review complete:** See `docs/stories/STORY-5.8-SM-REVIEW-SUGGESTIONS.md` for suggestions. Incorporate as needed; then create STORY-5.8-SINGLE-SESSION-DEV-PROMPT.md and hand off to @dev.
 
 ---
 
-## 📋 Phase 2: Story Decomposition (Ralf-SM - Main Chat)
+## 📋 Phase 2: Dev Single-Session Prompt (No Ralf)
 
-**⚠️ CRITICAL — Worktree / Branch requirement (2026-02-13):**
+**Epic 5 uses BMAD method only.** No Ralf decomposition or task cycle. Dev implements the full story in one session.
 
-Decomposition outputs (`TASK-PLAN.md`, `Txx-*.md`, `STATUS.md`, `LESSONS-LEARNED.md`) **must** be created in the **Story worktree** on the **Story branch**. If Ralf-SM runs in the main repo on `master` or another branch (e.g. `chore/lint-resolution`), task worktrees created from the story branch will **not** see the task specs.
+**Steps:**
+1. Create `docs/stories/STORY-5.x-SINGLE-SESSION-DEV-PROMPT.md` — copy from `STORY-5.7-SINGLE-SESSION-DEV-PROMPT.md` or `STORY-5.8` template, adapt scope.
+2. Open Story worktree in Cursor (e.g. `C:\wt\elp\story-epic5-5.8-...`).
+3. Paste the Dev prompt into a **new chat** with @dev.
+4. Dev implements, runs checks, records evidence. Human runs migrations; manual UAT; merge PR.
 
-**Before invoking Ralf-SM:**
-1. Open the Story worktree in Cursor (e.g. `C:\wt\elp\story-epic5-5.2-company-form-defaults`).
-2. Confirm branch: `git branch --show-current` → Story branch (e.g. `story/epic5-5.2-company-form-defaults`).
-3. Run `@ralf-sm *decompose-story` in that window.
-4. Commit and push the decomposition from the Story worktree **before** creating task branches/worktrees.
-
-**If decomposition was written to the wrong branch:** Copy the `docs/tasks/<story>/` files to the Story worktree, remove any obsolete task specs, `git add`, commit, push. Do **not** merge from the wrong branch into story (it mixes unrelated changes).
+**Template:** See `docs/stories/STORY-5.7-SINGLE-SESSION-DEV-PROMPT.md` for structure. Story 5.8 prompt to be created after SM review.
 
 ---
 
-### Story 5.1 Prompt (`@ralf-sm`)
+### Story 5.8 Dev Prompt (create after SM review)
 
-```markdown
-@ralf-sm
-
-*decompose-story
-
-Git discipline (mandatory):
-- **Run in the Story worktree** with Story branch checked out. Do NOT run in main repo on master/chore branches — task worktrees would miss the specs.
-- Confirm the active Story branch exists and is pushed (do not work on `master`).
-- Each task MUST be implemented on a `task/<story>/<Txx>-<slug>` branch with a PR into the Story branch.
-- Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
-
-Inputs:
-- Story ID: 5.1
-- Story file: `docs/stories/story-5.1.md`
-- Context file: `docs/stories/story-context-5.1.xml`
-- References:
-  - `docs/prd.md`
-  - `docs/stories/EPIC-5-STATUS.md`
-
-Output requirements:
-1. Create `docs/tasks/5.1/TASK-PLAN.md`
-2. Create first task spec `docs/tasks/5.1/T01-*.md`
-3. Create placeholder specs for remaining tasks
-4. Initialize `docs/tasks/5.1/LESSONS-LEARNED.md`
-5. Create/update `docs/tasks/5.1/STATUS.md` (current task = **T01** initially)
-```
-
-### Story 5.2 Prompt (`@ralf-sm`)
-
-```markdown
-@ralf-sm
-
-*decompose-story
-
-Git discipline (mandatory):
-- **Run in the Story worktree** (e.g. C:\wt\elp\story-epic5-5.2-company-form-defaults) with Story branch checked out. Do NOT run in main repo on master/chore branches — task worktrees would miss the specs.
-- Confirm the active Story branch exists and is pushed (do not work on `master`).
-- Each task MUST be implemented on a `task/5.2/Txx-<slug>` branch with a PR into the Story branch.
-- Follow: `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
-
-Inputs:
-- Story ID: 5.2
-- Story file: `docs/stories/story-5.2.md`
-- Context file: `docs/stories/story-context-5.2.xml`
-- References:
-  - `docs/prd.md`
-  - `docs/stories/EPIC-5-STATUS.md`
-  - `docs/stories/STORY-5.2-DATA-SCHEMA.md`
-  - `docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md`
-  - `docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md`
-
-**Critical:** Ralf-SM creates the full task breakdown from the story and context. Do NOT feel constrained by any pre-existing TASK-PLAN or task specs. The context file defines: (1) database task must be first (schema + seeds for defaults + component catalog), (2) reference docs describe approved design — use them to inform tasks but you decide structure, granularity, and dependencies.
-
-Output requirements:
-1. Create `docs/tasks/5.2/TASK-PLAN.md` from scratch (your decomposition)
-2. Create full task specs for each task in your plan (first task = database). Use naming: `T{id}-{slug}.md` (e.g. T03-form-builder-init-api.md).
-3. Initialize `docs/tasks/5.2/LESSONS-LEARNED.md` if missing
-4. Create/update `docs/tasks/5.2/STATUS.md` (current task = your first task — database)
-
-**Task doc naming:** All task docs follow `T{id}-{slug}.{type}.md` (see Phase 3 "Task document naming").
-```
+Copy structure from `docs/stories/STORY-5.7-SINGLE-SESSION-DEV-PROMPT.md`. Adapt for Story 5.8 scope (approval options, unpublish modes, activation windows, hide approval UI). Paste into new chat with @dev.
 
 ---
 
-## ✅ Phase 3: Task Execution Cycle
+## ✅ Phase 3: Human Follow-up (Migrations, UAT, Merge)
 
-### Task document naming (mandatory)
+After @dev implements the story:
 
-Task-related docs MUST use the pattern `T{id}-{slug}.{type}.md`:
+| Step | Human action |
+|------|--------------|
+| 1 | Run `alembic upgrade head` if migration created (agents prepare; human executes) |
+| 2 | Run manual UAT per STORY-5.x-UAT-TEST-GUIDE.md; verify evidence in STORY-5.x-UAT-RESULTS.md |
+| 3 | Merge Story PR to master |
+| 4 | (Optional) Retro; update EPIC-5-WORKFLOW-GUIDE |
 
-| Document | Filename pattern | Example |
-|----------|------------------|---------|
-| Spec | `T{id}-{slug}.md` | `T02-defaults-api-crud-merge-resolver.md` |
-| UAT checklist | `T{id}-{slug}.uat.md` | `T02-defaults-api-crud-merge-resolver.uat.md` |
-| UAT results | `T{id}-{slug}.uat-results.md` | `T02-defaults-api-crud-merge-resolver.uat-results.md` |
-| Retro | `T{id}-{slug}.retro.md` | `T02-defaults-api-crud-merge-resolver.retro.md` |
+### Dev commit discipline (single-session)
 
-**Do not use:** `T02-uat-results.md`, `T02.retro.md`, or any variant missing the task slug.
-
----
-
-Use the hardened task cycle (worktrees + PR base checks + UAT + retro + push discipline) from:
-- `docs/stories/EPIC-3-WORKFLOW-GUIDE_UPDATED.md` (Phase 3 section)
-
-### Task kickoff (after worktree creation) — MANDATORY
-
-After running `new-task.ps1` to create the task branch and worktree, **before** starting implementation or creating the PR:
-
-1. **Open the task worktree** in Cursor (e.g. `C:\wt\elp\task-5.1-T07-data-url-guard-and-cleanup`).
-
-2. **Update the task spec** to In Progress:
-   - Edit `docs/tasks/<story>/<Txx>-<slug>.md`
-   - Set `**Status:**` from `⏸️ Pending` to `🔄 In Progress`
-
-3. **Update STATUS.md**:
-   - Edit `docs/tasks/<story>/STATUS.md`
-   - Set `**Current Task:**` to `Txx (<task-title>)`
-
-4. **Commit + push** these doc updates:
-   ```powershell
-   git add docs/tasks/<story>/<Txx>-<slug>.md docs/tasks/<story>/STATUS.md
-   git commit -m "docs: Txx kickoff - status In Progress"
-   git push origin task/<story>/<Txx>-<slug>
-   ```
-
-5. **Create the PR** (GitHub requires at least one commit):
-   ```powershell
-   gh pr create --base "story/epic5-5.1-background-asset-management" --head "task/5.1/<Txx>-<slug>" --title "<StoryId>: <Txx> - <slug>" --body "Implements <Txx> for story <StoryId>. See docs/tasks/<StoryId>/ for completion + UAT."
-   ```
-   Or re-run: `./scripts/git/new-task.ps1 ... -CreateWorktree -CreatePR` (idempotent; will create PR when commits exist).
-
-**Why:** The PR cannot be created with zero commits. Updating status creates the first commit; the PR then has a meaningful base for the implementation diff.
-
-### Single-prompt full cycle (T05 learning – recommended)
-
-After T05, the agent stopped after retro without attempting UAT, closeout commit, or merge. Use this **single prompt** to run the full Phase 3 cycle in one go:
-
-```markdown
-@ralf-dev
-
-*run-task
-
-**FULL CYCLE (do not stop until complete):** Implement → Automated verification → UAT attempt → Retro → Commit all → Push → Merge PR.
-
-Scope + ACs are pre-approved; proceed end-to-end without waiting for interactive confirmations.
-
-Task Spec: docs/tasks/<story>/<TaskBase>.md
-
-**Mandatory steps (in order):**
-1. Implement per task spec.
-2. Automated verification: run lint/build/tests for touched areas; record evidence in completion note.
-3. UAT: Open `${TaskBase}.uat.md` (e.g. T05-shared-resolver-parity.uat.md). For each step:
-   - If automatable (e.g. file existence check, API call, DevTools/browser automation): execute it and record result.
-   - If manual-only: record "Human verification: [step] – not executed by agent."
-   - Create/update `${TaskBase}.uat-results.md` with PASS/FAIL and evidence.
-4. Retro: Run @ralf-retro *run-retro (or equivalent); update `${TaskBase}.retro.md` and LESSONS-LEARNED.md.
-5. Commit: Run `git status`. Commit implementation first (feat(Txx): ...), then closeout (docs: completion, uat-results, retro, Txx-*.md status, TASK-PLAN.md, STATUS.md). Push.
-6. Merge: In the task worktree, run `gh pr merge --squash` (merges the PR for the current branch). If merge fails (e.g. "review required"), output the exact command for the human to run.
-
-**Rules:** PR must target Story branch. Before closeout: working tree clean (implementation committed). Cap long build output.
-```
-
-**Example (T05):**
-```markdown
-Task Spec: docs/tasks/5.1/T05-shared-resolver-parity.md
-```
-*(Replace with your task's spec path.)*
-
-**Caveat:** If the task spec explicitly requires **human UAT** (e.g. DB migration, high-risk UI flow), complete through step 5 (push), then output: "Human: execute `${TaskBase}.uat.md`, then run `gh pr merge --squash` to merge."
+The Dev prompt (STORY-5.7-SINGLE-SESSION-DEV-PROMPT.md) instructs @dev: implementation commits first; closeout (UAT results, docs) in separate commit; verify clean tree before push.
 
 ### Epic 5 automation deltas (reduce human steps)
 
@@ -490,7 +356,7 @@ git push origin <story-branch>
 ---
 
 *Epic 5 Workflow Guide - created for Epic 5 cycle start*  
-*Last Updated: 2026-02-16*
+*Last Updated: 2026-02-18*
 
 ---
 
@@ -507,4 +373,5 @@ git push origin <story-branch>
 | 2026-02-13 | Added "CRITICAL — Worktree/Branch requirement" for Phase 2 (Ralf-SM decomposition) | Ralf-SM ran in main repo on chore branch; decomposition was not on story branch; task worktrees lacked specs. Fix: run decomposition in Story worktree, commit there before creating task branches |
 | 2026-02-16 | Added "Single-Session Story Workflow" (Story 5.3 validated) | Story 5.3 delivered in one chat without Ralf decomposition. Backend-heavy stories with clear DCs can use single-session prompt; human runs migrations, manual UAT, retro, merge. See STORY-5.3-RETRO, docs/tasks/5.3/LESSONS-LEARNED |
 | 2026-02-16 | Stories 5.3, 5.4, 5.5 complete; focus → 5.6 | All single-session stories merged to master. Next: Publish Request Workflow |
+| 2026-02-18 | **BMAD method only; no Ralf** | Stories 5.6, 5.7 delivered via SM prepare/review + Dev single-session prompt. Ralf decomposition and task cycle removed. SM prepares Story, context, UAT; SM reviews; Dev builds in one session. Create STORY-5.x-SINGLE-SESSION-DEV-PROMPT; paste into @dev. |
 

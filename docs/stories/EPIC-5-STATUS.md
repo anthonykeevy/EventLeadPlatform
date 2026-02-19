@@ -242,10 +242,11 @@ Epic 5 is complete when:
 | **5.3** | Schema + Validation Alignment | Bring backend definition schema in line with builder output; prevent drift | ✅ **Complete 2026-02-16** — Single-session; merged to master (#42). |
 | **5.4** | Shared Resolver Parity | Single resolver for defaults/assets used by preview + public + review | ✅ **Complete 2026-02-16** — Single-session; merged to master (#43). |
 | **5.5** | Preview/Production Governance Foundations | Toggle preview vs production + test counter + readiness badges | ✅ **Complete 2026-02-16** — Single-session; merged to master. |
-| **5.6** | Publish Request Workflow | Company User requests publish; admin receives review queue/link | **Next** — Surfaces: Builder modal + Dashboard queue. |
-| **5.7** | Admin Review & Publish + Activation | Admin review, publish/unpublish, stable URL/token + activation windows | Surfaces: dashboard + review screen + public runtime. |
-| **5.8** | Hardening + UAT | End-to-end UAT across roles + regressions | Includes fix stories as needed. |
-| **5.9** | UX Consolidation (optional) | Minimal “workspace” consolidation to reduce navigation friction | Only if needed to ship Epic 5 goals. |
+| **5.6** | Publish Request Workflow | Company User requests publish; admin receives review queue/link | ✅ **Complete 2026-02-17** — Merged to master; FormReviewPage, approve/reject. |
+| **5.7** | Company Settings Hub | Company details, Form Approval Workflow, assets (images, terms) | ✅ **Complete 2026-02-18** — Merged to master. |
+| **5.8** | Admin Review & Publish + Activation | Stable URL on publish, unpublish, published link visibility, activation windows | **Next** — Builds on 5.6 review screen. |
+| **5.9** | Hardening + UAT | End-to-end UAT across roles + regressions | Includes fix stories as needed. |
+| **5.10** | UX Consolidation (optional) | Minimal “workspace” consolidation to reduce navigation friction | Only if needed to ship Epic 5 goals. |
 
 ---
 
@@ -256,6 +257,8 @@ Items added during Epic 5 planning; not in current story scope.
 | Item | Description | Source |
 |------|-------------|--------|
 | **Global Defaults screen** | Administration Settings page for Global Form Defaults — mirror of Company Defaults page (Global Properties controls + Toolbox visual guide). System Admin only. | PM review 2026-02-13 (Story 5.2) |
+| **AI-Assisted Form Building** | AI agent generates DefinitionJSON from natural-language prompt; static validator (schema + collision/boundary) returns feedback; user refines in Form Builder. See `docs/AI-FORM-BUILDING-IDEA.md`. | PM assessment 2026-02-18 — consider after Epic 5 |
+| **User Preference Centre (Communication)** | Platform-wide page for notification and communication preferences. Communication is essential for engagement; handle notification fatigue delicately. **MVP:** In-app notifications. Add page to Profile dropdown; build incrementally as we add processes (publish requested, published, unpublish reminders, team invites, etc.). **Email:** Platform already uses email (login, onboarding, approval requests). Use Mailhog until launch to avoid paid email service; then switch to SendGrid/Azure. Cross-epic: relevant to Epic 4 (Team Collaboration), Epic 5 (publish flow), and future features. | PM 2026-02-18 — Story 5.8 notification research |
 
 **Note:** APIs for Form Builder defaults and Component Catalog (multi-country, multi-company) are now **in scope** for Story 5.2. Form Builder Init API delivers single payload (defaults + components + DefinitionJSON skeleton) per `docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md`.
 
@@ -272,5 +275,5 @@ Items added during Epic 5 planning; not in current story scope.
 ---
 
 *Epic 5 Status Document - Drafted for approval*  
-*Last Updated: 2026-02-16*
+*Last Updated: 2026-02-18 — Stories 5.6, 5.7 complete; 5.8 next*
 

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 5.8 - Admin Review & Publish + Activation
+     For SM review and Dev single-session implementation.
+     PM Decisions: docs/stories/STORY-5.8-PM-DECISIONS.md -->
+<story-context>
+  <story>
+    <id>5.8</id>
+    <title>Admin Review &amp; Publish + Activation</title>
+    <epic>5</epic>
+    <epic-title>Form Builder Readiness &amp; Review &amp; Publishing</epic-title>
+    <domain>Form Builder, Dashboard, Publish Workflow, Public Runtime</domain>
+    <status>Ready</status>
+    <prerequisite>Story 5.6 (Publish Request Workflow) complete</prerequisite>
+  </story>
+
+  <principle>Company Admins publish and unpublish forms with stable public URLs. Forms respect activation windows (event dates) and unpublish modes. When RequirePublishApproval is false, approval workflow UI is hidden; all users publish directly.</principle>
+
+  <scope-boundary>
+    <in-scope>
+      <item>FormReviewPage: two approval options — Approve only (ready to publish later) and Approve &amp; Publish (immediate)</item>
+      <item>On approve-and-publish or direct publish: auto-create FormPublicLink PRODUCTION; FormVersion.IsActive; stable token (one per form)</item>
+      <item>Unpublish modes: MANUAL | EVENT_END | SCHEDULED; Form.UnpublishMode, Form.ScheduledUnpublishDate; EVENT_END from Event.EndDate</item>
+      <item>Manual unpublish: form → UNPUBLISHED; FormPublicLink.IsActive=false</item>
+<item>Unpublished form URL: dedicated page (no 404); message + "Request admin to publish again" CTA; CTA → in-app notification to all Company Admins</item>
+      <item>Unpublish action: FormReviewPage (published form), Event Dashboard form card, form detail</item>
+      <item>Dashboard: published forms show production URL + copy; "Will unpublish on [date]" when scheduled/event-end</item>
+      <item>In-app reminders: Dashboard notice; queue items 7d/1d/on if available; email deferred</item>
+      <item>Activation windows: event-based (Event.StartDate–EndDate); public resolver shows "event ended" when outside window</item>
+      <item>When RequirePublishApproval=false: hide PendingPublishRequestsCard, Request Publish flow, FormReviewPage/review queue links; direct Publish for all users</item>
+      <item>Direct publish (admin, no request): same flow as approve-and-publish; subject to test threshold</item>
+    </in-scope>
+    <out-of-scope>
+      <item>Email notifications for publish/unpublish — Communication/preference-center workstream</item>
+      <item>Multiple production links per form</item>
+      <item>Payment/Stripe gate (Epic 6)</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <done-criteria>
+    <dc id="1">FormReviewPage: Approve only + Approve &amp; Publish options</dc>
+    <dc id="2">On approve-and-publish / direct publish: FormPublicLink PRODUCTION created; FormVersion.IsActive; public URL works</dc>
+    <dc id="3">Unpublish modes: Manual, Event end date, Schedule; Form.UnpublishMode + ScheduledUnpublishDate</dc>
+    <dc id="4">Manual unpublish: form UNPUBLISHED; link deactivated. Unpublished URL: dedicated page with CTA → notify Company Admins</dc>
+    <dc id="5">Dashboard: published URL + copy; "Will unpublish on [date]" badge</dc>
+    <dc id="6">FormReviewPage (published): production link + copy; Unpublish button; unpublish mode/date</dc>
+    <dc id="7">Direct publish uses same flow as approve-and-publish</dc>
+    <dc id="8">In-app reminders for scheduled unpublish (Dashboard; queue if available)</dc>
+    <dc id="9">Activation windows: event-based; public resolver "event ended" when outside window</dc>
+    <dc id="10">When RequirePublishApproval=false: hide approval UI; direct publish for all</dc>
+    <dc id="11">UAT guide executed and marked PASSED</dc>
+    <dc id="12">Story PR merged to master</dc>
+  </done-criteria>
+
+  <pm-decisions-ref>docs/stories/STORY-5.8-PM-DECISIONS.md</pm-decisions-ref>
+
+  <existing-models>
+    <model name="Form">EventID; add UnpublishMode, ScheduledUnpublishDate</model>
+    <model name="FormVersion">IsActive; set on publish</model>
+    <model name="FormPublicLink">One PRODUCTION per form; IsActive; create on publish, deactivate on unpublish</model>
+    <model name="FormPublishRequest">Approve only = approved, form Ready to publish; Approve &amp; Publish = approved + publish</model>
+    <model name="ref.FormStatus">Add UNPUBLISHED; DRAFT, PENDING_REVIEW, PUBLISHED, UNPUBLISHED</model>
+    <model name="Event">StartDate, EndDate — activation window; EndDate for EVENT_END unpublish</model>
+    <model name="CompanyFormTestConfig">RequirePublishApproval — when false, hide approval UI</model>
+  </existing-models>
+
+  <references>
+    <ref path="docs/stories/story-5.8.md" purpose="Story file" />
+    <ref path="docs/stories/STORY-5.8-PM-DECISIONS.md" purpose="PM decisions — source of truth" />
+    <ref path="docs/stories/story-5.6.md" purpose="Publish request flow, FormReviewPage" />
+    <ref path="backend/modules/forms/public_form_router.py" purpose="Public resolver; activation window check" />
+    <ref path="backend/modules/forms/public_links_router.py" purpose="FormPublicLink CRUD" />
+    <ref path="frontend/src/features/forms/pages/FormReviewPage.tsx" purpose="Add Approve only, Approve &amp; Publish; Unpublish" />
+    <ref path="frontend/src/features/dashboard/components/PendingPublishRequestsCard.tsx" purpose="Hide when RequirePublishApproval=false" />
+  </references>
+</story-context>

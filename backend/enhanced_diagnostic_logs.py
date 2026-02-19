@@ -71,9 +71,11 @@ class DiagnosticLogger:
             """)
             return [dict(row._mapping) for row in conn.execute(query).fetchall()]
     
-    def get_recent_application_errors(self) -> List[Dict]:
-        """Get recent application errors with stack traces"""
+    def get_recent_application_errors(self, path_filter: Optional[str] = None) -> List[Dict]:
+        """Get recent application errors. path_filter: only errors where Path LIKE %path_filter%."""
         with self.engine.connect() as conn:
+            where = "WHERE Path LIKE :pf" if path_filter else ""
+            params = {"pf": f"%{path_filter}%"} if path_filter else {}
             query = text(f"""
                 SELECT TOP {self.limit}
                     ApplicationErrorID,
@@ -88,10 +90,10 @@ class DiagnosticLogger:
                     StackTrace,
                     ExceptionType
                 FROM log.ApplicationError
-                WHERE ErrorMessage LIKE 'Error listing events%'
+                {where}
                 ORDER BY CreatedDate DESC
             """)
-            return [dict(row._mapping) for row in conn.execute(query).fetchall()]
+            return [dict(row._mapping) for row in conn.execute(query, params).fetchall()]
     
     def get_recent_api_requests(self, path_filter: Optional[str] = None) -> List[Dict]:
         """Get recent API requests with enhanced payload logging"""
@@ -522,7 +524,8 @@ def main():
     parser.add_argument("--performance-hours", "-p", type=int, default=24, help="Hours for performance metrics (default: 24)")
     parser.add_argument("--theme-requests", "-t", action="store_true", default=True, help="Show theme/profile enhancement requests (default: True)")
     parser.add_argument("--no-theme-requests", action="store_false", dest="theme_requests", help="Hide theme/profile enhancement requests")
-    parser.add_argument("--path-filter", type=str, help="Filter API requests by path pattern (e.g., 'enhancements')")
+    parser.add_argument("--path-filter", type=str, help="Filter API requests by path pattern (e.g., 'smart-search')")
+    parser.add_argument("--show-errors", action="store_true", help="Also show ApplicationErrors (filtered by --path-filter when set)")
     
     args = parser.parse_args()
     
@@ -533,6 +536,9 @@ def main():
         if args.path_filter:
             filtered_requests = diagnostic.get_recent_api_requests(path_filter=args.path_filter)
             diagnostic.print_api_requests(filtered_requests, f"API REQUESTS FILTERED BY: '{args.path_filter}'")
+            if args.show_errors:
+                app_errors = diagnostic.get_recent_application_errors(path_filter=args.path_filter)
+                diagnostic.print_application_errors(app_errors)
         else:
             diagnostic.run_full_diagnostic(request_id=args.request_id, show_theme_requests=args.theme_requests)
     except Exception as e:

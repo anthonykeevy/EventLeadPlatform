@@ -1003,13 +1003,17 @@ async def smart_company_search(
         
     except Exception as e:
         logger.error(f"Unexpected error in smart search: {e}", exc_info=True)
+        detail = {
+            "error": "SEARCH_ERROR",
+            "message": "An unexpected error occurred. Please try again or enter details manually.",
+            "fallback_url": "/companies/manual-entry"
+        }
+        if os.getenv("DEBUG") == "1" or os.getenv("APP_ENV") == "development" or os.getenv("ENVIRONMENT") == "development":
+            detail["debug_message"] = str(e)
+            detail["debug_type"] = type(e).__name__
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "error": "SEARCH_ERROR",
-                "message": "An unexpected error occurred. Please try again or enter details manually.",
-                "fallback_url": "/companies/manual-entry"
-            }
+            detail=detail
         )
 
 

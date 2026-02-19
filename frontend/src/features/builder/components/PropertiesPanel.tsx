@@ -196,7 +196,7 @@ export const PropertiesPanel: React.FC = () => {
             if (v === undefined || v === null) {
                 delete next[k as keyof StyleOverrides];
             } else {
-                next[k as keyof StyleOverrides] = v as any;
+                next[k as keyof StyleOverrides] = v as StyleOverrides[keyof StyleOverrides];
             }
         });
         return next;
@@ -572,6 +572,7 @@ export const PropertiesPanel: React.FC = () => {
                     <TermsPropertiesSection
                         props={selectedComponent.props}
                         onPropsChange={handlePropsChange}
+                        companyId={formContext?.companyId ?? null}
                     />
                 )}
 

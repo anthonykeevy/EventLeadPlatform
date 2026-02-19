@@ -88,10 +88,11 @@ export const StandardInput: React.FC<StandardInputProps> = ({
             case 'fixed':
                 return `${explicitInputWidth || 300}px`;
             case 'auto':
-            default:
+            default: {
                 // Calculate from maxLength or default
                 const smartWidth = calculateInputWidth(validation?.maxLength, computed.fontSize, 320);
                 return `${smartWidth}px`;
+            }
         }
     };
 

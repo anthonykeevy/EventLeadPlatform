@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { ChevronDown, FileCheck, ExternalLink, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, FileCheck, ExternalLink, Eye, Building2 } from 'lucide-react';
 import { PropertyTextInput } from './inputs';
 import { ComponentProps } from '../../types/builder.types';
+import { getCompanyTermsAssets } from '../../../dashboard/api/companyAssetsApi';
 
 interface TermsPropertiesSectionProps {
     props: ComponentProps;
     onPropsChange: (updates: Partial<ComponentProps>) => void;
+    companyId?: number | null;
 }
 
 /**
@@ -21,9 +23,28 @@ interface TermsPropertiesSectionProps {
 export const TermsPropertiesSection: React.FC<TermsPropertiesSectionProps> = ({
     props,
     onPropsChange,
+    companyId,
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [showPreview, setShowPreview] = useState(false);
+    const [companyHasTerms, setCompanyHasTerms] = useState(false);
+    const [termsCheckLoading, setTermsCheckLoading] = useState(false);
+
+    useEffect(() => {
+        if (!companyId || companyId <= 0) {
+            setCompanyHasTerms(false);
+            return;
+        }
+        let cancelled = false;
+        setTermsCheckLoading(true);
+        getCompanyTermsAssets(companyId)
+            .then(({ assets }) => {
+                if (!cancelled) setCompanyHasTerms((assets?.length ?? 0) > 0);
+            })
+            .catch(() => { if (!cancelled) setCompanyHasTerms(false); })
+            .finally(() => { if (!cancelled) setTermsCheckLoading(false); });
+        return () => { cancelled = true; };
+    }, [companyId]);
 
     return (
         <>
@@ -69,54 +90,67 @@ export const TermsPropertiesSection: React.FC<TermsPropertiesSectionProps> = ({
                             <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
                                 Terms Source
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                Provide either a URL (opens in new tab) or content (opens in modal).
-                                If both are provided, content takes precedence.
-                            </p>
+                            {termsCheckLoading ? (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 italic">Checking company settings…</p>
+                            ) : companyHasTerms ? (
+                                <div className="flex items-start gap-2 p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
+                                    <Building2 size={16} className="text-teal-600 dark:text-teal-400 mt-0.5 shrink-0" />
+                                    <p className="text-sm text-teal-800 dark:text-teal-200">
+                                        We will use your company terms
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                        Provide either a URL (opens in new tab) or content (opens in modal).
+                                        If both are provided, content takes precedence.
+                                    </p>
 
-                            {/* Terms URL */}
-                            <div className="mb-3">
-                                <PropertyTextInput
-                                    label="Terms URL"
-                                    value={props.termsUrl || ''}
-                                    onChange={(value) => onPropsChange({ termsUrl: value })}
-                                    placeholder="https://example.com/terms"
-                                    helpText="External link to terms page"
-                                />
-                                {props.termsUrl && (
-                                    <a
-                                        href={props.termsUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 mt-1"
-                                    >
-                                        <ExternalLink size={10} />
-                                        Open URL
-                                    </a>
-                                )}
-                            </div>
+                                    {/* Terms URL */}
+                                    <div className="mb-3">
+                                        <PropertyTextInput
+                                            label="Terms URL"
+                                            value={props.termsUrl || ''}
+                                            onChange={(value) => onPropsChange({ termsUrl: value })}
+                                            placeholder="https://example.com/terms"
+                                            helpText="External link to terms page"
+                                        />
+                                        {props.termsUrl && (
+                                            <a
+                                                href={props.termsUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 mt-1"
+                                            >
+                                                <ExternalLink size={10} />
+                                                Open URL
+                                            </a>
+                                        )}
+                                    </div>
 
-                            {/* Terms Content */}
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                                    Terms Content (HTML)
-                                </label>
-                                <textarea
-                                    value={props.termsContent || ''}
-                                    onChange={(e) => onPropsChange({ termsContent: e.target.value })}
-                                    placeholder="<h1>Terms of Service</h1><p>Your terms content here...</p>"
-                                    className="w-full h-24 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
-                                        rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200
-                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono"
-                                />
-                                <p className="text-[10px] text-gray-400 mt-1">
-                                    HTML content displayed in modal when link is clicked
-                                </p>
-                            </div>
+                                    {/* Terms Content */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                            Terms Content (HTML)
+                                        </label>
+                                        <textarea
+                                            value={props.termsContent || ''}
+                                            onChange={(e) => onPropsChange({ termsContent: e.target.value })}
+                                            placeholder="<h1>Terms of Service</h1><p>Your terms content here...</p>"
+                                            className="w-full h-24 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
+                                                rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200
+                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono"
+                                        />
+                                        <p className="text-[10px] text-gray-400 mt-1">
+                                            HTML content displayed in modal when link is clicked
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
-                        {/* Preview Button */}
-                        {(props.termsContent || props.termsUrl) && (
+                        {/* Preview Button (only when custom terms content is provided) */}
+                        {!companyHasTerms && (props.termsContent || props.termsUrl) && (
                             <button
                                 type="button"
                                 onClick={() => setShowPreview(true)}

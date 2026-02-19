@@ -42,7 +42,8 @@ export function CompanyDetailsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [id, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- toast is stable; omit to avoid re-fetch loop
+  }, [id])
 
   useEffect(() => {
     loadDetails()
@@ -65,7 +66,10 @@ export function CompanyDetailsPage() {
           companyName: enriched.companyName ?? prev.companyName,
           abn: enriched.abn ?? prev.abn,
           acn: enriched.acn ?? prev.acn,
-          billingAddressLine1: addressParts.street || prev.billingAddressLine1,
+          abnStatus: enriched.status ?? prev.abnStatus,
+          entityType: enriched.entityType ?? prev.entityType,
+          gstRegistered: enriched.gstRegistered ?? prev.gstRegistered,
+          billingAddressLine1: addressParts.street || (enriched.businessAddress ?? prev.billingAddressLine1),
           billingCity: addressParts.suburb || prev.billingCity,
           billingState: addressParts.state || prev.billingState,
           billingPostalCode: addressParts.postcode || prev.billingPostalCode,
@@ -74,7 +78,8 @@ export function CompanyDetailsPage() {
       setShowAbrModal(false)
       toast.success('Company details filled from ABR', 'Success')
     },
-    [details, toast]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- toast stable; details used for guard only
+    [details]
   )
 
   const handleSave = async () => {
@@ -88,6 +93,9 @@ export function CompanyDetailsPage() {
         companyName: details.companyName,
         abn: details.abn ?? undefined,
         acn: details.acn ?? undefined,
+        abnStatus: details.abnStatus ?? undefined,
+        entityType: details.entityType ?? undefined,
+        gstRegistered: details.gstRegistered ?? undefined,
         phone: details.phone ?? undefined,
         email: details.email ?? undefined,
         website: details.website ?? undefined,
@@ -113,7 +121,7 @@ export function CompanyDetailsPage() {
     }
   }
 
-  const updateField = (key: keyof CompanySettingsDetails, value: string | number | null | undefined) => {
+  const updateField = (key: keyof CompanySettingsDetails, value: string | number | boolean | null | undefined) => {
     setDetails((prev) => (prev ? { ...prev, [key]: value } : prev))
     setIsDirty(true)
   }
@@ -201,6 +209,47 @@ export function CompanyDetailsPage() {
               />
             </label>
             <label className="block">
+              <span className="text-sm text-gray-600 dark:text-gray-400">ACN (9 digits)</span>
+              <input
+                type="text"
+                value={details.acn ?? ''}
+                onChange={(e) => updateField('acn', e.target.value.replace(/\D/g, '').slice(0, 9))}
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+                maxLength={9}
+              />
+            </label>
+            {details.abnStatus != null && (
+              <label className="block">
+                <span className="text-sm text-gray-600 dark:text-gray-400">ABN status</span>
+                <input
+                  type="text"
+                  value={details.abnStatus}
+                  readOnly
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-600 dark:text-gray-400"
+                />
+              </label>
+            )}
+            {details.entityType != null && (
+              <label className="block">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Entity type</span>
+                <input
+                  type="text"
+                  value={details.entityType}
+                  readOnly
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-600 dark:text-gray-400"
+                />
+              </label>
+            )}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={details.gstRegistered === true}
+                onChange={(e) => updateField('gstRegistered', e.target.checked)}
+                className="rounded border-gray-300 dark:border-gray-600"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400">GST registered (from ABR)</span>
+            </label>
+            <label className="block">
               <span className="text-sm text-gray-600 dark:text-gray-400">Phone</span>
               <input
                 type="text"
@@ -216,6 +265,16 @@ export function CompanyDetailsPage() {
                 value={details.email ?? ''}
                 onChange={(e) => updateField('email', e.target.value)}
                 className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block md:col-span-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Website</span>
+              <input
+                type="url"
+                value={details.website ?? ''}
+                onChange={(e) => updateField('website', e.target.value)}
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+                placeholder="https://"
               />
             </label>
           </div>
@@ -234,6 +293,24 @@ export function CompanyDetailsPage() {
                 className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
               />
             </label>
+            <label className="block">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Billing email</span>
+              <input
+                type="email"
+                value={details.billingEmail ?? ''}
+                onChange={(e) => updateField('billingEmail', e.target.value)}
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Billing phone</span>
+              <input
+                type="text"
+                value={details.billingPhone ?? ''}
+                onChange={(e) => updateField('billingPhone', e.target.value)}
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+              />
+            </label>
             <label className="block md:col-span-2">
               <span className="text-sm text-gray-600 dark:text-gray-400">Address line 1</span>
               <input
@@ -241,6 +318,16 @@ export function CompanyDetailsPage() {
                 value={details.billingAddressLine1 ?? ''}
                 onChange={(e) => updateField('billingAddressLine1', e.target.value)}
                 className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block md:col-span-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Address line 2</span>
+              <input
+                type="text"
+                value={details.billingAddressLine2 ?? ''}
+                onChange={(e) => updateField('billingAddressLine2', e.target.value)}
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+                placeholder="Suite, level, unit"
               />
             </label>
             <label className="block">

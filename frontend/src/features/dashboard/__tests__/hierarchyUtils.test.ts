@@ -8,7 +8,6 @@ import {
   getPathToCompany,
   calculateVisibleWindow,
   buildCompanyTree,
-  flattenCompanyTree,
   findCompanyById
 } from '../utils/hierarchyUtils'
 import type { Company } from '../types/dashboard.types'

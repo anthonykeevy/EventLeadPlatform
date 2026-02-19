@@ -2,13 +2,14 @@
 
 **Epic:** Epic 5 - Form Builder Readiness + Review & Publishing  
 **Domain:** Company Settings, Dashboard, Billing, Assets  
-**Status:** In Progress
+**Status:** ✅ Complete (UAT Passed 2026-02-18)
 **Priority:** High (foundation for invoicing, governance, future settings)  
 **Created:** 2026-02-17  
 **Owner:** Developer Agent  
 **PM Decisions:** `docs/data-domains/CompanySettings/research/STORY-5.7-PM-DECISIONS.md`  
 **Context:** `docs/stories/story-context-5.7.xml`  
 **UAT Guide:** `docs/stories/STORY-5.7-UAT-TEST-GUIDE.md`  
+**Retrospective:** `docs/stories/STORY-5.7-RETROSPECTIVE.md`  
 
 ---
 
@@ -67,13 +68,13 @@
 
 ## 🎯 Done Criteria
 
-- [ ] **DC1:** Company Settings hub with navigation. Entry points: cog + Profile dropdown (active company; hide if not admin). Mobile: hamburger + slide-over (<768px).
-- [ ] **DC2:** Company Details: display name, legal name, ABN, billing; ABR popup (AU); "Enter manually" in modal and form; non-AU/individuals.
-- [ ] **DC3:** Form Approval Workflow: test threshold, Require publish approval. Help text per PM decisions.
-- [ ] **DC4:** Assets: Images (grid/list, DnD+picker, delete confirm, display name, audit trail, forms usage, image swap); Terms (separate, PDF+URL, validation, simulation); asset types IMAGE, TERMS, DOCUMENT, VIDEO.
-- [ ] **DC5:** Terms component auto-maps to company Terms when defined.
-- [ ] **DC6:** Save/feedback pattern consistent; unsaved-changes warning.
-- [ ] **DC7:** UAT guide executed and marked PASSED.
+- [x] **DC1:** Company Settings hub with navigation. Entry points: cog + Profile dropdown (active company; hide if not admin). Mobile: hamburger + slide-over (<768px).
+- [x] **DC2:** Company Details: display name, legal name, ABN, billing; ABR popup (AU); "Enter manually" in modal and form; non-AU/individuals.
+- [x] **DC3:** Form Approval Workflow: test threshold, Require publish approval. Help text per PM decisions.
+- [x] **DC4:** Assets: Images (grid/list, DnD+picker, delete confirm, display name, audit trail, forms usage, image swap); Terms (separate, PDF+URL, validation, simulation); asset types IMAGE, TERMS, DOCUMENT, VIDEO.
+- [x] **DC5:** Terms component auto-maps to company Terms when defined.
+- [x] **DC6:** Save/feedback pattern consistent; unsaved-changes warning.
+- [x] **DC7:** UAT guide executed and marked PASSED.
 - [ ] **DC8:** Story PR merged to `master`.
 
 ---
@@ -93,6 +94,8 @@
 - **PM decisions:** `docs/data-domains/CompanySettings/research/STORY-5.7-PM-DECISIONS.md`
 - **Story context:** `docs/stories/story-context-5.7.xml`
 - **UAT guide:** `docs/stories/STORY-5.7-UAT-TEST-GUIDE.md`
+- **UAT results:** `docs/stories/STORY-5.7-UAT-RESULTS.md`
+- **Retrospective:** `docs/stories/STORY-5.7-RETROSPECTIVE.md`
 - Epic scope: `docs/stories/EPIC-5-STATUS.md`
 - PRD: `docs/prd.md`
 - Data model: `docs/data-domains/CompanySettings/research/data-model-analysis.md`
@@ -101,4 +104,4 @@
 ---
 
 *Story 5.7 - Company Settings Hub (Foundation)*  
-*Last Updated: 2026-02-17*
+*Last Updated: 2026-02-18*

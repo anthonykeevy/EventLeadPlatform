@@ -56,6 +56,7 @@ from models.company_relationship import CompanyRelationship
 from models.ref.company_relationship_type import CompanyRelationshipType
 from models.company_switch_request import CompanySwitchRequest
 from models.ref.company_switch_request_status import CompanySwitchRequestStatus
+from modules.assets.asset_schemas import TermsAssetListResponse, SetDefaultTermsRequest
 from modules.form_defaults.schemas import (
     FormDefaultsResponse,
     FormDefaultsHistoryResponse,
@@ -1005,13 +1006,18 @@ async def smart_company_search(
         
     except Exception as e:
         logger.error(f"Unexpected error in smart search: {e}", exc_info=True)
+        detail = {
+            "error": "SEARCH_ERROR",
+            "message": "An unexpected error occurred. Please try again or enter details manually.",
+            "fallback_url": "/companies/manual-entry"
+        }
+        # Include exception in dev for diagnosis (AGENT-LOGGING-GUIDE)
+        if os.getenv("DEBUG") == "1" or os.getenv("APP_ENV") == "development" or os.getenv("ENVIRONMENT") == "development":
+            detail["debug_message"] = str(e)
+            detail["debug_type"] = type(e).__name__
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "error": "SEARCH_ERROR",
-                "message": "An unexpected error occurred. Please try again or enter details manually.",
-                "fallback_url": "/companies/manual-entry"
-            }
+            detail=detail
         )
 
 
@@ -1314,6 +1320,9 @@ async def get_company_settings_details(
         display_name_source=str(company.DisplayNameSource or "User"),
         abn=company.ABN,
         acn=company.ACN,
+        abn_status=company.ABNStatus,
+        entity_type=company.EntityType,
+        gst_registered=company.GSTRegistered,
         phone=company.Phone,
         email=company.Email,
         website=company.Website,
@@ -1360,6 +1369,12 @@ async def put_company_settings_details(
         company.ABN = body.abn
     if body.acn is not None:
         company.ACN = body.acn
+    if body.abn_status is not None:
+        company.ABNStatus = body.abn_status
+    if body.entity_type is not None:
+        company.EntityType = body.entity_type
+    if body.gst_registered is not None:
+        company.GSTRegistered = body.gst_registered
     if body.phone is not None:
         company.Phone = body.phone
     if body.email is not None:
@@ -1424,6 +1439,9 @@ async def put_company_settings_details(
         display_name_source=str(company.DisplayNameSource or "User"),
         abn=company.ABN,
         acn=company.ACN,
+        abn_status=company.ABNStatus,
+        entity_type=company.EntityType,
+        gst_registered=company.GSTRegistered,
         phone=company.Phone,
         email=company.Email,
         website=company.Website,
@@ -1439,6 +1457,94 @@ async def put_company_settings_details(
         billing_postal_code=billing.BillingPostalCode if billing else None,
         billing_country_id=int(billing.BillingCountryID) if billing and billing.BillingCountryID else None,
     )
+
+
+# =============================================================================
+# Company Assets (Story 5.7)
+# =============================================================================
+
+@router.get(
+    "/{company_id}/assets",
+    summary="List company image assets",
+    description="List all IMAGE assets for a company (Company Settings → Assets → Images). Requires company admin.",
+)
+def get_company_assets(
+    company_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /api/companies/{id}/assets — list image assets for Company Settings."""
+    require_company_admin_for_company(current_user, company_id)
+    company = db.get(Company, company_id)
+    if not company or company.IsDeleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    from modules.assets.service import AssetService
+    from modules.assets.asset_schemas import BackgroundAssetListResponse
+    service = AssetService(db)
+    assets = service.list_image_assets_for_company(company_id=company_id)
+    return BackgroundAssetListResponse(assets=assets)
+
+
+@router.get(
+    "/{company_id}/terms-assets",
+    response_model=TermsAssetListResponse,
+    summary="List company Terms assets",
+    description="List all Terms assets (PDF + URL) for a company (Story 5.7). Requires company admin.",
+)
+def get_company_terms_assets(
+    company_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /api/companies/{id}/terms-assets — list Terms assets."""
+    require_company_admin_for_company(current_user, company_id)
+    company = db.get(Company, company_id)
+    if not company or company.IsDeleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    from modules.assets.service import AssetService
+    service = AssetService(db)
+    assets = service.list_terms_assets_for_company(company_id=company_id)
+    default_id = getattr(company, "DefaultTermsAssetID", None)
+    return TermsAssetListResponse(assets=assets, defaultTermsAssetId=default_id)
+
+
+@router.put(
+    "/{company_id}/terms-assets/default",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Set default Terms asset",
+    description="Set which Terms asset the company uses when multiple exist (Story 5.7).",
+)
+def set_default_terms_asset(
+    company_id: int,
+    body: SetDefaultTermsRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """PUT /api/companies/{id}/terms-assets/default — set default Terms asset."""
+    require_company_admin_for_company(current_user, company_id)
+    company = db.get(Company, company_id)
+    if not company or company.IsDeleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    from models.asset import Asset
+    from models.ref.asset_type import AssetType
+    asset = (
+        db.query(Asset)
+        .join(AssetType, Asset.AssetTypeID == AssetType.AssetTypeID)
+        .filter(
+            Asset.AssetID == body.assetId,
+            Asset.CompanyID == company_id,
+            Asset.IsDeleted == False,  # noqa: E712
+            AssetType.TypeCode == "TERMS",
+        )
+        .first()
+    )
+    if not asset:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Asset not found or not a Terms asset for this company",
+        )
+    company.DefaultTermsAssetID = body.assetId
+    db.commit()
 
 
 # =============================================================================

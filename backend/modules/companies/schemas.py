@@ -531,6 +531,9 @@ class CompanySettingsDetailsResponse(BaseModel):
     display_name_source: str = "User"
     abn: Optional[str] = None
     acn: Optional[str] = None
+    abn_status: Optional[str] = None  # Active, Cancelled, Historical (from ABR)
+    entity_type: Optional[str] = None  # e.g. Company, Partnership (from ABR)
+    gst_registered: Optional[bool] = None  # from ABR
     phone: Optional[str] = None
     email: Optional[str] = None
     website: Optional[str] = None
@@ -557,6 +560,9 @@ class UpdateCompanySettingsDetailsRequest(BaseModel):
     display_name_source: Optional[str] = Field(None, max_length=20)
     abn: Optional[str] = Field(None, max_length=11)
     acn: Optional[str] = Field(None, max_length=9)
+    abn_status: Optional[str] = Field(None, max_length=20)
+    entity_type: Optional[str] = Field(None, max_length=100)
+    gst_registered: Optional[bool] = None
     phone: Optional[str] = Field(None, max_length=20)
     email: Optional[EmailStr] = None
     website: Optional[str] = Field(None, max_length=500)

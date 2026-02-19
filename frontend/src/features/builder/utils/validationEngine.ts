@@ -673,9 +673,9 @@ export function validateField(
             errors = validateText(processedValue as string, rules, context);
             break;
 
-        case 'number':
-            const numValue = typeof processedValue === 'number' 
-                ? processedValue 
+        case 'number': {
+            const numValue = typeof processedValue === 'number'
+                ? processedValue
                 : parseFloat(processedValue as string);
             if (isNaN(numValue)) {
                 errors.push({
@@ -687,6 +687,7 @@ export function validateField(
                 errors = validateNumber(numValue, rules);
             }
             break;
+        }
 
         case 'email':
             errors = validateEmail(processedValue as string, rules);

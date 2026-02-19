@@ -3,29 +3,120 @@
  * Shared layout for Company Settings pages with nav menu.
  * PM decisions: Company Details | Form Approval Workflow | Form Branding | Assets (Images | Terms | Documents | Video)
  * Mobile (<768px): Hamburger + slide-over nav.
+ * Assets: 2-level menu (like Form Branding) — parent "Assets" with nested Images, Terms, Documents, Video.
  */
 
-import { useState } from 'react'
-import { NavLink, Outlet, useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Palette, Image, Users, Settings, Building2, GitBranch, FileText, Video, Menu, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { NavLink, Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
+import { ArrowLeft, Palette, Image, Users, Settings, Building2, GitBranch, FileText, Video, Menu, X, ChevronDown, ChevronRight, FolderOpen } from 'lucide-react'
 
-
-const mainNavItems: { path: string; label: string; icon: typeof Building2 }[] = [
+const topNavItems: { path: string; label: string; icon: typeof Building2 }[] = [
   { path: 'company-details', label: 'Company Details', icon: Building2 },
   { path: 'form-approval-workflow', label: 'Form Approval Workflow', icon: GitBranch },
   { path: 'form-branding-defaults', label: 'Form Branding', icon: Palette },
-  { path: 'assets/images', label: 'Assets — Images', icon: Image },
-  { path: 'assets/terms', label: 'Assets — Terms', icon: FileText },
-  { path: 'assets/documents', label: 'Assets — Documents', icon: FileText },
-  { path: 'assets/video', label: 'Assets — Video', icon: Video },
   { path: 'team', label: 'User Management', icon: Users },
+]
+
+const assetSubItems: { path: string; label: string; icon: typeof Image }[] = [
+  { path: 'assets/images', label: 'Images', icon: Image },
+  { path: 'assets/terms', label: 'Terms', icon: FileText },
+  { path: 'assets/documents', label: 'Documents', icon: FileText },
+  { path: 'assets/video', label: 'Video', icon: Video },
 ]
 
 export function CompanySettingsLayout() {
   const { companyId } = useParams<{ companyId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const base = `/dashboard/companies/${companyId}/settings`
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [assetsExpanded, setAssetsExpanded] = useState(false)
+
+  const pathname = location.pathname
+  const isAssetsRoute = pathname.includes('/settings/assets/')
+
+  useEffect(() => {
+    if (isAssetsRoute) setAssetsExpanded(true)
+  }, [isAssetsRoute])
+
+  const renderNavLinks = () => (
+    <>
+      {topNavItems.slice(0, 3).map(({ path, label, icon: Icon }) => (
+        <li key={path}>
+          <NavLink
+            to={`${base}/${path}`}
+            onClick={() => setMobileNavOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`
+            }
+          >
+            <Icon className="w-4 h-4 flex-shrink-0" />
+            {label}
+          </NavLink>
+        </li>
+      ))}
+      {/* Assets - 2-level expandable section */}
+      <li>
+        <button
+          type="button"
+          onClick={() => setAssetsExpanded((e) => !e)}
+          className="flex w-full items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          {assetsExpanded ? (
+            <ChevronDown className="w-4 h-4 flex-shrink-0" />
+          ) : (
+            <ChevronRight className="w-4 h-4 flex-shrink-0" />
+          )}
+          <FolderOpen className="w-4 h-4 flex-shrink-0" />
+          Assets
+        </button>
+        {assetsExpanded && (
+          <ul className="mt-0.5 ml-4 pl-2 border-l border-gray-200 dark:border-gray-600 space-y-0.5">
+            {assetSubItems.map(({ path, label, icon: Icon }) => (
+              <li key={path}>
+                <NavLink
+                  to={`${base}/${path}`}
+                  onClick={() => setMobileNavOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`
+                  }
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  {label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+      {topNavItems.slice(3).map(({ path, label, icon: Icon }) => (
+        <li key={path}>
+          <NavLink
+            to={`${base}/${path}`}
+            onClick={() => setMobileNavOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`
+            }
+          >
+            <Icon className="w-4 h-4 flex-shrink-0" />
+            {label}
+          </NavLink>
+        </li>
+      ))}
+    </>
+  )
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
@@ -58,24 +149,7 @@ export function CompanySettingsLayout() {
         {/* Desktop sidebar - hidden on mobile */}
         <nav className="hidden md:block w-52 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-4 overflow-y-auto">
           <ul className="space-y-0.5 px-2">
-            {mainNavItems.map(({ path, label, icon: Icon }) => (
-              <li key={path}>
-                <NavLink
-                  to={`${base}/${path}`}
-                  onClick={() => setMobileNavOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`
-                  }
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  {label}
-                </NavLink>
-              </li>
-            ))}
+            {renderNavLinks()}
           </ul>
         </nav>
 
@@ -95,24 +169,7 @@ export function CompanySettingsLayout() {
                 </button>
               </div>
               <ul className="space-y-0.5 px-2">
-                {mainNavItems.map(({ path, label, icon: Icon }) => (
-                  <li key={path}>
-                    <NavLink
-                      to={`${base}/${path}`}
-                      onClick={() => setMobileNavOpen(false)}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                          isActive
-                            ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300'
-                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                        }`
-                      }
-                    >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
-                      {label}
-                    </NavLink>
-                  </li>
-                ))}
+                {renderNavLinks()}
               </ul>
             </nav>
           </>

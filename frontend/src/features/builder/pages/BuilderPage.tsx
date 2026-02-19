@@ -671,7 +671,7 @@ export const BuilderPage: React.FC = () => {
                     // treat it as a percentage of the canvas width.
                     const baseEstimate = getComponentDimensions(newComponent, null, scale * 100);
                     let newCompWidth = baseEstimate.width;
-                    let newCompHeight = baseEstimate.height;
+                    const newCompHeight = baseEstimate.height;
                     const widthProp = newComponent.props?.width as string | undefined;
                     if (typeof widthProp === 'string' && widthProp.endsWith('%')) {
                         const pct = Number.parseFloat(widthProp);

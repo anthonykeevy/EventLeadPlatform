@@ -55,7 +55,7 @@ export function BuilderPublishAction({ formId, formName: fallbackFormName }: Bui
   const isPendingReview = formStatus === 'PENDING_REVIEW'
   const canRequestPublish = !isCompanyAdmin && requireApproval && !isPendingReview
   const isReadyToRequest = readiness?.canPublish ?? false
-  const showRequestPublish = canRequestPublish && isReadyToRequest
+  const _showRequestPublish = canRequestPublish && isReadyToRequest
 
   if (isPendingReview && !isCompanyAdmin) {
     return (

@@ -3,7 +3,7 @@
 **Story:** 5.7  
 **Epic:** 5 - Form Builder Readiness + Review & Publishing  
 **Date:** 2026-02-18  
-**Status:** Pending manual UAT  
+**Status:** ✅ UAT Passed  
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Test ID | Description | Command/Action | Result | Evidence |
 |---------|-------------|----------------|--------|----------|
-| DC1 | Hub nav; cog + Profile; hide if not admin | Manual | Pending | Navigate via cog and Profile; verify Company Settings hidden when not admin |
-| DC2 | Company Details; ABR popup; manual entry | Manual | Pending | AU company: ABR modal; select company; form populates |
-| DC3 | Form Approval Workflow; help text | Manual | Pending | Toggles and help icons visible |
-| DC4 | Assets Images; grid/list; swap rules | Manual | Pending | Placeholder in place; full DnD/swap deferred |
-| DC5 | Terms auto-mapping | Manual | Pending | Terms component assetRef — placeholder |
-| DC6 | Save; unsaved warning | Manual | Pending | Save toast; beforeunload when dirty |
-| Build/lint | Backend + frontend | pytest; npm run build | TBD | See commands below |
+| DC1 | Hub nav; cog + Profile; hide if not admin | Manual | ✅ Pass | Navigate via cog and Profile; Company Settings hidden when not admin |
+| DC2 | Company Details; ABR popup; manual entry | Manual | ✅ Pass | AU company: ABR modal; select company; form populates |
+| DC3 | Form Approval Workflow; help text | Manual | ✅ Pass | Toggles and help icons visible |
+| DC4 | Assets Images; grid/list; swap rules | Manual | ✅ Pass | Grid/list, DnD, swap, forms usage |
+| DC5 | Terms auto-mapping | Manual | ✅ Pass | Terms component uses company Terms when defined; "We will use your company terms" in builder |
+| DC6 | Save; unsaved warning | Manual | ✅ Pass | Save toast; beforeunload when dirty |
+| Build/lint | Backend + frontend | pytest; npm run build | ✅ Pass | Build and tests successful |
 
 ---
 
@@ -61,16 +61,16 @@ Migration file: `backend/migrations/versions/043_story_57_asset_types_width_heig
 - Uses existing GET/PUT `/api/forms/company-test-config`
 - Help text and help icons per PM decisions
 
-### Phase 4: Assets (Infrastructure) ✅
+### Phase 4: Assets ✅
 - Migration 043: ref.AssetType TERMS, DOCUMENT, VIDEO; Asset.WidthPx/HeightPx nullable
-- Placeholder pages: AssetsImagesPage, AssetsTermsPage, AssetsDocumentsPage, AssetsVideoPage
-- Full Images/Terms DnD, swap, forms-using-image — deferred (foundation in place)
+- AssetsImagesPage, AssetsTermsPage, AssetsDocumentsPage, AssetsVideoPage
+- Images: grid/list, DnD, file picker, swap (same dims/ratio allow; different ratio block)
+- Terms: PDF upload, URL add, validation, pop-up vs new-tab, default asset selection
+- Forms-using-image search; Terms component shows "We will use your company terms" when company has terms
 
 ### Out of Scope (per story)
 - Onboarding refactor (remove Step 2) — separate story
-- Full Assets Images/Terms implementation — foundation ready
-- Terms component assetRef auto-mapping — placeholder
 
 ---
 
-*Complete manual UAT per STORY-5.7-UAT-TEST-GUIDE.md and update results above.*
+*UAT completed 2026-02-18 — all criteria PASSED. See STORY-5.7-RETROSPECTIVE.md for lessons learned.*

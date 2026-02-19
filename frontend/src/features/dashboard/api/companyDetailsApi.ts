@@ -14,6 +14,9 @@ export interface CompanySettingsDetails {
   displayNameSource: string
   abn?: string | null
   acn?: string | null
+  abnStatus?: string | null
+  entityType?: string | null
+  gstRegistered?: boolean | null
   phone?: string | null
   email?: string | null
   website?: string | null
@@ -38,6 +41,9 @@ export interface UpdateCompanySettingsDetails {
   displayNameSource?: string
   abn?: string
   acn?: string
+  abnStatus?: string
+  entityType?: string
+  gstRegistered?: boolean
   phone?: string
   email?: string
   website?: string
@@ -63,6 +69,9 @@ function fromBackend(d: Record<string, unknown>): CompanySettingsDetails {
     displayNameSource: (d.display_name_source as string) ?? 'User',
     abn: d.abn as string | null,
     acn: d.acn as string | null,
+    abnStatus: d.abn_status as string | null,
+    entityType: d.entity_type as string | null,
+    gstRegistered: d.gst_registered as boolean | null,
     phone: d.phone as string | null,
     email: d.email as string | null,
     website: d.website as string | null,
@@ -99,6 +108,9 @@ export async function putCompanySettingsDetails(
   if (update.displayNameSource !== undefined) payload.display_name_source = update.displayNameSource
   if (update.abn !== undefined) payload.abn = update.abn
   if (update.acn !== undefined) payload.acn = update.acn
+  if (update.abnStatus !== undefined) payload.abn_status = update.abnStatus
+  if (update.entityType !== undefined) payload.entity_type = update.entityType
+  if (update.gstRegistered !== undefined) payload.gst_registered = update.gstRegistered
   if (update.phone !== undefined) payload.phone = update.phone
   if (update.email !== undefined) payload.email = update.email
   if (update.website !== undefined) payload.website = update.website

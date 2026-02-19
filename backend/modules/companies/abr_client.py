@@ -382,29 +382,32 @@ class ABRClient:
         return abn
     
     def _format_address(self, address_element: ET.Element) -> Optional[str]:
-        """Format business address from XML element"""
+        """Format business address from XML element.
+        ABR returns: addressLine1-5, localityName, stateCode, postcode.
+        SimpleProtocol may only have stateCode and postcode."""
         try:
             parts = []
-            
-            # SimpleProtocol has limited address info (just state and postcode)
-            # Full protocol would have addressLine, localityName, etc.
-            
-            # State
+            # Address lines (e.g. "123 Main St", "Level 5")
+            for i in range(1, 6):
+                line = self._get_xml_text(address_element, f".//addressLine{i}")
+                if line:
+                    parts.append(line.strip())
+            if not parts:
+                line = self._get_xml_text(address_element, ".//addressLine")
+                if line:
+                    parts.append(line.strip())
+            # Locality (suburb)
+            locality = self._get_xml_text(address_element, ".//localityName")
+            if locality:
+                parts.append(locality.strip())
+            # State and postcode
             state = self._get_xml_text(address_element, ".//stateCode")
-            if state:
-                parts.append(state)
-            
-            # Postcode
             postcode = self._get_xml_text(address_element, ".//postcode")
-            if postcode:
-                parts.append(postcode)
-            
-            # If we have state and postcode, format as "STATE POSTCODE"
+            if state or postcode:
+                parts.append(" ".join(filter(None, [state, postcode])))
             if parts:
-                return " ".join(parts)
-            
+                return ", ".join(parts)
             return None
-            
         except Exception as e:
             logger.debug(f"Address parsing failed: {e}")
             return None

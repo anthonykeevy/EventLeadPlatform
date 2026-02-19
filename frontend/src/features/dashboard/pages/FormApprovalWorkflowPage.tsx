@@ -41,7 +41,8 @@ export function FormApprovalWorkflowPage() {
     return () => {
       cancelled = true
     }
-  }, [toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount; toast in catch is fine
+  }, [])
 
   const handleSave = async () => {
     if (!config) return

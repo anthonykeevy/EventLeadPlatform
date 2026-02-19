@@ -25,12 +25,18 @@ class Asset(Base):
     Sha256 = Column(String(64), nullable=False, index=True)
     MimeType = Column(String(100), nullable=False)
     SizeBytes = Column(BigInteger, nullable=False)
-    WidthPx = Column(Integer, nullable=False)
-    HeightPx = Column(Integer, nullable=False)
+    WidthPx = Column(Integer, nullable=True)  # nullable for non-image (TERMS, DOCUMENT, VIDEO)
+    HeightPx = Column(Integer, nullable=True)
     StorageProvider = Column(String(50), nullable=False)
     StorageKey = Column(String(500), nullable=False)
+    SourceURL = Column(String(2048), nullable=True)  # URL-based Terms (external link)
     OriginalFileName = Column(String(255), nullable=True)
     DisplayName = Column(String(255), nullable=True)
+    # Terms display preferences (Story 5.7): modal size and PDF rotation
+    DisplayWidthPx = Column(Integer, nullable=True)  # Preferred modal width for Terms
+    DisplayHeightPx = Column(Integer, nullable=True)  # Preferred modal height for Terms
+    DisplayRotationDegrees = Column(Integer, nullable=True)  # 0, 90, 180, 270 for PDF correction
+    TermsDisplayMode = Column(String(20), nullable=True)  # 'popup' | 'new_tab' for URL Terms only
 
     CreatedDate = Column(DateTime, nullable=False, server_default=func.getutcdate())
     CreatedBy = Column(BigInteger, ForeignKey("dbo.User.UserID"), nullable=True)
@@ -40,7 +46,7 @@ class Asset(Base):
     DeletedDate = Column(DateTime, nullable=True)
     DeletedBy = Column(BigInteger, ForeignKey("dbo.User.UserID"), nullable=True)
 
-    company = relationship("Company")
+    company = relationship("Company", foreign_keys=[CompanyID])
     asset_type = relationship("AssetType", back_populates="assets")
 
     def __repr__(self) -> str:

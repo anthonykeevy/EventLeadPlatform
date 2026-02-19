@@ -256,6 +256,8 @@ Items added during Epic 5 planning; not in current story scope.
 | Item | Description | Source |
 |------|-------------|--------|
 | **Global Defaults screen** | Administration Settings page for Global Form Defaults — mirror of Company Defaults page (Global Properties controls + Toolbox visual guide). System Admin only. | PM review 2026-02-13 (Story 5.2) |
+| **PDF.js for Terms display** | Use PDF.js (Mozilla) for PDF rendering in Terms preview and form-fill. Enables proper rotation, consistent controls for URL vs upload. See `docs/data-domains/CompanySettings/research/PDF-ROTATION-AND-VIEW-OPTIONS.md`. | PM review 2026-02-18 (Story 5.7) |
+| **Document categories and selection** | Support multiple kinds of documents (e.g. Terms of Service, Privacy Policy, consent docs) with categorisation in Company Settings. When using the Terms component, allow the form designer to choose which document category the consent is for. | PM/UX 2026-02-18 |
 
 **Note:** APIs for Form Builder defaults and Component Catalog (multi-country, multi-company) are now **in scope** for Story 5.2. Form Builder Init API delivers single payload (defaults + components + DefinitionJSON skeleton) per `docs/stories/STORY-5.2-FORM-BUILDER-INIT-API.md`.
 

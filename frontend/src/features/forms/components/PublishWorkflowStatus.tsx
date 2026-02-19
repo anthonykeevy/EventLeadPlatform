@@ -3,7 +3,7 @@
  * Clear "Next steps" callout for Company Users so they know where they stand
  * and what to do to get their form approved and published.
  */
-import { AlertCircle, CheckCircle, Clock, Send } from 'lucide-react'
+import { AlertCircle, CheckCircle, Clock } from 'lucide-react'
 import type { FormReadiness } from '../api/formsApi'
 
 interface PublishWorkflowStatusProps {
@@ -40,7 +40,7 @@ export function PublishWorkflowStatus({
 
   const isPendingReview = formStatusCode === 'PENDING_REVIEW'
   const isPublished = formStatusCode === 'PUBLISHED'
-  const canRequest = readiness.canPublish
+  const _canRequest = readiness.canPublish
   const needsTests = readiness.testRunsNeeded > 0
 
   // Company User + approval required: show Story 5.6 workflow

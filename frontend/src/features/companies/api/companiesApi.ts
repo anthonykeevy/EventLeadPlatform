@@ -162,9 +162,10 @@ export async function searchCompanies(
         } as CompanySearchError
       }
 
-      // Backend errors
+      // Backend errors (FastAPI HTTPException wraps detail in "detail" key)
       if (error.response?.data) {
-        const errorData = error.response.data as BackendSearchError
+        const data = error.response.data as Record<string, unknown>
+        const errorData = (typeof data?.detail === 'object' && data.detail !== null ? data.detail : data) as BackendSearchError
         throw {
           error: errorData.error || 'UNKNOWN_ERROR',
           message: errorData.message || 'An unexpected error occurred.',

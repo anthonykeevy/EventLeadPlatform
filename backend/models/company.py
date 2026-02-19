@@ -64,6 +64,7 @@ class Company(Base):
     CountryID = Column(BigInteger, ForeignKey('ref.Country.CountryID'), nullable=False, index=True)
     IndustryID = Column(BigInteger, ForeignKey('ref.Industry.IndustryID'), nullable=True, index=True)
     ParentCompanyID = Column(BigInteger, ForeignKey('dbo.Company.CompanyID'), nullable=True, index=True)
+    DefaultTermsAssetID = Column(BigInteger, ForeignKey('dbo.Asset.AssetID'), nullable=True)  # Story 5.7
     
     # Status
     IsActive = Column(Boolean, nullable=False, default=True)

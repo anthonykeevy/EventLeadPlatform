@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 5.7 - Company Settings Hub
+     For Ralf-SM task decomposition and dev implementation.
+     PM Decisions: docs/data-domains/CompanySettings/research/STORY-5.7-PM-DECISIONS.md -->
+<story-context>
+  <story>
+    <id>5.7</id>
+    <title>Company Settings Hub — Foundation</title>
+    <epic>5</epic>
+    <epic-title>Form Builder Readiness &amp; Review &amp; Publishing</epic-title>
+    <domain>Company Settings, Dashboard, Billing, Assets</domain>
+    <status>Ready</status>
+  </story>
+
+  <principle>Company Admins have one place to manage company details (invoicing), form approval workflow, and assets. All settings follow Form Branding patterns (save, audit, unsaved-changes warning).</principle>
+
+  <scope-boundary>
+    <in-scope>
+      <item>Company Settings Hub: route /dashboard/companies/:companyId/settings; nav: Company Details | Form Approval Workflow | Form Branding | Assets (Images | Terms | Documents | Video)</item>
+      <item>Entry points: cog on company header; Profile dropdown "Company Settings" (active company; hidden if not admin)</item>
+      <item>Mobile: hamburger + slide-over nav for &lt;768px; sidebar for tablet/desktop; horizontal tabs fallback</item>
+      <item>Company Details: display name (platform-wide), legal name, ABN, billing; ABR search (AU) in popup modal; "Enter manually" in modal and form; non-AU/individuals supported</item>
+      <item>Placeholder company "Your Company" at signup; onboarding Step 2 (company setup) removed — separate story</item>
+      <item>Form Approval Workflow: CompanyFormTestConfig (test threshold, RequirePublishApproval); help text per PM decisions</item>
+      <item>Assets Images: grid/list toggle; DnD + file picker; delete confirmation; properties panel (display name, metadata, audit trail); forms-using-image (search DefinitionJSON); image swap (dimensions or aspect ratio match; block if different; warn PNG→JPG)</item>
+      <item>Assets Terms: separate section; PDF + URL; URL validation; inline fallback to new page; production simulation; Terms component auto-maps to company Terms when defined</item>
+      <item>ref.AssetType: IMAGE, TERMS, DOCUMENT, VIDEO; Asset.WidthPx/HeightPx nullable for non-image</item>
+      <item>Help: page header description; second-level menu descriptions; help buttons beside properties (Form Builder pattern)</item>
+      <item>Save pattern: explicit Save, version history, unsaved-changes warning; toast.success (useToastNotifications)</item>
+      <item>Platform images: option to turn off; Platform Terms: form per country, force read/accept before company terms</item>
+    </in-scope>
+    <out-of-scope>
+      <item>Stripe/payment integration (Epic 6)</item>
+      <item>Onboarding refactor (remove company from Step 2) — follow-on</item>
+      <item>Global Defaults screen (System Admin) — backlog</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <done-criteria>
+    <dc id="1">Company Settings hub with nav; entry points: cog + Profile dropdown (active company, hide if not admin)</dc>
+    <dc id="2">Company Details: display name, legal name, ABN, billing; ABR popup (AU); "Enter manually"; non-AU/individuals</dc>
+    <dc id="3">Form Approval Workflow: test threshold, Require publish approval; help text</dc>
+    <dc id="4">Assets: Images (grid/list, DnD+picker, delete confirm, display name, audit trail, forms usage, image swap); Terms (separate, PDF+URL, validation, simulation); asset types IMAGE/TERMS/DOCUMENT/VIDEO</dc>
+    <dc id="5">Terms component auto-maps to company Terms when defined</dc>
+    <dc id="6">Save/feedback consistent; unsaved-changes warning</dc>
+    <dc id="7">UAT guide executed and marked PASSED</dc>
+    <dc id="8">Story PR merged to master</dc>
+  </done-criteria>
+
+  <pm-decisions-ref>docs/data-domains/CompanySettings/research/STORY-5.7-PM-DECISIONS.md</pm-decisions-ref>
+
+  <existing-models>
+    <model name="Company">CustomDisplayName, DisplayNameSource, ABN, etc.</model>
+    <model name="CompanyBillingDetails">Billing address, contact</model>
+    <model name="CompanyFormTestConfig">TestThresholdEnabled, TestThresholdValue, RequirePublishApproval</model>
+    <model name="CompanyFormDefaults">Form Branding; version history</model>
+    <model name="Asset">CompanyID, AssetTypeID; add TERMS, DOCUMENT, VIDEO; WidthPx/HeightPx nullable</model>
+  </existing-models>
+
+  <references>
+    <ref path="docs/stories/story-5.7.md" purpose="Story file" />
+    <ref path="docs/data-domains/CompanySettings/research/STORY-5.7-PM-DECISIONS.md" purpose="PM decisions — source of truth" />
+    <ref path="docs/data-domains/CompanySettings/research/data-model-analysis.md" purpose="Data model; Asset types" />
+    <ref path="frontend/src/features/dashboard/pages/FormBrandingDefaultsPage.tsx" purpose="Save/help pattern" />
+    <ref path="frontend/src/features/onboarding/components/OnboardingStep2.tsx" purpose="ABR SmartCompanySearch; move to Company Details popup" />
+    <ref path="frontend/src/features/dashboard/components/UserMenu.tsx" purpose="Add Company Settings; hide if not admin" />
+  </references>
+</story-context>

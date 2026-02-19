@@ -12,12 +12,16 @@ export const apiClient: AxiosInstance = axios.create({
   timeout: 30000,
 })
 
-// Add request interceptor to attach access token
+// Add request interceptor to attach access token and fix FormData Content-Type
 apiClient.interceptors.request.use(
   (config) => {
     const token = getAccessToken()
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    // For FormData, do NOT set Content-Type — browser must set multipart/form-data with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
     }
     return config
   },

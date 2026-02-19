@@ -87,8 +87,8 @@ const validators = {
   },
 
   phone: (value: string): string | null => {
-    const phonePattern = /^[\+]?[1-9][\d]{0,15}$/;
-    if (value && !phonePattern.test(value.replace(/[\s\-\(\)]/g, ''))) {
+    const phonePattern = /^[+]?[1-9][\d]{0,15}$/;
+    if (value && !phonePattern.test(value.replace(/[\s\-()]/g, ''))) {
       return 'Please enter a valid phone number';
     }
     return null;

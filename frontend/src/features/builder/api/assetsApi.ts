@@ -120,11 +120,13 @@ export const assetsApi = {
     /**
      * Fetch asset content with auth and return a blob URL suitable for <img src={...}>.
      * Caller must call URL.revokeObjectURL(url) when done to avoid leaks.
+     * @param preferThumbnail - when true, fetches 300x300 thumbnail (grid, picker)
      */
-    fetchAssetContentBlobUrl: async (assetId: number): Promise<string> => {
-        const response = await apiClient.get(`${ASSETS_BASE}/${assetId}/content`, {
-            responseType: 'blob',
-        });
+    fetchAssetContentBlobUrl: async (assetId: number, preferThumbnail = false): Promise<string> => {
+        const url = preferThumbnail
+            ? `${ASSETS_BASE}/${assetId}/content?size=thumb`
+            : `${ASSETS_BASE}/${assetId}/content`;
+        const response = await apiClient.get(url, { responseType: 'blob' });
         const blob = response.data as Blob;
         return URL.createObjectURL(blob);
     },

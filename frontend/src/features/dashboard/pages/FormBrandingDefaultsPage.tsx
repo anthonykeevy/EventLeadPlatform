@@ -161,7 +161,7 @@ export function FormBrandingDefaultsPage() {
   const onGlobalStylesChange = useCallback((updates: Partial<GlobalStyles>) => {
     setDefaults((prev) => {
       const next = { ...prev } as FormDefaultsPayload
-      let gs = { ...(prev?.globalStyles ?? {}), ...updates } as Partial<GlobalStyles>
+      const gs = { ...(prev?.globalStyles ?? {}), ...updates } as Partial<GlobalStyles>
       // Deep-merge defaultGridLayout to avoid overwriting rows/columns/columnGap
       if (updates.defaultGridLayout) {
         gs.defaultGridLayout = { ...(gs.defaultGridLayout ?? {}), ...updates.defaultGridLayout }

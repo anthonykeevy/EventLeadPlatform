@@ -50,6 +50,92 @@ class BackgroundAssetListResponse(BaseModel):
     assets: list[BackgroundAssetMetadata] = Field(default_factory=list, description="Company background assets")
 
 
+class AssetUpdateRequest(BaseModel):
+    """Update asset metadata (Story 5.7)."""
+    display_name: Optional[str] = Field(None, max_length=255, description="Display name for the asset")
+    display_width_px: Optional[int] = Field(None, ge=320, le=1920, description="Terms modal width")
+    display_height_px: Optional[int] = Field(None, ge=240, le=1080, description="Terms modal height")
+    display_rotation_degrees: Optional[int] = Field(None, ge=0, le=359, description="PDF rotation 0,90,180,270")
+
+
+# =====================================================================
+# Terms Asset (Story 5.7)
+# =====================================================================
+
+class TermsAssetMetadata(BaseModel):
+    """Terms asset metadata (PDF upload or URL)."""
+    assetId: int = Field(..., description="Asset ID")
+    assetKey: str = Field(..., description="Asset key for form references")
+    displayName: Optional[str] = Field(None, description="Display name")
+    sourceType: Literal["upload", "url"] = Field(..., description="PDF upload or URL")
+    sourceUrl: Optional[str] = Field(None, description="URL when sourceType=url")
+    mimeType: str = Field(..., description="application/pdf or text/url")
+    byteSize: int = Field(0, description="File size (0 for URL)")
+    embeddable: Optional[bool] = Field(None, description="True if URL can be embedded in iframe")
+    termsDisplayMode: Optional[Literal["popup", "new_tab"]] = Field(
+        None, description="popup=iframe; new_tab=link; null for PDF"
+    )
+    displayWidthPx: Optional[int] = Field(None, description="Preferred modal width for Terms popup")
+    displayHeightPx: Optional[int] = Field(None, description="Preferred modal height for Terms popup")
+    displayRotationDegrees: Optional[int] = Field(None, description="PDF rotation: 0, 90, 180, 270")
+    createdAt: Optional[datetime] = Field(None)
+    updatedAt: Optional[datetime] = Field(None)
+
+
+class TermsAssetUpdateRequest(BaseModel):
+    """Update Terms asset display settings."""
+    display_name: Optional[str] = Field(None, max_length=255)
+    display_width_px: Optional[int] = Field(None, ge=320, le=1920)
+    display_height_px: Optional[int] = Field(None, ge=240, le=1080)
+    display_rotation_degrees: Optional[int] = Field(None, ge=0, le=359)
+
+
+class TermsAssetListResponse(BaseModel):
+    """List of Terms assets for a company."""
+    assets: list[TermsAssetMetadata] = Field(default_factory=list)
+    defaultTermsAssetId: Optional[int] = Field(None, description="Asset ID used as default when multiple exist")
+
+
+class SetDefaultTermsRequest(BaseModel):
+    """Set company's default Terms asset."""
+    assetId: int = Field(..., description="Asset ID to use as default; must be a Terms asset for this company")
+
+
+class TermsUploadResponse(BaseModel):
+    """Response after PDF upload."""
+    asset: TermsAssetMetadata
+    isDuplicate: bool = False
+
+
+class TermsUrlAddRequest(BaseModel):
+    """Add Terms by URL."""
+    url: str = Field(..., min_length=10, max_length=2048)
+    display_name: Optional[str] = Field(None, max_length=255)
+    display_mode: Optional[Literal["popup", "new_tab"]] = Field(
+        "popup",
+        description="popup = iframe; new_tab = link opens in new tab",
+    )
+
+
+class TermsUrlValidateRequest(BaseModel):
+    """Validate Terms URL (embedding)."""
+    url: str = Field(..., min_length=10, max_length=2048)
+
+
+class TermsUrlValidateResponse(BaseModel):
+    """URL validation result (embedding)."""
+    embeddable: bool = Field(..., description="Can be embedded in iframe")
+    reason: Optional[str] = Field(None, description="Explanation when not embeddable")
+    blocker_type: Optional[str] = Field(
+        None,
+        description="Type of blocker: embedding, reachability, content, unknown",
+    )
+    next_action: Optional[str] = Field(
+        None,
+        description="What the user can do next to use this URL",
+    )
+
+
 # =====================================================================
 # Background Placement Contract (position, size, crop)
 # =====================================================================

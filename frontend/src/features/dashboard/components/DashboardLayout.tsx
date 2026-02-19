@@ -541,7 +541,14 @@ export function DashboardLayout() {
 
             {/* User Menu */}
             {user && (
-              <UserMenu user={user} />
+              <UserMenu
+                user={user}
+                companySettingsLink={
+                  activeCompanyId && findCompanyById(companies, activeCompanyId)?.userRole === 'Company Admin'
+                    ? `/dashboard/companies/${activeCompanyId}/settings`
+                    : null
+                }
+              />
             )}
           </div>
         </div>

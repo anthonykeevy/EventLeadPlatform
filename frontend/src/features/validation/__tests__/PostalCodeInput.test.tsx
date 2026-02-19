@@ -14,7 +14,7 @@ vi.mock('../hooks/useValidation')
 describe('PostalCodeInput Component', () => {
   const mockValidate = vi.fn()
   const mockOnChange = vi.fn()
-  const mockOnBlur = vi.fn()
+  const _mockOnBlur = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -943,7 +943,7 @@ export function resolveResizeConstraints(args: {
     const startOverlap = sumOverlapArea(startRect, args.others, args.config.collisionPaddingPx, ignore, undefined).total;
 
     // Start from proposed position, clamped to canvas.
-    let clamped = clampToCanvas(args.proposedPosition, args.proposedSize, args.canvas, args.config.boundaryPaddingPx);
+    const clamped = clampToCanvas(args.proposedPosition, args.proposedSize, args.canvas, args.config.boundaryPaddingPx);
     let rect: CanvasRect = {
         x: clamped.x,
         y: clamped.y,

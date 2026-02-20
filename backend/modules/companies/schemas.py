@@ -516,3 +516,65 @@ class UpdateRelationshipStatusRequest(BaseModel):
             raise ValueError(f"status must be one of {allowed_statuses}")
         return v
 
+
+# =============================================================================
+# Story 5.7: Company Settings — Company Details + Billing
+# =============================================================================
+
+class CompanySettingsDetailsResponse(BaseModel):
+    """Company + billing details for Company Settings (Story 5.7)."""
+    company_id: int
+    display_name: str  # CustomDisplayName or CompanyName or LegalEntityName
+    legal_entity_name: Optional[str] = None
+    company_name: str  # CompanyName (legacy)
+    custom_display_name: Optional[str] = None
+    display_name_source: str = "User"
+    abn: Optional[str] = None
+    acn: Optional[str] = None
+    abn_status: Optional[str] = None  # Active, Cancelled, Historical (from ABR)
+    entity_type: Optional[str] = None  # e.g. Company, Partnership (from ABR)
+    gst_registered: Optional[bool] = None  # from ABR
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+    country_id: int
+    industry_id: Optional[int] = None
+    # Billing (CompanyBillingDetails)
+    billing_contact_name: Optional[str] = None
+    billing_email: Optional[str] = None
+    billing_phone: Optional[str] = None
+    billing_address_line1: Optional[str] = None
+    billing_address_line2: Optional[str] = None
+    billing_city: Optional[str] = None
+    billing_state: Optional[str] = None
+    billing_postal_code: Optional[str] = None
+    billing_country_id: Optional[int] = None
+
+
+class UpdateCompanySettingsDetailsRequest(BaseModel):
+    """Update company details + billing (Story 5.7)."""
+    display_name: Optional[str] = Field(None, max_length=200)
+    legal_entity_name: Optional[str] = Field(None, max_length=200)
+    company_name: Optional[str] = Field(None, max_length=200)
+    custom_display_name: Optional[str] = Field(None, max_length=200)
+    display_name_source: Optional[str] = Field(None, max_length=20)
+    abn: Optional[str] = Field(None, max_length=11)
+    acn: Optional[str] = Field(None, max_length=9)
+    abn_status: Optional[str] = Field(None, max_length=20)
+    entity_type: Optional[str] = Field(None, max_length=100)
+    gst_registered: Optional[bool] = None
+    phone: Optional[str] = Field(None, max_length=20)
+    email: Optional[EmailStr] = None
+    website: Optional[str] = Field(None, max_length=500)
+    country_id: Optional[int] = None
+    # Billing
+    billing_contact_name: Optional[str] = Field(None, max_length=200)
+    billing_email: Optional[EmailStr] = None
+    billing_phone: Optional[str] = Field(None, max_length=20)
+    billing_address_line1: Optional[str] = Field(None, max_length=255)
+    billing_address_line2: Optional[str] = Field(None, max_length=255)
+    billing_city: Optional[str] = Field(None, max_length=100)
+    billing_state: Optional[str] = Field(None, max_length=100)
+    billing_postal_code: Optional[str] = Field(None, max_length=20)
+    billing_country_id: Optional[int] = None
+

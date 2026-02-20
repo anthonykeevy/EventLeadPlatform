@@ -18,13 +18,14 @@ export function evaluateConditionalRule(
         case 'always':
             return true;
             
-        case 'prop':
+        case 'prop': {
             if (!rule.prop) {
                 return true; // No prop specified, show by default
             }
             // Check if property exists and is truthy
             const propValue = context.componentProps[rule.prop];
             return Boolean(propValue);
+        }
             
         case 'state':
             // In builder mode, always show state-based objects so SmartBorder accounts for their space
@@ -38,7 +39,7 @@ export function evaluateConditionalRule(
             // No condition function, show by default
             return true;
             
-        case 'validation':
+        case 'validation': {
             // In builder mode, always show validation objects so SmartBorder accounts for their space
             if (context.builderMode) {
                 return true;
@@ -49,6 +50,7 @@ export function evaluateConditionalRule(
             const hasErrors = context.validationErrors && Object.keys(context.validationErrors).length > 0;
             const hasFormErrors = context.allFormErrors && Object.keys(context.allFormErrors).length > 0;
             return Boolean(hasDirectError || hasErrors || hasFormErrors);
+        }
             
         default:
             // Unknown rule type, show by default for safety

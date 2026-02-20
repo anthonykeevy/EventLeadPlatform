@@ -24,7 +24,7 @@ export function estimateTextWidth(
     // - That's 6.47px per char = 0.462 multiplier (6.47 / 14)
     // - For weight 500: base * 1.02 = 0.462, so base ≈ 0.453
     // Using 0.453 as base multiplier (precise match to actual rendered width)
-    let baseMultiplier = 0.453;
+    const baseMultiplier = 0.453;
     
     // Adjust for font weight (heavier weights are slightly wider)
     // Based on measurements: Weight 500 adds ~2-3% width vs 400

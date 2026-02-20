@@ -2,7 +2,7 @@
 
 **Story:** 5.7  
 **Epic:** 5 - Form Builder Readiness + Review & Publishing  
-**Status:** Skeleton — expand per implementation  
+**Status:** ✅ UAT Passed (2026-02-18)
 **Created:** 2026-02-17  
 **PM Decisions:** `docs/data-domains/CompanySettings/research/STORY-5.7-PM-DECISIONS.md`  
 
@@ -122,12 +122,12 @@ Story 5.7 UAT verifies:
 
 ## Pass Criteria
 
-- [ ] All DC1–DC6 manual checks pass
-- [ ] Mobile (&lt;768px): hamburger + slide-over (or tabs) works
-- [ ] Profile dropdown hides Company Settings when not admin
-- [ ] ABR popup flow complete; "Enter manually" available
-- [ ] Image swap: allow same dims/ratio; block different ratio; warn PNG→JPG
-- [ ] Forms-using-image search returns correct forms + status
+- [x] All DC1–DC6 manual checks pass
+- [x] Mobile (&lt;768px): hamburger + slide-over (or tabs) works
+- [x] Profile dropdown hides Company Settings when not admin
+- [x] ABR popup flow complete; "Enter manually" available
+- [x] Image swap: allow same dims/ratio; block different ratio; warn PNG→JPG
+- [x] Forms-using-image search returns correct forms + status
 
 ---
 
@@ -139,4 +139,4 @@ Story 5.7 UAT verifies:
 
 ---
 
-*Refine during implementation. UAT results feed into final PASS/FAIL.*
+*UAT completed 2026-02-18 — all criteria PASSED. See STORY-5.7-UAT-RESULTS.md for evidence.*

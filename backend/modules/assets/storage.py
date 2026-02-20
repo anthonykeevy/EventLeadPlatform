@@ -45,6 +45,10 @@ class AssetStorageProvider:
     def save(self, *, storage_key: str, data: bytes, content_type: str) -> None:
         raise NotImplementedError
 
+    def exists(self, storage_key: str) -> bool:
+        """Check if the file/blob exists at the given storage key."""
+        raise NotImplementedError
+
     def get_public_url(self, *, storage_key: str, request_base: Optional[str], asset_id: Optional[int]) -> str:
         raise NotImplementedError
 
@@ -63,6 +67,10 @@ class LocalAssetStorageProvider(AssetStorageProvider):
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "wb") as handle:
             handle.write(data)
+
+    def exists(self, storage_key: str) -> bool:
+        path = self.resolve_path(storage_key)
+        return path.exists()
 
     def get_public_url(self, *, storage_key: str, request_base: Optional[str], asset_id: Optional[int]) -> str:
         if not request_base or asset_id is None:
@@ -90,6 +98,10 @@ class AzureBlobAssetStorageProvider(AssetStorageProvider):
             overwrite=True,
             content_settings=ContentSettings(content_type=content_type),
         )
+
+    def exists(self, storage_key: str) -> bool:
+        blob_client = self.container_client.get_blob_client(storage_key)
+        return blob_client.exists()
 
     def get_public_url(self, *, storage_key: str, request_base: Optional[str], asset_id: Optional[int]) -> str:
         blob_client = self.container_client.get_blob_client(storage_key)

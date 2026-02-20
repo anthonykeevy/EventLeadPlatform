@@ -922,7 +922,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             
             let remainingDelta = deltaHeight;
             const requestedInputHeight = currentInputHeight + remainingDelta;
-            let newInputHeight = Math.max(minInputHeight, Math.min(maxInputHeight, requestedInputHeight));
+            const newInputHeight = Math.max(minInputHeight, Math.min(maxInputHeight, requestedInputHeight));
             
             // Track height constraints
             if (requestedInputHeight < minInputHeight) {
@@ -1289,7 +1289,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 return;
             }
             let remainingDelta = deltaHeight;
-            let newInputHeight = Math.max(minInputHeight, Math.min(maxInputHeight, currentInputHeight + remainingDelta));
+            const newInputHeight = Math.max(minInputHeight, Math.min(maxInputHeight, currentInputHeight + remainingDelta));
             remainingDelta -= (newInputHeight - currentInputHeight);
 
             const preview: typeof resizePreview = { inputHeight: newInputHeight };
@@ -2380,7 +2380,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
 
         // If no preview spacing captured, compute from remaining delta
         if (appliedLabelGap === undefined && appliedInputHelpGap === undefined) {
-            let remainingDelta = deltaY - (finalInputHeight - currentInputHeight);
+            const remainingDelta = deltaY - (finalInputHeight - currentInputHeight);
             if (Math.abs(remainingDelta) > 0.1) {
                 if (handle === 'n') {
                     const requestedGap = currentLabelGap + remainingDelta;

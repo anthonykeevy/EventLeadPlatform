@@ -789,7 +789,7 @@ export function mergeCells(
     }
     
     // Update objectSpans if there's an object
-    let objectSpans = { ...(config.objectSpans || {}) };
+    const objectSpans = { ...(config.objectSpans || {}) };
     if (objectId) {
         const span = getMergeSpan(cellKeys);
         objectSpans[objectId] = span;
@@ -830,7 +830,7 @@ export function unmergeCells(
     }
     
     // Remove span for object if one was assigned
-    let objectSpans = { ...(config.objectSpans || {}) };
+    const objectSpans = { ...(config.objectSpans || {}) };
     if (mergeGroup.objectId) {
         delete objectSpans[mergeGroup.objectId];
     }

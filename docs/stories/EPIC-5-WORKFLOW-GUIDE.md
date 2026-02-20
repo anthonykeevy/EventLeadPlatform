@@ -16,6 +16,7 @@
 
 | Step | Human | Agent |
 |------|-------|-------|
+| 0 | **Before new story:** If previous story was just merged → run **Post-Story Merge check** (confirm PR closed, `git pull origin master` in main repo) | — |
 | 1 | PM approves scope; PM decisions doc finalized | — |
 | 2 | — | **@sm** prepares Story, context (XML), UAT guide; SM reviews and suggests improvements |
 | 3 | Run `new-story.ps1`; open Story worktree in Cursor | — |
@@ -267,6 +268,29 @@ After @dev implements the story:
 | 3 | Merge Story PR to master |
 | 4 | (Optional) Retro; update EPIC-5-WORKFLOW-GUIDE |
 
+---
+
+## 🔄 Post-Story Merge: Confirm & Update Local Master (MANDATORY)
+
+**When:** After you merge a Story PR to master on GitHub and return to this chat to start the next story.
+
+**Why:** Local `master` does not auto-update when you merge on GitHub. If you start Story 5.9 without pulling, local `master` will diverge and `new-story.ps1` will hit merge conflicts when it runs `git pull`.
+
+**Checklist (run in Main Chat with @dev or agent):**
+
+| Step | Action |
+|------|--------|
+| 1 | Confirm the merged Story PR is closed on GitHub |
+| 2 | In the **main repo** (not worktree): `git checkout master` |
+| 3 | `git fetch origin` |
+| 4 | `git pull origin master` — local master now matches origin/master |
+| 5 | Verify: `git log --oneline -3` shows the merged Story commit |
+| 6 | (Optional) Remove the completed story worktree if done: `git worktree remove C:\wt\elp\story-epic5-5.x-...` |
+
+**Then** proceed to run `new-story.ps1` for the next story. Local master is fresh; no conflicts.
+
+**Workflow rule:** Always run this Post-Story Merge check before creating the next story branch.
+
 ### Dev commit discipline (single-session)
 
 The Dev prompt (STORY-5.7-SINGLE-SESSION-DEV-PROMPT.md) instructs @dev: implementation commits first; closeout (UAT results, docs) in separate commit; verify clean tree before push.
@@ -374,4 +398,5 @@ git push origin <story-branch>
 | 2026-02-16 | Added "Single-Session Story Workflow" (Story 5.3 validated) | Story 5.3 delivered in one chat without Ralf decomposition. Backend-heavy stories with clear DCs can use single-session prompt; human runs migrations, manual UAT, retro, merge. See STORY-5.3-RETRO, docs/tasks/5.3/LESSONS-LEARNED |
 | 2026-02-16 | Stories 5.3, 5.4, 5.5 complete; focus → 5.6 | All single-session stories merged to master. Next: Publish Request Workflow |
 | 2026-02-18 | **BMAD method only; no Ralf** | Stories 5.6, 5.7 delivered via SM prepare/review + Dev single-session prompt. Ralf decomposition and task cycle removed. SM prepares Story, context, UAT; SM reviews; Dev builds in one session. Create STORY-5.x-SINGLE-SESSION-DEV-PROMPT; paste into @dev. |
+| 2026-02-18 | **Post-Story Merge check** | After merging a Story PR, confirm merge on GitHub and run `git pull origin master` in main repo before creating the next story. Prevents diverged local master and merge conflicts when running new-story.ps1. |
 

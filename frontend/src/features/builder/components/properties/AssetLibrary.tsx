@@ -39,7 +39,7 @@ const AssetThumbnail: React.FC<{
     useEffect(() => {
         let url: string | null = null;
         assetsApi
-            .fetchAssetContentBlobUrl(asset.assetId)
+            .fetchAssetContentBlobUrl(asset.assetId, true)
             .then((u) => {
                 url = u;
                 setBlobUrl(u);

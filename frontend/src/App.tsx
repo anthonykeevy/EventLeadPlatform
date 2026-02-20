@@ -29,6 +29,12 @@ const PasswordResetConfirm = lazy(() => import('./features/auth').then(module =>
 const DashboardPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.DashboardPage })))
 const FormBrandingDefaultsPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.FormBrandingDefaultsPage })))
 const CompanySettingsLayout = lazy(() => import('./features/dashboard').then(module => ({ default: module.CompanySettingsLayout })))
+const CompanyDetailsPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.CompanyDetailsPage })))
+const FormApprovalWorkflowPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.FormApprovalWorkflowPage })))
+const AssetsImagesPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.AssetsImagesPage })))
+const AssetsTermsPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.AssetsTermsPage })))
+const AssetsDocumentsPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.AssetsDocumentsPage })))
+const AssetsVideoPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.AssetsVideoPage })))
 const CompanyImagesPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.CompanyImagesPage })))
 const CompanyTeamPage = lazy(() => import('./features/dashboard').then(module => ({ default: module.CompanyTeamPage })))
 const InvitationAcceptancePage = lazy(() => import('./features/invitations').then(module => ({ default: module.InvitationAcceptancePage })))
@@ -275,8 +281,14 @@ function App() {
                     </RequireAuth>
                   }
                 >
-                  <Route index element={<Navigate to="form-branding-defaults" replace />} />
+                  <Route index element={<Navigate to="company-details" replace />} />
+                  <Route path="company-details" element={<CompanyDetailsPage />} />
+                  <Route path="form-approval-workflow" element={<FormApprovalWorkflowPage />} />
                   <Route path="form-branding-defaults" element={<FormBrandingDefaultsPage />} />
+                  <Route path="assets/images" element={<AssetsImagesPage />} />
+                  <Route path="assets/terms" element={<AssetsTermsPage />} />
+                  <Route path="assets/documents" element={<AssetsDocumentsPage />} />
+                  <Route path="assets/video" element={<AssetsVideoPage />} />
                   <Route path="images" element={<CompanyImagesPage />} />
                   <Route path="team" element={<CompanyTeamPage />} />
                 </Route>

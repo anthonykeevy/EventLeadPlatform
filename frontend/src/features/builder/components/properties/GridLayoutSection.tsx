@@ -749,7 +749,7 @@ export const GridLayoutSection: React.FC<GridLayoutSectionProps> = ({
         
         // Build new cellAssignments
         const newAssignments = { ...currentGridConfig.cellAssignments };
-        let newObjectSpans = { ...(currentGridConfig.objectSpans || {}) };
+        const newObjectSpans = { ...(currentGridConfig.objectSpans || {}) };
         let updatedMergedCells = currentGridConfig.mergedCells;
         
         // Remove object from current position (enforce single placement)

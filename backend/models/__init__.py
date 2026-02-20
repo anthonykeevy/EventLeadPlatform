@@ -76,6 +76,7 @@ from .company_form_defaults import CompanyFormDefaults
 from .company_form_defaults_version import CompanyFormDefaultsVersion
 from .company_form_test_config import CompanyFormTestConfig
 from .form_publish_request import FormPublishRequest
+from .form_republish_request import FormRepublishRequest
 
 # Configuration tables (config schema)
 from .config import (
@@ -151,6 +152,7 @@ __all__ = [
     "CompanyFormDefaultsVersion",
     "CompanyFormTestConfig",
     "FormPublishRequest",
+    "FormRepublishRequest",
     
     # Reference tables (ref)
     "Country",

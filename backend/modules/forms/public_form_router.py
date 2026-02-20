@@ -20,6 +20,9 @@ from models.form import Form
 from models.form_version import FormVersion
 from models.form_public_link import FormPublicLink
 from models.form_submission import FormSubmission
+from models.form_republish_request import FormRepublishRequest
+from models.ref.form_status import FormStatus
+from models.event import Event
 from models.log.frontend_event import FrontendEvent
 
 from modules.form_defaults.service import resolve_definition_for_render
@@ -97,25 +100,19 @@ async def resolve_public_form(
     token: str = Path(..., description="Public form token"),
     db: Session = Depends(get_db),
 ) -> PublicFormResolveResponse:
-    # Handle potential duplicate tokens by selecting the most recent active link
-    # (shouldn't happen due to unique constraint, but defensive coding)
+    # Find link by token (include inactive for unpublished page - Story 5.8)
     link = db.execute(
         select(FormPublicLink)
-        .where(
-            FormPublicLink.Token == token,
-            FormPublicLink.IsActive == True
-        )
+        .where(FormPublicLink.Token == token)
         .order_by(desc(FormPublicLink.CreatedDate))
     ).scalars().first()
 
     if not link:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid form link.")
 
-    # Check expiration (IsActive is already filtered in query above)
     if link.ExpiresAt and link.ExpiresAt < datetime.utcnow():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Form link has expired.")
 
-    # Validate form exists and is not deleted
     form = db.execute(
         select(Form).where(
             Form.FormID == link.FormID,
@@ -126,39 +123,63 @@ async def resolve_public_form(
     if not form:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid form link.")
 
+    form_status = db.execute(
+        select(FormStatus).where(FormStatus.FormStatusID == form.FormStatusID)
+    ).scalars().first()
+    status_code = form_status.StatusCode if form_status else ""
+
+    # Story 5.8: Unpublished form - serve dedicated page (no 404)
+    if not link.IsActive or status_code == "UNPUBLISHED":
+        return PublicFormResolveResponse(
+            linkType="UNPUBLISHED",
+            definition=None,
+            message="This form is no longer active. It has been unpublished.",
+        )
+
+    # PRODUCTION: Check activation window (Event.StartDateTime–EndDateTime)
+    if str(link.LinkType).upper() == "PRODUCTION" and form.EventID:
+        event = db.execute(
+            select(Event).where(Event.EventID == form.EventID, Event.IsDeleted == False)
+        ).scalars().first()
+        if event:
+            now = datetime.utcnow()
+            if event.StartDateTime and event.StartDateTime > now:
+                return PublicFormResolveResponse(
+                    linkType="EVENT_ENDED",
+                    definition=None,
+                    message="This form is not yet active. The event has not started.",
+                )
+            if event.EndDateTime and event.EndDateTime < now:
+                return PublicFormResolveResponse(
+                    linkType="EVENT_ENDED",
+                    definition=None,
+                    message="This form is no longer active. The event has ended.",
+                )
+
     # Get active/published version
-    # PRODUCTION links resolve to active published version.
-    # PREVIEW links resolve to the latest version (draft or published) to support builder preview flows.
     if str(link.LinkType).upper() == "PREVIEW":
-        # Get the latest version (highest VersionNumber) - use first() since we're ordering
         version = db.execute(
             select(FormVersion)
             .where(FormVersion.FormID == link.FormID)
             .order_by(desc(FormVersion.VersionNumber))
         ).scalars().first()
     else:
-        # PRODUCTION: Get the active published version (should be unique, but use first() defensively)
         version = db.execute(
             select(FormVersion).where(
                 FormVersion.FormID == link.FormID,
                 FormVersion.IsActive == True,
             )
-            .order_by(desc(FormVersion.VersionNumber))  # Get most recent if multiple active
+            .order_by(desc(FormVersion.VersionNumber))
         ).scalars().first()
 
     if not version:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No form version found for this link.")
 
-    # T06: Resolve definition with Global -> Company -> Form inheritance for renderer parity
     try:
-        resolved_def = resolve_definition_for_render(
-            db, form.CompanyID, version.definition
-        )
+        resolved_def = resolve_definition_for_render(db, form.CompanyID, version.definition)
     except ValueError:
-        # Global defaults not found (e.g. migration 039 not run); fall back to raw definition
         resolved_def = version.definition
 
-    # Update last accessed (best-effort)
     try:
         link.LastAccessedAt = datetime.utcnow()  # type: ignore[assignment]
         db.commit()
@@ -170,6 +191,49 @@ async def resolve_public_form(
         linkType=str(link.LinkType),
         definition=resolved_def,
     )
+
+
+@router.post(
+    "/forms/{token}/request-republish",
+    status_code=status.HTTP_200_OK,
+    summary="Request admin to re-publish form (Story 5.8)",
+)
+async def request_republish(
+    request: Request,
+    token: str = Path(..., description="Public form token"),
+    db: Session = Depends(get_db),
+):
+    """
+    Visitor on unpublished form page clicks CTA. Creates FormRepublishRequest record.
+    In-app notification to Company Admins: placeholder for MVP (no notification system yet).
+    """
+    link = db.execute(
+        select(FormPublicLink).where(FormPublicLink.Token == token)
+    ).scalars().first()
+    if not link:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid form link.")
+
+    form = db.execute(
+        select(Form).where(Form.FormID == link.FormID, Form.IsDeleted == False)
+    ).scalar_one_or_none()
+    if not form:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid form link.")
+
+    ip = getattr(request.client, "host", None) if getattr(request, "client", None) else None
+    ua = (request.headers.get("user-agent") or "")[:500]
+
+    req = FormRepublishRequest(
+        FormID=form.FormID,
+        IPAddress=ip,
+        UserAgent=ua,
+    )
+    db.add(req)
+    db.commit()
+
+    # TODO: In-app notification to Company Admins - notification system not yet implemented
+    logger.info(f"Republish requested for FormID={form.FormID} (FormRepublishRequestID={req.FormRepublishRequestID})")
+
+    return {"success": True, "message": "Your request has been recorded. The administrator will be notified."}
 
 
 @router.post(

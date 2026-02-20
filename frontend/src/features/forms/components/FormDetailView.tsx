@@ -15,6 +15,7 @@ import { checkFormAccess } from '../api/formAccessApi'
 import { approveForm, rejectForm, updateForm, getFormReadiness, recordTestRun, createPreviewLink, getCompanyTestConfig } from '../api/formsApi'
 import type { FormReadiness } from '../api/formsApi'
 import { RequestPublishModal } from './RequestPublishModal'
+import { DirectPublishModal } from './DirectPublishModal'
 import { PublishWorkflowStatus } from './PublishWorkflowStatus'
 import { AccessCheckResponse } from '../types/form-access.types'
 import { useAuth } from '../../auth/context/AuthContext'
@@ -41,6 +42,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   const [readinessLoading, setReadinessLoading] = useState(false)
   const [requirePublishApproval, setRequirePublishApproval] = useState(false)
   const [showRequestPublishModal, setShowRequestPublishModal] = useState(false)
+  const [showDirectPublishModal, setShowDirectPublishModal] = useState(false)
 
   useEffect(() => {
     if (form) {
@@ -257,6 +259,16 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   const requestPublishTooltip = requestPublishDisabled && readiness?.message
     ? readiness.message
     : undefined
+
+  // Story 5.8: Direct Publish when RequirePublishApproval=false or Admin
+  const showDirectPublish =
+    (isCompanyAdmin || !requirePublishApproval) &&
+    canEdit &&
+    (isNoApproval || isRejected) &&
+    form.formStatus?.statusCode !== 'PUBLISHED' &&
+    !isPendingReview
+  const directPublishDisabled = !(readiness?.canPublish ?? false)
+  const directPublishTooltip = directPublishDisabled && readiness?.message ? readiness.message : undefined
   
   // Show Approve/Reject ONLY if: User is Admin AND Form is Pending
   // PRE-APPROVAL: Also show if Draft (No Approval) AND Cost > 100 (Scenario 4)
@@ -541,9 +553,26 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
               Request Publish
             </button>
           )}
+
+          {/* Story 5.8: Direct Publish (when RequirePublishApproval=false or Admin) */}
+          {showDirectPublish && (
+            <button
+              onClick={() => !directPublishDisabled && !isProcessing && setShowDirectPublishModal(true)}
+              disabled={isProcessing || directPublishDisabled}
+              title={directPublishTooltip}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                directPublishDisabled
+                  ? 'text-gray-400 bg-gray-300 cursor-not-allowed'
+                  : 'text-white bg-teal-600 hover:bg-teal-700'
+              }`}
+            >
+              <Send className="w-4 h-4" />
+              Publish
+            </button>
+          )}
           
-          {/* Smart Publish Button (when NOT using Request Publish flow) */}
-          {showSmartPublish && !showRequestPublish && (
+          {/* Smart Publish Button (when NOT using Request Publish or Direct Publish flow) */}
+          {showSmartPublish && !showRequestPublish && !showDirectPublish && (
              <button
                onClick={handleSubmitForApproval}
                disabled={isProcessing}
@@ -607,6 +636,20 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           formId={form.formId}
           formName={form.formName}
           onClose={() => setShowRequestPublishModal(false)}
+          onSuccess={() => {
+            onClose()
+            window.location.reload()
+          }}
+        />
+      )}
+
+      {/* Story 5.8: Direct Publish Modal */}
+      {showDirectPublishModal && form && (
+        <DirectPublishModal
+          formId={form.formId}
+          formName={form.formName}
+          hasEvent={!!form.eventId}
+          onClose={() => setShowDirectPublishModal(false)}
           onSuccess={() => {
             onClose()
             window.location.reload()

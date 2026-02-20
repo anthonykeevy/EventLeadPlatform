@@ -11,6 +11,7 @@ import { OnboardingModal } from '../../onboarding'
 import { CreateEventModal, EditEventModal, DeleteEventConfirmModal } from '../../events'
 import type { Event } from '../../events/types/events.types'
 import { CreateFormModal, EditFormModal, DeleteFormConfirmModal, FormDetailView } from '../../forms'
+import { unpublishForm } from '../../forms/api/formsApi'
 import type { Form } from '../../forms/types/form.types'
 import { UserMenu } from './UserMenu'
 import { KPISection } from './KPISection'
@@ -490,6 +491,21 @@ export function DashboardLayout() {
     setShowDeleteFormModal(true)
   }
 
+  // Handle form unpublish from dashboard - Story 5.8
+  const handleUnpublishForm = async (form: Form) => {
+    try {
+      await unpublishForm(form.formId)
+      toast.success('Form unpublished.', 'Success')
+      loadCompanies()
+      if (activeCompanyId) loadKPIs([activeCompanyId])
+      if (form.eventId) {
+        window.dispatchEvent(new CustomEvent('formUpdated', { detail: { eventId: form.eventId } }))
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to unpublish', 'Error')
+    }
+  }
+
   // Handle form view from dashboard - Story 2.9
   const handleViewForm = (form: Form) => {
     setSelectedForm(form)
@@ -601,6 +617,7 @@ export function DashboardLayout() {
               onEditForm={handleEditForm}
               onDeleteForm={handleDeleteForm}
               onViewForm={handleViewForm}
+              onUnpublishForm={handleUnpublishForm}
               isLoading={isLoadingCompanies}
             />
         )}

@@ -180,6 +180,8 @@ class FormResponse(BaseModel):
     created_by: int = Field(..., alias="createdBy")
     updated_date: Optional[datetime] = Field(None, alias="updatedDate")
     updated_by: Optional[int] = Field(None, alias="updatedBy")
+    production_url: Optional[str] = Field(None, alias="productionUrl")  # Story 5.8
+    will_unpublish_on: Optional[str] = Field(None, alias="willUnpublishOn")  # Story 5.8
     
     class Config:
         populate_by_name = True

@@ -13,6 +13,7 @@ import { LoadingSpinner } from '../../ux/components/LoadingSpinner'
 import { EnhancedFormInput } from '../../ux/components/EnhancedFormInput'
 import { useAuth } from '../../auth/context/AuthContext'
 import { RequestPublishModal } from './RequestPublishModal'
+import { DirectPublishModal } from './DirectPublishModal'
 
 interface EditFormModalProps {
   isOpen: boolean
@@ -32,6 +33,7 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
   const [requireApproval, setRequireApproval] = useState(false)
   const [readiness, setReadiness] = useState<{ canPublish: boolean; message?: string } | null>(null)
   const [showRequestPublishModal, setShowRequestPublishModal] = useState(false)
+  const [showDirectPublishModal, setShowDirectPublishModal] = useState(false)
 
   const toast = useToastNotifications()
 
@@ -239,6 +241,8 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
   const currentStatusCode = formStatuses.find(s => s.formStatusId === currentStatusId)?.statusCode ?? form.formStatus?.statusCode ?? 'DRAFT'
   const showRequestPublishBtn = !isCompanyAdmin && requireApproval && currentStatusCode === 'DRAFT'
   const canRequestPublish = showRequestPublishBtn && (readiness?.canPublish ?? false)
+  const showDirectPublishBtn = (isCompanyAdmin || !requireApproval) && currentStatusCode === 'DRAFT'
+  const canDirectPublish = showDirectPublishBtn && (readiness?.canPublish ?? false)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -387,7 +391,7 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
 
         {/* Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
-          <div>
+          <div className="flex items-center gap-3">
             {showRequestPublishBtn && (
               <div className="relative group">
                 <button
@@ -402,6 +406,24 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
                 {!canRequestPublish && (
                   <div className="absolute bottom-full left-0 mb-1 px-2 py-1.5 text-xs text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 max-w-xs">
                     {readiness?.message ?? 'Complete required test runs to request publish'}
+                  </div>
+                )}
+              </div>
+            )}
+            {showDirectPublishBtn && (
+              <div className="relative group">
+                <button
+                  type="button"
+                  onClick={() => canDirectPublish && setShowDirectPublishModal(true)}
+                  disabled={!canDirectPublish}
+                  className="px-4 py-2 text-sm font-medium text-white bg-teal-600 border border-teal-700 rounded-md hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                  title={!canDirectPublish ? (readiness?.message ?? 'Complete required test runs to publish') : 'Publish form directly'}
+                >
+                  <Send size={16} /> Publish
+                </button>
+                {!canDirectPublish && (
+                  <div className="absolute bottom-full left-0 mb-1 px-2 py-1.5 text-xs text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 max-w-xs">
+                    {readiness?.message ?? 'Complete required test runs to publish'}
                   </div>
                 )}
               </div>
@@ -431,6 +453,19 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
             onClose={() => setShowRequestPublishModal(false)}
             onSuccess={() => {
               setShowRequestPublishModal(false)
+              onSuccess()
+              onClose()
+            }}
+          />
+        )}
+        {showDirectPublishModal && form && (
+          <DirectPublishModal
+            formId={form.formId}
+            formName={form.formName || 'Form'}
+            hasEvent={!!form.eventId}
+            onClose={() => setShowDirectPublishModal(false)}
+            onSuccess={() => {
+              setShowDirectPublishModal(false)
               onSuccess()
               onClose()
             }}

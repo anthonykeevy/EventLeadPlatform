@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut, Layout } from 'lucide-react'
+import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut, Layout, Copy, ExternalLink } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { Company } from '../types/dashboard.types'
 import { getEvents } from '../../events/api/eventsApi'
@@ -15,6 +15,7 @@ import { getFormsByEvent } from '../../forms/api/formsApi'
 import type { Form } from '../../forms/types/form.types'
 import { checkFormAccess } from '../../forms/api/formAccessApi'
 import { useAuth } from '../../auth/context/AuthContext'
+import { useToastNotifications } from '../../ux'
 import { ShareEventModal } from '../../events/components/ShareEventModal'
 
 interface CompanyContainerProps {
@@ -32,6 +33,7 @@ interface CompanyContainerProps {
   onEditForm?: (form: Form) => void
   onDeleteForm?: (form: Form) => void
   onViewForm?: (form: Form) => void
+  onUnpublishForm?: (form: Form) => void
   depth?: number
   maxDepth?: number
 }
@@ -51,11 +53,13 @@ export function CompanyContainer({
   onEditForm,
   onDeleteForm,
   onViewForm,
+  onUnpublishForm,
   depth = 0,
   maxDepth = 5
 }: CompanyContainerProps) {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const toast = useToastNotifications()
   const hasChildren = company.childCompanies && company.childCompanies.length > 0
   const isAdmin = company.userRole === 'Company Admin'
   
@@ -854,6 +858,19 @@ export function CompanyContainer({
                                                   </button>
                                                 )}
                                                 
+                                                {/* Unpublish button - Story 5.8, published forms only */}
+                                                {hasManage && form.formStatus?.statusCode === 'PUBLISHED' && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation()
+                                                      onUnpublishForm?.(form)
+                                                    }}
+                                                    className="p-1 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
+                                                    title="Unpublish form"
+                                                  >
+                                                    <Ban className="w-3.5 h-3.5" />
+                                                  </button>
+                                                )}
                                                 {/* Delete button - only shown for MANAGE access */}
                                                 {hasManage && (
                                                   <button
@@ -919,6 +936,46 @@ export function CompanyContainer({
                                           </div>
                                         )}
                                       </div>
+                                      {/* Story 5.8: Published form URL + copy + unpublish badge */}
+                                      {form.formStatus?.statusCode === 'PUBLISHED' && form.productionUrl && (
+                                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                                          <div className="flex items-center gap-1 min-w-0 max-w-full">
+                                            <input
+                                              type="text"
+                                              readOnly
+                                              value={form.productionUrl}
+                                              className="flex-1 min-w-0 text-xs rounded border border-gray-200 px-2 py-1 bg-gray-50 truncate max-w-[180px]"
+                                            />
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation()
+                                                navigator.clipboard.writeText(form.productionUrl ?? '')
+                                                toast.success('URL copied', 'Success')
+                                              }}
+                                              className="p-1 text-teal-600 hover:bg-teal-50 rounded shrink-0"
+                                              title="Copy URL"
+                                            >
+                                              <Copy size={14} />
+                                            </button>
+                                            <a
+                                              href={form.productionUrl}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              onClick={(e) => e.stopPropagation()}
+                                              className="p-1 text-gray-600 hover:bg-gray-100 rounded shrink-0"
+                                              title="Open form"
+                                            >
+                                              <ExternalLink size={14} />
+                                            </a>
+                                          </div>
+                                          {form.willUnpublishOn && (
+                                            <span className="text-xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                                              Will unpublish on {new Date(form.willUnpublishOn).toLocaleDateString()}
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </div>

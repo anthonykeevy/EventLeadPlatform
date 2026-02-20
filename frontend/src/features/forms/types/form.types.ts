@@ -49,6 +49,8 @@ export interface Form {
   createdBy: number
   updatedDate: string | null
   updatedBy: number | null
+  productionUrl?: string | null
+  willUnpublishOn?: string | null
 }
 
 // Request Types

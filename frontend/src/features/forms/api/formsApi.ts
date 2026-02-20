@@ -72,6 +72,8 @@ function transformForm(backend: any): Form {
     lastActivityDate: backend.last_activity_date ?? backend.lastActivityDate ?? backend.LastActivityDate ?? null,
     formThumbnailUrl: backend.form_thumbnail_url ?? backend.formThumbnailUrl ?? backend.FormThumbnailURL ?? null,
     formPreviewUrl: backend.form_preview_url ?? backend.formPreviewUrl ?? backend.FormPreviewURL ?? null,
+    productionUrl: backend.production_url ?? backend.productionUrl ?? null,
+    willUnpublishOn: backend.will_unpublish_on ?? backend.willUnpublishOn ?? null,
     createdDate: backend.created_date ?? backend.createdDate ?? backend.CreatedDate ?? '',
     createdBy: backend.created_by ?? backend.createdBy ?? backend.CreatedBy ?? 0,
     updatedDate: backend.updated_date ?? backend.updatedDate ?? backend.UpdatedDate ?? null,
@@ -467,9 +469,25 @@ export async function getPendingPublishRequests(): Promise<PublishRequest[]> {
   }
 }
 
-export async function approvePublishRequest(formId: number, comment?: string): Promise<PublishRequest> {
+export type ApprovePublishOptions = {
+  publish?: boolean  // true = Approve & Publish; false = Approve only
+  comment?: string
+  unpublishMode?: 'MANUAL' | 'EVENT_END' | 'SCHEDULED'
+  scheduledUnpublishDate?: string  // ISO date when SCHEDULED
+}
+
+export async function approvePublishRequest(
+  formId: number,
+  options?: ApprovePublishOptions | string
+): Promise<PublishRequest> {
+  const opts = typeof options === 'string' ? { comment: options, publish: true } : (options ?? { publish: true })
   try {
-    const response = await apiClient.post(`/api/forms/${formId}/publish-request/approve`, { comment: comment ?? '' })
+    const response = await apiClient.post(`/api/forms/${formId}/publish-request/approve`, {
+      comment: opts.comment ?? '',
+      publish: opts.publish ?? true,
+      unpublishMode: opts.unpublishMode ?? 'MANUAL',
+      scheduledUnpublishDate: opts.scheduledUnpublishDate ?? null,
+    })
     const d = response.data
     return {
       formPublishRequestId: d.formPublishRequestId ?? d.form_publish_request_id ?? 0,
@@ -480,6 +498,101 @@ export async function approvePublishRequest(formId: number, comment?: string): P
       requestedAt: d.requestedAt ?? d.requested_at ?? '',
       message: d.message ?? null,
       status: d.status ?? 'approved',
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export async function publishForm(
+  formId: number,
+  options?: { unpublishMode?: 'MANUAL' | 'EVENT_END' | 'SCHEDULED'; scheduledUnpublishDate?: string }
+): Promise<PublishRequest> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/publish`, {
+      unpublishMode: options?.unpublishMode ?? 'MANUAL',
+      scheduledUnpublishDate: options?.scheduledUnpublishDate ?? null,
+    })
+    const d = response.data
+    return {
+      formPublishRequestId: d.formPublishRequestId ?? d.form_publish_request_id ?? 0,
+      formId: d.formId ?? d.form_id ?? formId,
+      formName: d.formName ?? d.form_name ?? '',
+      requestedBy: d.requestedBy ?? d.requested_by ?? 0,
+      requestedByEmail: d.requestedByEmail ?? d.requested_by_email ?? null,
+      requestedAt: d.requestedAt ?? d.requested_at ?? '',
+      message: d.message ?? null,
+      status: d.status ?? 'approved',
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export async function unpublishForm(formId: number): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await apiClient.post(`/api/forms/${formId}/unpublish`)
+    return {
+      success: response.data.success ?? true,
+      message: response.data.message ?? 'Form unpublished',
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export type FormPublicUrl = { url: string | null; token: string | null; isPublished: boolean }
+
+export type FormReviewContext = {
+  formStatus: string
+  hasPendingRequest: boolean
+  hasApprovedRequest: boolean
+  productionUrl: string | null
+  productionToken: string | null
+  unpublishMode: string
+  scheduledUnpublishDate: string | null
+  eventEndDate: string | null
+}
+
+export async function getFormReviewContext(formId: number): Promise<FormReviewContext> {
+  try {
+    const response = await apiClient.get(`/api/forms/${formId}/review-context`)
+    const d = response.data
+    return {
+      formStatus: d.formStatus ?? d.form_status ?? '',
+      hasPendingRequest: d.hasPendingRequest ?? d.has_pending_request ?? false,
+      hasApprovedRequest: d.hasApprovedRequest ?? d.has_approved_request ?? false,
+      productionUrl: d.productionUrl ?? d.production_url ?? null,
+      productionToken: d.productionToken ?? d.production_token ?? null,
+      unpublishMode: d.unpublishMode ?? d.unpublish_mode ?? 'MANUAL',
+      scheduledUnpublishDate: d.scheduledUnpublishDate ?? d.scheduled_unpublish_date ?? null,
+      eventEndDate: d.eventEndDate ?? d.event_end_date ?? null,
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export async function getFormPublicUrl(formId: number): Promise<FormPublicUrl> {
+  try {
+    const response = await apiClient.get(`/api/forms/${formId}/public-url`)
+    const d = response.data
+    return {
+      url: d.url ?? null,
+      token: d.token ?? null,
+      isPublished: d.isPublished ?? false,
+    }
+  } catch (error) {
+    throw formatError(error)
+  }
+}
+
+export async function requestRepublish(token: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await apiClient.post(`/api/public/forms/${token}/request-republish`)
+    return {
+      success: response.data.success ?? true,
+      message: response.data.message ?? 'Request recorded',
     }
   } catch (error) {
     throw formatError(error)

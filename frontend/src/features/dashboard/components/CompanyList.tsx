@@ -24,6 +24,7 @@ interface CompanyListProps {
   onEditForm?: (form: Form) => void
   onDeleteForm?: (form: Form) => void
   onViewForm?: (form: Form) => void
+  onUnpublishForm?: (form: Form) => void
   isLoading?: boolean
 }
 
@@ -42,6 +43,7 @@ export function CompanyList({
   onEditForm,
   onDeleteForm,
   onViewForm,
+  onUnpublishForm,
   isLoading = false
 }: CompanyListProps) {
   if (isLoading) {
@@ -96,6 +98,7 @@ export function CompanyList({
           onEditForm={onEditForm}
           onDeleteForm={onDeleteForm}
           onViewForm={onViewForm}
+          onUnpublishForm={onUnpublishForm}
           depth={0}
         />
       ))}

@@ -1,25 +1,30 @@
 /**
- * PendingPublishRequestsCard - Story 5.6
- * Admin-only card showing pending publish requests with deep link to Review and Publish.
+ * PendingPublishRequestsCard - Story 5.6, 5.8
+ * Admin-only card showing pending publish requests. Hidden when RequirePublishApproval=false.
  */
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ExternalLink, ClipboardList } from 'lucide-react'
-import { getPendingPublishRequests } from '../../forms/api/formsApi'
+import { getPendingPublishRequests, getCompanyTestConfig } from '../../forms/api/formsApi'
 import type { PublishRequest } from '../../forms/api/formsApi'
 
 export function PendingPublishRequestsCard() {
   const [requests, setRequests] = useState<PublishRequest[]>([])
   const [loading, setLoading] = useState(true)
+  const [requireApproval, setRequireApproval] = useState(true)
 
   useEffect(() => {
-    getPendingPublishRequests()
-      .then(setRequests)
+    Promise.all([getPendingPublishRequests(), getCompanyTestConfig()])
+      .then(([reqs, config]) => {
+        setRequests(reqs)
+        setRequireApproval(config.requirePublishApproval)
+      })
       .catch(() => setRequests([]))
       .finally(() => setLoading(false))
   }, [])
 
   if (loading) return null
+  if (!requireApproval) return null
 
   return (
     <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">

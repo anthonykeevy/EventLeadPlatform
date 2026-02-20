@@ -150,7 +150,7 @@ async def create_new_form(
         db.refresh(form)
         
         # Convert to response model
-        form_response = _form_to_response(form)
+        form_response = _form_to_response(form, db)
         
         logger.info(f"Form created successfully: FormID={form.FormID}")
         
@@ -253,7 +253,7 @@ async def list_company_forms(
             )
         
         # Convert to response models
-        form_responses = [_form_to_response(f) for f in forms]
+        form_responses = [_form_to_response(f, db) for f in forms]
         
         logger.info(f"Retrieved {len(form_responses)} forms for CompanyID={current_user.company_id}")
         
@@ -303,7 +303,7 @@ async def get_form_details(
                 detail=f"Form not found: {form_id}"
             )
         
-        form_response = _form_to_response(form)
+        form_response = _form_to_response(form, db)
         
         logger.info(f"Retrieved form: FormID={form_id}")
         
@@ -354,7 +354,7 @@ async def update_existing_form(
         db.commit()
         db.refresh(form)
         
-        form_response = _form_to_response(form)
+        form_response = _form_to_response(form, db)
         
         logger.info(f"Form updated successfully: FormID={form_id}")
         
@@ -528,7 +528,7 @@ async def get_forms_for_event(
             company_id=current_user.company_id
         )
         
-        form_responses = [_form_to_response(f) for f in forms]
+        form_responses = [_form_to_response(f, db) for f in forms]
         
         logger.info(f"Retrieved {len(form_responses)} forms for EventID={event_id}")
         
@@ -572,7 +572,7 @@ async def submit_form_for_approval(
         db.commit()
         
         # Convert to response model
-        form_response = _form_to_response(form)
+        form_response = _form_to_response(form, db)
         
         return UpdateFormResponse(
             success=True,
@@ -615,7 +615,7 @@ async def approve_form_request(
         
         db.commit()
         
-        form_response = _form_to_response(form)
+        form_response = _form_to_response(form, db)
         
         return UpdateFormResponse(
             success=True,
@@ -660,7 +660,7 @@ async def reject_form_request(
         
         db.commit()
         
-        form_response = _form_to_response(form)
+        form_response = _form_to_response(form, db)
         
         return UpdateFormResponse(
             success=True,
@@ -726,7 +726,40 @@ async def request_external_approval_endpoint(
 # Helper Functions
 # =====================================================================
 
-def _form_to_response(form: Form) -> FormResponse:
+def _get_form_publish_info(db, form: Form) -> tuple[str | None, str | None]:
+    """Get production URL and willUnpublishOn for a form. Story 5.8."""
+    from sqlalchemy import select
+    from models.form_public_link import FormPublicLink
+    from models.event import Event
+    import os
+
+    link = db.execute(
+        select(FormPublicLink).where(
+            FormPublicLink.FormID == form.FormID,
+            FormPublicLink.LinkType == "PRODUCTION",
+            FormPublicLink.IsActive == True,
+        )
+    ).scalars().first()
+    if not link:
+        return None, None
+
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+    url = f"{frontend_url}/forms/{link.Token}"
+
+    will_unpublish = None
+    mode = getattr(form, "UnpublishMode", None) or "MANUAL"
+    if mode == "SCHEDULED" and getattr(form, "ScheduledUnpublishDate", None):
+        will_unpublish = form.ScheduledUnpublishDate.isoformat()
+    elif mode == "EVENT_END" and form.EventID:
+        event = db.execute(
+            select(Event).where(Event.EventID == form.EventID, Event.IsDeleted == False)
+        ).scalars().first()
+        if event and event.EndDateTime:
+            will_unpublish = event.EndDateTime.isoformat()
+    return url, will_unpublish
+
+
+def _form_to_response(form: Form, db=None) -> FormResponse:
     """Convert Form model to FormResponse schema with relationship data."""
     # Get relationship data
     form_status_response = None
@@ -754,6 +787,10 @@ def _form_to_response(form: Form) -> FormResponse:
             sort_order=form.form_approval_status.SortOrder
         )
     
+    production_url, will_unpublish_on = (None, None)
+    if db:
+        production_url, will_unpublish_on = _get_form_publish_info(db, form)
+
     return FormResponse(
         formId=form.FormID,
         formName=form.FormName,
@@ -776,5 +813,7 @@ def _form_to_response(form: Form) -> FormResponse:
         createdDate=form.CreatedDate,
         createdBy=form.CreatedBy,
         updatedDate=form.UpdatedDate,
-        updatedBy=form.UpdatedBy
+        updatedBy=form.UpdatedBy,
+        productionUrl=production_url,
+        willUnpublishOn=will_unpublish_on,
     )

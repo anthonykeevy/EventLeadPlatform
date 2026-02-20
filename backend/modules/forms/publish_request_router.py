@@ -1,6 +1,6 @@
 """
-Form Publish Request Router (Story 5.6)
-Endpoints for create publish request and list pending requests.
+Form Publish Request Router (Story 5.6, 5.8)
+Endpoints for create publish request, list pending, approve (only or and-publish), unpublish, direct publish.
 """
 from datetime import datetime
 
@@ -16,8 +16,10 @@ from modules.auth.models import CurrentUser
 
 from .access_guard import check_form_access_guard
 from .readiness_service import check_publish_readiness, get_company_test_config
+from .publish_service import publish_form
 from models.form import Form
 from models.form_publish_request import FormPublishRequest
+from models.form_public_link import FormPublicLink
 from models import FormStatus
 
 router = APIRouter(prefix="/api/forms", tags=["forms", "publish-request"])
@@ -210,6 +212,9 @@ async def get_pending_publish_requests(
 
 class PublishRequestApproveBody(BaseModel):
     comment: str | None = Field(None, max_length=1000, alias="comment")
+    publish: bool = Field(True, alias="publish")  # True = Approve & Publish; False = Approve only
+    unpublish_mode: str | None = Field("MANUAL", alias="unpublishMode")  # MANUAL | EVENT_END | SCHEDULED
+    scheduled_unpublish_date: str | None = Field(None, alias="scheduledUnpublishDate")  # ISO date when SCHEDULED
 
     class Config:
         populate_by_name = True
@@ -222,10 +227,19 @@ class PublishRequestRejectBody(BaseModel):
         populate_by_name = True
 
 
+def _parse_scheduled_date(s: str | None) -> datetime | None:
+    if not s:
+        return None
+    try:
+        return datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 @router.post(
     "/{form_id}/publish-request/approve",
     response_model=PublishRequestResponse,
-    summary="Approve publish request (Story 5.6, Admin only)",
+    summary="Approve publish request (Story 5.6, 5.8 — Approve only or Approve & Publish)",
 )
 async def approve_publish_request(
     form_id: int,
@@ -234,7 +248,9 @@ async def approve_publish_request(
     db: Session = Depends(get_db),
 ):
     """
-    Company Admin approves a pending publish request. Sets form to PUBLISHED, request to approved.
+    Company Admin approves a pending publish request.
+    publish=True: Approve & Publish (form published, FormPublicLink created).
+    publish=False: Approve only (form stays Ready to publish; admin can publish later with one click).
     """
     require_company_admin_for_company(current_user, current_user.company_id)
     form = await check_form_access_guard(db, form_id, current_user.user_id, "MANAGE")
@@ -257,16 +273,36 @@ async def approve_publish_request(
             detail="No pending publish request found for this form.",
         )
 
-    published_status = db.execute(select(FormStatus).where(FormStatus.StatusCode == "PUBLISHED")).scalars().first()
-    if not published_status:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PUBLISHED status not configured.")
+    do_publish = body.publish if body else True
+    unpublish_mode = (body.unpublish_mode or "MANUAL").upper() if body else "MANUAL"
+    scheduled_date = _parse_scheduled_date(body.scheduled_unpublish_date if body else None) if body else None
+
+    if unpublish_mode not in ("MANUAL", "EVENT_END", "SCHEDULED"):
+        unpublish_mode = "MANUAL"
+    if unpublish_mode == "EVENT_END" and not form.EventID:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Event end date unpublish requires form to be linked to an event.",
+        )
+    if unpublish_mode == "SCHEDULED" and not scheduled_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Scheduled unpublish requires a date.",
+        )
 
     req.Status = "approved"
     req.UpdatedBy = current_user.user_id
     req.UpdatedDate = datetime.utcnow()
-    form.FormStatusID = published_status.FormStatusID
-    form.UpdatedBy = current_user.user_id
-    form.UpdatedDate = datetime.utcnow()
+
+    if do_publish:
+        try:
+            publish_form(db, form_id, current_user.user_id, unpublish_mode, scheduled_date)
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    else:
+        # Approve only: form stays PENDING_REVIEW; admin can publish later
+        form.UpdatedBy = current_user.user_id
+        form.UpdatedDate = datetime.utcnow()
 
     db.commit()
     db.refresh(req)
@@ -283,6 +319,203 @@ async def approve_publish_request(
         message=req.Message,
         status=req.Status,
     )
+
+
+@router.post(
+    "/{form_id}/publish",
+    response_model=PublishRequestResponse,
+    summary="Direct publish (Story 5.8 — Admin or when RequirePublishApproval=false)",
+)
+async def direct_publish(
+    form_id: int,
+    body: PublishRequestApproveBody | None = Body(default=None),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Publish form directly (no request). Used when: (1) Admin publishes after Approve only,
+    (2) RequirePublishApproval=false and any user publishes. Subject to test threshold.
+    """
+    form = await check_form_access_guard(db, form_id, current_user.user_id, "EDIT")
+    if form.CompanyID != current_user.company_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
+
+    _, _, require_approval = get_company_test_config(db, form.CompanyID)
+    if require_approval and not _is_company_admin(current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Publish approval is required. Request publish for admin review.",
+        )
+
+    readiness = check_publish_readiness(db, form_id, form.CompanyID)
+    if not readiness["canPublish"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=readiness["message"])
+
+    unpublish_mode = (body.unpublish_mode or "MANUAL").upper() if body else "MANUAL"
+    scheduled_date = _parse_scheduled_date(body.scheduled_unpublish_date if body else None) if body else None
+    if unpublish_mode not in ("MANUAL", "EVENT_END", "SCHEDULED"):
+        unpublish_mode = "MANUAL"
+    if unpublish_mode == "EVENT_END" and not form.EventID:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Event end date requires form linked to event.")
+    if unpublish_mode == "SCHEDULED" and not scheduled_date:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Scheduled unpublish requires a date.")
+
+    try:
+        link = publish_form(db, form_id, current_user.user_id, unpublish_mode, scheduled_date)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    db.commit()
+
+    from models.user import User
+    return PublishRequestResponse(
+        formPublishRequestId=0,
+        formId=form_id,
+        formName=form.FormName,
+        requestedBy=current_user.user_id,
+        requestedByEmail=current_user.email,
+        requestedAt=datetime.utcnow().isoformat(),
+        message=None,
+        status="approved",
+    )
+
+
+@router.post(
+    "/{form_id}/unpublish",
+    response_model=dict,
+    summary="Unpublish form (Story 5.8)",
+)
+async def unpublish_form(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Set form to UNPUBLISHED; deactivate FormPublicLink PRODUCTION."""
+    require_company_admin_for_company(current_user, current_user.company_id)
+    form = await check_form_access_guard(db, form_id, current_user.user_id, "MANAGE")
+    if form.CompanyID != current_user.company_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
+
+    unpublished_status = db.execute(
+        select(FormStatus).where(FormStatus.StatusCode == "UNPUBLISHED")
+    ).scalars().first()
+    if not unpublished_status:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="UNPUBLISHED status not configured.")
+
+    links = db.execute(
+        select(FormPublicLink).where(
+            FormPublicLink.FormID == form_id,
+            FormPublicLink.LinkType == "PRODUCTION",
+        )
+    ).scalars().all()
+    for link in links:
+        link.IsActive = False  # type: ignore[assignment]
+
+    form.FormStatusID = unpublished_status.FormStatusID
+    form.UpdatedBy = current_user.user_id
+    form.UpdatedDate = datetime.utcnow()
+
+    db.commit()
+    return {"success": True, "message": "Form unpublished", "formId": form_id}
+
+
+@router.get(
+    "/{form_id}/review-context",
+    response_model=dict,
+    summary="Get form review context (Story 5.8)",
+)
+async def get_form_review_context(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Returns form status, hasPendingRequest, hasApprovedRequest, productionUrl, event, unpublish settings."""
+    require_company_admin_for_company(current_user, current_user.company_id)
+    form = await check_form_access_guard(db, form_id, current_user.user_id, "VIEW")
+    if form.CompanyID != current_user.company_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
+
+    from models import FormStatus
+    from models.event import Event
+
+    form_status = db.execute(
+        select(FormStatus).where(FormStatus.FormStatusID == form.FormStatusID)
+    ).scalars().first()
+    status_code = form_status.StatusCode if form_status else ""
+
+    pending = db.execute(
+        select(FormPublishRequest).where(
+            FormPublishRequest.FormID == form_id,
+            FormPublishRequest.Status == "pending",
+        )
+    ).scalars().first()
+    approved = db.execute(
+        select(FormPublishRequest)
+        .where(
+            FormPublishRequest.FormID == form_id,
+            FormPublishRequest.Status == "approved",
+        )
+        .order_by(FormPublishRequest.FormPublishRequestID.desc())
+    ).scalars().first()
+
+    link = db.execute(
+        select(FormPublicLink).where(
+            FormPublicLink.FormID == form_id,
+            FormPublicLink.LinkType == "PRODUCTION",
+            FormPublicLink.IsActive == True,
+        )
+    ).scalars().first()
+
+    import os
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+    production_url = f"{frontend_url}/forms/{link.Token}" if link else None
+
+    event = None
+    if form.EventID:
+        event = db.execute(
+            select(Event).where(Event.EventID == form.EventID, Event.IsDeleted == False)
+        ).scalars().first()
+
+    return {
+        "formStatus": status_code,
+        "hasPendingRequest": pending is not None,
+        "hasApprovedRequest": approved is not None,
+        "productionUrl": production_url,
+        "productionToken": str(link.Token) if link else None,
+        "unpublishMode": getattr(form, "UnpublishMode", "MANUAL") or "MANUAL",
+        "scheduledUnpublishDate": form.ScheduledUnpublishDate.isoformat() if getattr(form, "ScheduledUnpublishDate", None) else None,
+        "eventEndDate": event.EndDateTime.isoformat() if event and event.EndDateTime else None,
+    }
+
+
+@router.get(
+    "/{form_id}/public-url",
+    response_model=dict,
+    summary="Get production URL for published form (Story 5.8)",
+)
+async def get_form_public_url(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return production URL and token when form is published."""
+    await check_form_access_guard(db, form_id, current_user.user_id, "VIEW")
+
+    link = db.execute(
+        select(FormPublicLink).where(
+            FormPublicLink.FormID == form_id,
+            FormPublicLink.LinkType == "PRODUCTION",
+            FormPublicLink.IsActive == True,
+        )
+    ).scalars().first()
+
+    if not link:
+        return {"url": None, "token": None, "isPublished": False}
+
+    import os
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+    url = f"{frontend_url}/forms/{link.Token}"
+    return {"url": url, "token": str(link.Token), "isPublished": True}
 
 
 @router.post(

@@ -72,6 +72,10 @@ class Form(Base):
     FormThumbnailURL = Column(String(500), nullable=True)
     FormPreviewURL = Column(String(500), nullable=True)
     
+    # Unpublish settings (Story 5.8)
+    UnpublishMode = Column(String(20), nullable=False, default="MANUAL")  # MANUAL | EVENT_END | SCHEDULED
+    ScheduledUnpublishDate = Column(DateTime, nullable=True)
+
     # Audit Columns
     CreatedDate = Column(DateTime, nullable=False, server_default=func.getutcdate())
     CreatedBy = Column(BigInteger, ForeignKey('dbo.User.UserID'), nullable=False)

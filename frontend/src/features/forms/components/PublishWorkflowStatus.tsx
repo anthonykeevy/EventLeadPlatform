@@ -39,13 +39,29 @@ export function PublishWorkflowStatus({
   }
 
   const isPendingReview = formStatusCode === 'PENDING_REVIEW'
+  const isApprovedForPublish = formStatusCode === 'APPROVED_FOR_PUBLISH'
   const isPublished = formStatusCode === 'PUBLISHED'
-  const _canRequest = readiness.canPublish
   const needsTests = readiness.testRunsNeeded > 0
 
   // Company User + approval required: show Story 5.6 workflow
   if (requirePublishApproval) {
     if (isPublished) return null
+
+    if (isApprovedForPublish) {
+      return (
+        <div className="mt-4 p-4 rounded-lg bg-teal-50 border border-teal-200">
+          <div className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-semibold text-teal-900">Approved — Ready to Publish</h4>
+              <p className="text-sm text-teal-800 mt-1">
+                Your publish request was approved. A Company Admin will publish the form when ready.
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    }
 
     if (isPendingReview) {
       return (

@@ -816,4 +816,6 @@ def _form_to_response(form: Form, db=None) -> FormResponse:
         updatedBy=form.UpdatedBy,
         productionUrl=production_url,
         willUnpublishOn=will_unpublish_on,
+        unpublishMode=getattr(form, "UnpublishMode", None) or "MANUAL",
+        scheduledUnpublishDate=form.ScheduledUnpublishDate.isoformat() if getattr(form, "ScheduledUnpublishDate", None) else None,
     )

@@ -6,12 +6,12 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut, Layout, Copy, ExternalLink } from 'lucide-react'
+import { Building2, Users as UsersIcon, Settings, ChevronDown, ChevronRight, Calendar, MapPin, Tag, Globe, Clock, FileText, Edit2, Trash2, Eye, CheckCircle, XCircle, Clock as ClockIcon, AlertCircle, Ban, Star, Share2, LogOut, Layout, Copy, ExternalLink, Send } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { Company } from '../types/dashboard.types'
 import { getEvents } from '../../events/api/eventsApi'
 import type { Event } from '../../events/types/events.types'
-import { getFormsByEvent } from '../../forms/api/formsApi'
+import { getFormsByEvent, getCompanyTestConfig } from '../../forms/api/formsApi'
 import type { Form } from '../../forms/types/form.types'
 import { checkFormAccess } from '../../forms/api/formAccessApi'
 import { useAuth } from '../../auth/context/AuthContext'
@@ -81,6 +81,24 @@ export function CompanyContainer({
   // Share Event state - Story 2.10
   const [showShareModal, setShowShareModal] = useState(false)
   const [eventToShare, setEventToShare] = useState<Event | null>(null)
+
+  // Form Approval Workflow config - for Request Publish on form cards (Story 5.6/5.8 + Unified)
+  const [requirePublishApproval, setRequirePublishApproval] = useState(false)
+  const [formCostThreshold, setFormCostThreshold] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (isExpanded && !hasChildren) {
+      getCompanyTestConfig()
+        .then((c) => {
+          setRequirePublishApproval(c.requirePublishApproval)
+          setFormCostThreshold(c.formCostThreshold ?? null)
+        })
+        .catch(() => {
+          setRequirePublishApproval(false)
+          setFormCostThreshold(null)
+        })
+    }
+  }, [isExpanded, hasChildren])
 
   // Fetch events when expanded and company has events - Story 2.4
   // Only load events if this company matches the active company context from auth
@@ -326,10 +344,15 @@ export function CompanyContainer({
     switch (statusCode.toUpperCase()) {
       case 'DRAFT':
         return <FileText className="w-3 h-3" />
+      case 'PENDING_REVIEW':
       case 'REVIEW':
         return <ClockIcon className="w-3 h-3" />
+      case 'APPROVED_FOR_PUBLISH':
+        return <CheckCircle className="w-3 h-3" />
       case 'PUBLISHED':
         return <CheckCircle className="w-3 h-3" />
+      case 'UNPUBLISHED':
+        return <Ban className="w-3 h-3" />
       case 'PAUSED':
         return <AlertCircle className="w-3 h-3" />
       default:
@@ -894,18 +917,47 @@ export function CompanyContainer({
                                       <div className="flex items-center gap-2 mt-1.5">
                                         {/* Form Status */}
                                         {form.formStatus && (
-                                          <div 
-                                            className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded"
-                                            style={{
-                                              backgroundColor: form.formStatus.statusColor 
-                                                ? `${form.formStatus.statusColor}20` 
-                                                : '#f3f4f620',
-                                              color: form.formStatus.statusColor || '#6b7280'
-                                            }}
-                                            title={form.formStatus.statusDescription || form.formStatus.statusName}
-                                          >
-                                            {getFormStatusIcon(form.formStatus.statusCode)}
-                                            <span className="font-medium">{form.formStatus.statusName}</span>
+                                          <div className="flex items-center gap-1.5">
+                                            <div 
+                                              className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded"
+                                              style={{
+                                                backgroundColor: form.formStatus.statusColor 
+                                                  ? `${form.formStatus.statusColor}20` 
+                                                  : '#f3f4f620',
+                                                color: form.formStatus.statusColor || '#6b7280'
+                                              }}
+                                              title={form.formStatus.statusDescription || form.formStatus.statusName}
+                                            >
+                                              {getFormStatusIcon(form.formStatus.statusCode)}
+                                              <span className="font-medium">{form.formStatus.statusName}</span>
+                                            </div>
+                                            {/* Story 5.6/5.8: Review link when Admin and form is Pending Admin Review or Approved for Publish */}
+                                            {isAdmin && (form.formStatus.statusCode === 'PENDING_REVIEW' || form.formStatus.statusCode === 'APPROVED_FOR_PUBLISH') && (
+                                              <Link
+                                                to={`/forms/${form.formId}/review`}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="text-xs font-medium text-amber-700 hover:text-amber-900 hover:underline flex items-center gap-0.5"
+                                              >
+                                                <ExternalLink size={12} />
+                                                Review
+                                              </Link>
+                                            )}
+                                            {/* Story 5.6/5.8 + Unified: Request Publish when Company User + needsApproval + form is Draft */}
+                                            {!isAdmin &&
+                                              (requirePublishApproval ||
+                                                (formCostThreshold != null &&
+                                                  (form.deploymentCost ?? 0) > formCostThreshold)) &&
+                                              form.formStatus.statusCode === 'DRAFT' && (
+                                              <Link
+                                                to={`/forms/${form.formId}/builder`}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-0.5"
+                                                title="Open form builder to request publish"
+                                              >
+                                                <Send size={12} />
+                                                Request Publish
+                                              </Link>
+                                            )}
                                           </div>
                                         )}
                                         
@@ -944,7 +996,7 @@ export function CompanyContainer({
                                               type="text"
                                               readOnly
                                               value={form.productionUrl}
-                                              className="flex-1 min-w-0 text-xs rounded border border-gray-200 px-2 py-1 bg-gray-50 truncate max-w-[180px]"
+                                              className="flex-1 min-w-0 text-xs rounded border border-[rgb(var(--color-border))] px-2 py-1 bg-[rgb(var(--color-background))] text-[rgb(var(--color-foreground))] truncate max-w-[180px]"
                                             />
                                             <button
                                               type="button"
@@ -953,7 +1005,7 @@ export function CompanyContainer({
                                                 navigator.clipboard.writeText(form.productionUrl ?? '')
                                                 toast.success('URL copied', 'Success')
                                               }}
-                                              className="p-1 text-teal-600 hover:bg-teal-50 rounded shrink-0"
+                                              className="p-1 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-hover))] rounded shrink-0"
                                               title="Copy URL"
                                             >
                                               <Copy size={14} />
@@ -963,14 +1015,14 @@ export function CompanyContainer({
                                               target="_blank"
                                               rel="noopener noreferrer"
                                               onClick={(e) => e.stopPropagation()}
-                                              className="p-1 text-gray-600 hover:bg-gray-100 rounded shrink-0"
+                                              className="p-1 text-[rgb(var(--color-muted-foreground))] hover:bg-[rgb(var(--color-hover))] rounded shrink-0"
                                               title="Open form"
                                             >
                                               <ExternalLink size={14} />
                                             </a>
                                           </div>
                                           {form.willUnpublishOn && (
-                                            <span className="text-xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                                            <span className="text-xs text-[rgb(var(--color-warning-text))] bg-[rgb(var(--color-warning-bg))] px-1.5 py-0.5 rounded">
                                               Will unpublish on {new Date(form.willUnpublishOn).toLocaleDateString()}
                                             </span>
                                           )}

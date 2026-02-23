@@ -12,21 +12,25 @@ from models.form_version import FormVersion
 from models.company_form_test_config import CompanyFormTestConfig
 
 
-def get_company_test_config(db: Session, company_id: int) -> tuple[bool, int, bool]:
+def get_company_test_config(db: Session, company_id: int) -> tuple[bool, int, bool, float | None]:
     """
     Get test threshold config for company.
-    Returns (enabled, threshold_value, require_publish_approval). Default (False, 3, False) if not configured.
+    Returns (enabled, threshold_value, require_publish_approval, form_cost_threshold).
+    Default (False, 3, False, None) if not configured.
+    form_cost_threshold: when set, forms with deployment cost > this require approval. None = disabled.
     """
     row = db.execute(
         select(CompanyFormTestConfig).where(CompanyFormTestConfig.CompanyID == company_id)
     ).scalars().first()
 
     if not row:
-        return False, 3, False
+        return False, 3, False, None
+    cost_thresh = getattr(row, "FormCostThreshold", None)
     return (
         bool(row.TestThresholdEnabled),
         int(row.TestThresholdValue or 3),
         bool(getattr(row, "RequirePublishApproval", False)),
+        float(cost_thresh) if cost_thresh is not None else None,
     )
 
 
@@ -58,7 +62,7 @@ def check_publish_readiness(
     Check if form meets test threshold for publish.
     Returns dict with canPublish, testRunCount, testThresholdRequired, testRunsNeeded, message.
     """
-    enabled, threshold, _ = get_company_test_config(db, company_id)
+    enabled, threshold, _, _ = get_company_test_config(db, company_id)
     count = get_test_run_count(db, form_id)
 
     if not enabled:

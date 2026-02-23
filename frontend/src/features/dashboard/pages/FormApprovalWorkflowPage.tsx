@@ -32,6 +32,7 @@ export function FormApprovalWorkflowPage() {
             testThresholdEnabled: false,
             testThresholdValue: 3,
             requirePublishApproval: false,
+            formCostThreshold: null,
           })
         }
       })
@@ -136,7 +137,38 @@ export function FormApprovalWorkflowPage() {
             </span>
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            When enabled, Company Users cannot publish forms directly. They must submit a publish request, which a Company Admin approves.
+            When enabled, Company Users cannot publish forms directly. They must submit a publish request, which a Company Admin approves. <strong>Request Publish</strong> appears for Company Users (not Admins) in the Builder, Edit Form, Form Detail, and form card.
+          </p>
+        </div>
+
+        {/* Form cost threshold */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Form cost threshold ($)
+            </label>
+            <span
+              title="When set, forms with deployment cost above this value require admin approval before publishing. Leave empty to disable."
+            >
+              <HelpCircle className="w-4 h-4 text-gray-400" />
+            </span>
+          </div>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={config.formCostThreshold ?? ''}
+            onChange={(e) => {
+              const v = e.target.value
+              setConfig((c) =>
+                c ? { ...c, formCostThreshold: v === '' ? null : Math.max(0, parseFloat(v) || 0) } : c
+              )
+            }}
+            placeholder="e.g. 100 (leave empty to disable)"
+            className="w-40 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Forms with deployment cost above this value require approval. Part of the unified approval workflow. Leave empty to disable this gate.
           </p>
         </div>
       </div>

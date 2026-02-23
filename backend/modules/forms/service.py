@@ -18,6 +18,7 @@ from models.audit.activity_log import ActivityLog
 from .access_control_service import get_user_accessible_forms, check_user_access, get_user_access_level
 from .access_guard import check_form_access_guard
 from .approval_service import ApprovalService
+from .readiness_service import get_company_test_config
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -109,6 +110,19 @@ async def create_form(
     
     if not form_approval_status:
         raise ValueError(f"Invalid form approval status ID: {form_data['form_approval_status_id']}")
+
+    # When approval enabled, override to PENDING to prevent admin bypass (Story 5.8)
+    _, _, require_approval, form_cost_threshold = get_company_test_config(db, company_id)
+    deployment_cost = float(form_data.get("deployment_cost") or 0)
+    cost_gate = form_cost_threshold is not None and deployment_cost > form_cost_threshold
+    needs_approval = require_approval or cost_gate
+    if needs_approval:
+        pending_approval = db.execute(
+            select(FormApprovalStatus).where(FormApprovalStatus.ApprovalStatusCode == "PENDING")
+        ).scalar_one_or_none()
+        if pending_approval:
+            form_data["form_approval_status_id"] = pending_approval.FormApprovalStatusID
+            form_approval_status = pending_approval
     
     # Validate company exists
     company = db.execute(
@@ -369,6 +383,16 @@ async def update_form(
         if not form_status:
             raise ValueError(f"Invalid form status ID: {form_data['form_status_id']}")
 
+        # Story 5.8: Block direct status change to PUBLISHED when Form Approval Status = PENDING
+        # (Admin must use approval flow: Approve only or Approve & Publish)
+        current_approval = db.execute(
+            select(FormApprovalStatus).where(FormApprovalStatus.FormApprovalStatusID == form.FormApprovalStatusID)
+        ).scalar_one_or_none()
+        if current_approval and current_approval.ApprovalStatusCode == "PENDING" and form_status.StatusCode == "PUBLISHED":
+            raise ValueError(
+                "Form is pending approval. Use the Review page to approve and publish—direct status change to Published is not allowed."
+            )
+
         # Publish Guard (Story 2.11)
         # If trying to set status to PUBLISHED, check approval
         if form_status.StatusCode == 'PUBLISHED':
@@ -457,6 +481,26 @@ async def update_form(
         form.FormThumbnailURL = form_data['form_thumbnail_url']
     if 'form_preview_url' in form_data:
         form.FormPreviewURL = form_data['form_preview_url']
+
+    # Story 5.8: Unpublish settings (only for published forms; used when form is (re)published)
+    if 'unpublish_mode' in form_data:
+        mode = (form_data['unpublish_mode'] or "MANUAL").upper()
+        if mode not in ("MANUAL", "EVENT_END", "SCHEDULED"):
+            mode = "MANUAL"
+        if mode == "EVENT_END" and not form.EventID:
+            raise ValueError("Event end date unpublish requires form to be linked to an event.")
+        form.UnpublishMode = mode  # type: ignore[assignment]
+    if 'scheduled_unpublish_date' in form_data:
+        raw = form_data['scheduled_unpublish_date']
+        if not raw:
+            form.ScheduledUnpublishDate = None  # type: ignore[assignment]
+        else:
+            try:
+                form.ScheduledUnpublishDate = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))  # type: ignore[assignment]
+            except ValueError:
+                raise ValueError("Invalid scheduled unpublish date format. Use ISO format (e.g. 2025-12-31T23:59:59Z).")
+        if getattr(form, "UnpublishMode", "MANUAL") == "SCHEDULED" and form.ScheduledUnpublishDate is None:
+            raise ValueError("Scheduled unpublish requires a date.")
     
     form.UpdatedDate = datetime.utcnow()
     form.UpdatedBy = user_id

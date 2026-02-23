@@ -80,9 +80,8 @@ export function FormReviewPage() {
     try {
       setProcessing(true)
       await approvePublishRequest(id, { publish: false, comment: comment || undefined })
-      toast.success('Request approved. Form is ready to publish. You can publish it with one click.', 'Success')
-      const ctx = await getFormReviewContext(id)
-      setContext(ctx)
+      toast.success('Request approved. Form is ready to publish. You can publish it from the Dashboard when ready.', 'Success')
+      navigate('/dashboard')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to approve', 'Error')
     } finally {
@@ -167,8 +166,9 @@ export function FormReviewPage() {
   }
 
   const isPendingReview = context?.formStatus === 'PENDING_REVIEW'
+  const isApprovedForPublish = context?.formStatus === 'APPROVED_FOR_PUBLISH'
   const isPublished = context?.formStatus === 'PUBLISHED'
-  const isReadyToPublish = isPendingReview && context?.hasApprovedRequest && !context?.hasPendingRequest
+  const isReadyToPublish = (isPendingReview || isApprovedForPublish) && context?.hasApprovedRequest && !context?.hasPendingRequest
   const hasEvent = !!context?.eventEndDate
   const unpublishDate = context?.scheduledUnpublishDate
     ? new Date(context.scheduledUnpublishDate).toLocaleDateString()
@@ -399,9 +399,9 @@ function UnpublishModeFields({
 }) {
   return (
     <div className="space-y-3 mb-4">
-      <label className="block text-sm font-medium text-gray-700">When to unpublish</label>
+      <label className="block text-sm font-medium text-[rgb(var(--color-foreground))]">When to unpublish</label>
       <div className="flex flex-wrap gap-4">
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-[rgb(var(--color-foreground))] cursor-pointer">
           <input
             type="radio"
             name="unpublishMode"
@@ -411,7 +411,7 @@ function UnpublishModeFields({
           />
           <span className="text-sm">Manual</span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className={`flex items-center gap-2 cursor-pointer ${!hasEvent ? 'opacity-60' : ''}`}>
           <input
             type="radio"
             name="unpublishMode"
@@ -420,10 +420,10 @@ function UnpublishModeFields({
             disabled={!hasEvent}
             className="rounded"
           />
-          <span className="text-sm">Event end date</span>
-          {!hasEvent && <span className="text-xs text-gray-500">(link form to event)</span>}
+          <span className="text-sm text-[rgb(var(--color-foreground))]">Event end date</span>
+          {!hasEvent && <span className="text-xs text-[rgb(var(--color-muted-foreground))]">(link form to event)</span>}
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-[rgb(var(--color-foreground))] cursor-pointer">
           <input
             type="radio"
             name="unpublishMode"
@@ -440,7 +440,7 @@ function UnpublishModeFields({
             type="date"
             value={scheduledDate}
             onChange={(e) => setScheduledDate(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="rounded-md border border-[rgb(var(--color-input))] px-3 py-2 text-sm bg-[rgb(var(--color-background))] text-[rgb(var(--color-foreground))]"
           />
         </div>
       )}

@@ -108,6 +108,8 @@ class FormUpdateSchema(BaseModel):
     deployment_cost: Optional[Decimal] = Field(None, ge=0, alias="deploymentCost")
     form_thumbnail_url: Optional[str] = Field(None, max_length=500, alias="formThumbnailUrl")
     form_preview_url: Optional[str] = Field(None, max_length=500, alias="formPreviewUrl")
+    unpublish_mode: Optional[str] = Field(None, alias="unpublishMode")  # MANUAL | EVENT_END | SCHEDULED - Story 5.8
+    scheduled_unpublish_date: Optional[str] = Field(None, alias="scheduledUnpublishDate")  # ISO datetime when SCHEDULED
     
     class Config:
         populate_by_name = True
@@ -182,6 +184,8 @@ class FormResponse(BaseModel):
     updated_by: Optional[int] = Field(None, alias="updatedBy")
     production_url: Optional[str] = Field(None, alias="productionUrl")  # Story 5.8
     will_unpublish_on: Optional[str] = Field(None, alias="willUnpublishOn")  # Story 5.8
+    unpublish_mode: Optional[str] = Field(None, alias="unpublishMode")  # Story 5.8
+    scheduled_unpublish_date: Optional[str] = Field(None, alias="scheduledUnpublishDate")  # Story 5.8
     
     class Config:
         populate_by_name = True

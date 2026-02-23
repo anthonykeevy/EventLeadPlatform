@@ -5,14 +5,15 @@
  */
 
 import { useState, useEffect } from 'react'
-import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle, ClipboardList } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { FileText, Calendar, Edit2, Trash2, ArrowLeft, X, DollarSign, BarChart3, Shield, Send, CheckCircle, XCircle, ClipboardList, ExternalLink } from 'lucide-react'
 import { Form } from '../types/form.types'
 import { FormStatusBadge } from './FormStatusBadge'
 import { ReadinessBadge } from './ReadinessBadge'
 import { FormAccessControlModal } from './FormAccessControlModal'
 import { ApprovalRequestModal } from './ApprovalRequestModal'
 import { checkFormAccess } from '../api/formAccessApi'
-import { approveForm, rejectForm, updateForm, getFormReadiness, recordTestRun, createPreviewLink, getCompanyTestConfig } from '../api/formsApi'
+import { approveForm, rejectForm, updateForm, getForm, getFormReadiness, recordTestRun, createPreviewLink, getCompanyTestConfig } from '../api/formsApi'
 import type { FormReadiness } from '../api/formsApi'
 import { RequestPublishModal } from './RequestPublishModal'
 import { DirectPublishModal } from './DirectPublishModal'
@@ -41,14 +42,32 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   const [readiness, setReadiness] = useState<FormReadiness | null>(null)
   const [readinessLoading, setReadinessLoading] = useState(false)
   const [requirePublishApproval, setRequirePublishApproval] = useState(false)
+  const [formCostThreshold, setFormCostThreshold] = useState<number | null>(null)
   const [showRequestPublishModal, setShowRequestPublishModal] = useState(false)
   const [showDirectPublishModal, setShowDirectPublishModal] = useState(false)
+  const [displayForm, setDisplayForm] = useState<Form | null>(null)
 
   useEffect(() => {
     if (form) {
+      getForm(form.formId).then(setDisplayForm).catch(() => setDisplayForm(form))
       loadUserAccess()
       loadReadiness()
-      getCompanyTestConfig().then((c) => setRequirePublishApproval(c.requirePublishApproval)).catch(() => {})
+      getCompanyTestConfig().then((c) => {
+        setRequirePublishApproval(c.requirePublishApproval)
+        setFormCostThreshold(c.formCostThreshold)
+      }).catch(() => {})
+
+      // Refresh readiness when user returns from preview tab (Phase 1.1g)
+      const onVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          loadReadiness()
+          getForm(form.formId).then(setDisplayForm).catch(() => {})
+        }
+      }
+      document.addEventListener('visibilitychange', onVisibilityChange)
+      return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+    } else {
+      setDisplayForm(null)
     }
   }, [form])
 
@@ -112,15 +131,15 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
 
   const handleSubmitForApproval = async () => {
     if (!form) return
-    
-    // Smart Publish / Interception Logic
-    const threshold = 100
-    const currentCost = form.deploymentCost || 0
-    
-    if (currentCost > threshold) {
+
+    // Smart Publish / Interception Logic (cost gate from company config)
+    const threshold = formCostThreshold ?? 100
+    const currentCost = form.deploymentCost ?? 0
+
+    if (threshold != null && currentCost > threshold) {
         // Admin Bypass Logic
         if (isCompanyAdmin) {
-             if (!confirm(`Warning: This form exceeds the deployment cost threshold ($${currentCost}).\n\nAs an Administrator, you can publish this immediately without approval.\n\nProceed to Publish?`)) {
+             if (!confirm(`Warning: This form's deployment cost ($${currentCost}) exceeds the company threshold ($${threshold}).\n\nAs an Administrator, you can publish this immediately without approval.\n\nProceed to Publish?`)) {
                 return
              }
              
@@ -206,20 +225,23 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
 
   if (!form) return null
 
+  const effectiveForm = displayForm ?? form
+
   // Determine if user is Admin (Company Admin or System Admin)
   const isCompanyAdmin = user?.role === 'company_admin' || user?.role === 'system_admin'
 
   const canManage = userAccess?.accessLevel === 'MANAGE'
   const canEdit = canManage || userAccess?.accessLevel === 'EDIT'
 
-  // Story 5.6: Pending Review status
-  const isPendingReview = form.formStatus?.statusCode === 'PENDING_REVIEW'
+  // Story 5.6/5.8: Pending Review and Approved for Publish status
+  const isPendingReview = effectiveForm.formStatus?.statusCode === 'PENDING_REVIEW'
+  const isApprovedForPublish = effectiveForm.formStatus?.statusCode === 'APPROVED_FOR_PUBLISH'
 
   // Approval Logic
-  const cost = form.deploymentCost || 0
-  const isPending = form.formApprovalStatus?.approvalStatusCode === 'PENDING'
-  const isNoApproval = form.formApprovalStatus?.approvalStatusCode === 'NO_APPROVAL' || !form.formApprovalStatus
-  const isRejected = form.formApprovalStatus?.approvalStatusCode === 'REJECTED'
+  const cost = effectiveForm.deploymentCost || 0
+  const isPending = effectiveForm.formApprovalStatus?.approvalStatusCode === 'PENDING'
+  const isNoApproval = effectiveForm.formApprovalStatus?.approvalStatusCode === 'NO_APPROVAL' || !effectiveForm.formApprovalStatus
+  const isRejected = effectiveForm.formApprovalStatus?.approvalStatusCode === 'REJECTED'
   
   // Show Submit if: Can Edit AND (No Approval OR Rejected) AND Cost > 100
   // Note: Now mostly handled by auto-trigger on Publish attempt, but keeping explicit submit 
@@ -242,39 +264,51 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
   // BUT we need a way to trigger it from Detail View if Edit is blocked.
   // Let's show a "Publish" button here for Owners that triggers the check.
   
-  // Show "Publish" (Request Approval) if: Draft/Rejected, Cost > 100, Can Edit
-  const showSmartPublish = canEdit && (isNoApproval || isRejected) && cost > 100
-
-  // Story 5.6: Request Publish when Company User + RequirePublishApproval + not already pending
-  // Show button even when threshold not met (UAT: disabled with tooltip); don't hide it
-  const showRequestPublish =
-    !isCompanyAdmin &&
-    requirePublishApproval &&
+  // Unified approval: needsApproval = RequirePublishApproval OR (FormCostThreshold set AND cost > threshold)
+  const needsApproval =
+    requirePublishApproval ||
+    (formCostThreshold != null && (cost ?? 0) > formCostThreshold)
+  // Show "Publish" (Request Approval) if: Draft/Rejected, Cost > threshold (when threshold set), Can Edit
+  const showSmartPublish =
     canEdit &&
     (isNoApproval || isRejected) &&
-    form.formStatus?.statusCode !== 'PUBLISHED' &&
-    !isPendingReview
+    formCostThreshold != null &&
+    cost > formCostThreshold
+
+  // Story 5.6 + Unified: Request Publish when Company User + needsApproval + not already pending
+  const showRequestPublish =
+    !isCompanyAdmin &&
+    needsApproval &&
+    canEdit &&
+    (isNoApproval || isRejected) &&
+    effectiveForm.formStatus?.statusCode !== 'PUBLISHED' &&
+    !isPendingReview &&
+    !isApprovedForPublish
 
   const requestPublishDisabled = !(readiness?.canPublish ?? false)
   const requestPublishTooltip = requestPublishDisabled && readiness?.message
     ? readiness.message
     : undefined
 
-  // Story 5.8: Direct Publish when RequirePublishApproval=false or Admin
+  // Story 5.8 + Unified: Direct Publish when Admin or !needsApproval
   const showDirectPublish =
-    (isCompanyAdmin || !requirePublishApproval) &&
+    (isCompanyAdmin || !needsApproval) &&
     canEdit &&
     (isNoApproval || isRejected) &&
-    form.formStatus?.statusCode !== 'PUBLISHED' &&
-    !isPendingReview
+    effectiveForm.formStatus?.statusCode !== 'PUBLISHED' &&
+    !isPendingReview &&
+    !isApprovedForPublish
   const directPublishDisabled = !(readiness?.canPublish ?? false)
   const directPublishTooltip = directPublishDisabled && readiness?.message ? readiness.message : undefined
   
   // Show Approve/Reject ONLY if: User is Admin AND Form is Pending
   // PRE-APPROVAL: Also show if Draft (No Approval) AND Cost > 100 (Scenario 4)
   // HIDE if current user is the owner (Self-approval handled via Publish)
-  const isOwner = user?.id === form.createdBy
-  const showDecision = isCompanyAdmin && !isOwner && (isPending || (isNoApproval && cost > 100))
+  const isOwner = user?.id === effectiveForm.createdBy
+  const showDecision =
+    isCompanyAdmin &&
+    !isOwner &&
+    (isPending || (isNoApproval && formCostThreshold != null && cost > formCostThreshold))
 
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'Never'
@@ -330,9 +364,9 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           <div className="mb-6 pb-6 border-b border-gray-200">
             <div className="flex items-start justify-between gap-4 mb-3">
               <h3 className="text-3xl font-bold text-gray-900 flex-1">
-                {form.formName}
+                {effectiveForm.formName}
               </h3>
-              <FormStatusBadge status={form.formStatus} approvalStatus={form.formApprovalStatus} />
+              <FormStatusBadge status={effectiveForm.formStatus} approvalStatus={effectiveForm.formApprovalStatus} />
             </div>
             {form.formDescription && (
               <p className="text-lg text-gray-600 mt-2">
@@ -354,16 +388,24 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                 <div className="space-y-2 text-sm">
                   <div>
                     <span className="font-medium text-gray-700">Form Status:</span>{' '}
-                    <span className="text-gray-600">{form.formStatus?.statusName || 'Unknown'}</span>
+                    <span className="text-gray-600">{effectiveForm.formStatus?.statusName || 'Unknown'}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Approval Status (high-cost):</span>{' '}
-                    <span className="text-gray-600">{form.formApprovalStatus?.approvalStatusName || 'Unknown'}</span>
-                    <span className="text-xs text-gray-500 ml-1">(deployment cost &gt; $100)</span>
+                    <span className="font-medium text-gray-700">Approval:</span>{' '}
+                    <span className="text-gray-600">
+                      {needsApproval
+                        ? 'Required (publish approval or cost gate)'
+                        : form.formApprovalStatus?.approvalStatusName || 'Not required'}
+                    </span>
+                    {formCostThreshold != null && (
+                      <span className="text-xs text-gray-500 ml-1">
+                        (cost &gt; ${formCostThreshold} triggers approval)
+                      </span>
+                    )}
                   </div>
-                  {requirePublishApproval && !isCompanyAdmin && (
+                  {needsApproval && !isCompanyAdmin && (
                     <div>
-                      <span className="font-medium text-gray-700">Publish approval (Story 5.6):</span>{' '}
+                      <span className="font-medium text-gray-700">Publish approval:</span>{' '}
                       <span className="text-amber-700 font-medium">Required</span>
                       <span className="text-xs text-gray-500 ml-1">(Company Admin must approve)</span>
                     </div>
@@ -381,11 +423,11 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                       loading={readinessLoading}
                     />
                   </div>
-                  {/* Story 5.6: Next steps for Company Users */}
+                  {/* Story 5.6 + Unified: Next steps for Company Users */}
                   <PublishWorkflowStatus
                     isCompanyUser={!isCompanyAdmin}
-                    requirePublishApproval={requirePublishApproval}
-                    formStatusCode={form.formStatus?.statusCode ?? null}
+                    requirePublishApproval={needsApproval}
+                    formStatusCode={effectiveForm.formStatus?.statusCode ?? null}
                     readiness={readiness}
                     loading={readinessLoading}
                   />
@@ -401,7 +443,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                 <div className="space-y-2 text-sm">
                   <div>
                     <span className="font-medium text-gray-700">Total Submissions:</span>{' '}
-                    <span className="text-gray-600">{form.totalSubmissions}</span>
+                    <span className="text-gray-600">{effectiveForm.totalSubmissions}</span>
                   </div>
                   <div>
                     <span className="font-medium text-gray-700">Demo Leads:</span>{' '}
@@ -409,7 +451,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                   </div>
                   <div>
                     <span className="font-medium text-gray-700">Production Leads:</span>{' '}
-                    <span className="text-gray-600">{form.productionLeadsCollected}</span>
+                    <span className="text-gray-600">{effectiveForm.productionLeadsCollected}</span>
                   </div>
                   {form.lastSubmissionDate && (
                     <div>
@@ -436,10 +478,10 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
                   Deployment
                 </h4>
                 <div className="space-y-2 text-sm">
-                  {form.deploymentCost !== null && (
+                  {form.deploymentCost != null && !Number.isNaN(Number(form.deploymentCost)) && (
                     <div>
                       <span className="font-medium text-gray-700">Deployment Cost:</span>{' '}
-                      <span className="text-gray-600">${Number(form.deploymentCost).toFixed(2)}</span>
+                      <span className="text-gray-600">${(Number(form.deploymentCost) || 0).toFixed(2)}</span>
                     </div>
                   )}
                   {form.formThumbnailUrl && (
@@ -530,11 +572,33 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
             Close
           </button>
 
-          {/* Story 5.6: Pending Admin Review indicator */}
+          {/* Story 5.6: Pending Admin Review indicator (Company User) */}
           {isPendingReview && !isCompanyAdmin && (
             <span className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-100 rounded-md">
               Pending Admin Review
             </span>
+          )}
+
+          {/* Story 5.8: Approved for Publish indicator (Company User) */}
+          {isApprovedForPublish && !isCompanyAdmin && (
+            <span className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-100 rounded-md">
+              Approved — Ready to Publish
+            </span>
+          )}
+
+          {/* Story 5.6/5.8: Link to FormReviewPage when Admin viewing form in Pending Admin Review or Approved for Publish */}
+          {(isPendingReview || isApprovedForPublish) && isCompanyAdmin && form && (
+            <Link
+              to={`/forms/${form.formId}/review`}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                isApprovedForPublish
+                  ? 'text-teal-800 bg-teal-100 border border-teal-300 hover:bg-teal-200'
+                  : 'text-amber-800 bg-amber-100 border border-amber-300 hover:bg-amber-200'
+              }`}
+            >
+              <ExternalLink size={16} />
+              Review & Publish
+            </Link>
           )}
 
           {/* Story 5.6: Request Publish (Company User + approval required) */}
@@ -611,7 +675,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
 
           {canEdit && (
             <button
-              onClick={() => onEdit(form)}
+              onClick={() => onEdit(effectiveForm)}
               className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors flex items-center gap-2"
             >
               <Edit2 className="w-4 h-4" />
@@ -620,7 +684,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
           )}
           {canManage && (
             <button
-              onClick={() => onDelete(form)}
+              onClick={() => onDelete(effectiveForm)}
               className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
             >
               <Trash2 className="w-4 h-4" />
@@ -634,7 +698,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
       {showRequestPublishModal && form && (
         <RequestPublishModal
           formId={form.formId}
-          formName={form.formName}
+          formName={effectiveForm.formName}
           onClose={() => setShowRequestPublishModal(false)}
           onSuccess={() => {
             onClose()
@@ -647,7 +711,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
       {showDirectPublishModal && form && (
         <DirectPublishModal
           formId={form.formId}
-          formName={form.formName}
+          formName={effectiveForm.formName}
           hasEvent={!!form.eventId}
           onClose={() => setShowDirectPublishModal(false)}
           onSuccess={() => {
@@ -671,7 +735,7 @@ export function FormDetailView({ form, onClose, onEdit, onDelete }: FormDetailVi
         <ApprovalRequestModal
           isOpen={showApprovalRequest}
           formId={form.formId}
-          formName={form.formName}
+          formName={effectiveForm.formName}
           deploymentCost={form.deploymentCost || 0}
           onClose={() => setShowApprovalRequest(false)}
           onSuccess={() => {

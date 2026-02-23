@@ -140,6 +140,8 @@ export const PublicFormArtboard: React.FC<{
   autoResetSeconds?: number
   /** Countdown window in seconds when kiosk mode is enabled. */
   countdownSeconds?: number
+  /** Scale mode: contain = fit inside viewport (may show borders), cover = fill viewport (no borders). */
+  scaleMode?: 'contain' | 'cover'
 }> = ({
   definition,
   onSubmissionDeferred,
@@ -153,6 +155,7 @@ export const PublicFormArtboard: React.FC<{
   kioskEnabled,
   autoResetSeconds,
   countdownSeconds,
+  scaleMode = 'contain',
 }) => {
   const pages = selectAuthoredPages(definition)
   const page = pages[0]
@@ -711,10 +714,13 @@ export const PublicFormArtboard: React.FC<{
 
     const compute = () => {
       const rect = el.getBoundingClientRect()
-      const padding = 24
+      const padding = scaleMode === 'cover' ? 0 : 24
       const maxW = Math.max(0, rect.width - padding)
       const maxH = Math.max(0, rect.height - padding)
-      const next = Math.min(1, maxW / canvasWidth, maxH / canvasHeight)
+      const next =
+        scaleMode === 'cover'
+          ? Math.max(maxW / canvasWidth, maxH / canvasHeight)
+          : Math.min(1, maxW / canvasWidth, maxH / canvasHeight)
       setScale(Number.isFinite(next) && next > 0 ? next : 1)
     }
 
@@ -722,7 +728,7 @@ export const PublicFormArtboard: React.FC<{
     const ro = new ResizeObserver(() => compute())
     ro.observe(el)
     return () => ro.disconnect()
-  }, [canvasWidth, canvasHeight])
+  }, [canvasWidth, canvasHeight, scaleMode])
 
   const outerStyle = containerStyle ?? { height: 'calc(100vh - 64px)' }
   const isBuilderLayout = layoutMode === 'builder'
@@ -739,7 +745,15 @@ export const PublicFormArtboard: React.FC<{
       onKeyDownCapture={markActivity}
       onPointerDownCapture={markActivity}
     >
-      <div className={isBuilderLayout ? 'h-full w-full flex items-center justify-center p-8' : 'h-full overflow-auto p-4'}>
+      <div
+        className={
+          isBuilderLayout
+            ? 'h-full w-full flex items-center justify-center p-8'
+            : linkType === 'PRODUCTION'
+              ? 'h-full w-full flex items-center justify-center overflow-hidden p-0'
+              : 'h-full overflow-auto p-4'
+        }
+      >
         {warnings.length > 0 && (
           <div className={`mb-4 rounded border p-3 text-sm ${isBuilderLayout ? 'border-yellow-300 bg-yellow-50/90 text-yellow-900' : 'border-yellow-200 bg-yellow-50 text-yellow-900'}`}>
             <div className="font-medium">Logic rule warnings</div>

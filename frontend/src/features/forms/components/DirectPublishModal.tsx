@@ -48,19 +48,19 @@ export function DirectPublishModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Publish Form</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-gray-100 text-gray-500" aria-label="Close">
+      <div className="bg-card rounded-lg shadow-xl max-w-md w-full mx-4 border border-[rgb(var(--color-border))]">
+        <div className="flex items-center justify-between p-4 border-b border-[rgb(var(--color-border))]">
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-card-foreground))]">Publish Form</h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-[rgb(var(--color-hover))] text-[rgb(var(--color-muted-foreground))]" aria-label="Close">
             <X size={20} />
           </button>
         </div>
         <div className="p-4 space-y-4">
-          <p className="text-sm font-medium text-gray-700">Form: {formName}</p>
+          <p className="text-sm font-medium text-[rgb(var(--color-card-foreground))]">Form: {formName}</p>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">When to unpublish</label>
+            <label className="block text-sm font-medium text-[rgb(var(--color-card-foreground))] mb-2">When to unpublish</label>
             <div className="space-y-2">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-[rgb(var(--color-card-foreground))] cursor-pointer">
                 <input
                   type="radio"
                   name="unpublishMode"
@@ -70,7 +70,7 @@ export function DirectPublishModal({
                 />
                 <span className="text-sm">Manual</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className={`flex items-center gap-2 cursor-pointer ${!hasEvent ? 'opacity-60' : ''}`}>
                 <input
                   type="radio"
                   name="unpublishMode"
@@ -79,10 +79,10 @@ export function DirectPublishModal({
                   disabled={!hasEvent}
                   className="rounded"
                 />
-                <span className="text-sm">Event end date</span>
-                {!hasEvent && <span className="text-xs text-gray-500">(link form to event)</span>}
+                <span className="text-sm text-[rgb(var(--color-card-foreground))]">Event end date</span>
+                {!hasEvent && <span className="text-xs text-[rgb(var(--color-muted-foreground))]">(link form to event)</span>}
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-[rgb(var(--color-card-foreground))] cursor-pointer">
                 <input
                   type="radio"
                   name="unpublishMode"
@@ -98,13 +98,13 @@ export function DirectPublishModal({
                 type="date"
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="mt-2 w-full px-3 py-2 border border-[rgb(var(--color-input))] rounded-lg text-sm bg-[rgb(var(--color-background))] text-[rgb(var(--color-foreground))]"
               />
             )}
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-[rgb(var(--color-error-text))]">{error}</p>}
         </div>
-        <div className="flex justify-end gap-2 p-4 border-t border-gray-200">
+        <div className="flex justify-end gap-2 p-4 border-t border-[rgb(var(--color-border))]">
           <button type="button" onClick={onClose} className="btn-secondary" disabled={isSubmitting}>
             Cancel
           </button>

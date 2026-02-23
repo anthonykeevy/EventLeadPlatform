@@ -19,8 +19,12 @@ export function FormStatusBadge({ status, approvalStatus }: FormStatusBadgeProps
         return 'bg-yellow-100 text-yellow-800'
       case 'PENDING_REVIEW':
         return 'bg-amber-100 text-amber-800'
+      case 'APPROVED_FOR_PUBLISH':
+        return 'bg-teal-100 text-teal-800'
       case 'PUBLISHED':
         return 'bg-green-100 text-green-800'
+      case 'UNPUBLISHED':
+        return 'bg-gray-100 text-gray-800'
       case 'ARCHIVED':
         return 'bg-gray-100 text-gray-800'
       default:
@@ -57,11 +61,23 @@ export function FormStatusBadge({ status, approvalStatus }: FormStatusBadgeProps
           )
         }
 
-        // Priority 3: Approved but not yet Published (Pre-approved)
-        // Case-insensitive check to ensure we catch the pre-approval state
-        if (approvalStatus?.approvalStatusCode?.toUpperCase() === 'APPROVED' && status?.statusCode?.toUpperCase() === 'DRAFT') {
+        // Priority 3: Approved but not yet Published (Ready to Publish)
+        // DRAFT, PENDING_REVIEW, or APPROVED_FOR_PUBLISH with APPROVED
+        const approvedNotPublished =
+          approvalStatus?.approvalStatusCode?.toUpperCase() === 'APPROVED' &&
+          ['DRAFT', 'PENDING_REVIEW', 'APPROVED_FOR_PUBLISH'].includes(status?.statusCode?.toUpperCase() ?? '')
+        if (approvedNotPublished) {
           return (
-            <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+            <span className="px-2 py-1 text-xs font-medium rounded-full bg-teal-100 text-teal-800">
+              Ready to Publish
+            </span>
+          )
+        }
+
+        // Priority 3b: APPROVED_FOR_PUBLISH status (from ref.FormStatus)
+        if (status?.statusCode?.toUpperCase() === 'APPROVED_FOR_PUBLISH') {
+          return (
+            <span className="px-2 py-1 text-xs font-medium rounded-full bg-teal-100 text-teal-800">
               Ready to Publish
             </span>
           )

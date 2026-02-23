@@ -24,6 +24,8 @@ export function BuilderPublishAction({ formId, formName: fallbackFormName }: Bui
   const [formStatus, setFormStatus] = useState<string | null>(null)
   const [readiness, setReadiness] = useState<{ canPublish: boolean; message?: string } | null>(null)
   const [requireApproval, setRequireApproval] = useState(false)
+  const [formCostThreshold, setFormCostThreshold] = useState<number | null>(null)
+  const [deploymentCost, setDeploymentCost] = useState<number>(0)
   const [formName, setFormName] = useState(fallbackFormName ?? '')
   const [hasEvent, setHasEvent] = useState(false)
 
@@ -45,27 +47,54 @@ export function BuilderPublishAction({ formId, formName: fallbackFormName }: Bui
         setFormName(form.formName || fallbackFormName || '')
         setReadiness(r)
         setRequireApproval(config.requirePublishApproval)
+        setFormCostThreshold(config.formCostThreshold ?? null)
+        setDeploymentCost(form.deploymentCost ?? 0)
         setHasEvent(!!form.eventId)
       })
       .catch(() => {})
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
-    return () => { cancelled = true }
+
+    // Refresh readiness when user returns from preview tab (Phase 1.1g)
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        getFormReadiness(formIdNum).then((r) => {
+          if (!cancelled) setReadiness(r)
+        })
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [formId, formIdNum, fallbackFormName])
 
   if (loading || !formStatus) return null
   if (formStatus === 'PUBLISHED') return null
 
   const isPendingReview = formStatus === 'PENDING_REVIEW'
-  const canRequestPublish = !isCompanyAdmin && requireApproval && !isPendingReview
-  const canDirectPublish = (isCompanyAdmin || !requireApproval) && !isPendingReview
+  const isApprovedForPublish = formStatus === 'APPROVED_FOR_PUBLISH'
+  const needsApproval =
+    requireApproval ||
+    (formCostThreshold != null && deploymentCost > formCostThreshold)
+  const canRequestPublish = !isCompanyAdmin && needsApproval && !isPendingReview && !isApprovedForPublish
+  const canDirectPublish = (isCompanyAdmin || !needsApproval) && !isPendingReview
   const isReadyToPublish = readiness?.canPublish ?? false
 
   if (isPendingReview && !isCompanyAdmin) {
     return (
       <span className="px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-100 rounded-md">
         Pending Admin Review
+      </span>
+    )
+  }
+
+  if (isApprovedForPublish && !isCompanyAdmin) {
+    return (
+      <span className="px-3 py-1.5 text-sm font-medium text-teal-700 bg-teal-100 rounded-md">
+        Approved — Ready to Publish
       </span>
     )
   }

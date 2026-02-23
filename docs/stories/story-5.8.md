@@ -2,7 +2,7 @@
 
 **Epic:** Epic 5 - Form Builder Readiness + Review & Publishing  
 **Domain:** Form Builder, Dashboard, Publish Workflow, Public Runtime  
-**Status:** In Progress 
+**Status:** Done (UAT Passed) 
 **Priority:** High (completes publish lifecycle; stable URLs)  
 **Created:** 2026-02-18  
 **Owner:** Developer Agent  
@@ -10,6 +10,8 @@
 **PM Decisions:** `docs/stories/STORY-5.8-PM-DECISIONS.md`  
 **Context:** `docs/stories/story-context-5.8.xml`  
 **UAT Guide:** `docs/stories/STORY-5.8-UAT-TEST-GUIDE.md`  
+**UAT Results:** `docs/stories/STORY-5.8-UAT-RESULTS.md`  
+**Retrospective:** `docs/stories/STORY-5.8-RETROSPECTIVE.md`  
 
 ---
 
@@ -84,17 +86,17 @@
 
 ## 🎯 Done Criteria
 
-- [ ] **DC1:** FormReviewPage: two approval options — "Approve only" (approve request, don't publish) and "Approve & Publish" (approve + publish immediately).
-- [ ] **DC2:** On approve-and-publish (and direct publish): auto-create FormPublicLink PRODUCTION if none; ensure FormVersion.IsActive. Public URL works.
-- [ ] **DC3:** Unpublish modes: Manual, Event end date, Schedule (date picker). Form.UnpublishMode + ScheduledUnpublishDate; EVENT_END derives from Event.EndDate.
-- [ ] **DC4:** Manual unpublish: form → UNPUBLISHED; deactivate link. Public URL for unpublished form: dedicated page (no 404) with message + "Request admin to publish again" CTA; CTA sends in-app notification to all Company Admins.
-- [ ] **DC5:** Event Dashboard: published forms show production URL with copy button; show "Will unpublish on [date]" when scheduled/event-end.
-- [ ] **DC6:** FormReviewPage: when form is published, show production link + copy; show Unpublish button; show unpublish mode and date if set.
-- [ ] **DC7:** Direct publish (admin, no request) uses same publish flow as approve-and-publish.
-- [ ] **DC8:** In-app reminders for scheduled unpublish (Dashboard notice; queue items if available). Email deferred.
-- [ ] **DC9:** Activation windows: event-based active/inactive; public resolver shows "event ended" when outside window. Use Event.StartDate–EndDate for window.
-- [ ] **DC10:** When RequirePublishApproval=false: hide PendingPublishRequestsCard, Request Publish flow, and review-queue links; all users publish directly.
-- [ ] **DC11:** UAT guide executed and marked PASSED.
+- [x] **DC1:** FormReviewPage: two approval options — "Approve only" (approve request, don't publish) and "Approve & Publish" (approve + publish immediately).
+- [x] **DC2:** On approve-and-publish (and direct publish): auto-create FormPublicLink PRODUCTION if none; ensure FormVersion.IsActive. Public URL works.
+- [x] **DC3:** Unpublish modes: Manual, Event end date, Schedule (date picker). Form.UnpublishMode + ScheduledUnpublishDate; EVENT_END derives from Event.EndDate.
+- [x] **DC4:** Manual unpublish: form → UNPUBLISHED; deactivate link. Public URL for unpublished form: dedicated page (no 404) with message + "Request admin to publish again" CTA; CTA sends in-app notification to all Company Admins.
+- [x] **DC5:** Event Dashboard: published forms show production URL with copy button; show "Will unpublish on [date]" when scheduled/event-end.
+- [x] **DC6:** FormReviewPage: when form is published, show production link + copy; show Unpublish button; show unpublish mode and date if set.
+- [x] **DC7:** Direct publish (admin, no request) uses same publish flow as approve-and-publish.
+- [x] **DC8:** In-app reminders for scheduled unpublish (Dashboard notice; queue items if available). Email deferred.
+- [x] **DC9:** Activation windows: event-based active/inactive; public resolver shows "event ended" when outside window. Use Event.StartDate–EndDate for window.
+- [x] **DC10:** When RequirePublishApproval=false: hide PendingPublishRequestsCard, Request Publish flow, and review-queue links; all users publish directly.
+- [x] **DC11:** UAT guide executed and marked PASSED.
 - [ ] **DC12:** Story PR merged to `master`.
 
 ---

@@ -89,8 +89,8 @@ export function CompanyDetailsPage() {
       const update: UpdateCompanySettingsDetails = {
         displayName: details.customDisplayName ?? details.displayName,
         customDisplayName: details.customDisplayName ?? details.displayName,
-        legalEntityName: details.legalEntityName,
-        companyName: details.companyName,
+        legalEntityName: details.legalEntityName ?? undefined,
+        companyName: details.companyName ?? undefined,
         abn: details.abn ?? undefined,
         acn: details.acn ?? undefined,
         abnStatus: details.abnStatus ?? undefined,

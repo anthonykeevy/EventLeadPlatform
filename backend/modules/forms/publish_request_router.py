@@ -2,6 +2,7 @@
 Form Publish Request Router (Story 5.6, 5.8)
 Endpoints for create publish request, list pending, approve (only or and-publish), unpublish, direct publish.
 """
+import json
 from datetime import datetime
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
@@ -10,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from common.database import get_db
+from common.logger import get_logger
 from common.rbac import require_company_admin_for_company
 from modules.auth.dependencies import get_current_user
 from modules.auth.models import CurrentUser
@@ -20,9 +22,42 @@ from .publish_service import publish_form
 from models.form import Form
 from models.form_publish_request import FormPublishRequest
 from models.form_public_link import FormPublicLink
-from models import FormStatus
+from models import FormStatus, FormApprovalStatus
+from models.audit.activity_log import ActivityLog
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/forms", tags=["forms", "publish-request"])
+
+
+def _log_activity(
+    db: Session,
+    user_id: int,
+    company_id: int,
+    action: str,
+    form_id: int,
+    form_name: str,
+    details: str,
+    user_email: str | None = None,
+    **extra,
+) -> None:
+    """Log to audit.ActivityLog for platform audit trail."""
+    try:
+        new_value_data = {"form_id": form_id, "form_name": form_name, "details": details, **extra}
+        log = ActivityLog(
+            UserID=user_id,
+            UserEmail=user_email,
+            CompanyID=company_id,
+            Action=action,
+            EntityType="Form",
+            EntityID=form_id,
+            NewValue=json.dumps(new_value_data),
+            CreatedDate=datetime.utcnow(),
+        )
+        db.add(log)
+        db.flush()
+    except Exception as e:
+        logger.warning(f"Failed to log activity {action}: {e}")
 
 
 class PublishRequestCreate(BaseModel):
@@ -71,7 +106,10 @@ async def post_publish_request(
     if form.CompanyID != current_user.company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
 
-    _, _, require_approval = get_company_test_config(db, form.CompanyID)
+    _, _, require_approval, form_cost_threshold = get_company_test_config(db, form.CompanyID)
+    form_cost = float(form.DeploymentCost) if form.DeploymentCost is not None else 0.0
+    cost_gate = form_cost_threshold is not None and form_cost > form_cost_threshold
+    needs_approval = require_approval or cost_gate
 
     # Company Admin can publish directly - no need to request (optional: block or allow)
     if _is_company_admin(current_user):
@@ -80,10 +118,10 @@ async def post_publish_request(
             detail="Company Admins can publish directly. Use the Publish action instead.",
         )
 
-    if not require_approval:
+    if not needs_approval:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Publish approval is not required for your company. You can publish directly.",
+            detail="Publish approval is not required for this form. You can publish directly.",
         )
 
     # Validate readiness
@@ -121,10 +159,16 @@ async def post_publish_request(
             status=existing.Status,
         )
 
-    # Get PENDING_REVIEW FormStatus
+    # Get PENDING_REVIEW FormStatus and PENDING FormApprovalStatus
     pending_status = (
         db.execute(
             select(FormStatus).where(FormStatus.StatusCode == "PENDING_REVIEW")
+        )
+        .scalars().first()
+    )
+    pending_approval = (
+        db.execute(
+            select(FormApprovalStatus).where(FormApprovalStatus.ApprovalStatusCode == "PENDING")
         )
         .scalars().first()
     )
@@ -132,6 +176,11 @@ async def post_publish_request(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="PENDING_REVIEW status not configured. Please run migrations.",
+        )
+    if not pending_approval:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="PENDING approval status not configured. Please run migrations.",
         )
 
     msg = (body.message if body else None) or ""
@@ -145,6 +194,19 @@ async def post_publish_request(
     )
     db.add(req)
     form.FormStatusID = pending_status.FormStatusID
+    form.FormApprovalStatusID = pending_approval.FormApprovalStatusID
+    _log_activity(
+        db,
+        current_user.user_id,
+        form.CompanyID,
+        "form.publish_requested",
+        form_id,
+        form.FormName,
+        "Form status → Pending Admin Review; publish request created",
+        user_email=current_user.email,
+        form_publish_request_id=req.FormPublishRequestID,
+        requested_by=current_user.user_id,
+    )
     db.commit()
     db.refresh(req)
 
@@ -177,14 +239,29 @@ async def get_pending_publish_requests(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No company context")
     require_company_admin_for_company(current_user, current_user.company_id)
 
+    # Option 1: Exclude deleted/archived forms (soft-delete + FormStatus ARCHIVED/DELETED)
+    # Future Option 2: On Form delete/archive, cascade status to related FormPublishRequest etc.
+    archived_deleted_ids = db.execute(
+        select(FormStatus.FormStatusID).where(
+            FormStatus.StatusCode.in_(["ARCHIVED", "DELETED"])
+        )
+    ).scalars().all()
+    # scalars().all() returns flat list of IDs; don't use [r[0]]
+    archived_deleted_id_list = list(archived_deleted_ids) if archived_deleted_ids else []
+
+    base_filter = [
+        FormPublishRequest.CompanyID == current_user.company_id,
+        FormPublishRequest.Status == "pending",
+        Form.IsDeleted == False,
+    ]
+    if archived_deleted_id_list:
+        base_filter.append(Form.FormStatusID.notin_(archived_deleted_id_list))
+
     rows = (
         db.execute(
             select(FormPublishRequest, Form.FormName)
             .join(Form, Form.FormID == FormPublishRequest.FormID)
-            .where(
-                FormPublishRequest.CompanyID == current_user.company_id,
-                FormPublishRequest.Status == "pending",
-            )
+            .where(*base_filter)
             .order_by(FormPublishRequest.RequestedAt.desc())
         )
         .all()
@@ -294,15 +371,72 @@ async def approve_publish_request(
     req.UpdatedBy = current_user.user_id
     req.UpdatedDate = datetime.utcnow()
 
+    approved_approval_status = (
+        db.execute(
+            select(FormApprovalStatus).where(FormApprovalStatus.ApprovalStatusCode == "APPROVED")
+        )
+        .scalars().first()
+    )
+    if not approved_approval_status:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="APPROVED approval status not configured.",
+        )
+
+    form.FormApprovalStatusID = approved_approval_status.FormApprovalStatusID
+    form.UpdatedBy = current_user.user_id
+    form.UpdatedDate = datetime.utcnow()
+
     if do_publish:
         try:
             publish_form(db, form_id, current_user.user_id, unpublish_mode, scheduled_date)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        _log_activity(
+            db,
+            current_user.user_id,
+            form.CompanyID,
+            "form.publish_request_approved",
+            form_id,
+            form.FormName,
+            "Publish request approved and form published",
+            user_email=current_user.email,
+            form_publish_request_id=req.FormPublishRequestID,
+            published=True,
+        )
+        _log_activity(
+            db,
+            current_user.user_id,
+            form.CompanyID,
+            "form.published",
+            form_id,
+            form.FormName,
+            "Form published (via Approve & Publish)",
+            user_email=current_user.email,
+            form_publish_request_id=req.FormPublishRequestID,
+        )
     else:
-        # Approve only: form stays PENDING_REVIEW; admin can publish later
-        form.UpdatedBy = current_user.user_id
-        form.UpdatedDate = datetime.utcnow()
+        # Approve only: set Form Status to APPROVED_FOR_PUBLISH
+        approved_for_publish_status = (
+            db.execute(
+                select(FormStatus).where(FormStatus.StatusCode == "APPROVED_FOR_PUBLISH")
+            )
+            .scalars().first()
+        )
+        if approved_for_publish_status:
+            form.FormStatusID = approved_for_publish_status.FormStatusID
+        _log_activity(
+            db,
+            current_user.user_id,
+            form.CompanyID,
+            "form.publish_request_approved",
+            form_id,
+            form.FormName,
+            "Publish request approved (Approve only); form ready to publish",
+            user_email=current_user.email,
+            form_publish_request_id=req.FormPublishRequestID,
+            published=False,
+        )
 
     db.commit()
     db.refresh(req)
@@ -340,7 +474,7 @@ async def direct_publish(
     if form.CompanyID != current_user.company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
 
-    _, _, require_approval = get_company_test_config(db, form.CompanyID)
+    *_, require_approval = get_company_test_config(db, form.CompanyID)
     if require_approval and not _is_company_admin(current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -365,6 +499,16 @@ async def direct_publish(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
+    _log_activity(
+        db,
+        current_user.user_id,
+        form.CompanyID,
+        "form.published",
+        form_id,
+        form.FormName,
+        "Form published directly (no publish request)",
+        user_email=current_user.email,
+    )
     db.commit()
 
     from models.user import User
@@ -415,6 +559,16 @@ async def unpublish_form(
     form.UpdatedBy = current_user.user_id
     form.UpdatedDate = datetime.utcnow()
 
+    _log_activity(
+        db,
+        current_user.user_id,
+        form.CompanyID,
+        "form.unpublished",
+        form_id,
+        form.FormName,
+        "Form unpublished; production link deactivated",
+        user_email=current_user.email,
+    )
     db.commit()
     return {"success": True, "message": "Form unpublished", "formId": form_id}
 
@@ -449,6 +603,28 @@ async def get_form_review_context(
             FormPublishRequest.Status == "pending",
         )
     ).scalars().first()
+
+    # Unified approval: when form is PENDING_REVIEW with no request (e.g. manually changed status),
+    # create a retroactive request so FormReviewPage shows buttons.
+    if status_code == "PENDING_REVIEW" and pending is None:
+        _, _, require_approval, form_cost_threshold = get_company_test_config(db, form.CompanyID)
+        form_cost = float(form.DeploymentCost) if form.DeploymentCost is not None else 0.0
+        cost_gate = form_cost_threshold is not None and form_cost > form_cost_threshold
+        needs_approval = require_approval or cost_gate
+        if needs_approval:
+            retro = FormPublishRequest(
+                FormID=form_id,
+                RequestedBy=form.CreatedBy or current_user.user_id,
+                Message="Retroactive request (form moved to Pending Admin Review)",
+                Status="pending",
+                CompanyID=form.CompanyID,
+                CreatedBy=current_user.user_id,
+            )
+            db.add(retro)
+            db.commit()
+            db.refresh(retro)
+            pending = retro
+
     approved = db.execute(
         select(FormPublishRequest)
         .where(
@@ -554,16 +730,34 @@ async def reject_publish_request(
         )
 
     draft_status = db.execute(select(FormStatus).where(FormStatus.StatusCode == "DRAFT")).scalars().first()
+    rejected_approval_status = db.execute(
+        select(FormApprovalStatus).where(FormApprovalStatus.ApprovalStatusCode == "REJECTED")
+    ).scalars().first()
     if not draft_status:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DRAFT status not configured.")
+    if not rejected_approval_status:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="REJECTED approval status not configured.")
 
     req.Status = "declined"
     req.UpdatedBy = current_user.user_id
     req.UpdatedDate = datetime.utcnow()
     form.FormStatusID = draft_status.FormStatusID
+    form.FormApprovalStatusID = rejected_approval_status.FormApprovalStatusID
     form.UpdatedBy = current_user.user_id
     form.UpdatedDate = datetime.utcnow()
 
+    _log_activity(
+        db,
+        current_user.user_id,
+        form.CompanyID,
+        "form.publish_request_rejected",
+        form_id,
+        form.FormName,
+        "Publish request rejected; form reverted to Draft",
+        user_email=current_user.email,
+        form_publish_request_id=req.FormPublishRequestID,
+        requested_by=req.RequestedBy,
+    )
     db.commit()
     db.refresh(req)
 

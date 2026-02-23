@@ -31,14 +31,17 @@ def upgrade() -> None:
     # 2. Add UnpublishMode to Form
     op.add_column(
         "Form",
-        sa.Column("UnpublishMode", mssql.NVARCHAR(length=20), nullable=True, server_default="MANUAL"),
+        sa.Column("UnpublishMode", mssql.NVARCHAR(length=20), nullable=True),
         schema="dbo",
     )
+    # Backfill existing rows before NOT NULL constraint (SQL Server does not auto-backfill on ADD)
+    op.execute("UPDATE dbo.[Form] SET UnpublishMode = N'MANUAL' WHERE UnpublishMode IS NULL")
     op.alter_column(
         "Form",
         "UnpublishMode",
         existing_type=mssql.NVARCHAR(length=20),
         nullable=False,
+        server_default="MANUAL",
         schema="dbo",
     )
 

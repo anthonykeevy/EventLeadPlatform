@@ -1,8 +1,9 @@
 """
 CompanyFormTestConfig Model (dbo.CompanyFormTestConfig)
 Story 5.5: Per-company test threshold for publish readiness.
+Story 5.8+: FormCostThreshold - when set, forms with cost > threshold require approval.
 """
-from sqlalchemy import Column, BigInteger, Integer, Boolean, DateTime, ForeignKey, func
+from sqlalchemy import Column, BigInteger, Integer, Boolean, DateTime, ForeignKey, Numeric, func
 from sqlalchemy.orm import relationship
 from common.database import Base
 
@@ -21,6 +22,7 @@ class CompanyFormTestConfig(Base):
     TestThresholdEnabled = Column(Boolean, nullable=False, server_default="0")
     TestThresholdValue = Column(Integer, nullable=False, server_default="3")
     RequirePublishApproval = Column(Boolean, nullable=False, server_default="0")  # Story 5.6: Company User must request publish
+    FormCostThreshold = Column(Numeric(10, 2), nullable=True)  # When set, forms with cost > this require approval
 
     CreatedDate = Column(DateTime, nullable=False, server_default=func.getutcdate())
     CreatedBy = Column(BigInteger, ForeignKey("dbo.User.UserID"), nullable=True)

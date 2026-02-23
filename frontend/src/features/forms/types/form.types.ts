@@ -51,6 +51,8 @@ export interface Form {
   updatedBy: number | null
   productionUrl?: string | null
   willUnpublishOn?: string | null
+  unpublishMode?: string | null
+  scheduledUnpublishDate?: string | null
 }
 
 // Request Types
@@ -76,6 +78,8 @@ export interface FormUpdateRequest {
   deploymentCost?: number | null
   formThumbnailUrl?: string | null
   formPreviewUrl?: string | null
+  unpublishMode?: string
+  scheduledUnpublishDate?: string | null
 }
 
 // Response Types

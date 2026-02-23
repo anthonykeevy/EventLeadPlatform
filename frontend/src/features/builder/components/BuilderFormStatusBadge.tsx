@@ -13,8 +13,10 @@ interface BuilderFormStatusBadgeProps {
 const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
   DRAFT: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
   PENDING_REVIEW: { bg: 'bg-amber-100', text: 'text-amber-800' },
+  APPROVED_FOR_PUBLISH: { bg: 'bg-teal-100', text: 'text-teal-800' },
   UNDER_REVIEW: { bg: 'bg-blue-100', text: 'text-blue-800' },
   PUBLISHED: { bg: 'bg-green-100', text: 'text-green-800' },
+  UNPUBLISHED: { bg: 'bg-gray-100', text: 'text-gray-800' },
   PAUSED: { bg: 'bg-gray-100', text: 'text-gray-800' },
 }
 

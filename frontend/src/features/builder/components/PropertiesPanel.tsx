@@ -196,7 +196,7 @@ export const PropertiesPanel: React.FC = () => {
             if (v === undefined || v === null) {
                 delete next[k as keyof StyleOverrides];
             } else {
-                next[k as keyof StyleOverrides] = v as StyleOverrides[keyof StyleOverrides];
+                (next as Record<string, unknown>)[k] = v;
             }
         });
         return next;

@@ -118,6 +118,8 @@ export const PublicFormRendererPage: React.FC = () => {
     }
   }, [token])
 
+  const isProductionFillViewport = linkType === 'PRODUCTION' && !isEmbed
+
   if (isLoading) {
     return <div className="min-h-screen bg-gray-50 p-6">Loading…</div>
   }
@@ -161,8 +163,14 @@ export const PublicFormRendererPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {isEmbed ? null : (
+    <div
+      className={
+        isProductionFillViewport
+          ? 'fixed inset-0 w-screen h-screen overflow-hidden'
+          : 'min-h-screen bg-gray-50'
+      }
+    >
+      {(isEmbed || linkType === 'PRODUCTION') ? null : (
         <header className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
             <div className="font-semibold text-gray-900">Public Form</div>
@@ -180,6 +188,9 @@ export const PublicFormRendererPage: React.FC = () => {
         kioskEnabled={kioskEnabled}
         autoResetSeconds={autoResetSeconds}
         countdownSeconds={countdownSeconds}
+        containerStyle={isProductionFillViewport ? { height: '100%', width: '100%' } : undefined}
+        containerClassName={isProductionFillViewport ? 'min-h-0' : undefined}
+        scaleMode={isProductionFillViewport ? 'cover' : 'contain'}
       />
     </div>
   )

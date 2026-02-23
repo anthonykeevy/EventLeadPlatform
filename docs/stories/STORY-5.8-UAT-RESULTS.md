@@ -3,7 +3,7 @@
 **Story:** 5.8  
 **Epic:** 5 - Form Builder Readiness + Review & Publishing  
 **Date:** 2026-02-20  
-**Status:** Ready for human UAT  
+**Status:** UAT PASSED (Phases 0–5)  
 
 ---
 
@@ -11,17 +11,17 @@
 
 | Test ID | Description | Command/Action | Result | Evidence |
 |---------|-------------|----------------|--------|----------|
-| DC1 | Approval options (Approve only, Approve & Publish) | Manual | Pending | Human: FormReviewPage; two options; approve-only vs approve-and-publish |
-| DC2 | Public URL on publish; stable token | Manual | Pending | Human: Publish form; open production URL; re-publish; same URL |
-| DC3 | Unpublish modes (Manual, Event end, Schedule) | Manual | Pending | Human: DirectPublishModal / FormReviewPage; select mode; EVENT_END disabled when no event |
-| DC4 | Unpublished form page; re-publish CTA; notification | Manual | Pending | Human: Unpublish; visit URL; "Form unpublished" page; CTA; request-republish API |
-| DC5 | Dashboard: published URL + copy; "Will unpublish on" badge | Manual | Pending | Human: CompanyContainer; production URL; copy; badge when SCHEDULED/EVENT_END |
-| DC6 | FormReviewPage (published): link + copy; Unpublish | Manual | Pending | Human: FormReviewPage for published form; link; Unpublish button |
-| DC7 | Direct publish when RequirePublishApproval=false | Manual | Pending | Human: EditFormModal, FormDetailView, BuilderPublishAction; Publish button; DirectPublishModal |
-| DC8 | In-app reminders (Will unpublish on [date]) | Manual | Pending | Human: Dashboard notice; queue items if available |
-| DC9 | Activation windows (event ended when outside) | Manual | Pending | Human: Event outside StartDateTime–EndDateTime; "event ended" page |
-| DC10 | Hide approval UI when RequirePublishApproval=false | Manual | Pending | Human: PendingPublishRequestsCard hidden; no Request Publish; direct Publish |
-| Build/lint | Backend + frontend | pytest; npm run lint | Pending | Human: Run `cd backend; python -m pytest` and `cd frontend; npm run lint` |
+| DC1 | Approval options (Approve only, Approve & Publish) | Manual | **PASS** | FormReviewPage; two options; approve-only vs approve-and-publish |
+| DC2 | Public URL on publish; stable token | Manual | **PASS** | Publish form; open production URL; re-publish; same URL; form fills viewport |
+| DC3 | Unpublish modes (Manual, Event end, Schedule) | Manual | **PASS** | DirectPublishModal / FormReviewPage; select mode; EVENT_END disabled when no event |
+| DC4 | Unpublished form page; re-publish CTA; notification | Manual | **PASS** | Unpublish; visit URL; "Form unpublished" page; CTA; request-republish API |
+| DC5 | Dashboard: published URL + copy; "Will unpublish on" badge | Manual | **PASS** | CompanyContainer; production URL; copy; badge when SCHEDULED/EVENT_END |
+| DC6 | FormReviewPage (published): link + copy; Unpublish | Manual | **PASS** | FormReviewPage for published form; link; Unpublish button |
+| DC7 | Direct publish when RequirePublishApproval=false | Manual | **PASS** | EditFormModal, FormDetailView, BuilderPublishAction; Publish button; DirectPublishModal |
+| DC8 | In-app reminders (Will unpublish on [date]) | Manual | **PASS** | Dashboard notice; "Will unpublish on" badge |
+| DC9 | Activation windows (event ended when outside) | Manual | **PASS** | Event outside StartDateTime–EndDateTime; "event ended" page |
+| DC10 | Hide approval UI when RequirePublishApproval=false | Manual | **PASS** | PendingPublishRequestsCard hidden; no Request Publish; direct Publish |
+| Build/lint | Backend + frontend | pytest; npm run lint | **PASS** | Backend pytest; frontend lint |
 
 ---
 
@@ -79,13 +79,28 @@ Migration file: `backend/migrations/versions/048_story_58_admin_review_publish_a
 
 ---
 
+## UAT Fixes Applied During Testing
+
+| Phase | Issue | Fix |
+|-------|-------|-----|
+| 1.1g | Request Publish button stayed disabled after completing tests in preview tab | Added `visibilitychange` listener to refetch readiness when returning to Builder/Form Detail |
+| 1.2b | Pending Publish Requests not showing after Request Publish | Fixed `scalars().all()` handling in `get_pending_publish_requests` |
+| 1.2e | After Approve Only, page showed unpublish/Publish confusingly | Navigate to dashboard after Approve Only instead of staying on review page |
+| 1.3 | Production link showed header; form had black borders | Removed header for PRODUCTION; added cover scaling so form fills viewport |
+| 1.3 | Form View required full refresh to see updated response count | FormDetailView fetches form on open; refetches on visibilitychange |
+| 4 | No way to change unpublish method for published forms | Added Unpublish fields to Edit Form (unpublishMode, scheduledUnpublishDate) |
+| — | Dark theme: text not visible in modals and public link input | Theme-aware colors (--color-card-foreground, etc.) in DirectPublishModal, RequestPublishModal, FormReviewPage, EditFormModal, CompanyContainer |
+| — | Production link: React hooks error | Moved fullscreen useEffect before early returns |
+
+---
+
 ## Human Handoff
 
-1. Run migration: `cd backend; alembic upgrade head`
-2. Run manual UAT per `docs/stories/STORY-5.8-UAT-TEST-GUIDE.md`
-3. Update this table with PASS/FAIL and evidence
+1. ~~Run migration: `cd backend; alembic upgrade head`~~ Done
+2. ~~Run manual UAT per `docs/stories/STORY-5.8-UAT-TEST-GUIDE.md`~~ All phases passed
+3. ~~Update this table with PASS/FAIL and evidence~~ Complete
 4. Merge Story PR to master
 
 ---
 
-*UAT results — human verification required. Implementation complete 2026-02-20.*
+*UAT PASSED — 2026-02-20. All phases (0–5) executed successfully.*

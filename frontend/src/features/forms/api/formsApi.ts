@@ -62,9 +62,12 @@ function transformForm(backend: any): Form {
       ? transformFormApprovalStatus(backend.form_approval_status ?? backend.formApprovalStatus ?? backend.FormApprovalStatus)
       : null,
     isPublic: backend.is_public ?? backend.isPublic ?? backend.IsPublic ?? false,
-    deploymentCost: (backend.deployment_cost ?? backend.deploymentCost ?? backend.DeploymentCost) !== null 
-      ? Number(backend.deployment_cost ?? backend.deploymentCost ?? backend.DeploymentCost)
-      : null,
+    deploymentCost: (() => {
+      const raw = backend.deployment_cost ?? backend.deploymentCost ?? backend.DeploymentCost
+      if (raw == null || raw === '') return null
+      const n = Number(raw)
+      return Number.isNaN(n) ? null : n
+    })(),
     totalSubmissions: backend.total_submissions ?? backend.totalSubmissions ?? backend.TotalSubmissions ?? 0,
     demoLeadsCollected: backend.demo_leads_collected ?? backend.demoLeadsCollected ?? backend.DemoLeadsCollected ?? 0,
     productionLeadsCollected: backend.production_leads_collected ?? backend.productionLeadsCollected ?? backend.ProductionLeadsCollected ?? 0,
@@ -74,6 +77,8 @@ function transformForm(backend: any): Form {
     formPreviewUrl: backend.form_preview_url ?? backend.formPreviewUrl ?? backend.FormPreviewURL ?? null,
     productionUrl: backend.production_url ?? backend.productionUrl ?? null,
     willUnpublishOn: backend.will_unpublish_on ?? backend.willUnpublishOn ?? null,
+    unpublishMode: backend.unpublish_mode ?? backend.unpublishMode ?? null,
+    scheduledUnpublishDate: backend.scheduled_unpublish_date ?? backend.scheduledUnpublishDate ?? null,
     createdDate: backend.created_date ?? backend.createdDate ?? backend.CreatedDate ?? '',
     createdBy: backend.created_by ?? backend.createdBy ?? backend.CreatedBy ?? 0,
     updatedDate: backend.updated_date ?? backend.updatedDate ?? backend.UpdatedDate ?? null,
@@ -378,16 +383,19 @@ export type CompanyTestConfig = {
   testThresholdEnabled: boolean
   testThresholdValue: number
   requirePublishApproval: boolean
+  formCostThreshold: number | null
 }
 
 export async function getCompanyTestConfig(): Promise<CompanyTestConfig> {
   try {
     const response = await apiClient.get('/api/forms/company-test-config')
     const d = response.data
+    const raw = d.formCostThreshold ?? d.form_cost_threshold
     return {
       testThresholdEnabled: d.testThresholdEnabled ?? d.test_threshold_enabled ?? false,
       testThresholdValue: d.testThresholdValue ?? d.test_threshold_value ?? 3,
       requirePublishApproval: d.requirePublishApproval ?? d.require_publish_approval ?? false,
+      formCostThreshold: raw != null ? Number(raw) : null,
     }
   } catch (error) {
     throw formatError(error)
@@ -403,13 +411,16 @@ export async function putCompanyTestConfig(update: CompanyTestConfigUpdate): Pro
       testThresholdEnabled: update.testThresholdEnabled ?? false,
       testThresholdValue: update.testThresholdValue ?? 3,
       requirePublishApproval: update.requirePublishApproval ?? false,
+      formCostThreshold: update.formCostThreshold ?? null,
     }
     const response = await apiClient.put('/api/forms/company-test-config', payload)
     const d = response.data
+    const raw = d.formCostThreshold ?? d.form_cost_threshold
     return {
       testThresholdEnabled: d.testThresholdEnabled ?? d.test_threshold_enabled ?? false,
       testThresholdValue: d.testThresholdValue ?? d.test_threshold_value ?? 3,
       requirePublishApproval: d.requirePublishApproval ?? d.require_publish_approval ?? false,
+      formCostThreshold: raw != null ? Number(raw) : null,
     }
   } catch (error) {
     throw formatError(error)

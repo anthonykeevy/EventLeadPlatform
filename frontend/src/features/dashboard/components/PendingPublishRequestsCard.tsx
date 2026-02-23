@@ -17,7 +17,7 @@ export function PendingPublishRequestsCard() {
     Promise.all([getPendingPublishRequests(), getCompanyTestConfig()])
       .then(([reqs, config]) => {
         setRequests(reqs)
-        setRequireApproval(config.requirePublishApproval)
+        setRequireApproval(config.requirePublishApproval || config.formCostThreshold != null)
       })
       .catch(() => setRequests([]))
       .finally(() => setLoading(false))

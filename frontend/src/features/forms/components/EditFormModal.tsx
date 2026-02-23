@@ -34,17 +34,26 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
   const [readiness, setReadiness] = useState<{ canPublish: boolean; message?: string } | null>(null)
   const [showRequestPublishModal, setShowRequestPublishModal] = useState(false)
   const [showDirectPublishModal, setShowDirectPublishModal] = useState(false)
+  const [formCostThreshold, setFormCostThreshold] = useState<number | null>(null)
 
   const toast = useToastNotifications()
+
+  const prepareUnpublishForSubmit = (data: FormUpdateRequest): FormUpdateRequest => {
+    const d = { ...data }
+    if (d.unpublishMode === 'SCHEDULED' && d.scheduledUnpublishDate) {
+      d.scheduledUnpublishDate = d.scheduledUnpublishDate.replace(/T.*$/, '') + 'T23:59:59Z'
+    }
+    return d
+  }
 
   // Determine if user is admin
   const isCompanyAdmin = user?.role === 'company_admin' || user?.role === 'system_admin'
 
-  // Helper to check if publish is blocked
+  // Helper to check if publish is blocked (cost gate from company config)
   const isPublishBlocked = (cost: number | null, approvalStatusId: number | undefined) => {
-    const threshold = 100 // This should ideally come from config, but hardcoded for UI logic matches backend default
-    const currentCost = cost || 0
-    
+    if (formCostThreshold == null) return false // cost gate disabled
+    const currentCost = cost ?? 0
+
     // Find the status object to check code
     const statusObj = formApprovalStatuses.find(s => s.formApprovalStatusId === approvalStatusId)
     // Block if cost > threshold AND NOT Approved
@@ -52,7 +61,7 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
     // but typically we wait for loading.
     const isApproved = statusObj?.approvalStatusCode === 'APPROVED'
     
-    return currentCost > threshold && !isApproved
+    return currentCost > formCostThreshold && !isApproved
   }
 
   // Load form data and reference data
@@ -87,18 +96,17 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
           formStatusId: freshForm.formStatusId !== undefined && freshForm.formStatusId !== null ? freshForm.formStatusId : undefined,
           formApprovalStatusId: freshForm.formApprovalStatusId !== undefined && freshForm.formApprovalStatusId !== null ? freshForm.formApprovalStatusId : undefined,
           deploymentCost: freshForm.deploymentCost,
+          unpublishMode: (freshForm.unpublishMode as string) || 'MANUAL',
+          scheduledUnpublishDate: freshForm.scheduledUnpublishDate?.slice(0, 10) ?? '',
         })
-        // Load company config + readiness separately; failure does not block form edit
-        if (!isCompanyAdmin) {
-          try {
-            const [config, r] = await Promise.all([getCompanyTestConfig(), getFormReadiness(form.formId)])
-            setRequireApproval(config?.requirePublishApproval ?? false)
-            setReadiness(r ?? null)
-          } catch {
-            setRequireApproval(false)
-            setReadiness(null)
-          }
-        } else {
+        // Load company config + readiness; config needed for requireApproval and formCostThreshold
+        try {
+          const [config, r] = await Promise.all([getCompanyTestConfig(), getFormReadiness(form.formId)])
+          setFormCostThreshold(config?.formCostThreshold ?? null)
+          setRequireApproval(config?.requirePublishApproval ?? false)
+          setReadiness(r ?? null)
+        } catch {
+          setFormCostThreshold(null)
           setRequireApproval(false)
           setReadiness(null)
         }
@@ -126,6 +134,9 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
     if (formData.formName !== undefined && !formData.formName.trim()) {
       newErrors.formName = 'Form name is required'
     }
+    if ((formData.unpublishMode ?? 'MANUAL') === 'SCHEDULED' && !formData.scheduledUnpublishDate?.trim()) {
+      newErrors.scheduledUnpublishDate = 'Scheduled unpublish requires a date'
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -149,7 +160,7 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
     if (blocked) {
         // Admin Bypass Logic
         if (isCompanyAdmin) {
-             if (!confirm(`Warning: This form exceeds the deployment cost threshold ($${currentCost}).\n\nAs an Administrator, you can publish this immediately without approval.\n\nProceed to Publish?`)) {
+             if (!confirm(`Warning: This form's deployment cost ($${currentCost}) exceeds the company threshold ($${formCostThreshold}).\n\nAs an Administrator, you can publish this immediately without approval.\n\nProceed to Publish?`)) {
                 return
              }
              
@@ -160,9 +171,9 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
                  
                  // 2. Update Form (including status=Published)
                  // Filter out undefined values
-                 const updateData: FormUpdateRequest = Object.fromEntries(
+                 const updateData = prepareUnpublishForSubmit(Object.fromEntries(
                     Object.entries(formData).filter(([_, value]) => value !== undefined)
-                 ) as FormUpdateRequest
+                 ) as FormUpdateRequest)
                  
                  await updateForm(form.formId, updateData)
                  toast.success('Form Published Successfully', 'Success')
@@ -186,9 +197,9 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
         setIsSubmitting(true)
         try {
           // 1. Save changes first (EXCEPT status change to Published)
-          const updateData: FormUpdateRequest = Object.fromEntries(
+          const updateData = prepareUnpublishForSubmit(Object.fromEntries(
             Object.entries(formData).filter(([key, value]) => value !== undefined && key !== 'formStatusId')
-          ) as FormUpdateRequest
+          ) as FormUpdateRequest)
           
           // If user changed status to Published, we need to revert it to original (or keep as is)
           // If user didn't change status, it wouldn't be in formData (undefined)
@@ -218,9 +229,9 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
     setIsSubmitting(true)
     try {
       // Filter out undefined values to avoid type issues
-      const updateData: FormUpdateRequest = Object.fromEntries(
+      const updateData = prepareUnpublishForSubmit(Object.fromEntries(
         Object.entries(formData).filter(([_, value]) => value !== undefined)
-      ) as FormUpdateRequest
+      ) as FormUpdateRequest)
       
       await updateForm(form.formId, updateData)
       toast.success('Form updated successfully', 'Success')
@@ -237,11 +248,15 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
 
   if (!isOpen || !form) return null
 
+  const currentCost = formData.deploymentCost !== undefined ? formData.deploymentCost : form.deploymentCost ?? 0
+  const needsApproval =
+    requireApproval ||
+    (formCostThreshold != null && (currentCost ?? 0) > formCostThreshold)
   const currentStatusId = formData.formStatusId !== undefined ? formData.formStatusId : form.formStatusId
   const currentStatusCode = formStatuses.find(s => s.formStatusId === currentStatusId)?.statusCode ?? form.formStatus?.statusCode ?? 'DRAFT'
-  const showRequestPublishBtn = !isCompanyAdmin && requireApproval && currentStatusCode === 'DRAFT'
+  const showRequestPublishBtn = !isCompanyAdmin && needsApproval && currentStatusCode === 'DRAFT'
   const canRequestPublish = showRequestPublishBtn && (readiness?.canPublish ?? false)
-  const showDirectPublishBtn = (isCompanyAdmin || !requireApproval) && currentStatusCode === 'DRAFT'
+  const showDirectPublishBtn = (isCompanyAdmin || !needsApproval) && currentStatusCode === 'DRAFT'
   const canDirectPublish = showDirectPublishBtn && (readiness?.canPublish ?? false)
 
   return (
@@ -297,8 +312,16 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
                   name="deploymentCost"
                   label="Deployment Cost ($)"
                   type="text" // EnhancedFormInput expects text/password/etc, using text for number with casting
-                  value={formData.deploymentCost !== undefined && formData.deploymentCost !== null ? String(formData.deploymentCost) : ''}
-                  onChange={(value) => setFormData(prev => ({ ...prev, deploymentCost: value === '' ? null : Number(value) }))}
+                  value={(() => {
+                    const v = formData.deploymentCost
+                    if (v === undefined || v === null || Number.isNaN(Number(v))) return ''
+                    return String(v)
+                  })()}
+                  onChange={(value) => {
+                    if (value === '') return setFormData(prev => ({ ...prev, deploymentCost: null }))
+                    const n = Number(value)
+                    setFormData(prev => ({ ...prev, deploymentCost: Number.isNaN(n) ? null : n }))
+                  }}
                   error={errors.deploymentCost}
                   // min/step props need to be handled via other props or custom validation if EnhancedFormInput doesn't support them directly
                   // Assuming EnhancedFormInput passes unknown props down to input
@@ -377,6 +400,61 @@ export function EditFormModal({ isOpen, form, onClose, onSuccess }: EditFormModa
                     )}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">Admin Override: You can manually set approval status here.</p>
+                </div>
+              )}
+
+              {/* Story 5.8 Phase 4: Unpublish settings - only for published forms */}
+              {form.formStatus?.statusCode === 'PUBLISHED' && (
+                <div className="space-y-3 p-3 bg-[rgb(var(--color-warning-bg))] border border-[rgb(var(--color-border))] rounded-md">
+                  <label className="block text-sm font-medium text-[rgb(var(--color-warning-text))]">When to unpublish</label>
+                  <p className="text-xs text-[rgb(var(--color-muted-foreground))] mb-2">Change how this form will be unpublished. Takes effect immediately for scheduled/event-end.</p>
+                  <div className="flex flex-wrap gap-4">
+                    <label className="flex items-center gap-2 text-[rgb(var(--color-warning-text))] cursor-pointer">
+                      <input
+                        type="radio"
+                        name="editUnpublishMode"
+                        checked={(formData.unpublishMode ?? 'MANUAL') === 'MANUAL'}
+                        onChange={() => setFormData(prev => ({ ...prev, unpublishMode: 'MANUAL', scheduledUnpublishDate: '' }))}
+                        className="rounded"
+                      />
+                      <span className="text-sm">Manual</span>
+                    </label>
+                    <label className={`flex items-center gap-2 cursor-pointer ${!form.eventId ? 'opacity-60' : ''}`}>
+                      <input
+                        type="radio"
+                        name="editUnpublishMode"
+                        checked={(formData.unpublishMode ?? 'MANUAL') === 'EVENT_END'}
+                        onChange={() => setFormData(prev => ({ ...prev, unpublishMode: 'EVENT_END' }))}
+                        disabled={!form.eventId}
+                        className="rounded"
+                      />
+                      <span className="text-sm text-[rgb(var(--color-warning-text))]">Event end date</span>
+                      {!form.eventId && <span className="text-xs text-[rgb(var(--color-muted-foreground))]">(link form to event)</span>}
+                    </label>
+                    <label className="flex items-center gap-2 text-[rgb(var(--color-warning-text))] cursor-pointer">
+                      <input
+                        type="radio"
+                        name="editUnpublishMode"
+                        checked={(formData.unpublishMode ?? 'MANUAL') === 'SCHEDULED'}
+                        onChange={() => setFormData(prev => ({ ...prev, unpublishMode: 'SCHEDULED' }))}
+                        className="rounded"
+                      />
+                      <span className="text-sm">Schedule</span>
+                    </label>
+                  </div>
+                  {(formData.unpublishMode ?? 'MANUAL') === 'SCHEDULED' && (
+                    <div>
+                      <input
+                        type="date"
+                        value={formData.scheduledUnpublishDate ?? ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, scheduledUnpublishDate: e.target.value }))}
+                        className={`rounded-md border px-3 py-2 text-sm bg-[rgb(var(--color-background))] text-[rgb(var(--color-foreground))] ${errors.scheduledUnpublishDate ? 'border-red-500' : 'border-[rgb(var(--color-input))]'}`}
+                      />
+                      {errors.scheduledUnpublishDate && (
+                        <p className="text-xs text-red-600 mt-1">{errors.scheduledUnpublishDate}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 

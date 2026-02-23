@@ -691,7 +691,7 @@ class AssetService:
         )
 
     def get_asset_content_response(
-        self, *, asset_id: int, request: Request, size: Optional[str] = None
+        self, *, asset_id: int, request: Request, size: Optional[str] = None, viewer: Optional[str] = None
     ):
         """Serve asset content. size='thumb' prefers 300x300 thumbnail if present, else full.
         For URL-based Terms (SourceURL set), redirect to external URL."""
@@ -723,10 +723,13 @@ class AssetService:
             path = storage.resolve_path(storage_key)
             if not path.exists():
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Asset file not found")
+            
+            content_disposition = "inline" if viewer == "inline" else "attachment"
             return FileResponse(
                 path,
                 media_type=media_type,
                 filename=asset.OriginalFileName or f"asset-{asset.AssetID}",
+                content_disposition_type=content_disposition,
             )
 
         url = storage.get_public_url(

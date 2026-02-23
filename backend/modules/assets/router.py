@@ -145,7 +145,6 @@ def validate_terms_url(
 def resolve_asset_url(
     asset_id: int,
     request: Request,
-    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AssetResolveResponse:
     service = AssetService(db)
@@ -239,8 +238,8 @@ def stream_asset_content(
     asset_id: int,
     request: Request,
     size: Optional[str] = Query(None, description="Use 'thumb' for 300x300 thumbnail"),
-    current_user: CurrentUser = Depends(get_current_user),
+    viewer: Optional[str] = Query(None, description="Set to 'inline' to view in browser"),
     db: Session = Depends(get_db),
 ):
     service = AssetService(db)
-    return service.get_asset_content_response(asset_id=asset_id, request=request, size=size)
+    return service.get_asset_content_response(asset_id=asset_id, request=request, size=size, viewer=viewer)

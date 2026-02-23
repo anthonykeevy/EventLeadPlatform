@@ -16,6 +16,103 @@ import { measureTextWidth } from '../utils/widthCalculator';
 import { getComponentCapabilities } from './componentCapabilities';
 import { getComponentSurfaceCapabilities, type ComponentSurface } from './componentSurfaceCapabilities';
 
+const TermsLinkComponent: React.FC<{
+    component: FormComponent;
+    primaryColor?: string;
+    linkText: string;
+    isCanvas: boolean;
+}> = ({ component, primaryColor, linkText, isCanvas }) => {
+    const [showModal, setShowModal] = React.useState(false);
+    const url = component.props.termsUrl;
+    const content = component.props.termsContent;
+
+    return (
+        <>
+            <span
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isCanvas) return;
+                            const url = component.props.termsUrl;
+                            const content = component.props.termsContent;
+                            if (content) {
+                                setShowModal(true);
+                            } else if (url) {
+                                // Add viewer=inline param to tell backend to force inline disposition
+                                const parsedUrl = new URL(url, window.location.origin);
+                                parsedUrl.searchParams.set('viewer', 'inline');
+                                window.open(parsedUrl.toString(), '_blank', 'noopener,noreferrer');
+                            }
+                }}
+                style={{
+                    color: primaryColor,
+                    textDecoration: 'underline',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    cursor: isCanvas ? 'default' : 'pointer',
+                    pointerEvents: isCanvas ? 'none' : 'auto',
+                }}
+            >
+                {linkText}
+                <ExternalLink size={12} />
+            </span>
+            {showModal && content && (
+                <div 
+                    className="fixed inset-0 flex items-center justify-center z-[9999]"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowModal(false);
+                    }}
+                >
+                    <div 
+                        className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between px-6 py-4 border-b">
+                            <h3 className="text-lg font-semibold text-gray-800 m-0">
+                                {linkText}
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setShowModal(false);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 text-xl font-bold p-2 leading-none cursor-pointer"
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto px-6 py-4">
+                            <div 
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: content }}
+                            />
+                        </div>
+                        <div className="px-6 py-4 border-t bg-gray-50 rounded-b-lg flex justify-end">
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setShowModal(false);
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
+
 /**
  * ValidationArea component for displaying validation errors.
  * In builder mode, shows a placeholder message so SmartBorder accounts for full validation space.
@@ -156,13 +253,15 @@ export interface ObjectRenderers {
  * Create a standard label renderer with Required * support.
  */
 export function createLabelRenderer(): ObjectRenderer {
-    return ({ component, styles, required, componentId, labelWidthOverride, layout, inRowGroup }) => {
+    return ({ component, styles, required, componentId, labelWidthOverride, layout, inRowGroup, surface, builderMode }) => {
         const label = component.props.label;
         if (!label && !required) {
             return null;
         }
         
         const labelId = componentId ? `${componentId}-label` : undefined;
+        const effectiveSurface = surface ?? (builderMode ? 'canvas' : 'runtime');
+        const isCanvas = effectiveSurface === 'canvas';
         
         // Apply width override if set (from E/W resize)
         const labelStyle: React.CSSProperties = {
@@ -194,20 +293,12 @@ export function createLabelRenderer(): ObjectRenderer {
                 {component.type === 'terms' ? (
                     <>
                         {label}{' '}
-                        <span
-                            style={{
-                                color: styles.computed.primaryColor,
-                                textDecoration: 'underline',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 4,
-                                // avoid interfering with drag selection
-                                pointerEvents: 'none',
-                            }}
-                        >
-                            {String(component.props.termsLinkText ?? 'Terms')}
-                            <ExternalLink size={12} />
-                        </span>
+                        <TermsLinkComponent 
+                            component={component} 
+                            primaryColor={styles.computed.primaryColor} 
+                            linkText={String(component.props.termsLinkText ?? 'Terms')} 
+                            isCanvas={isCanvas}
+                        />
                         {required && <span className="text-red-600"> *</span>}
                     </>
                 ) : (

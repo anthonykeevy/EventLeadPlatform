@@ -198,6 +198,12 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         if path == "/" or path == "":
             return True
         
+        # Check specific dynamic public endpoints
+        # Handle potential trailing slashes from some clients/proxies
+        clean_path = path.rstrip("/")
+        if clean_path.startswith("/api/assets/") and (clean_path.endswith("/content") or clean_path.endswith("/resolve")):
+            return True
+        
         # For other paths, check if they start with any public path
         # But exclude root "/" from the list to avoid matching everything
         for public_path in self.PUBLIC_PATHS:

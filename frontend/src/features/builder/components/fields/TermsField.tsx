@@ -36,7 +36,9 @@ export const TermsField: React.FC<TermsFieldProps> = ({
         if (termsContent) {
             setShowModal(true);
         } else if (termsUrl) {
-            window.open(termsUrl, '_blank', 'noopener,noreferrer');
+            const parsedUrl = new URL(termsUrl, window.location.origin);
+            parsedUrl.searchParams.set('viewer', 'inline');
+            window.open(parsedUrl.toString(), '_blank', 'noopener,noreferrer');
         }
     };
 

@@ -109,6 +109,49 @@ def _resolve_definition_with_merged(
     return result
 
 
+def _inject_company_terms(db: Session, company_id: int, form_definition: Dict[str, Any]) -> Dict[str, Any]:
+    from models.company import Company
+    from models.asset import Asset
+    import copy
+
+    company = db.execute(
+        select(Company).where(Company.CompanyID == company_id, Company.IsDeleted == False)
+    ).scalar_one_or_none()
+
+    if not company or not getattr(company, "DefaultTermsAssetID", None):
+        return form_definition
+
+    asset = db.execute(
+        select(Asset).where(Asset.AssetID == company.DefaultTermsAssetID, Asset.IsDeleted == False)
+    ).scalar_one_or_none()
+
+    if not asset:
+        return form_definition
+
+    terms_url = asset.SourceURL if asset.SourceURL else f"/api/assets/{asset.AssetID}/content"
+    terms_content = ""
+
+    result = copy.deepcopy(form_definition)
+
+    def _update_components(components: List[Dict[str, Any]]) -> None:
+        for comp in components:
+            if comp.get("type") == "terms":
+                props = comp.get("props", {})
+                props["termsUrl"] = terms_url
+                props["termsContent"] = terms_content
+            if "children" in comp and isinstance(comp["children"], list):
+                _update_components(comp["children"])
+
+    for page_list_key in ["pages", "desktopPages", "tabletPages", "mobilePages"]:
+        pages = result.get(page_list_key)
+        if pages and isinstance(pages, list):
+            for page in pages:
+                if "components" in page and isinstance(page["components"], list):
+                    _update_components(page["components"])
+
+    return result
+
+
 def resolve_definition_for_render(
     db: Session,
     company_id: int,
@@ -120,7 +163,8 @@ def resolve_definition_for_render(
     Returns complete definition suitable for preview and public renderer.
     """
     merged = resolve_merged_defaults(db, company_id)
-    return _resolve_definition_with_merged(merged, form_definition)
+    resolved_def = _resolve_definition_with_merged(merged, form_definition)
+    return _inject_company_terms(db, company_id, resolved_def)
 
 
 def update_global_defaults(

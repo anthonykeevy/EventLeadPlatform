@@ -25,6 +25,9 @@ const TermsLinkComponent: React.FC<{
     const [showModal, setShowModal] = React.useState(false);
     const url = component.props.termsUrl;
     const content = component.props.termsContent;
+    const displayMode = component.props.termsDisplayMode || 'popup';
+    const displayWidth = component.props.termsDisplayWidth || 720;
+    const displayHeight = component.props.termsDisplayHeight || 600;
 
     return (
         <>
@@ -33,16 +36,17 @@ const TermsLinkComponent: React.FC<{
                     e.preventDefault();
                     e.stopPropagation();
                     if (isCanvas) return;
-                            const url = component.props.termsUrl;
-                            const content = component.props.termsContent;
-                            if (content) {
-                                setShowModal(true);
-                            } else if (url) {
-                                // Add viewer=inline param to tell backend to force inline disposition
-                                const parsedUrl = new URL(url, window.location.origin);
-                                parsedUrl.searchParams.set('viewer', 'inline');
-                                window.open(parsedUrl.toString(), '_blank', 'noopener,noreferrer');
-                            }
+                    if (content) {
+                        setShowModal(true);
+                    } else if (url) {
+                        if (displayMode === 'new_tab') {
+                            const parsedUrl = new URL(url, window.location.origin);
+                            parsedUrl.searchParams.set('viewer', 'inline');
+                            window.open(parsedUrl.toString(), '_blank', 'noopener,noreferrer');
+                        } else {
+                            setShowModal(true);
+                        }
+                    }
                 }}
                 style={{
                     color: primaryColor,
@@ -57,7 +61,7 @@ const TermsLinkComponent: React.FC<{
                 {linkText}
                 <ExternalLink size={12} />
             </span>
-            {showModal && content && (
+            {showModal && (content || url) && (
                 <div 
                     className="fixed inset-0 flex items-center justify-center z-[9999]"
                     style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
@@ -70,6 +74,10 @@ const TermsLinkComponent: React.FC<{
                     <div 
                         className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col"
                         onClick={(e) => e.stopPropagation()}
+                        style={{
+                            maxWidth: url && !content ? displayWidth : undefined,
+                            height: url && !content ? displayHeight : undefined
+                        }}
                     >
                         <div className="flex items-center justify-between px-6 py-4 border-b">
                             <h3 className="text-lg font-semibold text-gray-800 m-0">
@@ -87,13 +95,23 @@ const TermsLinkComponent: React.FC<{
                                 &times;
                             </button>
                         </div>
-                        <div className="flex-1 overflow-y-auto px-6 py-4">
-                            <div 
-                                className="prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: content }}
-                            />
+                        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                            {content ? (
+                                <div className="flex-1 overflow-y-auto px-6 py-4">
+                                    <div 
+                                        className="prose prose-sm max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: content }}
+                                    />
+                                </div>
+                            ) : (
+                                <iframe 
+                                    src={url + (url?.includes('?') ? '&' : '?') + 'viewer=inline'} 
+                                    className="w-full h-full min-h-[300px] border-0"
+                                    title={linkText}
+                                />
+                            )}
                         </div>
-                        <div className="px-6 py-4 border-t bg-gray-50 rounded-b-lg flex justify-end">
+                        <div className="px-6 py-4 border-t bg-gray-50 rounded-b-lg flex justify-end flex-shrink-0">
                             <button
                                 type="button"
                                 onClick={(e) => {

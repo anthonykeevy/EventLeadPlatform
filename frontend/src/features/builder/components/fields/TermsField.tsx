@@ -7,6 +7,9 @@ interface TermsFieldProps {
     termsLinkText?: string;
     termsUrl?: string;
     termsContent?: string;
+    termsDisplayMode?: 'popup' | 'new_tab';
+    termsDisplayWidth?: number;
+    termsDisplayHeight?: number;
     required?: boolean;
     fieldStyles?: ComputedFieldStyles;
 }
@@ -24,6 +27,9 @@ export const TermsField: React.FC<TermsFieldProps> = ({
     termsLinkText = 'Terms of Service',
     termsUrl,
     termsContent,
+    termsDisplayMode = 'popup',
+    termsDisplayWidth = 720,
+    termsDisplayHeight = 600,
     required = true,
     fieldStyles,
 }) => {
@@ -36,9 +42,13 @@ export const TermsField: React.FC<TermsFieldProps> = ({
         if (termsContent) {
             setShowModal(true);
         } else if (termsUrl) {
-            const parsedUrl = new URL(termsUrl, window.location.origin);
-            parsedUrl.searchParams.set('viewer', 'inline');
-            window.open(parsedUrl.toString(), '_blank', 'noopener,noreferrer');
+            if (termsDisplayMode === 'new_tab') {
+                const parsedUrl = new URL(termsUrl, window.location.origin);
+                parsedUrl.searchParams.set('viewer', 'inline');
+                window.open(parsedUrl.toString(), '_blank', 'noopener,noreferrer');
+            } else {
+                setShowModal(true);
+            }
         }
     };
 
@@ -106,7 +116,7 @@ export const TermsField: React.FC<TermsFieldProps> = ({
             </div>
 
             {/* Terms Modal */}
-            {showModal && termsContent && (
+            {showModal && (termsContent || termsUrl) && (
                 <div 
                     className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
                     onClick={() => setShowModal(false)}
@@ -114,6 +124,10 @@ export const TermsField: React.FC<TermsFieldProps> = ({
                     <div 
                         className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col"
                         onClick={(e) => e.stopPropagation()}
+                        style={{
+                            maxWidth: termsUrl && !termsContent ? termsDisplayWidth : undefined,
+                            height: termsUrl && !termsContent ? termsDisplayHeight : undefined
+                        }}
                     >
                         {/* Modal Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b">
@@ -129,15 +143,25 @@ export const TermsField: React.FC<TermsFieldProps> = ({
                         </div>
                         
                         {/* Modal Content */}
-                        <div className="flex-1 overflow-y-auto px-6 py-4">
-                            <div 
-                                className="prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: termsContent }}
-                            />
+                        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                            {termsContent ? (
+                                <div className="flex-1 overflow-y-auto px-6 py-4">
+                                    <div 
+                                        className="prose prose-sm max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: termsContent }}
+                                    />
+                                </div>
+                            ) : (
+                                <iframe 
+                                    src={termsUrl + (termsUrl.includes('?') ? '&' : '?') + 'viewer=inline'} 
+                                    className="w-full h-full min-h-[300px] border-0"
+                                    title={termsLinkText}
+                                />
+                            )}
                         </div>
                         
                         {/* Modal Footer */}
-                        <div className="px-6 py-4 border-t bg-gray-50 rounded-b-lg">
+                        <div className="px-6 py-4 border-t bg-gray-50 rounded-b-lg flex-shrink-0">
                             <button
                                 onClick={() => setShowModal(false)}
                                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg 

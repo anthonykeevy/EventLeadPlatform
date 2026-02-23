@@ -130,6 +130,9 @@ def _inject_company_terms(db: Session, company_id: int, form_definition: Dict[st
 
     terms_url = asset.SourceURL if asset.SourceURL else f"/api/assets/{asset.AssetID}/content"
     terms_content = ""
+    terms_display_mode = asset.TermsDisplayMode if asset.TermsDisplayMode else "popup"
+    terms_display_width = asset.DisplayWidthPx
+    terms_display_height = asset.DisplayHeightPx
 
     result = copy.deepcopy(form_definition)
 
@@ -139,6 +142,11 @@ def _inject_company_terms(db: Session, company_id: int, form_definition: Dict[st
                 props = comp.get("props", {})
                 props["termsUrl"] = terms_url
                 props["termsContent"] = terms_content
+                props["termsDisplayMode"] = terms_display_mode
+                if terms_display_width:
+                    props["termsDisplayWidth"] = terms_display_width
+                if terms_display_height:
+                    props["termsDisplayHeight"] = terms_display_height
             if "children" in comp and isinstance(comp["children"], list):
                 _update_components(comp["children"])
 

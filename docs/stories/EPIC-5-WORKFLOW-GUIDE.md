@@ -2,11 +2,12 @@
 
 **Workflow:** BMAD method only. SM agent prepares Story, context, and UAT; SM reviews artifacts; Dev agent builds via single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 5.8 - Admin Review & Publish + Activation (Epic 5)  
+**Current Focus:** Story 5.9 - Hardening + UAT (Epic 5)  
 **Story 5.1–5.5 Status:** ✅ Complete — Merged to master  
 **Story 5.6 Status:** ✅ Complete (2026-02-17) — Publish Request Workflow  
 **Story 5.7 Status:** ✅ Complete (2026-02-18) — Company Settings Hub  
-**Story 5.8 Status:** ⏳ Ready — Context and UAT created; SM review pending  
+**Story 5.8 Status:** ✅ Complete (2026-02-23) — Admin Review & Publish + Activation  
+**Story 5.9 Status:** ⏳ Ready — Kickoff pending  
 
 ---
 
@@ -224,16 +225,15 @@ Deliverables:
 
 ---
 
-## 📋 Phase 1: Story 5.8 — SM Review (Current)
+## 📋 Phase 1: Story 5.9 — SM Kickoff (Current)
 
-Story 5.8 artifacts are **ready** (PM approved 2026-02-18):
+Story 5.9 artifacts are **pending** (PM approved 2026-02-23):
 
-- `docs/stories/story-5.8.md` — Admin Review & Publish + Activation
-- `docs/stories/story-context-5.8.xml` — Context for Dev
-- `docs/stories/STORY-5.8-UAT-TEST-GUIDE.md` — UAT coverage
-- `docs/stories/STORY-5.8-PM-DECISIONS.md` — PM decisions
+- `docs/stories/story-5.9.md` — Hardening + End-to-End UAT
+- `docs/stories/story-context-5.9.xml` — Context for Dev
+- `docs/stories/STORY-5.9-UAT-TEST-GUIDE.md` — Comprehensive E2E UAT coverage
 
-**SM review complete:** See `docs/stories/STORY-5.8-SM-REVIEW-SUGGESTIONS.md` for suggestions. Incorporate as needed; then create STORY-5.8-SINGLE-SESSION-DEV-PROMPT.md and hand off to @dev.
+**Next Action:** Scrum Master (@sm.mdc) needs to prepare the Story 5.9 artifacts and design the end-to-end UAT.
 
 ---
 
@@ -251,9 +251,9 @@ Story 5.8 artifacts are **ready** (PM approved 2026-02-18):
 
 ---
 
-### Story 5.8 Dev Prompt (create after SM review)
+### Story 5.9 Dev Prompt (create after SM review)
 
-Copy structure from `docs/stories/STORY-5.7-SINGLE-SESSION-DEV-PROMPT.md`. Adapt for Story 5.8 scope (approval options, unpublish modes, activation windows, hide approval UI). Paste into new chat with @dev.
+Copy structure from `docs/stories/STORY-5.7-SINGLE-SESSION-DEV-PROMPT.md`. Adapt for Story 5.9 scope (E2E UAT execution and fixing identified regressions). Paste into new chat with @dev.
 
 ---
 

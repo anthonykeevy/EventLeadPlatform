@@ -474,7 +474,7 @@ async def direct_publish(
     if form.CompanyID != current_user.company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Form does not belong to your company")
 
-    *_, require_approval = get_company_test_config(db, form.CompanyID)
+    _, _, require_approval, _ = get_company_test_config(db, form.CompanyID)
     if require_approval and not _is_company_admin(current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

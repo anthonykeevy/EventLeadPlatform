@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context>
+    <story-id>5.9</story-id>
+    <title>Hardening + End-to-End UAT</title>
+    <epic>Epic 5: Form Builder Readiness + Review &amp; Publishing</epic>
+    <status>draft</status>
+    
+    <business-context>
+        We have completed the foundational work for Epic 5 (Stories 5.1 through 5.8), encompassing background asset management, company form defaults, schema parity, preview/production governance, publish request workflows, and admin reviews. This story focuses on tying it all together through a full end-to-end user acceptance test to ensure the system is production-ready.
+    </business-context>
+    
+    <architectural-constraints>
+        <constraint>No new features should be introduced unless absolutely necessary to unblock a core workflow.</constraint>
+        <constraint>All bug fixes must respect the existing patterns for assets, defaults, and the shared resolver.</constraint>
+    </architectural-constraints>
+    
+    <dependencies>
+        <dependency>Story 5.8 (Admin Review &amp; Publish + Activation) is complete and merged.</dependency>
+    </dependencies>
+    
+    <related-files>
+        <file path="docs/stories/STORY-5.9-UAT-TEST-GUIDE.md" type="documentation" />
+        <file path="docs/stories/EPIC-5-STATUS.md" type="documentation" />
+    </related-files>
+</story-context>

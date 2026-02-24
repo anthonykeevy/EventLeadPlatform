@@ -655,6 +655,7 @@ async def get_form_review_context(
     return {
         "formStatus": status_code,
         "hasPendingRequest": pending is not None,
+        "pendingMessage": pending.Message if pending else None,
         "hasApprovedRequest": approved is not None,
         "productionUrl": production_url,
         "productionToken": str(link.Token) if link else None,

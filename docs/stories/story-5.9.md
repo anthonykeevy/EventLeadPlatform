@@ -24,10 +24,10 @@ Ensures the core customer journeys (Company User creating/testing a form and Com
 4. **Verification**: Re-test to ensure fixes don't introduce new regressions.
 
 ## 5. Done Criteria
-- [ ] End-to-End UAT executed for both Company User and Company Admin paths.
-- [ ] Background asset upload/rendering verified end-to-end.
-- [ ] Company-level defaults inheritance verified end-to-end.
-- [ ] Preview testing gate and threshold logic verified.
-- [ ] Publish request and Admin review approval workflow verified.
-- [ ] Activation windows and stable public URLs verified.
-- [ ] All critical bugs and regressions found during UAT are fixed.
+- [x] End-to-End UAT executed for both Company User and Company Admin paths.
+- [x] Background asset upload/rendering verified end-to-end.
+- [x] Company-level defaults inheritance verified end-to-end.
+- [x] Preview testing gate and threshold logic verified.
+- [x] Publish request and Admin review approval workflow verified.
+- [x] Activation windows and stable public URLs verified.
+- [x] All critical bugs and regressions found during UAT are fixed.

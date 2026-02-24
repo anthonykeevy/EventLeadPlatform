@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context>
+    <story-id>5.11</story-id>
+    <title>Tech Debt Remediation</title>
+    <epic>Epic 5: Form Builder Readiness + Review &amp; Publishing</epic>
+    <status>draft</status>
+    
+    <business-context>
+        We accumulated significant technical debt during Epic 5's rapid delivery. Our frontend accumulated over 240 TypeScript 'any' warnings, and our automated test suites (both frontend Vitest and backend Pytest) fell into disrepair. Before we build complex new features like Stripe billing and AI generation in Epic 6, we must restore our baseline quality so our agents can rely on automated tests.
+    </business-context>
+    
+    <architectural-constraints>
+        <constraint>Do not alter core business logic. The goal is strictly test fixing and typing.</constraint>
+        <constraint>The frontend uses Vitest, not Jest. All mocks must use 'vi.fn()' and import from 'vitest'.</constraint>
+        <constraint>The backend uses SQLAlchemy. The 'Table is already defined' error often stems from importing models from multiple different paths or re-initializing the Base metadata improperly in test fixtures.</constraint>
+    </architectural-constraints>
+    
+    <dependencies>
+        <dependency>Epic 5 functionality is complete. No functional regressions should be introduced.</dependency>
+    </dependencies>
+    
+    <related-files>
+        <file path="docs/stories/EPIC-5-STATUS.md" type="documentation" />
+    </related-files>
+</story-context>

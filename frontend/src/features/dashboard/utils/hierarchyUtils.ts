@@ -41,17 +41,59 @@ export function calculateVisibleWindow(
   allCompanies: Company[],
   maxVisible: number = MAX_VISIBLE_LEVELS
 ): { visibleCompanyIds: number[]; fullPath: Company[]; hasMoreAbove: boolean; hasMoreBelow: boolean } {
-  // Get full path from root to selected company
-  const fullPath = getPathToCompany(selectedCompany, allCompanies)
+  // Try to find the company with the longest path that goes through the selected company
+  // This ensures we always get the full context of the tree up to the deepest leaf
   
-  // Find selected company index in full path
+  let longestPath: Company[] = [];
+  
+  // First, get path from root to selected company
+  const pathToSelected = getPathToCompany(selectedCompany, allCompanies);
+  longestPath = [...pathToSelected];
+  
+  // Find all possible paths that go through the selected company
+  for (const company of allCompanies) {
+    if (company.companyId !== selectedCompany.companyId) {
+      const path = getPathToCompany(company, allCompanies);
+      
+      // Check if this path includes the selected company
+      const selectedIndex = path.findIndex(c => c.companyId === selectedCompany.companyId);
+      
+      if (selectedIndex !== -1 && path.length > longestPath.length) {
+        longestPath = path;
+      }
+    }
+  }
+  
+  const fullPath = longestPath;
+  
+  // Find selected company index in the longest path
   const selectedIndex = fullPath.findIndex(c => c.companyId === selectedCompany.companyId)
   
-  // Calculate visible window (center on selected, or offset if near edges)
-  const startIndex = Math.max(0, Math.min(selectedIndex - 2, fullPath.length - maxVisible))
-  const endIndex = Math.min(fullPath.length, startIndex + maxVisible)
+  // Need to center window around selected item, but keep it within bounds
+  const halfWindow = Math.floor(maxVisible / 2);
   
-  const visibleWindow = fullPath.slice(startIndex, endIndex)
+  let startIndex = Math.max(0, selectedIndex - halfWindow);
+  let endIndex = Math.min(fullPath.length, startIndex + maxVisible);
+  
+  // If we're at the end, shift the start index back to show maxVisible items (if possible)
+  if (endIndex - startIndex < maxVisible && fullPath.length >= maxVisible) {
+    startIndex = endIndex - maxVisible;
+  }
+  
+  // IMPORTANT FIX: Ensure endIndex is exact (so length is always maxVisible when possible)
+  if (fullPath.length > maxVisible) {
+    if (startIndex + maxVisible > fullPath.length) {
+       startIndex = fullPath.length - maxVisible;
+       endIndex = fullPath.length;
+    } else {
+       endIndex = startIndex + maxVisible;
+    }
+  } else {
+    startIndex = 0;
+    endIndex = fullPath.length;
+  }
+  
+  const visibleWindow = fullPath.slice(startIndex, endIndex);
   
   return {
     visibleCompanyIds: visibleWindow.map(c => c.companyId),

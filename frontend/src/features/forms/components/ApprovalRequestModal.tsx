@@ -42,9 +42,9 @@ export function ApprovalRequestModal({
       }
       onSuccess()
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      setError(err.message || 'Failed to submit request')
+      setError(err instanceof Error ? err.message : 'Failed to submit request')
     } finally {
       setIsProcessing(false)
     }

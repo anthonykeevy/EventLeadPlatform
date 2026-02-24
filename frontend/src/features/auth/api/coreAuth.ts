@@ -19,16 +19,19 @@ const coreAuthClient: AxiosInstance = axios.create({
 })
 
 // Add request interceptor to attach access token (needed for logout or other auth-required endpoints)
-coreAuthClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+// Check if interceptors exists because during testing we might have mocked axios without interceptors
+if (coreAuthClient && coreAuthClient.interceptors && coreAuthClient.interceptors.request) {
+  coreAuthClient.interceptors.request.use(
+    (config) => {
+      const token = getAccessToken()
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+      return config
+    },
+    (error) => Promise.reject(error)
+  )
+}
 
 /**
  * Format API errors into user-friendly messages

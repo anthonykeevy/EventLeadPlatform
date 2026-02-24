@@ -5,7 +5,7 @@ Validates model queries, relationships, and foreign keys
 import pytest
 from sqlalchemy import text, select
 from backend.common.database import SessionLocal
-from backend.models import (
+from models import (
     User, Company, UserCompany, Country, UserStatus, UserCompanyRole,
     UserCompanyStatus, JoinedVia, CustomerTier, CompanyCustomerDetails
 )
@@ -177,7 +177,7 @@ def test_unique_constraints(db_session):
 
 def test_model_repr_methods():
     """Test that models have useful __repr__ methods (AC-0.1.8)."""
-    from backend.models import User, Company, Country
+    from models import User, Company, Country
     
     # Models should have __repr__ defined
     assert hasattr(User, '__repr__')

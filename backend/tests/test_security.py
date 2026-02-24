@@ -15,7 +15,7 @@ from tests.test_utils import (
     get_auth_headers
 )
 from modules.auth.jwt_service import create_access_token
-from config.jwt import JWT_SECRET_KEY, JWT_ALGORITHM
+from config.jwt import get_secret_key, get_algorithm
 
 client = TestClient(app)
 
@@ -56,7 +56,7 @@ def test_cannot_forge_jwt_with_different_company_id(test_scenario):
         forged_token = jwt.encode(
             forged_payload,
             "wrong_secret_key",  # Wrong key
-            algorithm=JWT_ALGORITHM
+            algorithm=get_algorithm()
         )
         
         # Try to access with forged token

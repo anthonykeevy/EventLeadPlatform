@@ -107,29 +107,29 @@ export function InviteUserModal({
         onSuccess()
         onClose()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to invite user:', error)
-      
+      const axiosErr = error as { response?: { status?: number; data?: { detail?: string | Array<{ msg?: string }> | Record<string, unknown> } } }
       // Handle specific error messages from backend
-      if (error.response?.data?.detail) {
+      if (axiosErr.response?.data?.detail) {
         // Handle both string and object detail formats
-        const detail = error.response.data.detail
+        const detail = axiosErr.response.data.detail
         if (typeof detail === 'string') {
           setSubmitError(detail)
         } else if (Array.isArray(detail)) {
           // Pydantic validation errors are arrays
-          const errorMessages = detail.map((err: any) => err.msg).join(', ')
+          const errorMessages = (detail as Array<{ msg?: string }>).map((err) => err.msg).join(', ')
           setSubmitError(`Validation error: ${errorMessages}`)
         } else if (typeof detail === 'object') {
           setSubmitError(JSON.stringify(detail))
         } else {
           setSubmitError('Validation error occurred')
         }
-      } else if (error.response?.status === 400) {
+      } else if (axiosErr.response?.status === 400) {
         setSubmitError('This email may already be in the company or have a pending invitation')
-      } else if (error.response?.status === 403) {
+      } else if (axiosErr.response?.status === 403) {
         setSubmitError('You do not have permission to invite users')
-      } else if (error.response?.status === 422) {
+      } else if (axiosErr.response?.status === 422) {
         setSubmitError('Invalid form data. Please check all fields.')
       } else {
         setSubmitError('Failed to send invitation. Please try again.')

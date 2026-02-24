@@ -245,8 +245,9 @@ Epic 5 is complete when:
 | **5.6** | Publish Request Workflow | Company User requests publish; admin receives review queue/link | ✅ **Complete 2026-02-17** — Merged to master; FormReviewPage, approve/reject. |
 | **5.7** | Company Settings Hub | Company details, Form Approval Workflow, assets (images, terms) | ✅ **Complete 2026-02-18** — Merged to master. |
 | **5.8** | Admin Review & Publish + Activation | Stable URL on publish, unpublish, published link visibility, activation windows | ✅ **Complete 2026-02-23** — Merged to master. |
-| **5.9** | Hardening + UAT | End-to-end UAT across roles + regressions | **Next** — Includes fix stories as needed. |
-| **5.10** | UX Consolidation (optional) | Minimal “workspace” consolidation to reduce navigation friction | Only if needed to ship Epic 5 goals. |
+| **5.9** | Hardening + UAT | End-to-end UAT across roles + regressions | ✅ **Complete 2026-02-23** — Merged to master. |
+| **5.10** | UX Consolidation (optional) | Minimal “workspace” consolidation to reduce navigation friction | Deferred to Backlog. |
+| **5.11** | Tech Debt Remediation | Fix backend/frontend tests and purge `any` types | **Next** — Required before Epic 6. |
 
 ---
 

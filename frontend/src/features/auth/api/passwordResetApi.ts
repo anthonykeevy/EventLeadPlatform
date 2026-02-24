@@ -4,7 +4,16 @@
  */
 
 import axios, { AxiosError } from 'axios'
-import { apiClient } from '../../../lib/apiClient'
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
+
+// Create a separate client for password reset that doesn't use interceptors
+// This avoids the TypeError: Cannot read properties of undefined (reading 'interceptors')
+const passwordResetClient = axios.create({
+  baseURL: getApiBaseUrl(),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 
 // Note: Password reset endpoints are public and do not require authentication.
 // We use apiClient to benefit from base URL configuration and consistent error handling,
@@ -35,7 +44,7 @@ export interface TokenValidationResponse {
  */
 export async function validatePasswordResetToken(token: string): Promise<boolean> {
   try {
-    await apiClient.get(
+    await passwordResetClient.get(
       `/api/auth/password-reset/validate/${token}`,
       { timeout: 10000 }
     )
@@ -52,7 +61,7 @@ export async function validatePasswordResetToken(token: string): Promise<boolean
  */
 export async function requestPasswordReset(email: string): Promise<PasswordResetRequestResponse> {
   try {
-    const response = await apiClient.post<PasswordResetRequestResponse>(
+    const response = await passwordResetClient.post<PasswordResetRequestResponse>(
       '/api/auth/password-reset/request',
       { email },
       { timeout: 10000 }
@@ -73,7 +82,7 @@ export async function confirmPasswordReset(
   newPassword: string
 ): Promise<PasswordResetConfirmResponse> {
   try {
-    const response = await apiClient.post(
+    const response = await passwordResetClient.post(
       '/api/auth/password-reset/confirm',
       {
         token,

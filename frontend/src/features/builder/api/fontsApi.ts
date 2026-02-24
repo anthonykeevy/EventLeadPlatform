@@ -25,7 +25,7 @@ const FONTS_BASE = '/api/fonts';
 // Note: The fonts API already uses snake_case which matches our TypeScript interfaces,
 // so minimal transformation is needed. We just ensure proper typing.
 
-function transformFontSummary(data: any): FontFamilySummary {
+function transformFontSummary(data: Record<string, unknown>): FontFamilySummary {
     return {
         font_family_id: data.font_family_id,
         google_font_id: data.google_font_id ?? null,
@@ -47,9 +47,9 @@ function transformFontSummary(data: any): FontFamilySummary {
     };
 }
 
-function transformFontListResponse(data: any): FontListResponse {
+function transformFontListResponse(data: Record<string, unknown>): FontListResponse {
     return {
-        fonts: (data.fonts ?? []).map(transformFontSummary),
+        fonts: ((data.fonts as Record<string, unknown>[]) ?? []).map(transformFontSummary),
         total: data.total ?? 0,
         page: data.page ?? 1,
         page_size: data.page_size ?? 20,
@@ -57,7 +57,7 @@ function transformFontListResponse(data: any): FontListResponse {
     };
 }
 
-function transformFontDetail(data: any): FontFamilyDetail {
+function transformFontDetail(data: Record<string, unknown>): FontFamilyDetail {
     return {
         ...transformFontSummary(data),
         sub_category: data.sub_category ?? null,
@@ -79,7 +79,7 @@ function transformFontDetail(data: any): FontFamilyDetail {
         designer_url: data.designer_url ?? null,
         foundry: data.foundry ?? null,
         last_sync_date: data.last_sync_date ?? '',
-        variants: (data.variants ?? []).map((v: any) => ({
+        variants: ((data.variants as Record<string, unknown>[]) ?? []).map((v: Record<string, unknown>) => ({
             font_variant_id: v.font_variant_id,
             variant_name: v.variant_name ?? '',
             weight: v.weight ?? 400,
@@ -89,14 +89,14 @@ function transformFontDetail(data: any): FontFamilyDetail {
             display_order: v.display_order ?? 0,
             is_default: v.is_default ?? false,
         })),
-        subsets: (data.subsets ?? []).map((s: any) => ({
+        subsets: ((data.subsets as Record<string, unknown>[]) ?? []).map((s: Record<string, unknown>) => ({
             font_subset_id: s.font_subset_id,
             subset_code: s.subset_code ?? '',
             subset_name: s.subset_name ?? '',
             subset_group: s.subset_group ?? '',
             is_extended: s.is_extended ?? false,
         })),
-        axes: (data.axes ?? []).map((a: any) => ({
+        axes: ((data.axes as Record<string, unknown>[]) ?? []).map((a: Record<string, unknown>) => ({
             font_axis_id: a.font_axis_id,
             axis_tag: a.axis_tag ?? '',
             axis_name: a.axis_name ?? '',
@@ -109,7 +109,7 @@ function transformFontDetail(data: any): FontFamilyDetail {
     };
 }
 
-function transformCategoryInfo(data: any): FontCategoryInfo {
+function transformCategoryInfo(data: Record<string, unknown>): FontCategoryInfo {
     return {
         category_code: data.category_code ?? 'sans-serif',
         category_name: data.category_name ?? '',

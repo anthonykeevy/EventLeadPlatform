@@ -11,7 +11,9 @@ export interface ToastProps {
   duration?: number; // in milliseconds, 0 = no auto-dismiss
   dismissible?: boolean;
   onDismiss: (id: string) => void;
+  onRetry?: () => void;
   className?: string;
+  'aria-live'?: 'polite' | 'assertive' | 'off';
 }
 
 export const Toast: React.FC<ToastProps> = ({
@@ -22,7 +24,9 @@ export const Toast: React.FC<ToastProps> = ({
   duration = 5000,
   dismissible = true,
   onDismiss,
+  onRetry,
   className = '',
+  'aria-live': ariaLive = 'polite',
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -99,7 +103,7 @@ export const Toast: React.FC<ToastProps> = ({
         ${className}
       `}
       role="alert"
-      aria-live="polite"
+      aria-live={ariaLive}
       aria-atomic="true"
     >
       <div className="p-4">
@@ -119,24 +123,44 @@ export const Toast: React.FC<ToastProps> = ({
             </p>
           </div>
           
-          {dismissible && (
-            <div className="ml-4 flex-shrink-0 flex">
-              <button
-                type="button"
-                onClick={handleDismiss}
-                className={`inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  type === 'success'
-                    ? 'text-green-400 hover:text-green-500 focus:ring-green-500'
-                    : type === 'warning'
-                    ? 'text-yellow-400 hover:text-yellow-500 focus:ring-yellow-500'
-                    : type === 'error'
-                    ? 'text-red-400 hover:text-red-500 focus:ring-red-500'
-                    : 'text-blue-400 hover:text-blue-500 focus:ring-blue-500'
-                }`}
-                aria-label="Dismiss notification"
-              >
-                <X className="h-5 w-5" />
-              </button>
+          {(dismissible || onRetry) && (
+            <div className="ml-4 flex-shrink-0 flex gap-2">
+              {onRetry && (
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className={`inline-flex rounded-md px-2 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    type === 'success'
+                      ? 'text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500'
+                      : type === 'warning'
+                      ? 'text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:ring-yellow-500'
+                      : type === 'error'
+                      ? 'text-red-700 bg-red-100 hover:bg-red-200 focus:ring-red-500'
+                      : 'text-blue-700 bg-blue-100 hover:bg-blue-200 focus:ring-blue-500'
+                  }`}
+                  aria-label="Try again"
+                >
+                  Try again
+                </button>
+              )}
+              {dismissible && (
+                <button
+                  type="button"
+                  onClick={handleDismiss}
+                  className={`inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    type === 'success'
+                      ? 'text-green-400 hover:text-green-500 focus:ring-green-500'
+                      : type === 'warning'
+                      ? 'text-yellow-400 hover:text-yellow-500 focus:ring-yellow-500'
+                      : type === 'error'
+                      ? 'text-red-400 hover:text-red-500 focus:ring-red-500'
+                      : 'text-blue-400 hover:text-blue-500 focus:ring-blue-500'
+                  }`}
+                  aria-label="Dismiss notification"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -180,6 +204,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
 
   return (
     <div
+      role="region"
       className={`fixed z-50 ${getPositionClasses()} space-y-2 ${className}`}
       aria-live="polite"
       aria-label="Notifications"

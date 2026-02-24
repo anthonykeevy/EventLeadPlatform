@@ -35,8 +35,8 @@ from backend.common.constants import (
     DEFAULT_PASSWORD_RESET_EXPIRY_HOURS,
     DEFAULT_INVITATION_EXPIRY_DAYS,
 )
-from backend.models.config.app_setting import AppSetting
-from backend.models.ref import SettingCategory, SettingType
+from models.config.app_setting import AppSetting
+from models.ref import SettingCategory, SettingType
 
 # Skip all tests in this module if SQL Server database is not available
 pytestmark = pytest.mark.skipif(
@@ -289,7 +289,7 @@ class TestTokenServicesIntegration:
     def test_email_verification_token_uses_config(self, test_db: Session, test_user):
         """Test email verification token uses configurable expiry"""
         from backend.modules.auth.token_service import generate_verification_token
-        from backend.models.user_email_verification_token import UserEmailVerificationToken
+        from models.user_email_verification_token import UserEmailVerificationToken
         
         token = generate_verification_token(test_db, test_user.UserID)
         
@@ -311,7 +311,7 @@ class TestTokenServicesIntegration:
     def test_password_reset_token_uses_config(self, test_db: Session, test_user):
         """Test password reset token uses configurable expiry"""
         from backend.modules.auth.token_service import generate_password_reset_token
-        from backend.models.user_password_reset_token import UserPasswordResetToken
+        from models.user_password_reset_token import UserPasswordResetToken
         
         token = generate_password_reset_token(test_db, test_user.UserID)
         
@@ -518,8 +518,8 @@ class TestConfigurationFallback:
 @pytest.fixture
 def test_user(test_db: Session):
     """Create or reuse a test user for token generation tests"""
-    from backend.models.user import User
-    from backend.models.ref import UserStatus
+    from models.user import User
+    from models.ref import UserStatus
     
     # Check if test user already exists (avoid duplicate key error)
     existing_user = test_db.query(User).filter_by(Email="test@example.com").first()

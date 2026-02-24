@@ -164,7 +164,7 @@ export const fillFormField = async (
 }
 
 export const submitForm = async (
-  getByRole: (role: string, options?: any) => HTMLElement
+  getByRole: (role: string, options?: { name?: string | RegExp }) => HTMLElement
 ) => {
   const submitButton = getByRole('button', { name: /submit|sign up|log in|verify/i })
   await userEvent.click(submitButton)
@@ -172,7 +172,7 @@ export const submitForm = async (
 }
 
 // Wait utilities
-export const waitForApiCall = async (mockFn: any) => {
+export const waitForApiCall = async (mockFn: ReturnType<typeof vi.fn>) => {
   await waitFor(() => {
     expect(mockFn).toHaveBeenCalled()
   })

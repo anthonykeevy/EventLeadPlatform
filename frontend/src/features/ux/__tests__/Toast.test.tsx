@@ -1,18 +1,19 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { Toast, ToastContainer } from '../components/Toast';
 
 describe('Toast', () => {
-  const mockOnDismiss = jest.fn();
+  const mockOnDismiss = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('renders toast with message', () => {
@@ -100,14 +101,18 @@ describe('Toast', () => {
       />
     );
 
+    act(() => { vi.advanceTimersByTime(20); }); // Past entrance animation (10ms)
+
     const dismissButton = screen.getByRole('button', { name: /dismiss/i });
     fireEvent.click(dismissButton);
+
+    act(() => { vi.advanceTimersByTime(350); }); // Past exit animation (300ms) before onDismiss fires
 
     expect(mockOnDismiss).toHaveBeenCalledWith('test-toast');
   });
 
   it('calls onRetry when retry button is clicked', () => {
-    const mockOnRetry = jest.fn();
+    const mockOnRetry = vi.fn();
 
     render(
       <Toast
@@ -119,13 +124,15 @@ describe('Toast', () => {
       />
     );
 
+    act(() => { vi.advanceTimersByTime(20); }); // Past entrance animation
+
     const retryButton = screen.getByRole('button', { name: /try again/i });
     fireEvent.click(retryButton);
 
     expect(mockOnRetry).toHaveBeenCalled();
   });
 
-  it('auto-dismisses after duration', async () => {
+  it('auto-dismisses after duration', () => {
     render(
       <Toast
         id="test-toast"
@@ -138,11 +145,11 @@ describe('Toast', () => {
 
     expect(screen.getByText('Test message')).toBeInTheDocument();
 
-    jest.advanceTimersByTime(1000);
+    act(() => { vi.advanceTimersByTime(20); }); // Past entrance (10ms)
+    act(() => { vi.advanceTimersByTime(1000); }); // Duration
+    act(() => { vi.advanceTimersByTime(350); }); // Exit animation (300ms) before onDismiss
 
-    await waitFor(() => {
-      expect(mockOnDismiss).toHaveBeenCalledWith('test-toast');
-    });
+    expect(mockOnDismiss).toHaveBeenCalledWith('test-toast');
   });
 
   it('does not auto-dismiss when duration is 0', () => {
@@ -156,7 +163,7 @@ describe('Toast', () => {
       />
     );
 
-    jest.advanceTimersByTime(5000);
+    act(() => { vi.advanceTimersByTime(5000); });
 
     expect(mockOnDismiss).not.toHaveBeenCalled();
   });
@@ -172,6 +179,8 @@ describe('Toast', () => {
       />
     );
 
+    act(() => { vi.advanceTimersByTime(20); }); // Past entrance animation
+
     const alert = screen.getByRole('alert');
     expect(alert).toHaveAttribute('aria-live', 'assertive');
     expect(alert).toHaveAttribute('aria-atomic', 'true');
@@ -179,10 +188,15 @@ describe('Toast', () => {
 });
 
 describe('ToastContainer', () => {
-  const mockOnDismiss = jest.fn();
+  const mockOnDismiss = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('renders nothing when no toasts', () => {
@@ -241,7 +255,8 @@ describe('ToastContainer', () => {
       />
     );
 
-    expect(screen.getByRole('region')).toHaveClass('top-4', 'right-4');
+    const regionTopRight = screen.getByRole('region', { name: /notifications/i });
+    expect(regionTopRight).toHaveClass('top-4', 'right-4');
 
     rerender(
       <ToastContainer
@@ -251,7 +266,8 @@ describe('ToastContainer', () => {
       />
     );
 
-    expect(screen.getByRole('region')).toHaveClass('bottom-4', 'left-4');
+    const regionBottomLeft = screen.getByRole('region', { name: /notifications/i });
+    expect(regionBottomLeft).toHaveClass('bottom-4', 'left-4');
   });
 
   it('has correct ARIA attributes', () => {
@@ -271,7 +287,7 @@ describe('ToastContainer', () => {
       />
     );
 
-    const region = screen.getByRole('region');
+    const region = screen.getByRole('region', { name: /notifications/i });
     expect(region).toHaveAttribute('aria-live', 'polite');
     expect(region).toHaveAttribute('aria-label', 'Notifications');
   });

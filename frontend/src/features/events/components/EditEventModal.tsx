@@ -350,7 +350,7 @@ export function EditEventModal({ isOpen, event, onClose, onSuccess }: EditEventM
   }
 
   // Handle field changes
-  const handleChange = (field: keyof EventUpdateRequest, value: any) => {
+  const handleChange = (field: keyof EventUpdateRequest, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error for this field
     if (errors[field]) {

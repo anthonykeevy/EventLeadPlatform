@@ -4,10 +4,10 @@
  */
 import React, { useState, useMemo, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, type Row } from '@tanstack/react-table'
 import { DataTable, ColumnFilterConfig } from '../../../components/common/DataTable'
 import { adminDashboardApi, AdminEvent } from '../api/adminDashboardApi'
-import { adminReviewApi } from '../api/adminReviewApi'
+import { adminReviewApi, type AdminEventUpdateRequest } from '../api/adminReviewApi'
 import { EventReviewModal } from './EventReviewModal'
 import { CheckCircle, XCircle, Clock, Eye, Edit2, Check, X } from 'lucide-react'
 import { useToastNotifications } from '../../../features/ux'
@@ -118,8 +118,8 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
       setSelectedEvent(null)
       toast.success('Event approved successfully')
     },
-    onError: (error: any) => {
-      toast.error(error?.message || 'Failed to approve event')
+    onError: (error: unknown) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to approve event')
     },
   })
 
@@ -133,44 +133,45 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
       setSelectedEvent(null)
       toast.success('Event rejected successfully')
     },
-    onError: (error: any) => {
-      toast.error(error?.message || 'Failed to reject event')
+    onError: (error: unknown) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to reject event')
     },
   })
 
   // Mutation for updating events (inline editing) - uses admin endpoint
   const updateEventMutation = useMutation({
-    mutationFn: ({ eventId, updates }: { eventId: number; updates: any }) => {
+    mutationFn: ({ eventId, updates }: { eventId: number; updates: Partial<AdminEventUpdateRequest> }) => {
       // Transform camelCase to snake_case for admin API (if needed)
-      const adminRequest: any = { ...updates }
-      
+      const u = updates as Record<string, unknown>
+      const adminRequest: Record<string, unknown> = { ...updates }
+
       // Convert camelCase fields to snake_case if present
-      if (updates.eventTypeId !== undefined) {
-        adminRequest.event_type_id = updates.eventTypeId
+      if (u.eventTypeId !== undefined) {
+        adminRequest.event_type_id = u.eventTypeId
         delete adminRequest.eventTypeId
       }
-      if (updates.eventStatusId !== undefined) {
-        adminRequest.event_status_id = updates.eventStatusId
+      if (u.eventStatusId !== undefined) {
+        adminRequest.event_status_id = u.eventStatusId
         delete adminRequest.eventStatusId
       }
-      if (updates.industryId !== undefined) {
-        adminRequest.industry_id = updates.industryId
+      if (u.industryId !== undefined) {
+        adminRequest.industry_id = u.industryId
         delete adminRequest.industryId
       }
-      if (updates.organizerCompanyId !== undefined) {
-        adminRequest.organizer_company_id = updates.organizerCompanyId
+      if (u.organizerCompanyId !== undefined) {
+        adminRequest.organizer_company_id = u.organizerCompanyId
         delete adminRequest.organizerCompanyId
       }
-      if (updates.startDatetime !== undefined) {
-        adminRequest.start_datetime = updates.startDatetime
+      if (u.startDatetime !== undefined) {
+        adminRequest.start_datetime = u.startDatetime
         delete adminRequest.startDatetime
       }
-      if (updates.endDatetime !== undefined) {
-        adminRequest.end_datetime = updates.endDatetime
+      if (u.endDatetime !== undefined) {
+        adminRequest.end_datetime = u.endDatetime
         delete adminRequest.endDatetime
       }
-      
-      return adminReviewApi.updateEvent(eventId, adminRequest)
+
+      return adminReviewApi.updateEvent(eventId, adminRequest as AdminEventUpdateRequest)
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'events'] })
@@ -184,8 +185,8 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
       })
       toast.success('Event updated successfully')
     },
-    onError: (error: any) => {
-      toast.error(error?.message || 'Failed to update event')
+    onError: (error: unknown) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to update event')
       setEditingCell(null)
       setEditingValue(null)
     },
@@ -209,8 +210,8 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
         return
       }
 
-      const updates: any = {}
-      
+      const updates: Partial<AdminEventUpdateRequest> = {}
+
       switch (columnId) {
         case 'event_type_id':
           updates.eventTypeId = Number(newValue)
@@ -321,7 +322,7 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
 
   // Editable Dropdown Cell Component
   const EditableDropdownCell: React.FC<{
-    row: any
+    row: Row<AdminEvent>
     columnId: string
     currentValue: string | number
     currentDisplay: string
@@ -658,7 +659,7 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
   const [expandedRowData, setExpandedRowData] = useState<Record<string, Partial<AdminEvent>>>({})
 
   // Handle expandable row form changes
-  const handleExpandedRowChange = useCallback((rowId: string, field: string, value: any) => {
+  const handleExpandedRowChange = useCallback((rowId: string, field: string, value: unknown) => {
     setExpandedRowData((prev) => ({
       ...prev,
       [rowId]: {
@@ -672,7 +673,7 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
   const handleExpandedRowSave = useCallback(
     (event: AdminEvent) => {
       const rowData = expandedRowData[`row-${event.event_id}`] || {}
-      const updates: any = {}
+      const updates: Partial<AdminEventUpdateRequest> = {}
 
       // Map form fields to update request (snake_case for admin API)
       if (rowData.name !== undefined && rowData.name !== event.name) {
@@ -788,7 +789,7 @@ export const EventManagementTab: React.FC<EventManagementTabProps> = ({
 
   // Render expandable row form
   const renderExpandedRow = useCallback(
-    (row: any) => {
+    (row: Row<AdminEvent>) => {
       const event = row.original as AdminEvent
       const rowId = `row-${event.event_id}`
       // Merge event data with form changes to ensure all fields are available

@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.middleware.exception_handler import global_exception_handler
-from backend.models.log.application_error import ApplicationError
+from models.log.application_error import ApplicationError
 
 
 # Test fixture: FastAPI app with exception handler

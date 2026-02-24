@@ -287,8 +287,8 @@ export const useFocusTrap = (options: UseFocusTrapOptions = {}) => {
 
 // Hook for arrow key navigation in lists
 export interface UseArrowNavigationOptions {
-  items: any[];
-  onSelect?: (item: any, index: number) => void;
+  items: unknown[];
+  onSelect?: (item: unknown, index: number) => void;
   onNavigate?: (index: number) => void;
   enabled?: boolean;
   loop?: boolean;

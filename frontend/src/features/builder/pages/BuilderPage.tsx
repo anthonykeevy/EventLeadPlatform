@@ -174,7 +174,7 @@ export const BuilderPage: React.FC = () => {
       }
 
       return token;
-    } catch (e: any) {
+    } catch (e: unknown) {
       const msg = e?.response?.data?.detail || e?.message || 'Failed to generate preview link.';
       throw new Error(String(msg));
     }
@@ -222,7 +222,7 @@ export const BuilderPage: React.FC = () => {
       } else {
         window.open(url, '_blank');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (previewWindow && !previewWindow.closed) {
         previewWindow.close();
       }
@@ -248,7 +248,7 @@ export const BuilderPage: React.FC = () => {
   }, [isDirty]);
 
   // Store drag snapshots ref for logging
-  const dragSnapshotsRef = useRef<Map<string, { before: any; after: any }>>(new Map());
+  const dragSnapshotsRef = useRef<Map<string, { before: unknown; after: unknown }>>(new Map());
   
   // Ref to track drag interval for periodic snapshots
   const dragSnapshotIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -499,7 +499,7 @@ export const BuilderPage: React.FC = () => {
         }
                 
         // Apply live constraints (canvas boundary + collision slide), if enabled for this component type
-        const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
+        const caps = getComponentSurfaceCapabilities(component.type as import('../types/builder.types').ComponentType, 'canvas');
         if (caps.dragConstraints.enabled && (caps.dragConstraints.canvasBoundary || caps.dragConstraints.collisionAvoidance)) {
           const canvasSettings = useBuilderStore.getState().formDefinition?.canvasSettings;
           const canvasWidth = canvasSettings?.width || 1920;
@@ -1028,7 +1028,7 @@ export const BuilderPage: React.FC = () => {
                 }
 
                 // Commit-time constraint enforcement (parity with live constraints)
-                const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
+                const caps = getComponentSurfaceCapabilities(component.type as import('../types/builder.types').ComponentType, 'canvas');
                 if (caps.dragConstraints.enabled && (caps.dragConstraints.canvasBoundary || caps.dragConstraints.collisionAvoidance)) {
                     const ignore = new Set<string>([component.id]);
                     const others = buildCanvasRectsForComponents(allComponents, scale, ignore).map(o => ({ id: o.id, rect: o.rect, shape: o.shape }));

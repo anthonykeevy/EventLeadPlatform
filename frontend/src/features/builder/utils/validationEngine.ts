@@ -462,7 +462,7 @@ function validatePhoneNumber(
         countryCodeRequired: rules.countryCodeRequired,
         allowedCountries: rules.allowedCountries,
         mobileOnly: rules.mobileOnly,
-        defaultCountry: context?.countryCode as any,
+        defaultCountry: context?.countryCode as string,
     });
 
     if (!result.isValid) {

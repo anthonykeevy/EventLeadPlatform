@@ -1231,7 +1231,7 @@ export interface GridLayoutConfig {
 export interface ConditionalContext {
     component: FormComponent;
     componentProps: ComponentProps;
-    componentState?: Record<string, any>; // Runtime state (e.g., hasFocus, isLoading)
+    componentState?: Record<string, unknown>; // Runtime state (e.g., hasFocus, isLoading)
     /** Direct error for this component (simpler than validationErrors map) */
     error?: string;
     validationErrors?: Record<string, string>;

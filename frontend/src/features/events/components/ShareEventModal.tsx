@@ -23,7 +23,17 @@ export function ShareEventModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  const [sharedCompanies, setSharedCompanies] = useState<any[]>([])
+  const [sharedCompanies, setSharedCompanies] = useState<Array<{
+    event_company_id: number
+    company_id: number
+    company_name: string
+    role_code: string
+    role_name: string
+    is_active: boolean
+    forms_created: number
+    first_used_date: string | null
+    last_used_date: string | null
+  }>>([])
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(false)
   
   const toast = useToastNotifications()

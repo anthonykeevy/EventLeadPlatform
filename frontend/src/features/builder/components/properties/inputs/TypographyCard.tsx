@@ -177,7 +177,7 @@ const BackgroundColorPicker: React.FC<{
                 role="button"
                 tabIndex={0}
                 onClick={handleClick}
-                onKeyDown={(e) => e.key === 'Enter' && handleClick(e as any)}
+                onKeyDown={(e) => e.key === 'Enter' && handleClick(e as React.MouseEvent)}
                 className={`w-14 h-14 rounded-lg border-2 shadow-md transition-all cursor-pointer 
                     flex flex-col items-center justify-center gap-0.5
                     ${(hasColor || isTransparent) 

@@ -21,7 +21,7 @@ import { apiClient, formatError } from '../../../lib/apiClient'
 // Transformers: Backend to Frontend
 // =====================================================================
 
-function transformAccessType(backend: any): FormAccessControlAccessType {
+function transformAccessType(backend: Record<string, unknown>): FormAccessControlAccessType {
   return {
     formAccessControlAccessTypeId: backend.formAccessControlAccessTypeId ?? backend.form_access_control_access_type_id ?? backend.FormAccessControlAccessTypeID ?? 0,
     accessTypeCode: backend.accessTypeCode ?? backend.access_type_code ?? backend.AccessTypeCode ?? '',
@@ -32,7 +32,7 @@ function transformAccessType(backend: any): FormAccessControlAccessType {
   }
 }
 
-function transformRelationshipType(backend: any): CompanyRelationshipType {
+function transformRelationshipType(backend: Record<string, unknown>): CompanyRelationshipType {
   return {
     companyRelationshipTypeId: backend.companyRelationshipTypeId ?? backend.company_relationship_type_id ?? backend.CompanyRelationshipTypeID ?? 0,
     typeName: backend.typeName ?? backend.type_name ?? backend.TypeName ?? '',
@@ -41,7 +41,7 @@ function transformRelationshipType(backend: any): CompanyRelationshipType {
   }
 }
 
-function transformUserResponse(backend: any): UserResponse | null {
+function transformUserResponse(backend: Record<string, unknown> | null | undefined): UserResponse | null {
   if (!backend) return null
   return {
     userId: backend.userId ?? backend.user_id ?? backend.UserID ?? 0,
@@ -51,7 +51,7 @@ function transformUserResponse(backend: any): UserResponse | null {
   }
 }
 
-function transformCompanyResponse(backend: any): CompanyResponse | null {
+function transformCompanyResponse(backend: Record<string, unknown> | null | undefined): CompanyResponse | null {
   if (!backend) return null
   return {
     companyId: backend.companyId ?? backend.company_id ?? backend.CompanyID ?? 0,
@@ -59,7 +59,7 @@ function transformCompanyResponse(backend: any): CompanyResponse | null {
   }
 }
 
-function transformAccessControl(backend: any): AccessControlResponse {
+function transformAccessControl(backend: Record<string, unknown>): AccessControlResponse {
   return {
     formAccessControlId: backend.formAccessControlId ?? backend.form_access_control_id ?? backend.FormAccessControlID ?? 0,
     formId: backend.formId ?? backend.form_id ?? backend.FormID ?? 0,
@@ -67,11 +67,11 @@ function transformAccessControl(backend: any): AccessControlResponse {
     companyId: backend.companyId ?? backend.company_id ?? backend.CompanyID ?? null,
     formAccessControlAccessTypeId: backend.formAccessControlAccessTypeId ?? backend.form_access_control_access_type_id ?? backend.FormAccessControlAccessTypeID ?? 0,
     companyRelationshipTypeId: backend.companyRelationshipTypeId ?? backend.company_relationship_type_id ?? backend.CompanyRelationshipTypeID ?? null,
-    accessType: (backend.accessType ?? backend.access_type) ? transformAccessType(backend.accessType ?? backend.access_type) : null,
-    relationshipType: (backend.relationshipType ?? backend.relationship_type) ? transformRelationshipType(backend.relationshipType ?? backend.relationship_type) : null,
-    user: (backend.user) ? transformUserResponse(backend.user) : null,
-    company: (backend.company) ? transformCompanyResponse(backend.company) : null,
-    grantedBy: (backend.grantedBy ?? backend.granted_by) ? transformUserResponse(backend.grantedBy ?? backend.granted_by) : null,
+    accessType: (backend.accessType ?? backend.access_type) ? transformAccessType((backend.accessType ?? backend.access_type) as Record<string, unknown>) : null,
+    relationshipType: (backend.relationshipType ?? backend.relationship_type) ? transformRelationshipType((backend.relationshipType ?? backend.relationship_type) as Record<string, unknown>) : null,
+    user: backend.user ? transformUserResponse(backend.user as Record<string, unknown>) : null,
+    company: backend.company ? transformCompanyResponse(backend.company as Record<string, unknown>) : null,
+    grantedBy: (backend.grantedBy ?? backend.granted_by) ? transformUserResponse((backend.grantedBy ?? backend.granted_by) as Record<string, unknown>) : null,
     grantedDate: backend.grantedDate ?? backend.granted_date ?? backend.GrantedDate ?? '',
     expiryDate: backend.expiryDate ?? backend.expiry_date ?? backend.ExpiryDate ?? null,
     isExpired: backend.isExpired ?? backend.is_expired ?? backend.IsExpired ?? false,
@@ -90,7 +90,7 @@ function transformAccessControl(backend: any): AccessControlResponse {
 export async function getAccessTypes(): Promise<FormAccessControlAccessType[]> {
   try {
     const response = await apiClient.get('/api/forms/access-types')
-    return (response.data as any[]).map(transformAccessType)
+    return (response.data as Record<string, unknown>[]).map(transformAccessType)
   } catch (error) {
     throw formatError(error)
   }
@@ -102,7 +102,7 @@ export async function getAccessTypes(): Promise<FormAccessControlAccessType[]> {
 export async function getRelationshipTypes(): Promise<CompanyRelationshipType[]> {
   try {
     const response = await apiClient.get('/api/forms/relationship-types')
-    return (response.data as any[]).map(transformRelationshipType)
+    return (response.data as Record<string, unknown>[]).map(transformRelationshipType)
   } catch (error) {
     throw formatError(error)
   }
@@ -123,7 +123,7 @@ export async function searchUsers(query: string, limit: number = 10): Promise<Us
     const response = await apiClient.get('/api/forms/search-users', {
       params: { query, limit }
     })
-    return (response.data as any[]).map((u: any) => ({
+    return (response.data as Record<string, unknown>[]).map((u: Record<string, unknown>) => ({
       userId: u.userId ?? u.user_id ?? u.UserID ?? 0,
       email: u.email ?? u.Email ?? '',
       firstName: u.firstName ?? u.first_name ?? u.FirstName ?? null,
@@ -147,7 +147,7 @@ export async function searchCompanies(query: string, limit: number = 10): Promis
     const response = await apiClient.get('/api/forms/search-companies', {
       params: { query, limit }
     })
-    return (response.data as any[]).map((c: any) => ({
+    return (response.data as Record<string, unknown>[]).map((c: Record<string, unknown>) => ({
       companyId: c.companyId ?? c.company_id ?? c.CompanyID ?? 0,
       companyName: c.companyName ?? c.company_name ?? c.CompanyName ?? '',
     }))
@@ -162,7 +162,7 @@ export async function searchCompanies(query: string, limit: number = 10): Promis
 export async function getCompanyMembersForForm(formId: number): Promise<UserSearchResult[]> {
   try {
     const response = await apiClient.get(`/api/forms/${formId}/company-members`)
-    return (response.data as any[]).map((u: any) => ({
+    return (response.data as Record<string, unknown>[]).map((u: Record<string, unknown>) => ({
       userId: u.userId ?? u.user_id ?? u.UserID ?? 0,
       email: u.email ?? u.Email ?? '',
       firstName: u.firstName ?? u.first_name ?? u.FirstName ?? null,
@@ -179,7 +179,7 @@ export async function getCompanyMembersForForm(formId: number): Promise<UserSear
 export async function getRelatedCompaniesForForm(formId: number): Promise<CompanySearchResult[]> {
   try {
     const response = await apiClient.get(`/api/forms/${formId}/related-companies`)
-    return (response.data as any[]).map((c: any) => ({
+    return (response.data as Record<string, unknown>[]).map((c: Record<string, unknown>) => ({
       companyId: c.companyId ?? c.company_id ?? c.CompanyID ?? 0,
       companyName: c.companyName ?? c.company_name ?? c.CompanyName ?? '',
     }))
@@ -215,7 +215,7 @@ export async function getFormAccessList(
   accessTypeId?: number
 ): Promise<AccessListResponse> {
   try {
-    const params: any = {}
+    const params: Record<string, string | number> = {}
     if (accessTypeId) {
       params.access_type_id = accessTypeId
     }

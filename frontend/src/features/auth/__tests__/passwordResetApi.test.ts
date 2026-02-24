@@ -3,11 +3,31 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import axios from 'axios'
+import '@testing-library/jest-dom'
 import { requestPasswordReset, confirmPasswordReset } from '../api/passwordResetApi'
 
 // Mock axios
-vi.mock('axios')
+const mockPost = vi.fn()
+const mockGet = vi.fn()
+const mockIsAxiosError = vi.fn((err) => err?.isAxiosError === true)
+
+vi.mock('axios', () => {
+  return {
+    default: {
+      post: (...args: unknown[]) => mockPost(...args),
+      get: (...args: unknown[]) => mockGet(...args),
+      isAxiosError: (...args: unknown[]) => mockIsAxiosError(...args),
+      create: vi.fn(() => ({
+        post: (...args: unknown[]) => mockPost(...args),
+        get: (...args: unknown[]) => mockGet(...args),
+        interceptors: {
+          request: { use: vi.fn() },
+          response: { use: vi.fn() }
+        }
+      }))
+    }
+  }
+})
 
 describe('Password Reset API', () => {
   beforeEach(() => {
@@ -20,7 +40,6 @@ describe('Password Reset API', () => {
 
   describe('requestPasswordReset - AC-1.15.1', () => {
     it('should call POST /api/auth/password-reset/request with email', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockResolvedValue({
         data: {
           success: true,
@@ -31,7 +50,7 @@ describe('Password Reset API', () => {
       const result = await requestPasswordReset('user@example.com')
 
       expect(mockPost).toHaveBeenCalledWith(
-        'http://127.0.0.1:8000/api/auth/password-reset/request',
+        '/api/auth/password-reset/request',
         { email: 'user@example.com' },
         { timeout: 10000 }
       )
@@ -42,7 +61,6 @@ describe('Password Reset API', () => {
     })
 
     it('should handle network errors gracefully', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockRejectedValue({
         isAxiosError: true,
         response: undefined,
@@ -54,7 +72,6 @@ describe('Password Reset API', () => {
     })
 
     it('should handle 500 server errors', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockRejectedValue({
         isAxiosError: true,
         response: {
@@ -71,7 +88,6 @@ describe('Password Reset API', () => {
 
   describe('confirmPasswordReset - AC-1.15.2', () => {
     it('should call POST /api/auth/password-reset/confirm with token and new_password', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockResolvedValue({
         data: {
           success: true,
@@ -83,7 +99,7 @@ describe('Password Reset API', () => {
       const result = await confirmPasswordReset('abc123', 'NewPassword123!')
 
       expect(mockPost).toHaveBeenCalledWith(
-        'http://127.0.0.1:8000/api/auth/password-reset/confirm',
+        '/api/auth/password-reset/confirm',
         {
           token: 'abc123',
           new_password: 'NewPassword123!', // API expects snake_case
@@ -100,7 +116,6 @@ describe('Password Reset API', () => {
     })
 
     it('should handle expired token error (400)', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockRejectedValue({
         isAxiosError: true,
         response: {
@@ -115,7 +130,6 @@ describe('Password Reset API', () => {
     })
 
     it('should handle password validation errors', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockRejectedValue({
         isAxiosError: true,
         response: {
@@ -132,7 +146,6 @@ describe('Password Reset API', () => {
     })
 
     it('should handle 422 validation errors', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockRejectedValue({
         isAxiosError: true,
         response: {
@@ -147,7 +160,6 @@ describe('Password Reset API', () => {
     })
 
     it('should handle network errors', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockRejectedValue({
         isAxiosError: true,
         response: undefined,
@@ -159,7 +171,6 @@ describe('Password Reset API', () => {
     })
 
     it('should handle unexpected errors', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockRejectedValue(new Error('Unexpected error'))
 
       await expect(confirmPasswordReset('valid-token', 'NewPassword123!')).rejects.toThrow(
@@ -170,7 +181,6 @@ describe('Password Reset API', () => {
 
   describe('snake_case to camelCase transformation', () => {
     it('should transform user_id to userId in confirmPasswordReset response', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockResolvedValue({
         data: {
           success: true,
@@ -190,7 +200,6 @@ describe('Password Reset API', () => {
     it('should use VITE_API_BASE_URL from environment if set', async () => {
       // Note: This test verifies the API client uses the correct base URL
       // The actual implementation uses import.meta.env.VITE_API_BASE_URL
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockResolvedValue({
         data: { success: true, message: 'Success' },
       })
@@ -204,7 +213,6 @@ describe('Password Reset API', () => {
 
   describe('Timeout configuration', () => {
     it('should set 10 second timeout for requestPasswordReset', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockResolvedValue({
         data: { success: true, message: 'Success' },
       })
@@ -219,7 +227,6 @@ describe('Password Reset API', () => {
     })
 
     it('should set 10 second timeout for confirmPasswordReset', async () => {
-      const mockPost = vi.mocked(axios.post)
       mockPost.mockResolvedValue({
         data: { success: true, message: 'Success', user_id: 1 },
       })

@@ -95,7 +95,7 @@ export function ThemeSelector({
     try {
       setIsSaving(true)
       
-      const updates: any = {}
+      const updates: Record<string, number> = {}
       
       if (previewTheme) {
         applyTheme(previewTheme)

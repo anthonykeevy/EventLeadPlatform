@@ -256,7 +256,7 @@ export const ObjectLayoutSection: React.FC<ObjectLayoutSectionProps> = ({
             const cond = obj.conditional;
             if (!cond) return true;
             if (cond.type === 'prop' && cond.prop === 'allowOther') {
-                return Boolean((component.props as any)?.allowOther);
+                return Boolean((component.props as Record<string, unknown>)?.allowOther);
             }
             return true;
         });
@@ -357,7 +357,7 @@ export const ObjectLayoutSection: React.FC<ObjectLayoutSectionProps> = ({
         let toRow: string | null = null;
         if (overIdStr === 'available-pool') {
             toRow = 'available-pool';
-        } else if (FIXED_ROWS.includes(overIdStr as any)) {
+        } else if (FIXED_ROWS.includes(overIdStr as (typeof FIXED_ROWS)[number])) {
             toRow = overIdStr;
         } else {
             // Check if dropped on another object (find its row)

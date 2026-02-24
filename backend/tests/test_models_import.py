@@ -7,7 +7,7 @@ import pytest
 
 def test_import_all_models():
     """Test that all 33 models can be imported without circular dependency errors."""
-    from backend.models import (
+    from models import (
         # Core business models (9)
         User, Company, UserCompany,
         CompanyCustomerDetails, CompanyBillingDetails, CompanyOrganizerDetails,
@@ -44,7 +44,7 @@ def test_import_all_models():
 
 def test_model_count():
     """Test that exactly 33 models are exported."""
-    from backend.models import __all__, get_model_count
+    from models import __all__, get_model_count
     
     assert len(__all__) == 33, f"Expected 33 models, got {len(__all__)}"
     assert get_model_count() == 33
@@ -53,7 +53,7 @@ def test_model_count():
 def test_sqlalchemy_registration():
     """Test that all models are registered with SQLAlchemy Base."""
     from backend.common.database import Base
-    from backend.models import __all__
+    from models import __all__
     
     # Import all models to register them
     import backend.models  # noqa: F401
@@ -75,7 +75,7 @@ def test_sqlalchemy_registration():
 
 def test_model_table_names():
     """Test that model table names follow PascalCase convention (Solomon standard)."""
-    from backend.models import User, Company, UserCompany, Country
+    from models import User, Company, UserCompany, Country
     
     assert User.__tablename__ == "User"
     assert Company.__tablename__ == "Company"
@@ -85,7 +85,7 @@ def test_model_table_names():
 
 def test_model_schemas():
     """Test that models are assigned to correct schemas."""
-    from backend.models import (
+    from models import (
         User, Company, Country, AppSetting, ActivityLog, ApiRequest, ABRSearch
     )
     
@@ -100,7 +100,7 @@ def test_model_schemas():
 
 def test_primary_keys():
     """Test that models have primary keys following [TableName]ID pattern."""
-    from backend.models import User, Company, UserCompany, Country
+    from models import User, Company, UserCompany, Country
     
     # Check primary key column names
     assert 'UserID' in [col.name for col in User.__table__.primary_key.columns]
@@ -111,7 +111,7 @@ def test_primary_keys():
 
 def test_audit_columns():
     """Test that business tables have required audit columns."""
-    from backend.models import User, Company, UserCompany
+    from models import User, Company, UserCompany
     
     # Check User audit columns
     user_columns = [col.name for col in User.__table__.columns]

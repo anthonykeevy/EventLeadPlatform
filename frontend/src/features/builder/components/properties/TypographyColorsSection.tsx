@@ -225,7 +225,7 @@ export const TypographyColorsSection: React.FC<TypographyColorsSectionProps> = (
     const getEffective = <K extends keyof StyleOverrides>(
         overrideKey: K,
         globalKey: keyof GlobalStyles
-    ): any => {
+    ): Record<string, string> => {
         if (styleOverrides && overrideKey in styleOverrides) {
             return styleOverrides[overrideKey];
         }
@@ -244,7 +244,7 @@ export const TypographyColorsSection: React.FC<TypographyColorsSectionProps> = (
                 if (overrideKey in styleOverrides) {
                     const globalKey = globalKeys[prop as keyof typeof globalKeys];
                     if (globalKey) {
-                        currentOverrides[globalKey] = styleOverrides[overrideKey] as any;
+                        currentOverrides[globalKey] = styleOverrides[overrideKey] as string;
                     }
                 }
             });

@@ -49,9 +49,10 @@ export function InvitationAcceptancePage() {
     try {
       const data = await viewInvitation(token)
       setInvitation(data)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load invitation:', err)
-      if (err.response?.status === 404) {
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string } } }
+      if (axiosErr.response?.status === 404) {
         setError('Invitation not found or has expired')
       } else {
         setError('Failed to load invitation details')
@@ -116,11 +117,11 @@ export function InvitationAcceptancePage() {
           window.location.href = '/dashboard'
         }, 2000)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to signup with invitation:', err)
-      
-      if (err.response?.data?.detail) {
-        setError(err.response.data.detail)
+      const axiosErr = err as { response?: { data?: { detail?: string } } }
+      if (axiosErr.response?.data?.detail) {
+        setError(axiosErr.response.data.detail)
       } else {
         setError('Failed to create account. Please try again.')
       }
@@ -150,14 +151,14 @@ export function InvitationAcceptancePage() {
           window.location.href = '/dashboard'
         }, 2000)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to accept invitation:', err)
-      
-      if (err.response?.data?.detail) {
-        setError(err.response.data.detail)
-      } else if (err.response?.status === 400) {
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string } } }
+      if (axiosErr.response?.data?.detail) {
+        setError(axiosErr.response.data.detail)
+      } else if (axiosErr.response?.status === 400) {
         setError('This invitation cannot be accepted. It may have already been used or expired.')
-      } else if (err.response?.status === 401) {
+      } else if (axiosErr.response?.status === 401) {
         setError('You must be logged in to accept this invitation')
       } else {
         setError('Failed to accept invitation. Please try again.')

@@ -73,27 +73,27 @@ export function EditRoleModal({
         onSuccess()
         onClose()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to edit user role:', error)
-      
+      const axiosErr = error as { response?: { status?: number; data?: { detail?: string | Array<{ msg?: string }> } } }
       // Handle specific error messages from backend
-      if (error.response?.data?.detail) {
+      if (axiosErr.response?.data?.detail) {
         // Handle both string and object detail formats
-        const detail = error.response.data.detail
+        const detail = axiosErr.response.data.detail
         if (typeof detail === 'string') {
           setSubmitError(detail)
         } else if (Array.isArray(detail)) {
           // Pydantic validation errors are arrays
-          const errorMessages = detail.map((err: any) => err.msg).join(', ')
+          const errorMessages = (detail as Array<{ msg?: string }>).map((err) => err.msg).join(', ')
           setSubmitError(`Validation error: ${errorMessages}`)
         } else {
           setSubmitError('Validation error occurred')
         }
-      } else if (error.response?.status === 403) {
+      } else if (axiosErr.response?.status === 403) {
         setSubmitError('You do not have permission to edit this user\'s role')
-      } else if (error.response?.status === 404) {
+      } else if (axiosErr.response?.status === 404) {
         setSubmitError('User not found')
-      } else if (error.response?.status === 422) {
+      } else if (axiosErr.response?.status === 422) {
         setSubmitError('Invalid role selection. Please try again.')
       } else {
         setSubmitError('Failed to update role. Please try again.')

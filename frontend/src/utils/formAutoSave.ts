@@ -21,7 +21,7 @@ interface FormDraft {
   formType: FormType
   formId?: string // Optional: for edit forms
   userId: number
-  data: any // Form data (validated before saving)
+  data: Record<string, unknown> // Form data (validated before saving)
   timestamp: number
   version: number // For conflict detection
 }
@@ -84,7 +84,7 @@ class FormAutoSave {
     formType: FormType,
     formId: string | undefined,
     userId: number,
-    getFormData: () => any,
+    getFormData: () => Record<string, unknown>,
     onFirstSave?: () => void
   ): () => void {
     const key = this.getStorageKey(formType, formId, userId)
@@ -136,15 +136,16 @@ class FormAutoSave {
   /**
    * Check if form has meaningful data
    */
-  private hasFormData(data: any): boolean {
+  private hasFormData(data: unknown): boolean {
     if (!data || typeof data !== 'object') return false
 
+    const d = data as Record<string, unknown>
     // Check for common form fields
-    const hasName = data.name && data.name.trim().length > 0
-    const hasStartDate = data.startDatetime || data.startDateTime
-    const hasDescription = data.description || data.shortDescription
+    const hasName = typeof d.name === 'string' && d.name.trim().length > 0
+    const hasStartDate = d.startDatetime || d.startDateTime
+    const hasDescription = d.description || d.shortDescription
 
-    return hasName || hasStartDate || hasDescription
+    return hasName || !!hasStartDate || !!hasDescription
   }
 
   /**
@@ -154,7 +155,7 @@ class FormAutoSave {
     formType: FormType,
     formId: string | undefined,
     userId: number,
-    data: any
+    data: Record<string, unknown>
   ): Promise<void> {
     if (!this.db) await this.initialize()
 
@@ -225,7 +226,7 @@ class FormAutoSave {
     formType: FormType,
     formId: string | undefined,
     userId: number
-  ): Promise<any | null> {
+  ): Promise<Record<string, unknown> | null> {
     const draft = await this.get(formType, formId, userId)
     return draft ? draft.data : null
   }

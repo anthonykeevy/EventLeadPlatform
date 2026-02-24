@@ -18,7 +18,7 @@ interface FormBuilderData {
   formId: number | null
   formName: string
   fields: Array<{ id: string; label: string; type: string }>
-  settings: Record<string, any>
+  settings: Record<string, unknown>
 }
 
 export function FormBuilderExample() {
@@ -145,7 +145,7 @@ export function FormBuilderExample() {
   /**
    * Handle form changes
    */
-  const handleChange = (field: keyof FormBuilderData, value: any) => {
+  const handleChange = (field: keyof FormBuilderData, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     markDirty()
     setSaveStatus('unsaved')

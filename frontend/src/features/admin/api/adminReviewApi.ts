@@ -93,7 +93,7 @@ export interface AdminEventUpdateResponse {
   success: boolean
   message: string
   event_id: number
-  event: any
+  event: Record<string, unknown>
 }
 
 export const adminReviewApi = {

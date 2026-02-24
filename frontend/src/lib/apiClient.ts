@@ -13,73 +13,77 @@ export const apiClient: AxiosInstance = axios.create({
 })
 
 // Add request interceptor to attach access token and fix FormData Content-Type
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    // For FormData, do NOT set Content-Type — browser must set multipart/form-data with boundary
-    if (config.data instanceof FormData) {
-      delete config.headers['Content-Type']
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+if (apiClient && apiClient.interceptors && apiClient.interceptors.request) {
+  apiClient.interceptors.request.use(
+    (config) => {
+      const token = getAccessToken()
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+      // For FormData, do NOT set Content-Type — browser must set multipart/form-data with boundary
+      if (config.data instanceof FormData) {
+        delete config.headers['Content-Type']
+      }
+      return config
+    },
+    (error) => Promise.reject(error)
+  )
+}
 
 // Add response interceptor to handle token refresh and session expiry
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+if (apiClient && apiClient.interceptors && apiClient.interceptors.response) {
+  apiClient.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-    // Suppress 404 errors for specific endpoints if needed (copied from eventsApi)
-    if (error.response?.status === 404 && originalRequest.url?.includes('/timezones/') && originalRequest.url?.includes('/country')) {
-      return Promise.reject(error)
-    }
-
-    // Check if offline
-    if (!navigator.onLine) {
-      return Promise.reject(error)
-    }
-
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      // Avoid infinite loops for auth endpoints
-      if (originalRequest.url?.includes('/auth/login') || 
-          originalRequest.url?.includes('/auth/refresh') || 
-          originalRequest.url?.includes('/auth/signup')) {
+      // Suppress 404 errors for specific endpoints if needed (copied from eventsApi)
+      if (error.response?.status === 404 && originalRequest.url?.includes('/timezones/') && originalRequest.url?.includes('/country')) {
         return Promise.reject(error)
       }
 
-      originalRequest._retry = true
-
-      try {
-        // Attempt to refresh token
-        const tokenResponse = await refreshAccessToken()
-        
-        // Store new tokens
-        const expiresIn = tokenResponse.expires_in || 3600
-        storeTokens(tokenResponse.access_token, tokenResponse.refresh_token, expiresIn)
-        
-        // Update header and retry original request
-        originalRequest.headers.Authorization = `Bearer ${tokenResponse.access_token}`
-        return apiClient(originalRequest)
-      } catch (refreshError) {
-        // Refresh failed - keep session state but notify for retry
-        window.dispatchEvent(new CustomEvent('eventlead:refresh-failed', {
-          detail: {
-            status: (refreshError as AxiosError | undefined)?.response?.status || 0
-          }
-        }))
-        return Promise.reject(refreshError)
+      // Check if offline
+      if (!navigator.onLine) {
+        return Promise.reject(error)
       }
-    }
 
-    return Promise.reject(error)
-  }
-)
+      // Handle 401 Unauthorized
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        // Avoid infinite loops for auth endpoints
+        if (originalRequest.url?.includes('/auth/login') || 
+            originalRequest.url?.includes('/auth/refresh') || 
+            originalRequest.url?.includes('/auth/signup')) {
+          return Promise.reject(error)
+        }
+
+        originalRequest._retry = true
+
+        try {
+          // Attempt to refresh token
+          const tokenResponse = await refreshAccessToken()
+          
+          // Store new tokens
+          const expiresIn = tokenResponse.expires_in || 3600
+          storeTokens(tokenResponse.access_token, tokenResponse.refresh_token, expiresIn)
+          
+          // Update header and retry original request
+          originalRequest.headers.Authorization = `Bearer ${tokenResponse.access_token}`
+          return apiClient(originalRequest)
+        } catch (refreshError) {
+          // Refresh failed - keep session state but notify for retry
+          window.dispatchEvent(new CustomEvent('eventlead:refresh-failed', {
+            detail: {
+              status: (refreshError as AxiosError | undefined)?.response?.status || 0
+            }
+          }))
+          return Promise.reject(refreshError)
+        }
+      }
+
+      return Promise.reject(error)
+    }
+  )
+}
 
 /**
  * Format error for display (shared utility)
@@ -89,7 +93,7 @@ export function formatError(error: unknown): Error {
     const axiosError = error as AxiosError
     if (axiosError.response) {
       return new Error(
-        (axiosError.response.data as any)?.detail || 
+        (axiosError.response.data as { detail?: string })?.detail || 
         axiosError.response.statusText || 
         'An error occurred'
       )

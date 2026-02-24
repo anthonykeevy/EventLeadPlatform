@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.middleware.request_logger import RequestLoggingMiddleware, log_api_request
-from backend.models.log.api_request import ApiRequest
+from models.log.api_request import ApiRequest
 
 
 # Test fixture: FastAPI app with middleware

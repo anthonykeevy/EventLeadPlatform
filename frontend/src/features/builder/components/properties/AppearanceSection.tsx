@@ -361,7 +361,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                     // and set actionWidthOverride to undefined so button fills container (100%)
                     // CRITICAL: Store uses Object.keys() which includes keys with undefined values
                     // We must explicitly set the key so store can delete it
-                    (updates as any).actionWidthOverride = undefined;
+                    (updates as Record<string, unknown>).actionWidthOverride = undefined;
                 } else if (value.endsWith('px')) {
                     // For pixel widths: set both width and actionWidthOverride to the same value
                     const widthPx = parseInt(value, 10);
@@ -372,7 +372,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
             
             if (isSubmitButton) {
                 // Create a log-safe version that shows undefined values
-                const logUpdates: any = { ...updates };
+                const logUpdates: Record<string, unknown> = { ...updates };
                 if (value.endsWith('%')) {
                     logUpdates.actionWidthOverride = undefined; // Explicitly show undefined
                 }
@@ -382,7 +382,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                     updates: logUpdates,
                     actualUpdatesKeys: Object.keys(updates),
                     hasActionWidthOverrideKey: 'actionWidthOverride' in updates,
-                    actionWidthOverrideValue: (updates as any).actionWidthOverride,
+                    actionWidthOverrideValue: (updates as Record<string, unknown>).actionWidthOverride,
                     parsedPx: value.endsWith('px') ? parseInt(value, 10) : undefined,
                     isPercentage: value.endsWith('%'),
                 });

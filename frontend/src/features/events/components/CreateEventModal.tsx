@@ -459,7 +459,7 @@ export function CreateEventModal({ isOpen, onClose, onSuccess }: CreateEventModa
   }
 
   // Real-time validation on field change
-  const validateField = (field: keyof EventCreateRequest, value: any): void => {
+  const validateField = (field: keyof EventCreateRequest, value: unknown): void => {
     const newErrors: Record<string, string> = { ...errors }
 
     // Clear existing error for this field
@@ -566,7 +566,7 @@ export function CreateEventModal({ isOpen, onClose, onSuccess }: CreateEventModa
   }
 
   // Handle field changes with real-time validation
-  const handleChange = (field: keyof EventCreateRequest, value: any) => {
+  const handleChange = (field: keyof EventCreateRequest, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Validate field in real-time
     validateField(field, value)

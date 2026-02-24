@@ -82,7 +82,7 @@ export const BuilderLayout: React.FC<BuilderLayoutProps> = ({
                 !!target &&
                 (target.tagName === 'INPUT' ||
                     target.tagName === 'TEXTAREA' ||
-                    (target as any).isContentEditable);
+                    (target as HTMLElement).isContentEditable);
 
             // Check for Ctrl+Z (Windows) or Cmd+Z (Mac)
             if (!isTypingTarget && (e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {

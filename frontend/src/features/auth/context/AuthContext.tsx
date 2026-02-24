@@ -373,7 +373,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /**
    * Broadcast auth change to other tabs
    */
-  const broadcastAuthChange = useCallback((message: any) => {
+  const broadcastAuthChange = useCallback((message: Record<string, unknown>) => {
     // Try BroadcastChannel first (modern browsers)
     if (broadcastChannelRef.current) {
       try {

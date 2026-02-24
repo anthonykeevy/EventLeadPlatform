@@ -31,7 +31,7 @@ export interface BackgroundAssetListResponse {
 // TRANSFORMERS: Backend to Frontend
 // ═══════════════════════════════════════════════════════════════════════════
 
-function transformAssetMetadata(data: any): BackgroundAssetMetadata {
+function transformAssetMetadata(data: Record<string, unknown>): BackgroundAssetMetadata {
     return {
         assetId: data.assetId ?? data.asset_id ?? 0,
         assetKey: data.assetKey ?? data.asset_key ?? '',
@@ -47,7 +47,7 @@ function transformAssetMetadata(data: any): BackgroundAssetMetadata {
     };
 }
 
-function transformUploadResponse(data: any): BackgroundAssetUploadResponse {
+function transformUploadResponse(data: Record<string, unknown>): BackgroundAssetUploadResponse {
     return {
         asset: transformAssetMetadata(data.asset),
         isDuplicate: data.isDuplicate ?? data.is_duplicate ?? false,

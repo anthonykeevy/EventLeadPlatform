@@ -58,7 +58,7 @@ export async function listInvitations(
   
   // Transform snake_case from backend to camelCase for frontend
   const transformed = {
-    invitations: response.data.invitations.map((inv: any) => ({
+    invitations: (response.data.invitations as Record<string, unknown>[]).map((inv: Record<string, unknown>) => ({
       invitationId: inv.invitation_id,
       companyId: inv.company_id,
       email: inv.email,

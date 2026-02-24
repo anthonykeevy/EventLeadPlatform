@@ -21,7 +21,7 @@ import { apiClient, formatError } from '../../../lib/apiClient'
 // Transformers: Backend to Frontend
 // =====================================================================
 
-function transformFormStatus(backend: any): FormStatus {
+function transformFormStatus(backend: Record<string, unknown>): FormStatus {
   return {
     formStatusId: backend.formStatusId ?? backend.form_status_id ?? backend.FormStatusID ?? 0,
     statusCode: backend.statusCode ?? backend.status_code ?? backend.StatusCode ?? '',
@@ -34,7 +34,7 @@ function transformFormStatus(backend: any): FormStatus {
   }
 }
 
-function transformFormApprovalStatus(backend: any): FormApprovalStatus {
+function transformFormApprovalStatus(backend: Record<string, unknown>): FormApprovalStatus {
   return {
     formApprovalStatusId: backend.formApprovalStatusId ?? backend.form_approval_status_id ?? backend.FormApprovalStatusID ?? 0,
     approvalStatusCode: backend.approvalStatusCode ?? backend.approval_status_code ?? backend.ApprovalStatusCode ?? '',
@@ -46,7 +46,7 @@ function transformFormApprovalStatus(backend: any): FormApprovalStatus {
   }
 }
 
-function transformForm(backend: any): Form {
+function transformForm(backend: Record<string, unknown>): Form {
   return {
     formId: backend.form_id ?? backend.formId ?? backend.FormID ?? 0,
     formName: backend.form_name ?? backend.formName ?? backend.FormName ?? '',
@@ -54,12 +54,12 @@ function transformForm(backend: any): Form {
     companyId: backend.company_id ?? backend.companyId ?? backend.CompanyID ?? 0,
     eventId: backend.event_id ?? backend.eventId ?? backend.EventID ?? null,
     formStatusId: backend.form_status_id ?? backend.formStatusId ?? backend.FormStatusID ?? 0,
-    formStatus: (backend.form_status ?? backend.formStatus ?? backend.FormStatus) 
-      ? transformFormStatus(backend.form_status ?? backend.formStatus ?? backend.FormStatus) 
+    formStatus: (backend.form_status ?? backend.formStatus ?? backend.FormStatus)
+      ? transformFormStatus((backend.form_status ?? backend.formStatus ?? backend.FormStatus) as Record<string, unknown>)
       : null,
     formApprovalStatusId: backend.form_approval_status_id ?? backend.formApprovalStatusId ?? backend.FormApprovalStatusID ?? 0,
     formApprovalStatus: (backend.form_approval_status ?? backend.formApprovalStatus ?? backend.FormApprovalStatus)
-      ? transformFormApprovalStatus(backend.form_approval_status ?? backend.formApprovalStatus ?? backend.FormApprovalStatus)
+      ? transformFormApprovalStatus((backend.form_approval_status ?? backend.formApprovalStatus ?? backend.FormApprovalStatus) as Record<string, unknown>)
       : null,
     isPublic: backend.is_public ?? backend.isPublic ?? backend.IsPublic ?? false,
     deploymentCost: (() => {
@@ -96,7 +96,7 @@ function transformForm(backend: any): Form {
 export async function getFormStatuses(): Promise<FormStatus[]> {
   try {
     const response = await apiClient.get('/api/forms/statuses')
-    return (response.data as any[]).map(transformFormStatus)
+    return (response.data as Record<string, unknown>[]).map(transformFormStatus)
   } catch (error) {
     throw formatError(error)
   }
@@ -108,7 +108,7 @@ export async function getFormStatuses(): Promise<FormStatus[]> {
 export async function getFormApprovalStatuses(): Promise<FormApprovalStatus[]> {
   try {
     const response = await apiClient.get('/api/forms/approval-statuses')
-    return (response.data as any[]).map(transformFormApprovalStatus)
+    return (response.data as Record<string, unknown>[]).map(transformFormApprovalStatus)
   } catch (error) {
     throw formatError(error)
   }
@@ -119,7 +119,7 @@ export async function getFormApprovalStatuses(): Promise<FormApprovalStatus[]> {
  */
 export async function getForms(filters?: FormFilters, page: number = 1, pageSize: number = 20): Promise<FormListResponse> {
   try {
-    const params: any = {
+    const params: Record<string, string | number> = {
       page,
       page_size: pageSize,
     }
@@ -250,7 +250,7 @@ export async function submitFormForApproval(formId: number): Promise<UpdateFormR
 /**
  * Request External Approval (Story 2.12)
  */
-export async function requestExternalApproval(formId: number, email: string): Promise<any> {
+export async function requestExternalApproval(formId: number, email: string): Promise<Record<string, unknown>> {
     try {
         const response = await apiClient.post(`/api/forms/${formId}/request-external-approval`, { email })
         return response.data
@@ -262,7 +262,7 @@ export async function requestExternalApproval(formId: number, email: string): Pr
 /**
  * Get External Approval Context (Story 2.12)
  */
-export async function getExternalApprovalContext(token: string): Promise<any> {
+export async function getExternalApprovalContext(token: string): Promise<Record<string, unknown>> {
     try {
         // Note: Public endpoint, but apiClient might attach auth header if token exists. 
         // Should be fine as backend ignores it for public routes or handles it.
@@ -276,7 +276,7 @@ export async function getExternalApprovalContext(token: string): Promise<any> {
 /**
  * Submit External Decision (Story 2.12)
  */
-export async function submitExternalDecision(token: string, decision: string, reason?: string): Promise<any> {
+export async function submitExternalDecision(token: string, decision: string, reason?: string): Promise<Record<string, unknown>> {
     try {
         const response = await apiClient.post(`/api/public/approval/${token}/decide`, { decision, reason })
         return response.data
@@ -465,7 +465,7 @@ export async function getPendingPublishRequests(): Promise<PublishRequest[]> {
   try {
     const response = await apiClient.get('/api/forms/publish-requests/pending')
     const arr = response.data
-    return (Array.isArray(arr) ? arr : []).map((d: any) => ({
+    return (Array.isArray(arr) ? arr : []).map((d: Record<string, unknown>) => ({
       formPublishRequestId: d.formPublishRequestId ?? d.form_publish_request_id ?? 0,
       formId: d.formId ?? d.form_id ?? 0,
       formName: d.formName ?? d.form_name ?? '',

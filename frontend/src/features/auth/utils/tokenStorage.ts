@@ -176,9 +176,12 @@ export function isTokenExpired(): boolean {
  * Decode JWT payload (without verification - only for reading user info)
  * Returns null if token is invalid or malformed
  */
-export function decodeJWT(token: string): any | null {
+export function decodeJWT(token: string): Record<string, unknown> | null {
   try {
-    const payload = token.split('.')[1]
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    
+    const payload = parts[1]
     if (!payload) return null
     
     const decoded = atob(payload)

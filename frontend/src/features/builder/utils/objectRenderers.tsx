@@ -481,7 +481,7 @@ export function createInputRenderer(): ObjectRenderer {
             };
 
             const isRuntime = effectiveSurface === 'runtime';
-            const valueObj = isRuntime && value && typeof value === 'object' ? (value as any) : null;
+            const valueObj = isRuntime && value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
 
             const selectedValues: string[] =
                 isRuntime
@@ -516,7 +516,7 @@ export function createInputRenderer(): ObjectRenderer {
             };
 
             const grouped = (() => {
-                const out: Array<{ group?: string; items: any[] }> = [];
+                const out: Array<{ group?: string; items: unknown[] }> = [];
                 const seen = new Map<string, number>();
                 for (const opt of previewOptions) {
                     const g = opt.group && String(opt.group).trim().length > 0 ? String(opt.group).trim() : '';
@@ -542,7 +542,7 @@ export function createInputRenderer(): ObjectRenderer {
                     | undefined;
             // Align all extra inputs to the longest option label width (Vegetarian sets the start, etc.).
             // Then ensure the input fills the remaining width (flush to the component border) without overflowing.
-            const optionLabelWidths = previewOptions.map((opt: any) =>
+            const optionLabelWidths = previewOptions.map((opt: { label?: string; value?: string }) =>
                 measureTextWidth(
                     String(opt?.label ?? opt?.value ?? ''),
                     styles.computed.fontFamily,
@@ -578,7 +578,7 @@ export function createInputRenderer(): ObjectRenderer {
                                     </div>
                                 )}
                                 <div style={listStyle}>
-                                    {g.items.slice(0, 50).map((opt: any, idx: number) => {
+                                    {g.items.slice(0, 50).map((opt: { label?: string; value?: string; disabled?: boolean; hasExtraText?: boolean; extraPlaceholder?: string }, idx: number) => {
                                         const optValue = String(opt.value ?? opt.label ?? idx);
                                         const optLabel = String(opt.label ?? opt.value ?? '');
                                         const optDisabled = Boolean(opt.disabled);
@@ -623,7 +623,7 @@ export function createInputRenderer(): ObjectRenderer {
                                                     }}
                                                 >
                                                     <input
-                                                        ref={(idx === 0 ? (inputRef as any) : undefined)}
+                                                        ref={(idx === 0 ? (inputRef as React.RefObject<HTMLInputElement>) : undefined)}
                                                         tabIndex={tabIndex}
                                                         type={component.type === 'radio' ? 'radio' : 'checkbox'}
                                                         name={component.type === 'radio' ? (componentId || 'radio') : undefined}
@@ -1130,7 +1130,7 @@ export function createInputRenderer(): ObjectRenderer {
             const componentWidthPx =
                 component.props.width?.endsWith('px') ? parseInt(component.props.width, 10) : undefined;
 
-            const normalizedOptions = options.map((opt: any) => ({
+            const normalizedOptions = options.map((opt: Record<string, unknown>) => ({
                 label: String(opt.label ?? opt.value ?? ''),
                 value: String(opt.value ?? opt.label ?? ''),
                 disabled: Boolean(opt.disabled),
@@ -1168,8 +1168,8 @@ export function createInputRenderer(): ObjectRenderer {
                 borderWidth: (inputStyle.borderWidth as string | undefined) ?? `${styles.computed.borderWidth ?? 1}px`,
                 borderStyle: (inputStyle.borderStyle as string | undefined) ?? 'solid',
                 borderRadius: (inputStyle.borderRadius as string | undefined) ?? `${styles.computed.borderRadius ?? 6}px`,
-                backgroundColor: (styles.computed.textBackgroundColor ?? styles.computed.backgroundColor ?? '#FFFFFF') as any,
-                color: (styles.computed.textColor || (styles.computed as any).fontColor || '#1F2937') as any,
+                backgroundColor: (styles.computed.textBackgroundColor ?? styles.computed.backgroundColor ?? '#FFFFFF') as string,
+                color: (styles.computed.textColor || (styles.computed as Record<string, unknown>).fontColor || '#1F2937') as string,
                 width: `${dropdownWidthPx}px`,
                 minWidth: `${dropdownWidthPx}px`,
             };
@@ -1256,12 +1256,12 @@ export function createInputRenderer(): ObjectRenderer {
             
             // Runtime mode: render actual select with placeholder + options (same API as other surfaces)
             const placeholderText = String(component.props.emptyPlaceholder || component.props.placeholder || 'Select...');
-            const current = (value as any) ?? {};
-            const selectedValue = typeof current === 'object' && current && (current as any).value !== undefined
-                ? String((current as any).value ?? '')
+            const current = (value as Record<string, unknown>) ?? {};
+            const selectedValue = typeof current === 'object' && current && current.value !== undefined
+                ? String(current.value ?? '')
                 : String(current ?? '');
-            const extraTextByValue = typeof current === 'object' && current && (current as any).extraTextByValue && typeof (current as any).extraTextByValue === 'object'
-                ? ((current as any).extraTextByValue as Record<string, string>)
+            const extraTextByValue = typeof current === 'object' && current && current.extraTextByValue && typeof current.extraTextByValue === 'object'
+                ? (current.extraTextByValue as Record<string, string>)
                 : {};
 
             const selectedOpt = normalizedOptions.find(o => String(o.value) === selectedValue);

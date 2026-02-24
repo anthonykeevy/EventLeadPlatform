@@ -17,7 +17,7 @@ This is the streamlined workflow established at the end of Epic 5.
 | 2 | — | **@sm** prepares Story, context (XML), UAT guide; SM reviews and suggests improvements |
 | 3 | Run `new-story.ps1`; open Story worktree in Cursor | — |
 | 4 | Create STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md | — |
-| 5 | Paste Dev prompt into new chat | **@dev** implements full story; runs checks; records evidence |
+| 5 | Paste Dev prompt into new chat | **@dev** implements full story; **MUST achieve 100% green tests & 0 lint warnings before closeout** |
 | 6 | Run migration (`alembic upgrade head`) if created | — |
 | 7 | Manual UAT per STORY-6.x-UAT-TEST-GUIDE.md | — |
 | 8 | Merge Story PR to master | — |
@@ -36,6 +36,14 @@ This workflow follows the platform-wide Git rules in:
 - **One Draft PR per Story** (opened immediately) → `master`
 - **Implementation on Story branch** — no task branches
 - **Push daily:** no multi-day local-only changes
+
+## 🛑 The "Green CI/CD" Rule (Mandatory for Epic 6+)
+To prevent technical debt accumulation, the Dev agent is strictly bound by the Green CI/CD Rule:
+1. Before creating the final closeout commit, the Dev agent **MUST** run:
+   - Frontend: `npm run lint` and `npm run test:unit`
+   - Backend: `python -m pytest`
+2. The agent is **NOT** allowed to end its turn or close the story until all tests pass and **0** linting errors/warnings remain in the touched files.
+3. If the test suites or linters fail, the Dev agent must fix them as part of the story implementation.
 
 ---
 

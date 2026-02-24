@@ -114,16 +114,16 @@ export const EnhancedFormInput = forwardRef<HTMLInputElement | HTMLTextAreaEleme
       <div className={`relative ${className}`}>
         <div className="relative">
           <InputComponent
-            ref={(node: any) => {
+            ref={(node: HTMLInputElement | HTMLTextAreaElement | null) => {
               if (ref) {
                 if (typeof ref === 'function') {
                   ref(node);
                 } else if (ref && 'current' in ref) {
-                  (ref as any).current = node;
+                  (ref as React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = node;
                 }
               }
               if (inputRef) {
-                (inputRef as any).current = node;
+                (inputRef as React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = node;
               }
             }}
             type={currentType}

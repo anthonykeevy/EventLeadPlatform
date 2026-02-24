@@ -921,7 +921,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                         // So we need to use Object.keys() and access the value directly
                         const updatedProps = { ...list[i].props };
                         for (const key of Object.keys(propUpdates)) {
-                            const value = (propUpdates as any)[key];
+                            const value = (propUpdates as Record<string, unknown>)[key];
                             if (value === undefined) {
                                 // For undefined, delete the property to allow inheritance
                                 delete updatedProps[key as keyof typeof updatedProps];
@@ -976,7 +976,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                         // Merge props
                         const updatedProps = { ...list[i].props };
                         for (const key of Object.keys(propUpdates)) {
-                            const value = (propUpdates as any)[key];
+                            const value = (propUpdates as Record<string, unknown>)[key];
                             if (value === undefined) {
                                 delete updatedProps[key as keyof typeof updatedProps];
                             } else {

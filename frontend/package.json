@@ -13,7 +13,7 @@
     "test:unit": "vitest run --reporter=verbose",
     "test:component": "vitest run **/components/**/*.test.* **/features/**/*.test.*",
     "test:watch": "vitest --watch",
-    "lint": "eslint src --ext ts,tsx --max-warnings 500"
+    "lint": "eslint src --ext ts,tsx --max-warnings 0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.0",

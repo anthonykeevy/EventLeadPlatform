@@ -9,8 +9,7 @@ type FilterMode = 'all' | 'enabled' | 'errors';
 function makeId(prefix: string) {
     try {
         // Modern browsers
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const uuid = (crypto as any).randomUUID?.();
+        const uuid = (globalThis.crypto as { randomUUID?: () => string }).randomUUID?.();
         if (uuid) return `${prefix}-${uuid}`;
     } catch {
         // ignore
@@ -342,7 +341,7 @@ export const LogicPanel: React.FC = () => {
                                         checked={rule.enabled}
                                         onChange={(e) => {
                                             if (isDraftRow && draft) {
-                                                setDraft({ ...(draft as any), enabled: e.target.checked });
+                                                setDraft({ ...draft, enabled: e.target.checked });
                                                 return;
                                             }
                                             toggleRuleEnabled(rule.id, e.target.checked);
@@ -496,7 +495,7 @@ export const LogicPanel: React.FC = () => {
                                                         const nextWhen = { ...(draft.when || {}) };
                                                         nextWhen.operator = op;
                                                         if (op === 'isEmpty') delete nextWhen.value;
-                                                        setDraft({ ...draft, when: nextWhen as any });
+                                                        setDraft({ ...draft, when: nextWhen as LogicRule['when'] });
                                                         setDraftErrors(prev => ({ ...prev, operator: '', value: '' }));
                                                     }}
                                                     className="w-full px-2 py-1.5 text-sm rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
@@ -618,7 +617,7 @@ export const LogicPanel: React.FC = () => {
                                                     onChange={(e) => {
                                                         setDraft({
                                                             ...draft,
-                                                            then: { ...draft.then!, action: e.target.value as any },
+                                                            then: { ...draft.then!, action: e.target.value as LogicRule['then']['action'] },
                                                         });
                                                         setDraftErrors(prev => ({ ...prev, action: '' }));
                                                     }}

@@ -557,7 +557,7 @@ export const GridLayoutSection: React.FC<GridLayoutSectionProps> = ({
             // Switch back to Object Layout: explicitly set gridLayout to null to opt out of grid mode
             // even when global defaults exist. null is different from undefined - undefined means "inherit",
             // null means "explicitly use object layout"
-            onPropsChange({ gridLayout: null as any });
+            onPropsChange({ gridLayout: null } as { gridLayout: null });
         }
     }, [
         component,

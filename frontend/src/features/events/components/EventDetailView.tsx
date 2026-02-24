@@ -33,20 +33,19 @@ export function EventDetailView({
   onEditForm,
   onDeleteForm
 }: EventDetailViewProps) {
-  if (!event) return null
-
   const [forms, setForms] = useState<Form[]>([])
   const [isLoadingForms, setIsLoadingForms] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const toast = useToastNotifications()
   const { user } = useAuth()
 
-  const isShared = event.companyId !== user?.company_id
-  const canEdit = event.userRole?.has_edit_event ?? !isShared
-  const canShare = event.userRole?.has_manage_participants ?? !isShared
+  const isShared = event?.companyId !== user?.company_id
+  const canEdit = event?.userRole?.has_edit_event ?? !isShared
+  const canShare = event?.userRole?.has_manage_participants ?? !isShared
 
   // Listen for form updates
   useEffect(() => {
+    if (!event) return
     const handleFormUpdate = (e: Event) => {
       const customEvent = e as CustomEvent
       if (customEvent.detail.eventId === event.eventId) {
@@ -61,13 +60,15 @@ export function EventDetailView({
       window.removeEventListener('formCreated', handleFormUpdate)
       window.removeEventListener('formUpdated', handleFormUpdate)
     }
-  }, [event.eventId])
+  }, [event?.eventId])
 
   useEffect(() => {
+    if (!event) return
     loadForms()
-  }, [event.eventId])
+  }, [event?.eventId])
 
   const loadForms = async () => {
+    if (!event) return
     setIsLoadingForms(true)
     try {
       const response = await getFormsByEvent(event.eventId)
@@ -153,6 +154,8 @@ export function EventDetailView({
     }
     return 'Not set'
   }
+
+  if (!event) return null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

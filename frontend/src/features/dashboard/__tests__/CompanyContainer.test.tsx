@@ -4,9 +4,42 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
+import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
 import { CompanyContainer } from '../components/CompanyContainer'
 import type { Company } from '../types/dashboard.types'
+
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
+
+vi.mock('../../auth/context/AuthContext', () => ({
+  useAuth: () => ({
+    user: { id: 1, email: 'test@example.com', first_name: 'Test', last_name: 'User' },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    checkAuth: vi.fn()
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children
+}))
+
+vi.mock('../../ux/components/ToastProvider', () => ({
+  useToastNotifications: () => ({
+    showToast: vi.fn(),
+    showSuccess: vi.fn(),
+    showError: vi.fn(),
+    showInfo: vi.fn(),
+    showWarning: vi.fn()
+  })
+}))
 
 const mockCompany: Company = {
   companyId: 1,
@@ -28,14 +61,16 @@ describe('CompanyContainer', () => {
 
   it('should render company name and badges', () => {
     render(
-      <CompanyContainer
-        company={mockCompany}
-        isActive={false}
-        isExpanded={false}
-        onSelect={mockOnSelect}
-        onToggleExpand={mockOnToggleExpand}
-        onOpenTeamPanel={mockOnOpenTeamPanel}
-      />
+      <BrowserRouter>
+        <CompanyContainer
+          company={mockCompany}
+          isActive={false}
+          isExpanded={false}
+          onSelect={mockOnSelect}
+          onToggleExpand={mockOnToggleExpand}
+          onOpenTeamPanel={mockOnOpenTeamPanel}
+        />
+      </BrowserRouter>
     )
 
     expect(screen.getByText('Test Company')).toBeInTheDocument()
@@ -45,14 +80,16 @@ describe('CompanyContainer', () => {
 
   it('should call onSelect when container clicked - AC-1.18.4', () => {
     render(
-      <CompanyContainer
-        company={mockCompany}
-        isActive={false}
-        isExpanded={false}
-        onSelect={mockOnSelect}
-        onToggleExpand={mockOnToggleExpand}
-        onOpenTeamPanel={mockOnOpenTeamPanel}
-      />
+      <BrowserRouter>
+        <CompanyContainer
+          company={mockCompany}
+          isActive={false}
+          isExpanded={false}
+          onSelect={mockOnSelect}
+          onToggleExpand={mockOnToggleExpand}
+          onOpenTeamPanel={mockOnOpenTeamPanel}
+        />
+      </BrowserRouter>
     )
 
     const container = screen.getByText('Test Company').closest('div')?.parentElement
@@ -63,14 +100,16 @@ describe('CompanyContainer', () => {
 
   it('should show user icon and settings icon for admin - AC-1.18.7', () => {
     render(
-      <CompanyContainer
-        company={mockCompany}
-        isActive={false}
-        isExpanded={false}
-        onSelect={mockOnSelect}
-        onToggleExpand={mockOnToggleExpand}
-        onOpenTeamPanel={mockOnOpenTeamPanel}
-      />
+      <BrowserRouter>
+        <CompanyContainer
+          company={mockCompany}
+          isActive={false}
+          isExpanded={false}
+          onSelect={mockOnSelect}
+          onToggleExpand={mockOnToggleExpand}
+          onOpenTeamPanel={mockOnOpenTeamPanel}
+        />
+      </BrowserRouter>
     )
 
     const teamButton = screen.getByLabelText('Team Management')
@@ -84,14 +123,16 @@ describe('CompanyContainer', () => {
     const nonAdminCompany = { ...mockCompany, userRole: 'Company User' as const }
     
     render(
-      <CompanyContainer
-        company={nonAdminCompany}
-        isActive={false}
-        isExpanded={false}
-        onSelect={mockOnSelect}
-        onToggleExpand={mockOnToggleExpand}
-        onOpenTeamPanel={mockOnOpenTeamPanel}
-      />
+      <BrowserRouter>
+        <CompanyContainer
+          company={nonAdminCompany}
+          isActive={false}
+          isExpanded={false}
+          onSelect={mockOnSelect}
+          onToggleExpand={mockOnToggleExpand}
+          onOpenTeamPanel={mockOnOpenTeamPanel}
+        />
+      </BrowserRouter>
     )
 
     expect(screen.queryByLabelText('Company Settings')).not.toBeInTheDocument()
@@ -115,14 +156,16 @@ describe('CompanyContainer', () => {
     }
 
     render(
-      <CompanyContainer
-        company={parentWithChild}
-        isActive={false}
-        isExpanded={true}
-        onSelect={mockOnSelect}
-        onToggleExpand={mockOnToggleExpand}
-        onOpenTeamPanel={mockOnOpenTeamPanel}
-      />
+      <BrowserRouter>
+        <CompanyContainer
+          company={parentWithChild}
+          isActive={false}
+          isExpanded={true}
+          onSelect={mockOnSelect}
+          onToggleExpand={mockOnToggleExpand}
+          onOpenTeamPanel={mockOnOpenTeamPanel}
+        />
+      </BrowserRouter>
     )
 
     expect(screen.getByText('Test Company')).toBeInTheDocument()

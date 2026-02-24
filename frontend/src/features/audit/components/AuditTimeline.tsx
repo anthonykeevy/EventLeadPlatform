@@ -16,7 +16,7 @@ interface AuditTimelineProps {
  * Parse JSON string and return key-value pairs for display
  * Handles both valid JSON (double quotes) and Python dict-style (single quotes)
  */
-function parseJsonToKeyValues(jsonStr: string | null | undefined): Record<string, any> | null {
+function parseJsonToKeyValues(jsonStr: string | null | undefined): Record<string, unknown> | null {
   if (!jsonStr) return null;
   
   // Check if it looks like JSON or Python dict
@@ -61,7 +61,7 @@ function formatFieldName(key: string): string {
 /**
  * Format a value for display
  */
-function formatValue(value: any): string {
+function formatValue(value: unknown): string {
   if (value === null || value === undefined) return '—';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (typeof value === 'object') return JSON.stringify(value);
@@ -71,7 +71,7 @@ function formatValue(value: any): string {
 /**
  * Check if two values are different (for change detection)
  */
-function valuesAreDifferent(oldVal: any, newVal: any): boolean {
+function valuesAreDifferent(oldVal: unknown, newVal: unknown): boolean {
   if (oldVal === newVal) return false;
   if (oldVal === undefined && newVal === undefined) return false;
   if (oldVal === null && newVal === null) return false;

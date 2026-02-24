@@ -13,7 +13,7 @@
  */
 
 // Import event transformation function (lazy import to avoid circular dependencies)
-let transformEventCreateRequest: ((request: any) => any) | null = null
+let transformEventCreateRequest: ((request: Record<string, unknown>) => Record<string, unknown>) | null = null
 
 async function getEventTransformFunction() {
   if (!transformEventCreateRequest) {
@@ -23,7 +23,7 @@ async function getEventTransformFunction() {
   return transformEventCreateRequest
 }
 
-export interface QueuedItem<T = any> {
+export interface QueuedItem<T = unknown> {
   id: string
   userId: number // User ID who queued this item (for security - prevents cross-user data access)
   type: 'lead_submission' | 'form_draft' | 'event_draft' | 'event_create' | 'event_update' | 'event_delete' | 'token_refresh' | 'api_request' | 'other'
@@ -396,10 +396,10 @@ class OfflineQueue {
         })
       } else if (item.type === 'event_update') {
         // item.data should contain { eventId, eventData }
-        const { eventId, eventData } = item.data as { eventId: number; eventData: any }
+        const { eventId, eventData } = item.data as { eventId: number; eventData: Record<string, unknown> }
         
         // Transform camelCase to snake_case for backend (same as updateEvent API)
-        const backendRequest: any = {}
+        const backendRequest: Record<string, unknown> = {}
         
         if (eventData.name !== undefined) backendRequest.name = eventData.name
         if (eventData.description !== undefined) backendRequest.description = eventData.description
@@ -442,7 +442,7 @@ class OfflineQueue {
         const { method, url, data, customHeaders } = item.data as {
           method: string
           url: string
-          data?: any
+          data?: unknown
           customHeaders?: HeadersInit
         }
         response = await fetch(url.startsWith('http') ? url : `${API_BASE_URL}${url}`, {
@@ -480,9 +480,9 @@ class OfflineQueue {
         await this.updateStatus(item.id, 'failed', errorMessage)
         console.error(`❌ Upload failed ${item.id}:`, errorMessage)
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Network error - mark as failed
-      await this.updateStatus(item.id, 'failed', error.message || String(error))
+      await this.updateStatus(item.id, 'failed', error instanceof Error ? error.message : String(error))
       console.error(`❌ Upload error ${item.id}:`, error)
     }
   }

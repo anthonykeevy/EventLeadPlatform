@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface UseAutoSaveOptions {
   key: string;
-  data: any;
+  data: unknown;
   interval?: number; // in milliseconds
-  onSave?: (data: any) => void;
-  onRestore?: (data: any) => void;
+  onSave?: (data: unknown) => void;
+  onRestore?: (data: unknown) => void;
   enabled?: boolean;
   debounceMs?: number;
 }
@@ -35,15 +35,15 @@ export const useAutoSave = ({
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSavedDataRef = useRef<any>(null);
+  const lastSavedDataRef = useRef<unknown>(null);
 
   // Check if data has changed
-  const dataChanged = useCallback((currentData: any, lastData: any) => {
+  const dataChanged = useCallback((currentData: unknown, lastData: unknown) => {
     return JSON.stringify(currentData) !== JSON.stringify(lastData);
   }, []);
 
   // Save data to localStorage
-  const saveToStorage = useCallback((dataToSave: any) => {
+  const saveToStorage = useCallback((dataToSave: unknown) => {
     try {
       const saveData = {
         data: dataToSave,
@@ -82,7 +82,7 @@ export const useAutoSave = ({
   }, [key, onRestore]);
 
   // Debounced save function
-  const debouncedSave = useCallback((dataToSave: any) => {
+  const debouncedSave = useCallback((dataToSave: unknown) => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -187,7 +187,7 @@ export const useAutoSave = ({
 
 // Hook for form auto-save with visual feedback
 export const useFormAutoSave = (
-  formData: Record<string, any>,
+  formData: Record<string, unknown>,
   formKey: string,
   options: Partial<UseAutoSaveOptions> = {}
 ) => {

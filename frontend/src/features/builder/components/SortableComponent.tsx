@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { FormComponent } from '../types/builder.types';
+import { FormComponent, type ComponentType } from '../types/builder.types';
 import { SubmitButtonField } from './fields/SubmitButtonField';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
 import { useBuilderStore } from '../stores/useBuilderStore';
@@ -833,7 +833,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 widthConstraints.push(`componentWidth: ${unclampedWidth.toFixed(1)}px -> ${nextWidth.toFixed(1)}px (MIN: ${minWidthPx}px)`);
             }
 
-            const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
+            const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
             const currentPositionX = component.position?.x ?? 0;
             if (horizontalHandle === 'e' && caps.resizeConstraints.enabled && caps.resizeConstraints.canvasBoundary) {
                 const canvasWidth = useBuilderStore.getState().formDefinition?.canvasSettings?.width || 1920;
@@ -1066,7 +1066,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             const unclampedWidth = baseWidth + baseWidthDelta;
             let nextWidth = Math.max(minWidthPx, unclampedWidth);
 
-            const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
+            const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
             const currentPositionX = component.position?.x ?? 0;
             if (handle === 'e' && caps.resizeConstraints.enabled && caps.resizeConstraints.canvasBoundary) {
                 const canvasWidth = useBuilderStore.getState().formDefinition?.canvasSettings?.width || 1920;
@@ -1347,12 +1347,12 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
 
     // Width change handler (E/W handles)
     const handleWidthChange = useCallback((newWidth: number) => {
-        const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
+        const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
         // Selection components with per-option extra text can visually distort if resized too small.
         // Clamp to a min width based on longest option label + required extra input chars.
         if (component.type === 'checkbox' || component.type === 'radio' || component.type === 'dropdown') {
             const opts = Array.isArray(component.props.options) ? component.props.options : [];
-            const hasExtra = opts.some(o => Boolean((o as any).hasExtraText));
+            const hasExtra = opts.some(o => Boolean((o as { hasExtraText?: boolean }).hasExtraText));
             if (hasExtra && fieldStyles?.computed) {
                 const fontFamily = fieldStyles.computed.fontFamily;
                 const fontSize = fieldStyles.computed.fontSize;
@@ -1371,7 +1371,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     0,
                     ...opts.map(o =>
                         measureTextWidth(
-                            String((o as any).label ?? (o as any).value ?? ''),
+                            String((o as { label?: string; value?: string }).label ?? (o as { label?: string; value?: string }).value ?? ''),
                             fontFamily,
                             fontSize,
                             fontWeight
@@ -1404,7 +1404,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         }
 
         const opts = Array.isArray(component.props.options) ? component.props.options : [];
-        const hasExtra = opts.some(o => Boolean((o as any).hasExtraText));
+        const hasExtra = opts.some(o => Boolean((o as { hasExtraText?: boolean }).hasExtraText));
         const isDropdownSplit = component.type === 'dropdown' && hasExtra;
         // Check if W handle was used - need to adjust X position to anchor East edge
         const previewData = resizePreview as (typeof resizePreview) & { horizontalHandle?: string; leftShift?: number };
@@ -1420,7 +1420,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // For corner handles, also check cornerResizeStartWidthRef as fallback.
         // ═══════════════════════════════════════════════════════════════
         let oldWidthPx: number;
-        const startWidthFromPreview = (previewData as any)?.startWidth;
+        const startWidthFromPreview = (previewData as { startWidth?: number })?.startWidth;
         
         if (startWidthFromPreview !== undefined && startWidthFromPreview > 0) {
             // Best source: use the startWidth captured at pointer down
@@ -2093,7 +2093,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // NOTE: Do NOT set inputWidthMode here - it conflicts with inputWidthOverride.
         // When inputWidthMode is 'fill', the input renderer ignores inputWidthOverride.
         // Instead, we rely on explicit width overrides for all objects.
-        const updates: any = { 
+        const updates: Record<string, unknown> = { 
             width: `${newWidth}px`,  // Use preview width (matches drag position)
             // LOCK label/help widths to current DOM values (not recalculated)
             labelWidthOverride: lockedLabelWidth,
@@ -2935,7 +2935,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
 
     const computeSelectionMinWidthPx = useCallback((): number | undefined => {
         const opts = Array.isArray(component.props.options) ? component.props.options : [];
-        const hasExtra = opts.some(o => Boolean((o as any).hasExtraText));
+        const hasExtra = opts.some(o => Boolean((o as { hasExtraText?: boolean }).hasExtraText));
         if (!hasExtra || !fieldStyles?.computed) return undefined;
 
         const fontFamily = fieldStyles.computed.fontFamily;
@@ -2955,7 +2955,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             0,
             ...opts.map(o =>
                 measureTextWidth(
-                    String((o as any).label ?? (o as any).value ?? ''),
+                    String((o as { label?: string; value?: string }).label ?? (o as { label?: string; value?: string }).value ?? ''),
                     fontFamily,
                     fontSize,
                     fontWeight
@@ -3038,7 +3038,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     if (isResizingState && resizePreview?.width) {
         devLogger.debug('resize.width.calculated', {
             componentId: component.id,
-            handle: (resizePreview as any).horizontalHandle,
+            handle: (resizePreview as { horizontalHandle?: string }).horizontalHandle,
             previewWidth: resizePreview.width,
             baseWidthPx,
             displayScale,
@@ -3366,14 +3366,14 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 labelWidthOverride: component.props.labelWidthOverride,
                 inputWidthOverride: component.props.inputWidthOverride,
                 helpWidthOverride: component.props.helpWidthOverride,
-                inputWidthMode: (component.props as any)?.inputWidthMode,
+                inputWidthMode: (component.props as Record<string, unknown>)?.inputWidthMode,
                 actualDomWidth,
                 widthSource,
                 resizePreview: {
                     width: resizePreview?.width,
-                    startWidth: (resizePreview as any)?.startWidth,
-                    horizontalHandle: (resizePreview as any)?.horizontalHandle,
-                    leftShift: (resizePreview as any)?.leftShift,
+                    startWidth: (resizePreview as { startWidth?: number })?.startWidth,
+                    horizontalHandle: (resizePreview as { horizontalHandle?: string })?.horizontalHandle,
+                    leftShift: (resizePreview as { leftShift?: number })?.leftShift,
                 },
                 cornerStartWidth: cornerResizeStartWidthRef.current,
             },
@@ -3471,7 +3471,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             // Compute min width inline to avoid initialization order issues
             // This matches the logic in computeSelectionMinWidthPx but avoids the dependency
             const opts = Array.isArray(component.props.options) ? component.props.options : [];
-            const hasExtra = opts.some(o => Boolean((o as any).hasExtraText));
+            const hasExtra = opts.some(o => Boolean((o as { hasExtraText?: boolean }).hasExtraText));
             if (!hasExtra || !fieldStyles?.computed) return 100;
             
             const fontFamily = fieldStyles.computed.fontFamily;
@@ -3491,7 +3491,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 0,
                 ...opts.map(o =>
                     measureTextWidth(
-                        String((o as any).label ?? (o as any).value ?? ''),
+                        String((o as { label?: string; value?: string }).label ?? (o as { label?: string; value?: string }).value ?? ''),
                         fontFamily,
                         fontSize,
                         fontWeight
@@ -3546,7 +3546,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // Dropdown: clamp input-only resize so the component width stays fixed and the extra input still has space.
         if (component.type === 'dropdown' && fieldStyles?.computed) {
             const opts = Array.isArray(component.props.options) ? component.props.options : [];
-            const hasExtra = opts.some(o => Boolean((o as any).hasExtraText));
+            const hasExtra = opts.some(o => Boolean((o as { hasExtraText?: boolean }).hasExtraText));
             const fontFamily = fieldStyles.computed.fontFamily;
             const fontSize = fieldStyles.computed.fontSize;
             const fontWeight = fieldStyles.computed.fontWeight;
@@ -3565,7 +3565,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 0,
                 ...opts.map(o =>
                     measureTextWidth(
-                        String((o as any).label ?? (o as any).value ?? ''),
+                        String((o as { label?: string; value?: string }).label ?? (o as { label?: string; value?: string }).value ?? ''),
                         fontFamily,
                         fontSize,
                         fontWeight
@@ -3592,7 +3592,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         setIsResizingState(false);
         useBuilderStore.getState().setResizingComponentId(null);
         // Post-commit: auto-adjust position if expanded/shrank into overlap/boundary.
-        const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
+        const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
         if (caps.resizeConstraints.enabled && (caps.resizeConstraints.canvasBoundary || caps.resizeConstraints.collisionAvoidance)) {
             window.setTimeout(() => {
                 const state = useBuilderStore.getState();
@@ -3629,6 +3629,71 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         }
     }, [component.id, component.position, component.type, updateComponentProps]);
 
+    // Divider-specific resize handlers - must be at top level (hooks rules)
+    const isDivider = component.type === 'divider';
+    const dividerStylesForCallbacks = isDivider ? computeFieldStyles(globalStyles, component.props.styleOverrides, 100, spacingOverrides) : null;
+    const dividerCurrentBorderWidth = dividerStylesForCallbacks?.computed?.textBorderWidth ?? dividerStylesForCallbacks?.computed?.borderWidth ?? 1;
+    const dividerCurrentWidthPx = isDivider
+        ? (component.props.width?.endsWith('px') ? parseInt(component.props.width, 10) : (component.props.width?.endsWith('%') ? parseFloat(component.props.width) : 300))
+        : 300;
+    const dividerHandleResize = useCallback((deltaWidth: number, deltaHeight: number, handle: HandlePosition) => {
+        if (handle === 'n' || handle === 's') {
+            const newBorderWidth = Math.max(1, Math.min(10, dividerCurrentBorderWidth + (handle === 's' ? deltaHeight : -deltaHeight)));
+            const topShift = handle === 'n' ? -deltaHeight : 0;
+            setResizePreview({ inputHeight: newBorderWidth, topShift, width: undefined });
+            lastVerticalPreviewRef.current = { inputHeight: newBorderWidth, topShift };
+        } else if (handle === 'e' || handle === 'w') {
+            const baseWidth = dividerCurrentWidthPx ?? 300;
+            const newWidth = baseWidth + deltaWidth;
+            const clampedWidth = Math.max(50, newWidth);
+            const previewState: { width: number; horizontalHandle: string } = { width: clampedWidth, horizontalHandle: handle };
+            if (handle === 'w') {
+                previewState.leftShift = -(clampedWidth - baseWidth);
+            }
+            setResizePreview(previewState);
+        }
+    }, [dividerCurrentBorderWidth, dividerCurrentWidthPx]);
+    const dividerHandleWidthChange = useCallback((newWidth: number) => {
+        const currentX = component.position?.x ?? 0;
+        const currentY = component.position?.y ?? 0;
+        const previewLeftShift = (resizePreview as { leftShift?: number })?.leftShift;
+        const horizontalHandle = (resizePreview as { horizontalHandle?: string })?.horizontalHandle;
+        if (horizontalHandle === 'w' && previewLeftShift !== undefined && previewLeftShift !== 0) {
+            const newX = currentX + previewLeftShift;
+            updateComponent(component.id, {
+                props: { width: `${newWidth}px` },
+                position: { x: newX, y: currentY }
+            });
+        } else {
+            updateComponent(component.id, {
+                props: { width: `${newWidth}px` },
+                position: { x: currentX, y: currentY }
+            });
+        }
+        setResizePreview(null);
+    }, [component.id, component.position, resizePreview, updateComponent]);
+    const dividerHandleBorderWidthChange = useCallback((handle: 'n' | 's', deltaY: number) => {
+        const previewBorderWidth = lastVerticalPreviewRef.current?.inputHeight;
+        const previewTopShift = lastVerticalPreviewRef.current?.topShift;
+        const finalBorderWidth = previewBorderWidth ?? Math.max(1, Math.min(10, dividerCurrentBorderWidth + (handle === 's' ? deltaY : -deltaY)));
+        const newStyleOverrides = {
+            ...(component.props.styleOverrides || {}),
+            textBorderWidth: finalBorderWidth,
+        };
+        const currentX = component.position?.x ?? 0;
+        const currentY = component.position?.y ?? 0;
+        if (handle === 'n' && previewTopShift !== undefined) {
+            updateComponent(component.id, {
+                props: { styleOverrides: newStyleOverrides },
+                position: { x: currentX, y: currentY + previewTopShift }
+            });
+        } else {
+            updateComponentProps(component.id, { styleOverrides: newStyleOverrides });
+        }
+        setResizePreview(null);
+        lastVerticalPreviewRef.current = null;
+    }, [component.id, component.position, component.props.styleOverrides, dividerCurrentBorderWidth, updateComponent, updateComponentProps]);
+
     // ═══════════════════════════════════════════════════════════════
     // UNIVERSAL FIELDSHELL COMPONENTS
     // All input components should use UniversalFieldShell for consistency
@@ -3644,7 +3709,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     // Divider uses a special canvas wrapper (absolute + width handling) so that percentage widths
     // (e.g. "100%") resolve against the stage, matching public preview behavior.
     if ((hasUniversalStructure && component.type !== 'divider') || universalFieldShellTypes.includes(component.type)) {
-        const caps = getComponentSurfaceCapabilities(component.type as any, 'canvas');
+        const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
         const structure = componentDef?.structure || getDefaultStructure(component.type);
         const renderers = getRenderersForComponent(component.type, structure, component);
         
@@ -3776,74 +3841,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 ? parseFloat(component.props.width) 
                 : 300);
         
-        // Custom resize handlers for divider with proper anchoring
-        const dividerHandleResize = useCallback((deltaWidth: number, deltaHeight: number, handle: HandlePosition) => {
-            if (handle === 'n' || handle === 's') {
-                const newBorderWidth = Math.max(1, Math.min(10, currentBorderWidth + (handle === 's' ? deltaHeight : -deltaHeight)));
-                const topShift = handle === 'n' ? -deltaHeight : 0;
-                setResizePreview({ inputHeight: newBorderWidth, topShift, width: undefined });
-                lastVerticalPreviewRef.current = { inputHeight: newBorderWidth, topShift };
-            } else if (handle === 'e' || handle === 'w') {
-                const baseWidth = currentWidthPx ?? 300;
-                const newWidth = baseWidth + deltaWidth;
-                const clampedWidth = Math.max(50, newWidth);
-                const previewState: any = { width: clampedWidth, horizontalHandle: handle };
-                if (handle === 'w') {
-                    previewState.leftShift = -(clampedWidth - baseWidth);
-                }
-                setResizePreview(previewState);
-            }
-        }, [currentBorderWidth, currentWidthPx]);
-        
-        const dividerHandleWidthChange = useCallback((newWidth: number) => {
-            const currentX = component.position?.x ?? 0;
-            const currentY = component.position?.y ?? 0;
-            const previewLeftShift = (resizePreview as any)?.leftShift;
-            const horizontalHandle = (resizePreview as any)?.horizontalHandle;
-            
-            if (horizontalHandle === 'w' && previewLeftShift !== undefined && previewLeftShift !== 0) {
-                const newX = currentX + previewLeftShift;
-                updateComponent(component.id, {
-                    props: { width: `${newWidth}px` },
-                    position: { x: newX, y: currentY }
-                });
-            } else {
-                updateComponent(component.id, {
-                    props: { width: `${newWidth}px` },
-                    position: { x: currentX, y: currentY }
-                });
-            }
-            setResizePreview(null);
-        }, [component.id, component.position, resizePreview, updateComponent]);
-        
-        const dividerHandleBorderWidthChange = useCallback((handle: 'n' | 's', deltaY: number) => {
-            const previewBorderWidth = lastVerticalPreviewRef.current?.inputHeight;
-            const previewTopShift = lastVerticalPreviewRef.current?.topShift;
-            const finalBorderWidth = previewBorderWidth ?? Math.max(1, Math.min(10, currentBorderWidth + (handle === 's' ? deltaY : -deltaY)));
-            
-            const newStyleOverrides = {
-                ...(component.props.styleOverrides || {}),
-                textBorderWidth: finalBorderWidth,
-            };
-            
-            const currentX = component.position?.x ?? 0;
-            const currentY = component.position?.y ?? 0;
-            
-            if (handle === 'n' && previewTopShift !== undefined) {
-                updateComponent(component.id, {
-                    props: { styleOverrides: newStyleOverrides },
-                    position: { x: currentX, y: currentY + previewTopShift }
-                });
-            } else {
-                updateComponentProps(component.id, { styleOverrides: newStyleOverrides });
-            }
-            
-            setResizePreview(null);
-            lastVerticalPreviewRef.current = null;
-        }, [component.id, component.position, component.props.styleOverrides, currentBorderWidth, updateComponent, updateComponentProps]);
-        
         // Apply position shift from preview during resize
-        const previewLeftShift = (resizePreview as any)?.leftShift;
+        const previewLeftShift = (resizePreview as { leftShift?: number })?.leftShift;
         const previewTopShift = resizePreview?.topShift;
         const displayX = previewLeftShift !== undefined ? (component.position?.x ?? 0) + previewLeftShift : (component.position?.x ?? 0);
         const displayY = previewTopShift !== undefined ? (component.position?.y ?? 0) + previewTopShift : (component.position?.y ?? 0);

@@ -47,26 +47,26 @@ export interface UniversalFieldShellProps {
         isSelected?: boolean;
         isDragging?: boolean;
         isResizing?: boolean;
-        dragListeners?: any;
-        dragAttributes?: any;
+        dragListeners?: Record<string, unknown>;
+        dragAttributes?: Record<string, unknown>;
         containerRef?: React.RefObject<HTMLDivElement | null>;
         frozenGridTemplateColumns?: string | null;
     };
     // Runtime props (individual)
-    value?: any;
-    onChange?: (value: any) => void;
+    value?: unknown;
+    onChange?: (value: unknown) => void;
     disabled?: boolean;
     error?: string;
     validationErrors?: string[];
     allFormErrors?: Record<string, string[]>;
     isLoading?: boolean;
-    formValidationContext?: any;
+    formValidationContext?: Record<string, unknown>;
     /** When true, input objects render with focus styling (e.g. Focus Color cycling in Form Branding Defaults) */
     simulateFocus?: boolean;
     // Runtime mode (bundled) - used by ComponentRegistry
     runtimeMode?: {
-        value?: any;
-        onChange?: (value: any) => void;
+        value?: unknown;
+        onChange?: (value: unknown) => void;
         disabled?: boolean;
         required?: boolean;
         error?: string;
@@ -77,8 +77,8 @@ export interface UniversalFieldShellProps {
         isLoading?: boolean;
         validationErrors?: Record<string, string>;
         allFormErrors?: Record<string, string>;
-        formValidationContext?: any;
-        componentState?: Record<string, any>;
+        formValidationContext?: Record<string, unknown>;
+        componentState?: Record<string, unknown>;
         buttonText?: string;
     };
 }

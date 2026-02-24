@@ -145,7 +145,7 @@ export const AssetLibrary: React.FC<AssetLibraryProps> = ({
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             setUploading(false);
             const detail = err.response?.data?.detail ?? err.message ?? 'Upload failed. Please try again.';
             console.warn('[AssetLibrary] Upload failed', {

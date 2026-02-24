@@ -71,7 +71,7 @@ describe('ConfigProvider', () => {
         error: null,
         isError: false,
         data: mockConfigResponse,
-      } as any)
+      } as ReturnType<typeof useAppConfig>)
 
       render(
         <ConfigProvider>
@@ -98,7 +98,7 @@ describe('ConfigProvider', () => {
         error: new Error('Failed to fetch configuration'),
         isError: true,
         data: undefined,
-      } as any)
+      } as ReturnType<typeof useAppConfig>)
 
       render(
         <ConfigProvider>
@@ -118,7 +118,7 @@ describe('ConfigProvider', () => {
         error: null,
         isError: false,
         data: undefined,
-      } as any)
+      } as ReturnType<typeof useAppConfig>)
 
       render(
         <ConfigProvider>
@@ -143,7 +143,7 @@ describe('ConfigProvider', () => {
         error: null,
         isError: false,
         data: mockConfigResponse,
-      } as any)
+      } as ReturnType<typeof useAppConfig>)
 
       expect(() => {
         render(<TestComponent />)
@@ -160,7 +160,7 @@ describe('ConfigProvider', () => {
         error: null,
         isError: false,
         data: mockConfigResponse,
-      } as any)
+      } as ReturnType<typeof useAppConfig>)
 
       function NestedComponent() {
         const { config } = useConfig()
@@ -200,7 +200,7 @@ describe('ConfigProvider', () => {
         error: null,
         isError: false,
         data: customConfig,
-      } as any)
+      } as ReturnType<typeof useAppConfig>)
 
       render(
         <ConfigProvider>

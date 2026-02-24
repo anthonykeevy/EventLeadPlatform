@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 
 from backend.common.database import get_db, SessionLocal
 from backend.middleware import RequestLoggingMiddleware, global_exception_handler
-from backend.models.log.api_request import ApiRequest
-from backend.models.log.application_error import ApplicationError
+from models.log.api_request import ApiRequest
+from models.log.application_error import ApplicationError
 
 
 # Test fixture: FastAPI app with full logging

@@ -53,7 +53,7 @@ export const DataExportSection: React.FC<DataExportSectionProps> = ({
     const options = props.options || [];
     const exportMode = props.exportMode || 'single-value';
     const separator = props.exportSeparator || ', ';
-    const booleanFormat = (props as any).booleanFormat || 'true-false';
+    const booleanFormat = (props as Record<string, unknown>).booleanFormat || 'true-false';
     const exportName = props.exportName || 'fieldName';
 
     // Get boolean values based on format
@@ -178,7 +178,7 @@ export const DataExportSection: React.FC<DataExportSectionProps> = ({
                         <PropertySelect
                             label="Boolean Format"
                             value={booleanFormat}
-                            onChange={(value) => onPropsChange({ booleanFormat: value } as any)}
+                            onChange={(value) => onPropsChange({ booleanFormat: value } as Record<string, unknown>)}
                             options={BOOLEAN_FORMAT_OPTIONS}
                             helpText="Format for true/false values in export"
                         />

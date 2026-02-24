@@ -34,7 +34,7 @@ function sortByPositionStable(a: FormComponent, b: FormComponent): number {
 function getBaseRequired(component: FormComponent): boolean {
   // Builder schema supports required flag; also support validation.required as fallback.
   const requiredFromProps = component.props.required;
-  const requiredFromValidation = (component.props.validation as any)?.required;
+  const requiredFromValidation = (component.props.validation as Record<string, unknown>)?.required;
   return Boolean(requiredFromProps ?? requiredFromValidation ?? false);
 }
 
@@ -230,7 +230,7 @@ export const RuntimeFormView: React.FC<{ definition: FormDefinition; title?: str
                     onChange={e => setValue(c.id, e.target.value)}
                   >
                     <option value="">{placeholder ?? 'Select…'}</option>
-                    {(c.props.options as any[] | undefined)?.map(opt => (
+                    {(c.props.options as Array<{ label?: string; value?: string }> | undefined)?.map(opt => (
                       <option key={opt.value} value={opt.value} disabled={Boolean(opt.disabled)}>
                         {opt.label}
                       </option>
@@ -267,7 +267,7 @@ export const RuntimeFormView: React.FC<{ definition: FormDefinition; title?: str
                 <div key={c.id}>
                   {commonLabel}
                   <div className="space-y-2">
-                    {(c.props.options as any[] | undefined)?.map(opt => (
+                    {(c.props.options as Array<{ label?: string; value?: string }> | undefined)?.map(opt => (
                       <label key={opt.value} className="flex items-center gap-2 text-sm text-gray-700">
                         <input
                           type="radio"

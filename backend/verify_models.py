@@ -10,7 +10,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 try:
-    from backend.models import get_model_count, __all__
+    from models import get_model_count, __all__
     
     count = get_model_count()
     print(f"✓ Successfully loaded {count} models")
@@ -24,7 +24,7 @@ try:
         sys.exit(1)
     
     # Try importing key models
-    from backend.models import (
+    from models import (
         User, Company, UserCompany,
         Country, UserStatus,
         AppSetting, ActivityLog, ApiRequest, ABRSearch

@@ -117,7 +117,7 @@ export function ThemeSettingsPopup({ isOpen, onClose }: ThemeSettingsPopupProps)
     try {
       setIsSaving(true)
       
-      const updates: any = {}
+      const updates: Record<string, unknown> = {}
       
       if (previewTheme) {
         applyTheme(previewTheme)

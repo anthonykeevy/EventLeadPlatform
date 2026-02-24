@@ -11,7 +11,7 @@ export interface PerformanceOptions {
 }
 
 // Debounce utility
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number,
   immediate = false
@@ -34,7 +34,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 };
 
 // Throttle utility
-export const throttle = <T extends (...args: any[]) => any>(
+export const throttle = <T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {
@@ -116,9 +116,9 @@ export const optimizeImage = (
 };
 
 // Code splitting utility
-export const createLazyComponent = <T extends React.ComponentType<any>>(
+export const createLazyComponent = <T extends React.ComponentType<Record<string, unknown>>>(
   importFunc: () => Promise<{ default: T }>,
-  fallback?: React.ComponentType<any>
+  fallback?: React.ComponentType<Record<string, unknown>>
 ) => {
   const LazyComponent = React.lazy(importFunc);
 
@@ -249,8 +249,9 @@ export class PerformanceMonitor {
     const clsObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry) => {
-        if (!(entry as any).hadRecentInput) {
-          clsValue += (entry as any).value;
+        const layoutEntry = entry as { hadRecentInput?: boolean; value?: number };
+        if (!layoutEntry.hadRecentInput) {
+          clsValue += layoutEntry.value ?? 0;
           this.metrics.set('CLS', clsValue);
         }
       });
@@ -322,7 +323,7 @@ export const preloadFont = (href: string, _type: string = 'font/woff2'): void =>
 // Caching utility
 export class CacheManager {
   private static instance: CacheManager;
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+  private cache: Map<string, { data: unknown; timestamp: number; ttl: number }> = new Map();
 
   static getInstance(): CacheManager {
     if (!CacheManager.instance) {
@@ -331,7 +332,7 @@ export class CacheManager {
     return CacheManager.instance;
   }
 
-  set(key: string, data: any, ttl: number = 300000): void { // 5 minutes default
+  set(key: string, data: unknown, ttl: number = 300000): void { // 5 minutes default
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
@@ -339,7 +340,7 @@ export class CacheManager {
     });
   }
 
-  get(key: string): any | null {
+  get(key: string): unknown | null {
     const item = this.cache.get(key);
     if (!item) return null;
 
@@ -436,11 +437,11 @@ export const usePerformanceOptimization = (options: PerformanceOptions = {}) => 
   }, []);
 
   return {
-    debounce: enableDebouncing ? debounce : (fn: any) => fn,
-    throttle: enableThrottling ? throttle : (fn: any) => fn,
+    debounce: enableDebouncing ? debounce : (fn: (...args: unknown[]) => unknown) => fn,
+    throttle: enableThrottling ? throttle : (fn: (...args: unknown[]) => unknown) => fn,
     createLazyLoader: enableLazyLoading ? createLazyLoader : () => ({ observe: () => {}, unobserve: () => {}, disconnect: () => {} }),
     optimizeImage: enableImageOptimization ? optimizeImage : (src: string) => src,
-    createLazyComponent: enableCodeSplitting ? createLazyComponent : (component: any) => component,
+    createLazyComponent: enableCodeSplitting ? createLazyComponent : (component: React.ComponentType<Record<string, unknown>>) => component,
     cache: enableCaching ? CacheManager.getInstance() : null,
   };
 };

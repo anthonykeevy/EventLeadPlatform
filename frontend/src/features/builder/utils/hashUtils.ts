@@ -4,7 +4,7 @@
 export function stableStringify(value: unknown): string {
   const seen = new WeakSet<object>()
 
-  const stringify = (v: any): any => {
+  const stringify = (v: unknown): unknown => {
     if (v === null || v === undefined) return v
 
     const t = typeof v
@@ -22,7 +22,7 @@ export function stableStringify(value: unknown): string {
       seen.add(v)
 
       const keys = Object.keys(v).sort()
-      const out: Record<string, any> = {}
+      const out: Record<string, unknown> = {}
       for (const k of keys) {
         out[k] = stringify(v[k])
       }

@@ -40,13 +40,24 @@ Object.defineProperty(window, 'scrollTo', {
   value: vi.fn(),
 })
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-}
+// Use actual localStorage for tests that need it (like token storage)
+// Or create a better mock that actually stores data
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value.toString();
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+  };
+})();
+
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 })
@@ -87,18 +98,16 @@ afterEach(() => {
   console.warn = originalConsoleWarn
 })
 
-// Global test utilities
-declare global {
-  namespace Vi {
-    interface Assertion<T> {
-      toBeInTheDocument(): T
-      toHaveClass(className: string): T
-      toHaveTextContent(text: string): T
-      toBeVisible(): T
-      toBeDisabled(): T
-      toBeEnabled(): T
-      toHaveValue(value: string): T
-      toHaveAttribute(attr: string, value?: string): T
-    }
+// Global test utilities - extend Vitest Assertion via module augmentation
+declare module 'vitest' {
+  interface Assertion<T> {
+    toBeInTheDocument(): T
+    toHaveClass(className: string): T
+    toHaveTextContent(text: string): T
+    toBeVisible(): T
+    toBeDisabled(): T
+    toBeEnabled(): T
+    toHaveValue(value: string): T
+    toHaveAttribute(attr: string, value?: string): T
   }
 }

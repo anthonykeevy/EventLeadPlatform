@@ -129,7 +129,7 @@ function toPlainDomRect(value: unknown): Record<string, number> | undefined {
   // DOMRect / DOMRectReadOnly are not reliably JSON-serializable across browsers.
   // Convert to a plain object when we detect it.
   if (!value || typeof value !== 'object') return undefined;
-  const v = value as any;
+  const v = value as Record<string, number>;
   if (
     typeof v.x === 'number' &&
     typeof v.y === 'number' &&
@@ -377,7 +377,7 @@ if (ENABLED) {
       persistCurrentSession();
     }
     if (isBrowser()) {
-      (window as any).devLogger = devLogger;
+      (window as unknown as Record<string, unknown>).devLogger = devLogger;
     }
   } catch {
     // ignore

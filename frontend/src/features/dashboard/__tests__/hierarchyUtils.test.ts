@@ -83,23 +83,31 @@ describe('hierarchyUtils', () => {
     it('should indicate more levels above/below when applicable', () => {
       // Create 10-level hierarchy
       const deepCompanies: Company[] = []
-      for (let i = 0; i < 10; i++) {
+      let parentId: number | null = null
+      for (let i = 1; i <= 10; i++) {
         deepCompanies.push({
           companyId: i,
           companyName: `Level ${i}`,
           relationshipType: 'Branch',
           userRole: 'Company User',
-          parentCompanyId: i > 0 ? i - 1 : null,
+          parentCompanyId: parentId,
           childCompanies: [],
           eventCount: 0,
           formCount: 0,
-          hierarchyLevel: i,
-          isPrimaryCompany: i === 0
+          hierarchyLevel: i - 1,
+          isPrimaryCompany: i === 1
         })
+        parentId = i
       }
       
-      const target = deepCompanies[5] // Middle of hierarchy
-      const result = calculateVisibleWindow(target, deepCompanies, 5)
+      // Calculate from Level 10 (bottom of the hierarchy) to make sure we have the full path
+      const target = deepCompanies[9] // Level 10
+      const path = getPathToCompany(target, deepCompanies)
+      console.log('Path length:', path.length)
+      
+      // Calculate visible window using a node in the middle of the path
+      const middleTarget = path[4] // Level 5
+      const result = calculateVisibleWindow(middleTarget, deepCompanies, 5)
       
       expect(result.hasMoreAbove).toBe(true)
       expect(result.hasMoreBelow).toBe(true)

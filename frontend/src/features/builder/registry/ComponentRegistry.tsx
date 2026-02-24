@@ -119,12 +119,66 @@ export interface RuntimeComponentProps {
   layout?: LayoutType;
 }
 
+const SubmitButtonRuntimeComponent: React.FC<RuntimeComponentProps> = ({
+  component,
+  disabled,
+  onSubmit,
+  error,
+  allFormErrors,
+  formValidationContext,
+  styleOverrides,
+  globalStyles,
+  required,
+}) => {
+  const structure = ComponentRegistry['submit-button']?.structure || getDefaultStructure('submit-button');
+  const renderers = getRenderersForComponent('submit-button', structure, component);
+
+  const [hasFocus, setHasFocus] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  return (
+    <UniversalFieldShell
+      structure={structure}
+      renderers={renderers}
+      surface="runtime"
+      objectLayout={component.props.objectLayout}
+      layoutGroups={component.props.layoutGroups}
+      styleOverrides={styleOverrides}
+      globalStyles={globalStyles}
+      componentId={component.id}
+      component={component}
+      runtimeMode={{
+        componentState: { hasFocus },
+        allFormErrors,
+        formValidationContext,
+        validationErrors: error ? { [component.id]: error } : undefined,
+        required,
+        disabled,
+        isLoading: isSubmitting,
+        onClick: () => {
+          if (!onSubmit || disabled) return;
+          void (async () => {
+            try {
+              setHasFocus(true);
+              setIsSubmitting(true);
+              await onSubmit();
+            } finally {
+              setIsSubmitting(false);
+              setHasFocus(false);
+            }
+          })();
+        },
+      }}
+    />
+  );
+};
+
 export interface ComponentDefinition {
   type: ComponentType;
   label: string;
   icon: React.ReactNode;
   category: 'layout' | 'input' | 'display';
-  defaultProps: Record<string, any>;
+  defaultProps: Record<string, unknown>;
   defaultChildren?: FormComponent[];
   previewComponent?: React.ReactNode; 
   runtimeComponent?: React.FC<RuntimeComponentProps>;
@@ -981,49 +1035,7 @@ export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinitio
         showIcon: true,
       },
     }),
-    runtimeComponent: ({ component, disabled, onSubmit, error, allFormErrors, formValidationContext, styleOverrides, globalStyles, required }) => {
-      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
-      const renderers = getRenderersForComponent(component.type, structure, component);
-
-      const [hasFocus, setHasFocus] = React.useState(false);
-      const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-      return (
-        <UniversalFieldShell
-          structure={structure}
-          renderers={renderers}
-          surface="runtime"
-          objectLayout={component.props.objectLayout}
-          layoutGroups={component.props.layoutGroups}
-          styleOverrides={styleOverrides}
-          globalStyles={globalStyles}
-          componentId={component.id}
-          component={component}
-          runtimeMode={{
-            componentState: { hasFocus },
-            allFormErrors,
-            formValidationContext,
-            validationErrors: error ? { [component.id]: error } : undefined,
-            required,
-            disabled,
-            isLoading: isSubmitting,
-            onClick: () => {
-              if (!onSubmit || disabled) return;
-              void (async () => {
-                try {
-                  setHasFocus(true);
-                  setIsSubmitting(true);
-                  await onSubmit();
-                } finally {
-                  setIsSubmitting(false);
-                  setHasFocus(false);
-                }
-              })();
-            },
-          }}
-        />
-      );
-    },
+    runtimeComponent: SubmitButtonRuntimeComponent,
   },
 
   // Display
@@ -1144,7 +1156,7 @@ export const generateComponent = (type: ComponentType): FormComponent => {
   
   // Initialize structure-related props from structure definition
   const structure = def.structure;
-  const props: any = { ...def.defaultProps };
+  const props: Record<string, unknown> = { ...def.defaultProps };
   
   // IMPORTANT:
   // Components should follow Global Defaults by default.

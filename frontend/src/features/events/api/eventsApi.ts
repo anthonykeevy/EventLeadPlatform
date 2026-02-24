@@ -97,7 +97,7 @@ interface BackendEventStatus {
  * Transform backend event response to frontend format
  * Handles both snake_case (from Pydantic field names) and PascalCase (from aliases)
  */
-function transformEvent(backendEvent: any): Event {
+function transformEvent(backendEvent: Record<string, unknown>): Event {
   // Handle both snake_case (from Pydantic field names) and PascalCase (from aliases)
   // Backend may serialize using aliases (PascalCase) or field names (snake_case)
   return {
@@ -168,7 +168,7 @@ function transformEvent(backendEvent: any): Event {
   }
 }
 
-function transformEventType(backendType: any): EventType {
+function transformEventType(backendType: Record<string, unknown>): EventType {
   // Handle both snake_case (from Pydantic field names) and PascalCase (from aliases)
   // Pydantic serializes using field names by default, not aliases
   return {
@@ -181,7 +181,7 @@ function transformEventType(backendType: any): EventType {
   }
 }
 
-function transformEventStatus(backendStatus: any): EventStatus {
+function transformEventStatus(backendStatus: Record<string, unknown>): EventStatus {
   // Handle both snake_case (from Pydantic field names) and PascalCase (from aliases)
   // Pydantic serializes using field names by default, not aliases
   return {
@@ -196,7 +196,7 @@ function transformEventStatus(backendStatus: any): EventStatus {
   }
 }
 
-function transformPublicReviewStatus(backendStatus: any): PublicReviewStatus {
+function transformPublicReviewStatus(backendStatus: Record<string, unknown>): PublicReviewStatus {
   // Handle both snake_case (from Pydantic field names) and PascalCase (from aliases)
   return {
     publicReviewStatusId: backendStatus.public_review_status_id ?? backendStatus.PublicReviewStatusID ?? 0,
@@ -210,7 +210,7 @@ function transformPublicReviewStatus(backendStatus: any): PublicReviewStatus {
   }
 }
 
-function transformIndustry(backendIndustry: any): IndustrySummary {
+function transformIndustry(backendIndustry: Record<string, unknown>): IndustrySummary {
   return {
     industryId: backendIndustry.industry_id ?? backendIndustry.IndustryID ?? 0,
     industryCode: backendIndustry.industry_code ?? backendIndustry.IndustryCode ?? '',
@@ -221,7 +221,7 @@ function transformIndustry(backendIndustry: any): IndustrySummary {
   }
 }
 
-function transformCompanySummary(backendCompany: any): CompanySummary {
+function transformCompanySummary(backendCompany: Record<string, unknown>): CompanySummary {
   return {
     companyId: backendCompany.company_id ?? backendCompany.CompanyID ?? 0,
     companyName: backendCompany.company_name ?? backendCompany.CompanyName ?? '',
@@ -260,7 +260,7 @@ export async function getEventTypes(): Promise<EventType[]> {
 export async function getEventStatuses(): Promise<EventStatus[]> {
   try {
     console.log('getEventStatuses - Calling API endpoint: /api/events/reference/statuses')
-    const response = await apiClient.get<any[]>('/api/events/reference/statuses')
+    const response = await apiClient.get<Record<string, unknown>[]>('/api/events/reference/statuses')
     console.log('getEventStatuses - API response:', response.data)
     const transformed = response.data.map(transformEventStatus)
     console.log('getEventStatuses - Transformed data:', transformed)
@@ -282,7 +282,7 @@ export async function searchPublicEvents(searchTerm?: string, limit: number = 20
     
     // Authenticated endpoint - includes company network visibility plus platform-approved events
     const response = await apiClient.get<{
-      events: any[]  // Use any to handle both PascalCase and snake_case
+      events: Record<string, unknown>[]  // Handle both PascalCase and snake_case from backend
       total: number
       page: number
       page_size: number
@@ -671,7 +671,7 @@ export async function getEventById(eventId: number): Promise<Event> {
  * Transform EventCreateRequest (camelCase) to backend format (snake_case)
  * Used by both createEvent and offlineQueue
  */
-export function transformEventCreateRequest(request: EventCreateRequest): any {
+export function transformEventCreateRequest(request: EventCreateRequest): Record<string, unknown> {
   return {
     name: request.name,
     description: request.description ?? null,
@@ -738,7 +738,7 @@ export async function updateEvent(
 ): Promise<UpdateEventResponse> {
   try {
     // Transform camelCase to snake_case for backend
-    const backendRequest: any = {}
+    const backendRequest: Record<string, unknown> = {}
     
     if (request.name !== undefined) backendRequest.name = request.name
     if (request.description !== undefined) backendRequest.description = request.description

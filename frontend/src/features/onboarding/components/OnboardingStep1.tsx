@@ -11,10 +11,15 @@ import { getAccessToken } from '../../auth/utils/tokenStorage'
 import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
 import { PhoneInput, CountrySelector } from '../../validation'
 
+interface OnboardingUser {
+  first_name?: string
+  last_name?: string
+}
+
 interface OnboardingStep1Props {
   initialData: OnboardingStep1Data | null
   onComplete: (data: OnboardingStep1Data) => void
-  user: any
+  user: OnboardingUser | null
 }
 
 export function OnboardingStep1({ initialData, onComplete, user }: OnboardingStep1Props) {

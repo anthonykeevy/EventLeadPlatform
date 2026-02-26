@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 6.1 - AI Foundation: Static Validator -->
+<story-context>
+  <story>
+    <id>6.1</id>
+    <title>AI Foundation - Static Validator</title>
+    <epic>6</epic>
+    <epic-title>AI Generation and Monetization Engine</epic-title>
+    <domain>Backend Validation API</domain>
+    <status>Ready</status>
+  </story>
+
+  <principle>
+    Validate DefinitionJSON statically and deterministically so AI-generated forms can be corrected through structured feedback before UI rendering.
+  </principle>
+
+  <quality-posture>
+    <tea-baseline>94</tea-baseline>
+    <policy>Green CI/CD is mandatory at story closeout. No unresolved lint/test failures in touched scope.</policy>
+    <anti-hallucination>
+      If test output is truncated, timed out, or missing final summary, treat as failed and rerun.
+    </anti-hallucination>
+  </quality-posture>
+
+  <scope-boundary>
+    <in-scope>
+      <item>Implement POST /api/form-validate</item>
+      <item>Validate schema correctness of DefinitionJSON payload</item>
+      <item>Validate canvas boundary constraints for components</item>
+      <item>Validate component collision/overlap conditions</item>
+      <item>Return machine-readable errors suitable for AI retry loops</item>
+      <item>Add automated tests for pass/fail scenarios</item>
+    </in-scope>
+    <out-of-scope>
+      <item>AI model integration and retry orchestration</item>
+      <item>Builder chat UI integration</item>
+      <item>Stripe billing and monetization implementation</item>
+      <item>Multi-page AI generation optimization</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <done-criteria>
+    <dc id="1">Endpoint exists and responds with expected contract</dc>
+    <dc id="2">Valid payload returns valid=true with no errors</dc>
+    <dc id="3">Schema-invalid payload returns structured schemaErrors</dc>
+    <dc id="4">Boundary-invalid payload returns structured boundaryViolations</dc>
+    <dc id="5">Collision-invalid payload returns structured collisions</dc>
+    <dc id="6">Deterministic behavior for identical inputs</dc>
+    <dc id="7">Automated tests added and passing</dc>
+    <dc id="8">UAT guide executed and recorded</dc>
+    <dc id="9">Green CI/CD evidence attached to story closeout</dc>
+  </done-criteria>
+
+  <api-contract>
+    <endpoint method="POST">/api/form-validate</endpoint>
+    <request>DefinitionJSON payload</request>
+    <response-fields>
+      <field>valid</field>
+      <field>schemaErrors</field>
+      <field>boundaryViolations</field>
+      <field>collisions</field>
+      <field>summary</field>
+    </response-fields>
+  </api-contract>
+
+  <reuse-guidance>
+    Reuse existing schema and collision logic concepts from current codebase to avoid rule drift between builder/runtime and validator.
+  </reuse-guidance>
+
+  <references>
+    <ref path="docs/stories/story-6.1.md" purpose="Story scope and done criteria" />
+    <ref path="docs/stories/EPIC-6-STATUS.md" purpose="Epic roadmap and sequencing" />
+    <ref path="docs/AI-FORM-BUILDING-IDEA.md" purpose="Concept and phased implementation guidance" />
+    <ref path="backend/schemas/form_definition.py" purpose="DefinitionJSON schema source" />
+    <ref path="frontend/src/features/builder/utils/collisionDetection.ts" purpose="Collision and boundary logic reference" />
+  </references>
+</story-context>

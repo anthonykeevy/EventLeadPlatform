@@ -19,7 +19,8 @@ class TestEmailVerification:
         
         # Get user data to verify token was generated
         user_data = signup_response.json()
-        assert "user_id" in user_data
+        assert "data" in user_data
+        assert "user_id" in user_data["data"]
         assert "message" in user_data
         
         # In a real implementation, you would query the database to verify:
@@ -36,16 +37,16 @@ class TestEmailVerification:
         assert signup_response.status_code == 201
         
         user_data = signup_response.json()
-        user_id = user_data["user_id"]
+        user_id = user_data["data"]["user_id"]
         
         # Mock verification token (in real implementation, this would come from database)
-        verification_token = "test-verification-token-123"
+        verification_token = "test-verification-token-123456789012"
         
-        # Verify email endpoint (GET with query parameter)
-        verify_response = client.get(f"/api/auth/verify-email?token={verification_token}")
+        # Verify email endpoint
+        verify_response = client.post("/api/auth/verify-email", json={"token": verification_token})
         
         # Should fail since token doesn't exist in test database
-        assert verify_response.status_code in [200, 400]  # 400 if token not found
+        assert verify_response.status_code in [200, 400, 404]  # 400/404 if token not found
         
         if verify_response.status_code == 200:
             verify_data = verify_response.json()
@@ -61,10 +62,10 @@ class TestEmailVerification:
         assert signup_response.status_code == 201
         
         # Mock expired token
-        expired_token = "expired-token-123"
+        expired_token = "expired-token-12345678901234567890"
         
-        # Try to verify with expired token (GET with query parameter)
-        verify_response = client.get(f"/api/auth/verify-email?token={expired_token}")
+        # Try to verify with expired token
+        verify_response = client.post("/api/auth/verify-email", json={"token": expired_token})
         
         # Should fail with appropriate error
         assert verify_response.status_code in [400, 404, 410]  # Bad request, not found, or gone
@@ -79,7 +80,7 @@ class TestEmailVerification:
         ]
         
         for invalid_token in invalid_tokens:
-            verify_response = client.get(f"/api/auth/verify-email?token={invalid_token}")
+            verify_response = client.post("/api/auth/verify-email", json={"token": invalid_token})
             
             # Should fail with validation error or not found
             assert verify_response.status_code in [400, 404, 422]
@@ -92,9 +93,9 @@ class TestEmailVerification:
         assert signup_response.status_code == 201
         
         # Mock successful verification
-        verification_token = "valid-token-123"
+        verification_token = "valid-token-12345678901234567890"
         
-        verify_response = client.get(f"/api/auth/verify-email?token={verification_token}")
+        verify_response = client.post("/api/auth/verify-email", json={"token": verification_token})
         
         if verify_response.status_code == 200:
             verify_data = verify_response.json()
@@ -115,12 +116,12 @@ class TestEmailVerification:
         assert signup_response.status_code == 201
         
         # Mock already verified user
-        already_verified_token = "already-verified-token"
+        already_verified_token = "already-verified-token-1234567890"
         
-        verify_response = client.get(f"/api/auth/verify-email?token={already_verified_token}")
+        verify_response = client.post("/api/auth/verify-email", json={"token": already_verified_token})
         
         # Should return appropriate message
-        assert verify_response.status_code in [200, 400]
+        assert verify_response.status_code in [200, 400, 404]
         
         if verify_response.status_code == 200:
             verify_data = verify_response.json()
@@ -134,45 +135,44 @@ class TestEmailVerification:
         assert signup_response.status_code == 201
         
         # Mock single-use token
-        single_use_token = "single-use-token-123"
+        single_use_token = "single-use-token-1234567890123456"
         
         # First verification attempt
-        verify_response1 = client.get(f"/api/auth/verify-email?token={single_use_token}")
+        verify_response1 = client.post("/api/auth/verify-email", json={"token": single_use_token})
         
         # Second verification attempt with same token
-        verify_response2 = client.get(f"/api/auth/verify-email?token={single_use_token}")
+        verify_response2 = client.post("/api/auth/verify-email", json={"token": single_use_token})
         
         # Second attempt should fail
         if verify_response1.status_code == 200:
             assert verify_response2.status_code in [400, 404, 410]
     
     @pytest.mark.integration
-    def test_verification_email_template_rendering(self, client: TestClient, sample_user_data: dict):
+    @patch("modules.auth.router.get_email_service")
+    def test_verification_email_template_rendering(self, mock_get_email, client: TestClient, sample_user_data: dict):
         """Test that verification email template renders correctly."""
-        with patch('modules.auth.service.email_service.send_verification_email') as mock_send_email:
-            mock_send_email.return_value = True
-            
-            # Signup user
-            signup_response = client.post("/api/auth/signup", json=sample_user_data)
-            assert signup_response.status_code == 201
-            
-            # Verify email service was called with correct parameters
-            mock_send_email.assert_called_once()
-            call_args = mock_send_email.call_args
-            
-            # Using kwargs since it's called with keyword arguments
-            email = call_args.kwargs['email']
-            token = call_args.kwargs['verification_token']
-            user_name = call_args.kwargs['user_name']
-            
-            assert email == sample_user_data["email"]
-            assert len(token) > 0
-            assert user_name == sample_user_data["first_name"]
+        from unittest.mock import MagicMock, AsyncMock
+        mock_svc = MagicMock()
+        mock_svc.send_email = AsyncMock(return_value=True)
+        mock_get_email.return_value = mock_svc
+        
+        # Signup user
+        signup_response = client.post("/api/auth/signup", json=sample_user_data)
+        assert signup_response.status_code == 201
+
+        # Auth router uses send_email with template_name="email_verification"
+        mock_svc.send_email.assert_called_once()
+        call_args = mock_svc.send_email.call_args
+        assert call_args.kwargs["to"] == sample_user_data["email"]
+        assert call_args.kwargs["template_name"] == "email_verification"
+        template_vars = call_args.kwargs.get("template_vars", {})
+        assert "verification_url" in template_vars
+        assert template_vars.get("user_name") == sample_user_data["first_name"]
     
     @pytest.mark.unit
     def test_verification_security_headers(self, client: TestClient):
         """Test that verification endpoint has proper security headers."""
-        verify_response = client.get(f"/api/auth/verify-email?token=test-token")
+        verify_response = client.post("/api/auth/verify-email", json={"token": "test-token-1234567890123456789012"})
         
         # Check for security headers (FastAPI may add some by default)
         headers = verify_response.headers

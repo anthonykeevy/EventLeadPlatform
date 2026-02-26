@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.middleware.exception_handler import global_exception_handler
+from middleware.exception_handler import global_exception_handler
 from models.log.application_error import ApplicationError
 
 
@@ -43,15 +43,15 @@ def test_global_exception_handler_catches_unhandled_exceptions(app_with_exceptio
     """
     client = TestClient(app_with_exception_handler, raise_server_exceptions=False)
     
-    with patch('backend.middleware.exception_handler.SessionLocal'):
+    with patch('middleware.exception_handler.SessionLocal'):
         response = client.get("/test/error")
         
         # Verify error response
         assert response.status_code == 500
         data = response.json()
-        assert data["success"] is False
-        assert "error" in data
-        assert "message" in data
+        assert "detail" in data
+        assert "unexpected error" in data["detail"].lower()
+        assert "requestId" in data
 
 
 def test_global_exception_handler_logs_error_to_database(app_with_exception_handler):
@@ -63,7 +63,7 @@ def test_global_exception_handler_logs_error_to_database(app_with_exception_hand
     # Mock database session
     mock_db = MagicMock(spec=Session)
     
-    with patch('backend.middleware.exception_handler.SessionLocal', return_value=mock_db):
+    with patch('middleware.exception_handler.SessionLocal', return_value=mock_db):
         response = client.get("/test/error")
         
         # Verify database insert
@@ -88,8 +88,8 @@ def test_global_exception_handler_includes_request_context(app_with_exception_ha
     # Mock database session
     mock_db = MagicMock(spec=Session)
     
-    with patch('backend.middleware.exception_handler.SessionLocal', return_value=mock_db):
-        with patch('backend.middleware.exception_handler.get_current_request_context') as mock_context:
+    with patch('middleware.exception_handler.SessionLocal', return_value=mock_db):
+        with patch('middleware.exception_handler.get_current_request_context') as mock_context:
             # Mock request context with RequestID
             mock_context.return_value = Mock(
                 request_id="test-request-id-123",
@@ -113,7 +113,7 @@ def test_global_exception_handler_includes_user_context(app_with_exception_handl
     # Mock database session
     mock_db = MagicMock(spec=Session)
     
-    with patch('backend.middleware.exception_handler.SessionLocal', return_value=mock_db):
+    with patch('middleware.exception_handler.SessionLocal', return_value=mock_db):
         response = client.get("/test/auth-error")
         
         # Verify error log includes user context
@@ -131,8 +131,8 @@ def test_global_exception_handler_sanitizes_stack_trace(app_with_exception_handl
     # Mock database session
     mock_db = MagicMock(spec=Session)
     
-    with patch('backend.middleware.exception_handler.SessionLocal', return_value=mock_db):
-        with patch('backend.middleware.exception_handler.sanitize_stack_trace') as mock_sanitize:
+    with patch('middleware.exception_handler.SessionLocal', return_value=mock_db):
+        with patch('middleware.exception_handler.sanitize_stack_trace') as mock_sanitize:
             mock_sanitize.return_value = "Sanitized stack trace"
             
             response = client.get("/test/error")
@@ -147,13 +147,13 @@ def test_global_exception_handler_returns_user_friendly_message(app_with_excepti
     """
     client = TestClient(app_with_exception_handler, raise_server_exceptions=False)
     
-    with patch('backend.middleware.exception_handler.SessionLocal'):
+    with patch('middleware.exception_handler.SessionLocal'):
         response = client.get("/test/error")
         
         # Verify user-friendly response
         data = response.json()
-        assert "An unexpected error occurred" in data["message"]
-        assert "requestId" in data["details"]
+        assert "An unexpected error occurred" in data["detail"]
+        assert "requestId" in data
 
 
 def test_global_exception_handler_determines_severity(app_with_exception_handler):
@@ -165,7 +165,7 @@ def test_global_exception_handler_determines_severity(app_with_exception_handler
     # Mock database session
     mock_db = MagicMock(spec=Session)
     
-    with patch('backend.middleware.exception_handler.SessionLocal', return_value=mock_db):
+    with patch('middleware.exception_handler.SessionLocal', return_value=mock_db):
         response = client.get("/test/critical")
         
         # Verify severity set to CRITICAL
@@ -183,7 +183,7 @@ def test_global_exception_handler_handles_database_error_gracefully(app_with_exc
     mock_db = MagicMock(spec=Session)
     mock_db.commit.side_effect = Exception("Database logging error")
     
-    with patch('backend.middleware.exception_handler.SessionLocal', return_value=mock_db):
+    with patch('middleware.exception_handler.SessionLocal', return_value=mock_db):
         # Should still return error response
         response = client.get("/test/error")
         

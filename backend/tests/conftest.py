@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from sqlalchemy import event
 
 # Add backend directory to path for consistent imports
 backend_dir = os.path.dirname(os.path.dirname(__file__))
@@ -58,27 +59,47 @@ def test_db():
     """
     if USE_REAL_DB:
         # Use actual SQL Server database for schema-dependent tests
-        from common.database import SessionLocal
-        session = SessionLocal()
+        from common.database import engine
+        connection = engine.connect()
+        transaction = connection.begin()
+        from sqlalchemy.orm import Session
+        session = Session(bind=connection, join_transaction_mode="create_savepoint")
         try:
             yield session
         finally:
             session.close()
+            transaction.rollback()
+            connection.close()
     else:
         # Create in-memory SQLite database for testing
         engine = create_engine(
             "sqlite:///:memory:",
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
+            echo=True,  # Enable SQL logging
         )
 
-        # Attach schema-like databases for SQLite to emulate SQL Server schemas
-        with engine.connect() as conn:
+        # Attach schema-like databases on every new connection (SQLite ATTACH is per-connection)
+        @event.listens_for(engine, "connect")
+        def _attach_schemas(dbapi_conn, connection_record):
+            cursor = dbapi_conn.cursor()
             for schema in ("ref", "dbo", "config", "audit", "log", "cache"):
-                conn.exec_driver_sql(f"ATTACH DATABASE ':memory:' AS {schema}")
-        
+                cursor.execute(f"ATTACH DATABASE ':memory:' AS \"{schema}\"")
+            cursor.close()
+
         # Create all tables
         Base.metadata.create_all(bind=engine)
+
+        # Seed ref.UserStatus for auth tests (create_user needs "Pending Verification")
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("""
+                INSERT INTO ref."UserStatus" (StatusCode, StatusName, Description, AllowLogin, IsActive, SortOrder)
+                VALUES
+                ('pending_verification', 'Pending Verification', 'Awaiting email verification', 0, 1, 0),
+                ('active', 'Active', 'Active user', 1, 1, 1)
+            """))
+            conn.commit()
         
         # Create session
         TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -108,9 +129,11 @@ def client(test_db) -> Generator[TestClient, None, None]:
 
 @pytest.fixture
 def sample_user_data():
-    """Sample user data for testing."""
+    """Sample user data for testing. Uses unique email per test to avoid conflicts with shared DB."""
+    import uuid
+    unique = str(uuid.uuid4())[:8]
     return {
-        "email": "test@example.com",
+        "email": f"test-{unique}@example.com",
         "password": "TestPassword123!",
         "first_name": "Test",
         "last_name": "User"
@@ -127,12 +150,22 @@ def sample_company_data():
     }
 
 @pytest.fixture
-def auth_headers(client: TestClient, sample_user_data: dict):
+def auth_headers(client: TestClient, sample_user_data: dict, test_db):
     """Create authenticated user and return auth headers."""
     # Signup user
     signup_response = client.post("/api/auth/signup", json=sample_user_data)
     assert signup_response.status_code == 201
     
+    # Needs to be verified/active for proper login based on test framework changes.
+    from models.user import User
+    from models.ref.user_status import UserStatus
+    active_status = test_db.query(UserStatus).filter_by(StatusCode='active').first()
+    user = test_db.query(User).filter_by(Email=sample_user_data["email"]).first()
+    if user and active_status:
+        user.StatusID = active_status.UserStatusID
+        user.IsEmailVerified = True
+        test_db.commit()
+
     # Login user
     login_data = {
         "email": sample_user_data["email"],
@@ -145,10 +178,48 @@ def auth_headers(client: TestClient, sample_user_data: dict):
     return {"Authorization": f"Bearer {token_data['access_token']}"}
 
 @pytest.fixture
+def user_auth_headers(client: TestClient, test_db):
+    """Create authenticated user with company_user role and return auth headers."""
+    import uuid
+    unique = str(uuid.uuid4())[:8]
+    user_data = {
+        "email": f"company-user-{unique}@example.com",
+        "password": "TestPassword123!",
+        "first_name": "Company",
+        "last_name": "User"
+    }
+    
+    # Signup user
+    signup_response = client.post("/api/auth/signup", json=user_data)
+    assert signup_response.status_code == 201
+    
+    from models.user import User
+    from models.ref.user_status import UserStatus
+    active_status = test_db.query(UserStatus).filter_by(StatusCode='active').first()
+    user = test_db.query(User).filter_by(Email=user_data["email"]).first()
+    if user and active_status:
+        user.StatusID = active_status.UserStatusID
+        user.IsEmailVerified = True
+        test_db.commit()
+
+    # Login user
+    login_data = {
+        "email": user_data["email"],
+        "password": user_data["password"]
+    }
+    login_response = client.post("/api/auth/login", json=login_data)
+    assert login_response.status_code == 200
+    
+    token_data = login_response.json()
+    return {"Authorization": f"Bearer {token_data['access_token']}"}
+
+@pytest.fixture
 def unverified_user_data():
     """User data for unverified user testing."""
+    import uuid
+    unique = str(uuid.uuid4())[:8]
     return {
-        "email": "unverified@example.com",
+        "email": f"unverified-{unique}@example.com",
         "password": "TestPassword123!",
         "first_name": "Unverified",
         "last_name": "User"
@@ -157,15 +228,19 @@ def unverified_user_data():
 @pytest.fixture
 def mock_email_service(monkeypatch):
     """Mock email service to prevent actual emails during testing."""
-    async def mock_send_verification_email(email: str, token: str, user_name: Optional[str] = None):
-        return True
-    
-    async def mock_send_password_reset_email(email: str, token: str, user_name: Optional[str] = None):
-        return True
-    
-    # Mock the email service methods
-    monkeypatch.setattr("modules.auth.service.email_service.send_verification_email", mock_send_verification_email)
-    monkeypatch.setattr("modules.auth.service.email_service.send_password_reset_email", mock_send_password_reset_email)
+    from unittest.mock import AsyncMock, MagicMock
+
+    mock_svc = MagicMock()
+    mock_svc.send_email = AsyncMock(return_value=True)
+    mock_svc.send_verification_email = AsyncMock(return_value=True)
+    mock_svc.send_password_reset_email = AsyncMock(return_value=True)
+    mock_svc.send_team_invitation_email = AsyncMock(return_value=True)
+    mock_svc.send_added_to_company_email = AsyncMock(return_value=True)
+
+    def _get_email_service():
+        return mock_svc
+
+    monkeypatch.setattr("services.email_service.get_email_service", _get_email_service)
 
 @pytest.fixture
 def mailhog_environment(monkeypatch):
@@ -195,8 +270,10 @@ class UserFactory:
     @staticmethod
     def create_user_data(**overrides):
         """Create user data with optional overrides."""
+        import uuid
+        unique = str(uuid.uuid4())[:8]
         default_data = {
-            "email": "test@example.com",
+            "email": f"test-{unique}@example.com",
             "password": "TestPassword123!",
             "first_name": "Test",
             "last_name": "User",
@@ -266,6 +343,7 @@ def test_user(test_db):
     """Create a test user for Story 1.11 tests."""
     from models.user import User
     from models.ref.user_status import UserStatus
+    from common.security import hash_password
     
     # Get the 'active' StatusID from the database
     active_status = test_db.query(UserStatus).filter_by(StatusCode='active').first()
@@ -284,17 +362,17 @@ def test_user(test_db):
         test_db.refresh(active_status)
     
     # Check if user already exists
+    import uuid
     existing_user = test_db.query(User).filter_by(Email="testuser@example.com").first()
     if existing_user:
-        # Clean up existing user's companies to ensure clean state
-        from models.user_company import UserCompany
-        test_db.query(UserCompany).filter_by(UserID=existing_user.UserID).delete()
+        # Normalize legacy fixture state to avoid invalid-password hash panics during login.
+        existing_user.PasswordHash = hash_password("TestP@ssw0rd123")
         test_db.commit()
         return existing_user
     
     user = User(
-        Email="testuser@example.com",
-        PasswordHash="$2b$12$dummyhash",
+        Email=f"testuser-{uuid.uuid4().hex[:8]}@example.com",
+        PasswordHash=hash_password("TestP@ssw0rd123"),
         FirstName="Test",
         LastName="User",
         StatusID=active_status.UserStatusID,
@@ -304,6 +382,290 @@ def test_user(test_db):
     test_db.commit()
     test_db.refresh(user)
     return user
+
+@pytest.fixture
+def test_company(test_db, test_user):
+    from models.company import Company
+    from models.ref.country import Country
+    
+    # Ensure Country
+    country = test_db.query(Country).filter_by(CountryCode="AU").first()
+    if not country:
+        country = Country(CountryCode="AU", CountryName="Australia", PhonePrefix="+61", CurrencyCode="AUD", CurrencySymbol="$", CurrencyName="Australian Dollar")
+        test_db.add(country)
+        test_db.commit()
+        test_db.refresh(country)
+        
+    import uuid
+    company_name = f"Test Company {uuid.uuid4().hex[:8]}"
+    company = test_db.query(Company).filter_by(CompanyName=company_name).first()
+    if not company:
+        company = Company(CompanyName=company_name, CountryID=country.CountryID, IsActive=True)
+        test_db.add(company)
+        test_db.commit()
+        test_db.refresh(company)
+        
+    return company
+
+@pytest.fixture
+def test_event(test_db, test_company, test_user):
+    from models.event import Event
+    from models.ref.event_type import EventType
+    from datetime import datetime
+    
+    event_type = test_db.query(EventType).filter_by(TypeCode="CONFERENCE").first()
+    if not event_type:
+        event_type = EventType(TypeCode="CONFERENCE", TypeName="Conference", CreatedBy=test_user.UserID)
+        test_db.add(event_type)
+        test_db.commit()
+        test_db.refresh(event_type)
+        
+    event = test_db.query(Event).filter_by(Name="Test Event").first()
+    if not event:
+        event = Event(Name="Test Event", CompanyID=test_company.CompanyID, CreatedBy=test_user.UserID, StartDateTime=datetime.utcnow(), EventTypeID=event_type.EventTypeID)
+        test_db.add(event)
+        test_db.commit()
+        test_db.refresh(event)
+        
+    return event
+
+def create_test_token(
+    db,
+    user_id: int,
+    email: str,
+    role: Optional[str] = None,
+    company_id: Optional[int] = None
+) -> str:
+    """Create a valid JWT token for testing.
+    Uses the real token creation logic from jwt_service."""
+    from modules.auth.jwt_service import create_access_token
+    return create_access_token(
+        db=db,
+        user_id=user_id,
+        email=email,
+        role=role,
+        company_id=company_id
+    )
+
+@pytest.fixture
+def admin_token_headers(test_db, test_user, test_company, client):
+    """Get auth headers by actually logging in as the test user"""
+    # Create the user and company relationships
+    from models.user_company import UserCompany
+    from models.ref.user_company_role import UserCompanyRole
+    from models.ref.user_company_status import UserCompanyStatus
+    from models.ref.joined_via import JoinedVia
+    from datetime import datetime
+
+    role = test_db.query(UserCompanyRole).filter(UserCompanyRole.RoleCode == "company_admin").first()
+    uc_status = test_db.query(UserCompanyStatus).filter(UserCompanyStatus.StatusCode == "active").first()
+    joined_via = test_db.query(JoinedVia).filter(JoinedVia.MethodCode == "signup").first()
+
+    # Check if relationship already exists
+    existing_uc = test_db.query(UserCompany).filter_by(UserID=test_user.UserID, CompanyID=test_company.CompanyID).first()
+    if not existing_uc:
+        user_company = UserCompany(
+            UserID=test_user.UserID,
+            CompanyID=test_company.CompanyID,
+            UserCompanyRoleID=role.UserCompanyRoleID if role else None,
+            StatusID=uc_status.UserCompanyStatusID if uc_status else None,
+            IsPrimaryCompany=True,
+            JoinedDate=datetime.utcnow(),
+            JoinedViaID=joined_via.JoinedViaID if joined_via else None,
+            CreatedBy=test_user.UserID,
+            CreatedDate=datetime.utcnow(),
+            UpdatedBy=test_user.UserID,
+            UpdatedDate=datetime.utcnow(),
+            IsDeleted=False
+        )
+        test_db.add(user_company)
+        test_db.commit()
+
+    # Login to get real token
+    response = client.post("/api/auth/login", json={
+        "email": test_user.Email,
+        "password": "TestP@ssw0rd123"  # Default password from create_test_user
+    })
+    
+    if response.status_code == 200:
+        token = response.json().get("access_token")
+        return {"Authorization": f"Bearer {token}"}
+    
+    # Fallback to direct token creation if login fails (e.g. in unit tests)
+    token = create_test_token(test_db, user_id=test_user.UserID, email=test_user.Email, role="company_admin", company_id=test_company.CompanyID)
+    return {"Authorization": f"Bearer {token}"}
+
+@pytest.fixture
+def user_token_headers(test_db, test_user, test_company, client):
+    """Get auth headers by actually logging in as the test user"""
+    # Create the user and company relationships
+    from models.user_company import UserCompany
+    from models.ref.user_company_role import UserCompanyRole
+    from models.ref.user_company_status import UserCompanyStatus
+    from models.ref.joined_via import JoinedVia
+    from datetime import datetime
+
+    role = test_db.query(UserCompanyRole).filter(UserCompanyRole.RoleCode == "company_user").first()
+    uc_status = test_db.query(UserCompanyStatus).filter(UserCompanyStatus.StatusCode == "active").first()
+    joined_via = test_db.query(JoinedVia).filter(JoinedVia.MethodCode == "signup").first()
+
+    # Check if relationship already exists
+    existing_uc = test_db.query(UserCompany).filter_by(UserID=test_user.UserID, CompanyID=test_company.CompanyID).first()
+    if not existing_uc:
+        user_company = UserCompany(
+            UserID=test_user.UserID,
+            CompanyID=test_company.CompanyID,
+            UserCompanyRoleID=role.UserCompanyRoleID if role else None,
+            StatusID=uc_status.UserCompanyStatusID if uc_status else None,
+            IsPrimaryCompany=True,
+            JoinedDate=datetime.utcnow(),
+            JoinedViaID=joined_via.JoinedViaID if joined_via else None,
+            CreatedBy=test_user.UserID,
+            CreatedDate=datetime.utcnow(),
+            UpdatedBy=test_user.UserID,
+            UpdatedDate=datetime.utcnow(),
+            IsDeleted=False
+        )
+        test_db.add(user_company)
+        test_db.commit()
+    else:
+        # Update role if needed
+        if existing_uc.UserCompanyRoleID != (role.UserCompanyRoleID if role else None):
+            existing_uc.UserCompanyRoleID = role.UserCompanyRoleID if role else None
+            test_db.commit()
+
+    # Login to get real token
+    response = client.post("/api/auth/login", json={
+        "email": test_user.Email,
+        "password": "TestP@ssw0rd123"  # Default password from create_test_user
+    })
+    
+    if response.status_code == 200:
+        token = response.json().get("access_token")
+        return {"Authorization": f"Bearer {token}"}
+    
+    # Fallback to direct token creation if login fails
+    token = create_test_token(test_db, user_id=test_user.UserID, email=test_user.Email, role="company_user", company_id=test_company.CompanyID)
+    return {"Authorization": f"Bearer {token}"}
+
+@pytest.fixture
+def mock_draft_form(test_db, test_company, test_event, test_user):
+    from models.form import Form
+    from models.form_version import FormVersion
+    from models.ref.form_status import FormStatus
+    from models.ref.form_approval_status import FormApprovalStatus
+    from models.form_public_link import FormPublicLink
+    import secrets
+    
+    form_status = test_db.query(FormStatus).filter_by(StatusCode="DRAFT").first()
+    if not form_status:
+        form_status = FormStatus(StatusCode="DRAFT", StatusName="Draft", CreatedBy=test_user.UserID)
+        test_db.add(form_status)
+        test_db.commit()
+        test_db.refresh(form_status)
+
+    approval_status = test_db.query(FormApprovalStatus).filter_by(ApprovalStatusCode="APPROVED").first()
+    if not approval_status:
+        approval_status = FormApprovalStatus(ApprovalStatusCode="APPROVED", ApprovalStatusName="Approved", CreatedBy=test_user.UserID)
+        test_db.add(approval_status)
+        test_db.commit()
+        test_db.refresh(approval_status)
+        
+    form = Form(
+        FormName="Draft Form",
+        CompanyID=test_company.CompanyID,
+        EventID=test_event.EventID,
+        FormStatusID=form_status.FormStatusID,
+        FormApprovalStatusID=approval_status.FormApprovalStatusID,
+        CreatedBy=test_user.UserID
+    )
+    test_db.add(form)
+    test_db.commit()
+    test_db.refresh(form)
+    
+    form_version = FormVersion(
+        FormID=form.FormID,
+        VersionNumber=1,
+        DefinitionJSON="{}",
+        Status="DRAFT",
+        IsActive=True,
+        CreatedBy=test_user.UserID
+    )
+    test_db.add(form_version)
+    test_db.commit()
+
+    link = FormPublicLink(
+        FormID=form.FormID,
+        Token=secrets.token_urlsafe(16),
+        LinkType="PREVIEW",
+        IsActive=True,
+        CreatedBy=test_user.UserID
+    )
+    test_db.add(link)
+    test_db.commit()
+    test_db.refresh(link)
+    
+    return {"form_id": str(form.FormID), "token": link.Token}
+
+@pytest.fixture
+def mock_published_form(test_db, test_company, test_event, test_user):
+    from models.form import Form
+    from models.form_version import FormVersion
+    from models.ref.form_status import FormStatus
+    from models.ref.form_approval_status import FormApprovalStatus
+    from models.form_public_link import FormPublicLink
+    import secrets
+    
+    form_status = test_db.query(FormStatus).filter_by(StatusCode="PUBLISHED").first()
+    if not form_status:
+        form_status = FormStatus(StatusCode="PUBLISHED", StatusName="Published", CreatedBy=test_user.UserID)
+        test_db.add(form_status)
+        test_db.commit()
+        test_db.refresh(form_status)
+
+    approval_status = test_db.query(FormApprovalStatus).filter_by(ApprovalStatusCode="APPROVED").first()
+    if not approval_status:
+        approval_status = FormApprovalStatus(ApprovalStatusCode="APPROVED", ApprovalStatusName="Approved", CreatedBy=test_user.UserID)
+        test_db.add(approval_status)
+        test_db.commit()
+        test_db.refresh(approval_status)
+        
+    form = Form(
+        FormName="Published Form",
+        CompanyID=test_company.CompanyID,
+        EventID=test_event.EventID,
+        FormStatusID=form_status.FormStatusID,
+        FormApprovalStatusID=approval_status.FormApprovalStatusID,
+        CreatedBy=test_user.UserID,
+        IsPublic=True
+    )
+    test_db.add(form)
+    test_db.commit()
+    test_db.refresh(form)
+    
+    form_version = FormVersion(
+        FormID=form.FormID,
+        VersionNumber=1,
+        DefinitionJSON="{}",
+        Status="PUBLISHED",
+        IsActive=True,
+        CreatedBy=test_user.UserID
+    )
+    test_db.add(form_version)
+    test_db.commit()
+
+    link = FormPublicLink(
+        FormID=form.FormID,
+        Token=secrets.token_urlsafe(16),
+        LinkType="PRODUCTION",
+        IsActive=True,
+        CreatedBy=test_user.UserID
+    )
+    test_db.add(link)
+    test_db.commit()
+    test_db.refresh(link)
+    
+    return {"form_id": str(form.FormID), "token": link.Token}
 
 # Test markers for different test types
 pytestmark = [

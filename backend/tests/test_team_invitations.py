@@ -10,13 +10,10 @@ Tests the complete team invitation flow including:
 - Audit logging
 """
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
 from datetime import datetime, timedelta
+import uuid
 
-from main import app
-from common.database import Base, get_db
 from models.user import User
 from models.company import Company
 from models.user_company import UserCompany
@@ -32,138 +29,67 @@ from modules.auth.jwt_service import create_access_token
 from common.security import hash_password
 
 
-# Test database setup
-TEST_DATABASE_URL = "sqlite:///:memory:"
-test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+@pytest.fixture(autouse=True)
+def mock_email_delivery(monkeypatch):
+    """Prevent real SMTP calls so invitation tests remain deterministic."""
+    from unittest.mock import AsyncMock, MagicMock
+    import importlib
 
+    mock_svc = MagicMock()
+    mock_svc.send_team_invitation_email = AsyncMock(return_value=True)
+    mock_svc.send_added_to_company_email = AsyncMock(return_value=True)
 
-def override_get_db():
-    """Override database dependency for testing"""
-    db = TestSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    def _get_email_service():
+        return mock_svc
 
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-
-@pytest.fixture(scope="function")
-def db_session():
-    """Create test database and session for each test"""
-    Base.metadata.create_all(bind=test_engine)
-    db = TestSessionLocal()
-    
-    # Seed reference data
-    seed_reference_data(db)
-    
-    yield db
-    
-    db.close()
-    Base.metadata.drop_all(bind=test_engine)
+    companies_router_module = importlib.import_module("modules.companies.router")
+    monkeypatch.setattr(companies_router_module, "get_email_service", _get_email_service)
+    return mock_svc
 
 
 def seed_reference_data(db):
-    """Seed minimal reference data for testing"""
-    # User status
-    active_status = UserStatus(
-        UserStatusID=1,
-        StatusCode="active",
-        StatusName="Active",
-        Description="Active user"
-    )
-    db.add(active_status)
-    
-    # Country
-    australia = Country(
-        CountryID=1,
-        CountryCode="AU",
-        CountryName="Australia",
-        ISO2Code="AU",
-        ISO3Code="AUS"
-    )
-    db.add(australia)
-    
-    # UserCompanyRole
-    admin_role = UserCompanyRole(
-        UserCompanyRoleID=1,
-        RoleCode="company_admin",
-        RoleName="Company Administrator",
-        Description="Full admin access",
-        RoleLevel=100
-    )
-    user_role = UserCompanyRole(
-        UserCompanyRoleID=2,
-        RoleCode="company_user",
-        RoleName="Team Member",
-        Description="Regular team member",
-        RoleLevel=10
-    )
-    db.add_all([admin_role, user_role])
-    
-    # UserCompanyStatus
-    active_company_status = UserCompanyStatus(
-        UserCompanyStatusID=1,
-        StatusCode="active",
-        StatusName="Active",
-        Description="Active membership"
-    )
-    db.add(active_company_status)
-    
-    # JoinedVia
-    signup_via = JoinedVia(
-        JoinedViaID=1,
-        MethodCode="signup",
-        MethodName="Sign Up",
-        Description="Joined via signup"
-    )
-    db.add(signup_via)
-    
-    # UserInvitationStatus
-    pending_status = UserInvitationStatus(
-        UserInvitationStatusID=1,
-        StatusCode="pending",
-        StatusName="Pending",
-        Description="Invitation sent, awaiting response",
-        CanResend=True,
-        CanCancel=True,
-        IsFinalState=False
-    )
-    accepted_status = UserInvitationStatus(
-        UserInvitationStatusID=2,
-        StatusCode="accepted",
-        StatusName="Accepted",
-        Description="Invitation accepted",
-        CanResend=False,
-        CanCancel=False,
-        IsFinalState=True
-    )
-    cancelled_status = UserInvitationStatus(
-        UserInvitationStatusID=3,
-        StatusCode="cancelled",
-        StatusName="Cancelled",
-        Description="Invitation cancelled",
-        CanResend=False,
-        CanCancel=False,
-        IsFinalState=True
-    )
-    db.add_all([pending_status, accepted_status, cancelled_status])
-    
-    db.commit()
+    """Load required reference rows for invitation tests."""
+    refs = {
+        "active_status": db.execute(select(UserStatus).where(UserStatus.StatusCode == "active")).scalar_one_or_none(),
+        "company_admin_role": db.execute(
+            select(UserCompanyRole).where(UserCompanyRole.RoleCode == "company_admin")
+        ).scalar_one_or_none(),
+        "company_user_role": db.execute(
+            select(UserCompanyRole).where(UserCompanyRole.RoleCode == "company_user")
+        ).scalar_one_or_none(),
+        "active_membership_status": db.execute(
+            select(UserCompanyStatus).where(UserCompanyStatus.StatusCode == "active")
+        ).scalar_one_or_none(),
+        "signup_method": db.execute(select(JoinedVia).where(JoinedVia.MethodCode == "signup")).scalar_one_or_none(),
+        "pending_invite_status": db.execute(
+            select(UserInvitationStatus).where(UserInvitationStatus.StatusCode == "pending")
+        ).scalar_one_or_none(),
+        "country_au": db.execute(select(Country).where(Country.CountryCode == "AU")).scalar_one_or_none(),
+    }
+
+    missing = [name for name, value in refs.items() if value is None]
+    if missing:
+        raise RuntimeError(f"Missing required reference data for invitation tests: {', '.join(missing)}")
+
+    return refs
+
+
+def unique_email(prefix: str) -> str:
+    return f"{prefix}-{uuid.uuid4().hex[:8]}@example.com"
 
 
 def create_test_company_admin(db):
     """Helper to create a company admin user"""
+    refs = seed_reference_data(db)
+    suffix = uuid.uuid4().hex[:8]
+
     # Create user
     user = User(
-        Email="admin@example.com",
+        Email=f"admin-{suffix}@example.com",
         PasswordHash=hash_password("TestPassword123!"),
         FirstName="Admin",
         LastName="User",
-        StatusID=1,
+        StatusID=refs["active_status"].UserStatusID,
         IsEmailVerified=True,
         EmailVerifiedAt=datetime.utcnow(),
         TimezoneIdentifier="Australia/Sydney"
@@ -173,8 +99,8 @@ def create_test_company_admin(db):
     
     # Create company
     company = Company(
-        CompanyName="Test Company",
-        CountryID=1,
+        CompanyName=f"Test Company {suffix}",
+        CountryID=refs["country_au"].CountryID,
         IsActive=True,
         CreatedBy=user.UserID
     )
@@ -185,10 +111,10 @@ def create_test_company_admin(db):
     user_company = UserCompany(
         UserID=user.UserID,
         CompanyID=company.CompanyID,
-        UserCompanyRoleID=1,  # company_admin
-        StatusID=1,  # active
+        UserCompanyRoleID=refs["company_admin_role"].UserCompanyRoleID,
+        StatusID=refs["active_membership_status"].UserCompanyStatusID,
         IsPrimaryCompany=True,
-        JoinedViaID=1,
+        JoinedViaID=refs["signup_method"].JoinedViaID,
         CreatedBy=user.UserID
     )
     db.add(user_company)
@@ -203,7 +129,7 @@ def create_test_company_admin(db):
 # Test AC-1.6.1: Protected endpoint requires company_admin role
 # ============================================================================
 
-def test_send_invitation_requires_auth(db_session):
+def test_send_invitation_requires_auth(client, db_session):
     """Test that sending invitation requires authentication"""
     response = client.post(
         "/api/companies/1/invite",
@@ -218,15 +144,19 @@ def test_send_invitation_requires_auth(db_session):
     assert response.status_code == 401
 
 
-def test_send_invitation_requires_company_admin(db_session):
+def test_send_invitation_requires_company_admin(client, db_session):
     """Test that only company_admin can send invitations"""
+    admin, company = create_test_company_admin(db_session)
+    refs = seed_reference_data(db_session)
+    user_email = unique_email("user")
+
     # Create regular user (not admin)
     user = User(
-        Email="user@example.com",
+        Email=user_email,
         PasswordHash=hash_password("TestPassword123!"),
         FirstName="Regular",
         LastName="User",
-        StatusID=1,
+        StatusID=refs["active_status"].UserStatusID,
         IsEmailVerified=True,
         TimezoneIdentifier="Australia/Sydney"
     )
@@ -234,13 +164,19 @@ def test_send_invitation_requires_company_admin(db_session):
     db_session.commit()
     
     # Generate token without role or with company_user role
-    token = create_access_token(user.UserID, user.Email, role="company_user", company_id=1)
+    token = create_access_token(
+        db=db_session,
+        user_id=user.UserID,
+        email=user.Email,
+        role="company_user",
+        company_id=company.CompanyID,
+    )
     
     response = client.post(
-        "/api/companies/1/invite",
+        f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "test@example.com",
+            "email": unique_email("invite"),
             "first_name": "Test",
             "last_name": "User",
             "role": "company_user"
@@ -254,16 +190,23 @@ def test_send_invitation_requires_company_admin(db_session):
 # Test AC-1.6.2, AC-1.6.3, AC-1.6.4: Send invitation with token and email
 # ============================================================================
 
-def test_send_invitation_success(db_session):
+def test_send_invitation_success(client, db_session):
     """Test successful invitation sending (AC-1.6.2, AC-1.6.3, AC-1.6.4)"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    invite_email = unique_email("newmember")
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "newmember@example.com",
+            "email": invite_email,
             "first_name": "New",
             "last_name": "Member",
             "role": "company_user"
@@ -278,7 +221,7 @@ def test_send_invitation_success(db_session):
     
     # Verify invitation created in database
     invitation = db_session.execute(
-        select(UserInvitation).where(UserInvitation.Email == "newmember@example.com")
+        select(UserInvitation).where(UserInvitation.Email == invite_email)
     ).scalar_one()
     
     assert invitation.FirstName == "New"
@@ -295,17 +238,23 @@ def test_send_invitation_success(db_session):
 # Test AC-1.6.5: Cannot invite existing member
 # ============================================================================
 
-def test_cannot_invite_existing_member(db_session):
+def test_cannot_invite_existing_member(client, db_session):
     """Test that existing company member cannot be invited (AC-1.6.5)"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Try to invite the admin (who is already a member)
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "admin@example.com",  # Admin's email
+            "email": admin.Email,
             "first_name": "Admin",
             "last_name": "User",
             "role": "company_user"
@@ -320,17 +269,24 @@ def test_cannot_invite_existing_member(db_session):
 # Test AC-1.6.6: Admin can specify role
 # ============================================================================
 
-def test_invitation_with_different_roles(db_session):
+def test_invitation_with_different_roles(client, db_session):
     """Test invitations can be sent with different roles (AC-1.6.6)"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    invite_email = unique_email("admin2")
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Send invitation with company_admin role
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "admin2@example.com",
+            "email": invite_email,
             "first_name": "Second",
             "last_name": "Admin",
             "role": "company_admin"
@@ -343,7 +299,7 @@ def test_invitation_with_different_roles(db_session):
     invitation = db_session.execute(
         select(UserInvitation)
         .join(UserCompanyRole)
-        .where(UserInvitation.Email == "admin2@example.com")
+        .where(UserInvitation.Email == invite_email)
     ).scalar_one()
     
     role = db_session.execute(
@@ -357,17 +313,24 @@ def test_invitation_with_different_roles(db_session):
 # Test AC-1.6.7: Resend invitation
 # ============================================================================
 
-def test_resend_invitation_success(db_session):
+def test_resend_invitation_success(client, db_session):
     """Test resending invitation (AC-1.6.7)"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    invite_email = unique_email("resend")
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Send initial invitation
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "resend@example.com",
+            "email": invite_email,
             "first_name": "Resend",
             "last_name": "Test",
             "role": "company_user"
@@ -401,17 +364,24 @@ def test_resend_invitation_success(db_session):
 # Test AC-1.6.8: Cancel invitation
 # ============================================================================
 
-def test_cancel_invitation_success(db_session):
+def test_cancel_invitation_success(client, db_session):
     """Test cancelling invitation (AC-1.6.8)"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    invite_email = unique_email("cancel")
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Send invitation
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "cancel@example.com",
+            "email": invite_email,
             "first_name": "Cancel",
             "last_name": "Test",
             "role": "company_user"
@@ -452,18 +422,25 @@ def test_cancel_invitation_success(db_session):
 # Test AC-1.6.9: List invitations with filtering
 # ============================================================================
 
-def test_list_invitations(db_session):
+def test_list_invitations(client, db_session):
     """Test listing company invitations (AC-1.6.9)"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Send multiple invitations
+    suffix = uuid.uuid4().hex[:6]
     for i in range(3):
         client.post(
             f"/api/companies/{company.CompanyID}/invite",
             headers={"Authorization": f"Bearer {token}"},
             json={
-                "email": f"member{i}@example.com",
+                "email": f"member{i}-{suffix}@example.com",
                 "first_name": f"Member{i}",
                 "last_name": "Test",
                 "role": "company_user"
@@ -498,17 +475,24 @@ def test_list_invitations(db_session):
 # Test AC-1.6.10: Audit logging
 # ============================================================================
 
-def test_invitation_audit_logging(db_session):
+def test_invitation_audit_logging(client, db_session):
     """Test that invitation events are logged to audit table (AC-1.6.10)"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    invite_email = unique_email("audit")
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Send invitation
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "audit@example.com",
+            "email": invite_email,
             "first_name": "Audit",
             "last_name": "Test",
             "role": "company_user"
@@ -529,7 +513,7 @@ def test_invitation_audit_logging(db_session):
     assert audit_log.UserID == admin.UserID
     assert audit_log.CompanyID == company.CompanyID
     assert audit_log.EntityType == "UserInvitation"
-    assert "audit@example.com" in audit_log.NewValue
+    assert invite_email in audit_log.NewValue
     
     # Resend invitation
     client.post(
@@ -569,17 +553,23 @@ def test_invitation_audit_logging(db_session):
 # Test Security & Edge Cases
 # ============================================================================
 
-def test_admin_cannot_invite_to_different_company(db_session):
+def test_admin_cannot_invite_to_different_company(client, db_session):
     """Test that admin cannot invite users to a different company"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Try to invite to a different company
     response = client.post(
         "/api/companies/999/invite",  # Different company ID
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "test@example.com",
+            "email": unique_email("wrong-company"),
             "first_name": "Test",
             "last_name": "User",
             "role": "company_user"
@@ -589,16 +579,22 @@ def test_admin_cannot_invite_to_different_company(db_session):
     assert response.status_code == 403
 
 
-def test_cannot_invite_with_invalid_role(db_session):
+def test_cannot_invite_with_invalid_role(client, db_session):
     """Test that invalid role is rejected"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "test@example.com",
+            "email": unique_email("invalid-role"),
             "first_name": "Test",
             "last_name": "User",
             "role": "super_admin"  # Invalid role
@@ -608,17 +604,24 @@ def test_cannot_invite_with_invalid_role(db_session):
     assert response.status_code == 400
 
 
-def test_cannot_resend_cancelled_invitation(db_session):
+def test_cannot_resend_cancelled_invitation(client, db_session):
     """Test that cancelled invitations cannot be resent"""
     admin, company = create_test_company_admin(db_session)
-    token = create_access_token(admin.UserID, admin.Email, role="company_admin", company_id=company.CompanyID)
+    invite_email = unique_email("resend-cancelled")
+    token = create_access_token(
+        db=db_session,
+        user_id=admin.UserID,
+        email=admin.Email,
+        role="company_admin",
+        company_id=company.CompanyID,
+    )
     
     # Send and cancel invitation
     response = client.post(
         f"/api/companies/{company.CompanyID}/invite",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "email": "test@example.com",
+            "email": invite_email,
             "first_name": "Test",
             "last_name": "User",
             "role": "company_user"

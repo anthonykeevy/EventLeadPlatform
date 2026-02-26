@@ -5,6 +5,7 @@ Tests actual email sending to MailHog in development environment
 import pytest
 import asyncio
 import smtplib
+import os
 from unittest.mock import patch
 from common.email import EmailService
 
@@ -154,8 +155,9 @@ class TestMailHogIntegration:
         # Verify MailHog configuration
         assert email_service.smtp_server == "localhost"
         assert email_service.smtp_port == 1025
-        assert email_service.smtp_username == ""
-        assert email_service.smtp_password == ""
+        # In development we honor explicit env overrides, else default to empty auth.
+        assert email_service.smtp_username == os.getenv("SMTP_USERNAME", "")
+        assert email_service.smtp_password == os.getenv("SMTP_PASSWORD", "")
         assert email_service.use_tls is False
         assert email_service.environment == "development"
         assert email_service.from_email == "noreply@eventlead.com"

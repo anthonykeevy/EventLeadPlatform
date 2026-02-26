@@ -5,6 +5,7 @@ Tests AC-1.8.3, AC-1.8.4, AC-1.8.5
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+import secrets
 
 from main import app
 from common.database import get_db
@@ -14,6 +15,10 @@ from tests.test_utils import (
 )
 
 client = TestClient(app)
+
+
+def _unique_email(prefix: str) -> str:
+    return f"{prefix}.{secrets.token_hex(4)}@example.com"
 
 
 @pytest.fixture
@@ -44,7 +49,9 @@ def test_company_admin_can_send_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "newmember@company-a.com",
+            "email": _unique_email("newmember.companya"),
+            "first_name": "New",
+            "last_name": "Member",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -59,7 +66,9 @@ def test_company_user_cannot_send_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_user_a),
         json={
-            "email": "newmember@company-a.com",
+            "email": _unique_email("newmember.companya"),
+            "first_name": "New",
+            "last_name": "Member",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -93,7 +102,9 @@ def test_company_admin_can_cancel_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "cancel@company-a.com",
+            "email": _unique_email("cancel.companya"),
+            "first_name": "Cancel",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -116,7 +127,9 @@ def test_company_user_cannot_cancel_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "cancel2@company-a.com",
+            "email": _unique_email("cancel2.companya"),
+            "first_name": "Cancel",
+            "last_name": "Two",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -139,7 +152,9 @@ def test_company_admin_can_resend_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "resend@company-a.com",
+            "email": _unique_email("resend.companya"),
+            "first_name": "Resend",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -162,7 +177,9 @@ def test_company_user_cannot_resend_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "resend2@company-a.com",
+            "email": _unique_email("resend2.companya"),
+            "first_name": "Resend",
+            "last_name": "Two",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -261,7 +278,9 @@ def test_role_enforcement_across_all_admin_endpoints(test_scenario):
     """Test that all admin-only endpoints enforce role requirements"""
     admin_endpoints = [
         ("POST", f"/api/companies/{test_scenario.company_a.CompanyID}/invite", {
-            "email": "test@test.com",
+            "email": _unique_email("test"),
+            "first_name": "Test",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join us"
         }),

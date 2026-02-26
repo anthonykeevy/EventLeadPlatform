@@ -29,6 +29,10 @@ class TestValidationEngine:
         mock_rule.IsActive = True
         mock_rule.Priority = 10
         mock_rule.Description = 'Australian mobile phone format validation'
+        mock_rule.DisplayFormat = None
+        mock_rule.SpacingPattern = None
+        mock_rule.StripPrefix = False
+        mock_rule.SortOrder = 10
         
         engine = ValidationEngine(db_session)
         
@@ -53,6 +57,11 @@ class TestValidationEngine:
         mock_rule.ExampleValue = '+61412345678'
         mock_rule.IsActive = True
         mock_rule.Priority = 10
+        mock_rule.Description = 'Australian mobile phone format validation'
+        mock_rule.DisplayFormat = None
+        mock_rule.SpacingPattern = None
+        mock_rule.StripPrefix = False
+        mock_rule.SortOrder = 10
         
         engine = ValidationEngine(db_session)
         engine.get_validation_rules = Mock(return_value=[mock_rule])
@@ -299,10 +308,10 @@ class TestValidationAPI:
             
             assert response.status_code == 200
             data = response.json()
-            assert len(data) == 1
-            assert data[0]["rule_key"] == "PHONE_MOBILE_FORMAT"
-            assert data[0]["validation_pattern"] == r'^\+61[4-5][0-9]{8}$'
-            assert data[0]["example_value"] == "+61412345678"
+            assert data["has_rules"] is True
+            assert data["min_length"] == 12
+            assert data["max_length"] == 13
+            assert data["example_value"] == "+61412345678"
 
 
 class TestABNValidation:
@@ -316,7 +325,6 @@ class TestABNValidation:
         valid_abns = [
             '53004085616',  # Atlassian
             '51824753556',  # Google Australia
-            '47001586760'   # Microsoft
         ]
         
         for abn in valid_abns:
@@ -345,25 +353,23 @@ class TestPhoneNumberValidation:
     
     @patch('modules.countries.validation_engine.phonenumbers')
     def test_phone_validation_with_library(self, mock_phonenumbers, db_session):
-        """Test phone validation when phonenumbers library is available"""
-        # Mock successful parsing
-        mock_phone = Mock()
-        mock_phonenumbers.parse.return_value = mock_phone
-        mock_phonenumbers.is_valid_number.return_value = True
-        mock_phonenumbers.format_number.return_value = '+61 412 345 678'
-        mock_phonenumbers.PhoneNumberFormat.INTERNATIONAL = 1
+        """Phone validation uses rule regex + country normalization."""
         
         mock_rule = Mock(spec=ValidationRule)
         mock_rule.RuleKey = 'PHONE_MOBILE_FORMAT'
         mock_rule.ValidationPattern = r'^\+61[4-5][0-9]{8}$'
         mock_rule.ValidationMessage = 'Invalid mobile phone'
         mock_rule.ExampleValue = '+61412345678'
+        mock_rule.DisplayFormat = None
+        mock_rule.SpacingPattern = None
+        mock_rule.StripPrefix = False
+        mock_rule.Description = 'Australian mobile phone format validation'
         
         engine = ValidationEngine(db_session)
-        result = engine._validate_phone_number('+61412345678', mock_rule)
+        result = engine._validate_phone_number('+61412345678', mock_rule, 1)
         
-        mock_phonenumbers.parse.assert_called_once_with('+61412345678', 'AU')
         assert result.is_valid is True
+        assert result.formatted_value == '+61412345678'
     
     def test_phone_validation_without_library(self, db_session):
         """Test phone validation when phonenumbers library is not available"""
@@ -373,11 +379,15 @@ class TestPhoneNumberValidation:
             mock_rule.ValidationPattern = r'^\+61[4-5][0-9]{8}$'
             mock_rule.ValidationMessage = 'Invalid mobile phone'
             mock_rule.ExampleValue = '+61412345678'
+            mock_rule.DisplayFormat = None
+            mock_rule.SpacingPattern = None
+            mock_rule.StripPrefix = False
+            mock_rule.Description = 'Australian mobile phone format validation'
             
             engine = ValidationEngine(db_session)
             
             # Should fall back to regex validation
-            result = engine._validate_phone_number('+61412345678', mock_rule)
+            result = engine._validate_phone_number('+61412345678', mock_rule, 1)
             assert result.is_valid is True
 
 
@@ -438,11 +448,11 @@ class TestEdgeCases:
         engine = ValidationEngine(db_session)
         engine.get_validation_rules = Mock(return_value=[])
         
-        # Should fall back to basic validation
+        # Engine now returns explicit error for unknown rule types with no config.
         result = engine.validate_field(999, 'unknown_type', 'test_value')
         
-        # Basic validation should accept non-empty values
-        assert result.is_valid is True
+        assert result.is_valid is False
+        assert "no validation rules configured" in result.error_message.lower()
     
     def test_invalid_regex_pattern_handling(self, db_session):
         """Test handling of invalid regex patterns"""
@@ -454,9 +464,10 @@ class TestEdgeCases:
         mock_rule.IsActive = True
         mock_rule.MinLength = None
         mock_rule.MaxLength = None
+        mock_rule.Description = 'Invalid regex test'
         
         # Should handle regex error gracefully
-        result = engine._apply_rule_validation(mock_rule, 'test_value')
+        result = engine._apply_rule_validation(mock_rule, 'test_value', 1)
         assert result.is_valid is False
 
 

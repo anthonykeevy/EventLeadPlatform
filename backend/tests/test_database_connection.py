@@ -4,7 +4,7 @@ Validates database connection and session management
 """
 import pytest
 from sqlalchemy import text
-from backend.common.database import engine, SessionLocal, get_db, test_connection, Base
+from common.database import engine, SessionLocal, get_db, test_connection, Base
 
 
 def test_engine_configuration():
@@ -70,8 +70,9 @@ def test_session_cleanup():
     except StopIteration:
         pass
     
-    # Session should be closed
-    assert not db.is_active
+    # SQLAlchemy Session.close() resets transactional state and can be reused.
+    # Validate cleanup by ensuring no active transaction remains.
+    assert db.in_transaction() is False
 
 
 def test_base_metadata():
@@ -80,7 +81,7 @@ def test_base_metadata():
     assert Base.metadata is not None
     
     # After importing models, metadata should have tables
-    import backend.models  # noqa: F401
+    import models  # noqa: F401
     assert len(Base.metadata.tables) > 0
 
 

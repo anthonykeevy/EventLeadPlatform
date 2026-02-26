@@ -16,8 +16,8 @@ from models.ref.user_company_status import UserCompanyStatus
 from models.ref.user_company_role import UserCompanyRole
 from models.ref.user_invitation_status import UserInvitationStatus
 from models.ref.joined_via import JoinedVia
-from backend.common.security import hash_password
-from backend.modules.auth.jwt_service import create_access_token
+from common.security import hash_password
+from modules.auth.jwt_service import create_access_token
 
 
 def create_test_company(
@@ -40,8 +40,9 @@ def create_test_company(
     """
     company = Company(
         CompanyName=company_name,
-        CompanyTradingName=trading_name or company_name,
+        LegalEntityName=trading_name or company_name,
         ABN=abn,
+        CountryID=1,
         IsActive=True,
         CreatedDate=datetime.utcnow(),
         UpdatedDate=datetime.utcnow(),
@@ -96,9 +97,8 @@ def create_test_user(
         PasswordHash=hash_password(password),
         FirstName=first_name,
         LastName=last_name,
-        EmailVerified=email_verified,
-        IsActive=is_active,
-        UserStatusID=active_status.UserStatusID if active_status else None,
+        IsEmailVerified=email_verified,
+        StatusID=active_status.UserStatusID if active_status else None,
         OnboardingComplete=onboarding_complete,
         OnboardingStep=3 if onboarding_complete else 1,
         CreatedDate=datetime.utcnow(),
@@ -148,6 +148,7 @@ def create_test_user(
 
 
 def create_test_token(
+    db: Session,
     user_id: int,
     email: str,
     role: Optional[str] = None,
@@ -157,6 +158,7 @@ def create_test_token(
     Create a test JWT token for a user.
     
     Args:
+        db: Database session
         user_id: User ID
         email: User email
         role: Optional role code
@@ -166,6 +168,7 @@ def create_test_token(
         JWT access token string
     """
     return create_access_token(
+        db=db,
         user_id=user_id,
         email=email,
         role=role,
@@ -178,6 +181,8 @@ def create_test_invitation(
     company_id: int,
     invited_by: int,
     email: str,
+    first_name: str = "Test",
+    last_name: str = "User",
     role_code: str = "company_user",
     expires_in_days: int = 7,
     status_code: str = "pending"
@@ -190,6 +195,8 @@ def create_test_invitation(
         company_id: Company ID
         invited_by: User ID of inviter
         email: Email address to invite
+        first_name: Invitee first name
+        last_name: Invitee last name
         role_code: Role code for invitation
         expires_in_days: Days until invitation expires
         status_code: Invitation status
@@ -213,6 +220,8 @@ def create_test_invitation(
     invitation = UserInvitation(
         CompanyID=company_id,
         Email=email,
+        FirstName=first_name,
+        LastName=last_name,
         UserCompanyRoleID=role.UserCompanyRoleID if role else None,
         InvitedBy=invited_by,
         InvitedAt=datetime.utcnow(),
@@ -241,12 +250,17 @@ class MultiTenantTestScenario:
     
     def __init__(self, db: Session):
         self.db = db
+        run_suffix = secrets.token_hex(4)
+        admin_a_email = f"admin_a.{run_suffix}@company-a.com"
+        user_a_email = f"user_a.{run_suffix}@company-a.com"
+        admin_b_email = f"admin_b.{run_suffix}@company-b.com"
+        user_b_email = f"user_b.{run_suffix}@company-b.com"
         
         # Company A
         self.company_a = create_test_company(db, "Company A Pty Ltd", "53004085616")
         self.admin_a = create_test_user(
             db,
-            "admin_a@company-a.com",
+            admin_a_email,
             self.company_a.CompanyID,
             role_code="company_admin",
             first_name="Admin",
@@ -255,7 +269,7 @@ class MultiTenantTestScenario:
         )
         self.user_a = create_test_user(
             db,
-            "user_a@company-a.com",
+            user_a_email,
             self.company_a.CompanyID,
             role_code="company_user",
             first_name="User",
@@ -263,12 +277,14 @@ class MultiTenantTestScenario:
             onboarding_complete=True
         )
         self.token_admin_a = create_test_token(
+            db,
             int(self.admin_a.UserID),  # type: ignore
             str(self.admin_a.Email),  # type: ignore
             "company_admin",
             int(self.company_a.CompanyID)  # type: ignore
         )
         self.token_user_a = create_test_token(
+            db,
             int(self.user_a.UserID),  # type: ignore
             str(self.user_a.Email),  # type: ignore
             "company_user",
@@ -279,7 +295,7 @@ class MultiTenantTestScenario:
         self.company_b = create_test_company(db, "Company B Pty Ltd", "51824753556")
         self.admin_b = create_test_user(
             db,
-            "admin_b@company-b.com",
+            admin_b_email,
             self.company_b.CompanyID,
             role_code="company_admin",
             first_name="Admin",
@@ -288,7 +304,7 @@ class MultiTenantTestScenario:
         )
         self.user_b = create_test_user(
             db,
-            "user_b@company-b.com",
+            user_b_email,
             self.company_b.CompanyID,
             role_code="company_user",
             first_name="User",
@@ -296,12 +312,14 @@ class MultiTenantTestScenario:
             onboarding_complete=True
         )
         self.token_admin_b = create_test_token(
+            db,
             int(self.admin_b.UserID),  # type: ignore
             str(self.admin_b.Email),  # type: ignore
             "company_admin",
             int(self.company_b.CompanyID)  # type: ignore
         )
         self.token_user_b = create_test_token(
+            db,
             int(self.user_b.UserID),  # type: ignore
             str(self.user_b.Email),  # type: ignore
             "company_user",

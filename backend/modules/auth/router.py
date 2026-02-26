@@ -154,14 +154,20 @@ async def signup(
             )
         
         # 2. Create user with invitation (auto-accepts invitation)
-        user, invitation, user_company = await create_user_with_invitation(
-            db=db,
-            email=request_data.email,
-            password=request_data.password,
-            first_name=request_data.first_name,
-            last_name=request_data.last_name,
-            invitation_token=request_data.invitation_token
-        )
+        try:
+            user, invitation, user_company = await create_user_with_invitation(
+                db=db,
+                email=request_data.email,
+                password=request_data.password,
+                first_name=request_data.first_name,
+                last_name=request_data.last_name,
+                invitation_token=request_data.invitation_token
+            )
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
         
         # 3. Get role for JWT
         role = db.execute(

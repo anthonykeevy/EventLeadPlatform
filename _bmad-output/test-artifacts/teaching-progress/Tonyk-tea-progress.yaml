@@ -1,0 +1,88 @@
+---
+# TEA Academy Progress Tracking
+user: Tonyk
+role: Lead # Gathered from context, assuming lead/owner
+experience_level: Intermediate # Gathered from context
+learning_goals: Improve test architecture and workflow
+pain_points: Flaky tests, massive test failures
+
+started_date: 2026-02-25
+last_session_date: 2026-02-25
+
+sessions:
+  - id: session-01-quickstart
+    name: 'Quick Start'
+    duration: '30 min'
+    status: completed
+    started_date: 2026-02-25
+    completed_date: 2026-02-25
+    score: 33
+    notes_artifact: 'C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\_bmad-output\test-artifacts\tea-academy\Tonyk\session-01-notes.md'
+
+  - id: session-02-concepts
+    name: 'Core Concepts'
+    duration: '45 min'
+    status: not-started
+    started_date: null
+    completed_date: null
+    score: null
+    notes_artifact: null
+
+  - id: session-03-architecture
+    name: 'Architecture & Patterns'
+    duration: '60 min'
+    status: not-started
+    started_date: null
+    completed_date: null
+    score: null
+    notes_artifact: null
+
+  - id: session-04-test-design
+    name: 'Test Design'
+    duration: '60 min'
+    status: not-started
+    started_date: null
+    completed_date: null
+    score: null
+    notes_artifact: null
+
+  - id: session-05-atdd-automate
+    name: 'ATDD & Automate'
+    duration: '60 min'
+    status: not-started
+    started_date: null
+    completed_date: null
+    score: null
+    notes_artifact: null
+
+  - id: session-06-quality-trace
+    name: 'Quality & Trace'
+    duration: '45 min'
+    status: not-started
+    started_date: null
+    completed_date: null
+    score: null
+    notes_artifact: null
+
+  - id: session-07-advanced
+    name: 'Advanced Patterns'
+    duration: 'ongoing'
+    status: not-started
+    started_date: null
+    completed_date: null
+    score: null
+    notes_artifact: null
+
+sessions_completed: 1
+total_sessions: 7
+completion_percentage: 14.28
+next_recommended: session-02-concepts
+
+stepsCompleted: ['step-01-init', 'step-02-assess', 'step-03-session-menu', 'step-04-session-01']
+lastStep: 'step-04-session-01'
+lastContinued: 2026-02-25
+
+certificate_generated: false
+certificate_path: null
+completion_date: null
+---

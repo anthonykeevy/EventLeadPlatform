@@ -26,8 +26,8 @@ import os
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
-from backend.common.config_service import ConfigurationService, ValidationResult
-from backend.common.constants import (
+from common.config_service import ConfigurationService, ValidationResult
+from common.constants import (
     DEFAULT_JWT_ACCESS_EXPIRY_MINUTES,
     DEFAULT_JWT_REFRESH_EXPIRY_DAYS,
     DEFAULT_PASSWORD_MIN_LENGTH,
@@ -208,7 +208,7 @@ class TestJWTServiceIntegration:
     
     def test_jwt_access_token_uses_config(self, test_db: Session):
         """Test JWT access token creation uses configurable expiry"""
-        from backend.modules.auth.jwt_service import create_access_token
+        from modules.auth.jwt_service import create_access_token
         from jose import jwt
         from config.jwt import get_secret_key
         
@@ -231,7 +231,7 @@ class TestJWTServiceIntegration:
     
     def test_jwt_refresh_token_uses_config(self, test_db: Session):
         """Test JWT refresh token creation uses configurable expiry"""
-        from backend.modules.auth.jwt_service import create_refresh_token
+        from modules.auth.jwt_service import create_refresh_token
         from jose import jwt
         from config.jwt import get_secret_key
         
@@ -255,7 +255,7 @@ class TestPasswordValidatorIntegration:
     
     def test_password_validation_uses_config(self, test_db: Session):
         """Test password validation uses configurable min length"""
-        from backend.common.password_validator import validate_password_strength
+        from common.password_validator import validate_password_strength
         
         # Test with password that meets default requirements (8 chars, 1 number, 1 lowercase)
         errors = validate_password_strength(test_db, "password123")
@@ -269,7 +269,7 @@ class TestPasswordValidatorIntegration:
     
     def test_password_strength_calculation(self, test_db: Session):
         """Test password strength scoring"""
-        from backend.common.password_validator import get_password_strength
+        from common.password_validator import get_password_strength
         
         # Weak password
         result = get_password_strength(test_db, "abc")
@@ -288,7 +288,7 @@ class TestTokenServicesIntegration:
     
     def test_email_verification_token_uses_config(self, test_db: Session, test_user):
         """Test email verification token uses configurable expiry"""
-        from backend.modules.auth.token_service import generate_verification_token
+        from modules.auth.token_service import generate_verification_token
         from models.user_email_verification_token import UserEmailVerificationToken
         
         token = generate_verification_token(test_db, test_user.UserID)
@@ -310,7 +310,7 @@ class TestTokenServicesIntegration:
     
     def test_password_reset_token_uses_config(self, test_db: Session, test_user):
         """Test password reset token uses configurable expiry"""
-        from backend.modules.auth.token_service import generate_password_reset_token
+        from modules.auth.token_service import generate_password_reset_token
         from models.user_password_reset_token import UserPasswordResetToken
         
         token = generate_password_reset_token(test_db, test_user.UserID)
@@ -378,63 +378,28 @@ class TestConfigurationAPI:
     
     def test_get_all_settings_admin_endpoint(self, client, test_db: Session):
         """Test GET /api/admin/settings endpoint (AC-1.13.8)"""
-        # Note: Auth is TODO, so this will work for now
-        # In production, this should require system_admin role
-        
+        # Admin endpoints require authentication at middleware boundary.
         response = client.get("/api/admin/settings/")
         
-        assert response.status_code == 200
-        data = response.json()
-        
-        assert isinstance(data, list)
-        # Should have at least 12 settings (Epic 1 required settings) after migration
-        # For now, just verify it returns a list (may be empty before migration)
-        # assert len(data) >= 12  # Uncomment after running migration with seed data
-        
-        # Verify setting structure
-        if len(data) > 0:
-            setting = data[0]
-            assert "setting_key" in setting
-            assert "setting_value" in setting
-            assert "category" in setting
-            assert "type" in setting
-            assert "description" in setting
-            assert "default_value" in setting
-            assert "is_editable" in setting
-            assert "is_active" in setting
+        assert response.status_code == 401
     
     
     def test_update_setting_admin_endpoint(self, client, test_db: Session):
         """Test PUT /api/admin/settings/{key} endpoint (AC-1.13.8)"""
-        # Note: Auth is TODO, so this will work for now
-        
         # Try to update PASSWORD_MIN_LENGTH
         response = client.put(
             "/api/admin/settings/PASSWORD_MIN_LENGTH",
             json={"new_value": "10"}
         )
         
-        # Verify response (might be 200 if setting exists, or 400 if not)
-        assert response.status_code in [200, 400]
-        
-        if response.status_code == 200:
-            data = response.json()
-            assert data["success"] is True
-            assert data["setting_key"] == "PASSWORD_MIN_LENGTH"
-            assert data["new_value"] == "10"
+        assert response.status_code == 401
     
     
     def test_invalidate_cache_admin_endpoint(self, client):
         """Test POST /api/admin/settings/reload endpoint (AC-1.13.8)"""
-        # Note: Auth is TODO, so this will work for now
-        
         response = client.post("/api/admin/settings/reload")
         
-        assert response.status_code == 200
-        data = response.json()
-        
-        assert data["success"] is True
-        assert "cache" in data["message"].lower()
+        assert response.status_code == 401
 
 
 class TestConfigurationValidation:

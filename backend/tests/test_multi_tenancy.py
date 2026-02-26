@@ -5,6 +5,7 @@ Tests AC-1.8.1, AC-1.8.2, AC-1.8.3, AC-1.8.4, AC-1.8.6
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+import secrets
 
 from main import app
 from common.database import get_db
@@ -24,6 +25,10 @@ from common.multi_tenant import (
 )
 
 client = TestClient(app)
+
+
+def _unique_email(prefix: str) -> str:
+    return f"{prefix}.{secrets.token_hex(4)}@example.com"
 
 
 @pytest.fixture
@@ -99,7 +104,9 @@ def test_user_cannot_access_other_company_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_b.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_b),
         json={
-            "email": "newuser@company-b.com",
+            "email": _unique_email("newuser.companyb"),
+            "first_name": "New",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -112,7 +119,7 @@ def test_user_cannot_access_other_company_invitations(test_scenario):
         headers=get_auth_headers(test_scenario.token_admin_a)
     )
     assert response.status_code == 403
-    assert "different company" in response.json()["detail"].lower()
+    assert "access to this company" in response.json()["detail"].lower()
 
 
 def test_user_cannot_invite_to_other_company(test_scenario):
@@ -122,13 +129,15 @@ def test_user_cannot_invite_to_other_company(test_scenario):
         f"/api/companies/{test_scenario.company_b.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "newuser@company-b.com",
+            "email": _unique_email("newuser.companyb"),
+            "first_name": "New",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
     )
     assert response.status_code == 403
-    assert "different company" in response.json()["detail"].lower()
+    assert "access to this company" in response.json()["detail"].lower()
 
 
 def test_user_cannot_access_other_company_data_via_company_switch(test_scenario):
@@ -140,7 +149,7 @@ def test_user_cannot_access_other_company_data_via_company_switch(test_scenario)
         json={"company_id": int(test_scenario.company_b.CompanyID)}  # type: ignore
     )
     assert response.status_code == 400
-    assert "belong" in response.json()["detail"].lower()
+    assert "access to the target company" in response.json()["detail"].lower()
 
 
 def test_verify_company_access_blocks_cross_company_access(test_scenario):
@@ -153,7 +162,8 @@ def test_verify_company_access_blocks_cross_company_access(test_scenario):
         )
     
     assert exc_info.value.status_code == 403
-    assert "different company" in str(exc_info.value.detail).lower()
+    detail = str(exc_info.value.detail).lower()
+    assert "access denied" in detail or "different company" in detail
 
 
 def test_verify_path_company_matches_user_blocks_mismatch(test_scenario):
@@ -165,7 +175,8 @@ def test_verify_path_company_matches_user_blocks_mismatch(test_scenario):
         )
     
     assert exc_info.value.status_code == 403
-    assert "cannot access different company" in str(exc_info.value.detail).lower()
+    detail = str(exc_info.value.detail).lower()
+    assert "access denied" in detail or "different company" in detail
 
 
 # ============================================================================
@@ -178,7 +189,9 @@ def test_company_admin_can_invite_to_own_company(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "newuser@company-a.com",
+            "email": _unique_email("newuser.companya"),
+            "first_name": "New",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -195,7 +208,9 @@ def test_company_admin_cannot_invite_to_other_company(test_scenario):
         f"/api/companies/{test_scenario.company_b.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "newuser@company-b.com",
+            "email": _unique_email("newuser.companyb"),
+            "first_name": "New",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -210,7 +225,9 @@ def test_company_admin_can_view_own_company_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "newuser@company-a.com",
+            "email": _unique_email("newuser.companya"),
+            "first_name": "New",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -222,7 +239,7 @@ def test_company_admin_can_view_own_company_invitations(test_scenario):
         headers=get_auth_headers(test_scenario.token_admin_a)
     )
     assert response.status_code == 200
-    invitations = response.json()
+    invitations = response.json()["invitations"]
     assert len(invitations) > 0
     # All invitations should belong to Company A
     for inv in invitations:
@@ -261,7 +278,9 @@ def test_company_user_cannot_invite_team_members(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_user_a),
         json={
-            "email": "newuser@company-a.com",
+            "email": _unique_email("newuser.companya"),
+            "first_name": "New",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -287,7 +306,9 @@ def test_company_user_cannot_cancel_invitations(test_scenario):
         f"/api/companies/{test_scenario.company_a.CompanyID}/invite",
         headers=get_auth_headers(test_scenario.token_admin_a),
         json={
-            "email": "newuser@company-a.com",
+            "email": _unique_email("newuser.companya"),
+            "first_name": "New",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join our team"
         }
@@ -316,7 +337,7 @@ def test_multi_company_user_sees_correct_data(db: Session):
     # Create user belonging to both companies
     user = create_test_user(
         db,
-        "multi@test.com",
+        _unique_email("multi"),
         company_id=company_a.CompanyID,
         role_code="company_admin",
         onboarding_complete=True
@@ -358,12 +379,14 @@ def test_multi_company_user_sees_correct_data(db: Session):
     
     # Create tokens for each company context
     token_a = create_test_token(
+        db,
         int(user.UserID),  # type: ignore
         str(user.Email),  # type: ignore
         "company_admin",
         int(company_a.CompanyID)  # type: ignore
     )
     token_b = create_test_token(
+        db,
         int(user.UserID),  # type: ignore
         str(user.Email),  # type: ignore
         "company_user",
@@ -387,7 +410,9 @@ def test_multi_company_user_sees_correct_data(db: Session):
         f"/api/companies/{company_a.CompanyID}/invite",
         headers=get_auth_headers(token_a),
         json={
-            "email": "test@test.com",
+            "email": _unique_email("invite.own"),
+            "first_name": "Invite",
+            "last_name": "Own",
             "role": "company_user",
             "message": "Join us"
         }
@@ -399,7 +424,9 @@ def test_multi_company_user_sees_correct_data(db: Session):
         f"/api/companies/{company_b.CompanyID}/invite",
         headers=get_auth_headers(token_a),
         json={
-            "email": "test2@test.com",
+            "email": _unique_email("invite.other"),
+            "first_name": "Invite",
+            "last_name": "Other",
             "role": "company_user",
             "message": "Join us"
         }
@@ -418,7 +445,9 @@ def test_data_isolation_across_all_protected_endpoints(test_scenario):
         # Invitations
         ("GET", f"/api/companies/{test_scenario.company_b.CompanyID}/invitations", None),
         ("POST", f"/api/companies/{test_scenario.company_b.CompanyID}/invite", {
-            "email": "test@test.com",
+            "email": _unique_email("test"),
+            "first_name": "Test",
+            "last_name": "User",
             "role": "company_user",
             "message": "Join us"
         }),
@@ -470,12 +499,13 @@ def test_jwt_without_company_context_limited_access(db: Session):
     # Create user without company
     user = create_test_user(
         db,
-        "nocompany@test.com",
+        _unique_email("nocompany"),
         company_id=None,
         onboarding_complete=False
     )
     
     token = create_test_token(
+        db,
         int(user.UserID),  # type: ignore
         str(user.Email),  # type: ignore
         role=None,

@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.middleware.request_logger import RequestLoggingMiddleware, log_api_request
+from middleware.request_logger import RequestLoggingMiddleware, log_api_request
 from models.log.api_request import ApiRequest
 
 
@@ -44,7 +44,7 @@ def test_request_logging_middleware_generates_request_id(app_with_middleware):
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request'):
+    with patch('middleware.request_logger.log_api_request'):
         response = client.get("/test")
         
         # Verify X-Request-ID header present
@@ -61,7 +61,7 @@ def test_request_logging_middleware_logs_get_request(app_with_middleware):
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request') as mock_log:
+    with patch('middleware.request_logger.log_api_request') as mock_log:
         response = client.get("/test?key=value")
         
         # Verify logging was called
@@ -82,7 +82,7 @@ def test_request_logging_middleware_logs_post_request(app_with_middleware):
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request') as mock_log:
+    with patch('middleware.request_logger.log_api_request') as mock_log:
         response = client.post("/test", json={"name": "test"})
         
         # Verify logging was called
@@ -100,7 +100,7 @@ def test_request_logging_middleware_captures_user_context(app_with_middleware):
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request') as mock_log:
+    with patch('middleware.request_logger.log_api_request') as mock_log:
         response = client.get("/test/auth")
         
         # Verify user context captured
@@ -115,7 +115,7 @@ def test_request_logging_middleware_anonymous_request(app_with_middleware):
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request') as mock_log:
+    with patch('middleware.request_logger.log_api_request') as mock_log:
         response = client.get("/test")
         
         # Verify user context is None
@@ -130,7 +130,7 @@ def test_request_logging_middleware_captures_ip_and_user_agent(app_with_middlewa
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request') as mock_log:
+    with patch('middleware.request_logger.log_api_request') as mock_log:
         response = client.get("/test", headers={"User-Agent": "TestClient/1.0"})
         
         # Verify client info captured
@@ -145,7 +145,7 @@ def test_request_logging_middleware_measures_duration(app_with_middleware):
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request') as mock_log:
+    with patch('middleware.request_logger.log_api_request') as mock_log:
         response = client.get("/test")
         
         # Verify duration is measured
@@ -174,7 +174,7 @@ def test_log_api_request_database_insert():
     # Mock database session
     mock_db = MagicMock(spec=Session)
     
-    with patch('backend.middleware.request_logger.SessionLocal', return_value=mock_db):
+    with patch('middleware.request_logger.SessionLocal', return_value=mock_db):
         log_api_request(log_data)
         
         # Verify database insert
@@ -196,7 +196,7 @@ def test_request_logging_sanitizes_query_params(app_with_middleware):
     """
     client = TestClient(app_with_middleware)
     
-    with patch('backend.middleware.request_logger.log_api_request') as mock_log:
+    with patch('middleware.request_logger.log_api_request') as mock_log:
         response = client.get("/test?key=value&token=secret123")
         
         # Verify query params sanitized
@@ -226,7 +226,7 @@ def test_request_logging_handles_database_error_gracefully():
     mock_db = MagicMock(spec=Session)
     mock_db.commit.side_effect = Exception("Database error")
     
-    with patch('backend.middleware.request_logger.SessionLocal', return_value=mock_db):
+    with patch('middleware.request_logger.SessionLocal', return_value=mock_db):
         # Should not raise exception
         log_api_request(log_data)
         

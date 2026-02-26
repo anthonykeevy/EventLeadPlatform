@@ -4,7 +4,7 @@ Validates model queries, relationships, and foreign keys
 """
 import pytest
 from sqlalchemy import text, select
-from backend.common.database import SessionLocal
+from common.database import SessionLocal
 from models import (
     User, Company, UserCompany, Country, UserStatus, UserCompanyRole,
     UserCompanyStatus, JoinedVia, CustomerTier, CompanyCustomerDetails

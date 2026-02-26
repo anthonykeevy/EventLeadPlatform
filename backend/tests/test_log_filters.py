@@ -3,7 +3,7 @@ Security Tests for Sensitive Data Filtering
 Tests AC-0.2.9
 """
 import pytest
-from backend.common.log_filters import (
+from common.log_filters import (
     is_sensitive_field,
     sanitize_dict,
     sanitize_list,
@@ -88,8 +88,8 @@ def test_sanitize_dict_nested():
     sanitized = sanitize_dict(data)
     
     assert sanitized["user"]["name"] == "Test User"
-    assert sanitized["user"]["credentials"]["password"] == "[REDACTED]"
-    assert sanitized["user"]["credentials"]["api_key"] == "[REDACTED]"
+    # "credentials" key itself is sensitive and is redacted as a whole.
+    assert sanitized["user"]["credentials"] == "[REDACTED]"
 
 
 def test_sanitize_list_with_dicts():

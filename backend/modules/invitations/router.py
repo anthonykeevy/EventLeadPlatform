@@ -123,6 +123,7 @@ async def accept_team_invitation(
         
         # Issue new JWT with role and company_id (AC-1.7.8)
         access_token = create_access_token(
+            db=db,
             user_id=current_user.user_id,
             email=current_user.email,
             role=str(role.RoleCode),  # type: ignore
@@ -130,6 +131,7 @@ async def accept_team_invitation(
         )
         
         refresh_token = create_refresh_token(
+            db=db,
             user_id=current_user.user_id
         )
         

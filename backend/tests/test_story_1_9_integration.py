@@ -5,11 +5,16 @@ Tests all fixes applied during UAT on 2025-10-21
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+import secrets
 
 from models.user import User
 from models.log.auth_event import AuthEvent
 from models.log.api_request import ApiRequest
 from models.log.application_error import ApplicationError
+
+
+def _unique_email(prefix: str) -> str:
+    return f"{prefix}.{secrets.token_hex(4)}@example.com"
 
 
 class TestStory19SignupFlow:
@@ -21,8 +26,9 @@ class TestStory19SignupFlow:
         Test AC-1.9.1: Successful signup creates user and sends email.
         Validates all logs are created (AuthEvent, ApiRequest).
         """
+        signup_email = _unique_email("story19-success")
         user_data = {
-            "email": "story19.success@example.com",
+            "email": signup_email,
             "password": "StrongPass123!",
             "first_name": "Story",
             "last_name": "Nineteen"
@@ -53,8 +59,9 @@ class TestStory19SignupFlow:
         Test that duplicate email error uses 'detail' field (not 'message').
         Validates frontend can read error messages.
         """
+        duplicate_email = _unique_email("story19-duplicate")
         user_data = {
-            "email": "story19.duplicate@example.com",
+            "email": duplicate_email,
             "password": "StrongPass123!",
             "first_name": "Dup",
             "last_name": "Test"
@@ -78,8 +85,9 @@ class TestStory19SignupFlow:
         Test that password validation error shows specific requirements.
         Validates user sees actionable error message.
         """
+        weak_email = _unique_email("story19-weakpass")
         user_data = {
-            "email": "story19.weakpass@example.com",
+            "email": weak_email,
             "password": "weak",  # Too short, no uppercase, no numbers, no special chars
             "first_name": "Weak",
             "last_name": "Pass"
@@ -111,9 +119,10 @@ class TestStory19LoginFlow:
         pending_status = db_session.query(UserStatus).filter(
             UserStatus.StatusName == "Pending Verification"
         ).first()
+        unverified_email = _unique_email("story19-unverified")
         
         user = User(
-            Email="story19.unverified@example.com",
+            Email=unverified_email,
             PasswordHash=hash_password("TestPass123!"),
             FirstName="Unverified",
             LastName="User",
@@ -125,7 +134,7 @@ class TestStory19LoginFlow:
         
         # Try to login
         response = client.post("/api/auth/login", json={
-            "email": "story19.unverified@example.com",
+            "email": unverified_email,
             "password": "TestPass123!"
         })
         
@@ -144,9 +153,10 @@ class TestStory19ErrorHandling:
         Test AC-0.2.4: All errors logged to log.ApplicationError.
         Validates global exception handler catches all errors.
         """
+        error_email = _unique_email("story19-error-log")
         # Trigger a validation error (duplicate email)
         user_data = {
-            "email": "error.logging@example.com",
+            "email": error_email,
             "password": "TestPass123!",
             "first_name": "Error",
             "last_name": "Test"
@@ -174,8 +184,9 @@ class TestStory19ErrorHandling:
         Test that AuthEvent uses EventType and Reason (not EventStatus and Details).
         Validates fix for column name mismatch discovered in UAT.
         """
+        auth_event_email = _unique_email("story19-auth-event")
         user_data = {
-            "email": "auth.event.test@example.com",
+            "email": auth_event_email,
             "password": "TestPass123!",
             "first_name": "Auth",
             "last_name": "Event"
@@ -208,7 +219,7 @@ class TestStory19TransactionManagement:
         from modules.auth.user_service import create_user, get_user_by_email
         from modules.auth.token_service import generate_verification_token
         
-        test_email = "transaction.rollback@example.com"
+        test_email = _unique_email("story19-transaction-rollback")
         
         # Simulate signup flow with failure
         try:
@@ -223,7 +234,7 @@ class TestStory19TransactionManagement:
             )
             
             # Generate token without committing
-            token = generate_verification_token(db_session, user.UserID, auto_commit=False)
+            token = generate_verification_token(db_session, int(user.UserID), auto_commit=False)
             
             # Simulate email failure
             raise Exception("Email service unavailable")

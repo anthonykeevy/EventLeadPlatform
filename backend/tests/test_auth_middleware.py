@@ -63,6 +63,13 @@ def test_app() -> FastAPI:
         if current_user:
             return {"authenticated": True, "user_id": current_user.user_id}
         return {"authenticated": False}
+
+    @app.post("/api/auth/login")
+    async def login_public_endpoint():
+        # Middleware-only regression harness for public auth path bypass.
+        return {"message": "public login route reached"}
+    
+    JWTAuthMiddleware.PUBLIC_PATHS.append("/optional-auth")
     
     return app
 
@@ -77,9 +84,10 @@ def test_client(test_app: FastAPI) -> TestClient:
 class TestJWTValidation:
     """Test JWT token validation (AC-1.3.1, AC-1.3.6)"""
     
-    def test_valid_token_allows_access(self, test_client: TestClient):
+    def test_valid_token_allows_access(self, test_client: TestClient, test_db):
         """Test that valid access token allows request to proceed."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="test@example.com",
             role="company_admin",
@@ -153,9 +161,10 @@ class TestJWTValidation:
 class TestJWTPayloadExtraction:
     """Test JWT payload extraction (AC-1.3.2)"""
     
-    def test_extracts_user_id_from_sub_claim(self, test_client: TestClient):
+    def test_extracts_user_id_from_sub_claim(self, test_client: TestClient, test_db):
         """Test that user_id is extracted from 'sub' claim."""
         token = create_access_token(
+            db=test_db,
             user_id=999,
             email="user999@example.com"
         )
@@ -168,9 +177,10 @@ class TestJWTPayloadExtraction:
         assert response.status_code == 200
         assert response.json()["user_id"] == 999
     
-    def test_extracts_email_claim(self, test_client: TestClient):
+    def test_extracts_email_claim(self, test_client: TestClient, test_db):
         """Test that email is extracted from payload."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="john.doe@example.com"
         )
@@ -183,9 +193,9 @@ class TestJWTPayloadExtraction:
         assert response.status_code == 200
         assert response.json()["email"] == "john.doe@example.com"
     
-    def test_rejects_refresh_token(self, test_client: TestClient):
+    def test_rejects_refresh_token(self, test_client: TestClient, test_db):
         """Test that refresh tokens are rejected (must be access token)."""
-        refresh_token = create_refresh_token(user_id=123)
+        refresh_token = create_refresh_token(db=test_db, user_id=123)
         
         response = test_client.get(
             "/protected",
@@ -200,9 +210,10 @@ class TestJWTPayloadExtraction:
 class TestCurrentUserInjection:
     """Test current user injection into request.state (AC-1.3.3)"""
     
-    def test_user_injected_into_request_state(self, test_client: TestClient):
+    def test_user_injected_into_request_state(self, test_client: TestClient, test_db):
         """Test that CurrentUser is stored in request.state.user."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="test@example.com",
             role="company_admin",
@@ -223,9 +234,10 @@ class TestCurrentUserInjection:
 class TestRoleBasedAuthorization:
     """Test @require_role decorator (AC-1.3.4)"""
     
-    def test_correct_role_allows_access(self, test_client: TestClient):
+    def test_correct_role_allows_access(self, test_client: TestClient, test_db):
         """Test that user with correct role can access endpoint."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="admin@example.com",
             role="company_admin",
@@ -240,9 +252,10 @@ class TestRoleBasedAuthorization:
         assert response.status_code == 200
         assert response.json()["message"] == "admin access granted"
     
-    def test_wrong_role_returns_403(self, test_client: TestClient):
+    def test_wrong_role_returns_403(self, test_client: TestClient, test_db):
         """Test that user with wrong role gets 403 Forbidden."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="user@example.com",
             role="company_user",
@@ -257,9 +270,10 @@ class TestRoleBasedAuthorization:
         assert response.status_code == 403
         assert "Insufficient permissions" in response.json()["detail"]
     
-    def test_missing_role_returns_403(self, test_client: TestClient):
+    def test_missing_role_returns_403(self, test_client: TestClient, test_db):
         """Test that user with no role gets 403 Forbidden."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="norole@example.com",
             role=None,
@@ -274,10 +288,11 @@ class TestRoleBasedAuthorization:
         assert response.status_code == 403
         assert "does not have any role assigned" in response.json()["detail"]
     
-    def test_multiple_roles_allowed(self, test_client: TestClient):
+    def test_multiple_roles_allowed(self, test_client: TestClient, test_db):
         """Test endpoint with multiple allowed roles."""
         # Test company_admin can access
         admin_token = create_access_token(
+            db=test_db,
             user_id=1,
             email="admin@example.com",
             role="company_admin",
@@ -292,6 +307,7 @@ class TestRoleBasedAuthorization:
         
         # Test company_user can access
         user_token = create_access_token(
+            db=test_db,
             user_id=2,
             email="user@example.com",
             role="company_user",
@@ -306,6 +322,7 @@ class TestRoleBasedAuthorization:
         
         # Test other role cannot access
         other_token = create_access_token(
+            db=test_db,
             user_id=3,
             email="other@example.com",
             role="other_role",
@@ -323,9 +340,10 @@ class TestRoleBasedAuthorization:
 class TestCompanyContext:
     """Test company context extraction (AC-1.3.5)"""
     
-    def test_company_id_extracted_from_jwt(self, test_client: TestClient):
+    def test_company_id_extracted_from_jwt(self, test_client: TestClient, test_db):
         """Test that company_id is extracted from JWT."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="test@example.com",
             role="company_admin",
@@ -358,9 +376,10 @@ class TestUnauthorizedAccess:
         )
         assert response.status_code == 401
     
-    def test_wrong_role_returns_403(self, test_client: TestClient):
+    def test_wrong_role_returns_403(self, test_client: TestClient, test_db):
         """Test that valid token with wrong role returns 403 Forbidden."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="user@example.com",
             role="company_user",
@@ -379,9 +398,10 @@ class TestUnauthorizedAccess:
 class TestGetCurrentUserDependency:
     """Test get_current_user() dependency (AC-1.3.9)"""
     
-    def test_get_current_user_returns_user(self, test_client: TestClient):
+    def test_get_current_user_returns_user(self, test_client: TestClient, test_db):
         """Test that get_current_user() returns CurrentUser from request.state."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="test@example.com",
             role="company_admin",
@@ -407,9 +427,10 @@ class TestGetCurrentUserDependency:
 class TestOptionalAuthentication:
     """Test optional authentication endpoints (AC-1.3.8)"""
     
-    def test_optional_auth_with_token(self, test_client: TestClient):
+    def test_optional_auth_with_token(self, test_client: TestClient, test_db):
         """Test optional auth endpoint with valid token."""
         token = create_access_token(
+            db=test_db,
             user_id=123,
             email="test@example.com"
         )
@@ -495,4 +516,14 @@ class TestPublicPaths:
             response = test_client.get(endpoint)
             # Should not return 401 (some may return 404, that's fine)
             assert response.status_code != 401
+
+    def test_public_login_not_blocked_by_invalid_bearer(self, test_client: TestClient):
+        """Public login path must ignore stale/invalid bearer tokens."""
+        response = test_client.post(
+            "/api/auth/login",
+            headers={"Authorization": "Bearer invalid_token_string"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["message"] == "public login route reached"
 

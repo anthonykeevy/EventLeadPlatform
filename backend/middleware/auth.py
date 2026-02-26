@@ -55,6 +55,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         "/api/auth/password-reset/validate",  # Token validation (Story 1.15)
         "/api/auth/password-reset/confirm",
         "/api/invitations/",  # View invitation details (Story 1.7, Story 1.16)
+        "/api/config",  # Public configuration endpoint (Story 1.13)
         "/api/countries",  # Country validation endpoints (Story 1.20)
         "/api/companies/smart-search",  # ABR search for onboarding (Story 1.19)
         "/api/users/reference/",  # Theme reference endpoints (Story 2.2)
@@ -89,25 +90,29 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         if request.method == "OPTIONS":
             return await call_next(request)
         
-        # Skip authentication for public endpoints
-        if self._is_public_path(request.url.path):
-            return await call_next(request)
+        is_public = self._is_public_path(request.url.path)
+        
+        from fastapi.responses import JSONResponse
         
         # Extract Authorization header
         auth_header = request.headers.get("Authorization")
         
         if not auth_header:
-            raise HTTPException(
+            if is_public:
+                return await call_next(request)
+            return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Missing authorization header",
+                content={"detail": "Missing authorization header"},
                 headers={"WWW-Authenticate": "Bearer"}
             )
         
         # Validate Bearer token format
         if not auth_header.startswith("Bearer "):
-            raise HTTPException(
+            if is_public:
+                return await call_next(request)
+            return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authorization header format. Expected 'Bearer <token>'",
+                content={"detail": "Invalid authorization header format. Expected 'Bearer <token>'"},
                 headers={"WWW-Authenticate": "Bearer"}
             )
         
@@ -118,6 +123,8 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         try:
             payload = decode_token(token)
         except JWTError as e:
+            if is_public:
+                return await call_next(request)
             # Handle specific JWT errors
             error_message = str(e)
             if "expired" in error_message.lower():
@@ -127,17 +134,19 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
             else:
                 detail = "Invalid token"
             
-            raise HTTPException(
+            return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=detail,
+                content={"detail": detail},
                 headers={"WWW-Authenticate": "Bearer"}
             )
         
         # Verify token type is 'access'
         if payload.get("type") != "access":
-            raise HTTPException(
+            if is_public:
+                return await call_next(request)
+            return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token type. Expected access token",
+                content={"detail": "Invalid token type. Expected access token"},
                 headers={"WWW-Authenticate": "Bearer"}
             )
         
@@ -148,9 +157,11 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
             role = payload.get("role")
             company_id = payload.get("company_id")
         except (KeyError, ValueError) as e:
-            raise HTTPException(
+            if is_public:
+                return await call_next(request)
+            return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Invalid token payload: {str(e)}",
+                content={"detail": f"Invalid token payload: {str(e)}"},
                 headers={"WWW-Authenticate": "Bearer"}
             )
         

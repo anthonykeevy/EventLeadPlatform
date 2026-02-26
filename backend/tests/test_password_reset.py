@@ -3,7 +3,6 @@ Tests for Password Reset Flow (Story 1.4)
 Tests AC-1.4.1 through AC-1.4.10
 """
 import pytest
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from datetime import datetime, timedelta
 
@@ -13,6 +12,7 @@ from modules.auth.token_service import (
     validate_password_reset_token,
     mark_password_reset_token_used
 )
+from tests.test_utils import create_test_user
 
 
 class TestPasswordResetRequest:
@@ -50,18 +50,16 @@ class TestPasswordResetRequest:
     
     def test_password_reset_token_generated(self, test_db, sample_user_data: dict):
         """Test AC-1.4.2: Password reset token generated with 1-hour expiry"""
-        from models.user import User
-        
-        # Create user
-        user = User(
-            Email=sample_user_data["email"],
-            PasswordHash="hashed",
-            FirstName=sample_user_data["first_name"],
-            LastName=sample_user_data["last_name"]
+        # Create user with current required schema fields
+        user = create_test_user(
+            test_db,
+            sample_user_data["email"],
+            password=sample_user_data["password"],
+            first_name=sample_user_data["first_name"],
+            last_name=sample_user_data["last_name"],
+            email_verified=True,
+            onboarding_complete=False
         )
-        test_db.add(user)
-        test_db.commit()
-        test_db.refresh(user)
         
         # Generate password reset token
         token = generate_password_reset_token(test_db, user.UserID)
@@ -85,21 +83,19 @@ class TestPasswordResetConfirm:
     
     def test_password_reset_confirm_valid_token(self, client: TestClient, test_db, sample_user_data: dict):
         """Test AC-1.4.5, AC-1.4.7: Valid token resets password"""
-        from models.user import User
-        from common.security import hash_password, verify_password
+        from common.security import verify_password
         
-        # Create user
+        # Create user with current required schema fields
         old_password = sample_user_data["password"]
-        user = User(
-            Email=sample_user_data["email"],
-            PasswordHash=hash_password(old_password),
-            FirstName=sample_user_data["first_name"],
-            LastName=sample_user_data["last_name"],
-            EmailVerified=True
+        user = create_test_user(
+            test_db,
+            sample_user_data["email"],
+            password=old_password,
+            first_name=sample_user_data["first_name"],
+            last_name=sample_user_data["last_name"],
+            email_verified=True,
+            onboarding_complete=False
         )
-        test_db.add(user)
-        test_db.commit()
-        test_db.refresh(user)
         
         # Generate token
         token = generate_password_reset_token(test_db, user.UserID)
@@ -138,20 +134,17 @@ class TestPasswordResetConfirm:
         assert "Invalid or expired" in response.json()["detail"]
     
     def test_password_reset_confirm_weak_password(self, client: TestClient, test_db, sample_user_data: dict):
-        """Test AC-1.4.6: Weak password rejected"""
-        from models.user import User
-        from common.security import hash_password
-        
-        # Create user
-        user = User(
-            Email=sample_user_data["email"],
-            PasswordHash=hash_password(sample_user_data["password"]),
-            FirstName=sample_user_data["first_name"],
-            LastName=sample_user_data["last_name"]
+        """Test AC-1.4.6: Weak password rejected by request validation"""
+        # Create user with current required schema fields
+        user = create_test_user(
+            test_db,
+            sample_user_data["email"],
+            password=sample_user_data["password"],
+            first_name=sample_user_data["first_name"],
+            last_name=sample_user_data["last_name"],
+            email_verified=True,
+            onboarding_complete=False
         )
-        test_db.add(user)
-        test_db.commit()
-        test_db.refresh(user)
         
         # Generate token
         token = generate_password_reset_token(test_db, user.UserID)
@@ -165,24 +158,20 @@ class TestPasswordResetConfirm:
             }
         )
         
-        assert response.status_code == 400
-        assert "security requirements" in response.json()["detail"]
+        assert response.status_code == 422
     
     def test_password_reset_token_marked_used(self, client: TestClient, test_db, sample_user_data: dict):
         """Test AC-1.4.8: Token marked as used after successful reset"""
-        from models.user import User
-        from common.security import hash_password
-        
-        # Create user
-        user = User(
-            Email=sample_user_data["email"],
-            PasswordHash=hash_password(sample_user_data["password"]),
-            FirstName=sample_user_data["first_name"],
-            LastName=sample_user_data["last_name"]
+        # Create user with current required schema fields
+        user = create_test_user(
+            test_db,
+            sample_user_data["email"],
+            password=sample_user_data["password"],
+            first_name=sample_user_data["first_name"],
+            last_name=sample_user_data["last_name"],
+            email_verified=True,
+            onboarding_complete=False
         )
-        test_db.add(user)
-        test_db.commit()
-        test_db.refresh(user)
         
         # Generate token
         token = generate_password_reset_token(test_db, user.UserID)
@@ -214,20 +203,19 @@ class TestPasswordResetTokenExpiry:
     
     def test_expired_token_rejected(self, test_db, sample_user_data: dict):
         """Test that expired token (>1 hour) is rejected"""
-        from models.user import User
         from models.user_password_reset_token import UserPasswordResetToken
         import secrets
         
-        # Create user
-        user = User(
-            Email=sample_user_data["email"],
-            PasswordHash="hashed",
-            FirstName=sample_user_data["first_name"],
-            LastName=sample_user_data["last_name"]
+        # Create user with current required schema fields
+        user = create_test_user(
+            test_db,
+            sample_user_data["email"],
+            password=sample_user_data["password"],
+            first_name=sample_user_data["first_name"],
+            last_name=sample_user_data["last_name"],
+            email_verified=True,
+            onboarding_complete=False
         )
-        test_db.add(user)
-        test_db.commit()
-        test_db.refresh(user)
         
         # Create expired token (2 hours ago)
         expired_token = secrets.token_urlsafe(32)

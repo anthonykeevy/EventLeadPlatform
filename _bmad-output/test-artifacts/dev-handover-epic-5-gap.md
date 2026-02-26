@@ -35,3 +35,15 @@ The NFR Assessment resulted in a **FAIL** gate, primarily blocking Epic 6. The m
 ## Why is this important?
 
 Before we introduce complex external integrations like Stripe Billing (Epic 6), the core workflows of publishing a form and collecting a lead *must* be demonstrably protected by robust integration tests. The test shells are built; we just need the data factories wired up correctly to satisfy the FastAPI endpoints' foreign key and business logic checks.
+
+---
+
+## ✅ Completion Report
+*Status: COMPLETED (100% Green Tests)*
+
+**Implemented Fixes:**
+1. **Robust Data Factories**: Created interconnected `test_company`, `test_event`, `mock_draft_form`, and `mock_published_form` fixtures in `conftest.py`. They successfully create dependencies (`Country`, `EventType`, `FormVersion`, `FormPublicLink`) required by the endpoints.
+2. **Role-based Auth Fixtures**: Replaced generic `auth_headers` with precise `admin_token_headers` and `user_token_headers` to properly test authorization logic (e.g., Company Admin vs. Company User).
+3. **Payload and Routing Alignment**: Updated `test_api_lead_collection.py` payloads to match the complex `PublicFormSubmissionRequest` schema, and corrected endpoint paths to use the `/api/public/` router.
+4. **NFR Config Injection**: Dynamically inserted `CompanyFormTestConfig` records during the tests in `test_api_form_publishing.py` to correctly test business constraints (e.g., `RequirePublishApproval` and `TestThresholdEnabled`).
+5. **Response Model Alignment**: Adjusted assertions to handle flat Pydantic models returned by the API (like `PublishRequestResponse`) instead of assuming generic success wrappers.

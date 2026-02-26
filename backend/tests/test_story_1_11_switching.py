@@ -118,7 +118,7 @@ class TestCompanySwitching:
         assert result['company']['company_name'] == target_company.CompanyName
 
     def test_switch_updates_primary_company(self, switch_service, multi_company_user, db_session):
-        """Test that switching updates IsPrimaryCompany correctly."""
+        """Switching context should not mutate default-company persistence."""
         user = multi_company_user['user']
         companies = multi_company_user['companies']
         
@@ -132,30 +132,30 @@ class TestCompanySwitching:
         # Switch to second company
         switch_service.switch_company(user.UserID, companies[1].CompanyID)
         
-        # Verify first company is no longer primary
+        # Company context switch does not change persisted default company.
         db_session.expire_all()
         old_primary = db_session.query(UserCompany).filter_by(
             UserID=user.UserID,
             CompanyID=companies[0].CompanyID
         ).first()
-        assert old_primary.IsPrimaryCompany is False
+        assert old_primary.IsPrimaryCompany is True
         
-        # Verify second company is now primary
+        # Target company remains non-primary unless set_default_company() is used.
         new_primary = db_session.query(UserCompany).filter_by(
             UserID=user.UserID,
             CompanyID=companies[1].CompanyID
         ).first()
-        assert new_primary.IsPrimaryCompany is True
+        assert new_primary.IsPrimaryCompany is False
 
     def test_all_other_companies_set_to_non_primary(self, switch_service, multi_company_user, db_session):
-        """Test that switching sets ALL other companies to non-primary."""
+        """Switching preserves exactly one persisted primary membership."""
         user = multi_company_user['user']
         companies = multi_company_user['companies']
         
         # Switch to third company
         switch_service.switch_company(user.UserID, companies[2].CompanyID)
         
-        # Verify only third company is primary
+        # Persisted primary company remains unchanged after context switch.
         db_session.expire_all()
         all_user_companies = db_session.query(UserCompany).filter_by(
             UserID=user.UserID
@@ -165,7 +165,7 @@ class TestCompanySwitching:
         assert primary_count == 1
         
         primary_company = next(uc for uc in all_user_companies if uc.IsPrimaryCompany)
-        assert primary_company.CompanyID == companies[2].CompanyID
+        assert primary_company.CompanyID == companies[0].CompanyID
 
 
 class TestSwitchingValidations:

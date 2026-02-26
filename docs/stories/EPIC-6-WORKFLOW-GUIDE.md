@@ -10,17 +10,15 @@
 
 This is the streamlined workflow established at the end of Epic 5.
 
-| Step | Human | Agent |
-|------|-------|-------|
-| 0 | **Before new story:** Confirm PR closed, `git pull origin master` in main repo | — |
-| 1 | PM approves scope; PM decisions doc finalized | — |
-| 2 | — | **@sm** prepares Story, context (XML), UAT guide; SM reviews and suggests improvements |
-| 3 | Run `new-story.ps1`; open Story worktree in Cursor | — |
-| 4 | Create STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md | — |
-| 5 | Paste Dev prompt into new chat | **@dev** implements full story; **MUST achieve 100% green tests & 0 lint warnings before closeout** |
-| 6 | Run migration (`alembic upgrade head`) if created | — |
-| 7 | Manual UAT per STORY-6.x-UAT-TEST-GUIDE.md | — |
-| 8 | Merge Story PR to master | — |
+| Step | Actor | Action |
+|------|-------|--------|
+| 0 | **Human** | Confirm PR closed, `git pull origin master` in main repo |
+| 1 | **@bmad-agent-bmm-pm** | Approves scope; finalizes PM decisions doc (`docs/stories/story-6.x.md`) |
+| 2 | **@bmad-agent-bmm-sm** | Prepares context (`story-context-6.x.xml`) & UAT guide (`STORY-6.x-UAT-TEST-GUIDE.md`) |
+| 3 | **@bmad-agent-bmm-sm** | Uses `Shell` tool to run `./scripts/git/new-story.ps1` and set up the Git worktree & Draft PR |
+| 4 | **Human** | Switch Cursor window to the newly created worktree (`C:\wt\elp\...`) |
+| 5 | **@bmad-agent-bmm-dev** | Implements the story end-to-end. Runs `pytest` & `npm test`. Fixes issues. Creates final commit & PR. |
+| 6 | **Human** | Manual UAT per `STORY-6.x-UAT-TEST-GUIDE.md` and merge PR via GitHub/gh |
 
 **Artifacts:** `story-6.x.md`, `story-context-6.x.xml`, `STORY-6.x-UAT-TEST-GUIDE.md`, `STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md`
 
@@ -38,54 +36,43 @@ This workflow follows the platform-wide Git rules in:
 - **Push daily:** no multi-day local-only changes
 
 ## 🛑 The "Green CI/CD" Rule (Mandatory for Epic 6+)
-To prevent technical debt accumulation, the Dev agent is strictly bound by the Green CI/CD Rule:
+To prevent technical debt accumulation and AI Hallucinations regarding test status, the Dev agent is strictly bound by the Green CI/CD Rule:
 1. Before creating the final closeout commit, the Dev agent **MUST** run:
-   - Frontend: `npm run lint` and `npm run test:unit`
-   - Backend: `python -m pytest`
-2. The agent is **NOT** allowed to end its turn or close the story until all tests pass and **0** linting errors/warnings remain in the touched files.
-3. If the test suites or linters fail, the Dev agent must fix them as part of the story implementation.
+   - Frontend: `npm run lint` and `npm run test:unit -- --watch=false`
+   - Backend: `python -m pytest --tb=short`
+2. **ANTI-HALLUCINATION PROTOCOL:** The agent MUST read the exact output of the test run. If the test process times out, hangs, or the output is truncated before showing the final `=== X passed, Y failed ===` summary, the agent MUST treat the test as **FAILED**.
+3. The agent is **NOT** allowed to end its turn or close the story until all tests demonstrably pass and **0** linting errors/warnings remain in the touched files.
+4. If the test suites or linters fail, the Dev agent must fix them as part of the story implementation loop before asking the human for help.
 
 ---
 
 ## 🚀 Epic Kickoff (Start Here)
 
-The Epic 6 kickoff path is:
+The Epic 6 kickoff path leverages the newly updated **BMAD v6** commands (`@bmad-agent-bmm-sm.md`, etc.).
 
-- Phase 0: Story bootstrap (branch/worktree + Draft PR) for 6.1
+- Phase 0: Agentic Story bootstrap (branch/worktree + Draft PR) for 6.1
 - Phase 1: Story artifacts (SM prepares Story, context, UAT)
-- Phase 2: Dev single-session prompt
+- Phase 2: Dev single-session implementation
 
-### 📋 Phase 0: Git Setup for Story 6.1
+### 📋 Phase 0 & 1: Agentic Setup for Story 6.1 (Main Chat)
 
-**When:** Before starting Story 6.1 implementation.  
-**Goal:** Create Story 6.1 branch + Draft PR.
-
-```powershell
-./scripts/git/new-story.ps1 -Epic 6 -Story "6.1" -Slug "ai-foundation-static-validator" -CreateWorktree -DraftPR -WorktreeRoot "C:\wt\elp"
-```
-
-🧑 **Human checkpoint:** Open the new worktree in Cursor: `C:\wt\elp\story-epic6-6.1-ai-foundation-static-validator`
-
----
-
-### 📋 Phase 1: Story 6.1 Artifact Creation (SM - Main Chat)
-
-**Prompt for `@sm.mdc`:**
+**Prompt for `@bmad-agent-bmm-sm.md`:**
 
 ```markdown
-@sm.mdc Please create the Story 6.1 artifacts for Epic 6: AI Generation & Monetization Engine.
+@bmad-agent-bmm-sm.md Please act as Scrum Master and orchestrate Phase 0 and Phase 1 for Story 6.1: AI Foundation: Static Validator.
 
 Git discipline:
-- If the Story branch/worktree/Draft PR does not exist yet, STOP and run Phase 0 using:
-  `./scripts/git/new-story.ps1 -Epic 6 -Story "6.1" -Slug "ai-foundation-static-validator" -CreateWorktree -DraftPR -WorktreeRoot "C:\wt\elp"`
+1. Use the Shell tool to run: `./scripts/git/new-story.ps1 -Epic 6 -Story "6.1" -Slug "ai-foundation-static-validator" -CreateWorktree -DraftPR -WorktreeRoot "C:\wt\elp"`
+2. Wait for the script to finish successfully.
 
 Context:
 - Epic scope/roadmap: `docs/stories/EPIC-6-STATUS.md`
 - Concept: `docs/AI-FORM-BUILDING-IDEA.md`
-- Goal: Build a static backend validator API (`POST /api/form-validate`) that accepts `DefinitionJSON` and returns schema + collision/boundary errors without needing a DOM. This provides the feedback loop the AI agent will use to correct itself in Story 6.2.
+- Goal: Build a static backend validator API (`POST /api/form-validate`) that accepts `DefinitionJSON` and returns schema + collision/boundary errors without needing a DOM.
 
 Requirements:
 1. Create `docs/stories/story-6.1.md` focusing purely on the backend validation API.
-2. Create `docs/stories/story-context-6.1.xml` highlighting that this leverages our existing collision logic (`checkCanvasBoundary`, `checkCollision`) ported to Python, or exposing a Node.js utility, but the end result is a structured JSON feedback response for the AI.
-3. Create `docs/stories/STORY-6.1-UAT-TEST-GUIDE.md` with instructions on how to test the API via Postman or Swagger by sending good/bad `DefinitionJSON`.
+2. Create `docs/stories/story-context-6.1.xml` highlighting that this leverages existing collision logic.
+3. Create `docs/stories/STORY-6.1-UAT-TEST-GUIDE.md` with Postman/Swagger test instructions.
+4. Create `docs/stories/STORY-6.1-SINGLE-SESSION-DEV-PROMPT.md` containing the strict Green CI/CD instructions for the Dev agent.
 ```

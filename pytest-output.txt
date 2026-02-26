@@ -1,0 +1,2165 @@
+﻿python : C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\pytest_asyncio\plugin.py:207: 
+PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+At C:\Users\tonyk\AppData\Local\Temp\ps-script-d1d7ceb7-ffa7-43be-bbfc-afde1cf8c112.ps1:88 char:94
++ ... entLeadPlatform\backend" ; python -m pytest --tb=line -q 2>&1 | Out-F ...
++                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\tonyk\...cope" is unset.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of 
+pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop 
+scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", 
+"class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+.............s........sF.......EEEFEEEFFEEEF..E..EFFF.FFFFFFFFFFFFFFFFFF [ 13%]
+FFF....EEEEFEEEEE.FFF...............................F......FF.........F. [ 26%]
+...F................E.EEE.EEEFEEEEEFFFFFF.FFFFFFFF......F............... [ 40%]
+FFF....ssssssF..FF....................E..EEEEEEEEEEEEEFEFFFEEEEEEEEEEEEE [ 53%]
+EF.FF.FFF.FFFFFFFFFFFF.FFFsssFEEEEEEEEEEEEEF............................ [ 66%]
+...............FEEEEEFFEEFEEE..EEEEEEEEEEEEEEFEEEEEEEFEEEEEEEEEEEEEEEEEE [ 80%]
+EEEEEF...........FF.FF...FFF.FF.....EFFFFFF....FFF.FFF.....EEEFEEsEEEEEE [ 93%]
+EEEEEEEEE........FF.....FF.F....FF                                       [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of TestEmailVerification.test_verification_token_generation __
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+___ ERROR at setup of TestEmailVerification.test_email_verification_success ___
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+_ ERROR at setup of TestEmailVerification.test_verification_token_expiration __
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+_ ERROR at setup of TestEmailVerification.test_verification_success_redirect __
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+_ ERROR at setup of TestEmailVerification.test_verification_already_verified __
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+_ ERROR at setup of TestEmailVerification.test_verification_token_reuse_prevention _
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+_____ ERROR at setup of TestUserLogin.test_login_unverified_user_blocked ______
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+______ ERROR at setup of TestUserLogin.test_login_verified_user_success _______
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+_______ ERROR at setup of TestUserLogin.test_login_invalid_credentials ________
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+__________ ERROR at setup of TestUserLogin.test_login_rate_limiting ___________
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+____ ERROR at setup of TestUserLogin.test_login_successful_jwt_generation _____
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+________ ERROR at setup of TestUserSignup.test_signup_with_valid_data _________
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+________ ERROR at setup of TestUserSignup.test_signup_email_validation ________
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+______ ERROR at setup of TestUserSignup.test_signup_password_validation _______
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+___ ERROR at setup of TestUserSignup.test_signup_duplicate_email_prevention ___
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+____ ERROR at setup of TestUserSignup.test_signup_missing_required_fields _____
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+__ ERROR at setup of TestUserSignup.test_signup_password_strength_validation __
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+____ ERROR at setup of TestUserSignup.test_signup_sql_injection_protection ____
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+_________ ERROR at setup of TestUserSignup.test_signup_xss_protection _________
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+______ ERROR at setup of TestUserSignup.test_signup_creates_audit_trail _______
+E   ModuleNotFoundError: No module named 'modules.auth.service'
+
+The above exception was the direct cause of the following exception:
+E   ImportError: import error in modules.auth.service: No module named 'modules.auth.service'
+___________ ERROR at setup of test_view_invitation_details_success ____________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_______________ ERROR at setup of test_view_invitation_expired ________________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_______ ERROR at setup of test_accept_invitation_existing_user_success ________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+___________ ERROR at setup of test_accept_invitation_email_mismatch ___________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+______________ ERROR at setup of test_accept_invitation_expired _______________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+____________ ERROR at setup of test_signup_with_invitation_success ____________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+________ ERROR at setup of test_signup_with_invitation_email_mismatch _________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________________ ERROR at setup of test_list_user_companies __________________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+________________ ERROR at setup of test_switch_company_success ________________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+______________ ERROR at setup of test_switch_company_not_member _______________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+___________ ERROR at setup of test_invitation_acceptance_audit_log ____________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_______________ ERROR at setup of test_company_switch_audit_log _______________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+______ ERROR at setup of test_filter_by_company_helper_filters_correctly ______
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_____ ERROR at setup of test_user_cannot_access_other_company_invitations _____
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_user_cannot_invite_to_other_company __________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_ ERROR at setup of test_user_cannot_access_other_company_data_via_company_switch _
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+__ ERROR at setup of test_verify_company_access_blocks_cross_company_access ___
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+___ ERROR at setup of test_verify_path_company_matches_user_blocks_mismatch ___
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_______ ERROR at setup of test_company_admin_can_invite_to_own_company ________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_____ ERROR at setup of test_company_admin_cannot_invite_to_other_company _____
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+____ ERROR at setup of test_company_admin_can_view_own_company_invitations ____
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_ ERROR at setup of test_company_admin_cannot_view_other_company_invitations __
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_company_user_can_view_own_companies __________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_______ ERROR at setup of test_company_user_cannot_invite_team_members ________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_company_user_cannot_view_invitations _________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+________ ERROR at setup of test_company_user_cannot_cancel_invitations ________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+____ ERROR at setup of test_data_isolation_across_all_protected_endpoints _____
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+__________ ERROR at setup of test_update_user_details_requires_auth ___________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+____________ ERROR at setup of test_update_user_details_with_auth _____________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______________ ERROR at setup of test_invalid_timezone_rejected _______________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_____________ ERROR at setup of test_create_company_requires_auth _____________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+________________ ERROR at setup of test_create_company_success ________________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_______________ ERROR at setup of test_user_update_audit_logged _______________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+____________ ERROR at setup of test_company_creation_audit_logged _____________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________ ERROR at setup of test_user_cannot_create_second_company ___________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________________ ERROR at setup of test_valid_abn_accepted __________________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_________________ ERROR at setup of test_invalid_abn_rejected _________________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________________ ERROR at setup of test_valid_acn_accepted __________________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_________________ ERROR at setup of test_invalid_acn_rejected _________________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_______________ ERROR at setup of test_abn_with_spaces_accepted _______________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_______________ ERROR at setup of test_complete_onboarding_flow _______________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________ ERROR at setup of test_company_admin_can_send_invitations __________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_company_user_cannot_send_invitations _________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+__________ ERROR at setup of test_company_admin_can_list_invitations __________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_company_user_cannot_list_invitations _________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_company_admin_can_cancel_invitations _________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+________ ERROR at setup of test_company_user_cannot_cancel_invitations ________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_company_admin_can_resend_invitations _________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+________ ERROR at setup of test_company_user_cannot_resend_invitations ________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+____________ ERROR at setup of test_all_users_can_view_own_profile ____________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+___________ ERROR at setup of test_all_users_can_update_own_profile ___________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+__________ ERROR at setup of test_all_users_can_list_their_companies __________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+____________ ERROR at setup of test_all_users_can_switch_companies ____________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_____ ERROR at setup of test_role_enforcement_across_all_admin_endpoints ______
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+______ ERROR at setup of test_cannot_forge_jwt_with_different_company_id ______
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_____ ERROR at setup of test_cannot_manipulate_company_id_in_request_body _____
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+__ ERROR at setup of test_cannot_access_resources_via_direct_id_manipulation __
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+___ ERROR at setup of test_cannot_escalate_privileges_via_role_manipulation ___
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________________ ERROR at setup of test_expired_jwt_rejected _________________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+____________ ERROR at setup of test_sql_injection_attempts_blocked ____________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+________________ ERROR at setup of test_xss_attempts_sanitized ________________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_cross_company_access_attempts_logged _________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_______ ERROR at setup of test_audit_log_contains_required_information ________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_________ ERROR at setup of test_jwt_claims_immutable_after_issuance __________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+______________ ERROR at setup of test_sensitive_data_not_in_logs ______________
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+_______ ERROR at setup of test_no_information_leakage_in_error_messages _______
+E   TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+___ ERROR at setup of TestAccessRequestCreation.test_create_access_request ____
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestCreation.test_create_access_request_without_reason _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestCreation.test_prevent_duplicate_pending_request _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+___ ERROR at setup of TestAccessRequestApproval.test_approve_access_request ___
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+__ ERROR at setup of TestAccessRequestApproval.test_approve_sets_joined_via ___
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestApproval.test_approve_non_pending_request_fails _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+___ ERROR at setup of TestAccessRequestRejection.test_reject_access_request ___
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestRejection.test_reject_does_not_create_user_company _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestRejection.test_reject_non_pending_request_fails _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestQueries.test_get_pending_access_requests _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestQueries.test_pending_requests_exclude_approved _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestQueries.test_pending_requests_exclude_rejected _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestCompanySwitchingIntegration.test_switch_company_api_endpoint _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestCompanySwitchingIntegration.test_switch_company_updates_jwt _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestCompanySwitchingIntegration.test_switch_to_unauthorized_company_fails _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestCompanySwitchingIntegration.test_get_user_companies_endpoint _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestIntegration.test_create_access_request_api _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestIntegration.test_approve_access_request_api _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestAccessRequestIntegration.test_get_pending_access_requests_api _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipCreation.test_create_branch_relationship __
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipCreation.test_create_subsidiary_relationship _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipCreation.test_create_partner_relationship _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipValidations.test_prevent_self_relationship _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipValidations.test_prevent_duplicate_relationship _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipValidations.test_prevent_circular_relationship_simple _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipValidations.test_prevent_circular_relationship_complex _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipValidations.test_invalid_relationship_type _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+___ ERROR at setup of TestRelationshipQueries.test_get_relationship_between ___
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+__ ERROR at setup of TestRelationshipQueries.test_get_company_relationships ___
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+__ ERROR at setup of TestRelationshipStatusUpdates.test_suspend_relationship __
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipStatusUpdates.test_terminate_relationship _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestRelationshipStatusUpdates.test_invalid_status_update __
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_____ ERROR at setup of TestCompanySwitching.test_switch_to_valid_company _____
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestCompanySwitching.test_switch_updates_primary_company __
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestCompanySwitching.test_all_other_companies_set_to_non_primary _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestSwitchingValidations.test_switch_to_non_member_company _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestSwitchingValidations.test_switch_to_inactive_membership _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+__ ERROR at setup of TestJWTGeneration.test_jwt_contains_correct_company_id ___
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_____ ERROR at setup of TestJWTGeneration.test_jwt_contains_correct_role ______
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_______ ERROR at setup of TestJWTGeneration.test_switch_multiple_times ________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+____ ERROR at setup of TestSwitchingEdgeCases.test_switch_to_same_company _____
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+____ ERROR at setup of TestSwitchingEdgeCases.test_refresh_token_generated ____
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_ ERROR at setup of TestTokenServicesIntegration.test_email_verification_token_uses_config _
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+______ ERROR at setup of test_update_profile_enhancements_requires_auth _______
+E   NotImplementedError
+________ ERROR at setup of test_update_profile_enhancements_with_auth _________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_________________ ERROR at setup of test_get_enhanced_profile _________________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_______________ ERROR at setup of test_add_industry_association _______________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_________________ ERROR at setup of test_get_user_industries __________________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+_____________ ERROR at setup of test_remove_industry_association ______________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+______________ ERROR at setup of test_bio_validation_max_length _______________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+____________ ERROR at setup of test_duplicate_industry_prevention _____________
+E   sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+____________ ERROR at setup of test_send_invitation_requires_auth _____________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+________ ERROR at setup of test_send_invitation_requires_company_admin ________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_______________ ERROR at setup of test_send_invitation_success ________________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+____________ ERROR at setup of test_cannot_invite_existing_member _____________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+___________ ERROR at setup of test_invitation_with_different_roles ____________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______________ ERROR at setup of test_resend_invitation_success _______________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______________ ERROR at setup of test_cancel_invitation_success _______________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+___________________ ERROR at setup of test_list_invitations ___________________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_______________ ERROR at setup of test_invitation_audit_logging _______________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+_______ ERROR at setup of test_admin_cannot_invite_to_different_company _______
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+___________ ERROR at setup of test_cannot_invite_with_invalid_role ____________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________ ERROR at setup of test_cannot_resend_cancelled_invitation __________
+E   sqlite3.OperationalError: unknown database ref
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unknown database ref
+    [SQL: 
+    CREATE TABLE ref."Country" (
+    	"CountryID" BIGINT NOT NULL, 
+    	"CountryCode" VARCHAR(2) NOT NULL, 
+    	"CountryName" VARCHAR(100) NOT NULL, 
+    	"PhonePrefix" VARCHAR(10) NOT NULL, 
+    	"CurrencyCode" VARCHAR(3) NOT NULL, 
+    	"CurrencySymbol" VARCHAR(5) NOT NULL, 
+    	"CurrencyName" VARCHAR(100) NOT NULL, 
+    	"TaxRate" NUMERIC(5, 2), 
+    	"TaxName" VARCHAR(50), 
+    	"TaxInclusive" BOOLEAN NOT NULL, 
+    	"TaxNumberLabel" VARCHAR(50), 
+    	"CompanyValidationProvider" VARCHAR(50), 
+    	"AddressValidationProvider" VARCHAR(50), 
+    	"IntegrationConfig" VARCHAR, 
+    	"IsActive" BOOLEAN NOT NULL, 
+    	"SortOrder" INTEGER NOT NULL, 
+    	"CreatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"CreatedBy" BIGINT, 
+    	"UpdatedDate" DATETIME DEFAULT (getutcdate()) NOT NULL, 
+    	"UpdatedBy" BIGINT, 
+    	"IsDeleted" BOOLEAN NOT NULL, 
+    	"DeletedDate" DATETIME, 
+    	"DeletedBy" BIGINT, 
+    	PRIMARY KEY ("CountryID")
+    )
+    
+    ]
+    (Background on this error at: https://sqlalche.me/e/20/e3q8)
+================================== FAILURES ===================================
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py:363: json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:85: assert 405 in [400, 404, 422]
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\pkgutil.py:528: AttributeError: module 'modules.auth' has no attribute 'service'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:180: assert 405 in [200, 400, 404]
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:91: AssertionError: assert 'credentials' in 'invalid email or password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:203: AssertionError: assert 'x-content-type-options' in Headers({'content-length': '89', 'content-type': 'application/json'})
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:945: sqlalchemy.exc.IntegrityError: (pyodbc.IntegrityError) ('23000', "[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert duplicate key row in object 'dbo.User' with unique index 'UX_User_Email'. The duplicate key value is (unverified.test@example.com). (2601) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)")
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:945: sqlalchemy.exc.IntegrityError: (pyodbc.IntegrityError) ('23000', "[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert duplicate key row in object 'dbo.User' with unique index 'UX_User_Email'. The duplicate key value is (status.test@example.com). (2601) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)")
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:82: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:108: fastapi.exceptions.HTTPException: 401: Invalid authorization header format. Expected 'Bearer <token>'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:130: fastapi.exceptions.HTTPException: 401: Invalid token
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:130: fastapi.exceptions.HTTPException: 401: Token has expired
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:158: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:173: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:188: TypeError: create_refresh_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:205: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:228: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:245: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:262: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:280: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:328: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:130: fastapi.exceptions.HTTPException: 401: Invalid token
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:363: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:384: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:412: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\pkgutil.py:528: AttributeError: module 'modules.auth' has no attribute 'service'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:244: assert 400 == 201
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:277: assert 400 == 201
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_database_connection.py:74: assert not True
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:462: sqlalchemy.exc.InvalidRequestError: Table 'ref.Country' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_exception_handler.py:52: KeyError: 'success'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_exception_handler.py:155: KeyError: 'message'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\user_service.py:200: ValueError: Invitation not found
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:25: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:43: TypeError: create_access_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:59: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:71: TypeError: create_refresh_token() missing 1 required positional argument: 'db'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:89: TypeError: create_refresh_token() missing 1 required positional argument: 'user_id'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:102: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:117: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:127: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:135: TypeError: create_refresh_token() missing 1 required positional argument: 'user_id'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:143: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:151: TypeError: create_refresh_token() missing 1 required positional argument: 'user_id'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:159: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:166: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_jwt_service.py:174: TypeError: create_access_token() missing 1 required positional argument: 'email'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_log_filters.py:91: TypeError: string indices must be integers, not 'str'
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\result.py:752: sqlalchemy.exc.NoResultFound: No row was found when one was required
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:142: KeyError: 'success'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:177: KeyError: 'details'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:157: AssertionError: assert 'user' == ''
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_models_import.py:49: AssertionError: Expected 33 models, got 77
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:462: sqlalchemy.exc.InvalidRequestError: Table 'ref.Country' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:130: fastapi.exceptions.HTTPException: 401: Invalid token
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'EmailVerified' is an invalid keyword argument for User
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_reset.py:25: assert 400 == 201
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:945: sqlalchemy.exc.IntegrityError: (pyodbc.IntegrityError) ('23000', "[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert the value NULL into column 'StatusID', table 'EventLeadPlatform.dbo.User'; column does not allow nulls. INSERT fails. (515) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)")
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'EmailVerified' is an invalid keyword argument for User
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:945: sqlalchemy.exc.IntegrityError: (pyodbc.IntegrityError) ('23000', "[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert the value NULL into column 'StatusID', table 'EventLeadPlatform.dbo.User'; column does not allow nulls. INSERT fails. (515) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)")
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:945: sqlalchemy.exc.IntegrityError: (pyodbc.IntegrityError) ('23000', "[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert the value NULL into column 'StatusID', table 'EventLeadPlatform.dbo.User'; column does not allow nulls. INSERT fails. (515) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)")
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:945: sqlalchemy.exc.IntegrityError: (pyodbc.IntegrityError) ('23000', "[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert the value NULL into column 'StatusID', table 'EventLeadPlatform.dbo.User'; column does not allow nulls. INSERT fails. (515) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)")
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:15: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:21: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:27: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:33: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:39: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:45: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:51: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:56: TypeError: get_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:63: TypeError: get_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:70: TypeError: get_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_validator.py:80: TypeError: validate_password_strength() missing 1 required positional argument: 'password'
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\decl_base.py:2175: TypeError: 'CompanyTradingName' is an invalid keyword argument for Company
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_schema_validation.py:233: AssertionError: Model has columns not in DB: {'EmailVerifiedAt', 'FailedLoginAttempts', 'IsDeleted', 'AccessTokenVersion', 'IsLocked', 'LastPasswordChange', 'PreferredLanguageID', 'CreatedDate', 'TimezoneIdentifier', 'IsEmailVerified', 'OnboardingComplete', 'UserRoleID', 'LockedReason', 'DeletedBy', 'SessionToken', 'StatusID', 'RoleTitle', 'LockedUntil', 'PasswordHash', 'LastName', 'LayoutDensityID', 'UpdatedDate', 'ThemePreferenceID', 'RefreshTokenVersion', 'LastLoginDate', 'DeletedDate', 'Email', 'UpdatedBy', 'Bio', 'ProfilePictureUrl', 'FirstName', 'Phone', 'OnboardingStep', 'CountryID', 'FontSizeID', 'CreatedBy', 'UserID'}
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:130: fastapi.exceptions.HTTPException: 401: Invalid token
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\mssql\base.py:1961: sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) No results.  Previous SQL was not a query.
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\cursor.py:1346: sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\cursor.py:1346: sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\countries\validation_engine.py:258: pydantic_core._pydantic_core.ValidationError: 2 validation errors for ValidationResult
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_12_validation.py:302: AssertionError: assert 6 == 1
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_12_validation.py:324: AssertionError: ABN 47001586760 should be valid
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_12_validation.py:363: TypeError: ValidationEngine._validate_phone_number() missing 1 required positional argument: 'country_id'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_12_validation.py:380: TypeError: ValidationEngine._validate_phone_number() missing 1 required positional argument: 'country_id'
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_12_validation.py:445: AssertionError: assert False is True
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_12_validation.py:459: TypeError: ValidationEngine._apply_rule_validation() missing 1 required positional argument: 'country_id'
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_story_1_13_config_service.py:80: assert 10 == 42
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_story_1_13_config_service.py:135: AssertionError: assert None is True
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_story_1_13_config_service.py:184: AssertionError: assert None == 'modified'
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\cursor.py:1346: sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\mssql\base.py:1961: sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) No results.  Previous SQL was not a query.
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\cursor.py:1346: sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\cursor.py:1346: sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\cursor.py:1346: sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\cursor.py:1346: sqlalchemy.exc.ResourceClosedError: This result object does not return rows. It has been closed automatically.
+C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\auth.py:100: fastapi.exceptions.HTTPException: 401: Missing authorization header
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_validators.py:90: assert False is True
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_validators.py:97: assert False is True
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_validators.py:151: AssertionError: ACN 123456782 should be valid
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_validators.py:164: assert False is True
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_validators.py:178: assert False is True
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_validators.py:230: assert True is False
+C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_validators.py:246: assert True is False
+============================== warnings summary ===============================
+common\database.py:31
+common\database.py:31
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\common\database.py:31: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:295: 105 warnings
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:345
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:345: UserWarning: Valid config keys have changed in V2:
+  * 'schema_extra' has been renamed to 'json_schema_extra'
+    warnings.warn(message, UserWarning)
+
+modules\events\schemas.py:162
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\events\schemas.py:162: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    @validator('end_datetime')
+
+modules\events\schemas.py:168
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\events\schemas.py:168: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    @validator('latitude')
+
+modules\events\schemas.py:174
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\events\schemas.py:174: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    @validator('longitude')
+
+modules\companies\schemas.py:17
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\companies\schemas.py:17: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    @validator('role_code')
+
+modules\companies\schemas.py:458
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\companies\schemas.py:458: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    @validator('relationship_type')
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:345
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:345: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+modules\companies\schemas.py:512
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\companies\schemas.py:512: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    @validator('status')
+
+middleware\test_middleware.py:8
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\test_middleware.py:8: PytestCollectionWarning: cannot collect test class 'TestMiddleware' because it has a __init__ constructor (from: middleware/test_middleware.py)
+    class TestMiddleware(BaseHTTPMiddleware):
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:13
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:31
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:31: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:56
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:56: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:72
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:72: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:87
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:87: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:110
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:110: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:129
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:129: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:149
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:149: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:172
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_email_verification.py:172: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:14
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:34
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:34: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:60
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:60: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:79
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:79: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:93
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:93: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:106
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:106: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:118
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:118: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:140
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:140: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:152
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:152: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:164
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:164: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:193
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:193: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:207
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:207: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:237
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:237: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:269
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_login.py:269: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:13
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:28
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:28: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:52
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:52: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:73
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:73: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:86
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:86: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:105
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:105: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:122
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:122: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:144
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:144: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:158
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:158: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:175
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:175: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:188
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:188: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:228
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:228: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:258
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_signup.py:258: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_company_users_endpoint.py:12
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_company_users_endpoint.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_company_users_endpoint.py:23
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_company_users_endpoint.py:23: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_dashboard_kpis.py:13
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_dashboard_kpis.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_dashboard_kpis.py:28
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_dashboard_kpis.py:28: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+tests\test_logging_integration.py:55
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:55: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests\test_logging_integration.py:98
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:98: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests\test_logging_integration.py:122
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:122: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests\test_logging_integration.py:166
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:166: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests\test_logging_integration.py:195
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:195: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests\test_logging_integration.py:220
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:220: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests\test_logging_integration.py:248
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:248: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests\test_logging_integration.py:272
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_logging_integration.py:272: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:14
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:15
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:15: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:29
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:29: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:30
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:51
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:51: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:52
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:52: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:73
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:73: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:74
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:74: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:116
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:116: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:117
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:117: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:132
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:132: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:133
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:133: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:149
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:149: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:164
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_mailhog_integration.py:164: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_reset.py:273
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_password_reset.py:273: PytestUnknownMarkWarning: Unknown pytest.mark.story_1_4 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_performance.py:330
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_performance.py:330: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:18
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:18: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:50
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:50: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:75
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:75: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:101
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:101: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:141
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:141: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:171
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:171: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+..\..\..\..\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:202
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_story_1_9_integration.py:202: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+test_centralized_db.py::test_database_connection
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_database_connection returned {'status': 'connected', 'database': 'EventLeadPlatform', 'version': 'Microsoft SQL Server 2022 (RTM-GDR) (KB5073031) - 16.0.1165.1 (X64) \n\tNov 24 2025 19:08:45 \n\tCopyrig...', 'connection_string': 'Driver={ODBC Driver 18 for SQL Server};Server=localhost;Database=EventLeadPlatform;Trusted_Connection=yes;TrustServerCertificate=yes;'}, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_centralized_db.py::test_basic_connection
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_basic_connection returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_centralized_db.py::test_health_check
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\common\db_utils.py:38: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat()
+
+test_centralized_db.py::test_health_check
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_health_check returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_centralized_db.py::test_logging_configuration
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\common\agent_db_helpers.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat()
+
+test_centralized_db.py::test_logging_configuration
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_logging_configuration returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_centralized_db.py::test_system_health
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\common\agent_db_helpers.py:60: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat()
+
+test_centralized_db.py::test_system_health
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_system_health returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_centralized_db.py::test_payload_logs
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_payload_logs returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_centralized_db.py::test_performance_metrics
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_performance_metrics returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_centralized_db.py::test_direct_queries
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_centralized_db.py::test_direct_queries returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_enhanced_payload_capture.py::test_payload_endpoint
+test_middleware_direct.py::test_endpoint
+tests/test_mailhog_integration.py::TestMailHogIntegration::test_send_verification_email_to_mailhog
+tests/test_mailhog_integration.py::TestMailHogIntegration::test_send_password_reset_email_to_mailhog
+tests/test_mailhog_integration.py::TestMailHogIntegration::test_email_content_formatting
+tests/test_mailhog_integration.py::TestMailHogIntegration::test_mailhog_fallback_behavior
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:148: PytestUnhandledCoroutineWarning: async def functions are not natively supported and have been skipped.
+  You need to install a suitable plugin for your async framework, for example:
+    - anyio
+    - pytest-asyncio
+    - pytest-tornasync
+    - pytest-trio
+    - pytest-twisted
+    warnings.warn(PytestUnhandledCoroutineWarning(msg.format(nodeid)))
+
+test_enhanced_payload_capture.py: 3 warnings
+test_middleware_direct.py: 3 warnings
+tests/test_assets_upload.py: 12 warnings
+tests/test_auth_email_verification.py: 6 warnings
+tests/test_auth_login.py: 24 warnings
+tests/test_auth_signup.py: 7 warnings
+tests/test_company_users_endpoint.py: 3 warnings
+tests/test_dashboard_kpis.py: 3 warnings
+tests/test_invitation_acceptance.py: 12 warnings
+tests/test_logging_integration.py: 24 warnings
+tests/test_multi_tenancy.py: 6 warnings
+tests/test_password_reset.py: 16 warnings
+tests/test_rbac.py: 3 warnings
+tests/test_request_logging.py: 15 warnings
+tests/test_security.py: 9 warnings
+tests/test_story_1_12_validation.py: 9 warnings
+tests/test_story_1_13_config_service.py: 34 warnings
+tests/test_story_1_9_integration.py: 16 warnings
+tests/test_story_2_1_profile_enhancement.py: 3 warnings
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\common\config_service.py:202: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self._cache_timestamp = datetime.utcnow()
+
+test_enhanced_payload_capture.py: 2 warnings
+test_middleware_direct.py: 2 warnings
+tests/test_assets_upload.py: 8 warnings
+tests/test_auth_email_verification.py: 4 warnings
+tests/test_auth_login.py: 16 warnings
+tests/test_auth_signup.py: 4 warnings
+tests/test_company_users_endpoint.py: 2 warnings
+tests/test_dashboard_kpis.py: 2 warnings
+tests/test_invitation_acceptance.py: 8 warnings
+tests/test_logging_integration.py: 16 warnings
+tests/test_multi_tenancy.py: 4 warnings
+tests/test_password_reset.py: 10 warnings
+tests/test_rbac.py: 2 warnings
+tests/test_request_logging.py: 10 warnings
+tests/test_security.py: 6 warnings
+tests/test_story_1_12_validation.py: 6 warnings
+tests/test_story_1_13_config_service.py: 24 warnings
+tests/test_story_1_9_integration.py: 10 warnings
+tests/test_story_2_1_profile_enhancement.py: 2 warnings
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\common\config_service.py:196: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    elapsed = (datetime.utcnow() - self._cache_timestamp).total_seconds()
+
+test_form_access_control_validation.py::test_connection
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_form_access_control_validation.py::test_connection returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_form_access_control_validation.py::test_database_connection
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_form_access_control_validation.py::test_database_connection returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_form_access_control_validation.py::test_reference_data_exists
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_form_access_control_validation.py::test_reference_data_exists returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_form_access_control_validation.py::test_service_imports
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_form_access_control_validation.py::test_service_imports returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_form_access_control_validation.py::test_api_imports
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_form_access_control_validation.py::test_api_imports returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+test_form_access_control_validation.py::test_schema_imports
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but test_form_access_control_validation.py::test_schema_imports returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_assets_upload.py::test_upload_background_image_success
+tests/test_assets_upload.py::test_upload_background_rejects_oversize
+tests/test_assets_upload.py::test_upload_background_rejects_invalid_mime
+tests/test_assets_upload.py::test_resolve_asset_url_builds_runtime_url
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_assets_upload.py:21: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_assets_upload.py::test_upload_background_image_success
+tests/test_assets_upload.py::test_upload_background_rejects_oversize
+tests/test_assets_upload.py::test_upload_background_rejects_invalid_mime
+tests/test_auth_middleware.py::TestJWTValidation::test_expired_token_returns_401
+tests/test_story_1_13_config_service.py::TestJWTServiceIntegration::test_jwt_access_token_uses_config
+tests/test_story_1_13_config_service.py::TestJWTServiceIntegration::test_jwt_refresh_token_uses_config
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\jose\jwt.py:311: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = timegm(datetime.utcnow().utctimetuple())
+
+tests/test_assets_upload.py: 4 warnings
+tests/test_auth_email_verification.py: 2 warnings
+tests/test_auth_login.py: 8 warnings
+tests/test_auth_signup.py: 2 warnings
+tests/test_invitation_acceptance.py: 2 warnings
+tests/test_password_reset.py: 5 warnings
+tests/test_security.py: 1 warning
+tests/test_story_1_12_validation.py: 5 warnings
+tests/test_story_1_9_integration.py: 1 warning
+tests/test_story_2_1_profile_enhancement.py: 4 warnings
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\middleware\bulletproof_request_logger.py:623: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    CreatedDate=datetime.utcnow(),
+
+tests/test_auth_login.py: 2 warnings
+tests/test_auth_signup.py: 2 warnings
+tests/test_invitation_acceptance.py: 1 warning
+tests/test_password_reset.py: 3 warnings
+tests/test_security.py: 1 warning
+tests/test_story_1_9_integration.py: 4 warnings
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\audit_service.py:68: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    CreatedDate=datetime.utcnow()
+
+tests/test_auth_middleware.py::TestJWTValidation::test_expired_token_returns_401
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_auth_middleware.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+tests/test_auth_signup.py::TestUserSignup::test_signup_transaction_rollback_on_email_failure
+tests/test_story_1_9_integration.py::TestStory19TransactionManagement::test_email_failure_rolls_back_user_creation
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\user_service.py:69: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    CreatedDate=datetime.utcnow(),
+
+tests/test_auth_signup.py::TestUserSignup::test_signup_transaction_rollback_on_email_failure
+tests/test_story_1_9_integration.py::TestStory19TransactionManagement::test_email_failure_rolls_back_user_creation
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\user_service.py:70: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    UpdatedDate=datetime.utcnow(),
+
+tests/test_auth_signup.py::TestUserSignup::test_signup_transaction_rollback_on_email_failure
+tests/test_story_1_9_integration.py::TestStory19TransactionManagement::test_email_failure_rolls_back_user_creation
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\token_service.py:46: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expires_at = datetime.utcnow() + timedelta(hours=expiry_hours)
+
+tests/test_auth_signup.py::TestUserSignup::test_signup_transaction_rollback_on_email_failure
+tests/test_story_1_9_integration.py::TestStory19TransactionManagement::test_email_failure_rolls_back_user_creation
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\token_service.py:54: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    CreatedDate=datetime.utcnow()
+
+tests/test_database_connection.py::test_connection
+  C:\Users\tonyk\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_database_connection.py::test_connection returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_invitation_acceptance.py: 12 warnings
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_invitation_acceptance.py:47: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+tests/test_invitation_acceptance.py: 12 warnings
+  C:\Users\tonyk\OneDrive\Projects\EventLeadPlatform\backend\tests\test_invitation_acceptance.py:48: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+tests/test_multi_tenancy.py: 16 warnings
+tests/test_performance.py: 5 warnings
+tests/test_rbac.py: 13 warnings
+tests/test_security.py: 12 warnings
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_utils.py:46: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    CreatedDate=datetime.utcnow(),
+
+tests/test_multi_tenancy.py: 16 warnings
+tests/test_performance.py: 5 warnings
+tests/test_rbac.py: 13 warnings
+tests/test_security.py: 12 warnings
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_utils.py:47: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    UpdatedDate=datetime.utcnow(),
+
+tests/test_multi_tenancy.py::test_jwt_without_company_context_limited_access
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_utils.py:104: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    CreatedDate=datetime.utcnow(),
+
+tests/test_multi_tenancy.py::test_jwt_without_company_context_limited_access
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\tests\test_utils.py:105: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    UpdatedDate=datetime.utcnow(),
+
+tests/test_password_reset.py::TestPasswordResetSecurity::test_no_information_leakage
+tests/test_story_1_13_config_service.py::TestTokenServicesIntegration::test_password_reset_token_uses_config
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\token_service.py:272: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    UserPasswordResetToken.ExpiresAt > datetime.utcnow()
+
+tests/test_password_reset.py::TestPasswordResetSecurity::test_no_information_leakage
+tests/test_story_1_13_config_service.py::TestTokenServicesIntegration::test_password_reset_token_uses_config
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\token_service.py:277: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    token.UsedAt = datetime.utcnow()
+
+tests/test_password_reset.py::TestPasswordResetSecurity::test_no_information_leakage
+tests/test_story_1_13_config_service.py::TestTokenServicesIntegration::test_password_reset_token_uses_config
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\token_service.py:182: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expires_at = datetime.utcnow() + timedelta(hours=expiry_hours)
+
+tests/test_password_reset.py::TestPasswordResetSecurity::test_no_information_leakage
+tests/test_story_1_13_config_service.py::TestTokenServicesIntegration::test_password_reset_token_uses_config
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\token_service.py:190: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    CreatedDate=datetime.utcnow()
+
+tests/test_story_1_12_validation.py::TestValidationEngine::test_cache_functionality
+tests/test_story_1_12_validation.py::TestCachingBehavior::test_cache_hit_performance
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\countries\validation_engine.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self._cache_timestamp[cache_key] = datetime.utcnow()
+
+tests/test_story_1_12_validation.py::TestValidationEngine::test_cache_functionality
+tests/test_story_1_12_validation.py::TestCachingBehavior::test_cache_hit_performance
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\countries\validation_engine.py:444: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    elapsed = (datetime.utcnow() - self._cache_timestamp[cache_key]).total_seconds()
+
+tests/test_story_1_13_config_service.py::TestJWTServiceIntegration::test_jwt_access_token_uses_config
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\jwt_service.py:53: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_story_1_13_config_service.py::TestJWTServiceIntegration::test_jwt_refresh_token_uses_config
+  C:\Users\tonyk\OneDrive - Signal Platforms Pty Ltd\Projects\EventLeadPlatform\backend\modules\auth\jwt_service.py:94: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_middleware_direct.py::test_middleware - json.decoder.JSONDecodeEr...
+FAILED tests/test_auth_email_verification.py::TestEmailVerification::test_verification_invalid_token
+FAILED tests/test_auth_email_verification.py::TestEmailVerification::test_verification_email_template_rendering
+FAILED tests/test_auth_email_verification.py::TestEmailVerification::test_verification_security_headers
+FAILED tests/test_auth_login.py::TestUserLogin::test_login_nonexistent_user
+FAILED tests/test_auth_login.py::TestUserLogin::test_login_security_headers
+FAILED tests/test_auth_login.py::TestUserLogin::test_login_checks_is_email_verified_column
+FAILED tests/test_auth_login.py::TestUserLogin::test_login_checks_status_id_column
+FAILED tests/test_auth_middleware.py::TestJWTValidation::test_valid_token_allows_access
+FAILED tests/test_auth_middleware.py::TestJWTValidation::test_missing_token_returns_401
+FAILED tests/test_auth_middleware.py::TestJWTValidation::test_invalid_token_format_returns_401
+FAILED tests/test_auth_middleware.py::TestJWTValidation::test_invalid_token_returns_401
+FAILED tests/test_auth_middleware.py::TestJWTValidation::test_expired_token_returns_401
+FAILED tests/test_auth_middleware.py::TestJWTPayloadExtraction::test_extracts_user_id_from_sub_claim
+FAILED tests/test_auth_middleware.py::TestJWTPayloadExtraction::test_extracts_email_claim
+FAILED tests/test_auth_middleware.py::TestJWTPayloadExtraction::test_rejects_refresh_token
+FAILED tests/test_auth_middleware.py::TestCurrentUserInjection::test_user_injected_into_request_state
+FAILED tests/test_auth_middleware.py::TestRoleBasedAuthorization::test_correct_role_allows_access
+FAILED tests/test_auth_middleware.py::TestRoleBasedAuthorization::test_wrong_role_returns_403
+FAILED tests/test_auth_middleware.py::TestRoleBasedAuthorization::test_missing_role_returns_403
+FAILED tests/test_auth_middleware.py::TestRoleBasedAuthorization::test_multiple_roles_allowed
+FAILED tests/test_auth_middleware.py::TestCompanyContext::test_company_id_extracted_from_jwt
+FAILED tests/test_auth_middleware.py::TestUnauthorizedAccess::test_no_token_returns_401
+FAILED tests/test_auth_middleware.py::TestUnauthorizedAccess::test_invalid_token_returns_401
+FAILED tests/test_auth_middleware.py::TestUnauthorizedAccess::test_wrong_role_returns_403
+FAILED tests/test_auth_middleware.py::TestGetCurrentUserDependency::test_get_current_user_returns_user
+FAILED tests/test_auth_middleware.py::TestGetCurrentUserDependency::test_get_current_user_raises_401_if_not_authenticated
+FAILED tests/test_auth_middleware.py::TestOptionalAuthentication::test_optional_auth_with_token
+FAILED tests/test_auth_middleware.py::TestOptionalAuthentication::test_optional_auth_without_token
+FAILED tests/test_auth_signup.py::TestUserSignup::test_signup_sends_verification_email
+FAILED tests/test_auth_signup.py::TestUserSignup::test_signup_response_format_matches_fastapi_standard
+FAILED tests/test_auth_signup.py::TestUserSignup::test_signup_end_to_end_integration
+FAILED tests/test_company_users_endpoint.py::TestCompanyUsersEndpoint::test_get_company_users_endpoint_exists
+FAILED tests/test_dashboard_kpis.py::TestDashboardKPIs::test_get_kpis_returns_data
+FAILED tests/test_database_connection.py::test_session_cleanup - assert not True
+FAILED tests/test_database_connection.py::test_base_metadata - sqlalchemy.exc...
+FAILED tests/test_exception_handler.py::test_global_exception_handler_catches_unhandled_exceptions
+FAILED tests/test_exception_handler.py::test_global_exception_handler_returns_user_friendly_message
+FAILED tests/test_invitation_acceptance.py::test_signup_with_invalid_invitation
+FAILED tests/test_jwt_service.py::TestJWTService::test_create_access_token_minimal
+FAILED tests/test_jwt_service.py::TestJWTService::test_create_access_token_with_role_and_company
+FAILED tests/test_jwt_service.py::TestJWTService::test_access_token_expiry - ...
+FAILED tests/test_jwt_service.py::TestJWTService::test_create_refresh_token
+FAILED tests/test_jwt_service.py::TestJWTService::test_refresh_token_expiry
+FAILED tests/test_jwt_service.py::TestJWTService::test_decode_valid_token - T...
+FAILED tests/test_jwt_service.py::TestJWTService::test_decode_tampered_token
+FAILED tests/test_jwt_service.py::TestJWTService::test_verify_token_type_access
+FAILED tests/test_jwt_service.py::TestJWTService::test_verify_token_type_refresh
+FAILED tests/test_jwt_service.py::TestJWTService::test_extract_user_id - Type...
+FAILED tests/test_jwt_service.py::TestJWTService::test_extract_user_id_from_refresh_token
+FAILED tests/test_jwt_service.py::TestJWTService::test_is_token_expired_not_expired
+FAILED tests/test_jwt_service.py::TestJWTService::test_token_uniqueness - Typ...
+FAILED tests/test_jwt_service.py::TestJWTService::test_optional_claims_omitted
+FAILED tests/test_log_filters.py::test_sanitize_dict_nested - TypeError: stri...
+FAILED tests/test_logging_integration.py::test_authenticated_request_includes_user_context
+FAILED tests/test_logging_integration.py::test_error_logged_to_database - Key...
+FAILED tests/test_logging_integration.py::test_request_and_error_correlation
+FAILED tests/test_mailhog_integration.py::TestMailHogIntegration::test_email_service_configuration
+FAILED tests/test_models_import.py::test_model_count - AssertionError: Expect...
+FAILED tests/test_models_import.py::test_sqlalchemy_registration - sqlalchemy...
+FAILED tests/test_multi_tenancy.py::test_multi_company_user_sees_correct_data
+FAILED tests/test_multi_tenancy.py::test_unauthenticated_user_cannot_access_protected_endpoints
+FAILED tests/test_multi_tenancy.py::test_invalid_jwt_rejected - fastapi.excep...
+FAILED tests/test_multi_tenancy.py::test_jwt_without_company_context_limited_access
+FAILED tests/test_password_reset.py::TestPasswordResetRequest::test_password_reset_request_existing_email
+FAILED tests/test_password_reset.py::TestPasswordResetRequest::test_password_reset_token_generated
+FAILED tests/test_password_reset.py::TestPasswordResetConfirm::test_password_reset_confirm_valid_token
+FAILED tests/test_password_reset.py::TestPasswordResetConfirm::test_password_reset_confirm_weak_password
+FAILED tests/test_password_reset.py::TestPasswordResetConfirm::test_password_reset_token_marked_used
+FAILED tests/test_password_reset.py::TestPasswordResetTokenExpiry::test_expired_token_rejected
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_strong_password_passes
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_minimum_length_validation
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_uppercase_requirement
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_lowercase_requirement
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_number_requirement
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_special_character_requirement
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_multiple_validation_errors
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_get_password_strength_weak
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_get_password_strength_medium
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_get_password_strength_strong
+FAILED tests/test_password_validator.py::TestPasswordValidator::test_special_characters_variety
+FAILED tests/test_performance.py::test_company_filtering_overhead_minimal - T...
+FAILED tests/test_performance.py::test_query_performance_with_large_dataset
+FAILED tests/test_performance.py::test_concurrent_multi_tenant_queries - Type...
+FAILED tests/test_performance.py::test_invitation_queries_scale_with_company_filtering
+FAILED tests/test_performance.py::test_system_handles_high_volume_of_company_filtered_queries
+FAILED tests/test_rbac.py::test_unauthenticated_requests_denied_for_all_protected_endpoints
+FAILED tests/test_schema_validation.py::TestAlembicMigrationConsistency::test_user_model_matches_database_schema
+FAILED tests/test_security.py::test_missing_jwt_rejected - fastapi.exceptions...
+FAILED tests/test_security.py::test_malformed_jwt_rejected - fastapi.exceptio...
+FAILED tests/test_security.py::test_rate_limiting_or_abuse_detection - sqlalc...
+FAILED tests/test_story_1_11_integration.py::TestCrossCompanyInvitationFlow::test_invite_existing_user_to_second_company
+FAILED tests/test_story_1_11_integration.py::TestEndToEndMultiCompanyScenario::test_multi_company_user_journey
+FAILED tests/test_story_1_12_validation.py::TestValidationEngine::test_validate_field_valid_input
+FAILED tests/test_story_1_12_validation.py::TestValidationAPI::test_validation_rules_endpoint
+FAILED tests/test_story_1_12_validation.py::TestABNValidation::test_valid_abn_checksums
+FAILED tests/test_story_1_12_validation.py::TestPhoneNumberValidation::test_phone_validation_with_library
+FAILED tests/test_story_1_12_validation.py::TestPhoneNumberValidation::test_phone_validation_without_library
+FAILED tests/test_story_1_12_validation.py::TestEdgeCases::test_no_validation_rules_found
+FAILED tests/test_story_1_12_validation.py::TestEdgeCases::test_invalid_regex_pattern_handling
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationService::test_get_setting_from_database
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationService::test_type_conversion_boolean
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationService::test_caching_mechanism
+FAILED tests/test_story_1_13_config_service.py::TestTokenServicesIntegration::test_password_reset_token_uses_config
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationAPI::test_get_public_config_endpoint
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationAPI::test_public_config_does_not_expose_secrets
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationAPI::test_get_all_settings_admin_endpoint
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationAPI::test_update_setting_admin_endpoint
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationAPI::test_invalidate_cache_admin_endpoint
+FAILED tests/test_story_1_13_config_service.py::TestConfigurationFallback::test_public_config_api_graceful_degradation
+FAILED tests/test_story_1_9_integration.py::TestStory19SignupFlow::test_successful_signup_creates_user_and_logs
+FAILED tests/test_story_1_9_integration.py::TestStory19SignupFlow::test_duplicate_email_returns_detail_field
+FAILED tests/test_story_1_9_integration.py::TestStory19LoginFlow::test_unverified_user_cannot_login
+FAILED tests/test_story_1_9_integration.py::TestStory19ErrorHandling::test_all_errors_logged_to_application_error
+FAILED tests/test_story_1_9_integration.py::TestStory19ErrorHandling::test_auth_events_use_correct_columns
+FAILED tests/test_story_2_1_profile_enhancement.py::test_get_user_industries_requires_auth
+FAILED tests/test_validators.py::test_valid_acn_accepted - assert False is True
+FAILED tests/test_validators.py::test_valid_acn_with_spaces - assert False is...
+FAILED tests/test_validators.py::test_multiple_valid_acns - AssertionError: A...
+FAILED tests/test_validators.py::test_validate_both_abn_and_acn - assert Fals...
+FAILED tests/test_validators.py::test_validate_only_acn - assert False is True
+FAILED tests/test_validators.py::test_sql_injection_attempt - assert True is ...
+FAILED tests/test_validators.py::test_unicode_and_special_characters - assert...
+ERROR tests/test_auth_email_verification.py::TestEmailVerification::test_verification_token_generation
+ERROR tests/test_auth_email_verification.py::TestEmailVerification::test_email_verification_success
+ERROR tests/test_auth_email_verification.py::TestEmailVerification::test_verification_token_expiration
+ERROR tests/test_auth_email_verification.py::TestEmailVerification::test_verification_success_redirect
+ERROR tests/test_auth_email_verification.py::TestEmailVerification::test_verification_already_verified
+ERROR tests/test_auth_email_verification.py::TestEmailVerification::test_verification_token_reuse_prevention
+ERROR tests/test_auth_login.py::TestUserLogin::test_login_unverified_user_blocked
+ERROR tests/test_auth_login.py::TestUserLogin::test_login_verified_user_success
+ERROR tests/test_auth_login.py::TestUserLogin::test_login_invalid_credentials
+ERROR tests/test_auth_login.py::TestUserLogin::test_login_rate_limiting - Imp...
+ERROR tests/test_auth_login.py::TestUserLogin::test_login_successful_jwt_generation
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_with_valid_data
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_email_validation
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_password_validation
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_duplicate_email_prevention
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_missing_required_fields
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_password_strength_validation
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_sql_injection_protection
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_xss_protection
+ERROR tests/test_auth_signup.py::TestUserSignup::test_signup_creates_audit_trail
+ERROR tests/test_invitation_acceptance.py::test_view_invitation_details_success
+ERROR tests/test_invitation_acceptance.py::test_view_invitation_expired - Typ...
+ERROR tests/test_invitation_acceptance.py::test_accept_invitation_existing_user_success
+ERROR tests/test_invitation_acceptance.py::test_accept_invitation_email_mismatch
+ERROR tests/test_invitation_acceptance.py::test_accept_invitation_expired - T...
+ERROR tests/test_invitation_acceptance.py::test_signup_with_invitation_success
+ERROR tests/test_invitation_acceptance.py::test_signup_with_invitation_email_mismatch
+ERROR tests/test_invitation_acceptance.py::test_list_user_companies - TypeErr...
+ERROR tests/test_invitation_acceptance.py::test_switch_company_success - Type...
+ERROR tests/test_invitation_acceptance.py::test_switch_company_not_member - T...
+ERROR tests/test_invitation_acceptance.py::test_invitation_acceptance_audit_log
+ERROR tests/test_invitation_acceptance.py::test_company_switch_audit_log - Ty...
+ERROR tests/test_multi_tenancy.py::test_filter_by_company_helper_filters_correctly
+ERROR tests/test_multi_tenancy.py::test_user_cannot_access_other_company_invitations
+ERROR tests/test_multi_tenancy.py::test_user_cannot_invite_to_other_company
+ERROR tests/test_multi_tenancy.py::test_user_cannot_access_other_company_data_via_company_switch
+ERROR tests/test_multi_tenancy.py::test_verify_company_access_blocks_cross_company_access
+ERROR tests/test_multi_tenancy.py::test_verify_path_company_matches_user_blocks_mismatch
+ERROR tests/test_multi_tenancy.py::test_company_admin_can_invite_to_own_company
+ERROR tests/test_multi_tenancy.py::test_company_admin_cannot_invite_to_other_company
+ERROR tests/test_multi_tenancy.py::test_company_admin_can_view_own_company_invitations
+ERROR tests/test_multi_tenancy.py::test_company_admin_cannot_view_other_company_invitations
+ERROR tests/test_multi_tenancy.py::test_company_user_can_view_own_companies
+ERROR tests/test_multi_tenancy.py::test_company_user_cannot_invite_team_members
+ERROR tests/test_multi_tenancy.py::test_company_user_cannot_view_invitations
+ERROR tests/test_multi_tenancy.py::test_company_user_cannot_cancel_invitations
+ERROR tests/test_multi_tenancy.py::test_data_isolation_across_all_protected_endpoints
+ERROR tests/test_onboarding_flow.py::test_update_user_details_requires_auth
+ERROR tests/test_onboarding_flow.py::test_update_user_details_with_auth - sql...
+ERROR tests/test_onboarding_flow.py::test_invalid_timezone_rejected - sqlalch...
+ERROR tests/test_onboarding_flow.py::test_create_company_requires_auth - sqla...
+ERROR tests/test_onboarding_flow.py::test_create_company_success - sqlalchemy...
+ERROR tests/test_onboarding_flow.py::test_user_update_audit_logged - sqlalche...
+ERROR tests/test_onboarding_flow.py::test_company_creation_audit_logged - sql...
+ERROR tests/test_onboarding_flow.py::test_user_cannot_create_second_company
+ERROR tests/test_onboarding_flow.py::test_valid_abn_accepted - sqlalchemy.exc...
+ERROR tests/test_onboarding_flow.py::test_invalid_abn_rejected - sqlalchemy.e...
+ERROR tests/test_onboarding_flow.py::test_valid_acn_accepted - sqlalchemy.exc...
+ERROR tests/test_onboarding_flow.py::test_invalid_acn_rejected - sqlalchemy.e...
+ERROR tests/test_onboarding_flow.py::test_abn_with_spaces_accepted - sqlalche...
+ERROR tests/test_onboarding_flow.py::test_complete_onboarding_flow - sqlalche...
+ERROR tests/test_rbac.py::test_company_admin_can_send_invitations - TypeError...
+ERROR tests/test_rbac.py::test_company_user_cannot_send_invitations - TypeErr...
+ERROR tests/test_rbac.py::test_company_admin_can_list_invitations - TypeError...
+ERROR tests/test_rbac.py::test_company_user_cannot_list_invitations - TypeErr...
+ERROR tests/test_rbac.py::test_company_admin_can_cancel_invitations - TypeErr...
+ERROR tests/test_rbac.py::test_company_user_cannot_cancel_invitations - TypeE...
+ERROR tests/test_rbac.py::test_company_admin_can_resend_invitations - TypeErr...
+ERROR tests/test_rbac.py::test_company_user_cannot_resend_invitations - TypeE...
+ERROR tests/test_rbac.py::test_all_users_can_view_own_profile - TypeError: 'C...
+ERROR tests/test_rbac.py::test_all_users_can_update_own_profile - TypeError: ...
+ERROR tests/test_rbac.py::test_all_users_can_list_their_companies - TypeError...
+ERROR tests/test_rbac.py::test_all_users_can_switch_companies - TypeError: 'C...
+ERROR tests/test_rbac.py::test_role_enforcement_across_all_admin_endpoints - ...
+ERROR tests/test_security.py::test_cannot_forge_jwt_with_different_company_id
+ERROR tests/test_security.py::test_cannot_manipulate_company_id_in_request_body
+ERROR tests/test_security.py::test_cannot_access_resources_via_direct_id_manipulation
+ERROR tests/test_security.py::test_cannot_escalate_privileges_via_role_manipulation
+ERROR tests/test_security.py::test_expired_jwt_rejected - TypeError: 'Company...
+ERROR tests/test_security.py::test_sql_injection_attempts_blocked - TypeError...
+ERROR tests/test_security.py::test_xss_attempts_sanitized - TypeError: 'Compa...
+ERROR tests/test_security.py::test_cross_company_access_attempts_logged - Typ...
+ERROR tests/test_security.py::test_audit_log_contains_required_information - ...
+ERROR tests/test_security.py::test_jwt_claims_immutable_after_issuance - Type...
+ERROR tests/test_security.py::test_sensitive_data_not_in_logs - TypeError: 'C...
+ERROR tests/test_security.py::test_no_information_leakage_in_error_messages
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestCreation::test_create_access_request
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestCreation::test_create_access_request_without_reason
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestCreation::test_prevent_duplicate_pending_request
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestApproval::test_approve_access_request
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestApproval::test_approve_sets_joined_via
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestApproval::test_approve_non_pending_request_fails
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestRejection::test_reject_access_request
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestRejection::test_reject_does_not_create_user_company
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestRejection::test_reject_non_pending_request_fails
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestQueries::test_get_pending_access_requests
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestQueries::test_pending_requests_exclude_approved
+ERROR tests/test_story_1_11_access_requests.py::TestAccessRequestQueries::test_pending_requests_exclude_rejected
+ERROR tests/test_story_1_11_integration.py::TestCompanySwitchingIntegration::test_switch_company_api_endpoint
+ERROR tests/test_story_1_11_integration.py::TestCompanySwitchingIntegration::test_switch_company_updates_jwt
+ERROR tests/test_story_1_11_integration.py::TestCompanySwitchingIntegration::test_switch_to_unauthorized_company_fails
+ERROR tests/test_story_1_11_integration.py::TestCompanySwitchingIntegration::test_get_user_companies_endpoint
+ERROR tests/test_story_1_11_integration.py::TestAccessRequestIntegration::test_create_access_request_api
+ERROR tests/test_story_1_11_integration.py::TestAccessRequestIntegration::test_approve_access_request_api
+ERROR tests/test_story_1_11_integration.py::TestAccessRequestIntegration::test_get_pending_access_requests_api
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipCreation::test_create_branch_relationship
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipCreation::test_create_subsidiary_relationship
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipCreation::test_create_partner_relationship
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipValidations::test_prevent_self_relationship
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipValidations::test_prevent_duplicate_relationship
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipValidations::test_prevent_circular_relationship_simple
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipValidations::test_prevent_circular_relationship_complex
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipValidations::test_invalid_relationship_type
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipQueries::test_get_relationship_between
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipQueries::test_get_company_relationships
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipStatusUpdates::test_suspend_relationship
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipStatusUpdates::test_terminate_relationship
+ERROR tests/test_story_1_11_relationships.py::TestRelationshipStatusUpdates::test_invalid_status_update
+ERROR tests/test_story_1_11_switching.py::TestCompanySwitching::test_switch_to_valid_company
+ERROR tests/test_story_1_11_switching.py::TestCompanySwitching::test_switch_updates_primary_company
+ERROR tests/test_story_1_11_switching.py::TestCompanySwitching::test_all_other_companies_set_to_non_primary
+ERROR tests/test_story_1_11_switching.py::TestSwitchingValidations::test_switch_to_non_member_company
+ERROR tests/test_story_1_11_switching.py::TestSwitchingValidations::test_switch_to_inactive_membership
+ERROR tests/test_story_1_11_switching.py::TestJWTGeneration::test_jwt_contains_correct_company_id
+ERROR tests/test_story_1_11_switching.py::TestJWTGeneration::test_jwt_contains_correct_role
+ERROR tests/test_story_1_11_switching.py::TestJWTGeneration::test_switch_multiple_times
+ERROR tests/test_story_1_11_switching.py::TestSwitchingEdgeCases::test_switch_to_same_company
+ERROR tests/test_story_1_11_switching.py::TestSwitchingEdgeCases::test_refresh_token_generated
+ERROR tests/test_story_1_13_config_service.py::TestTokenServicesIntegration::test_email_verification_token_uses_config
+ERROR tests/test_story_2_1_profile_enhancement.py::test_update_profile_enhancements_requires_auth
+ERROR tests/test_story_2_1_profile_enhancement.py::test_update_profile_enhancements_with_auth
+ERROR tests/test_story_2_1_profile_enhancement.py::test_get_enhanced_profile
+ERROR tests/test_story_2_1_profile_enhancement.py::test_add_industry_association
+ERROR tests/test_story_2_1_profile_enhancement.py::test_get_user_industries
+ERROR tests/test_story_2_1_profile_enhancement.py::test_remove_industry_association
+ERROR tests/test_story_2_1_profile_enhancement.py::test_bio_validation_max_length
+ERROR tests/test_story_2_1_profile_enhancement.py::test_duplicate_industry_prevention
+ERROR tests/test_team_invitations.py::test_send_invitation_requires_auth - sq...
+ERROR tests/test_team_invitations.py::test_send_invitation_requires_company_admin
+ERROR tests/test_team_invitations.py::test_send_invitation_success - sqlalche...
+ERROR tests/test_team_invitations.py::test_cannot_invite_existing_member - sq...
+ERROR tests/test_team_invitations.py::test_invitation_with_different_roles - ...
+ERROR tests/test_team_invitations.py::test_resend_invitation_success - sqlalc...
+ERROR tests/test_team_invitations.py::test_cancel_invitation_success - sqlalc...
+ERROR tests/test_team_invitations.py::test_list_invitations - sqlalchemy.exc....
+ERROR tests/test_team_invitations.py::test_invitation_audit_logging - sqlalch...
+ERROR tests/test_team_invitations.py::test_admin_cannot_invite_to_different_company
+ERROR tests/test_team_invitations.py::test_cannot_invite_with_invalid_role - ...
+ERROR tests/test_team_invitations.py::test_cannot_resend_cancelled_invitation
+123 failed, 254 passed, 12 skipped, 755 warnings, 149 errors in 124.29s (0:02:04)

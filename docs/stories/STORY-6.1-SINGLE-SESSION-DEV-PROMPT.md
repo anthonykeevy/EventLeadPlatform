@@ -27,6 +27,16 @@ Treat these as source of truth:
 - No task branches for this story
 - Use PowerShell syntax (`;` not `&&`)
 
+### Worktree and branch preflight (DO FIRST, NO EXCEPTIONS)
+
+1. Run and report output:
+   - `Get-Location`
+   - `git branch --show-current`
+   - `git status -sb`
+2. If current folder is not `C:\wt\elp\story-epic6-6.1-ai-foundation-static-validator` or branch is not `story/epic6-6.1-ai-foundation-static-validator`, STOP.
+3. When stopped, provide the exact instruction: "Open `C:\wt\elp\story-epic6-6.1-ai-foundation-static-validator` in Cursor and rerun this prompt."
+4. Do not implement anything until preflight passes.
+
 ---
 
 ## Scope (Story 6.1 only)
@@ -87,6 +97,30 @@ If any evidence item is missing, story is NOT READY for UAT.
 
 ---
 
+## Agent-Owned UAT Policy (Story 6.1)
+
+- Execute all tests in `docs/stories/STORY-6.1-UAT-TEST-GUIDE.md` directly as the dev agent.
+- Do not ask the human to run API/backend UAT steps.
+- Produce `docs/stories/STORY-6.1-UAT-RESULTS.md` with pass/fail outcomes and evidence.
+- Proceed to closeout workflow when tests pass and Green CI/CD is satisfied.
+
+### Escalate only for true human-only blockers
+
+Escalation is allowed only when blocked by constraints the agent cannot resolve, such as:
+- missing credentials/secrets requiring human entry,
+- unavailable protected environment access,
+- external system/network controls outside agent permissions.
+
+When escalating, include:
+1. Exact step attempted
+2. Command/output evidence
+3. Why this cannot be solved agent-side
+4. Minimal human action required
+
+Without this evidence, continue execution and do not escalate.
+
+---
+
 ## Delivery checklist
 
 1. Implement endpoint and validation logic.
@@ -100,12 +134,14 @@ If any evidence item is missing, story is NOT READY for UAT.
 
 ---
 
-## Human handoff
+## Human handoff (only if needed)
 
-After you finish:
-- Human runs manual UAT from `docs/stories/STORY-6.1-UAT-TEST-GUIDE.md`
-- Human verifies evidence contract
-- Human merges story PR if all gates pass
+Default path for Story 6.1:
+- Agent completes implementation, Green CI/CD, and UAT evidence autonomously.
+- Human acts as final reviewer/merger only.
+
+Escalation path:
+- If and only if true human-only blocker exists, request the minimal human action, then continue to completion.
 ```
 
 ---

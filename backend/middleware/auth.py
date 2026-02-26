@@ -61,6 +61,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         "/api/users/reference/",  # Theme reference endpoints (Story 2.2)
         "/api/public/", # External Approval and other public endpoints (Story 2.12)
         "/api/form-schema/",  # DefinitionJSON schema from DB (Story 5.3) - public for Form Builder init
+        "/api/form-validate",  # Story 6.1 static validator for AI correction loop
         "/docs",
         "/openapi.json",
         "/redoc",

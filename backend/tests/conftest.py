@@ -21,7 +21,7 @@ if backend_dir not in sys.path:
 
 # Import app and models - this will register all models with Base
 from main import app
-from common.database import Base, get_db
+from common.database import Base, DATABASE_URL, get_db
 from modules.users.router import router as users_router
 from modules.companies.router import router as companies_router
 from modules.auth.router import router as auth_router
@@ -36,10 +36,12 @@ def create_test_app():
     return test_app
 
 # Test database configuration
-# For Story 1.13 integration tests, we need SQL Server (not SQLite) 
-# due to schema support (config.AppSetting, ref.SettingCategory, etc.)
-TEST_DATABASE_URL = os.getenv("DATABASE_URL")  # Use actual database
-USE_REAL_DB = TEST_DATABASE_URL and "mssql" in TEST_DATABASE_URL.lower()
+# Align test DB resolution with runtime DB resolution:
+# - Prefer explicit DATABASE_URL from environment when present.
+# - Otherwise use common.database.DATABASE_URL fallback (same behavior as app runtime).
+# This prevents runtime-vs-pytest DB drift in worktrees without local .env files.
+TEST_DATABASE_URL = (os.getenv("DATABASE_URL") or DATABASE_URL or "").strip()
+USE_REAL_DB = TEST_DATABASE_URL.lower().startswith("mssql")
 
 @pytest.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:

@@ -11,12 +11,29 @@
 
 Validate that `POST /api/form-validate` correctly returns deterministic, machine-readable validation results for schema, boundary, and collision checks.
 
+This story uses an **agent-first UAT execution model**:
+- Dev agent executes all backend/API UAT cases in this guide.
+- Human testing is skipped by default for Story 6.1.
+- Escalate to human only for true human-only blockers (credentials/access/env/network controls that the agent cannot resolve).
+
+---
+
+## Execution Ownership (Mandatory)
+
+| Test Type | Owner | Rule |
+|-----------|-------|------|
+| API/backend UAT (T1-T7) | Dev agent | Must execute fully and record evidence |
+| Frontend visual/manual UX | Human | Only when story includes frontend behavior |
+| Blocked tests | Dev agent -> Human escalation | Escalate only with explicit blocker evidence |
+
+For Story 6.1 specifically, T1-T7 are API/backend checks and are **agent-owned**.
+
 ---
 
 ## Prerequisites
 
 1. Backend service running locally.
-2. API docs available (Swagger/OpenAPI) or Postman collection configured.
+2. API docs available (Swagger/OpenAPI) or agent-driven HTTP test path available.
 3. Test payloads prepared:
    - one valid `DefinitionJSON`,
    - one schema-invalid payload,
@@ -105,6 +122,16 @@ For each test case, record:
 - Pass/Fail verdict
 
 Record results in `docs/stories/STORY-6.1-UAT-RESULTS.md`.
+
+### Escalation Protocol (only if blocked)
+
+If a test cannot be executed by the agent, the UAT results must include:
+1. Exact command/action attempted
+2. Failure output (error text)
+3. Why this is human-only (not just inconvenient)
+4. Exact human action requested
+
+Without this evidence, "blocked" is invalid and the agent must continue execution.
 
 ---
 

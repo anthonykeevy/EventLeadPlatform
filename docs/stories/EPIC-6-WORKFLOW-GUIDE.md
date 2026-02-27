@@ -46,6 +46,34 @@ To prevent technical debt accumulation and AI Hallucinations regarding test stat
 
 ---
 
+## 🧰 Workflow Automation Toolkit (Mandatory for Epic 6+)
+
+Use the workflow scripts to reduce repetitive agent overhead and keep evidence consistent:
+
+1. **Preflight** (worktree + branch + DB resolution parity):
+   - `.\scripts\workflow\preflight-story.ps1 -ExpectedWorktreePath "C:\wt\elp\<story-worktree>" -ExpectedBranch "story/epicX-X.X-<slug>" -ReportFile "docs/stories/STORY-X.X-PREFLIGHT.md"`
+2. **Green gate execution** (anti-truncation summary enforcement):
+   - `.\scripts\workflow\run-green-gate.ps1 -StoryId "X.X" -FocusedTestCommand "python -m pytest tests/test_story_x_x.py --tb=short" -BackendGateCommand "python -m pytest --tb=short" -EvidenceFile "docs/stories/STORY-X.X-GATE-EVIDENCE.md"`
+3. **Evidence sync** (append gate evidence into UAT results):
+   - `.\scripts\workflow\generate-story-evidence.ps1 -StoryId "X.X" -GateEvidenceFile "docs/stories/STORY-X.X-GATE-EVIDENCE.md" -UatResultsFile "docs/stories/STORY-X.X-UAT-RESULTS.md"`
+4. **Tool feedback capture** (continuous process improvement):
+   - `.\scripts\workflow\collect-tool-feedback.ps1 -StoryId "X.X" -ToolName "run-green-gate.ps1" -Rating 4 -Feedback "What worked and what should improve"`
+
+---
+
+## 🗄️ Database Connection Consistency Rule (Mandatory)
+
+To prevent test/runtime drift:
+
+1. All backend code paths that connect to the DB must resolve connection settings from a common source.
+2. Test harness DB resolution must align with runtime DB resolution (no independent fallback logic that diverges).
+3. During preflight, always capture both:
+   - `os.getenv("DATABASE_URL")`
+   - runtime-resolved DB URL from `common.database`.
+4. Any mismatch that changes selected DB backend (for example SQL Server vs SQLite) must be treated as a gate-risk and corrected before closeout.
+
+---
+
 ## 🚀 Epic Kickoff (Start Here)
 
 The Epic 6 kickoff path leverages the newly updated **BMAD v6** commands (`@bmad-agent-bmm-sm.md`, etc.).
@@ -85,11 +113,15 @@ Requirements:
 **Goal:** Implement the full story in one execution loop without weakening quality gates.
 
 ### Required run order (before requesting human UAT)
-1. Implement story scope only (respect in-scope/out-of-scope from `story-6.x.md`).
-2. Run Green CI/CD checks in the story worktree.
-3. If any check fails, fix and re-run until fully green.
-4. Produce story evidence artifacts (see "Story Evidence Contract").
-5. Commit and push only when checks are demonstrably green.
+1. Run preflight script and resolve any failures:
+   - `.\scripts\workflow\preflight-story.ps1 ...`
+2. Implement story scope only (respect in-scope/out-of-scope from `story-6.x.md`).
+3. Run Green CI/CD via toolkit script:
+   - `.\scripts\workflow\run-green-gate.ps1 ...`
+4. If any check fails, fix and re-run until fully green.
+5. Produce story evidence artifacts using toolkit script:
+   - `.\scripts\workflow\generate-story-evidence.ps1 ...`
+6. Commit and push only when checks are demonstrably green.
 
 ### Why this gate is strict
 Epic 6 adopts TEA-informed quality enforcement because high error volume was previously normalized and important failures were ignored over time. Current TEA baseline is **94/100**, and this workflow preserves that baseline by requiring green verification at the end of **every** story.
@@ -136,6 +168,8 @@ If summaries are missing, truncated, or non-final, the story is treated as **NOT
 2. Record lessons/process adjustments in this workflow changelog section.
 3. In main repo, confirm PR merged and run `git pull origin master`.
 4. Confirm next story focus and regenerate the next story prompt pack.
+5. Record developer-agent feedback on script/tool usage:
+   - `.\scripts\workflow\collect-tool-feedback.ps1 ...`
 
 ---
 
@@ -181,3 +215,5 @@ This preserves your learning objective (multi-agent experience) without weakenin
 | 2026-02-26 | Added Story Evidence Contract tied to Green CI/CD output quality | Prevent false-green/hallucinated completion and preserve per-story quality gate |
 | 2026-02-26 | Added Failure Routing Policy with TEA escalation path | Ensure failing gates are routed deterministically instead of deferred silently |
 | 2026-02-26 | Added Cloud Co-Developer Worktree Model | Enable second developer agent usage while maintaining branch integrity and quality control |
+| 2026-02-26 | Added workflow automation scripts + mandatory tool feedback logging | Reduce repetitive agent effort and create continuous improvement loop |
+| 2026-02-26 | Added database connection consistency rule for test/runtime parity | Prevent recurring SQL backend drift between app runtime and pytest harness |

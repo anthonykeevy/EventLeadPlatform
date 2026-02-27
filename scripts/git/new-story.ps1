@@ -127,6 +127,30 @@ if ($CreateWorktree) {
 }
 
 if ($DraftPR) {
+  if (-not $DryRun) {
+    # GitHub cannot create a PR when there are zero commits between base and head.
+    # Auto-bootstrap with an empty commit so Draft PR creation does not fail.
+    $aheadRaw = (& git rev-list --count "$BaseBranch..$storyBranch").Trim()
+    $aheadCount = 0
+    if (-not [int]::TryParse($aheadRaw, [ref]$aheadCount)) {
+      throw "Could not parse ahead-count for $BaseBranch..$storyBranch (raw: '$aheadRaw')"
+    }
+
+    if ($aheadCount -eq 0) {
+      Write-Host ""
+      Write-Host "No commits between $BaseBranch and $storyBranch. Creating bootstrap commit."
+      $bootstrapMsg = "chore(epic${Epic}): bootstrap $Story draft PR"
+
+      if ($CreateWorktree) {
+        Show-And-Run -CommandText "git -C `"$storyWorktreePath`" commit --allow-empty -m `"$bootstrapMsg`"" -Command { git -C $storyWorktreePath commit --allow-empty -m $bootstrapMsg }
+        Show-And-Run -CommandText "git -C `"$storyWorktreePath`" push -u $Remote `"$storyBranch`"" -Command { git -C $storyWorktreePath push -u $Remote $storyBranch }
+      } else {
+        Show-And-Run -CommandText "git commit --allow-empty -m `"$bootstrapMsg`"" -Command { git commit --allow-empty -m $bootstrapMsg }
+        Show-And-Run -CommandText "git push -u $Remote `"$storyBranch`"" -Command { git push -u $Remote $storyBranch }
+      }
+    }
+  }
+
   $ghPath = Resolve-GhPath
   if (-not $ghPath) {
     Write-Host ""

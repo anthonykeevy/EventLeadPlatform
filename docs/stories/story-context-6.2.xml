@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context for Story 6.2 - AI Form Builder UI and Agent Loop -->
+<story-context>
+  <story>
+    <id>6.2</id>
+    <title>AI Form Builder UI and Agent Loop</title>
+    <epic>6</epic>
+    <epic-title>AI Generation and Monetization Engine</epic-title>
+    <domain>Builder UX, AI orchestration, validator-driven retries</domain>
+    <status>Ready for PM Review</status>
+    <prerequisite>Story 6.1 complete and merged</prerequisite>
+  </story>
+
+  <pm-confirmations>
+    <item>Single-page generation is locked for Story 6.2</item>
+    <item>Retry cap is 3 system correction attempts per generation request</item>
+    <item>Initial provider integration is ChatGPT API (provider key via local environment)</item>
+    <item>Global Properties menu includes AI Agent, Inspector, and Logic switch options</item>
+  </pm-confirmations>
+
+  <objective>
+    Deliver an MVP Builder flow where natural-language input drives AI DefinitionJSON generation,
+    validator-informed retries, and safe canvas load of validated output.
+  </objective>
+
+  <quality-policy>
+    <tea-baseline>94</tea-baseline>
+    <green-gate>Mandatory</green-gate>
+    <automation-scripts-required>true</automation-scripts-required>
+    <required-script path="scripts/workflow/preflight-story.ps1" />
+    <required-script path="scripts/workflow/run-green-gate.ps1" />
+    <required-script path="scripts/workflow/generate-story-evidence.ps1" />
+    <required-script path="scripts/workflow/collect-tool-feedback.ps1" />
+  </quality-policy>
+
+  <scope-boundary>
+    <in-scope>
+      <item>Builder UI prompt entry for AI form generation via Global Properties switcher (`AI Agent`, `Inspector`, `Logic`)</item>
+      <item>AI generation state machine (idle, generating, validating, retrying, completed, failed)</item>
+      <item>Retry loop using Story 6.1 validator response contract</item>
+      <item>Validated DefinitionJSON load into Builder canvas</item>
+      <item>User-visible status and failure messaging</item>
+      <item>Attempt trace metadata for diagnostics</item>
+      <item>Single-page generation guardrail for MVP</item>
+      <item>Versioned LLM Context Pack consumed by generation flow</item>
+    </in-scope>
+    <out-of-scope>
+      <item>Payments and publish pipeline integration</item>
+      <item>Multi-page generation support</item>
+      <item>Long-lived conversational memory across sessions</item>
+      <item>Model training/fine-tuning pipeline</item>
+    </out-of-scope>
+  </scope-boundary>
+
+  <dependencies>
+    <dependency>POST /api/form-validate (Story 6.1)</dependency>
+    <dependency>Structured fields: valid, schemaErrors, boundaryViolations, collisions, summary</dependency>
+    <dependency>Provider credentials configured locally (e.g. OPENAI_API_KEY in backend/.env)</dependency>
+  </dependencies>
+
+  <llm-context-pack>
+    <path>docs/stories/STORY-6.2-AI-CONTEXT-PACK.md</path>
+    <versioning-required>true</versioning-required>
+    <must-include>
+      <item>Product usage context and refinement flow</item>
+      <item>Component catalog and required/optional props</item>
+      <item>Canvas/layout constraints and single-page rules</item>
+      <item>Strict JSON-only output contract</item>
+      <item>Validator error to correction mapping rules</item>
+      <item>One valid and one corrected example</item>
+    </must-include>
+  </llm-context-pack>
+
+  <test-ownership>
+    <agent-owned>
+      <item>Backend/API loop contract tests</item>
+      <item>Frontend automated tests for state transitions and error handling</item>
+      <item>Green gate and evidence scripts</item>
+    </agent-owned>
+    <human-owned>
+      <item>UX acceptance of prompt quality and messaging clarity</item>
+      <item>Exploratory checks for generation usefulness</item>
+    </human-owned>
+  </test-ownership>
+
+  <done-criteria>
+    <dc id="1">AI prompt entry UI available via Global Properties switcher and functional</dc>
+    <dc id="2">Versioned context pack exists and is consumed by generation pipeline</dc>
+    <dc id="3">Validator-driven retry loop operates deterministically with max-attempt cap of 3</dc>
+    <dc id="4">Validated payload loads without Builder crash</dc>
+    <dc id="5">Failure states are explicit and user actionable</dc>
+    <dc id="6">Green gate evidence captured via workflow scripts</dc>
+    <dc id="7">Tool feedback logged for process improvement</dc>
+  </done-criteria>
+
+  <references>
+    <ref path="docs/stories/story-6.2.md" purpose="PM-approved story scope" />
+    <ref path="docs/stories/STORY-6.2-UAT-TEST-GUIDE.md" purpose="Execution and ownership rules" />
+    <ref path="docs/stories/STORY-6.2-AI-CONTEXT-PACK.md" purpose="LLM instruction baseline" />
+    <ref path="docs/stories/EPIC-6-WORKFLOW-GUIDE.md" purpose="Quality and workflow policy" />
+  </references>
+</story-context>

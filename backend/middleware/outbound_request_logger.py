@@ -35,8 +35,9 @@ def _get_logging_config() -> dict[str, Any]:
     ):
         return _CONFIG_CACHE
 
-    db = SessionLocal()
+    db = None
     try:
+        db = SessionLocal()
         config_service = ConfigurationService(db)
         _CONFIG_CACHE = {
             "capture_payloads": config_service.get_logging_capture_payloads(),
@@ -50,7 +51,8 @@ def _get_logging_config() -> dict[str, Any]:
             "max_payload_size_kb": DEFAULT_LOGGING_MAX_PAYLOAD_SIZE_KB,
         }
     finally:
-        db.close()
+        if db is not None:
+            db.close()
 
 
 def _serialize_payload(payload: Any, max_payload_chars: int) -> Optional[str]:

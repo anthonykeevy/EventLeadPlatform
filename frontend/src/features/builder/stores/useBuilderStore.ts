@@ -124,6 +124,8 @@ interface BuilderState {
     updateGlobalStyles: (updates: Partial<GlobalStyles>) => void; // Story 3.5
     /** Story 5.1 T06: Update current page background (placement, etc.) with undo support */
     updatePageBackground: (updates: Partial<NonNullable<FormPage['background']>>, description?: string) => void;
+    /** Story 6.2: Safely apply validated AI-generated definition to canvas state. */
+    applyValidatedDefinition: (definition: FormDefinition, description?: string) => void;
     getSelectedComponent: () => FormComponent | null; // Story 3.5 helper - returns first/primary
     getSelectedComponents: () => FormComponent[]; // Multi-select helper - returns all selected
     
@@ -1097,6 +1099,46 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
                     ...def,
                     ...(def.desktopPages?.length ? { desktopPages: newPages } : { pages: newPages }),
                 },
+            };
+        });
+        persistToStorage(get().formDefinition);
+        set({ isDirty: true });
+    },
+
+    applyValidatedDefinition: (definition, description = 'Apply AI generated layout') => {
+        const current = get().formDefinition;
+        if (!current) return;
+
+        get().pushToHistory(description);
+        set((state) => {
+            if (!state.formDefinition) return state;
+
+            const currentFormId = state.formDefinition.formId;
+            const incoming = {
+                ...definition,
+                formId: currentFormId,
+                // Preserve existing form-level styling context (company defaults + user edits).
+                theme: state.formDefinition.theme,
+                globalStyles: state.formDefinition.globalStyles,
+                canvasSettings: state.formDefinition.canvasSettings,
+            };
+            const normalized = withSafeDefaults(
+                normalizeDefinitionForLoad(incoming),
+                currentFormId
+            );
+
+            // Story 6.2 guardrail: keep generation single-page for MVP.
+            const authoredPages = selectAuthoredPages(normalized);
+            const firstPage = authoredPages[0] ?? { id: 'page-1', title: 'Page 1', components: [] };
+            const singlePageDefinition = writeAuthoredPagesForState(normalized, [firstPage]);
+
+            return {
+                formDefinition: singlePageDefinition,
+                activePageId: firstPage.id,
+                selectedComponentId: null,
+                selectedComponentIds: [],
+                activeId: null,
+                activeLayer: 1,
             };
         });
         persistToStorage(get().formDefinition);

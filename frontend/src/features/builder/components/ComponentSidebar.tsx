@@ -88,6 +88,7 @@ const DraggableRichItem: React.FC<DraggableRichItemProps> = ({ item, globalStyle
             ref={setNodeRef}
             {...listeners}
             {...attributes}
+            data-toolbox-component-type={item.type}
             className={`transition-all duration-200 cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-40' : 'hover:translate-x-1'}`}
         >
             {/* Clone the preview component to inject global styles if it's a React component */}

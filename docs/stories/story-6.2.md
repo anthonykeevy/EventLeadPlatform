@@ -1,17 +1,19 @@
-# Story 6.2: AI Form Builder UI and Agent Loop
+# Story 6.2: AI Generation Pipeline, Test Harness & Benchmark Baseline
 
 **Epic:** Epic 6 - AI Generation and Monetization Engine  
-**Domain:** Builder UX, AI orchestration loop, validator-driven retries  
-**Status:** Draft for PM Review  
+**Domain:** Builder UX, AI orchestration loop, validator-driven retries, quality measurement  
+**Status:** 🔄 In Progress (reshaping from POC → production pipeline + test harness)  
 **Priority:** High  
 **Created:** 2026-02-27  
+**Reshaped:** 2026-03-20  
 **Owner:** PM Agent  
-**Prerequisite:** Story 6.1 complete and merged (`POST /api/form-validate` available)
+**Prerequisite:** Story 6.1 complete and merged (`POST /api/form-validate` available)  
 **Context:** `docs/stories/story-context-6.2.xml`  
 **UAT Guide:** `docs/stories/STORY-6.2-UAT-TEST-GUIDE.md`  
 **AI Context Pack:** `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`  
-**SM Readiness:** `docs/stories/STORY-6.2-SM-READINESS-SUMMARY.md`
-**PM Decisions:** Single-page locked; retry cap = 3 system attempts; start provider = ChatGPT API; Global Properties menu switcher (`AI Agent`/`Inspector`/`Logic`)
+**Benchmark Forms:** `docs/stories/STORY-6.2-BENCHMARK-FORMS.md`  
+**SM Readiness:** `docs/stories/STORY-6.2-SM-READINESS-SUMMARY.md`  
+**PM Decisions:** Single-page locked; retry cap = 3 system attempts; start provider = ChatGPT API; Global Properties menu switcher (`AI Agent`/`Inspector`/`Logic`); 10 real-world benchmark forms for quality measurement
 
 ---
 
@@ -22,70 +24,89 @@
 **So that** I can start from a useful draft and then refine it manually in the Builder.
 
 **As a** Product/Engineering team,  
-**I want** AI generation to run through a deterministic validation-retry loop before loading to canvas,  
-**So that** generated output is structurally valid and less likely to break the Builder UX.
+**I want** a measurable quality baseline for AI generation using real-world form benchmarks,  
+**So that** we can systematically improve AI output quality and detect regressions.
 
 ---
 
 ## Story Objective
 
-Deliver an MVP AI generation workflow inside the Builder that:
-1. accepts user prompt input,
-2. calls the AI generation service,
-3. injects a versioned LLM context pack (product usage guidance, component rules, and generation constraints),
-4. validates candidate `DefinitionJSON` via Story 6.1 endpoint,
-5. retries with structured feedback when invalid,
-6. loads successful output onto the canvas with clear user messaging.
+Deliver a production-ready AI generation pipeline with a measurable quality framework:
+
+1. **Harden the POC pipeline** — the chat UI, AI generation endpoint, retry loop, and canvas
+   loading built during the POC phase become production-grade with proper tests and error handling.
+2. **Build a test harness** — an automated/semi-automated system that runs the 10 benchmark
+   prompts through the pipeline, scores the output, and produces a results matrix.
+3. **Establish the quality baseline** — run all 10 benchmarks, record scores, and document
+   the starting point for future context pack improvements (Story 6.3).
+
+### What already exists (POC)
+- Chat UI in Global Properties panel (`AI Agent` / `Inspector` / `Logic` tabs)
+- Backend AI generation endpoint (`/api/form-ai/generate`)
+- AI retry loop with validator feedback (max 3 retries)
+- LLM Context Pack v1 (`STORY-6.2-AI-CONTEXT-PACK.md`)
+- Frontend state management for generation lifecycle
+- Model comparison evaluation script
+
+### What this story adds
+- Production hardening of the above (tests, edge cases, error paths)
+- Benchmark forms document with 10 real-world-inspired prompts
+- Automated test harness to run benchmarks and score output
+- Scoring rubric (5 dimensions × 10 forms = 500 max score)
+- Baseline results matrix (first full run)
 
 ---
 
 ## In Scope
 
-1. Add Builder UI entry point for AI generation in Global Properties panel with three-way menu switch:
-   - `AI Agent`
-   - `Inspector`
-   - `Logic`
-   (AI Agent tab hosts prompt/generation controls; Inspector and Logic remain accessible)
-2. Add generation request handling and progress state (`idle`, `generating`, `validating`, `retrying`, `completed`, `failed`).
-3. Create an initial **LLM Context Pack** used on every generation attempt:
-   - product behavior context (how users build/refine forms in EventLead),
-   - allowed component taxonomy + required/optional props,
-   - layout and canvas rules (single-page MVP constraints),
-   - strict JSON-only output contract (no prose, no markdown),
-   - deterministic correction instructions for validator-driven retries,
-   - examples (one good generation + one corrected-from-errors flow).
-4. Implement AI retry loop contract:
-   - submit prompt,
-   - receive candidate `DefinitionJSON`,
-   - call `POST /api/form-validate`,
-   - if invalid, build correction prompt from structured errors and retry up to configured max attempts.
-5. Load validated `DefinitionJSON` into Builder state and render on canvas.
-6. Show user-facing feedback:
-   - generation status,
-   - success summary,
-   - failure reason when retries exhausted.
-7. Add audit-style trace metadata for troubleshooting (attempt count, validator result summary, terminal failure reason).
-8. Guardrails for MVP:
-   - single-page generation only,
-   - no direct persistence to production until user saves through existing flow.
-9. Provider configuration support:
-   - initial provider integration uses ChatGPT API,
-   - read provider key from backend environment configuration (for example `OPENAI_API_KEY`),
-   - do not expose provider secrets in logs, API responses, or committed files.
-10. Retry policy lock for Story 6.2:
-   - maximum **3** automatic correction retries per generation request,
-   - if still invalid after retry 3, show structured failure outcome to user.
+### Phase A: Pipeline Hardening
+1. Review and harden existing POC code for the AI generation loop:
+   - Backend endpoint, service layer, retry logic, error handling
+   - Frontend chat UI, state transitions, canvas loading
+   - Ensure proper test coverage for happy path and failure paths
+2. Versioned LLM Context Pack (already exists, verify completeness):
+   - Product behavior context
+   - Component taxonomy + required/optional props
+   - Layout and canvas rules (single-page MVP)
+   - JSON-only output contract
+   - Deterministic correction instructions for retries
+   - Examples (good generation + corrected-from-errors flow)
+3. Provider configuration:
+   - ChatGPT API via `OPENAI_API_KEY` in backend `.env`
+   - No secrets in logs, responses, or committed files
+4. Retry policy: max **3** automatic correction retries per request
+5. Green CI/CD gates pass with all new code
+
+### Phase B: Test Harness & Benchmark Evaluation
+6. Create test harness script that:
+   - Feeds each of the 10 benchmark prompts through the AI pipeline
+   - Captures raw AI output per attempt (including retries)
+   - Records validator pass/fail per attempt
+   - Calculates scores across 5 dimensions per benchmark
+   - Produces a summary results matrix (CSV or markdown)
+7. Define scoring rubric (see `STORY-6.2-BENCHMARK-FORMS.md`):
+   - **Field Completeness** (0-10): all expected fields present with correct types
+   - **Layout Quality** (0-10): logical grouping, no overlaps, readable flow
+   - **Schema Validity** (0-10): passes validator on first attempt (10) or after retries (partial)
+   - **Prompt Fidelity** (0-10): output matches user intent, no hallucinated extras
+   - **Visual Polish** (0-10): reasonable sizing, spacing, alignment
+8. Run full benchmark suite and document baseline scores
+9. Audit-style trace metadata captured per generation (attempt count, validator results, latency)
+
+### Phase C: Documentation & Closeout
+10. Update story artifacts with final results
+11. Produce green gate evidence per Epic 6 workflow
 
 ---
 
 ## Out of Scope
 
-1. Payment-related components/flows (Stories 6.3+).
-2. Multi-page AI generation orchestration.
-3. Advanced semantic refinement chat memory across sessions.
-4. Automatic publish flow integration.
-5. Replacing manual Builder editing patterns.
-6. Fine-tuning/model-training pipeline work.
+1. Context pack improvements to raise scores (that is Story 6.3).
+2. AI iteration on existing designs / user refinement (that is Story 6.4).
+3. Payment-related components/flows (Stories 6.5+).
+4. Multi-page AI generation orchestration.
+5. Advanced semantic refinement or chat memory across sessions.
+6. Fine-tuning or model-training work.
 
 ---
 
@@ -93,92 +114,112 @@ Deliver an MVP AI generation workflow inside the Builder that:
 
 Story 6.2 depends on Story 6.1 validator response contract:
 - Endpoint: `POST /api/form-validate`
-- Response fields used by loop:
-  - `valid`
-  - `schemaErrors`
-  - `boundaryViolations`
-  - `collisions`
-  - `summary`
+- Response fields used by loop: `valid`, `schemaErrors`, `boundaryViolations`, `collisions`, `summary`
 
 If response shape changes, Story 6.2 loop and prompt-builder logic must be updated in lockstep.
 
 Additional dependency:
-- LLM provider credentials are configured in local environment (for example `OPENAI_API_KEY` in `backend/.env`, untracked by git).
+- LLM provider credentials configured in local environment (`OPENAI_API_KEY` in `backend/.env`, untracked by git).
 
 ---
 
 ## Acceptance Criteria / Done Criteria
 
-- [ ] AC1: AI generation UI is available in Builder Global Properties menu under `AI Agent`, with `Inspector` and `Logic` still switchable.
-- [ ] AC2: A versioned LLM Context Pack is defined and used for every generation attempt.
+### Pipeline (carried from POC, verify complete)
+- [ ] AC1: AI generation UI available in Builder Global Properties under `AI Agent`, with `Inspector` and `Logic` switchable.
+- [ ] AC2: Versioned LLM Context Pack defined and used for every generation attempt.
 - [ ] AC3: System calls AI generation backend and receives candidate `DefinitionJSON`.
-- [ ] AC4: Each candidate is validated using Story 6.1 endpoint before canvas load.
+- [ ] AC4: Each candidate validated via Story 6.1 endpoint before canvas load.
 - [ ] AC5: Invalid candidates trigger retry loop with structured validator feedback.
 - [ ] AC6: Retry loop honors max attempts (**3**) and exits deterministically.
 - [ ] AC7: Successful validated output loads into Builder canvas without crash.
-- [ ] AC8: Failure states are clearly shown to user with actionable guidance.
-- [ ] AC9: Attempt trace metadata is captured for debugging and support.
-- [ ] AC10: Initial provider uses ChatGPT API, with key consumed from environment configuration and never emitted in logs/responses.
-- [ ] AC11: Green CI/CD evidence produced per Epic 6 workflow.
-- [ ] AC12: Tool usage feedback captured via workflow tooling log.
+- [ ] AC8: Failure states clearly shown to user with actionable guidance.
+- [ ] AC9: Attempt trace metadata captured for debugging.
+- [ ] AC10: ChatGPT API key consumed from env config and never emitted in logs/responses.
+
+### Test Harness & Benchmarks (new)
+- [ ] AC11: 10 benchmark forms documented with prompts, expected fields, and layout expectations.
+- [ ] AC12: Test harness script runs all 10 benchmarks and produces scored results matrix.
+- [ ] AC13: Scoring rubric covers 5 dimensions (Field Completeness, Layout Quality, Schema Validity, Prompt Fidelity, Visual Polish).
+- [ ] AC14: Baseline results matrix documented with scores and commentary.
+- [ ] AC15: Harness is re-runnable — supports before/after comparison for context pack changes.
+
+### Quality Gates
+- [ ] AC16: Green CI/CD evidence produced per Epic 6 workflow.
+- [ ] AC17: Tool usage feedback captured via workflow tooling log.
+
+---
+
+## Benchmark Forms (Summary)
+
+Full details in `STORY-6.2-BENCHMARK-FORMS.md`. Ten real-world-inspired forms:
+
+| # | Category | Fields | Key challenge |
+|---|----------|--------|---------------|
+| 1 | Simple Contact | 6 | Two-column name row |
+| 2 | Sales Lead Capture | 10 | Dense form, multiple dropdowns |
+| 3 | Event Registration | 7 | Checkbox + dropdown mix |
+| 4 | Customer Feedback | 6 | Heading + dropdowns + text areas |
+| 5 | Booking / Reservation | 8 | Date/time pairing, many dropdowns |
+| 6 | Job Application | 9 | Mid-density, qualification dropdowns |
+| 7 | Newsletter Signup | 4 | Minimal — should not over-engineer |
+| 8 | Multi-Section Registration | 9 | Grouped fields, two-column pairs |
+| 9 | Event RSVP | 8 | Multiple related dropdowns |
+| 10 | Support Ticket | 9 | Category/priority pairing, large text area |
 
 ---
 
 ## Risks and Mitigations
 
 1. **Risk:** Prompt/validator loop oscillates and never converges.  
-   **Mitigation:** enforce max retries, deterministic correction template, and explicit user fallback path.
+   **Mitigation:** enforce max retries, deterministic correction template, explicit user fallback.
 
 2. **Risk:** Validator feedback too verbose for effective retries.  
-   **Mitigation:** normalize to concise error payload before constructing correction prompt.
+   **Mitigation:** normalize to concise error payload before correction prompt.
 
 3. **Risk:** Builder state corruption on generated payload load.  
-   **Mitigation:** load into isolated candidate state first; apply only after validation pass.
+   **Mitigation:** load into isolated candidate state; apply only after validation pass.
 
-4. **Risk:** Performance degradation from repeated calls.  
-   **Mitigation:** cap retries, show progress, log latency per attempt for tuning.
+4. **Risk:** Benchmark scores are subjective (Layout Quality, Visual Polish).  
+   **Mitigation:** document scoring criteria explicitly; same scorer for baseline and deltas.
 
-5. **Risk:** Test/runtime DB drift affects CI reliability again.  
-   **Mitigation:** mandatory workflow preflight script and DB parity rule from Epic 6 workflow guide.
+5. **Risk:** LLM output quality varies between runs (non-determinism).  
+   **Mitigation:** run each benchmark 2-3 times and record best/average; set temperature low.
 
-6. **Risk:** LLM output quality varies due to under-specified instructions.  
-   **Mitigation:** require versioned context pack with explicit component/rule constraints and correction examples.
+6. **Risk:** Test harness requires live API key (cost per run).  
+   **Mitigation:** cache successful outputs; only re-run when context pack changes.
 
 ---
 
-## Test Ownership Split (Explicit)
+## Test Ownership Split
 
-### Agent-owned (default for this story)
+### Agent-owned
 1. Backend/API tests for AI loop orchestration and validator integration.
-2. Automated frontend unit/integration tests for state transitions and error handling.
-3. Green gate execution via workflow scripts:
-   - `scripts/workflow/preflight-story.ps1`
-   - `scripts/workflow/run-green-gate.ps1`
-   - `scripts/workflow/generate-story-evidence.ps1`
+2. Frontend unit/integration tests for state transitions and error handling.
+3. Test harness execution and scoring.
+4. Green gate execution via workflow scripts.
 
-### Human-owned (only where needed)
+### Human-owned
 1. UX acceptance on prompt usability and messaging quality.
-2. Exploratory manual validation of generated layout usefulness.
-3. Any external credential-dependent integration verification the agent cannot execute.
-
-Escalate to human only with blocker evidence per Epic 6 workflow policy.
+2. Subjective scoring validation (Layout Quality, Visual Polish dimensions).
+3. Any credential-dependent integration verification the agent cannot execute.
+4. Final review of benchmark baseline before Story 6.3 proceeds.
 
 ---
 
 ## PM Review Checklist
 
-- [ ] Scope is limited to AI UI + loop behavior, not payments or publish flow.
-- [ ] Single-page scope is explicitly locked for Story 6.2.
-- [ ] LLM Context Pack clearly defines product usage guidance, components, and generation rules.
+- [ ] Scope split is clear: 6.2 = pipeline + harness, 6.3 = context uplift, 6.4 = iteration.
+- [ ] POC work is acknowledged and being hardened, not rebuilt.
+- [ ] 10 benchmark forms are documented and cover diverse form types.
+- [ ] Scoring rubric is defined with 5 measurable dimensions.
+- [ ] Test harness is re-runnable for regression detection.
 - [ ] Story 6.1 validator dependency is explicit and correct.
-- [ ] Retry cap is locked to 3 system attempts (not a user usage cap).
-- [ ] Global Properties switcher pattern (`AI Agent`/`Inspector`/`Logic`) is reflected in scope and ACs.
+- [ ] Retry cap locked to 3 system attempts.
 - [ ] Acceptance criteria are testable and deterministic.
-- [ ] Test ownership split is clear and aligned with workflow policy.
-- [ ] Risks are captured with practical mitigations.
-- [ ] Story is implementation-ready for SM context/UAT artifact generation.
+- [ ] Risks include benchmark subjectivity and LLM non-determinism.
 
 ---
 
-*Story 6.2 draft prepared for PM review*  
-*Last Updated: 2026-02-27*
+*Story 6.2 reshaped from POC → production pipeline + test harness*  
+*Last Updated: 2026-03-20*

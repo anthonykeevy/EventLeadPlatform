@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.2.1 — Component Library Expansion
+  Implementation Context for Dev Agent
+  Created: 2026-03-20 by SM Agent
+-->
+<story-context story="6.2.1" title="Component Library Expansion">
+
+  <overview>
+    Add 3 new components (url, file-upload, rating) and promote 1 existing-but-unregistered
+    component (paragraph) to full first-class status across all builder layers. Update
+    documentation with a complete component inventory.
+  </overview>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1: FILES TO MODIFY                                     -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <files-to-modify>
+
+    <file path="frontend/src/features/builder/types/builder.types.ts"
+          purpose="ComponentType union and ComponentProps interface">
+      <instruction>
+        1. Add 'url' | 'file-upload' | 'rating' to the ComponentType union (paragraph already exists).
+        2. Add url-specific props to ComponentProps:
+           - urlPrefix?: string (default "https://")
+           - urlPattern?: string (custom validation regex)
+        3. Add file-upload-specific props to ComponentProps:
+           - acceptedFileTypes?: string (e.g., ".pdf,.doc,.docx")
+           - maxFileSize?: number (MB)
+           - allowMultiple?: boolean
+        4. Add rating-specific props to ComponentProps:
+           - ratingMax?: number (5 or 10)
+           - ratingStyle?: 'stars' | 'numbers' | 'emoji'
+           - ratingLabels?: { low?: string; high?: string }
+      </instruction>
+      <current-state>
+        ComponentType union at lines 9-31 includes 'paragraph' but NOT url, file-upload, rating.
+        ComponentProps at lines 373-471 has date-specific, textarea-specific, dropdown-specific,
+        checkbox/radio-specific, terms-specific, button-specific, address-specific sections.
+        Has [key: string]: unknown catch-all for extensibility.
+      </current-state>
+    </file>
+
+    <file path="frontend/src/features/builder/registry/ComponentRegistry.tsx"
+          purpose="Component definitions with structure, preview, and runtime renderers">
+      <instruction>
+        Add 4 new ComponentDefinition entries following the existing pattern:
+
+        1. url — category: 'input', structure: label+input+validation (like email/phone),
+           icon: LinkIcon or GlobeAltIcon, label: "Website URL"
+        2. file-upload — category: 'input', structure: label+input+validation,
+           icon: ArrowUpTrayIcon or PaperClipIcon, label: "File Upload",
+           input object should render an upload zone placeholder
+        3. rating — category: 'input', structure: label+input+validation,
+           icon: StarIcon, label: "Rating",
+           input object should render star/number rating display
+        4. paragraph — category: 'display', structure: single content object (like header),
+           icon: DocumentTextIcon or Bars3BottomLeftIcon, label: "Paragraph"
+
+        Each needs:
+        - type, label, icon, category
+        - defaultProps with sensible defaults
+        - structure (ComponentStructure)
+        - previewComponent via makeToolboxPreview()
+        - runtimeComponent using UniversalFieldShell + getRenderersForComponent()
+      </instruction>
+      <current-state>
+        Registry at lines 192-877 has 15 entries: first-name, text, number, email, textarea,
+        dropdown, date, checkbox, radio, phone, address, terms, submit-button, header, divider.
+        paragraph is NOT registered despite being in ComponentType union.
+        Pattern: each entry is a ComponentDefinition object in a const array/object.
+      </current-state>
+      <reference-pattern component="header">
+        Header uses category 'display', structure with single content object,
+        customType: 'header', makeToolboxPreview(), and UniversalFieldShell runtime.
+        Paragraph should follow the same pattern with customType: 'paragraph'.
+      </reference-pattern>
+      <reference-pattern component="email">
+        Email uses category 'input', structure with label+input+validation objects,
+        defaultLayout: 'vertical'. URL should follow this pattern closely since
+        it is functionally similar (text input with validation).
+      </reference-pattern>
+    </file>
+
+    <file path="frontend/src/features/builder/utils/structureDefaults.ts"
+          purpose="Default structure generation for component types">
+      <instruction>
+        1. Add 'url' to the input field type check (lines 17-25) alongside text, email, phone, etc.
+        2. Add 'file-upload' to the input field type check (same group, gets label+input+validation).
+        3. Add 'rating' to the input field type check (same group, gets label+input+validation).
+        4. Add 'paragraph' to the display type check (lines 40-47) alongside header, divider.
+      </instruction>
+      <current-state>
+        Input fields (lines 17-25): text, number, email, phone, textarea, dropdown, radio,
+        checkbox, date, address, first-name.
+        Display types (lines 40-47): header, divider.
+        Special: submit-button (lines 28-36), terms (lines 50-58).
+        Fallback (lines 61-66): single input object.
+      </current-state>
+    </file>
+
+    <file path="frontend/src/features/builder/components/ComponentPreview.tsx"
+          purpose="Drag preview rendering for toolbox items">
+      <instruction>
+        Add cases in renderInputPlaceholder for:
+        1. 'url' — render a URL input placeholder (link icon + "https://...")
+        2. 'file-upload' — render an upload zone placeholder (upload icon + "Click to upload")
+        3. 'rating' — render star icons placeholder (5 star outlines)
+        4. 'paragraph' — render a text paragraph placeholder (already has a case, verify it works)
+      </instruction>
+      <current-state>
+        renderInputPlaceholder (lines 71-111) handles: textarea, checkbox, radio, select,
+        header, paragraph, and default (text input). Paragraph already has a case returning
+        placeholder text lines.
+      </current-state>
+    </file>
+
+    <file path="frontend/src/features/builder/components/PropertiesPanel.tsx"
+          purpose="Properties Panel with type-specific control sections">
+      <instruction>
+        1. Add a UrlPropertiesSection for 'url' type (urlPrefix, urlPattern controls)
+        2. Add a FileUploadPropertiesSection for 'file-upload' type (acceptedFileTypes,
+           maxFileSize, allowMultiple controls)
+        3. Add a RatingPropertiesSection for 'rating' type (ratingMax, ratingStyle,
+           ratingLabels controls)
+        4. For 'paragraph': ensure it gets GeneralSection (for text content editing)
+           and AppearanceSection, but exclude it from ValidationSection
+           (paragraph is display-only, like header)
+
+        Type-specific section rendering is at lines 434-461.
+        Validation exclusion list is at lines 503-510.
+        Appearance exclusion list is at lines 524-534.
+      </instruction>
+      <current-state>
+        Type-specific sections: submit-button→ButtonPropertiesSection,
+        terms→TermsPropertiesSection, textarea→TextareaPropertiesSection,
+        select/dropdown/checkbox/radio→OptionsSection, date→DatePropertiesSection.
+        Validation excluded for: submit-button, divider, header, paragraph.
+        (paragraph is already in the exclusion list even though it has no registry entry)
+      </current-state>
+    </file>
+
+    <file path="backend/schemas/form_definition.py"
+          purpose="Backend ComponentType enum for validation">
+      <instruction>
+        Add 3 new enum values:
+        - URL = "url"
+        - FILE_UPLOAD = "file-upload"
+        - RATING = "rating"
+        PARAGRAPH already exists in the enum — no change needed for it.
+      </instruction>
+      <current-state>
+        ComponentType enum (lines 14-33) has 19 values including PARAGRAPH.
+        Does NOT have URL, FILE_UPLOAD, or RATING.
+      </current-state>
+    </file>
+
+    <file path="docs/COMPONENT-FRAMEWORK-GUIDE.md"
+          purpose="Concise component framework guide for agents">
+      <instruction>
+        Add a new "Component Inventory" section AFTER the "Key Files" section.
+        List ALL registered components (existing + new) with columns:
+        Type, Category, Purpose, Key Props, Default Behaviour.
+
+        Components to document (19 total after this story):
+        INPUT: text, first-name, number, email, phone, url, textarea, dropdown, date,
+               checkbox, radio, address, file-upload, rating
+        ACTION/LEGAL: terms, submit-button
+        DISPLAY: header, paragraph, divider
+
+        Special documentation:
+        - date: document dateType prop ("date" | "time" | "datetime") — already implemented
+        - paragraph: note that this was promoted from unregistered in Story 6.2.1
+        - Note: background images are page-level (FormPage.background), NOT components
+      </instruction>
+    </file>
+
+    <file path="docs/stories/STORY-6.2-AI-CONTEXT-PACK.md"
+          purpose="AI generation context pack with component catalog">
+      <instruction>
+        Add url, file-upload, rating, and paragraph to the "Component Catalog (MVP Set)"
+        section's allowed component types list. Add brief notes about their key props.
+      </instruction>
+      <current-state>
+        Current MVP set (lines 28-42): text, email, phone, number, date, dropdown,
+        checkbox, radio, textarea, address, header, divider, submit-button.
+        Missing: url, file-upload, rating, paragraph, terms, first-name.
+      </current-state>
+    </file>
+
+  </files-to-modify>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2: IMPLEMENTATION ORDER                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <implementation-order>
+    <step n="1" desc="Backend enum expansion">
+      Add URL, FILE_UPLOAD, RATING to backend/schemas/form_definition.py ComponentType enum.
+      Run backend tests to verify no regressions.
+    </step>
+    <step n="2" desc="Frontend types expansion">
+      Add 'url', 'file-upload', 'rating' to ComponentType union in builder.types.ts.
+      Add component-specific props to ComponentProps interface.
+    </step>
+    <step n="3" desc="Structure defaults">
+      Add url, file-upload, rating to input field type check in structureDefaults.ts.
+      Add paragraph to display type check.
+    </step>
+    <step n="4" desc="Component Registry — paragraph promotion">
+      Add paragraph ComponentDefinition to ComponentRegistry.tsx following header pattern.
+      This is lowest risk since backend enum and frontend type already exist.
+    </step>
+    <step n="5" desc="Component Registry — url">
+      Add url ComponentDefinition following email pattern (label+input+validation).
+      Add URL validation defaults.
+    </step>
+    <step n="6" desc="Component Registry — file-upload">
+      Add file-upload ComponentDefinition with upload zone input renderer.
+      Add file-upload-specific props handling.
+    </step>
+    <step n="7" desc="Component Registry — rating">
+      Add rating ComponentDefinition with star/number input renderer.
+      Add rating-specific props handling.
+    </step>
+    <step n="8" desc="ComponentPreview updates">
+      Add drag preview cases for url, file-upload, rating in ComponentPreview.tsx.
+      Verify paragraph case already works.
+    </step>
+    <step n="9" desc="PropertiesPanel updates">
+      Add UrlPropertiesSection, FileUploadPropertiesSection, RatingPropertiesSection.
+      Verify paragraph exclusions are correct.
+    </step>
+    <step n="10" desc="Documentation updates">
+      Update COMPONENT-FRAMEWORK-GUIDE.md with complete component inventory.
+      Update STORY-6.2-AI-CONTEXT-PACK.md with new component types.
+    </step>
+    <step n="11" desc="Green CI/CD gate">
+      Run npm run lint, npm run test:unit -- --watch=false, python -m pytest --tb=short.
+      Fix any failures. All must pass before UAT.
+    </step>
+  </implementation-order>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3: EXISTING PATTERNS TO FOLLOW                        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <patterns>
+
+    <pattern name="Adding input component to registry">
+      Follow the 'email' component pattern:
+      - category: 'input'
+      - structure: { objects: [label, input, validation], layout: 'vertical', layoutGroups: [...] }
+      - previewComponent: makeToolboxPreview()
+      - runtimeComponent: function using UniversalFieldShell + getRenderersForComponent()
+      - defaultProps: { label: '...', required: false, placeholder: '...' }
+    </pattern>
+
+    <pattern name="Adding display component to registry">
+      Follow the 'header' component pattern:
+      - category: 'display'
+      - structure: { objects: [{ id: 'content', type: 'content', customType: '...' }] }
+      - No validation object needed
+      - previewComponent: makeToolboxPreview()
+      - runtimeComponent: function using UniversalFieldShell
+    </pattern>
+
+    <pattern name="Type-specific Properties Panel section">
+      Follow the DatePropertiesSection pattern:
+      - Create a functional component accepting { component, onUpdate } props
+      - Render form controls that update component.props via onUpdate
+      - Add a case in PropertiesPanel.tsx's type-specific section rendering
+    </pattern>
+
+    <pattern name="Object renderers for new input types">
+      The input object renderer in objectRenderers.tsx handles rendering based on component type.
+      For new types, add a case that returns the appropriate JSX:
+      - url: text input with link icon prefix
+      - file-upload: dashed border upload zone with icon
+      - rating: row of star/number elements
+    </pattern>
+
+  </patterns>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4: CRITICAL CONSTRAINTS                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <constraints>
+    <constraint type="wysiwyg">
+      Canvas and Runtime must render identically for all new components.
+      Use the surfaceStyles capability to gate builder-only visuals.
+    </constraint>
+    <constraint type="no-separate-time">
+      Do NOT create a separate 'time' component. The date component already supports
+      dateType: "time" — this should only be documented in the component inventory.
+    </constraint>
+    <constraint type="no-background-component">
+      Background images are page-level (FormPage.background), NOT components.
+      Document this in the guide; do not create a background component.
+    </constraint>
+    <constraint type="ui-shell-only">
+      file-upload and rating are UI shells only. Actual file upload backend storage
+      and rating data persistence are out of scope. The components should render
+      correctly and be configurable in the Properties Panel, but they do not need
+      to handle actual file uploads or submit rating values to a backend.
+    </constraint>
+    <constraint type="green-cicd">
+      All existing tests must continue to pass. No regressions.
+      Frontend baseline: 237 tests, 0 lint errors/warnings.
+      Backend baseline: 512+ tests passing.
+    </constraint>
+    <constraint type="paragraph-additive">
+      Paragraph promotion is purely additive. The type already exists in ComponentType
+      union and backend enum. Only the registry entry, structure defaults, and
+      Properties Panel integration are new.
+    </constraint>
+  </constraints>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 5: EXISTING COMPONENT REFERENCE                       -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <existing-components>
+    <component type="text" category="input" registered="yes" />
+    <component type="first-name" category="input" registered="yes" />
+    <component type="number" category="input" registered="yes" />
+    <component type="email" category="input" registered="yes" />
+    <component type="phone" category="input" registered="yes" />
+    <component type="textarea" category="input" registered="yes" />
+    <component type="dropdown" category="input" registered="yes" />
+    <component type="select" category="input" registered="no" note="Alias for dropdown" />
+    <component type="date" category="input" registered="yes" note="Supports dateType: date|time|datetime" />
+    <component type="checkbox" category="input" registered="yes" />
+    <component type="radio" category="input" registered="yes" />
+    <component type="address" category="input" registered="yes" />
+    <component type="terms" category="action" registered="yes" />
+    <component type="submit-button" category="action" registered="yes" />
+    <component type="header" category="display" registered="yes" />
+    <component type="paragraph" category="display" registered="no" note="PROMOTE in this story" />
+    <component type="divider" category="display" registered="yes" />
+    <component type="row" category="layout" registered="no" note="Layout container, not user-facing" />
+    <component type="column" category="layout" registered="no" note="Layout container, not user-facing" />
+  </existing-components>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 6: BENCHMARK DEPENDENCY                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <benchmark-dependency>
+    The following benchmark forms from STORY-6.2-BENCHMARK-FORMS.md depend on
+    components being added in this story:
+
+    - Benchmark 4 (Job Application): uses url, file-upload
+    - Benchmark 5 (Customer Feedback): uses rating (stars + numbers)
+    - Benchmark 7 (Newsletter Signup): uses paragraph
+    - Benchmark 8 (Pre-Order): uses date with dateType:"time" (document only)
+    - Benchmark 9 (Support Ticket): uses file-upload
+    - Benchmark 10 (Sales Lead): uses rating
+
+    After this story, Story 6.3 will re-run all 10 benchmarks against the
+    expanded component set and establish a quality baseline.
+  </benchmark-dependency>
+
+</story-context>

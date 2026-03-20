@@ -15,18 +15,17 @@
 
 ## 1) Goal
 
-Expand the form builder component library by adding three new component types (`url`, `file-upload`, `rating`) and promoting one existing-but-unregistered type (`paragraph`) to full first-class status. Every new/promoted component must be fully integrated across all layers: types, registry, structure defaults, drag preview, properties panel, backend enum, and validator acceptance. Update the COMPONENT-FRAMEWORK-GUIDE.md with a complete component inventory covering ALL registered components.
+Expand the form builder component library by adding two new component types (`url`, `rating`) and promoting one existing-but-unregistered type (`paragraph`) to full first-class status. Every new/promoted component must be fully integrated across all layers: types, registry, structure defaults, drag preview, properties panel, backend enum, and validator acceptance. Update the COMPONENT-FRAMEWORK-GUIDE.md with a complete component inventory covering ALL registered components.
 
 ---
 
 ## 2) In Scope
 
-### 2.1 New Components (3)
+### 2.1 New Components (2)
 
 | Component | Purpose | Key Props |
 |-----------|---------|-----------|
 | `url` | URL/website input | Built-in URL validation (pattern, protocol prefix) |
-| `file-upload` | File upload control | `acceptedFileTypes`, `maxFileSize`, `allowMultiple` |
 | `rating` | Star/number/emoji rating scale | `ratingMax` (5 or 10), `ratingStyle` ("stars", "numbers", "emoji") |
 
 ### 2.2 Promoted Component (1)
@@ -53,7 +52,7 @@ For EVERY new/promoted component, ALL of the following must be implemented:
 - Update `docs/COMPONENT-FRAMEWORK-GUIDE.md` with a **complete component inventory** section covering ALL registered components (existing + new) with their type, purpose, key props, and default behaviour.
 - Document the `date` component's `dateType` prop (`"date"`, `"time"`, `"datetime"`) in the inventory — this is already implemented but undocumented.
 - Document that background images are handled at the page level (`FormPage.background`), NOT as components.
-- Update `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md` to include the 4 new component types in the Component Catalog section.
+- Update `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md` to include the 3 new component types in the Component Catalog section.
 
 ### 2.5 Frontend UAT
 
@@ -70,10 +69,10 @@ Visual verification that each new/promoted component renders correctly on all 3 
 |------|--------|
 | Separate "time" component | Date already supports `dateType: "time"` — document, don't duplicate |
 | Background image component | Handled at page level (`FormPage.background`), not component level |
+| File upload component | Moved to Story 6.2.2 — requires full backend infrastructure (public upload endpoint, SubmissionAttachment model, secure download) |
 | Payment component | Story 6.9 scope (Stripe Connect) |
 | AI context pack v2 restructuring | Story 6.3 scope |
 | Benchmark re-runs | Story 6.3 scope (depends on this story's expanded component set) |
-| Runtime file upload backend (actual upload handling) | Only the builder/renderer UI shell is in scope; backend upload storage is future work |
 | Rating component persistence/submission | Only the builder/renderer UI is in scope; backend data handling is future work |
 
 ---
@@ -88,15 +87,7 @@ Visual verification that each new/promoted component renders correctly on all 3 
 - **And** the component renders identically on canvas and runtime
 - **And** `POST /api/form-validate` accepts definitions containing `type: "url"`
 
-### AC-2: File Upload Component
-- **Given** a user opens the form builder toolbox
-- **When** they drag a "File Upload" component onto the canvas
-- **Then** it appears with label, upload zone placeholder, and validation area
-- **And** the Properties Panel shows file-upload-specific controls (accepted types, max size, allow multiple)
-- **And** the component renders identically on canvas and runtime
-- **And** `POST /api/form-validate` accepts definitions containing `type: "file-upload"`
-
-### AC-3: Rating Component
+### AC-2: Rating Component
 - **Given** a user opens the form builder toolbox
 - **When** they drag a "Rating" component onto the canvas
 - **Then** it appears with label, star/number rating display, and validation area
@@ -104,7 +95,7 @@ Visual verification that each new/promoted component renders correctly on all 3 
 - **And** the component renders identically on canvas and runtime
 - **And** `POST /api/form-validate` accepts definitions containing `type: "rating"`
 
-### AC-4: Paragraph Component (Promotion)
+### AC-3: Paragraph Component (Promotion)
 - **Given** a user opens the form builder toolbox
 - **When** they look in the "Display" category
 - **Then** "Paragraph" is visible alongside Header and Divider
@@ -113,18 +104,19 @@ Visual verification that each new/promoted component renders correctly on all 3 
 - **And** the component renders identically on canvas and runtime
 - **And** `POST /api/form-validate` already accepts `type: "paragraph"` (backend enum exists)
 
-### AC-5: Component Inventory Documentation
+### AC-4: Component Inventory Documentation
 - **Given** the COMPONENT-FRAMEWORK-GUIDE.md is opened
 - **Then** it contains a "Component Inventory" section listing ALL registered components
 - **And** each entry includes: type, category, purpose, key props, default behaviour
 - **And** the `date` component entry documents `dateType` options (date, time, datetime)
 - **And** a note clarifies that background images are page-level, not components
 
-### AC-6: AI Context Pack Update
+### AC-5: AI Context Pack Update
 - **Given** the STORY-6.2-AI-CONTEXT-PACK.md is opened
-- **Then** the Component Catalog section includes `url`, `file-upload`, `rating`, and `paragraph`
+- **Then** the Component Catalog section includes `url`, `rating`, and `paragraph`
+- **And** `file-upload` is listed as "planned (Story 6.2.2)" so the AI knows it exists but is not yet available
 
-### AC-7: Green CI/CD Gate
+### AC-6: Green CI/CD Gate
 - **Given** all implementation is complete
 - **Then** `npm run lint` produces 0 errors and 0 warnings
 - **And** `npm run test:unit -- --watch=false` passes all existing tests (baseline: 237)
@@ -162,11 +154,6 @@ The `form_definition.py` `ComponentType` enum must include new types. The valida
 urlPrefix?: string;      // e.g., "https://"
 urlPattern?: string;     // custom regex for validation
 
-// FILE-UPLOAD-SPECIFIC
-acceptedFileTypes?: string;   // e.g., ".pdf,.doc,.docx,.jpg,.png"
-maxFileSize?: number;         // max size in MB
-allowMultiple?: boolean;      // allow multiple file selection
-
 // RATING-SPECIFIC
 ratingMax?: number;           // 5 (stars) or 10 (NPS)
 ratingStyle?: 'stars' | 'numbers' | 'emoji';
@@ -180,7 +167,6 @@ ratingLabels?: { low?: string; high?: string };  // e.g., "Not likely" / "Very l
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
 | New component types break existing validator tests | Medium | Medium | Run full backend test suite before and after enum changes |
-| File-upload UI complexity (drag zones, previews) | Low | Medium | Implement minimal upload zone shell — actual upload handling is out of scope |
 | Rating component star rendering WYSIWYG parity | Low | Low | Use simple CSS/SVG stars that render identically on canvas and runtime |
 | Paragraph promotion reveals hidden dependencies | Low | Medium | Paragraph is already in ComponentType union and backend enum — promotion is additive |
 | Properties Panel becomes too large | Low | Low | Follow existing pattern of type-specific sections; no new architectural patterns needed |

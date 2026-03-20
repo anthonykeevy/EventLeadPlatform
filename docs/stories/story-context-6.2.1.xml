@@ -7,9 +7,10 @@
 <story-context story="6.2.1" title="Component Library Expansion">
 
   <overview>
-    Add 3 new components (url, file-upload, rating) and promote 1 existing-but-unregistered
+    Add 2 new components (url, rating) and promote 1 existing-but-unregistered
     component (paragraph) to full first-class status across all builder layers. Update
-    documentation with a complete component inventory.
+    documentation with a complete component inventory. (file-upload deferred to Story 6.2.2
+    for full backend infrastructure.)
   </overview>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -21,21 +22,18 @@
     <file path="frontend/src/features/builder/types/builder.types.ts"
           purpose="ComponentType union and ComponentProps interface">
       <instruction>
-        1. Add 'url' | 'file-upload' | 'rating' to the ComponentType union (paragraph already exists).
+        1. Add 'url' | 'rating' to the ComponentType union (paragraph already exists).
         2. Add url-specific props to ComponentProps:
            - urlPrefix?: string (default "https://")
            - urlPattern?: string (custom validation regex)
-        3. Add file-upload-specific props to ComponentProps:
-           - acceptedFileTypes?: string (e.g., ".pdf,.doc,.docx")
-           - maxFileSize?: number (MB)
-           - allowMultiple?: boolean
-        4. Add rating-specific props to ComponentProps:
+        3. Add rating-specific props to ComponentProps:
            - ratingMax?: number (5 or 10)
            - ratingStyle?: 'stars' | 'numbers' | 'emoji'
            - ratingLabels?: { low?: string; high?: string }
       </instruction>
       <current-state>
-        ComponentType union at lines 9-31 includes 'paragraph' but NOT url, file-upload, rating.
+        ComponentType union at lines 9-31 includes 'paragraph' but NOT url, rating.
+        (file-upload deferred to Story 6.2.2)
         ComponentProps at lines 373-471 has date-specific, textarea-specific, dropdown-specific,
         checkbox/radio-specific, terms-specific, button-specific, address-specific sections.
         Has [key: string]: unknown catch-all for extensibility.
@@ -45,17 +43,14 @@
     <file path="frontend/src/features/builder/registry/ComponentRegistry.tsx"
           purpose="Component definitions with structure, preview, and runtime renderers">
       <instruction>
-        Add 4 new ComponentDefinition entries following the existing pattern:
+        Add 3 new ComponentDefinition entries following the existing pattern:
 
         1. url — category: 'input', structure: label+input+validation (like email/phone),
            icon: LinkIcon or GlobeAltIcon, label: "Website URL"
-        2. file-upload — category: 'input', structure: label+input+validation,
-           icon: ArrowUpTrayIcon or PaperClipIcon, label: "File Upload",
-           input object should render an upload zone placeholder
-        3. rating — category: 'input', structure: label+input+validation,
+        2. rating — category: 'input', structure: label+input+validation,
            icon: StarIcon, label: "Rating",
            input object should render star/number rating display
-        4. paragraph — category: 'display', structure: single content object (like header),
+        3. paragraph — category: 'display', structure: single content object (like header),
            icon: DocumentTextIcon or Bars3BottomLeftIcon, label: "Paragraph"
 
         Each needs:
@@ -87,9 +82,8 @@
           purpose="Default structure generation for component types">
       <instruction>
         1. Add 'url' to the input field type check (lines 17-25) alongside text, email, phone, etc.
-        2. Add 'file-upload' to the input field type check (same group, gets label+input+validation).
-        3. Add 'rating' to the input field type check (same group, gets label+input+validation).
-        4. Add 'paragraph' to the display type check (lines 40-47) alongside header, divider.
+        2. Add 'rating' to the input field type check (same group, gets label+input+validation).
+        3. Add 'paragraph' to the display type check (lines 40-47) alongside header, divider.
       </instruction>
       <current-state>
         Input fields (lines 17-25): text, number, email, phone, textarea, dropdown, radio,
@@ -105,9 +99,8 @@
       <instruction>
         Add cases in renderInputPlaceholder for:
         1. 'url' — render a URL input placeholder (link icon + "https://...")
-        2. 'file-upload' — render an upload zone placeholder (upload icon + "Click to upload")
-        3. 'rating' — render star icons placeholder (5 star outlines)
-        4. 'paragraph' — render a text paragraph placeholder (already has a case, verify it works)
+        2. 'rating' — render star icons placeholder (5 star outlines)
+        3. 'paragraph' — render a text paragraph placeholder (already has a case, verify it works)
       </instruction>
       <current-state>
         renderInputPlaceholder (lines 71-111) handles: textarea, checkbox, radio, select,
@@ -120,11 +113,9 @@
           purpose="Properties Panel with type-specific control sections">
       <instruction>
         1. Add a UrlPropertiesSection for 'url' type (urlPrefix, urlPattern controls)
-        2. Add a FileUploadPropertiesSection for 'file-upload' type (acceptedFileTypes,
-           maxFileSize, allowMultiple controls)
-        3. Add a RatingPropertiesSection for 'rating' type (ratingMax, ratingStyle,
+        2. Add a RatingPropertiesSection for 'rating' type (ratingMax, ratingStyle,
            ratingLabels controls)
-        4. For 'paragraph': ensure it gets GeneralSection (for text content editing)
+        3. For 'paragraph': ensure it gets GeneralSection (for text content editing)
            and AppearanceSection, but exclude it from ValidationSection
            (paragraph is display-only, like header)
 
@@ -144,15 +135,15 @@
     <file path="backend/schemas/form_definition.py"
           purpose="Backend ComponentType enum for validation">
       <instruction>
-        Add 3 new enum values:
+        Add 2 new enum values:
         - URL = "url"
-        - FILE_UPLOAD = "file-upload"
         - RATING = "rating"
+        (FILE_UPLOAD deferred to Story 6.2.2)
         PARAGRAPH already exists in the enum — no change needed for it.
       </instruction>
       <current-state>
         ComponentType enum (lines 14-33) has 19 values including PARAGRAPH.
-        Does NOT have URL, FILE_UPLOAD, or RATING.
+        Does NOT have URL or RATING. (FILE_UPLOAD deferred to Story 6.2.2)
       </current-state>
     </file>
 
@@ -163,9 +154,9 @@
         List ALL registered components (existing + new) with columns:
         Type, Category, Purpose, Key Props, Default Behaviour.
 
-        Components to document (19 total after this story):
+        Components to document (18 total after this story):
         INPUT: text, first-name, number, email, phone, url, textarea, dropdown, date,
-               checkbox, radio, address, file-upload, rating
+               checkbox, radio, address, rating
         ACTION/LEGAL: terms, submit-button
         DISPLAY: header, paragraph, divider
 
@@ -179,13 +170,15 @@
     <file path="docs/stories/STORY-6.2-AI-CONTEXT-PACK.md"
           purpose="AI generation context pack with component catalog">
       <instruction>
-        Add url, file-upload, rating, and paragraph to the "Component Catalog (MVP Set)"
+        Add url, rating, and paragraph to the "Component Catalog (MVP Set)"
         section's allowed component types list. Add brief notes about their key props.
+        Note file-upload as "planned (Story 6.2.2)" so the AI is aware of it.
       </instruction>
       <current-state>
         Current MVP set (lines 28-42): text, email, phone, number, date, dropdown,
         checkbox, radio, textarea, address, header, divider, submit-button.
-        Missing: url, file-upload, rating, paragraph, terms, first-name.
+        Missing: url, rating, paragraph, terms, first-name.
+        file-upload deferred to Story 6.2.2.
       </current-state>
     </file>
 
@@ -197,15 +190,15 @@
 
   <implementation-order>
     <step n="1" desc="Backend enum expansion">
-      Add URL, FILE_UPLOAD, RATING to backend/schemas/form_definition.py ComponentType enum.
+      Add URL, RATING to backend/schemas/form_definition.py ComponentType enum.
       Run backend tests to verify no regressions.
     </step>
     <step n="2" desc="Frontend types expansion">
-      Add 'url', 'file-upload', 'rating' to ComponentType union in builder.types.ts.
+      Add 'url', 'rating' to ComponentType union in builder.types.ts.
       Add component-specific props to ComponentProps interface.
     </step>
     <step n="3" desc="Structure defaults">
-      Add url, file-upload, rating to input field type check in structureDefaults.ts.
+      Add url, rating to input field type check in structureDefaults.ts.
       Add paragraph to display type check.
     </step>
     <step n="4" desc="Component Registry — paragraph promotion">
@@ -216,27 +209,23 @@
       Add url ComponentDefinition following email pattern (label+input+validation).
       Add URL validation defaults.
     </step>
-    <step n="6" desc="Component Registry — file-upload">
-      Add file-upload ComponentDefinition with upload zone input renderer.
-      Add file-upload-specific props handling.
-    </step>
-    <step n="7" desc="Component Registry — rating">
+    <step n="6" desc="Component Registry — rating">
       Add rating ComponentDefinition with star/number input renderer.
       Add rating-specific props handling.
     </step>
-    <step n="8" desc="ComponentPreview updates">
-      Add drag preview cases for url, file-upload, rating in ComponentPreview.tsx.
+    <step n="7" desc="ComponentPreview updates">
+      Add drag preview cases for url, rating in ComponentPreview.tsx.
       Verify paragraph case already works.
     </step>
-    <step n="9" desc="PropertiesPanel updates">
-      Add UrlPropertiesSection, FileUploadPropertiesSection, RatingPropertiesSection.
+    <step n="8" desc="PropertiesPanel updates">
+      Add UrlPropertiesSection, RatingPropertiesSection.
       Verify paragraph exclusions are correct.
     </step>
-    <step n="10" desc="Documentation updates">
+    <step n="9" desc="Documentation updates">
       Update COMPONENT-FRAMEWORK-GUIDE.md with complete component inventory.
       Update STORY-6.2-AI-CONTEXT-PACK.md with new component types.
     </step>
-    <step n="11" desc="Green CI/CD gate">
+    <step n="10" desc="Green CI/CD gate">
       Run npm run lint, npm run test:unit -- --watch=false, python -m pytest --tb=short.
       Fix any failures. All must pass before UAT.
     </step>
@@ -277,7 +266,6 @@
       The input object renderer in objectRenderers.tsx handles rendering based on component type.
       For new types, add a case that returns the appropriate JSX:
       - url: text input with link icon prefix
-      - file-upload: dashed border upload zone with icon
       - rating: row of star/number elements
     </pattern>
 
@@ -300,11 +288,14 @@
       Background images are page-level (FormPage.background), NOT components.
       Document this in the guide; do not create a background component.
     </constraint>
-    <constraint type="ui-shell-only">
-      file-upload and rating are UI shells only. Actual file upload backend storage
-      and rating data persistence are out of scope. The components should render
-      correctly and be configurable in the Properties Panel, but they do not need
-      to handle actual file uploads or submit rating values to a backend.
+    <constraint type="rating-ui-shell">
+      Rating is a UI shell only. Actual rating data persistence is out of scope.
+      The component should render correctly and be configurable in the Properties
+      Panel, but it does not need to submit rating values to a backend.
+    </constraint>
+    <constraint type="no-file-upload">
+      file-upload is deferred to Story 6.2.2. Do NOT add file-upload type,
+      registry entry, or backend enum value in this story.
     </constraint>
     <constraint type="green-cicd">
       All existing tests must continue to pass. No regressions.
@@ -352,11 +343,11 @@
     The following benchmark forms from STORY-6.2-BENCHMARK-FORMS.md depend on
     components being added in this story:
 
-    - Benchmark 4 (Job Application): uses url, file-upload
+    - Benchmark 4 (Job Application): uses url (file-upload deferred to 6.2.2)
     - Benchmark 5 (Customer Feedback): uses rating (stars + numbers)
     - Benchmark 7 (Newsletter Signup): uses paragraph
     - Benchmark 8 (Pre-Order): uses date with dateType:"time" (document only)
-    - Benchmark 9 (Support Ticket): uses file-upload
+    - Benchmark 9 (Support Ticket): uses file-upload (deferred to 6.2.2)
     - Benchmark 10 (Sales Lead): uses rating
 
     After this story, Story 6.3 will re-run all 10 benchmarks against the

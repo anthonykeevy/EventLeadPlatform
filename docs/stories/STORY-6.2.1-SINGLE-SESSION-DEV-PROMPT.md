@@ -43,12 +43,13 @@ Read these files before writing any code:
 
 **File:** `backend/schemas/form_definition.py`
 
-Add 3 new values to the `ComponentType` enum:
+Add 2 new values to the `ComponentType` enum:
 ```python
 URL = "url"
-FILE_UPLOAD = "file-upload"
 RATING = "rating"
 ```
+
+Note: FILE_UPLOAD is deferred to Story 6.2.2.
 
 PARAGRAPH already exists — no change needed.
 
@@ -63,8 +64,10 @@ PARAGRAPH already exists — no change needed.
 ### 3.1 ComponentType Union
 Add to the union (paragraph already exists):
 ```typescript
-| 'url' | 'file-upload' | 'rating'
+| 'url' | 'rating'
 ```
+
+Note: 'file-upload' is deferred to Story 6.2.2.
 
 ### 3.2 ComponentProps Interface
 Add new prop sections:
@@ -73,11 +76,6 @@ Add new prop sections:
 // URL-SPECIFIC
 urlPrefix?: string;
 urlPattern?: string;
-
-// FILE-UPLOAD-SPECIFIC
-acceptedFileTypes?: string;
-maxFileSize?: number;
-allowMultiple?: boolean;
 
 // RATING-SPECIFIC
 ratingMax?: number;
@@ -91,16 +89,16 @@ ratingLabels?: { low?: string; high?: string };
 
 **File:** `frontend/src/features/builder/utils/structureDefaults.ts`
 
-1. Add `'url'`, `'file-upload'`, `'rating'` to the input field type check (the array/condition that includes text, email, phone, etc.)
+1. Add `'url'`, `'rating'` to the input field type check (the array/condition that includes text, email, phone, etc.)
 2. Add `'paragraph'` to the display type check (alongside header, divider)
 
 ---
 
-## Step 5: Component Registry — All 4 Components
+## Step 5: Component Registry — All 3 Components
 
 **File:** `frontend/src/features/builder/registry/ComponentRegistry.tsx`
 
-Add 4 ComponentDefinition entries. Follow these patterns:
+Add 3 ComponentDefinition entries. Follow these patterns:
 
 ### 5.1 Paragraph (promote — follow header pattern)
 - category: `'display'`
@@ -116,15 +114,7 @@ Add 4 ComponentDefinition entries. Follow these patterns:
 - label: `'Website URL'`
 - defaultProps: `{ label: 'Website URL', placeholder: 'https://example.com', required: false }`
 
-### 5.3 File Upload (input category, custom input renderer)
-- category: `'input'`
-- structure: label + input + validation (vertical layout)
-- icon: ArrowUpTrayIcon or PaperClipIcon
-- label: `'File Upload'`
-- defaultProps: `{ label: 'File Upload', required: false, acceptedFileTypes: '.pdf,.doc,.docx', maxFileSize: 10, allowMultiple: false }`
-- Input renderer: render a dashed-border upload zone with upload icon and helper text
-
-### 5.4 Rating (input category, custom input renderer)
+### 5.3 Rating (input category, custom input renderer)
 - category: `'input'`
 - structure: label + input + validation (vertical layout)
 - icon: StarIcon
@@ -142,7 +132,6 @@ Add 4 ComponentDefinition entries. Follow these patterns:
 
 Add cases in `renderInputPlaceholder` for:
 - `'url'` — URL input placeholder with link icon
-- `'file-upload'` — Upload zone placeholder
 - `'rating'` — Star outline placeholder
 
 Verify the existing `'paragraph'` case works correctly.
@@ -156,7 +145,6 @@ Verify the existing `'paragraph'` case works correctly.
 ### 7.1 Type-Specific Sections
 Add rendering cases in the type-specific section block:
 - `'url'` → UrlPropertiesSection (urlPrefix, urlPattern controls)
-- `'file-upload'` → FileUploadPropertiesSection (acceptedFileTypes, maxFileSize, allowMultiple)
 - `'rating'` → RatingPropertiesSection (ratingMax, ratingStyle, ratingLabels)
 
 You may create these as inline sections or separate components depending on complexity.
@@ -175,7 +163,6 @@ Verify paragraph is correctly handled:
 
 If the registry's `getRenderersForComponent()` pattern requires explicit renderer cases for new types, add them. The input object renderer needs cases for:
 - `url`: text input with link/globe icon prefix
-- `file-upload`: dashed border upload zone with centered icon and text
 - `rating`: row of star SVGs or number buttons
 
 Check how existing types (email, phone, date) handle their input rendering and follow the same pattern.
@@ -192,8 +179,8 @@ Add a **"Component Inventory"** section after the "Key Files" section. Include A
 | Type | Category | Purpose | Key Props | Default Behaviour |
 |------|----------|---------|-----------|-------------------|
 
-Components to list (19 total):
-- INPUT: text, first-name, number, email, phone, url, textarea, dropdown, date, checkbox, radio, address, file-upload, rating
+Components to list (18 total):
+- INPUT: text, first-name, number, email, phone, url, textarea, dropdown, date, checkbox, radio, address, rating
 - ACTION/LEGAL: terms, submit-button
 - DISPLAY: header, paragraph, divider
 
@@ -208,9 +195,9 @@ Add a note: "Background images are handled at the page level (`FormPage.backgrou
 
 Add to the "Component Catalog (MVP Set)" section:
 - `url`
-- `file-upload`
 - `rating`
 - `paragraph`
+- Note `file-upload` as "planned (Story 6.2.2)" so the AI is aware but won't generate it
 - `terms` (was already supported but missing from the list)
 - `first-name` (was already supported but missing from the list)
 
@@ -274,7 +261,7 @@ Only commit when Green CI/CD is demonstrably passing:
 git add -A
 git commit -m "feat(epic6): Story 6.2.1 — Component Library Expansion
 
-- Add url, file-upload, rating components (full stack integration)
+- Add url, rating components (full stack integration)
 - Promote paragraph to first-class registered component
 - Update COMPONENT-FRAMEWORK-GUIDE.md with complete component inventory
 - Update AI Context Pack with expanded component catalog
@@ -290,7 +277,7 @@ git push origin story/epic6-6.2.1-component-library-expansion
 1. **WYSIWYG parity**: Canvas and Runtime must render identically for all new components
 2. **No separate time component**: Date already supports `dateType: "time"` — document only
 3. **No background component**: Background images are page-level (`FormPage.background`)
-4. **UI shell only**: file-upload and rating are UI shells — no backend upload/persistence
+4. **Rating UI shell only**: rating is a UI shell — no backend persistence
 5. **No ad-hoc margins/padding**: Use layout engine, not inline hacks
 6. **Surface-gate builder visuals**: TextLengthIndicator, resize handles only on canvas
 7. **Check capabilities before showing UI**: Don't show controls for unsupported features
@@ -300,7 +287,7 @@ git push origin story/epic6-6.2.1-component-library-expansion
 
 ## Out of Scope (do NOT implement)
 
-- Runtime file upload backend (actual upload handling/storage)
+- File upload component (entire component deferred to Story 6.2.2 for full backend infrastructure)
 - Rating submission/persistence backend
 - AI context pack v2 restructuring (Story 6.3)
 - Benchmark re-runs (Story 6.3)

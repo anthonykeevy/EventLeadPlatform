@@ -32,9 +32,13 @@ function Invoke-CommandCapture {
 
   Push-Location $WorkingDirectory
   try {
+    $previousPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
     $output = @(Invoke-Expression $CommandText 2>&1)
+    $ErrorActionPreference = $previousPreference
     $exitCode = $LASTEXITCODE
   } finally {
+    $ErrorActionPreference = $previousPreference
     Pop-Location
   }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, X, Layers, Users, GitBranch, SlidersHorizontal } from 'lucide-react';
+import { Settings, X, Layers, Users, GitBranch, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { useBuilderStore } from '../stores/useBuilderStore';
 import { useAuth } from '../../auth/context/AuthContext';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
@@ -18,6 +18,7 @@ import { DatePropertiesSection } from './properties/DatePropertiesSection';
 import GridLayoutSection from './properties/GridLayoutSection';
 import { ObjectLayoutSection } from './properties/ObjectLayoutSection';
 import { LogicPanel } from './logic/LogicPanel';
+import { AIAgentPanel } from './ai/AIAgentPanel';
 
 /**
  * Type compatibility map for Must Match Field filtering
@@ -70,15 +71,15 @@ export const PropertiesPanel: React.FC = () => {
     const currentPage = authoredPages.find(p => p.id === activePageId);
     const pageBackground = currentPage?.background;
 
-    // Right panel tabs (Inspector/Logic). Logic is form-level and works without selection.
-    const [activeTab, setActiveTab] = React.useState<'inspector' | 'logic'>(() => {
+    // Right panel tabs (AI Agent/Inspector/Logic). Logic and AI Agent are form-level tabs.
+    const [activeTab, setActiveTab] = React.useState<'ai-agent' | 'inspector' | 'logic'>(() => {
         try {
             const raw = localStorage.getItem('builder-right-panel-tab');
-            if (raw === 'logic' || raw === 'inspector') return raw;
+            if (raw === 'logic' || raw === 'inspector' || raw === 'ai-agent') return raw;
         } catch {
             // ignore
         }
-        return 'inspector';
+        return 'ai-agent';
     });
 
     React.useEffect(() => {
@@ -291,6 +292,18 @@ export const PropertiesPanel: React.FC = () => {
     const TabsHeader = () => (
         <div className="flex items-center border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40">
             <button
+                onClick={() => setActiveTab('ai-agent')}
+                className={`flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-2 transition-colors ${
+                    activeTab === 'ai-agent'
+                        ? 'text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 border-b-2 border-violet-500'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+                title="AI Agent"
+            >
+                <Sparkles size={14} />
+                AI Agent
+            </button>
+            <button
                 onClick={() => setActiveTab('inspector')}
                 className={`flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-2 transition-colors ${
                     activeTab === 'inspector'
@@ -316,6 +329,15 @@ export const PropertiesPanel: React.FC = () => {
             </button>
         </div>
     );
+
+    if (activeTab === 'ai-agent') {
+        return (
+            <aside className={panelClassName}>
+                <TabsHeader />
+                <AIAgentPanel />
+            </aside>
+        );
+    }
 
     if (activeTab === 'logic') {
         return (

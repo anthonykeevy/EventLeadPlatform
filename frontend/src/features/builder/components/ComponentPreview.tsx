@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormComponent } from '../types/builder.types';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Link as LinkIcon, Star } from 'lucide-react';
 
 interface ComponentPreviewProps {
   component: FormComponent;
@@ -105,7 +105,22 @@ const renderInputPlaceholder = (component: FormComponent) => {
     case 'header':
         return <h3 className="text-lg font-bold text-gray-800 border-b pb-2">{component.props.label}</h3>;
     case 'paragraph':
-        return <p className="text-gray-600">{component.props.label}</p>;
+        return <p className="text-gray-600">{String(component.props.text ?? component.props.label ?? 'Paragraph text goes here.')}</p>;
+    case 'url':
+      return (
+        <div className={`${baseClasses} flex items-center gap-2`}>
+          <LinkIcon size={14} className="text-gray-400" />
+          <span>{component.props.placeholder || 'https://example.com'}</span>
+        </div>
+      );
+    case 'rating':
+      return (
+        <div className="flex items-center gap-1 text-gray-400">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Star key={index} size={16} />
+          ))}
+        </div>
+      );
     default: // text, email, number, date
       return <div className={baseClasses}>{component.props.placeholder || 'Input text'}</div>;
   }

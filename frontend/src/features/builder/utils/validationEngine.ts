@@ -447,6 +447,48 @@ function validateEmail(
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// URL VALIDATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+function validateUrl(
+    value: string,
+    rules: ValidationRules,
+    context?: ValidationContext
+): ValidationError[] {
+    const errors: ValidationError[] = [];
+
+    // Reuse generic text rules such as min/max length and custom regex.
+    errors.push(...validateText(value, rules, context));
+
+    if (rules.url === false) {
+        return errors;
+    }
+
+    const trimmed = value.trim();
+    const candidate = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
+
+    try {
+        const parsed = new URL(candidate);
+        const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:';
+        if (!isHttp || parsed.hostname.length === 0) {
+            errors.push({
+                ruleKey: 'url',
+                message: 'Please enter a valid URL',
+                messageKey: 'validation.url.format',
+            });
+        }
+    } catch {
+        errors.push({
+            ruleKey: 'url',
+            message: 'Please enter a valid URL',
+            messageKey: 'validation.url.format',
+        });
+    }
+
+    return errors;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // PHONE VALIDATION
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -691,6 +733,10 @@ export function validateField(
 
         case 'email':
             errors = validateEmail(processedValue as string, rules);
+            break;
+
+        case 'url':
+            errors = validateUrl(processedValue as string, rules, context);
             break;
 
         case 'phone':

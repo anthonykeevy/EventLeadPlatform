@@ -694,64 +694,57 @@ Key implemented surface differences:
 
 ### A) Core `ComponentProps` coverage (common input components)
 
-| Property | Type | Affects (Object/Archetype) | first-name | text | number | email | phone | textarea | dropdown | date | address |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| `label` | `string` | `label` (`PrimaryLabel`) | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior |
-| `placeholder` | `string` | `input` (`InputControl`) | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | — | Identity & Behavior |
-| `helpText` | `string` | `validation` (`HelperText`) | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior |
-| `required` | `boolean` | `label` + validation/runtime | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior |
-| `exportName` | `string` | export schema | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection |
-| `tabOrder` | `number` | keyboard navigation | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection |
-| `validation` | `ValidationRules` | `input` validation + `validation` message | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules |
-| `objectLayout` | `ObjectLayoutType` | internal object grouping | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout |
-| `layoutGroups` | `Record<string,string[]>` | internal object grouping | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout |
-| `rowAlignment` | `'top' \| 'center' \| 'bottom' \| 'stretch'` | row flex alignment | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout |
-| `objectSpacing` | `{ horizontalGap?, verticalSpacing?, objectGap? }` | group gaps (layout engine) | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing |
-| `width` | `string` | container sizing | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions |
-| `height` | `number` | textarea sizing | — | — | — | — | — | Appearance > Dimensions | — | — | — |
-| `textAlign` | `'left' \| 'center' \| 'right'` | input text alignment | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions |
-| `componentScale` | `number` | scales label/input/help sizes | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions |
-| `styleOverrides.*` | `StyleOverrides` | `PrimaryLabel` / `InputControl` / `HelperText` | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors |
+| Property | Type | Affects (Object/Archetype) | first-name | text | number | email | phone | url | textarea | dropdown | date | address | rating |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `label` | `string` | `label` (`PrimaryLabel`) | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior |
+| `placeholder` | `string` | `input` (`InputControl`) | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | — | Identity & Behavior | — |
+| `helpText` | `string` | `validation` (`HelperText`) | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior |
+| `required` | `boolean` | `label` + validation/runtime | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior | Identity & Behavior |
+| `exportName` | `string` | export schema | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection |
+| `tabOrder` | `number` | keyboard navigation | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection |
+| `validation` | `ValidationRules` | `input` validation + `validation` message | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules |
+| `objectLayout` / `layoutGroups` / `rowAlignment` | object/enums | internal object grouping | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout |
+| `objectSpacing` | `{ horizontalGap?, verticalSpacing?, objectGap? }` | layout-engine object gaps | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing |
+| `width` / `height` / `textAlign` / `componentScale` | sizing/enums | container + object sizing | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions |
+| `styleOverrides.*` | `StyleOverrides` | `PrimaryLabel` / `InputControl` / `HelperText` | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors |
 
-### B) Component-type specific `ComponentProps` coverage (selection + special components)
+### B) Component-type specific `ComponentProps` coverage (selection + display + special components)
 
-| Property | Type | checkbox | radio | terms | submit-button | header | divider |
-|---|---|---|---|---|---|---|---|
-| `label` | `string` | Identity & Behavior | Identity & Behavior | Terms Settings *(also editable in Identity & Behavior)* | **Not exposed** (submit button uses `buttonText`) | Identity & Behavior | — |
-| `required` | `boolean` | Identity & Behavior | Identity & Behavior | Identity & Behavior | — | — | — |
-| `validation` | `ValidationRules` | Validation Rules *(selection limits)* | Validation Rules *(selection limits)* | Validation Rules | — | — | — |
-| `options` | `Array<{label,value,disabled?,group?}>` | Options | Options | — | — | — | — |
-| `defaultValue` | `string` | — | Options | — | — | — | — |
-| `defaultChecked` | `string[]` | Options | — | — | — | — | — |
-| `optionsDirection` | `'horizontal' \| 'vertical'` | Options | Options | — | — | — | — |
-| `allowEmpty` / `emptyPlaceholder` | `boolean` / `string` | — | — | — | — | — | — |
-| `exportMode` / `exportSeparator` | `ExportMode` / `string` | Data Export | — | — | — | — | — |
-| `termsUrl` / `termsContent` / `termsLinkText` | `string` | — | — | Terms Settings | — | — | — |
-| `buttonText` / `buttonAction` / `buttonAlign` / `buttonWidth` | `string` / enums | — | — | — | Button Settings | — | — |
-| `showLoadingState` / `disableUntilValid` / `showIcon` | `boolean` | — | — | — | Button Settings | — | — |
-| `width` / `componentScale` / `textAlign` | `string` / `number` / enum | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions *(width/scale only; alignment uses Button Settings → `buttonAlign`)* | Appearance > Dimensions | Divider Properties |
-| `styleOverrides.*` | `StyleOverrides` | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Divider Properties |
+| Property | Type | checkbox | radio | terms | submit-button | header | paragraph | divider | url | rating |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `label` | `string` | Identity & Behavior | Identity & Behavior | Terms Settings *(also editable in Identity & Behavior)* | **Not exposed** (submit button uses `buttonText`) | Identity & Behavior | Identity & Behavior (`text` fallback supported) | — | Identity & Behavior | Identity & Behavior |
+| `validation` | `ValidationRules` | Validation Rules *(selection limits)* | Validation Rules *(selection limits)* | Validation Rules | — | — | — | — | Validation Rules (`url`, `pattern`, `urlDnsCheck`) | Validation Rules (required/range if configured) |
+| `options` / `optionsDirection` / defaults | option models | Options | Options | — | — | — | — | — | — | — |
+| `termsUrl` / `termsContent` / `termsLinkText` | `string` | — | — | Terms Settings | — | — | — | — | — | — |
+| `buttonText` / `buttonAction` / `buttonAlign` / `buttonWidth` | `string` / enums | — | — | — | Button Settings | — | — | — | — | — |
+| `urlPrefix` | `string` | — | — | — | — | — | — | — | URL Settings | — |
+| `ratingMax` / `ratingStyle` / `ratingLabels.low/high` | number/enums/object | — | — | — | — | — | — | — | — | Rating Settings |
 
-> **Note:** `paragraph` was removed from the component set and is not part of the current framework.
->
-> **Submit button UI mapping (current):**
-> - Alignment is controlled by `buttonAlign` in **Button Settings**, not `textAlign`.
-> - Button width is controlled by `buttonWidth` in **Button Settings** (component `width` still controls container sizing).
-> - **Note:** Button Settings → Button Width and Appearance → Dimensions → Width should be synchronized (see Submit Button section for details).
+**Submit button UI mapping (current):**
+- Alignment is controlled by `buttonAlign` in **Button Settings**, not `textAlign`.
+- Button width is controlled by `buttonWidth` in **Button Settings** (component `width` still controls container sizing).
+- Button Settings → Button Width and Appearance → Dimensions → Width should stay synchronized.
 
-### C) “Should exist” but currently **not** mapped to a Properties Panel control (gaps)
+### C) Width/spacing override support by component family
 
-| Property | Type | Notes |
+| Override | Input family (`text/number/email/phone/url/textarea/dropdown/date/address/rating/first-name`) | Selection (`checkbox/radio/terms`) | Action (`submit-button`) | Display (`header/paragraph/divider`) |
+|---|---|---|---|---|
+| `inputWidthOverride` | ✅ Supported where `input` object exists (canvas handle + persisted prop) | ⚠️ Group-level behavior varies by renderer; not universal per-option width contract | ❌ N/A | ❌ N/A |
+| `labelWidthOverride` | ✅ Supported (layout engine applies to label object) | ✅ Supported where label object exists | ⚠️ Component-dependent | ⚠️ Limited value on divider |
+| `validationWidthOverride` | ✅ Supported where validation/help object exists | ✅ Supported | ⚠️ Submit button uses status/loading objects; validation width semantics differ | ❌ N/A |
+| `labelGapOverride` / `inputHelpGapOverride` | ✅ In `ComponentProps`, but no dedicated panel controls | ✅ In `ComponentProps`, but no dedicated panel controls | ⚠️ Not primary mechanism | ❌ N/A |
+| `objectSpacing` (`horizontalGap` / `verticalSpacing` / `objectGap`) | ✅ Supported | ✅ Supported | ✅ Supported | ✅ Supported |
+
+### D) “Should exist” but currently incomplete, mismatched, or not mapped in panel controls (gaps)
+
+| Property | Type | Current status |
 |---|---|---|
-| `validationMessage` | `string` | Exists in docs and some previews, but there is **no Properties Panel control** for it today. |
-| `labelGapOverride` | `number` | Present in `ComponentProps`, but there is **no Properties Panel control** for it today. (Spacing overrides happen via `styleOverrides.labelGap` instead.) |
-| `inputHelpGapOverride` | `number` | Present in `ComponentProps`, but there is **no Properties Panel control** for it today. (Spacing overrides happen via `styleOverrides.inputHelpGap` instead.) |
-| `inputWidthMode` / `inputWidth` / `labelWrap` | enums / number / boolean | Present in `ComponentProps`, but there is **no direct Properties Panel control** (only an “Auto-fit Width” button sets `inputWidthMode: 'fill'`). |
-| `inputHeightOverride` | `number` | Documented above, but **does not exist** in the current `ComponentProps` type; height is controlled via `styleOverrides.inputHeight` and textarea `props.height`. |
-| `labelWidthOverride` | `number` | **NEW** - Override label object width. Auto-sizing is default; set to fixed px to override. |
-| `validationWidthOverride` | `number` | **NEW** - Override validation object width. Auto-sizing is default; set to fixed px to override. |
-| `initialVisibility` | `'visible' \| 'hidden'` | **NEW** - Initial visibility state before logic rules run. Default: `'visible'`. |
-| `initialEnabled` | `'enabled' \| 'disabled'` | **NEW** - Initial enabled state before logic rules run. Default: `'enabled'`. |
+| `validationMessage` | `string` | Exists in type/docs and runtime usage; still lacks a dedicated Properties Panel control. |
+| `labelGapOverride` / `inputHelpGapOverride` | `number` | Present in `ComponentProps`, but no direct controls; users rely on `styleOverrides.*Gap` and `objectSpacing`. |
+| `inputWidthMode` / `inputWidth` / `labelWrap` | enums/number/boolean | Present in type; only partial UI exposure (auto-fit button pattern). |
+| `inputHeightOverride` | `number` | Documented previously, but not present as first-class `ComponentProps` field; implemented via `styleOverrides.inputHeight` and textarea `height`. |
+| `labelWidthOverride` / `validationWidthOverride` | `number` | Supported by framework and resize pipeline; panel coverage remains partial across component families. |
+| `initialVisibility` / `initialEnabled` | enums | Supported in runtime base-state and logic pipeline; ensure all component editors expose consistently. |
 
 ## 🔗 Component Framework Dependency Map
 
@@ -764,7 +757,7 @@ Understanding dependencies prevents regressions when modifying the framework.
 | `resizePreview` | SortableComponent | SortableComponent, UniversalFieldShell | Live preview state during drag |
 | `isResizingState` | SortableComponent | SortableComponent, ResizeHandles | Tracks active resize operation |
 | `resizingComponentId` | useBuilderStore | BuilderPage, SortableComponent | Prevents drag during resize |
-| `frozenGridTemplateColumns` | SortableComponent | UniversalFieldShell | Keeps label/help columns fixed during E/W resize |
+| `frozenGridTemplateColumns` | SortableComponent | UniversalFieldShell | Optional grid-track freeze for corner-resize stability; E/W skips freeze so input + border previews stay synchronized |
 | `previewWidth` | SortableComponent → UniversalFieldShell | UniversalFieldShell, SmartBorder | Container width during preview |
 | `previewObjectWidthOverrides` | SortableComponent → UniversalFieldShell | Grid columns, object renderers | Object widths during preview |
 | `inputWidthOverride` (renderer) | UniversalFieldShell → renderer | objectRenderers | Input element inline width |
@@ -845,15 +838,18 @@ When modifying resize behavior, verify these still work:
 
 Width resize primarily updates the **component container width**. Internally, the framework treats the **Input** as the flexible object that absorbs width changes, while **Label** and **Help/Validation** remain content-sized (they do not “grow to fill” the extra space).
 
+> **Architectural Note:** Some components (like `rating`) intentionally hide E/W and corner resize handles via `hideHorizontalHandles` to enforce strict architectural discipline, as their width is intrinsically driven by their content (e.g., number of stars).
+
 ### Width Calculation per Object Category
 
 | Category | Width Source | Behavior |
 |----------|--------------|----------|
 | **Label** | Label text content | Known width from text; wraps if too narrow |
-| **Input** | Text length estimator | `maxLength` + font properties → estimated visible width |
+| **Input** | Text length estimator | `maxLength` + font properties → estimated visible width (has default min-width ~60-80px) |
 | **Help/Validation** | Longest validation message | Calculated width; wraps if too narrow |
 | **Action** (Button) | User-specified width | Set via `actionWidthOverride` or percentage width |
-| **Divider** | User-specified width | Set via `width` prop (percentage or pixels) |
+| **Divider** | User-specified width | Set via `width` prop (percentage or pixels). Acts as a flexible width object in grid layout. Min width 10px. |
+| **Display** (Header, Paragraph) | User-specified width | Set via `width` prop and E/W resize overrides. Acts as a flexible width object in grid layout. Min width 10px. |
 
 ### Object-Aware Width Calculations
 
@@ -918,9 +914,10 @@ estimatedWidth = estimateTextWidth(maxLength, {
 - Expands/contracts the **East edge** (right side moves)
 - Updates `props.width` and object width overrides
 - **Label and Help stay fixed** at their current widths
-- **Input absorbs all width changes** (expands/contracts)
+- **Input, Display, and Divider objects absorb all width changes** (expands/contracts)
+- During drag, input preview and SmartBorder preview resize together (E/W does not freeze grid tracks)
 - Position remains unchanged
-- **Row-aware budgeting:** only objects **in the same row as the Input** reduce the Input’s available width.
+- **Row-aware budgeting:** only objects **in the same row as the flexible object** reduce the flexible object's available width.
   - **Vertical stack:** Label (row 1), Input (row 2), Validation (row 3) → Input expands to full component width (minus SmartBorder padding).
   - **Grid example:** Label above, Input + Validation on the same row → Input expands to the remaining width after Validation + gaps.
 
@@ -929,7 +926,7 @@ estimatedWidth = estimateTextWidth(maxLength, {
 - Expands/contracts the **West edge** (left side moves)
 - Updates `props.width`, `position.x`, and object width overrides
 - **Label and Help stay fixed** at their current widths
-- **Input absorbs all width changes** (expands/contracts)
+- **Input, Display, and Divider objects absorb all width changes** (expands/contracts)
 
 **On Commit (drop):**
 - `labelWidthOverride`, `inputWidthOverride`, `helpWidthOverride`, `actionWidthOverride` are persisted
@@ -993,25 +990,26 @@ resizePreview state (SortableComponent)
     │   previewObjectWidthOverrides prop (UniversalFieldShell)
     │       ├── gridTemplateColumns (CSS Grid columns)
     │       └── renderer props (inputWidthOverride, etc.)
-    └── frozenGridTemplateColumns (keep label/help fixed)
+    └── frozenGridTemplateColumns (optional, corner handles only)
 ```
 
 **Grid Column Priority:**
 ```
-previewGridTemplateColumns > frozenGridTemplateColumns > explicitGridTemplateColumns > base (1fr)
+previewGridTemplateColumns > (corner-only) frozenGridTemplateColumns > explicitGridTemplateColumns > base (1fr)
 ```
 
 **Critical Implementation Rules:**
 1. **Both grid AND renderers need preview values**: Grid columns control cell size, but input elements also have their own `width` style. Both must use preview values or the visual won't update.
 2. **Column fit constraint**: Preview columns must fit within `previewWidth`. If `label + input + help + gaps > previewWidth`, browser can't render correctly—skip preview columns.
 3. **Scale factor**: DOM measurements are screen pixels. Convert to base pixels: `basePx = screenPx / (componentScale/100 * canvasScale)`.
-4. **SmartBorder synthetic segment**: During E/W resize, add a synthetic segment at `previewWidth` to force border to follow the preview width (content may be frozen smaller).
+4. **SmartBorder synthetic segment**: During E/W resize, add a synthetic segment at `previewWidth` to force border to follow the preview width.
 
 **Debug checklist (E/W resize not updating):**
 - Check `previewObjectWidthOverrides` is passed to UniversalFieldShell
 - Check `previewGridTemplateColumns` is generated (logs: `fieldshell.grid.preview-columns`)
 - Check input renderer receives preview `inputWidthOverride` (not committed value)
 - Check column widths fit within previewWidth
+- Check `frozenGridTemplateColumns` is not active for E/W drag (`resize.grid.freeze.skip` expected)
 
 ### useComponentResize Hook
 
@@ -1076,7 +1074,9 @@ Moving **North** (pushing up):
 
 | Property | Affected By | Min | Max |
 |----------|-------------|-----|-----|
-| `inputHeight` | N, S handles | 28px | 240px |
+| `inputHeight` | N, S handles (for standard inputs) | 28px | 240px |
+| `component.props.height` | N, S handles (for `display` objects) | 28px (or min-content) | 2000px |
+| `dividerBorderWidth` | N, S handles (for `divider` component thickness) | 1px | 20px |
 | `labelGap` | N handle | 0px | 48px |
 | `inputHelpGap` | S handle | 0px | 48px |
 
@@ -1148,7 +1148,7 @@ The `UniversalFieldShell` (`components/UniversalFieldShell.tsx`) is the universa
 
 ### Key Responsibilities
 1. **Layout Management:** Supports **Grid Layout** *and* **Object Layout**.
-   - **Grid Layout (preferred):** when `component.props.gridLayout` (or `globalStyles.defaultGridLayout`) is enabled, it renders a CSS Grid container (`data-layout-type="grid"`) and positions objects via `cellAssignments` (+ `mergedCells` / `objectSpans`) using `gridLayoutUtils`.
+   - **Grid Layout (preferred):** when `component.props.gridLayout` (or `globalStyles.defaultGridLayout`) is enabled, it renders a CSS Grid container (`data-layout-type="grid"`) and positions objects via `cellAssignments` (+ `mergedCells` / `objectSpans`) using `gridLayoutUtils`. **Note:** Columns containing `input`, `display`, or `divider` objects are rendered as flexible `minmax(0, 1fr)` tracks to allow stretching, while columns with only static objects (`label`, `validation`, etc.) use `minmax(0, max-content)`.
    - **Object Layout (legacy/transition):** otherwise it falls back to `vertical` / `horizontal` / `mixed` grouping via `groupObjectsByLayout`.
 2. **Conditional Rendering:** Filters objects based on `conditionalContext`. In `builderMode`, conditional objects are always rendered (so SmartBorder accounts for their space).
 3. **SmartBorder Integration:** Wraps content in `<SmartBorder>` when in `builderMode` to provide the collision/selection boundary.
@@ -1380,6 +1380,7 @@ export interface ComponentStructure {
 | `action` | `Action` | Button/clickable action (e.g., submit) |
 | `status` | `HelperText` | Status indicator (runtime submit spinner) |
 | `divider` | `Divider` | Visual separator line |
+| `display` | `DisplayBlock` | Read-only structural text (e.g., headers, paragraphs) that spans width and can be resized |
 | `custom` | *(explicit)* | Custom object types (future) |
 
 ---

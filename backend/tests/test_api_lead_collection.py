@@ -93,3 +93,34 @@ class TestLeadCollectionAPI:
         )
         
         assert response.status_code in [403, 404, 401], f"Expected 4xx, got {response.status_code}"
+
+    def test_public_url_dns_validation_accepts_resolvable_hostname(self, client: TestClient, mock_published_form):
+        payload = {
+            "url": "https://example.com",
+            "checkDns": True,
+        }
+
+        response = client.post(
+            f"/api/public/forms/{mock_published_form['token']}/validate-url-dns",
+            json=payload,
+        )
+
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}. Response: {response.text}"
+        data = response.json()
+        assert data.get("isValid") is True
+        assert data.get("hostname") == "example.com"
+
+    def test_public_url_dns_validation_rejects_unresolvable_hostname(self, client: TestClient, mock_published_form):
+        payload = {
+            "url": "https://invalid-hostname-for-eventlead-platform.invalid",
+            "checkDns": True,
+        }
+
+        response = client.post(
+            f"/api/public/forms/{mock_published_form['token']}/validate-url-dns",
+            json=payload,
+        )
+
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}. Response: {response.text}"
+        data = response.json()
+        assert data.get("isValid") is False

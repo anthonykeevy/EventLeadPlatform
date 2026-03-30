@@ -13,6 +13,7 @@ from enum import Enum
 class ComponentType(str, Enum):
     TEXT = "text"
     NUMBER = "number"
+    URL = "url"
     SELECT = "select"
     DROPDOWN = "dropdown"
     DATE = "date"
@@ -21,6 +22,7 @@ class ComponentType(str, Enum):
     TEXTAREA = "textarea"
     EMAIL = "email"
     PHONE = "phone"
+    RATING = "rating"
     ADDRESS = "address"
     FIRST_NAME = "first-name"
     TERMS = "terms"

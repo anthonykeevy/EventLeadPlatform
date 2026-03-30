@@ -306,6 +306,13 @@ const OVERRIDES: Partial<Record<ComponentType, Partial<Record<ComponentSurface, 
       objectResizeHandles: { inputWidthHandle: true },
     },
   },
+  url: {
+    toolbox: { textLengthIndicator: { enabled: true, showBar: true, showLabel: true } },
+    canvas: {
+      textLengthIndicator: { enabled: true, showBar: true, showLabel: true },
+      objectResizeHandles: { inputWidthHandle: true },
+    },
+  },
   address: {
     toolbox: { textLengthIndicator: { enabled: true, showBar: true, showLabel: true } },
     canvas: {

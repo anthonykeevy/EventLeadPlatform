@@ -117,3 +117,15 @@ class PublicValidationEventRequest(PublicSchemaBase):
     client_session_id: str = Field(..., alias="clientSessionId")
     submit_attempt_id: str = Field(..., alias="submitAttemptId")
     failures: List[PublicValidationFailure]
+
+
+class PublicUrlDnsValidationRequest(PublicSchemaBase):
+    url: str = Field(..., min_length=1, max_length=4096)
+    check_dns: bool = Field(default=True, alias="checkDns")
+
+
+class PublicUrlDnsValidationResponse(PublicSchemaBase):
+    is_valid: bool = Field(..., alias="isValid")
+    normalized_url: Optional[str] = Field(default=None, alias="normalizedUrl")
+    hostname: Optional[str] = None
+    reason: Optional[str] = None

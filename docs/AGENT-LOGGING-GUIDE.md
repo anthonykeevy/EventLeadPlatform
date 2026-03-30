@@ -30,15 +30,19 @@ Create/update `frontend/.env.local` (or `frontend/.env`) with:
 VITE_ENABLE_DEV_LOGS=true
 # Optional: mirrors debug/info logs to console (resize + SmartBorder are noisy)
 VITE_LOG_VERBOSE_RESIZE=false
+# Optional: persist logs in localStorage for same-tab recovery after reload
+VITE_LOG_PERSIST_TO_STORAGE=true
+# Optional: send log batches to backend log.FrontendEvent
+VITE_LOG_SEND_TO_BACKEND=true
 ```
 
 Restart the Vite dev server after editing env vars.
 
-### 2) Reproduce the bug and download the log bundle
+### 2) Reproduce the bug and capture logs
 
 In the Builder UI header you should see **“Dev Logs”** (download button). After reproducing the issue, click it and attach the JSON file to the bug report.
 
-**Optional local persistence:** if you also set `VITE_LOG_PERSIST_TO_STORAGE=true`, logs are persisted to **browser localStorage** for the current browser tab session. This helps if the page reloads mid-debug.
+If `VITE_LOG_SEND_TO_BACKEND=true` is enabled, recent entries are also sent to `POST /api/v1/logs/frontend` and stored in `log.FrontendEvent`.
 
 ### 3) If the bug might involve backend/API
 
@@ -46,6 +50,12 @@ Use the backend diagnostic tool to collect recent API/auth/error context:
 
 ```bash
 python backend/enhanced_diagnostic_logs.py --limit 50
+```
+
+For frontend builder events stored in `log.FrontendEvent`, use:
+
+```bash
+python backend/enhanced_diagnostic_logs.py --frontend-only --frontend-filter "resize" --limit 50
 ```
 
 ---
@@ -60,6 +70,7 @@ python backend/enhanced_diagnostic_logs.py --limit 50
 - **Epic 2 audit trail**: `audit.ApprovalAuditTrail` (if table exists; otherwise safely skipped)
 - **Correlation analysis**: joins `ApplicationError`, `ApiRequest`, `AuthEvent` by `RequestID`
 - **Performance summary**: request counts, avg/max duration, error counts for a time window
+- **Frontend events**: `log.FrontendEvent` (event type, level, component/session/request context, payload)
 
 ### Useful CLI options (focused modes)
 - `--limit / -l`: rows per table (default 5)
@@ -67,6 +78,11 @@ python backend/enhanced_diagnostic_logs.py --limit 50
 - `--performance-hours / -p`: time window for performance metrics
 - `--path-filter`: only show API requests matching a path pattern
 - `--no-theme-requests`: hide profile/theme enhancement request section
+- `--frontend-only`: query only `log.FrontendEvent`
+- `--frontend-filter`: filter frontend event names (e.g., `resize.width`, `fieldshell.resize.commit`)
+- `--frontend-component-id`: filter by `ComponentID`
+- `--frontend-session-id`: filter by `SessionID`
+- `--frontend-level`: filter by log level (`debug|info|warn|error`)
 
 ---
 
@@ -114,6 +130,10 @@ When debugging “it looks wrong”, trust snapshot **Rendered/Normalized** fiel
 - **high-signal calculations**: `resize.width.chain`, `resize.width.comparison`, `resize.preview.edge.position`, `resize.commit.edge.position`
 - **constraints/collisions**: `resize.constraints.*`, `resize.collision.*`
 - **preview actually applied**: `resize.preview.applied`
+- **preview phase + authority**: `resize.preview.phase`, `resize.preview.predicted_vs_settled`
+- **boundary-lock lifecycle**: `resize.preview.boundary.lock.created`, `resize.preview.boundary.lock.used`, `resize.preview.boundary.lock.released`
+- **settled-preview corrections**: `resize.preview.settled.constrained`
+- **commit authority**: `fieldshell.resize.commit` now includes `commitSource`
 - **input-only width**: `resize.input.*`
 
 ### SmartBorder (what boundary the user *actually* sees)
@@ -136,9 +156,9 @@ When debugging “it looks wrong”, trust snapshot **Rendered/Normalized** fiel
 
 ## Known limitations (important so agents don’t get stuck)
 
-### No backend syncing (by design for now)
+### Backend syncing is opt-in
 
-This logging is currently **local-only** (browser storage + JSON download). Backend syncing/DB storage is intentionally deferred to a future epic.
+Frontend logging defaults to local capture only. To store events in `log.FrontendEvent`, set `VITE_LOG_SEND_TO_BACKEND=true` and ensure backend route `/api/v1/logs/frontend` is reachable.
 
 ### Surface attribution is not consistently explicit in payloads
 

@@ -7,6 +7,13 @@ import type { PublicValidationEventRequest } from '../types/telemetry.types'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 const PUBLIC_SUBMISSION_ENDPOINT = `${API_BASE_URL.replace(/\/$/, '')}/api/public/forms`
 
+export interface PublicUrlDnsValidationResponse {
+  isValid: boolean
+  normalizedUrl?: string
+  hostname?: string
+  reason?: string
+}
+
 export async function submitPublicFormSubmission(
   token: string,
   request: PublicFormSubmissionRequest,
@@ -53,4 +60,29 @@ export async function submitPublicValidationTelemetry(
   if (!response.ok) {
     throw new Error(`Validation telemetry failed (${response.status}).`)
   }
+}
+
+export async function validatePublicUrlDns(
+  token: string,
+  url: string,
+  init?: RequestInit,
+): Promise<PublicUrlDnsValidationResponse> {
+  if (!token) {
+    throw new Error('Public submission token is required.')
+  }
+
+  const response = await fetch(`${PUBLIC_SUBMISSION_ENDPOINT}/${token}/validate-url-dns`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url, checkDns: true }),
+    ...init,
+  })
+
+  if (!response.ok) {
+    throw new Error(`URL DNS validation failed (${response.status}).`)
+  }
+
+  return (await response.json()) as PublicUrlDnsValidationResponse
 }

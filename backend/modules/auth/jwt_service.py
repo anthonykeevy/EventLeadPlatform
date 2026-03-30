@@ -4,7 +4,7 @@ Handles JWT token creation, validation, and decoding
 
 Updated for Story 1.13: Token expiry times now read from database (ConfigurationService)
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 from jose import jwt, JWTError  # type: ignore
 from sqlalchemy.orm import Session
@@ -50,7 +50,7 @@ def create_access_token(
             "iat": <issued_at_timestamp>
         }
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     expire = now + timedelta(minutes=get_access_token_expire_minutes(db))
     
     payload: Dict[str, Any] = {
@@ -91,7 +91,7 @@ def create_refresh_token(db: Session, user_id: int) -> str:
             "iat": <issued_at_timestamp>
         }
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     expire = now + timedelta(days=get_refresh_token_expire_days(db))
     
     payload = {
@@ -182,5 +182,5 @@ def is_token_expired(payload: Dict[str, Any]) -> bool:
     if not exp:
         return True
     
-    return datetime.utcnow().timestamp() > exp
+    return datetime.now(timezone.utc).timestamp() > exp
 

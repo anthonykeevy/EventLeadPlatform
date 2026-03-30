@@ -294,6 +294,7 @@ function getConflictDefinitions(componentType: string): ConflictDefinition[] {
         case 'text':
         case 'textarea':
         case 'first-name':
+        case 'url':
             return TEXT_CONFLICTS;
         case 'email':
             return EMAIL_CONFLICTS;
@@ -394,7 +395,7 @@ export function validateRuleConsistency(
     }
     
     // Text-specific consistency checks
-    if (['text', 'textarea', 'first-name'].includes(componentType)) {
+    if (['text', 'textarea', 'first-name', 'url'].includes(componentType)) {
         if (validation.minLength !== undefined && validation.maxLength !== undefined) {
             if (validation.minLength > validation.maxLength) {
                 warnings.push('Minimum length cannot be greater than maximum length');
@@ -491,6 +492,16 @@ export function getAvailableRules(componentType: string): RuleMetadata[] {
                 { key: 'noPlusAddressing', displayName: 'No Plus Addressing', description: 'Block email+tag@ format', category: 'format', inputType: 'boolean' },
                 { key: 'domainWhitelist', displayName: 'Allowed Domains', description: 'Only these domains accepted', category: 'domain', inputType: 'array', placeholder: 'company.com, partner.org' },
                 { key: 'domainBlacklist', displayName: 'Blocked Domains', description: 'These domains rejected', category: 'domain', inputType: 'array', placeholder: 'spam.com, fake.org' },
+            );
+            break;
+
+        case 'url':
+            rules.push(
+                { key: 'url', displayName: 'Valid URL Format', description: 'Must be valid web URL structure', category: 'format', inputType: 'boolean' },
+                { key: 'urlDnsCheck', displayName: 'DNS Must Resolve', description: 'Hostname must resolve via DNS at submit time', category: 'connectivity', inputType: 'boolean' },
+                { key: 'minLength', displayName: 'Min Length', description: 'Minimum URL length', category: 'length', inputType: 'number', min: 0 },
+                { key: 'maxLength', displayName: 'Max Length', description: 'Maximum URL length', category: 'length', inputType: 'number', min: 0 },
+                { key: 'pattern', displayName: 'Pattern (Regex)', description: 'Custom URL regex pattern', category: 'format', inputType: 'string', placeholder: '^https?://.*$' },
             );
             break;
             

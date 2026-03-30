@@ -215,6 +215,9 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         clean_path = path.rstrip("/")
         if clean_path.startswith("/api/assets/") and (clean_path.endswith("/content") or clean_path.endswith("/resolve")):
             return True
+        # Allow frontend log ingestion without authentication, but keep query endpoints protected.
+        if clean_path == "/api/v1/logs/frontend":
+            return True
         
         # For other paths, check if they start with any public path
         # But exclude root "/" from the list to avoid matching everything

@@ -65,6 +65,7 @@ export function getComponentCapabilities(type: ComponentType): ComponentCapabili
   switch (type) {
     case 'divider':
     case 'header':
+    case 'paragraph':
       return NON_DATA_CAPABILITIES;
     case 'submit-button':
       return ACTION_CAPABILITIES;
@@ -78,6 +79,7 @@ export function getComponentCapabilities(type: ComponentType): ComponentCapabili
       return INPUT_CAPABILITIES;
     case 'first-name':
     case 'email':
+    case 'url':
     case 'address':
     case 'text':
     case 'textarea':

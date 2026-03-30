@@ -6,7 +6,10 @@ NOTE: This router is mounted under the shared `/api/public` router (Story 2.12),
 so we keep this router's prefix empty and expose `/forms/{token}` paths.
 """
 import json
+import socket
+import asyncio
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
 from sqlalchemy.orm import Session
@@ -32,6 +35,8 @@ from .public_submission_schemas import (
     PublicFormSubmissionRequest,
     PublicFormSubmissionResponse,
     PublicValidationEventRequest,
+    PublicUrlDnsValidationRequest,
+    PublicUrlDnsValidationResponse,
 )
 
 logger = get_logger(__name__)
@@ -89,6 +94,38 @@ def _extract_ip_country_code(request: Request | None) -> str | None:
     if len(normalized) == 2 and normalized.isalpha():
         return normalized
     return None
+
+
+def _normalize_url_for_dns_check(raw_url: str) -> tuple[str, str]:
+    value = (raw_url or "").strip()
+    if not value:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="URL is required.",
+        )
+
+    candidate = value if "://" in value else f"https://{value}"
+    parsed = urlparse(candidate)
+    hostname = (parsed.hostname or "").strip().lower()
+    if not hostname:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Please enter a valid URL.",
+        )
+
+    if hostname in {"localhost", "127.0.0.1", "::1"} or hostname.endswith(".local"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Local hostnames are not allowed.",
+        )
+
+    if parsed.scheme not in {"http", "https"}:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Only http and https URLs are supported.",
+        )
+
+    return candidate, hostname
 
 
 @router.get(
@@ -438,4 +475,81 @@ async def submit_validation_telemetry(
         ) from exc
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/forms/{token}/validate-url-dns",
+    response_model=PublicUrlDnsValidationResponse,
+    summary="Validate URL hostname resolves via DNS",
+)
+async def validate_public_url_dns(
+    payload: PublicUrlDnsValidationRequest,
+    token: str = Path(..., description="Public form token"),
+    db: Session = Depends(get_db),
+) -> PublicUrlDnsValidationResponse:
+    link = db.execute(
+        select(FormPublicLink)
+        .where(
+            FormPublicLink.Token == token,
+            FormPublicLink.IsActive == True,
+        )
+        .order_by(desc(FormPublicLink.CreatedDate))
+    ).scalars().first()
+
+    if not link:
+        _raise_invalid_link()
+    if link.ExpiresAt and link.ExpiresAt < datetime.utcnow():
+        _raise_invalid_link()
+
+    normalized_url, hostname = _normalize_url_for_dns_check(payload.url)
+    if not payload.check_dns:
+        return PublicUrlDnsValidationResponse(
+            isValid=True,
+            normalizedUrl=normalized_url,
+            hostname=hostname,
+            reason=None,
+        )
+
+    try:
+        loop = asyncio.get_running_loop()
+        records = await asyncio.wait_for(
+            loop.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP),
+            timeout=2.0,
+        )
+        if not records:
+            return PublicUrlDnsValidationResponse(
+                isValid=False,
+                normalizedUrl=normalized_url,
+                hostname=hostname,
+                reason="Hostname could not be resolved by DNS.",
+            )
+    except asyncio.TimeoutError:
+        return PublicUrlDnsValidationResponse(
+            isValid=False,
+            normalizedUrl=normalized_url,
+            hostname=hostname,
+            reason="DNS lookup timed out.",
+        )
+    except socket.gaierror:
+        return PublicUrlDnsValidationResponse(
+            isValid=False,
+            normalizedUrl=normalized_url,
+            hostname=hostname,
+            reason="Hostname could not be resolved by DNS.",
+        )
+    except Exception as exc:
+        logger.warning("Unexpected DNS validation error for token=%s host=%s: %s", token, hostname, exc)
+        return PublicUrlDnsValidationResponse(
+            isValid=False,
+            normalizedUrl=normalized_url,
+            hostname=hostname,
+            reason="Unable to verify DNS at this time.",
+        )
+
+    return PublicUrlDnsValidationResponse(
+        isValid=True,
+        normalizedUrl=normalized_url,
+        hostname=hostname,
+        reason=None,
+    )
 

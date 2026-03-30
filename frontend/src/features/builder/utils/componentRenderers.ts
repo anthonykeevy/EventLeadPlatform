@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { ComponentType, ComponentStructure, FormComponent } from '../types/builder.types';
-import { ObjectRenderers, getDefaultRenderers, createLabelRenderer, createInputRenderer, createValidationRenderer, createActionRenderer, createStatusRenderer, createDividerRenderer } from './objectRenderers';
+import { ObjectRenderers, getDefaultRenderers, createLabelRenderer, createInputRenderer, createValidationRenderer, createActionRenderer, createStatusRenderer, createDividerRenderer, createDisplayRenderer } from './objectRenderers';
 
 /**
  * Get renderers for a component based on its structure.
@@ -40,6 +40,9 @@ export function getRenderersForComponent(
                 break;
             case 'divider':
                 renderers[obj.id] = createDividerRenderer();
+                break;
+            case 'display':
+                renderers[obj.id] = createDisplayRenderer();
                 break;
             case 'custom':
                 // For custom types, try to use default renderer or create a basic one

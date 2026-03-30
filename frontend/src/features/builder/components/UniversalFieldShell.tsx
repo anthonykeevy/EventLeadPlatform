@@ -252,9 +252,13 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                 help: 'helpWidthOverride',
                 action: 'actionWidthOverride',
                 button: 'actionWidthOverride',
+                display: 'inputWidthOverride',
+                content: 'inputWidthOverride', // Fallback for display object ids
+                line: 'inputWidthOverride',    // Divider uses line id
             };
             
-            const key = overrideMap[objectId];
+            const key = overrideMap[objectId] || overrideMap[obj.type];
+            
             return key ? previewObjectWidthOverrides[key] : undefined;
         };
 
@@ -290,7 +294,7 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                 builderMode: !!builderMode,
                 // Width overrides
                 labelWidthOverride: obj.type === 'label' && surfaceCaps.surfaceStyles.applyLabelWidth ? widthOverride : undefined,
-                inputWidthOverride: obj.type === 'input' && surfaceCaps.surfaceStyles.applyInputWidthOverride ? widthOverride : undefined,
+                inputWidthOverride: (obj.type === 'input' || obj.type === 'display') && surfaceCaps.surfaceStyles.applyInputWidthOverride ? widthOverride : undefined,
                 helpWidthOverride: obj.type === 'validation' ? widthOverride : undefined,
                 actionWidthOverride: obj.type === 'action' && surfaceCaps.surfaceStyles.applyButtonStyling ? widthOverride : undefined,
                 // Runtime props
@@ -315,6 +319,10 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                     obj.type === 'action' && surfaceCaps.surfaceStyles.applyButtonStyling
                         ? (previewHeight ?? component?.props.height)
                         : undefined,
+                displayHeightOverride:
+                    obj.type === 'display'
+                        ? (previewHeight ?? component?.props.height)
+                        : undefined,
             };
 
             return renderer(rendererProps);
@@ -325,7 +333,8 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
             const isMultiObject = row.objects.length > 1;
             const rowAlignment = structure.defaultRowAlignment || 'center';
             const isSubmitButton = component?.type === 'submit-button';
-            const shouldStretchRow = isSubmitButton && (previewWidth || component?.props.width);
+            const isFullWidthComponent = ['submit-button', 'divider'].includes(component?.type || '') || row.objects.some(obj => obj.type === 'display');
+            const shouldStretchRow = isFullWidthComponent && (previewWidth || component?.props.width || row.objects.some(obj => obj.type === 'display'));
             
             // Row styles - use inline-flex for shrink-wrap behavior
             const rowStyle: React.CSSProperties = {
@@ -348,9 +357,10 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                             data-object-id={obj.id}
                             data-grid-object={obj.id}
                             style={{ 
-                                display: isSubmitButton && obj.type === 'action' ? 'block' : 'inline-block',
+                                display: (isSubmitButton && obj.type === 'action') || obj.type === 'display' ? 'block' : 'inline-block',
                                 verticalAlign: 'top',
-                                ...(isSubmitButton && obj.type === 'action' ? { width: '100%' } : {}),
+                                flex: obj.type === 'display' ? 1 : undefined,
+                                ...((isSubmitButton && obj.type === 'action') || obj.type === 'display' ? { width: '100%' } : {}),
                             }}
                         >
                             {renderObject(obj, isMultiObject)}
@@ -393,26 +403,29 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
             const shouldFillWidth = Boolean(previewWidth || hasExplicitWidth || builderMode?.smartBorderLayout === 'fill');
 
             // Build an object-aware gridTemplateColumns:
-            // - Columns containing an input object become flexible: minmax(0, 1fr)
+            // - Columns containing an input, display, or divider object become flexible: minmax(0, 1fr)
             // - Other columns remain content-sized (but shrinkable): minmax(0, max-content)
-            const inputColumnSet = new Set<number>();
+            const flexColumnSet = new Set<number>();
             for (const [key, objectId] of Object.entries(effectiveGridLayout.cellAssignments || {})) {
-                if (objectId !== 'input') continue;
+                const obj = structure.objects.find(o => o.id === objectId);
+                const isFlexObj = obj && (obj.type === 'input' || obj.type === 'display' || obj.type === 'divider');
+                if (!isFlexObj && objectId !== 'input') continue;
+                
                 const [rowStr, colStr] = key.split('-');
                 void rowStr;
                 const col = Number.parseInt(colStr, 10);
                 if (!Number.isFinite(col)) continue;
-                const span = effectiveGridLayout.objectSpans?.input?.colSpan ?? 1;
+                const span = effectiveGridLayout.objectSpans?.[objectId]?.colSpan ?? 1;
                 for (let i = 0; i < Math.max(1, span); i += 1) {
-                    inputColumnSet.add(col + i);
+                    flexColumnSet.add(col + i);
                 }
             }
 
             const columnTemplate: string[] = [];
             for (let col = 0; col < effectiveGridLayout.columns; col += 1) {
-                const track = shouldFillWidth && inputColumnSet.has(col) ? 'minmax(0, 1fr)' : 'auto';
+                const track = shouldFillWidth && flexColumnSet.has(col) ? 'minmax(0, 1fr)' : 'auto';
                 const nonInputTrack = shouldFillWidth ? 'minmax(0, max-content)' : 'auto';
-                columnTemplate.push(inputColumnSet.has(col) ? track : nonInputTrack);
+                columnTemplate.push(flexColumnSet.has(col) ? track : nonInputTrack);
                 if (col < effectiveGridLayout.columns - 1) {
                     const gap = effectiveGridLayout.columnGaps?.[col] ?? effectiveGridLayout.columnGap;
                     columnTemplate.push(`${gap}px`);
@@ -468,15 +481,15 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                         const rowIndex = rowByObjectId.get(obj.id);
                         const inRowGroup = rowIndex !== undefined ? (rowCounts.get(rowIndex) ?? 0) > 1 : false;
 
-                        const isInput = obj.type === 'input';
+                        const isFlexObj = obj.type === 'input' || obj.type === 'display' || obj.type === 'divider';
                         const wrapperStyle: React.CSSProperties = {
                             gridRow: area.gridRow,
                             gridColumn: area.gridColumn,
                             // Important for grid children with long text: allow shrinking/wrapping instead of overflow.
                             minWidth: 0,
-                            justifySelf: isInput ? 'stretch' : 'start',
-                            alignSelf: isInput ? 'stretch' : 'start',
-                            ...(isInput ? { width: '100%' } : { display: 'inline-block' }),
+                            justifySelf: isFlexObj ? 'stretch' : 'start',
+                            alignSelf: isFlexObj ? 'stretch' : 'start',
+                            ...(isFlexObj ? { width: '100%' } : { display: 'inline-block' }),
                         };
 
                         return (

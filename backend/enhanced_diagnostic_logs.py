@@ -135,6 +135,51 @@ class DiagnosticLogger:
                 ORDER BY CreatedDate DESC
             """)
             return [dict(row._mapping) for row in conn.execute(query, params).fetchall()]
+
+    def get_recent_frontend_events(
+        self,
+        event_filter: Optional[str] = None,
+        component_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        level: Optional[str] = None,
+    ) -> List[Dict]:
+        """Get recent frontend events from log.FrontendEvent."""
+        with self.engine.connect() as conn:
+            conditions = []
+            params = {}
+            if event_filter:
+                conditions.append("EventType LIKE :event_filter")
+                params["event_filter"] = f"%{event_filter}%"
+            if component_id:
+                conditions.append("ComponentID = :component_id")
+                params["component_id"] = component_id
+            if session_id:
+                conditions.append("SessionID = :session_id")
+                params["session_id"] = session_id
+            if level:
+                conditions.append("Level = :level")
+                params["level"] = level
+
+            where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+            query = text(f"""
+                SELECT TOP {self.limit}
+                    FrontendEventID,
+                    EventType,
+                    Level,
+                    ComponentID,
+                    ComponentType,
+                    SessionID,
+                    UserID,
+                    RequestID,
+                    PageURL,
+                    ClientTimestamp,
+                    CreatedDate,
+                    Payload
+                FROM log.FrontendEvent
+                {where_clause}
+                ORDER BY CreatedDate DESC
+            """)
+            return [dict(row._mapping) for row in conn.execute(query, params).fetchall()]
     
     def get_profile_enhancement_requests(self, limit: int = 10) -> List[Dict]:
         """Get recent profile enhancement requests (theme, layout, font size updates)"""
@@ -397,6 +442,37 @@ class DiagnosticLogger:
                 params = self.format_json(req['QueryParams'])
                 if params and params != "NULL":
                     print(f"  Query Params: {params}")
+
+    def print_frontend_events(self, events: List[Dict], title: str = "RECENT FRONTEND EVENTS"):
+        """Print formatted frontend events from log.FrontendEvent."""
+        print("\n" + "=" * 100)
+        print(f"{title} (Last {len(events)})")
+        print("=" * 100)
+
+        if not events:
+            print("No frontend events found.")
+            return
+
+        for evt in events:
+            print(f"\n[{evt['CreatedDate']}] {evt['EventType']} ({evt['Level']})")
+            print(
+                f"  FrontendEventID: {evt['FrontendEventID']} | ComponentID: {evt.get('ComponentID') or 'NULL'} "
+                f"| ComponentType: {evt.get('ComponentType') or 'NULL'}"
+            )
+            print(
+                f"  SessionID: {evt.get('SessionID') or 'NULL'} | UserID: {evt.get('UserID') or 'NULL'} "
+                f"| RequestID: {evt.get('RequestID') or 'NULL'}"
+            )
+            if evt.get("PageURL"):
+                print(f"  PageURL: {evt['PageURL']}")
+            if evt.get("ClientTimestamp"):
+                print(f"  ClientTimestamp: {evt['ClientTimestamp']}")
+            if evt.get("Payload"):
+                payload = self.format_json(evt["Payload"])
+                if len(payload) > 1000:
+                    payload = payload[:1000] + "... [TRUNCATED]"
+                print("  Payload:")
+                print(f"    {payload}")
     
     def print_email_deliveries(self, deliveries: List[Dict]):
         """Print formatted email delivery events"""
@@ -538,14 +614,37 @@ def main():
     parser.add_argument("--no-theme-requests", action="store_false", dest="theme_requests", help="Hide theme/profile enhancement requests")
     parser.add_argument("--path-filter", type=str, help="Filter API requests by path pattern (e.g., 'smart-search')")
     parser.add_argument("--show-errors", action="store_true", help="Also show ApplicationErrors (optionally filtered by --path-filter)")
+    parser.add_argument("--frontend-only", action="store_true", help="Show only FrontendEvent logs")
+    parser.add_argument("--frontend-filter", type=str, help="Filter FrontendEvent.EventType by partial match")
+    parser.add_argument("--frontend-component-id", type=str, help="Filter FrontendEvent by ComponentID")
+    parser.add_argument("--frontend-session-id", type=str, help="Filter FrontendEvent by SessionID")
+    parser.add_argument("--frontend-level", type=str, help="Filter FrontendEvent by log level (debug/info/warn/error)")
+    parser.add_argument("--show-frontend", action="store_true", help="Also show FrontendEvent logs in full diagnostic mode")
     
     args = parser.parse_args()
     
     try:
         diagnostic = DiagnosticLogger(limit=args.limit)
-        
+
+        if args.frontend_only:
+            frontend_events = diagnostic.get_recent_frontend_events(
+                event_filter=args.frontend_filter,
+                component_id=args.frontend_component_id,
+                session_id=args.frontend_session_id,
+                level=args.frontend_level,
+            )
+            title = "FRONTEND EVENTS"
+            if args.frontend_filter:
+                title += f" FILTERED BY EVENT: '{args.frontend_filter}'"
+            if args.frontend_component_id:
+                title += f" COMPONENT: '{args.frontend_component_id}'"
+            if args.frontend_session_id:
+                title += f" SESSION: '{args.frontend_session_id}'"
+            if args.frontend_level:
+                title += f" LEVEL: '{args.frontend_level}'"
+            diagnostic.print_frontend_events(frontend_events, f"{title} (Last {args.limit})")
         # If path filter specified, show filtered requests
-        if args.path_filter:
+        elif args.path_filter:
             filtered_requests = diagnostic.get_recent_api_requests(path_filter=args.path_filter)
             diagnostic.print_api_requests(filtered_requests, f"API REQUESTS FILTERED BY: '{args.path_filter}' (Last {args.limit})")
             if args.show_errors:
@@ -553,6 +652,14 @@ def main():
                 diagnostic.print_application_errors(app_errors)
         else:
             diagnostic.run_full_diagnostic(request_id=args.request_id, show_theme_requests=args.theme_requests)
+            if args.show_frontend:
+                frontend_events = diagnostic.get_recent_frontend_events(
+                    event_filter=args.frontend_filter,
+                    component_id=args.frontend_component_id,
+                    session_id=args.frontend_session_id,
+                    level=args.frontend_level,
+                )
+                diagnostic.print_frontend_events(frontend_events)
     except Exception as e:
         print(f"Error running diagnostic: {e}")
         import traceback

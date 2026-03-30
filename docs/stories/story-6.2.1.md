@@ -3,7 +3,7 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.2.1  
 **Title:** Component Library Expansion  
-**Status:** In Progress  
+**Status:** Ready for UAT  
 **Branch:** `story/epic6-6.2.1-component-library-expansion`  
 **PR:** #54  
 **Depends On:** Story 6.2 (✅ Complete)  
@@ -38,14 +38,16 @@ Expand the form builder component library by adding two new component types (`ur
 
 For EVERY new/promoted component, ALL of the following must be implemented:
 
-- [ ] `ComponentType` union in `builder.types.ts`
-- [ ] Component-specific props in `ComponentProps` interface (if any)
-- [ ] `ComponentRegistry` entry with structure, preview component, runtime component
-- [ ] `structureDefaults.ts` type check (add to correct category)
-- [ ] `ComponentPreview.tsx` drag preview case
-- [ ] Properties Panel controls in `PropertiesPanel.tsx` (type-specific section if needed)
-- [ ] Backend `ComponentType` enum in `form_definition.py`
-- [ ] Validator acceptance (`form-validate` endpoint must accept the new types)
+_Checklist vs branch reality and UAT disposition: `docs/stories/STORY-6.2.1-CLOSEOUT-REPORT.md` §2._
+
+- [x] `ComponentType` union in `builder.types.ts`
+- [x] Component-specific props in `ComponentProps` interface (if any)
+- [x] `ComponentRegistry` entry with structure, preview component, runtime component
+- [x] `structureDefaults.ts` type check (add to correct category)
+- [x] `ComponentPreview.tsx` drag preview case
+- [x] Properties Panel controls in `PropertiesPanel.tsx` (type-specific section if needed)
+- [x] Backend `ComponentType` enum in `form_definition.py`
+- [x] Validator acceptance (`form-validate` endpoint must accept the new types)
 
 ### 2.4 Documentation
 
@@ -74,6 +76,7 @@ Visual verification that each new/promoted component renders correctly on all 3 
 | AI context pack v2 restructuring | Story 6.3 scope |
 | Benchmark re-runs | Story 6.3 scope (depends on this story's expanded component set) |
 | Rating component persistence/submission | Only the builder/renderer UI is in scope; backend data handling is future work |
+| Header as Nested Container | Converting the Header into a true layout container that accepts child components is out of scope for this story and should be evaluated in future planning. |
 
 ---
 
@@ -185,3 +188,74 @@ ratingLabels?: { low?: string; high?: string };  // e.g., "Not likely" / "Very l
 
 *Story 6.2.1 — Component Library Expansion*  
 *Created: 2026-03-20 by SM Agent*
+
+---
+
+## Dev Agent Record
+
+### Implementation Notes
+- Added backend enum values for `url` and `rating` in `backend/schemas/form_definition.py`.
+- Expanded frontend builder type contracts for `url` and `rating` props in `frontend/src/features/builder/types/builder.types.ts`.
+- Registered `url`, `rating`, and `paragraph` in `frontend/src/features/builder/registry/ComponentRegistry.tsx` with toolbox preview and runtime wiring via `UniversalFieldShell` + `getRenderersForComponent()`.
+- Updated default structure classification in `frontend/src/features/builder/utils/structureDefaults.ts` to include `url`/`rating` as input types and `paragraph` as display type.
+- Added drag-preview support for `url` and `rating` in `frontend/src/features/builder/components/ComponentPreview.tsx`; preserved paragraph preview behavior.
+- Added URL and Rating type-specific settings sections and connected them in `frontend/src/features/builder/components/PropertiesPanel.tsx`.
+- Updated object-level rendering for `url` (prefix + URL input) and `rating` (stars/numbers/emoji UI shell) in `frontend/src/features/builder/utils/objectRenderers.tsx`.
+- Updated docs: component inventory in `docs/COMPONENT-FRAMEWORK-GUIDE.md` and expanded component catalog in `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`.
+
+### Test Evidence
+- Green gate (full): see `docs/stories/STORY-6.2.1-GATE-EVIDENCE.md` (2026-03-30) — `npm run lint` PASS; frontend unit **237** passed; backend **515** passed, 26 skipped.
+- Story 6.2.1 validator slice: `test_story_621_url_rating_paragraph_types_accepted` in `backend/tests/test_story_6_1_form_validate.py`.
+
+### File List
+- `backend/schemas/form_definition.py`
+- `frontend/src/features/builder/types/builder.types.ts`
+- `frontend/src/features/builder/utils/structureDefaults.ts`
+- `frontend/src/features/builder/registry/ComponentRegistry.tsx`
+- `frontend/src/features/builder/components/ComponentPreview.tsx`
+- `frontend/src/features/builder/components/PropertiesPanel.tsx`
+- `frontend/src/features/builder/components/properties/UrlPropertiesSection.tsx`
+- `frontend/src/features/builder/components/properties/RatingPropertiesSection.tsx`
+- `frontend/src/features/builder/utils/objectRenderers.tsx`
+- `frontend/src/features/builder/utils/componentCapabilities.ts`
+- `frontend/src/features/builder/utils/componentSurfaceCapabilities.ts`
+- `docs/COMPONENT-FRAMEWORK-GUIDE.md`
+- `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`
+- `docs/stories/STORY-6.2.1-GATE-EVIDENCE.md`
+- `docs/stories/STORY-6.2.1-CLOSEOUT-REPORT.md`
+- `backend/modules/auth/jwt_service.py` (timezone-aware `iat`/`exp`)
+- `backend/tests/test_jwt_service.py` (Windows-safe expiry assertion)
+- `backend/tests/test_story_6_1_form_validate.py` (`test_story_621_*`)
+
+### Continuation Session Updates (2026-03-21)
+- Completed manual UAT cycle for `url`, `rating`, and `paragraph` on Form 340 and recorded per-rule evidence in `STORY-6.2.1-UAT-RESULTS.md`.
+- Added end-to-end frontend event logging path:
+  - mounted backend frontend-log route,
+  - enabled optional frontend upload queue from `devLogger`,
+  - extended diagnostic CLI with frontend filtering.
+- Fixed E/W resize commit math for vertically-stacked components by making width budgeting row-aware (prevents overshoot/snap-back behavior).
+- Fixed E/W live-preview visual desync by skipping grid-track freeze for horizontal handles so input and SmartBorder resize together during drag.
+- Identified and patched N/S commit gap where collision/canvas-boundary constraints were not being executed; vertical commits now run `resolveResizeConstraints(...)` parity logic with E/W.
+
+### Additional Verification Evidence (2026-03-21)
+- User-confirmed manual retest: E/W and N/S resizing behavior improved after patches.
+- Backend-ingested frontend logs confirmed:
+  - E/W commits emitted `resize.collision.check/result` events,
+  - N/S commits previously emitted only `resize.constraints.vertical`,
+  - N/S parity patch has been applied to add collision/boundary enforcement on vertical commit.
+- Pending final manual confirmation: post-patch N/S + corner overlap/off-canvas blocking behavior.
+
+### Resize / move notes (2026-03-30 closeout)
+- Long-form resize investigation doc was **removed from the branch** as PR noise; a short summary lives in `STORY-6.2.1-CLOSEOUT-REPORT.md` §6 and detailed UAT + log evidence remains in `STORY-6.2.1-UAT-RESULTS.md`.
+
+### Additional File List (continuation session)
+- `backend/main.py`
+- `backend/main_enhanced.py`
+- `backend/middleware/auth.py`
+- `backend/enhanced_diagnostic_logs.py`
+- `frontend/src/features/builder/components/SortableComponent.tsx`
+- `frontend/src/features/builder/utils/devLogger.ts`
+- `frontend/src/vite-env.d.ts`
+- `docs/AGENT-LOGGING-GUIDE.md`
+- `docs/COMPONENT-FRAMEWORK-REFERENCE.md`
+- `docs/stories/STORY-6.2.1-UAT-RESULTS.md`

@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { AlertCircle, ExternalLink, Loader2, Send } from 'lucide-react';
+import { AlertCircle, ExternalLink, Loader2, Send, Star } from 'lucide-react';
 import { ComponentObject, FormComponent, ObjectLayoutType, ComponentProps, FontWeightValue } from '../types/builder.types';
 import { ComputedFieldStyles } from '../utils/styleUtils';
 import { StyledInput, StyledSelect, StyledTextarea } from '../components/styled';
@@ -255,6 +255,8 @@ export interface ObjectRendererProps {
     actionWidthOverride?: number; // For button action objects
     // Height override for action/button objects (used by submit button resize)
     actionHeightOverride?: number;
+    // Height override for display objects (used by paragraph/header resize)
+    displayHeightOverride?: number;
     // True when rendering inside a Grid Layout cell
     isGridLayout?: boolean;
     /** When true, render with focus styling (e.g. Focus Color cycling in Form Branding Defaults) */
@@ -428,6 +430,193 @@ export function createInputRenderer(): ObjectRenderer {
             );
         }
 
+        if (component.type === 'url') {
+            const isRuntime = effectiveSurface === 'runtime';
+            const runtimeValue = typeof value === 'string' ? value : '';
+            const prefix = component.props.urlPrefix;
+
+            // When prefix is active, we render a flex container with the prefix and a borderless input
+            if (prefix) {
+                return (
+                    <div style={{
+                        ...inputStyle,
+                        width: normalizedInputWidth || inputStyle.width || '100%',
+                        maxWidth: '100%',
+                        minWidth: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                        padding: 0, // Remove padding from container, apply to input
+                        ...(simulateFocus && primaryColor && {
+                            outline: `2px solid ${primaryColor}`,
+                            outlineOffset: '2px',
+                            boxShadow: `0 0 0 2px ${primaryColor}33`,
+                        }),
+                        ...(error && {
+                            borderColor: '#ef4444',
+                        })
+                    }}>
+                        <div style={{
+                            padding: `0 ${styles.computed.inputPaddingX}px`,
+                            color: styles.computed.helpTextColor || '#6b7280',
+                            backgroundColor: 'rgba(0,0,0,0.02)',
+                            borderRight: `1px solid ${styles.computed.inputBorderColor || '#e5e7eb'}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            height: '100%',
+                            whiteSpace: 'nowrap',
+                            userSelect: 'none'
+                        }}>
+                            {prefix}
+                        </div>
+                        <input
+                            ref={inputRef as React.RefObject<HTMLInputElement>}
+                            id={inputId}
+                            type="url"
+                            disabled={disabled}
+                            required={required}
+                            tabIndex={tabIndex}
+                            maxLength={maxLength}
+                            placeholder={placeholder || 'example.com'}
+                            value={isRuntime ? runtimeValue : ''}
+                            onChange={e => onChange?.(e.target.value)}
+                            style={{
+                                flex: 1,
+                                height: '100%',
+                                border: 'none',
+                                outline: 'none',
+                                background: 'transparent',
+                                padding: `0 ${styles.computed.inputPaddingX}px`,
+                                color: styles.computed.textColor,
+                                minWidth: 0,
+                            }}
+                            onBlur={e => {
+                                if (!isRuntime) return;
+                                const raw = e.target.value.trim();
+                                if (raw.length === 0) return;
+                                // If the prefix provides the scheme, we don't need to auto-append one
+                                const hasScheme = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(raw);
+                                const prefixHasScheme = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(prefix);
+                                if (!hasScheme && !prefixHasScheme) {
+                                    onChange?.(`https://${raw}`);
+                                }
+                            }}
+                        />
+                    </div>
+                );
+            }
+
+            return (
+                <StyledInput
+                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                    id={inputId}
+                    styles={{
+                        ...inputStyle,
+                        width: normalizedInputWidth || inputStyle.width || '100%',
+                        maxWidth: '100%',
+                        minWidth: 0,
+                    }}
+                    primaryColor={primaryColor || styles.computed.primaryColor}
+                    simulateFocus={simulateFocus}
+                    disabled={disabled}
+                    error={error}
+                    componentId={componentId}
+                    type="url"
+                    placeholder={placeholder || 'example.com'}
+                    value={isRuntime ? runtimeValue : ''}
+                    onChange={e => onChange?.(e.target.value)}
+                    maxLength={maxLength}
+                    tabIndex={tabIndex}
+                    required={required}
+                    onBlur={e => {
+                        if (!isRuntime) return;
+                        const raw = e.target.value.trim();
+                        if (raw.length === 0) return;
+                        const hasScheme = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(raw);
+                        if (!hasScheme) {
+                            onChange?.(`https://${raw}`);
+                        }
+                    }}
+                />
+            );
+        }
+
+        if (component.type === 'rating') {
+            const ratingMax = Math.max(1, Math.min(10, Number(component.props.ratingMax ?? 5)));
+            const ratingStyle = component.props.ratingStyle ?? 'stars';
+            const isRuntime = effectiveSurface === 'runtime';
+            const currentValueRaw = typeof value === 'number' ? value : Number(value ?? 0);
+            const currentValue = Number.isFinite(currentValueRaw) ? currentValueRaw : 0;
+            // Use specific ratingColor override, fallback to global primaryColor if not set
+            const iconColor = styles.computed.ratingColor || styles.computed.primaryColor || '#2563EB';
+            const ratingBgColor = styles.computed.ratingBackgroundColor || 'transparent';
+            const textColor = styles.computed.textColor || '#1F2937';
+
+            const renderMark = (index: number) => {
+                if (ratingStyle === 'numbers') {
+                    return String(index + 1);
+                }
+                if (ratingStyle === 'emoji') {
+                    return index < Math.ceil(ratingMax / 3) ? '😞' : index < Math.ceil((ratingMax * 2) / 3) ? '😐' : '😄';
+                }
+                return (
+                    <Star
+                        size={18}
+                        fill={index + 1 <= currentValue ? iconColor : 'none'}
+                        color={iconColor}
+                    />
+                );
+            };
+
+            return (
+                <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: 8,
+                    minHeight: styles.computed.inputHeight ? `${styles.computed.inputHeight}px` : undefined,
+                    justifyContent: 'center'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        {Array.from({ length: ratingMax }).map((_, index) => {
+                            const selected = index + 1 <= currentValue;
+                            return (
+                                <button
+                                    key={`rating-${index}`}
+                                    type="button"
+                                    disabled={!isRuntime || disabled}
+                                    onClick={() => {
+                                        if (!isRuntime || disabled) return;
+                                        onChange?.(index + 1);
+                                    }}
+                                    style={{
+                                        width: ratingStyle === 'numbers' ? 30 : undefined,
+                                        height: ratingStyle === 'numbers' ? 30 : undefined,
+                                        border: ratingStyle === 'numbers' ? `1px solid ${selected ? iconColor : '#D1D5DB'}` : 'none',
+                                        borderRadius: ratingStyle === 'numbers' ? 6 : 0,
+                                        background: ratingStyle === 'numbers' ? (selected ? `${iconColor}20` : ratingBgColor) : ratingBgColor,
+                                        color: textColor,
+                                        cursor: !isRuntime || disabled ? 'default' : 'pointer',
+                                        padding: 0,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    {renderMark(index)}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {(component.props.ratingLabels?.low || component.props.ratingLabels?.high) && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6B7280' }}>
+                            <span>{component.props.ratingLabels?.low || ''}</span>
+                            <span>{component.props.ratingLabels?.high || ''}</span>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
         // Checkbox/Radio: per-option extra text inputs + universal grouping (Option B).
         if (component.type === 'checkbox' || component.type === 'radio') {
             const options = Array.isArray(component.props.options) ? component.props.options : [];
@@ -470,6 +659,7 @@ export function createInputRenderer(): ObjectRenderer {
                 border: `${styles.computed.borderWidth ?? 1}px solid ${styles.computed.borderColor || '#D1D5DB'}`,
                 borderRadius: `${styles.computed.borderRadius ?? 6}px`,
                 padding: `${styles.computed.paddingY ?? 8}px ${styles.computed.paddingX ?? 12}px`,
+                minHeight: styles.computed.inputHeight ? `${styles.computed.inputHeight}px` : undefined,
                 ...boxWidthStyle,
             };
 
@@ -1634,14 +1824,14 @@ export function createStatusRenderer(): ObjectRenderer {
  * Renders a horizontal line with configurable thickness and color from styles.
  */
 export function createDividerRenderer(): ObjectRenderer {
-    return ({ component, styles, componentId, builderMode }) => {
+    return ({ component, styles, componentId, builderMode, inputWidthOverride }) => {
         // Divider uses Divider & Lines settings (GlobalStyles / styleOverrides):
         // dividerBorderColor + dividerBorderWidth
         const borderWidth = styles.computed.dividerBorderWidth ?? 1;
         const borderColor = styles.computed.dividerBorderColor || '#E5E7EB';
         
-        // Parse width from component props
-        const componentWidth = component.props.width;
+        // Use inputWidthOverride if provided (during resize preview), otherwise fallback to component props
+        const componentWidth = inputWidthOverride ? `${inputWidthOverride}px` : component.props.width;
         const dividerWidth = componentWidth ?? styles.computed.dividerWidth ?? '100%';
         
         const dividerStyle: React.CSSProperties = {
@@ -1657,13 +1847,59 @@ export function createDividerRenderer(): ObjectRenderer {
                 // In builder mode SmartBorder already adds selection padding; keep divider content tight
                 // so its border padding matches other components.
                 className={builderMode ? undefined : "py-2"}
-                style={{ width: dividerWidth, paddingTop: builderMode ? 0 : undefined, paddingBottom: builderMode ? 0 : undefined }}
+                style={{ 
+                    width: dividerWidth, 
+                    paddingTop: builderMode ? 0 : undefined, 
+                    paddingBottom: builderMode ? 0 : undefined, 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                }}
             >
                 <hr 
                     id={componentId ? `${componentId}-divider` : undefined}
                     style={dividerStyle} 
                     aria-hidden="true"
                 />
+            </div>
+        );
+    };
+}
+
+/**
+ * Create a display renderer (e.g., for paragraph, header).
+ * Renders read-only display text mapping to the component's dimension overrides.
+ */
+export function createDisplayRenderer(): ObjectRenderer {
+    return ({ component, styles, componentId, builderMode, surface, inputWidthOverride, displayHeightOverride }) => {
+        // We use inputWidthOverride for the main display content block, as display objects map to "input" sizing rules.
+        const effectiveHeight = displayHeightOverride !== undefined ? displayHeightOverride : styles.computed?.inputHeight;
+        const isCanvas = surface === 'canvas' || builderMode;
+        
+        let contentNode = null;
+        if (component.type === 'header') {
+            contentNode = (
+                <h3 id={componentId ? `${componentId}-content` : undefined} style={{...styles.labelStyle, margin: 0, width: '100%', height: '100%', minHeight: effectiveHeight ? `${effectiveHeight}px` : undefined, display: 'block', whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>
+                    {String(component.props.text ?? component.props.label ?? 'Header')}
+                </h3>
+            );
+        } else {
+            contentNode = (
+                <p id={componentId ? `${componentId}-content` : undefined} style={{...styles.helpTextStyle, margin: 0, width: '100%', height: '100%', minHeight: effectiveHeight ? `${effectiveHeight}px` : undefined, display: 'block', whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>
+                    {String(component.props.text ?? component.props.label ?? 'Paragraph text goes here.')}
+                </p>
+            );
+        }
+
+        return (
+            <div style={{ 
+                width: inputWidthOverride ? `${inputWidthOverride}px` : '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-start',
+                border: isCanvas ? '1px dashed rgba(0,0,0,0.1)' : undefined
+            }}>
+                {contentNode}
             </div>
         );
     };
@@ -1677,6 +1913,7 @@ function getInputType(componentType: string): string {
         'text': 'text',
         'email': 'email',
         'phone': 'tel',
+        'url': 'url',
         'number': 'number',
         'first-name': 'text',
     };
@@ -1767,7 +2004,9 @@ export function getDefaultRenderers(): ObjectRenderers {
         action: createActionRenderer(),
         status: createStatusRenderer(),
         divider: createDividerRenderer(),
+        display: createDisplayRenderer(),
         line: createDividerRenderer(), // Alias for divider components that use 'line' as object id
+        content: createDisplayRenderer(), // Alias for display components that use 'content' as object id
     };
 }
 

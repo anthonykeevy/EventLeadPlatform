@@ -55,6 +55,9 @@ export const GeneralSection: React.FC<GeneralSectionProps> = ({
     const hasLayoutOverride = props.layout !== undefined;
     const effectiveLayout = props.layout || globalDefaultLayout;
     
+    const isDisplayComponent = ['header', 'paragraph'].includes(componentType);
+    const showPlaceholder = !isDisplayComponent && componentType !== 'rating';
+
     // Auto-generate Export Name when Label changes (only if Export Name is empty or matches previous suggestion)
     useEffect(() => {
         const prevSuggestion = suggestExportName(prevLabelRef.current || '');
@@ -99,68 +102,76 @@ export const GeneralSection: React.FC<GeneralSectionProps> = ({
                     <div className="px-4 pb-4 space-y-4">
                         {/* Label */}
                         <PropertyTextInput
-                            label="Label"
+                            label={isDisplayComponent ? "Text" : "Label"}
                             value={props.label || ''}
                             onChange={(value) => onPropsChange({ label: value })}
-                            placeholder="Field Label"
-                            helpText="The text displayed above/beside the input"
+                            placeholder={isDisplayComponent ? "Enter text here" : "Field Label"}
+                            helpText={isDisplayComponent ? "The text content for this component" : "The text displayed above/beside the input"}
                         />
 
                         {/* Placeholder */}
-                        <PropertyTextInput
-                            label="Placeholder"
-                            value={props.placeholder || ''}
-                            onChange={(value) => onPropsChange({ placeholder: value })}
-                            placeholder="Placeholder text..."
-                            helpText="Hint text shown inside the empty input"
-                        />
+                        {showPlaceholder && (
+                            <PropertyTextInput
+                                label="Placeholder"
+                                value={props.placeholder || ''}
+                                onChange={(value) => onPropsChange({ placeholder: value })}
+                                placeholder={componentType === 'url' ? 'example.com' : 'Placeholder text...'}
+                                helpText="Hint text shown inside the empty input"
+                            />
+                        )}
 
                         {/* Help Text */}
-                        <PropertyTextInput
-                            label="Help Text"
-                            value={props.helpText || ''}
-                            onChange={(value) => onPropsChange({ helpText: value })}
-                            placeholder="Additional instructions..."
-                            helpText="Descriptive text shown below the input"
-                        />
+                        {!isDisplayComponent && (
+                            <PropertyTextInput
+                                label="Help Text"
+                                value={props.helpText || ''}
+                                onChange={(value) => onPropsChange({ helpText: value })}
+                                placeholder="Additional instructions..."
+                                helpText="Descriptive text shown below the input"
+                            />
+                        )}
 
                         {/* Required Toggle - Prominent position */}
-                        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                            <PropertyToggle
-                                label={
-                                    <span className="flex items-center gap-1">
-                                        Required
-                                        <span className="text-red-500">*</span>
-                                    </span>
-                                }
-                                checked={props.required || false}
-                                onChange={(checked) => onPropsChange({ required: checked })}
-                                helpText="Users must fill this field to submit the form"
-                            />
-                        </div>
+                        {!isDisplayComponent && (
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                <PropertyToggle
+                                    label={
+                                        <span className="flex items-center gap-1">
+                                            Required
+                                            <span className="text-red-500">*</span>
+                                        </span>
+                                    }
+                                    checked={props.required || false}
+                                    onChange={(checked) => onPropsChange({ required: checked })}
+                                    helpText="Users must fill this field to submit the form"
+                                />
+                            </div>
+                        )}
 
                         {/* Layout Dropdown */}
-                        <div className="space-y-1">
-                            <PropertySelect
-                                label="Layout"
-                                value={effectiveLayout}
-                                onChange={(value) => onPropsChange({ layout: value as LayoutType })}
-                                options={LAYOUT_OPTIONS}
-                                helpText={hasLayoutOverride 
-                                    ? "Custom layout for this component" 
-                                    : `Using global default (${globalDefaultLayout})`
-                                }
-                            />
-                            {hasLayoutOverride && (
-                                <button
-                                    type="button"
-                                    onClick={() => onPropsChange({ layout: undefined })}
-                                    className="text-xs text-blue-600 hover:text-blue-800 underline"
-                                >
-                                    Reset to global default
-                                </button>
-                            )}
-                        </div>
+                        {!isDisplayComponent && (
+                            <div className="space-y-1">
+                                <PropertySelect
+                                    label="Layout"
+                                    value={effectiveLayout}
+                                    onChange={(value) => onPropsChange({ layout: value as LayoutType })}
+                                    options={LAYOUT_OPTIONS}
+                                    helpText={hasLayoutOverride 
+                                        ? "Custom layout for this component" 
+                                        : `Using global default (${globalDefaultLayout})`
+                                    }
+                                />
+                                {hasLayoutOverride && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onPropsChange({ layout: undefined })}
+                                        className="text-xs text-blue-600 hover:text-blue-800 underline"
+                                    >
+                                        Reset to global default
+                                    </button>
+                                )}
+                            </div>
+                        )}
 
                         {/* Component Type Badge */}
                         <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
@@ -178,85 +189,87 @@ export const GeneralSection: React.FC<GeneralSectionProps> = ({
             {/* ═══════════════════════════════════════════════════════════════ */}
             {/* DATA COLLECTION SECTION */}
             {/* ═══════════════════════════════════════════════════════════════ */}
-            <div className="border-b border-gray-200 dark:border-gray-700">
-                {/* Section Header */}
-                <button
-                    onClick={() => setIsDataExpanded(!isDataExpanded)}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                    <div className="flex items-center gap-2">
-                        <Database size={14} className="text-green-500" />
-                        <span>Data Collection</span>
-                    </div>
-                    <ChevronDown 
-                        size={16} 
-                        className={`transform transition-transform ${isDataExpanded ? 'rotate-180' : ''}`} 
-                    />
-                </button>
+            {!isDisplayComponent && (
+                <div className="border-b border-gray-200 dark:border-gray-700">
+                    {/* Section Header */}
+                    <button
+                        onClick={() => setIsDataExpanded(!isDataExpanded)}
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                        <div className="flex items-center gap-2">
+                            <Database size={14} className="text-green-500" />
+                            <span>Data Collection</span>
+                        </div>
+                        <ChevronDown 
+                            size={16} 
+                            className={`transform transition-transform ${isDataExpanded ? 'rotate-180' : ''}`} 
+                        />
+                    </button>
 
-                {/* Section Content */}
-                {isDataExpanded && (
-                    <div className="px-4 pb-4 space-y-4">
-                        {/* Export Name */}
-                        <div className="space-y-1.5">
-                            <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                                    Export Field Name <span className="text-red-500">*</span>
-                                </span>
-                                <InfoTooltip info={getExportNameInfo()} size={12} />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="flex-1">
-                                    <PropertyTextInput
-                                        label=""
-                                        value={props.exportName || ''}
-                                        onChange={(value) => {
-                                            // Sanitize: remove spaces and special chars as they type
-                                            const sanitized = value.replace(/[^a-zA-Z0-9_]/g, '');
+                    {/* Section Content */}
+                    {isDataExpanded && (
+                        <div className="px-4 pb-4 space-y-4">
+                            {/* Export Name */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                        Export Field Name <span className="text-red-500">*</span>
+                                    </span>
+                                    <InfoTooltip info={getExportNameInfo()} size={12} />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1">
+                                        <PropertyTextInput
+                                            label=""
+                                            value={props.exportName || ''}
+                                            onChange={(value) => {
+                                                // Sanitize: remove spaces and special chars as they type
+                                                const sanitized = value.replace(/[^a-zA-Z0-9_]/g, '');
+                                                onPropsChange({ exportName: sanitized });
+                                            }}
+                                            placeholder={suggestExportName(props.label || '') || 'FieldName'}
+                                            helpText="Column name in CSV exports"
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap"
+                                        onClick={() => {
+                                            const suggestion = suggestExportName(props.label || '') || 'FieldName';
+                                            const sanitized = suggestion.replace(/[^a-zA-Z0-9_]/g, '');
                                             onPropsChange({ exportName: sanitized });
                                         }}
-                                        placeholder={suggestExportName(props.label || '') || 'FieldName'}
-                                        helpText="Column name in CSV exports"
-                                    />
+                                    >
+                                        Use suggested
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap"
-                                    onClick={() => {
-                                        const suggestion = suggestExportName(props.label || '') || 'FieldName';
-                                        const sanitized = suggestion.replace(/[^a-zA-Z0-9_]/g, '');
-                                        onPropsChange({ exportName: sanitized });
-                                    }}
-                                >
-                                    Use suggested
-                                </button>
+                                {exportNameError && (
+                                    <div className="flex items-center gap-1 text-xs text-red-500">
+                                        <AlertCircle size={12} />
+                                        {exportNameError}
+                                    </div>
+                                )}
+                                {exportNameWarning && !exportNameError && (
+                                    <div className="flex items-center gap-1 text-xs text-amber-500">
+                                        <AlertTriangle size={12} />
+                                        {exportNameWarning}
+                                    </div>
+                                )}
                             </div>
-                            {exportNameError && (
-                                <div className="flex items-center gap-1 text-xs text-red-500">
-                                    <AlertCircle size={12} />
-                                    {exportNameError}
-                                </div>
-                            )}
-                            {exportNameWarning && !exportNameError && (
-                                <div className="flex items-center gap-1 text-xs text-amber-500">
-                                    <AlertTriangle size={12} />
-                                    {exportNameWarning}
-                                </div>
-                            )}
-                        </div>
 
-                        {/* Tab Order */}
-                        <PropertyNumberInput
-                            label="Tab Order"
-                            value={props.tabOrder || 0}
-                            onChange={(value) => onPropsChange({ tabOrder: value })}
-                            min={0}
-                            max={999}
-                            helpText="Keyboard navigation order (0 = auto)"
-                        />
-                    </div>
-                )}
-            </div>
+                            {/* Tab Order */}
+                            <PropertyNumberInput
+                                label="Tab Order"
+                                value={props.tabOrder || 0}
+                                onChange={(value) => onPropsChange({ tabOrder: value })}
+                                min={0}
+                                max={999}
+                                helpText="Keyboard navigation order (0 = auto)"
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
         </>
     );
 };

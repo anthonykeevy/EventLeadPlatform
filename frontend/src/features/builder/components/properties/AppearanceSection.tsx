@@ -16,9 +16,9 @@
 import React, { useState, useRef } from 'react';
 import { 
     ChevronDown, Link, Unlink, Tag, Type, MessageSquare, 
-    ArrowUpDown, Palette, Maximize2, Wand2, LayoutGrid, RotateCcw 
+    ArrowUpDown, Palette, Maximize2, Wand2, LayoutGrid, RotateCcw, Star 
 } from 'lucide-react';
-import { TypographyCard, PropertySelect, PropertyNumberInput } from './inputs';
+import { TypographyCard, PropertySelect, PropertyNumberInput, PropertyColorPicker } from './inputs';
 import { StyleOverrides, GlobalStyles, FontWeightValue, FontStyleType, ComponentProps, AlignType, ComponentStructure, ObjectLayoutType } from '../../types/builder.types';
 import { SpacingSection } from './SpacingSection';
 import { ScaleAnchor } from '../../utils/scaleUtils';
@@ -423,6 +423,9 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
     const helpOverrides = ['helpTextFontFamily', 'helpTextFontSize', 'helpTextFontWeight', 'helpTextFontStyle', 'helpTextColor', 'helpTextBackgroundColor', 'helpTextBorderColor', 'helpTextBorderWidth', 'helpTextBorderRadius']
         .filter(key => key in overrides).length;
 
+    const ratingOverrides = ['ratingColor', 'ratingBackgroundColor']
+        .filter(key => key in overrides).length;
+
     const totalOverrides = Object.keys(overrides).length;
 
     // Helper to get effective value
@@ -456,6 +459,13 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
     const resetHelpStyles = () => {
         const updates = { ...overrides };
         ['helpTextFontFamily', 'helpTextFontSize', 'helpTextFontWeight', 'helpTextFontStyle', 'helpTextColor', 'helpTextBackgroundColor', 'helpTextBorderColor', 'helpTextBorderWidth', 'helpTextBorderRadius']
+            .forEach(key => delete updates[key as keyof StyleOverrides]);
+        onOverridesChange(updates);
+    };
+
+    const resetRatingStyles = () => {
+        const updates = { ...overrides };
+        ['ratingColor', 'ratingBackgroundColor']
             .forEach(key => delete updates[key as keyof StyleOverrides]);
         onOverridesChange(updates);
     };
@@ -893,59 +903,63 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                             </div>
 
                             {/* 1. Label Text Card */}
-                            <div className="relative">
-                                <div className="absolute -top-1 right-2 z-10">
-                                    <ChainIndicator 
-                                        isOverridden={labelOverrides > 0} 
-                                        onReset={resetLabelStyles}
-                                        overrideCount={labelOverrides}
+                            {!['paragraph'].includes(componentType) && (
+                                <div className="relative">
+                                    <div className="absolute -top-1 right-2 z-10">
+                                        <ChainIndicator 
+                                            isOverridden={labelOverrides > 0} 
+                                            onReset={resetLabelStyles}
+                                            overrideCount={labelOverrides}
+                                        />
+                                    </div>
+                                    <TypographyCard
+                                        title={componentType === 'header' ? "Header Text" : "Label Text"}
+                                        icon={Tag}
+                                        iconColor="text-green-500"
+                                        fontFamily={getEffective('labelFontFamily', 'labelFontFamily')}
+                                        fontSize={getEffective('labelFontSize', 'labelFontSize') ?? 14}
+                                        fontWeight={getEffective('labelFontWeight', 'labelFontWeight') ?? '500'}
+                                        fontStyle={getEffective('labelFontStyle', 'labelFontStyle') ?? 'normal'}
+                                        color={getEffective('labelColor', 'labelColor')}
+                                        backgroundColor={getDisplayValue('labelBackgroundColor', 'labelBackgroundColor')}
+                                        borderColor={getDisplayValue('labelBorderColor', 'labelBorderColor')}
+                                        borderWidth={getDisplayValue('labelBorderWidth', 'labelBorderWidth')}
+                                        borderRadius={getDisplayValue('labelBorderRadius', 'labelBorderRadius')}
+                                        showBorderOptions={true}
+                                        onFontFamilyChange={(v) => onOverridesChange({ labelFontFamily: v })}
+                                        onFontSizeChange={(v) => onOverridesChange({ labelFontSize: v })}
+                                        onFontWeightChange={(v) => onOverridesChange({ labelFontWeight: v as FontWeightValue })}
+                                        onFontStyleChange={(v) => onOverridesChange({ labelFontStyle: v as FontStyleType })}
+                                        onColorChange={(v) => onOverridesChange({ labelColor: v })}
+                                        onBackgroundColorChange={(v) => onOverridesChange({ labelBackgroundColor: v })}
+                                        onBorderColorChange={labelBorderHandlers.onColorChange}
+                                        onBorderWidthChange={labelBorderHandlers.onWidthChange}
+                                        onBorderRadiusChange={labelBorderHandlers.onRadiusChange}
+                                        minSize={10}
+                                        maxSize={64}
                                     />
                                 </div>
-                                <TypographyCard
-                                    title="Label Text"
-                                    icon={Tag}
-                                    iconColor="text-green-500"
-                                    fontFamily={getEffective('labelFontFamily', 'labelFontFamily')}
-                                    fontSize={getEffective('labelFontSize', 'labelFontSize') ?? 14}
-                                    fontWeight={getEffective('labelFontWeight', 'labelFontWeight') ?? '500'}
-                                    fontStyle={getEffective('labelFontStyle', 'labelFontStyle') ?? 'normal'}
-                                    color={getEffective('labelColor', 'labelColor')}
-                                    backgroundColor={getDisplayValue('labelBackgroundColor', 'labelBackgroundColor')}
-                                    borderColor={getDisplayValue('labelBorderColor', 'labelBorderColor')}
-                                    borderWidth={getDisplayValue('labelBorderWidth', 'labelBorderWidth')}
-                                    borderRadius={getDisplayValue('labelBorderRadius', 'labelBorderRadius')}
-                                    showBorderOptions={true}
-                                    onFontFamilyChange={(v) => onOverridesChange({ labelFontFamily: v })}
-                                    onFontSizeChange={(v) => onOverridesChange({ labelFontSize: v })}
-                                    onFontWeightChange={(v) => onOverridesChange({ labelFontWeight: v as FontWeightValue })}
-                                    onFontStyleChange={(v) => onOverridesChange({ labelFontStyle: v as FontStyleType })}
-                                    onColorChange={(v) => onOverridesChange({ labelColor: v })}
-                                    onBackgroundColorChange={(v) => onOverridesChange({ labelBackgroundColor: v })}
-                                    onBorderColorChange={labelBorderHandlers.onColorChange}
-                                    onBorderWidthChange={labelBorderHandlers.onWidthChange}
-                                    onBorderRadiusChange={labelBorderHandlers.onRadiusChange}
-                                    minSize={10}
-                                    maxSize={28}
-                                />
-                            </div>
+                            )}
 
                             {/* Spacing: Label to Input */}
-                            <SpacingOverride
-                                label={(currentLayout === 'horizontal' || currentLayout === 'mixed') ? 'Label → Input' : 'Label ↓ Input'}
-                                value={'labelGap' in overrides ? overrides.labelGap! : globalStyles.labelGap}
-                                globalValue={globalStyles.labelGap}
-                                baseSpacing={globalStyles.baseSpacing}
-                                onChange={(v) => onOverridesChange({ labelGap: v })}
-                                onReset={() => {
-                                    const updates = { ...overrides };
-                                    delete updates.labelGap;
-                                    onOverridesChange(updates);
-                                }}
-                                isOverridden={'labelGap' in overrides}
-                            />
+                            {!['header', 'paragraph'].includes(componentType) && (
+                                <SpacingOverride
+                                    label={(currentLayout === 'horizontal' || currentLayout === 'mixed') ? 'Label → Input' : 'Label ↓ Input'}
+                                    value={'labelGap' in overrides ? overrides.labelGap! : globalStyles.labelGap}
+                                    globalValue={globalStyles.labelGap}
+                                    baseSpacing={globalStyles.baseSpacing}
+                                    onChange={(v) => onOverridesChange({ labelGap: v })}
+                                    onReset={() => {
+                                        const updates = { ...overrides };
+                                        delete updates.labelGap;
+                                        onOverridesChange(updates);
+                                    }}
+                                    isOverridden={'labelGap' in overrides}
+                                />
+                            )}
 
-                            {/* 2. Input Text Card - Hidden for submit-button */}
-                            {componentType !== 'submit-button' && (
+                            {/* 2. Input Text Card - Hidden for submit-button and display components */}
+                            {!['submit-button', 'header', 'paragraph', 'rating'].includes(componentType) && (
                                 <>
                                     <div className="relative">
                                         <div className="absolute -top-1 right-2 z-10">
@@ -985,7 +999,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                         />
                                     </div>
 
-                                    {/* Spacing: Input to Help - Hidden for submit-button */}
+                                    {/* Spacing: Input to Help */}
                                     <SpacingOverride
                                         label="Input ↓ Help text"
                                         value={'inputHelpGap' in overrides ? overrides.inputHelpGap! : globalStyles.inputHelpGap}
@@ -1002,42 +1016,80 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                 </>
                             )}
 
-                            {/* 3. Help & Validation Card */}
-                            <div className="relative">
-                                <div className="absolute -top-1 right-2 z-10">
-                                    <ChainIndicator 
-                                        isOverridden={helpOverrides > 0} 
-                                        onReset={resetHelpStyles}
-                                        overrideCount={helpOverrides}
+                            {/* 3. Help & Validation Card (also acts as main typography for Paragraph) */}
+                            {!['header'].includes(componentType) && (
+                                <div className="relative">
+                                    <div className="absolute -top-1 right-2 z-10">
+                                        <ChainIndicator 
+                                            isOverridden={helpOverrides > 0} 
+                                            onReset={resetHelpStyles}
+                                            overrideCount={helpOverrides}
+                                        />
+                                    </div>
+                                    <TypographyCard
+                                        title={componentType === 'paragraph' ? "Paragraph Text" : "Help & Validation"}
+                                        icon={componentType === 'paragraph' ? Type : MessageSquare}
+                                        iconColor={componentType === 'paragraph' ? "text-green-500" : "text-orange-500"}
+                                        fontFamily={getEffective('helpTextFontFamily', 'helpTextFontFamily')}
+                                        fontSize={getEffective('helpTextFontSize', 'helpTextFontSize') ?? 12}
+                                        fontWeight={getEffective('helpTextFontWeight', 'helpTextFontWeight') ?? '400'}
+                                        fontStyle={getEffective('helpTextFontStyle', 'helpTextFontStyle') ?? 'normal'}
+                                        color={getEffective('helpTextColor', 'helpTextColor')}
+                                        backgroundColor={getDisplayValue('helpTextBackgroundColor', 'helpTextBackgroundColor')}
+                                        borderColor={getDisplayValue('helpTextBorderColor', 'helpTextBorderColor')}
+                                        borderWidth={getDisplayValue('helpTextBorderWidth', 'helpTextBorderWidth')}
+                                        borderRadius={getDisplayValue('helpTextBorderRadius', 'helpTextBorderRadius')}
+                                        showBorderOptions={true}
+                                        onFontFamilyChange={(v) => onOverridesChange({ helpTextFontFamily: v })}
+                                        onFontSizeChange={(v) => onOverridesChange({ helpTextFontSize: v })}
+                                        onFontWeightChange={(v) => onOverridesChange({ helpTextFontWeight: v as FontWeightValue })}
+                                        onFontStyleChange={(v) => onOverridesChange({ helpTextFontStyle: v as FontStyleType })}
+                                        onColorChange={(v) => onOverridesChange({ helpTextColor: v })}
+                                        onBackgroundColorChange={(v) => onOverridesChange({ helpTextBackgroundColor: v })}
+                                        onBorderColorChange={helpBorderHandlers.onColorChange}
+                                        onBorderWidthChange={helpBorderHandlers.onWidthChange}
+                                        onBorderRadiusChange={helpBorderHandlers.onRadiusChange}
+                                        minSize={8}
+                                        maxSize={64}
                                     />
                                 </div>
-                                <TypographyCard
-                                    title="Help & Validation"
-                                    icon={MessageSquare}
-                                    iconColor="text-orange-500"
-                                    fontFamily={getEffective('helpTextFontFamily', 'helpTextFontFamily')}
-                                    fontSize={getEffective('helpTextFontSize', 'helpTextFontSize') ?? 12}
-                                    fontWeight={getEffective('helpTextFontWeight', 'helpTextFontWeight') ?? '400'}
-                                    fontStyle={getEffective('helpTextFontStyle', 'helpTextFontStyle') ?? 'normal'}
-                                    color={getEffective('helpTextColor', 'helpTextColor')}
-                                    backgroundColor={getDisplayValue('helpTextBackgroundColor', 'helpTextBackgroundColor')}
-                                    borderColor={getDisplayValue('helpTextBorderColor', 'helpTextBorderColor')}
-                                    borderWidth={getDisplayValue('helpTextBorderWidth', 'helpTextBorderWidth')}
-                                    borderRadius={getDisplayValue('helpTextBorderRadius', 'helpTextBorderRadius')}
-                                    showBorderOptions={true}
-                                    onFontFamilyChange={(v) => onOverridesChange({ helpTextFontFamily: v })}
-                                    onFontSizeChange={(v) => onOverridesChange({ helpTextFontSize: v })}
-                                    onFontWeightChange={(v) => onOverridesChange({ helpTextFontWeight: v as FontWeightValue })}
-                                    onFontStyleChange={(v) => onOverridesChange({ helpTextFontStyle: v as FontStyleType })}
-                                    onColorChange={(v) => onOverridesChange({ helpTextColor: v })}
-                                    onBackgroundColorChange={(v) => onOverridesChange({ helpTextBackgroundColor: v })}
-                                    onBorderColorChange={helpBorderHandlers.onColorChange}
-                                    onBorderWidthChange={helpBorderHandlers.onWidthChange}
-                                    onBorderRadiusChange={helpBorderHandlers.onRadiusChange}
-                                    minSize={8}
-                                    maxSize={20}
-                                />
-                            </div>
+                            )}
+
+                            {/* 4. Rating Style Card */}
+                            {componentType === 'rating' && (
+                                <div className="relative">
+                                    <div className="absolute -top-1 right-2 z-10">
+                                        <ChainIndicator 
+                                            isOverridden={ratingOverrides > 0} 
+                                            onReset={resetRatingStyles}
+                                            overrideCount={ratingOverrides}
+                                        />
+                                    </div>
+                                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+                                        {/* Card Header */}
+                                        <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                                            <Star size={14} className="text-amber-500" />
+                                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Rating Style</span>
+                                        </div>
+                                        
+                                        {/* Colors */}
+                                        <div className="p-3 border-b border-gray-100 dark:border-gray-700">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <PropertyColorPicker
+                                                    label="Active Color"
+                                                    value={getEffective('ratingColor', 'ratingColor') || globalStyles.ratingColor || '#F59E0B'}
+                                                    onChange={(v) => onOverridesChange({ ratingColor: v })}
+                                                />
+                                                <PropertyColorPicker
+                                                    label="Background"
+                                                    value={getDisplayValue('ratingBackgroundColor', 'ratingBackgroundColor') || globalStyles.ratingBackgroundColor || 'transparent'}
+                                                    onChange={(v) => onOverridesChange({ ratingBackgroundColor: v })}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Reset All Button */}
                             {totalOverrides > 0 && (

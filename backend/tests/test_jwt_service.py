@@ -3,7 +3,7 @@ Unit Tests for JWT Service
 Tests JWT token creation, decoding, and validation
 """
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError  # type: ignore
 
 from modules.auth.jwt_service import (
@@ -92,11 +92,13 @@ class TestJWTService:
         token = create_refresh_token(test_db, 123)
         payload = decode_token(token)
         
-        exp = datetime.fromtimestamp(payload["exp"])
-        iat = datetime.fromtimestamp(payload["iat"])
-        
-        # Should be approximately the configured refresh token expiry
-        time_diff = (exp - iat).total_seconds()
+        # Use numeric claims or UTC-aware datetimes — naive fromtimestamp() delta
+        # is wrong on Windows across DST (e.g. 7-day JWT shows as 167h locally).
+        time_diff = float(payload["exp"]) - float(payload["iat"])
+        exp_utc = datetime.fromtimestamp(float(payload["exp"]), tz=timezone.utc)
+        iat_utc = datetime.fromtimestamp(float(payload["iat"]), tz=timezone.utc)
+        assert (exp_utc - iat_utc).total_seconds() == time_diff
+
         expected = get_refresh_token_expire_days(test_db) * 24 * 3600
         assert expected - 100 <= time_diff <= expected + 100  # Allow tolerance
     

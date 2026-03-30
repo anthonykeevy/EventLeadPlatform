@@ -7,12 +7,15 @@ import {
   CheckSquare, 
   List, 
   Calendar, 
+  Link,
   Heading, 
+  FileText,
   User,
   Phone,
   MapPin,
   FileCheck,
   Send,
+  Star,
   Minus,
 } from 'lucide-react';
 import { ComponentType, FormComponent, StyleOverrides, GlobalStyles, LayoutType, ComponentStructure } from '../types/builder.types';
@@ -438,6 +441,74 @@ export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinitio
           }}
         />
       )
+    },
+  },
+  url: {
+    type: 'url',
+    label: 'Website URL',
+    icon: <Link size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'Website URL',
+      placeholder: 'example.com',
+      required: false,
+      urlPrefix: 'https://',
+      validation: { url: true, maxLength: 2048 },
+    },
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'url',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Website URL',
+        placeholder: 'example.com',
+        required: false,
+        urlPrefix: 'https://',
+        validation: { url: true, maxLength: 2048 },
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const valueStr = (value as string) ?? '';
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: valueStr,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
     },
   },
   textarea: {
@@ -992,6 +1063,74 @@ export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinitio
     },
   },
 
+  rating: {
+    type: 'rating',
+    label: 'Rating',
+    icon: <Star size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'Rating',
+      required: false,
+      ratingMax: 5,
+      ratingStyle: 'stars',
+      ratingLabels: { low: '', high: '' },
+    },
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'rating',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Rating',
+        required: false,
+        ratingMax: 5,
+        ratingStyle: 'stars',
+      },
+    }),
+    runtimeComponent: ({ component, value, onChange, disabled, required, error, tabIndex, primaryColor, inputRef, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
+      const ratingValue = typeof value === 'number' ? value : Number(value ?? 0);
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+          runtimeMode={{
+            value: Number.isFinite(ratingValue) ? ratingValue : 0,
+            onChange,
+            disabled,
+            required,
+            error,
+            primaryColor,
+            tabIndex,
+            inputRef,
+          }}
+        />
+      );
+    },
+  },
+
   // Submit Button
   'submit-button': {
     type: 'submit-button',
@@ -1044,44 +1183,67 @@ export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinitio
     label: 'Header',
     icon: <Heading size={18} />,
     category: 'display',
-    defaultProps: { label: 'Header' },
+    defaultProps: { label: 'Header', width: '100%' },
     structure: {
       objects: [
-        { id: 'content', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 }
+        { id: 'content', type: 'display', archetype: 'DisplayBlock', required: true, order: 1 }
       ],
       defaultLayout: 'vertical'
     },
     previewComponent: makeToolboxPreview({
       type: 'header',
       structure: {
-        objects: [{ id: 'content', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 }],
+        objects: [{ id: 'content', type: 'display', archetype: 'DisplayBlock', required: true, order: 1 }],
         defaultLayout: 'vertical',
       },
       props: { label: 'Header' },
-      renderersOverride: (base) => ({
-        ...base,
-        content: ({ styles, componentId }) => (
-          <h3 id={componentId ? `${componentId}-content` : undefined} style={styles.labelStyle}>
-            Header
-          </h3>
-        ),
-      }),
     }),
     runtimeComponent: ({ component, styleOverrides, globalStyles }) => {
       const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
-      const baseRenderers = getRenderersForComponent(component.type, structure, component);
-      const renderers: ObjectRenderers = {
-        ...baseRenderers,
-        // Header uses its 'content' object but should render as a heading, not a <label>.
-        content: ({ styles, componentId }) => (
-          <div>
-            <h3 id={componentId ? `${componentId}-content` : undefined} style={styles.labelStyle}>
-              {String(component.props.label ?? '')}
-            </h3>
-            <div style={{ minHeight: 18 }} />
-          </div>
-        ),
-      };
+      const renderers = getRenderersForComponent(component.type, structure, component);
+
+      return (
+        <UniversalFieldShell
+          structure={structure}
+          renderers={renderers}
+          surface="runtime"
+          objectLayout={component.props.objectLayout}
+          layoutGroups={component.props.layoutGroups}
+          styleOverrides={styleOverrides}
+          globalStyles={globalStyles}
+          componentId={component.id}
+          component={component}
+        />
+      );
+    },
+  },
+  paragraph: {
+    type: 'paragraph',
+    label: 'Paragraph',
+    icon: <FileText size={18} />,
+    category: 'display',
+    defaultProps: {
+      label: 'Paragraph text goes here.',
+      text: 'Paragraph text goes here.',
+      width: '100%'
+    },
+    structure: {
+      objects: [
+        { id: 'content', type: 'display', archetype: 'DisplayBlock', required: true, order: 1 }
+      ],
+      defaultLayout: 'vertical'
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'paragraph',
+      structure: {
+        objects: [{ id: 'content', type: 'display', archetype: 'DisplayBlock', required: true, order: 1 }],
+        defaultLayout: 'vertical',
+      },
+      props: { label: 'Paragraph text goes here.', text: 'Paragraph text goes here.' },
+    }),
+    runtimeComponent: ({ component, styleOverrides, globalStyles }) => {
+      const structure = ComponentRegistry[component.type]?.structure || getDefaultStructure(component.type);
+      const renderers = getRenderersForComponent(component.type, structure, component);
 
       return (
         <UniversalFieldShell

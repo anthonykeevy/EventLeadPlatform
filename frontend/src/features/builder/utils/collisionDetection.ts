@@ -462,10 +462,10 @@ function overlapOnAxis(a0: number, a1: number, b0: number, b1: number): number {
     return Math.min(a1, b1) - Math.max(a0, b0);
 }
 
-function overlapAreaCanvas(a: CanvasRect, b: CanvasRect): number {
+function overlapAreaCanvas(a: CanvasRect, b: CanvasRect, epsilonPx: number = 0): number {
     const ox = overlapOnAxis(a.x, rectRight(a), b.x, rectRight(b));
     const oy = overlapOnAxis(a.y, rectBottom(a), b.y, rectBottom(b));
-    if (ox <= 0 || oy <= 0) return 0;
+    if (ox <= epsilonPx || oy <= epsilonPx) return 0;
     return ox * oy;
 }
 
@@ -624,7 +624,8 @@ function sumOverlapArea(
     others: Array<{ id: string; rect: CanvasRect; shape?: CanvasShape }>,
     pad: number,
     ignoreIds?: Set<string>,
-    shape?: CanvasShape
+    shape?: CanvasShape,
+    overlapEpsilonPx: number = 0
 ): { total: number; collidingIds: string[] } {
     const padded = inflateRect(r, pad);
     let total = 0;
@@ -633,7 +634,7 @@ function sumOverlapArea(
         if (ignoreIds?.has(o.id)) continue;
         const op = inflateRect(o.rect, pad);
         // Broad-phase AABB check first
-        const aabbArea = overlapAreaCanvas(padded, op);
+        const aabbArea = overlapAreaCanvas(padded, op, overlapEpsilonPx);
         if (aabbArea <= 0) continue;
 
         // Narrow-phase: if we have SmartBorder polygons for both sides, use true polygon intersection
@@ -930,9 +931,11 @@ export function resolveResizeConstraints(args: {
     mode: ConstraintModeResize;
     allowMoveOutOfExistingOverlap: boolean;
     maxIterations?: number;
+    overlapEpsilonPx?: number;
 }): ConstraintResult {
     const ignore = new Set<string>([args.componentId]);
     const maxIter = args.maxIterations ?? 12;
+    const overlapEpsilonPx = args.overlapEpsilonPx ?? 0;
 
     const startRect: CanvasRect = {
         x: args.currentPosition.x,
@@ -940,7 +943,7 @@ export function resolveResizeConstraints(args: {
         width: args.proposedSize.width,
         height: args.proposedSize.height,
     };
-    const startOverlap = sumOverlapArea(startRect, args.others, args.config.collisionPaddingPx, ignore, undefined).total;
+    const startOverlap = sumOverlapArea(startRect, args.others, args.config.collisionPaddingPx, ignore, undefined, overlapEpsilonPx).total;
 
     // Start from proposed position, clamped to canvas.
     const clamped = clampToCanvas(args.proposedPosition, args.proposedSize, args.canvas, args.config.boundaryPaddingPx);
@@ -952,14 +955,14 @@ export function resolveResizeConstraints(args: {
     };
 
     let bestRect = { ...rect };
-    let bestOverlap = sumOverlapArea(rect, args.others, args.config.collisionPaddingPx, ignore, undefined);
+    let bestOverlap = sumOverlapArea(rect, args.others, args.config.collisionPaddingPx, ignore, undefined, overlapEpsilonPx);
 
     if (bestOverlap.total === 0) {
         return { accepted: true, position: { x: rect.x, y: rect.y }, size: args.proposedSize };
     }
 
     for (let i = 0; i < maxIter; i++) {
-        const overlap = sumOverlapArea(rect, args.others, args.config.collisionPaddingPx, ignore, undefined);
+        const overlap = sumOverlapArea(rect, args.others, args.config.collisionPaddingPx, ignore, undefined, overlapEpsilonPx);
         if (overlap.total === 0) {
             return { accepted: true, position: { x: rect.x, y: rect.y }, size: args.proposedSize };
         }
@@ -989,7 +992,7 @@ export function resolveResizeConstraints(args: {
         const candidates = [pushLeft, pushRight, pushUp, pushDown].map(pos => {
             const c = clampToCanvas(pos, args.proposedSize, args.canvas, args.config.boundaryPaddingPx);
             const rr: CanvasRect = { x: c.x, y: c.y, width: rect.width, height: rect.height };
-            const ov = sumOverlapArea(rr, args.others, args.config.collisionPaddingPx, ignore, undefined);
+            const ov = sumOverlapArea(rr, args.others, args.config.collisionPaddingPx, ignore, undefined, overlapEpsilonPx);
             const dist = Math.abs(c.x - rect.x) + Math.abs(c.y - rect.y);
             return { rr, ov, dist };
         });

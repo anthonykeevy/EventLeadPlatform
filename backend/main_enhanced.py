@@ -21,6 +21,7 @@ from modules.invitations.router import router as invitations_router
 from modules.config.router import router as config_router, admin_router as config_admin_router
 from modules.countries.router import router as countries_router
 from modules.dashboard.router import router as dashboard_router
+from modules.logging.router import router as logging_router
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -64,6 +65,7 @@ app.include_router(config_router)
 app.include_router(config_admin_router)
 app.include_router(countries_router)
 app.include_router(dashboard_router)
+app.include_router(logging_router)
 
 @app.get("/")
 async def root():

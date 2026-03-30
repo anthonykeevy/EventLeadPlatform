@@ -9,8 +9,11 @@ export const ComponentSidebar: React.FC = () => {
   const initComponents = useBuilderStore(state => state.initComponents);
   const baseComponents = Object.values(ComponentRegistry);
   const allowedTypes = initComponents?.map(c => c.componentCode) ?? null;
+  // Story 6.2.1: Always surface newly introduced components even if the
+  // persisted Init API catalog has not been uplifted yet.
+  const story621ForceInclude = new Set(['url', 'rating', 'paragraph']);
   const components = allowedTypes
-    ? baseComponents.filter(c => allowedTypes.includes(c.type))
+    ? baseComponents.filter(c => allowedTypes.includes(c.type) || story621ForceInclude.has(c.type))
     : baseComponents;
   
   // Get global styles from the store to pass to preview components

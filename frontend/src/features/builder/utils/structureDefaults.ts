@@ -76,12 +76,14 @@ function isInputFieldType(type: ComponentType): boolean {
         'number',
         'email',
         'phone',
+        'url',
         'textarea',
         'dropdown',
         'radio',
         'checkbox',
         'date',
         'address',
+        'rating',
         'first-name'
     ].includes(type);
 }
@@ -90,7 +92,7 @@ function isInputFieldType(type: ComponentType): boolean {
  * Check if component type is a display component
  */
 function isDisplayType(type: ComponentType): boolean {
-    return ['header', 'divider'].includes(type);
+    return ['header', 'paragraph', 'divider'].includes(type);
 }
 
 

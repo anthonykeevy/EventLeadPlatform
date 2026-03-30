@@ -12,7 +12,11 @@ import type {
   PublicOutboxItem,
   PublicSubmissionLinkType,
 } from '../types/publicSubmission.types'
-import { submitPublicFormSubmission, submitPublicValidationTelemetry } from '../api/publicSubmissionApi'
+import {
+  submitPublicFormSubmission,
+  submitPublicValidationTelemetry,
+  validatePublicUrlDns,
+} from '../api/publicSubmissionApi'
 import type {
   PublicValidationErrorCategory,
   PublicValidationFailure,
@@ -208,6 +212,7 @@ export const PublicFormArtboard: React.FC<{
 
   const [values, setValues] = React.useState<ValueMap>({})
   const [showValidation, setShowValidation] = React.useState(false)
+  const [asyncValidationErrors, setAsyncValidationErrors] = React.useState<FieldErrorMap>({})
   const [submitNotice, setSubmitNotice] = React.useState<SubmitNotice | null>(null)
   const [clientSessionId, setClientSessionId] = React.useState(() => createNewClientSessionId())
   const [kioskCountdownSeconds, setKioskCountdownSeconds] = React.useState<number | null>(null)
@@ -471,8 +476,8 @@ export const PublicFormArtboard: React.FC<{
 
   const errors: FieldErrorMap = React.useMemo(() => {
     if (!showValidation) return {}
-    return computeErrors(true)
-  }, [showValidation, computeErrors])
+    return { ...computeErrors(true), ...asyncValidationErrors }
+  }, [showValidation, computeErrors, asyncValidationErrors])
 
   // Build form-level validation context for submit button
   const formValidationContext: FormValidationContext = React.useMemo(() => {
@@ -525,12 +530,20 @@ export const PublicFormArtboard: React.FC<{
   }, [showValidation, formValidationContext.errorsByPriority])
 
   const setValue = (id: string, v: unknown) => {
+    if (asyncValidationErrors[id]) {
+      setAsyncValidationErrors(prev => {
+        const next = { ...prev }
+        delete next[id]
+        return next
+      })
+    }
     setValues(prev => ({ ...prev, [id]: v }))
     markActivity()
   }
 
   const onSubmit = async () => {
     const submitAttemptId = createSubmitAttemptId()
+    setAsyncValidationErrors({})
     const nextErrors = computeErrors(true)
     setShowValidation(true)
     setSubmitNotice(null)
@@ -551,6 +564,70 @@ export const PublicFormArtboard: React.FC<{
         }
       }
       return
+    }
+
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine !== false : false
+    if (isOnline) {
+      const urlDnsErrors: FieldErrorMap = {}
+      const dnsFailures: PublicValidationFailure[] = []
+
+      for (const c of components) {
+        if (c.type !== 'url') continue
+        if (!stateById[c.id]?.visible) continue
+
+        const validation = c.props.validation
+        if (!validation?.urlDnsCheck) continue
+
+        const rawValue = values[c.id]
+        const urlValue = typeof rawValue === 'string' ? rawValue.trim() : ''
+        if (!urlValue) continue
+
+        try {
+          const dnsResult = await validatePublicUrlDns(token, urlValue)
+          if (!dnsResult.isValid) {
+            urlDnsErrors[c.id] =
+              c.props.validationMessage ||
+              validation.customError ||
+              dnsResult.reason ||
+              'Please enter a reachable website URL.'
+            dnsFailures.push({
+              componentId: c.id,
+              componentType: c.type,
+              ruleType: 'urlDnsCheck',
+              ruleCode: 'validation.url.dns',
+              errorCategory: 'pattern',
+              valueDiagnostics: getValueDiagnostics(urlValue),
+            })
+          } else if (dnsResult.normalizedUrl && dnsResult.normalizedUrl !== rawValue) {
+            setValues(prev => ({ ...prev, [c.id]: dnsResult.normalizedUrl }))
+          }
+        } catch {
+          // Fail-open on transient DNS service/network errors.
+        }
+      }
+
+      if (Object.keys(urlDnsErrors).length > 0) {
+        setAsyncValidationErrors(urlDnsErrors)
+        setSubmitNotice({
+          tone: 'error',
+          text: 'One or more website URLs failed DNS validation.',
+        })
+
+        if (dnsFailures.length > 0) {
+          const telemetry: PublicValidationEventRequest = {
+            eventType: 'validation_failed_submit',
+            occurredAtClient: new Date().toISOString(),
+            linkType: normalizedLinkType,
+            clientDeviceId,
+            clientSessionId,
+            submitAttemptId,
+            failures: dnsFailures,
+          }
+          void submitPublicValidationTelemetry(token, telemetry)
+        }
+
+        return
+      }
     }
 
     if (!token) {
@@ -640,7 +717,6 @@ export const PublicFormArtboard: React.FC<{
       },
     }
 
-    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine !== false : false
     const clearForNextSubmission = () => {
       resetFormState({ rotateSession: true, clearNotice: false })
     }

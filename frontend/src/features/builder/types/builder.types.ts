@@ -12,6 +12,7 @@ export type ComponentType =
   | 'number'
   | 'email'
   | 'phone'           // Phone number input
+  | 'url'             // Website URL input
   | 'textarea'
   | 'dropdown'        // Dropdown/Select field (canonical)
   | 'select'          // Alias for dropdown (runtime/legacy)
@@ -19,6 +20,7 @@ export type ComponentType =
   | 'checkbox'
   | 'date'
   | 'address'         // Address with autocomplete (placeholder for future)
+  | 'rating'          // Rating selector (stars, numbers, emoji)
   | 'first-name'      // POC component
   // Action/Legal Components
   | 'terms'           // Terms & Conditions checkbox
@@ -212,6 +214,8 @@ export interface ValidationRules {
     // ═══════════════════════════════════════════════════════════════
     /** URL format validation */
     url?: boolean;
+    /** Verify URL hostname resolves via DNS (online submit only) */
+    urlDnsCheck?: boolean;
     
     // ═══════════════════════════════════════════════════════════════
     // DATE RULES
@@ -312,6 +316,10 @@ export interface StyleOverrides {
     placeholderColor?: string;
     backgroundColor?: string;
     borderColor?: string;
+    
+    // Rating Styles
+    ratingColor?: string;
+    ratingBackgroundColor?: string;
     
     // Borders & Spacing
     borderRadius?: number;
@@ -591,6 +599,27 @@ export interface ComponentProps {
         start?: string;
         end?: string;
     };
+
+    // ═══════════════════════════════════════════════════════════════
+    // URL-SPECIFIC
+    // ═══════════════════════════════════════════════════════════════
+    /** Optional URL prefix helper shown in UI (e.g., https://) */
+    urlPrefix?: string;
+    /** Custom URL regex pattern */
+    urlPattern?: string;
+
+    // ═══════════════════════════════════════════════════════════════
+    // RATING-SPECIFIC
+    // ═══════════════════════════════════════════════════════════════
+    /** Maximum rating value (common: 5 or 10) */
+    ratingMax?: number;
+    /** Rating display style */
+    ratingStyle?: 'stars' | 'numbers' | 'emoji';
+    /** Optional low/high labels for rating scale */
+    ratingLabels?: {
+        low?: string;
+        high?: string;
+    };
     
     // ═══════════════════════════════════════════════════════════════
     // TERMS & CONDITIONS SPECIFIC
@@ -851,6 +880,10 @@ export interface GlobalStyles {
     /** Default divider length/width (e.g. '100%' or '380px') */
     dividerWidth: string;
 
+    // Rating styles
+    ratingColor?: string;
+    ratingBackgroundColor?: string;
+
     // ═══════════════════════════════════════════════════════════════
     // TEXT BORDERS (per text type - optional)
     // ═══════════════════════════════════════════════════════════════
@@ -995,6 +1028,10 @@ export const DEFAULT_GLOBAL_STYLES: GlobalStyles = {
     dividerBorderWidth: 1,
     // Divider default length (kept as px by default for stable toolbox drag overlay)
     dividerWidth: '380px',
+
+    // Rating Styles
+    ratingColor: '#F59E0B',              // Amber-500
+    ratingBackgroundColor: 'transparent',
 
     // Text Borders (optional)
     textHasBorder: false,              // Default: no border for Input category
@@ -1293,7 +1330,7 @@ export type ObjectLayoutType = 'vertical' | 'horizontal' | 'mixed';
  * - divider: Visual separator line
  * - custom: Custom object type (specify with customType)
  */
-export type ObjectType = 'label' | 'input' | 'action' | 'status' | 'validation' | 'divider' | 'custom';
+export type ObjectType = 'label' | 'input' | 'action' | 'status' | 'validation' | 'divider' | 'display' | 'custom';
 
 /**
  * Style archetype for an object.
@@ -1304,7 +1341,8 @@ export type StyleArchetype =
     | 'InputControl'   // Inherits from GlobalStyles.Input (default for type='input')
     | 'HelperText'     // Inherits from GlobalStyles.HelpText (default for type='validation'/'status')
     | 'Action'         // Inherits from Button/Action styles
-    | 'Divider';       // Inherits from divider styles
+    | 'Divider'        // Inherits from divider styles
+    | 'DisplayBlock';  // Inherits from nothing by default, acts as a display container
 
 /**
  * Object-level feature configuration map.

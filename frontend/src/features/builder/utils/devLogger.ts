@@ -5,11 +5,13 @@
  * - Buffers entries in-memory (FIFO).
  * - Optional persistence to localStorage (off by default):
  *   - Enable with VITE_LOG_PERSIST_TO_STORAGE=true
+ * - Optional backend sync (off by default):
+ *   - Enable with VITE_LOG_SEND_TO_BACKEND=true
  * - Download format matches the backend-ready schema:
  *   FrontendLogBatch { entries, sessionId, pageUrl?, browserInfo? }
- *
- * This intentionally does NOT sync to the backend yet (next epic).
  */
+
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -23,9 +25,13 @@ interface LogEntry {
 const ENABLED = import.meta.env.VITE_ENABLE_DEV_LOGS === 'true';
 const VERBOSE_RESIZE = import.meta.env.VITE_LOG_VERBOSE_RESIZE === 'true';
 const PERSIST_TO_STORAGE = import.meta.env.VITE_LOG_PERSIST_TO_STORAGE === 'true';
+const SEND_TO_BACKEND = import.meta.env.VITE_LOG_SEND_TO_BACKEND === 'true';
 const MAX_ENTRIES = 500;
+const MAX_UPLOAD_BATCH = 50;
+const MAX_UPLOAD_QUEUE = 500;
+const BACKEND_UPLOAD_DEBOUNCE_MS = 1000;
 
-// Local storage persistence (optional; no backend sync yet)
+// Local storage persistence keys.
 const STORAGE_PREFIX = 'eventlead.devLogger';
 const STORAGE_SESSIONS_KEY = `${STORAGE_PREFIX}.sessions`;
 const STORAGE_SESSION_KEY_PREFIX = `${STORAGE_PREFIX}.session.`;
@@ -55,6 +61,9 @@ const buffer: LogEntry[] = [];
 let activeSessionId: string | null = null;
 let activeSessionCreatedAt: number | null = null;
 let persistTimer: number | null = null;
+let uploadTimer: number | null = null;
+let uploadInFlight = false;
+const uploadQueue: LogEntry[] = [];
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -278,6 +287,86 @@ function schedulePersist(): void {
   }, 750);
 }
 
+function getAccessToken(): string | null {
+  if (!isBrowser()) return null;
+  try {
+    return window.localStorage.getItem('eventlead_access_token');
+  } catch {
+    return null;
+  }
+}
+
+function scheduleUpload(): void {
+  if (!ENABLED || !SEND_TO_BACKEND || !isBrowser()) return;
+  if (uploadTimer !== null) return;
+  uploadTimer = window.setTimeout(() => {
+    uploadTimer = null;
+    void flushUploadQueue();
+  }, BACKEND_UPLOAD_DEBOUNCE_MS);
+}
+
+async function flushUploadQueue(): Promise<void> {
+  if (!ENABLED || !SEND_TO_BACKEND || !isBrowser()) return;
+  if (uploadInFlight || uploadQueue.length === 0) return;
+
+  uploadInFlight = true;
+  let uploadSucceeded = false;
+  const sending = uploadQueue.splice(0, Math.min(uploadQueue.length, MAX_UPLOAD_BATCH));
+  const { sessionId, createdAt } = getOrCreateSessionId();
+  const batch: FrontendLogBatch = {
+    entries: sending,
+    sessionId,
+    pageUrl: getPageUrl(),
+    browserInfo: getBrowserInfo(),
+    meta: {
+      createdAt,
+      uploadedAt: safeNow(),
+      maxEntries: MAX_ENTRIES,
+    },
+  };
+
+  try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    const token = getAccessToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${getApiBaseUrl()}/api/v1/logs/frontend`, {
+      method: 'POST',
+      headers,
+      body: safeJsonStringify(batch, 0),
+      keepalive: sending.length <= 10,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Frontend log upload failed: HTTP ${response.status}`);
+    }
+    uploadSucceeded = true;
+  } catch (error) {
+    // Put failed entries back at the front so order is preserved.
+    uploadQueue.unshift(...sending);
+    if (uploadQueue.length > MAX_UPLOAD_QUEUE) {
+      uploadQueue.splice(MAX_UPLOAD_QUEUE);
+    }
+    if (VERBOSE_RESIZE) {
+      // eslint-disable-next-line no-console
+      console.warn('[DEVLOG] Failed to upload frontend logs batch', {
+        error: String(error),
+        batchSize: sending.length,
+      });
+    }
+  } finally {
+    uploadInFlight = false;
+    // Only auto-drain when uploads are healthy. Failed uploads are retried on next logged event.
+    if (uploadSucceeded && uploadQueue.length > 0) {
+      scheduleUpload();
+    }
+  }
+}
+
 function loadPersistedSessionIfAny(): void {
   if (!ENABLED || !PERSIST_TO_STORAGE || !isBrowser()) return;
   const { sessionId } = getOrCreateSessionId();
@@ -303,6 +392,13 @@ function push(entry: LogEntry) {
     buffer.shift();
   }
   schedulePersist();
+  if (ENABLED && SEND_TO_BACKEND && isBrowser()) {
+    uploadQueue.push(entry);
+    if (uploadQueue.length > MAX_UPLOAD_QUEUE) {
+      uploadQueue.shift();
+    }
+    scheduleUpload();
+  }
 }
 
 function log(level: LogLevel, event: string, payload?: Record<string, unknown>) {
@@ -336,6 +432,7 @@ export const devLogger = {
   getBuffer: () => buffer.slice(),
   clear: () => {
     buffer.length = 0;
+    uploadQueue.length = 0;
     if (!ENABLED || !PERSIST_TO_STORAGE || !isBrowser()) return;
     const sid = getOrCreateSessionId().sessionId;
     try {

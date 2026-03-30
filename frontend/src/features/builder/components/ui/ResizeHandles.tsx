@@ -50,6 +50,10 @@ interface ResizeHandlesProps {
     componentId?: string;
     /** Hide corner handles (NWSE) - for components that don't support proportional scaling */
     hideCornerHandles?: boolean;
+    /** Hide horizontal handles (E/W) - for components that don't support width expansion */
+    hideHorizontalHandles?: boolean;
+    /** Hide vertical handles (N/S) - for components that don't support height expansion */
+    hideVerticalHandles?: boolean;
     /** Callback when resize starts */
     onResizeStart?: (handle: HandlePosition, meta?: ResizePointerMeta) => void;
     /** Callback during resize with delta values (for live preview) */
@@ -225,6 +229,8 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     componentType,
     componentId,
     hideCornerHandles = false,
+    hideHorizontalHandles = false,
+    hideVerticalHandles = false,
     onResizeStart,
     onResize,
     onWidthChange,
@@ -461,9 +467,9 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({
     // E/W handles require onWidthChange or onWidthResizeEnd
     // N handle requires onSpacingChange or onVerticalResizeEnd (for labelGap)
     // S handle requires onHeightChange or onSpacingChange or onVerticalResizeEnd
-    const showEWHandles = onWidthChange !== undefined || onWidthResizeEnd !== undefined;
-    const showNHandle = onSpacingChange !== undefined || onVerticalResizeEnd !== undefined;
-    const showSHandle = onHeightChange !== undefined || onSpacingChange !== undefined || onVerticalResizeEnd !== undefined;
+    const showEWHandles = !hideHorizontalHandles && (onWidthChange !== undefined || onWidthResizeEnd !== undefined);
+    const showNHandle = !hideVerticalHandles && (onSpacingChange !== undefined || onVerticalResizeEnd !== undefined);
+    const showSHandle = !hideVerticalHandles && (onHeightChange !== undefined || onSpacingChange !== undefined || onVerticalResizeEnd !== undefined);
     
     // Build the list of edge handles to show
     const edgeHandles: HandlePosition[] = [];

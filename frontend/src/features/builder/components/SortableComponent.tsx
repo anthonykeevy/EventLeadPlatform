@@ -291,6 +291,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         inputWidthOverride?: number;
         topShift?: number;
         leftShift?: number;
+        constrainedPosition?: { x: number; y: number };
+        constrainedSize?: { width: number; height: number };
         horizontalHandle?: 'e' | 'w'; // Track which horizontal handle was used
         startWidth?: number;
         startHeight?: number;
@@ -300,7 +302,12 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         previewHelpWidth?: number;
         previewActionWidth?: number;
     } | null>(null);
-    const lastVerticalPreviewRef = useRef<{ inputHeight?: number; labelGap?: number; inputHelpGap?: number; topShift?: number } | null>(null);
+    const lastVerticalPreviewRef = useRef<{ inputHeight?: number; labelGap?: number; inputHelpGap?: number; topShift?: number; constrainedPosition?: { x: number; y: number }; constrainedSize?: { width: number; height: number } } | null>(null);
+    const lastAcceptedResizePreviewRef = useRef<NonNullable<typeof resizePreview> | null>(null);
+    const resizePreviewBoundaryLockRef = useRef<{ handle: HandlePosition; preview: NonNullable<typeof resizePreview> } | null>(null);
+    const lastResizePreviewConstraintLogRef = useRef(0);
+    const lastResizePreviewCompareLogRef = useRef(0);
+    const activeResizeHandleRef = useRef<HandlePosition | null>(null);
     
     // ═══════════════════════════════════════════════════════════════
     // Ref to store original start width for corner resizes
@@ -310,6 +317,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
 
     // Store original submit button height for N/S + corner resizes
     const submitButtonStartHeightRef = useRef<number | null>(null);
+    const verticalResizeStartComponentHeightRef = useRef<number | null>(null);
     
     // ═══════════════════════════════════════════════════════════════
     // Ref to store initial object widths captured at E/W resize start
@@ -360,20 +368,266 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     // RESIZE HANDLERS - Different behavior per handle type
     // ═══════════════════════════════════════════════════════════════
 
+    const describeResizeAnchor = useCallback((args: {
+        handle: 'n' | 's' | 'e' | 'w';
+        currentPosition: { x: number; y: number };
+        currentSize: { width: number; height: number };
+        nextPosition: { x: number; y: number };
+        nextSize: { width: number; height: number };
+    }) => {
+        switch (args.handle) {
+            case 's': {
+                const before = args.currentPosition.y;
+                const after = args.nextPosition.y;
+                return { anchorEdge: 'north', anchorBefore: before, anchorAfter: after, anchorDelta: after - before, orthogonalDelta: args.nextPosition.x - args.currentPosition.x };
+            }
+            case 'n': {
+                const before = args.currentPosition.y + args.currentSize.height;
+                const after = args.nextPosition.y + args.nextSize.height;
+                return { anchorEdge: 'south', anchorBefore: before, anchorAfter: after, anchorDelta: after - before, orthogonalDelta: args.nextPosition.x - args.currentPosition.x };
+            }
+            case 'e': {
+                const before = args.currentPosition.x;
+                const after = args.nextPosition.x;
+                return { anchorEdge: 'west', anchorBefore: before, anchorAfter: after, anchorDelta: after - before, orthogonalDelta: args.nextPosition.y - args.currentPosition.y };
+            }
+            case 'w': {
+                const before = args.currentPosition.x + args.currentSize.width;
+                const after = args.nextPosition.x + args.nextSize.width;
+                return { anchorEdge: 'east', anchorBefore: before, anchorAfter: after, anchorDelta: after - before, orthogonalDelta: args.nextPosition.y - args.currentPosition.y };
+            }
+        }
+    }, []);
+
+    const describeVerticalResizePhase = useCallback((args: {
+        handle: 'n' | 's';
+        deltaY: number;
+        currentInputHeight: number;
+        nextInputHeight: number;
+        currentLabelGap: number;
+        nextLabelGap?: number;
+        currentInputHelpGap: number;
+        nextInputHelpGap?: number;
+        minInputHeight: number;
+        maxInputHeight: number;
+    }) => {
+        const inputHeightDelta = args.nextInputHeight - args.currentInputHeight;
+        const remainingDeltaAfterPhase1 = args.deltaY - inputHeightDelta;
+        const phaseEnteredAtDeltaY =
+            args.deltaY >= 0
+                ? (args.maxInputHeight - args.currentInputHeight)
+                : (args.currentInputHeight - args.minInputHeight);
+
+        let phase: 'inputHeight' | 'labelGap' | 'inputHelpGap' = 'inputHeight';
+        if (args.handle === 'n' && args.nextLabelGap !== undefined && args.nextLabelGap !== args.currentLabelGap) phase = 'labelGap';
+        if (args.handle === 's' && args.nextInputHelpGap !== undefined && args.nextInputHelpGap !== args.currentInputHelpGap) phase = 'inputHelpGap';
+
+        return {
+            phase,
+            inputHeightDelta,
+            remainingDeltaAfterPhase1,
+            phaseEnteredAtDeltaY,
+        };
+    }, []);
+
+    const getVerticalResizeLimit = useCallback((args: {
+        handle: 'n' | 's';
+        position: { x: number; y: number };
+        width: number;
+        baseHeight: number;
+    }) => {
+        const state = useBuilderStore.getState();
+        const def = state.formDefinition;
+        const pages = def?.desktopPages && def.desktopPages.length > 0 ? def.desktopPages : (def?.pages ?? []);
+        const activePage = pages.find(p => p.id === state.activePageId);
+        const allComponents = activePage?.components ?? [];
+        const canvasHeight = def?.canvasSettings?.height || 980;
+        const ignore = new Set<string>([component.id]);
+        const others = buildCanvasRectsForComponents(allComponents, scale, ignore);
+
+        const rectLeft = args.position.x;
+        const rectRight = args.position.x + args.width;
+        const hasHorizontalOverlap = (other: { rect: { x: number; width: number } }) =>
+            Math.min(rectRight, other.rect.x + other.rect.width) - Math.max(rectLeft, other.rect.x) > 0;
+
+        if (args.handle === 's') {
+            const north = args.position.y;
+            const nearestBelow = others
+                .filter(o => hasHorizontalOverlap(o) && o.rect.y >= north)
+                .sort((a, b) => a.rect.y - b.rect.y)[0];
+            const limitSouth = nearestBelow ? nearestBelow.rect.y : canvasHeight;
+            const maxHeight = Math.max(args.baseHeight, limitSouth - north);
+            return {
+                maxExpansionDelta: Math.max(0, maxHeight - args.baseHeight),
+                limitEdge: limitSouth,
+                limitingComponentId: nearestBelow?.id,
+            };
+        }
+
+        const south = args.position.y + args.baseHeight;
+        const nearestAbove = others
+            .filter(o => hasHorizontalOverlap(o) && (o.rect.y + o.rect.height) <= south)
+            .sort((a, b) => (b.rect.y + b.rect.height) - (a.rect.y + a.rect.height))[0];
+        const limitNorth = nearestAbove ? (nearestAbove.rect.y + nearestAbove.rect.height) : 0;
+        const maxHeight = Math.max(args.baseHeight, south - limitNorth);
+        return {
+            maxExpansionDelta: Math.max(0, maxHeight - args.baseHeight),
+            limitEdge: limitNorth,
+            limitingComponentId: nearestAbove?.id,
+        };
+    }, [component.id, scale]);
+
+    const validateLiveResizePreview = useCallback((args: {
+        handle: HandlePosition;
+        proposedPosition: { x: number; y: number };
+        proposedSize: { width: number; height: number };
+        previewState: NonNullable<typeof resizePreview>;
+    }): NonNullable<typeof resizePreview> | null => {
+        const locked = resizePreviewBoundaryLockRef.current;
+        if (locked && locked.handle === args.handle) {
+            const lockedSize = locked.preview.constrainedSize;
+            const lockedPos = locked.preview.constrainedPosition;
+            if (lockedSize && lockedPos) {
+                const isBeyondLocked =
+                    (args.handle === 's' && args.proposedSize.height >= lockedSize.height) ||
+                    (args.handle === 'n' && args.proposedSize.height >= lockedSize.height && args.proposedPosition.y <= lockedPos.y) ||
+                    (args.handle === 'e' && args.proposedSize.width >= lockedSize.width) ||
+                    (args.handle === 'w' && args.proposedSize.width >= lockedSize.width && args.proposedPosition.x <= lockedPos.x);
+
+                const isBackInside =
+                    (args.handle === 's' && args.proposedSize.height < lockedSize.height - 0.5) ||
+                    (args.handle === 'n' && (args.proposedSize.height < lockedSize.height - 0.5 || args.proposedPosition.y > lockedPos.y + 0.5)) ||
+                    (args.handle === 'e' && args.proposedSize.width < lockedSize.width - 0.5) ||
+                    (args.handle === 'w' && (args.proposedSize.width < lockedSize.width - 0.5 || args.proposedPosition.x > lockedPos.x + 0.5));
+
+                if (isBeyondLocked) {
+                    const now = Date.now();
+                    if (now - lastResizePreviewConstraintLogRef.current > 250) {
+                        lastResizePreviewConstraintLogRef.current = now;
+                        devLogger.info('resize.preview.boundary.locked', {
+                            componentId: component.id,
+                            componentType: component.type,
+                            handle: args.handle,
+                            action: 'clamp-to-last-valid-preview',
+                            proposedPosition: args.proposedPosition,
+                            proposedSize: args.proposedSize,
+                            lockedPosition: lockedPos,
+                            lockedSize,
+                        });
+                    }
+                    return locked.preview;
+                }
+
+                if (isBackInside) {
+                    devLogger.info('resize.preview.boundary.lock.released', {
+                        componentId: component.id,
+                        componentType: component.type,
+                        handle: args.handle,
+                        reason: 'pointer-moved-back-inside-locked-boundary',
+                        lockedPosition: lockedPos,
+                        lockedSize,
+                    });
+                    resizePreviewBoundaryLockRef.current = null;
+                }
+            }
+        }
+
+        const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
+        if (!caps.resizeConstraints.enabled || (!caps.resizeConstraints.canvasBoundary && !caps.resizeConstraints.collisionAvoidance)) {
+            return args.previewState;
+        }
+
+        const state = useBuilderStore.getState();
+        const def = state.formDefinition;
+        const canvasWidth = def?.canvasSettings?.width || 1920;
+        const canvasHeight = def?.canvasSettings?.height || 980;
+
+        const resolved = resolveResizeConstraints({
+            componentId: component.id,
+            currentPosition: { x: component.position?.x ?? 0, y: component.position?.y ?? 0 },
+            proposedPosition: args.proposedPosition,
+            proposedSize: args.proposedSize,
+            canvas: { width: canvasWidth, height: canvasHeight },
+            others: [],
+            config: {
+                boundaryPaddingPx: caps.resizeConstraints.boundaryPaddingPx,
+                collisionPaddingPx: caps.resizeConstraints.collisionPaddingPx,
+            },
+            mode: caps.resizeConstraints.mode,
+            allowMoveOutOfExistingOverlap: true,
+            overlapEpsilonPx: 1,
+        });
+
+        const adjusted =
+            resolved.position.x !== args.proposedPosition.x ||
+            resolved.position.y !== args.proposedPosition.y;
+
+        if (!resolved.accepted) {
+            const now = Date.now();
+            if (now - lastResizePreviewConstraintLogRef.current > 250) {
+                lastResizePreviewConstraintLogRef.current = now;
+                devLogger.info('resize.preview.constrained', {
+                    componentId: component.id,
+                    componentType: component.type,
+                    handle: args.handle,
+                    action: 'freeze-at-last-valid-preview',
+                    accepted: resolved.accepted,
+                    reason: resolved.reason ?? (adjusted ? 'collision' : 'unknown'),
+                    proposedPosition: args.proposedPosition,
+                    proposedSize: args.proposedSize,
+                    resolvedPosition: resolved.position,
+                    collidingComponentIds: resolved.collidingComponentIds ?? [],
+                });
+            }
+            return null;
+        }
+
+        if (adjusted) {
+            const now = Date.now();
+            if (now - lastResizePreviewConstraintLogRef.current > 250) {
+                lastResizePreviewConstraintLogRef.current = now;
+                devLogger.info('resize.preview.constrained', {
+                    componentId: component.id,
+                    componentType: component.type,
+                    handle: args.handle,
+                    action: 'freeze-at-last-valid-preview',
+                    accepted: resolved.accepted,
+                    reason: resolved.reason ?? 'collision',
+                    proposedPosition: args.proposedPosition,
+                    proposedSize: args.proposedSize,
+                    resolvedPosition: resolved.position,
+                    collidingComponentIds: resolved.collidingComponentIds ?? [],
+                });
+            }
+            return null;
+        }
+
+        return {
+            ...args.previewState,
+            constrainedPosition: args.proposedPosition,
+            constrainedSize: args.proposedSize,
+        };
+    }, [component.id, component.position, component.type, scale]);
+
     const handleResizeStart = useCallback((handle?: HandlePosition) => {
         // Set resizing state to enable visual preview feedback
         setIsResizingState(true);
         useBuilderStore.getState().setResizingComponentId(component.id);
+        lastAcceptedResizePreviewRef.current = null;
+        resizePreviewBoundaryLockRef.current = null;
+        activeResizeHandleRef.current = handle ?? null;
+        verticalResizeStartComponentHeightRef.current = null;
         
         // Clear corner resize start width ref when starting a new resize
         if (handle && isCornerHandle(handle)) {
             cornerResizeStartWidthRef.current = null;
         }
 
-        if (component.type === 'submit-button' && handle) {
+        if (['submit-button', 'paragraph', 'header', 'textarea'].includes(component.type) && handle) {
             const snapshot = captureComponentSnapshot(component, smartBorderContainerRef);
             const measuredButtonHeightScreen =
                 snapshot?.objectMetrics?.button?.rect?.height ??
+                snapshot?.objectMetrics?.content?.rect?.height ??
                 smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
                 fieldStyles.computed.inputHeight;
             const canvasScaleFactor = scale || 1.0;
@@ -386,6 +640,11 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             submitButtonStartHeightRef.current = component.props.height ?? measuredButtonHeight;
         }
 
+        if (handle === 'n' || handle === 's' || (handle && isCornerHandle(handle))) {
+            const startDims = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+            verticalResizeStartComponentHeightRef.current = startDims.height;
+        }
+
         devLogger.debug('resize.handle.start', {
             componentId: component.id,
             handle: handle || 'unknown',
@@ -396,7 +655,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         const isCornerHandleLocal = handle === 'nw' || handle === 'ne' || handle === 'sw' || handle === 'se';
         if (isHorizontalHandle || isCornerHandleLocal) {
             const gridContainer = smartBorderContainerRef.current?.querySelector('[data-layout-type="grid"]') as HTMLElement | null;
-            if (gridContainer) {
+            if (isCornerHandleLocal && gridContainer) {
                 const computed = window.getComputedStyle(gridContainer);
                 const templateColumns = computed.gridTemplateColumns;
                 setFrozenGridTemplateColumns(templateColumns);
@@ -405,6 +664,15 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     handle,
                     gridTemplateColumns: templateColumns,
                     source: 'handleResizeStart',
+                });
+            } else if (isHorizontalHandle) {
+                // Keep E/W live preview in sync: do not freeze grid columns.
+                // Freezing tracks causes the outer resize box to move while input width lags until commit.
+                setFrozenGridTemplateColumns(null);
+                devLogger.info('resize.grid.freeze.skip', {
+                    componentId: component.id,
+                    handle,
+                    reason: 'horizontal-live-preview-sync',
                 });
             }
             
@@ -860,7 +1128,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 const fixedLabel = capturedWidths.labelInInputRow ? capturedWidths.labelWidth : 0;
                 const fixedHelp = capturedWidths.helpInInputRow ? capturedWidths.helpWidth : 0;
                 const availableForInput = nextWidth - fixedLabel - fixedHelp - capturedWidths.totalExtras;
-                previewInputWidth = Math.max(60, availableForInput);
+                const minPreviewInputWidth = ['header', 'paragraph', 'divider'].includes(component.type) ? 10 : 60;
+                previewInputWidth = Math.max(minPreviewInputWidth, availableForInput);
             }
 
             const widthPreview: typeof resizePreview = {
@@ -878,14 +1147,16 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             // VERTICAL PREVIEW (same math as N/S branch)
             // deltaHeight is already normalized by ResizeHandles for corners.
             // ───────────────────────────────────────────────────────────────
-            if (component.type === 'submit-button') {
+            if (['submit-button', 'paragraph', 'header', 'textarea'].includes(component.type)) {
                 const canvasScaleFactor = scale || 1.0;
                 const scaleFactor = componentScale / 100;
                 const effectiveScaleFactor = canvasScaleFactor * scaleFactor;
                 const baseHeightDelta = effectiveScaleFactor !== 0 ? deltaHeight / effectiveScaleFactor : deltaHeight;
 
+                const snapshot = captureComponentSnapshot(component, smartBorderContainerRef);
                 const measuredButtonHeightScreen =
-                    captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics?.button?.rect?.height ??
+                    snapshot?.objectMetrics?.button?.rect?.height ??
+                    snapshot?.objectMetrics?.content?.rect?.height ??
                     smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
                     fieldStyles.computed.inputHeight;
                 const measuredButtonHeight =
@@ -914,7 +1185,23 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     startHeight,
                 };
 
-                setResizePreview(mergedPreview);
+                const currentDims = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+                const proposedPosition = {
+                    x: component.position?.x ?? 0,
+                    y: verticalHandle === 'n' ? (component.position?.y ?? 0) - (nextHeight - startHeight) : (component.position?.y ?? 0),
+                };
+                const constrainedPreview = validateLiveResizePreview({
+                    handle,
+                    proposedPosition,
+                    proposedSize: {
+                        width: currentDims.width,
+                        height: nextHeight,
+                    },
+                    previewState: mergedPreview,
+                });
+                if (!constrainedPreview) return;
+
+                setResizePreview(constrainedPreview);
                 return;
             }
             // Track vertical constraints for corner handles
@@ -972,12 +1259,34 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 ...verticalPreview,
             };
 
-            setResizePreview(mergedPreview);
+            const currentDims = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+            const previewBaseHeight = verticalResizeStartComponentHeightRef.current ?? currentDims.height;
+            const verticalGapDelta =
+                verticalHandle === 'n'
+                    ? ((mergedPreview.labelGap ?? currentLabelGap) - currentLabelGap)
+                    : ((mergedPreview.inputHelpGap ?? currentInputHelpGap) - currentInputHelpGap);
+            const constrainedPreview = validateLiveResizePreview({
+                handle,
+                proposedPosition: {
+                    x: (component.position?.x ?? 0) + (mergedPreview.leftShift ?? 0),
+                    y: (component.position?.y ?? 0) + (mergedPreview.topShift ?? 0),
+                },
+                proposedSize: {
+                    width: nextWidth,
+                    height: previewBaseHeight + (newInputHeight - currentInputHeight) + verticalGapDelta,
+                },
+                previewState: mergedPreview,
+            });
+            if (!constrainedPreview) return;
+
+            setResizePreview(constrainedPreview);
             lastVerticalPreviewRef.current = {
-                inputHeight: mergedPreview.inputHeight,
-                labelGap: mergedPreview.labelGap,
-                inputHelpGap: mergedPreview.inputHelpGap,
-                topShift: mergedPreview.topShift,
+                inputHeight: constrainedPreview.inputHeight,
+                labelGap: constrainedPreview.labelGap,
+                inputHelpGap: constrainedPreview.inputHelpGap,
+                topShift: constrainedPreview.topShift,
+                constrainedPosition: constrainedPreview.constrainedPosition,
+                constrainedSize: constrainedPreview.constrainedSize,
             };
             
             // Log constraints if any were applied during preview calculation (Agent Logging System)
@@ -1141,7 +1450,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 const fixedLabel = capturedWidths.labelInInputRow ? capturedWidths.labelWidth : 0;
                 const fixedHelp = capturedWidths.helpInInputRow ? capturedWidths.helpWidth : 0;
                 const availableForInput = nextWidth - fixedLabel - fixedHelp - capturedWidths.totalExtras;
-                previewInputWidth = Math.max(60, availableForInput); // Minimum 60px for input
+                const minPreviewInputWidth = ['header', 'paragraph', 'divider'].includes(component.type) ? 10 : 60;
+                previewInputWidth = Math.max(minPreviewInputWidth, availableForInput); // Minimum width based on component type
                 
                 devLogger.debug('resize.preview.objectWidths', {
                     componentId: component.id,
@@ -1163,8 +1473,23 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 previewHelpWidth,
                 ...(component.type === 'submit-button' ? { previewActionWidth: nextWidth } : {}),
             } as typeof resizePreview & { horizontalHandle?: string; leftShift?: number };
-            
-            setResizePreview(previewUpdate);
+
+            const currentDims = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+            const constrainedPreview = validateLiveResizePreview({
+                handle,
+                proposedPosition: {
+                    x: currentPositionX + (leftShift ?? 0),
+                    y: component.position?.y ?? 0,
+                },
+                proposedSize: {
+                    width: nextWidth,
+                    height: currentDims.height,
+                },
+                previewState: previewUpdate,
+            });
+            if (!constrainedPreview) return;
+
+            setResizePreview(constrainedPreview);
             
             // Log resize preview state update (for E/W handles)
             devLogger.debug('resize.handle.move', {
@@ -1250,14 +1575,17 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         } else if (handle === 'n' || handle === 's') {
             // Height-first logic: adjust input height within bounds, then spacing with any remaining delta
             // deltaHeight here is already normalized (positive = drag down on S, drag up on N)
-            if (component.type === 'submit-button') {
+            if (['submit-button', 'paragraph', 'header', 'textarea'].includes(component.type)) {
                 const canvasScaleFactor = scale || 1.0;
                 const scaleFactor = componentScale / 100;
                 const effectiveScaleFactor = canvasScaleFactor * scaleFactor;
                 const baseHeightDelta = effectiveScaleFactor !== 0 ? deltaHeight / effectiveScaleFactor : deltaHeight;
 
+                const objectMetrics = captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics;
                 const measuredButtonHeightScreen =
-                    captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics?.button?.rect?.height ??
+                    objectMetrics?.button?.rect?.height ??
+                    objectMetrics?.content?.rect?.height ??
+                    objectMetrics?.line?.rect?.height ??
                     smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
                     fieldStyles.computed.inputHeight;
                 const measuredButtonHeight =
@@ -1285,10 +1613,52 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     startHeight,
                 };
 
-                setResizePreview(preview);
+                const currentDims = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+                const proposedPosition = {
+                    x: component.position?.x ?? 0,
+                    y: handle === 'n' ? (component.position?.y ?? 0) - (nextHeight - startHeight) : (component.position?.y ?? 0),
+                };
+                const constrainedPreview = validateLiveResizePreview({
+                    handle,
+                    proposedPosition,
+                    proposedSize: {
+                        width: currentDims.width,
+                        height: nextHeight,
+                    },
+                    previewState: preview,
+                });
+                if (!constrainedPreview) return;
+
+                setResizePreview(constrainedPreview);
                 return;
             }
-            let remainingDelta = deltaHeight;
+            const currentDims = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+            const previewBaseHeight = verticalResizeStartComponentHeightRef.current ?? currentDims.height;
+            const verticalLimit = getVerticalResizeLimit({
+                handle,
+                position: { x: component.position?.x ?? 0, y: component.position?.y ?? 0 },
+                width: currentDims.width,
+                baseHeight: previewBaseHeight,
+            });
+            const effectiveDeltaHeight =
+                deltaHeight > 0
+                    ? Math.min(deltaHeight, verticalLimit.maxExpansionDelta)
+                    : deltaHeight;
+
+            devLogger.info('resize.preview.vertical.limit', {
+                componentId: component.id,
+                componentType: component.type,
+                handle,
+                requestedDeltaY: deltaHeight,
+                effectiveDeltaY: effectiveDeltaHeight,
+                maxExpansionDelta: verticalLimit.maxExpansionDelta,
+                limitEdge: verticalLimit.limitEdge,
+                limitingComponentId: verticalLimit.limitingComponentId ?? null,
+                previewBaseHeight,
+                currentWidth: currentDims.width,
+            });
+
+            let remainingDelta = effectiveDeltaHeight;
             const newInputHeight = Math.max(minInputHeight, Math.min(maxInputHeight, currentInputHeight + remainingDelta));
             remainingDelta -= (newInputHeight - currentInputHeight);
 
@@ -1312,12 +1682,50 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 preview.topShift = -(heightUsed + spacingDelta);
             }
 
-            setResizePreview(preview);
+            const verticalGapDelta =
+                handle === 'n'
+                    ? ((preview.labelGap ?? currentLabelGap) - currentLabelGap)
+                    : ((preview.inputHelpGap ?? currentInputHelpGap) - currentInputHelpGap);
+            const constrainedPreview = validateLiveResizePreview({
+                handle,
+                proposedPosition: {
+                    x: component.position?.x ?? 0,
+                    y: (component.position?.y ?? 0) + (preview.topShift ?? 0),
+                },
+                proposedSize: {
+                    width: currentDims.width,
+                    height: previewBaseHeight + (newInputHeight - currentInputHeight) + verticalGapDelta,
+                },
+                previewState: preview,
+            });
+            if (!constrainedPreview) return;
+
+            devLogger.info('resize.preview.phase', {
+                componentId: component.id,
+                componentType: component.type,
+                handle,
+                ...describeVerticalResizePhase({
+                    handle,
+                    deltaY: deltaHeight,
+                    currentInputHeight,
+                    nextInputHeight: constrainedPreview.inputHeight ?? newInputHeight,
+                    currentLabelGap,
+                    nextLabelGap: constrainedPreview.labelGap,
+                    currentInputHelpGap,
+                    nextInputHelpGap: constrainedPreview.inputHelpGap,
+                    minInputHeight,
+                    maxInputHeight,
+                }),
+            });
+
+            setResizePreview(constrainedPreview);
             lastVerticalPreviewRef.current = {
-                inputHeight: preview.inputHeight,
-                labelGap: preview.labelGap,
-                inputHelpGap: preview.inputHelpGap,
-                topShift: preview.topShift,
+                inputHeight: constrainedPreview.inputHeight,
+                labelGap: constrainedPreview.labelGap,
+                inputHelpGap: constrainedPreview.inputHelpGap,
+                topShift: constrainedPreview.topShift,
+                constrainedPosition: constrainedPreview.constrainedPosition,
+                constrainedSize: constrainedPreview.constrainedSize,
             };
             
             const bounds = smartBorderContainerRef.current?.getBoundingClientRect();
@@ -1343,7 +1751,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 clampedHeight,
             });
         }
-    }, [component.props.width, component.props.height, component.type, componentScale, fieldStyles.computed.inputHeight, currentLabelGap, currentInputHelpGap, actualDomWidth, resizePreview, scale]);
+    }, [component, component.props.width, component.props.height, component.type, componentScale, fieldStyles.computed.inputHeight, currentLabelGap, currentInputHelpGap, actualDomWidth, resizePreview, scale, validateLiveResizePreview]);
 
     // Width change handler (E/W handles)
     const handleWidthChange = useCallback((newWidth: number) => {
@@ -1709,7 +2117,9 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         });
 
         let minInputWidth = 80;
-        if (fieldStyles?.computed) {
+        if (['header', 'paragraph', 'divider'].includes(component.type)) {
+            minInputWidth = 10;
+        } else if (fieldStyles?.computed) {
             minInputWidth = Math.round(
                 measureTextWidth(
                     'W'.repeat(10),
@@ -1719,7 +2129,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 ) + inputPadding + inputBorder
             );
         }
-        minInputWidth = Math.max(60, minInputWidth);
+        minInputWidth = Math.max(10, minInputWidth);
 
         let adjustedWidth = newWidth;
         let available = adjustedWidth - totalExtras;
@@ -1731,14 +2141,42 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // Use Math.ceil to prevent sub-pixel precision loss
         let targetLabelWidth = Math.ceil(currentLabelWidth);
         let targetHelpWidth = Math.ceil(currentHelpWidth);
-        let targetInputWidth = Math.round(isDropdownSplit ? currentInputWidth : (available - targetLabelWidth - targetHelpWidth));
+        const currentLabelWidthForInputRow = labelInInputRow ? targetLabelWidth : 0;
+        const currentHelpWidthForInputRow = helpInInputRow ? targetHelpWidth : 0;
+        let targetInputWidth = Math.round(
+            isDropdownSplit
+                ? currentInputWidth
+                : (available - currentLabelWidthForInputRow - currentHelpWidthForInputRow)
+        );
 
         if (!isDropdownSplit) {
             if (shrinking && targetInputWidth < minInputWidth) {
-                const remaining = Math.max(minLabelWidth + minHelpWidth, available - minInputWidth);
-                targetLabelWidth = Math.min(Math.max(minLabelWidth, targetLabelWidth), remaining - minHelpWidth);
-                targetHelpWidth = Math.min(Math.max(minHelpWidth, targetHelpWidth), remaining - targetLabelWidth);
-                targetInputWidth = Math.max(minInputWidth, available - targetLabelWidth - targetHelpWidth);
+                const minLabelWidthForInputRow = labelInInputRow ? minLabelWidth : 0;
+                const minHelpWidthForInputRow = helpInInputRow ? minHelpWidth : 0;
+                const remaining = Math.max(minLabelWidthForInputRow + minHelpWidthForInputRow, available - minInputWidth);
+
+                if (labelInInputRow) {
+                    targetLabelWidth = Math.min(
+                        Math.max(minLabelWidth, targetLabelWidth),
+                        remaining - minHelpWidthForInputRow
+                    );
+                } else {
+                    targetLabelWidth = Math.max(minLabelWidth, targetLabelWidth);
+                }
+
+                if (helpInInputRow) {
+                    const maxHelpWidth = remaining - (labelInInputRow ? targetLabelWidth : 0);
+                    targetHelpWidth = Math.min(
+                        Math.max(minHelpWidth, targetHelpWidth),
+                        maxHelpWidth
+                    );
+                } else {
+                    targetHelpWidth = Math.max(minHelpWidth, targetHelpWidth);
+                }
+
+                const targetLabelWidthForInputRow = labelInInputRow ? targetLabelWidth : 0;
+                const targetHelpWidthForInputRow = helpInInputRow ? targetHelpWidth : 0;
+                targetInputWidth = Math.max(minInputWidth, available - targetLabelWidthForInputRow - targetHelpWidthForInputRow);
             } else if (targetInputWidth < minInputWidth) {
                 targetInputWidth = minInputWidth;
             }
@@ -1776,7 +2214,12 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             constraintsApplied.push(`inputWidth: ${targetInputWidth.toFixed(1)}px -> ${newInputWidth}px (MAX)`);
         }
 
-        const minTotal = newLabelWidth + newHelpWidth + newInputWidth + totalExtras;
+        const newLabelWidthForInputRow = labelInInputRow ? newLabelWidth : 0;
+        const newHelpWidthForInputRow = helpInInputRow ? newHelpWidth : 0;
+        const inputRowMinTotal = newLabelWidthForInputRow + newHelpWidthForInputRow + newInputWidth + totalExtras;
+        const labelRowMinTotal = labelInInputRow ? 0 : (newLabelWidth + totalExtras);
+        const helpRowMinTotal = helpInInputRow ? 0 : (newHelpWidth + totalExtras);
+        const minTotal = Math.max(inputRowMinTotal, labelRowMinTotal, helpRowMinTotal);
         if (minTotal > adjustedWidth) {
             constraintsApplied.push(`componentWidth: ${adjustedWidth.toFixed(1)}px -> ${minTotal.toFixed(1)}px (expanded to fit min objects)`);
             adjustedWidth = minTotal;
@@ -1826,7 +2269,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             };
             const currentX = component.position?.x ?? 0;
             const currentY = component.position?.y ?? 0;
-            const proposedPos = { x: currentX + (isWestHandle ? leftShift : 0), y: currentY };
+        const proposedPos = previewData?.constrainedPosition ?? { x: currentX + (isWestHandle ? leftShift : 0), y: currentY };
             const ignore = new Set<string>([component.id]);
             const others = buildCanvasRectsForComponents(allComponents, scale, ignore).map(o => ({ id: o.id, rect: o.rect, shape: o.shape }));
 
@@ -1866,6 +2309,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 },
                 mode: caps.resizeConstraints.mode,
                 allowMoveOutOfExistingOverlap: true,
+                overlapEpsilonPx: 1,
             });
 
             // Log collision detection result
@@ -2304,14 +2748,17 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
 
     // Vertical resize commit (N/S) with height-first then spacing behavior
     const handleVerticalResizeEnd = useCallback((handle: 'n' | 's', deltaY: number) => {
-        if (component.type === 'submit-button') {
+        if (['submit-button', 'paragraph', 'header', 'textarea'].includes(component.type)) {
             const canvasScaleFactor = scale || 1.0;
             const scaleFactor = componentScale / 100;
             const effectiveScaleFactor = canvasScaleFactor * scaleFactor;
             const baseHeightDelta = effectiveScaleFactor !== 0 ? deltaY / effectiveScaleFactor : deltaY;
 
+            const objectMetrics = captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics;
             const measuredButtonHeightScreen =
-                captureComponentSnapshot(component, smartBorderContainerRef)?.objectMetrics?.button?.rect?.height ??
+                objectMetrics?.button?.rect?.height ??
+                objectMetrics?.content?.rect?.height ??
+                objectMetrics?.line?.rect?.height ??
                 smartBorderContainerRef.current?.getBoundingClientRect()?.height ??
                 fieldStyles.computed.inputHeight;
             const measuredButtonHeight =
@@ -2348,10 +2795,29 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // Track which constraints were applied
         const constraintsApplied: string[] = [];
 
-        // Prefer the last preview state to avoid losing the peak value when user drags back before releasing
+        // Prefer the live preview state since it tracks the pointer and is mathematically clamped.
+        // Fall back to settled/locked states if the preview was forcefully frozen.
         const previewState = lastVerticalPreviewRef.current;
+        const settledPreviewState =
+            lastAcceptedResizePreviewRef.current &&
+            (lastAcceptedResizePreviewRef.current.inputHeight !== undefined ||
+             lastAcceptedResizePreviewRef.current.labelGap !== undefined ||
+             lastAcceptedResizePreviewRef.current.inputHelpGap !== undefined)
+                ? lastAcceptedResizePreviewRef.current
+                : null;
+        const lockedPreviewState =
+            resizePreviewBoundaryLockRef.current?.handle === handle
+                ? resizePreviewBoundaryLockRef.current.preview
+                : null;
+        
+        // Use lock if active (we hit a hard boundary and solver rejected it).
+        // Otherwise use live preview state (which is mathematically safe).
+        // Only use settled preview if we somehow have no live preview.
+        const effectivePreviewState = lockedPreviewState ?? previewState ?? settledPreviewState;
+        const commitSource = lockedPreviewState ? 'boundary-lock' : previewState ? 'preview-state' : settledPreviewState ? 'settled-preview' : 'raw-delta';
+        const hasPreviewState = !!previewState;
         const requestedInputHeight = currentInputHeight + deltaY;
-        const finalInputHeight = previewState?.inputHeight ?? Math.max(minInputHeight, Math.min(maxInputHeight, requestedInputHeight));
+        const finalInputHeight = effectivePreviewState?.inputHeight ?? Math.max(minInputHeight, Math.min(maxInputHeight, requestedInputHeight));
         
         // Track height constraints
         if (requestedInputHeight < minInputHeight) {
@@ -2370,16 +2836,18 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             styleOverrides: newStyleOverrides,
         };
 
-        let appliedLabelGap: number | undefined = previewState?.labelGap;
-        let appliedInputHelpGap: number | undefined = previewState?.inputHelpGap;
+        let appliedLabelGap: number | undefined = effectivePreviewState?.labelGap;
+        let appliedInputHelpGap: number | undefined = effectivePreviewState?.inputHelpGap;
         const heightDeltaUsed = finalInputHeight - currentInputHeight;
-        const previewTopShift = previewState?.topShift;
+        const previewTopShift = effectivePreviewState?.topShift;
         const currentX = component.position?.x ?? 0;
         const currentY = component.position?.y ?? 0;
         let appliedShift = 0;
 
-        // If no preview spacing captured, compute from remaining delta
-        if (appliedLabelGap === undefined && appliedInputHelpGap === undefined) {
+        // Only derive phase-2 spacing from raw pointer delta when we have NO preview state.
+        // If preview froze early due to collision/boundary rules, the rendered preview is the source of truth.
+        // In that case, an undefined gap means phase 2 was never reached and must stay unchanged on drop.
+        if (!hasPreviewState && appliedLabelGap === undefined && appliedInputHelpGap === undefined) {
             const remainingDelta = deltaY - (finalInputHeight - currentInputHeight);
             if (Math.abs(remainingDelta) > 0.1) {
                 if (handle === 'n') {
@@ -2489,6 +2957,151 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             appliedShift = previewTopShift ?? fallbackShift;
         }
 
+        const proposedPosition = effectivePreviewState?.constrainedPosition ?? (handle === 'n'
+            ? { x: currentX, y: currentY + appliedShift }
+            : { x: currentX, y: currentY });
+        let finalPosition = proposedPosition;
+
+        // If we already have constrained preview geometry, commit that exact geometry.
+        // This keeps N/S drop behavior aligned with the preview the user actually saw
+        // and prevents the generic resize solver from introducing lateral escape on release.
+        const hasConstrainedPreviewGeometry = !!(effectivePreviewState?.constrainedPosition && effectivePreviewState?.constrainedSize);
+
+        // Keep N/S commit behavior aligned with E/W:
+        // run collision + canvas-boundary constraints before persisting when we don't already
+        // have a settled accepted preview geometry to trust.
+        const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
+        if (hasConstrainedPreviewGeometry) {
+            finalPosition = effectivePreviewState!.constrainedPosition!;
+        } else if (caps.resizeConstraints.enabled && (caps.resizeConstraints.canvasBoundary || caps.resizeConstraints.collisionAvoidance)) {
+            const state = useBuilderStore.getState();
+            const def = state.formDefinition;
+            const pages = def?.desktopPages && def.desktopPages.length > 0 ? def.desktopPages : (def?.pages ?? []);
+            const activePage = pages.find(p => p.id === state.activePageId);
+            const allComponents = activePage?.components ?? [];
+            const canvasWidth = def?.canvasSettings?.width || 1920;
+            const canvasHeight = def?.canvasSettings?.height || 980;
+            const el = document.querySelector(`[data-component-id="${component.id}"]`) as HTMLElement | null;
+            const proposedDims = effectivePreviewState?.constrainedSize ?? getComponentDimensions(component, el, scale * 100);
+            const ignore = new Set<string>([component.id]);
+            const others = buildCanvasRectsForComponents(allComponents, scale, ignore).map(o => ({ id: o.id, rect: o.rect, shape: o.shape }));
+
+            devLogger.info('resize.collision.check', {
+                componentId: component.id,
+                handle,
+                currentPosition: { x: currentX, y: currentY },
+                proposedPosition,
+                proposedSize: proposedDims,
+                verticalChange: {
+                    inputHeight: finalInputHeight - currentInputHeight,
+                    labelGap: appliedLabelGap !== undefined ? appliedLabelGap - currentLabelGap : 0,
+                    inputHelpGap: appliedInputHelpGap !== undefined ? appliedInputHelpGap - currentInputHelpGap : 0,
+                },
+                otherComponentsCount: others.length,
+            });
+
+            const resolved = resolveResizeConstraints({
+                componentId: component.id,
+                currentPosition: { x: currentX, y: currentY },
+                proposedPosition,
+                proposedSize: proposedDims,
+                canvas: { width: canvasWidth, height: canvasHeight },
+                others,
+                config: {
+                    boundaryPaddingPx: caps.resizeConstraints.boundaryPaddingPx,
+                    collisionPaddingPx: caps.resizeConstraints.collisionPaddingPx,
+                },
+                mode: caps.resizeConstraints.mode,
+                allowMoveOutOfExistingOverlap: true,
+                overlapEpsilonPx: 1,
+            });
+
+            devLogger.info('resize.collision.result', {
+                componentId: component.id,
+                handle,
+                accepted: resolved.accepted,
+                anchor: describeResizeAnchor({
+                    handle,
+                    currentPosition: { x: currentX, y: currentY },
+                    currentSize: { width: proposedDims.width, height: proposedDims.height },
+                    nextPosition: resolved.position,
+                    nextSize: proposedDims,
+                }),
+                positionAdjustment: {
+                    proposed: proposedPosition,
+                    resolved: resolved.position,
+                    adjusted: resolved.position.x !== proposedPosition.x || resolved.position.y !== proposedPosition.y,
+                    delta: {
+                        x: resolved.position.x - proposedPosition.x,
+                        y: resolved.position.y - proposedPosition.y,
+                    },
+                },
+            });
+
+            if (!resolved.accepted) {
+                toast.warning('Resize not possible: it would overlap another component or exceed the canvas.', 'Resize blocked');
+                setResizePreview(null);
+                lastVerticalPreviewRef.current = null;
+                return;
+            }
+
+            if (resolved.position.x !== proposedPosition.x || resolved.position.y !== proposedPosition.y) {
+                if (handle === 'n' || handle === 's') {
+                    devLogger.warn('resize.collision.position.blocked', {
+                        componentId: component.id,
+                        reason: 'Vertical resize reached its limit; blocking lateral/anchor-changing escape',
+                        handle,
+                        proposed: proposedPosition,
+                        resolved: resolved.position,
+                        fallback: effectivePreviewState?.constrainedPosition ?? proposedPosition,
+                    });
+                    finalPosition = effectivePreviewState?.constrainedPosition ?? proposedPosition;
+                    setResizePreview(null);
+                    lastVerticalPreviewRef.current = null;
+                    const shouldUpdateBlockedPosition = finalPosition.x !== currentX || finalPosition.y !== currentY;
+                    if (shouldUpdateBlockedPosition) {
+                        useBuilderStore.getState().updateComponent(component.id, { props: nextProps, position: finalPosition });
+                    } else {
+                        useBuilderStore.getState().updateComponentProps(component.id, nextProps);
+                    }
+                    setTimeout(() => {
+                        const updatedComponent = {
+                            ...component,
+                            props: nextProps,
+                            position: shouldUpdateBlockedPosition ? finalPosition : component.position,
+                        };
+                        const snapshotAfter = captureComponentSnapshot(updatedComponent, smartBorderContainerRef);
+                        devLogger.info('fieldshell.resize.commit', {
+                            componentBefore: snapshotBefore,
+                            componentAfter: snapshotAfter,
+                            handle,
+                            commitSource,
+                            finalProps: {
+                                height: finalInputHeight,
+                                labelGap: appliedLabelGap,
+                                inputHelpGap: appliedInputHelpGap
+                            },
+                            duration: 0,
+                            note: 'vertical-resize-hard-stop'
+                        });
+                    }, 0);
+                    return;
+                }
+                devLogger.warn('resize.collision.position.adjusted', {
+                    componentId: component.id,
+                    reason: 'Collision detection adjusted position',
+                    handle,
+                    before: proposedPosition,
+                    after: resolved.position,
+                    delta: {
+                        x: resolved.position.x - proposedPosition.x,
+                        y: resolved.position.y - proposedPosition.y,
+                    },
+                });
+                finalPosition = resolved.position;
+            }
+        }
+
         // Log before drop snapshot
         const snapshotBefore = captureComponentSnapshot(component, smartBorderContainerRef);
         devLogger.info('fieldshell.resize.beforeDrop', {
@@ -2501,14 +3114,10 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             }
         });
         
-        if (handle === 'n') {
-            // North: update props + position (anchor south)
-            const nextPosition = appliedShift !== 0
-                ? { x: currentX, y: currentY + appliedShift }
-                : { x: currentX, y: currentY };
-            useBuilderStore.getState().updateComponent(component.id, { props: nextProps, position: nextPosition });
+        const shouldUpdatePosition = finalPosition.x !== currentX || finalPosition.y !== currentY;
+        if (shouldUpdatePosition) {
+            useBuilderStore.getState().updateComponent(component.id, { props: nextProps, position: finalPosition });
         } else {
-            // South: only props
             useBuilderStore.getState().updateComponentProps(component.id, nextProps);
         }
         
@@ -2517,15 +3126,14 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             const updatedComponent = {
                 ...component,
                 props: nextProps,
-                position: handle === 'n' && appliedShift !== 0 
-                    ? { x: currentX, y: currentY + appliedShift }
-                    : component.position
+                position: shouldUpdatePosition ? finalPosition : component.position
             };
             const snapshotAfter = captureComponentSnapshot(updatedComponent, smartBorderContainerRef);
             devLogger.info('fieldshell.resize.commit', {
                 componentBefore: snapshotBefore,
                 componentAfter: snapshotAfter,
                 handle,
+                commitSource,
                 finalProps: {
                     height: finalInputHeight,
                     labelGap: appliedLabelGap,
@@ -2533,6 +3141,50 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                 },
                 duration: 0 // TODO: Calculate actual duration
             });
+
+            const latestState = useBuilderStore.getState();
+            const latestDef = latestState.formDefinition;
+            const latestPages = latestDef?.desktopPages && latestDef.desktopPages.length > 0 ? latestDef.desktopPages : (latestDef?.pages ?? []);
+            const latestActivePage = latestPages.find(p => p.id === latestState.activePageId);
+            const latestComponents = latestActivePage?.components ?? [];
+            const latestComponent = latestComponents.find(c => c.id === component.id) ?? updatedComponent;
+            const latestElement = document.querySelector(`[data-component-id="${component.id}"]`) as HTMLElement | null;
+            if (!latestElement) return;
+
+            const actualDims = getComponentDimensions(latestComponent, latestElement, scale * 100);
+            const ignore = new Set<string>([component.id]);
+            const others = buildCanvasRectsForComponents(latestComponents, scale, ignore).map(o => ({ id: o.id, rect: o.rect, shape: o.shape }));
+            const latestPosition = latestComponent.position ?? finalPosition;
+            const postCommitResolved = resolveResizeConstraints({
+                componentId: component.id,
+                currentPosition: { x: latestPosition.x ?? 0, y: latestPosition.y ?? 0 },
+                proposedPosition: { x: latestPosition.x ?? 0, y: latestPosition.y ?? 0 },
+                proposedSize: actualDims,
+                canvas: {
+                    width: latestDef?.canvasSettings?.width || 1920,
+                    height: latestDef?.canvasSettings?.height || 980,
+                },
+                others,
+                config: {
+                    boundaryPaddingPx: caps.resizeConstraints.boundaryPaddingPx,
+                    collisionPaddingPx: caps.resizeConstraints.collisionPaddingPx,
+                },
+                mode: caps.resizeConstraints.mode,
+                allowMoveOutOfExistingOverlap: true,
+                overlapEpsilonPx: 1,
+            });
+
+            if (postCommitResolved.accepted && (postCommitResolved.position.x !== (latestPosition.x ?? 0) || postCommitResolved.position.y !== (latestPosition.y ?? 0))) {
+                devLogger.warn('resize.commit.postcheck.adjusted', {
+                    componentId: component.id,
+                    handle,
+                    reason: 'Actual rendered component still overlapped after commit; applying post-commit correction',
+                    before: latestPosition,
+                    after: postCommitResolved.position,
+                    actualSize: actualDims,
+                });
+                useBuilderStore.getState().updateComponent(component.id, { position: postCommitResolved.position });
+            }
         }, 0);
         
         setResizePreview(null);
@@ -2556,6 +3208,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             labelGap: lastVerticalPreviewRef.current.labelGap,
             inputHelpGap: lastVerticalPreviewRef.current.inputHelpGap,
             topShift: lastVerticalPreviewRef.current.topShift,
+            constrainedPosition: lastVerticalPreviewRef.current.constrainedPosition,
+            constrainedSize: lastVerticalPreviewRef.current.constrainedSize,
         } : null;
 
         const widthToCommit = resizePreview?.width;
@@ -3076,18 +3730,30 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         if (resizePreview && smartBorderContainerRef.current) {
             const bounds = smartBorderContainerRef.current.getBoundingClientRect();
             const previewData = resizePreview as (typeof resizePreview) & { horizontalHandle?: string; leftShift?: number };
-            const handle = previewData?.horizontalHandle || (resizePreview?.inputHeight ? 'n/s' : 'unknown');
+            const handle = previewData?.horizontalHandle || activeResizeHandleRef.current || (resizePreview?.inputHeight ? 'n/s' : 'unknown');
+            const currentSize = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+            const nextPosition = resizePreview.constrainedPosition ?? { x: displayLeft, y: displayTop };
+            const nextSize = resizePreview.constrainedSize ?? currentSize;
             
             devLogger.info('resize.preview.applied', {
                 componentId: component.id,
                 handle,
                 previewState: resizePreview,
+                anchor: handle === 'n' || handle === 's' || handle === 'e' || handle === 'w'
+                    ? describeResizeAnchor({
+                        handle,
+                        currentPosition: { x: component.position?.x ?? 0, y: component.position?.y ?? 0 },
+                        currentSize,
+                        nextPosition,
+                        nextSize,
+                    })
+                    : null,
                 layoutContext: {
                     objectLayout: component.props.objectLayout,
                     layoutGroups: component.props.layoutGroups,
                     rowAlignment: component.props.rowAlignment,
                     objectSpacing: component.props.objectSpacing,
-                    smartBorderLayout: hasExplicitWidth ? 'fill' : 'shrink',
+                    smartBorderLayout: previewData?.horizontalHandle ? 'fill' : (hasExplicitWidth ? 'fill' : 'shrink'),
                 },
                 appliedStyles: {
                     width: displayWidth,
@@ -3100,6 +3766,166 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
             });
         }
     }, [resizePreview, displayWidth, displayLeft, displayTop, component.id, scaledTransform, isResizingState]);
+
+    // Validate resize preview after the DOM has actually settled, using the rendered SmartBorder geometry.
+    useEffect(() => {
+        if (!resizePreview || !isResizingState || !smartBorderContainerRef.current) return;
+
+        let cancelled = false;
+        const rafId = window.requestAnimationFrame(() => {
+            if (cancelled || !smartBorderContainerRef.current) return;
+
+            const caps = getComponentSurfaceCapabilities(component.type as ComponentType, 'canvas');
+            if (!caps.resizeConstraints.enabled || !caps.resizeConstraints.collisionAvoidance) {
+                lastAcceptedResizePreviewRef.current = resizePreview;
+                return;
+            }
+
+            const state = useBuilderStore.getState();
+            const def = state.formDefinition;
+            const pages = def?.desktopPages && def.desktopPages.length > 0 ? def.desktopPages : (def?.pages ?? []);
+            const activePage = pages.find(p => p.id === state.activePageId);
+            const allComponents = activePage?.components ?? [];
+            const canvasWidth = def?.canvasSettings?.width || 1920;
+            const canvasHeight = def?.canvasSettings?.height || 980;
+            const ignore = new Set<string>([component.id]);
+            const others = buildCanvasRectsForComponents(allComponents, scale, ignore).map(o => ({ id: o.id, rect: o.rect, shape: o.shape }));
+            const actualPosition = resizePreview.constrainedPosition ?? { x: displayLeft, y: displayTop };
+            const actualSize = getComponentDimensions(component, smartBorderContainerRef.current, scale * 100);
+            const predictedPosition = resizePreview.constrainedPosition ?? { x: displayLeft, y: displayTop };
+            const predictedSize = resizePreview.constrainedSize ?? actualSize;
+
+            const compareNow = Date.now();
+            if (compareNow - lastResizePreviewCompareLogRef.current > 250) {
+                lastResizePreviewCompareLogRef.current = compareNow;
+                devLogger.info('resize.preview.predicted_vs_settled', {
+                    componentId: component.id,
+                    componentType: component.type,
+                    handle: (resizePreview as { horizontalHandle?: string }).horizontalHandle ?? activeResizeHandleRef.current ?? (resizePreview.inputHeight !== undefined ? 'n/s' : 'unknown'),
+                    predictedPosition,
+                    predictedSize,
+                    settledPosition: actualPosition,
+                    settledSize: actualSize,
+                    deltas: {
+                        x: actualPosition.x - predictedPosition.x,
+                        y: actualPosition.y - predictedPosition.y,
+                        width: actualSize.width - predictedSize.width,
+                        height: actualSize.height - predictedSize.height,
+                    },
+                    exceedsTolerance: Math.abs(actualSize.width - predictedSize.width) > 1 || Math.abs(actualSize.height - predictedSize.height) > 1,
+                });
+            }
+
+            const resolved = resolveResizeConstraints({
+                componentId: component.id,
+                currentPosition: actualPosition,
+                proposedPosition: actualPosition,
+                proposedSize: actualSize,
+                canvas: { width: canvasWidth, height: canvasHeight },
+                others,
+                config: {
+                    boundaryPaddingPx: caps.resizeConstraints.boundaryPaddingPx,
+                    collisionPaddingPx: caps.resizeConstraints.collisionPaddingPx,
+                },
+                mode: caps.resizeConstraints.mode,
+                allowMoveOutOfExistingOverlap: true,
+                overlapEpsilonPx: 1,
+            });
+
+            const adjusted =
+                resolved.position.x !== actualPosition.x ||
+                resolved.position.y !== actualPosition.y;
+
+            if (!resolved.accepted || adjusted) {
+                const now = Date.now();
+                if (now - lastResizePreviewConstraintLogRef.current > 250) {
+                    lastResizePreviewConstraintLogRef.current = now;
+                    devLogger.info('resize.preview.settled.constrained', {
+                        componentId: component.id,
+                        componentType: component.type,
+                        handle: (resizePreview as { horizontalHandle?: string }).horizontalHandle ?? (resizePreview.inputHeight !== undefined ? 'n/s' : 'unknown'),
+                        action: 'revert-to-last-valid-settled-preview',
+                        accepted: resolved.accepted,
+                        reason: resolved.reason ?? (adjusted ? 'collision' : 'unknown'),
+                        actualPosition,
+                        actualSize,
+                        resolvedPosition: resolved.position,
+                        collidingComponentIds: resolved.collidingComponentIds ?? [],
+                    });
+                }
+
+                if (lastAcceptedResizePreviewRef.current && lastAcceptedResizePreviewRef.current !== resizePreview) {
+                    const derivedHandle = ((resizePreview as { horizontalHandle?: string }).horizontalHandle ??
+                        (resizePreview.inputHeight !== undefined ? 's' : 'unknown')) as HandlePosition;
+                    devLogger.info('resize.preview.boundary.lock.created', {
+                        componentId: component.id,
+                        componentType: component.type,
+                        handle: derivedHandle,
+                        reason: 'settled-preview-reverted-to-last-accepted-preview',
+                        lockedPosition: lastAcceptedResizePreviewRef.current.constrainedPosition,
+                        lockedSize: lastAcceptedResizePreviewRef.current.constrainedSize,
+                    });
+                    resizePreviewBoundaryLockRef.current = {
+                        handle: derivedHandle,
+                        preview: lastAcceptedResizePreviewRef.current,
+                    };
+                    setResizePreview(lastAcceptedResizePreviewRef.current);
+                    if (
+                        lastAcceptedResizePreviewRef.current.inputHeight !== undefined ||
+                        lastAcceptedResizePreviewRef.current.labelGap !== undefined ||
+                        lastAcceptedResizePreviewRef.current.inputHelpGap !== undefined
+                    ) {
+                        lastVerticalPreviewRef.current = {
+                            inputHeight: lastAcceptedResizePreviewRef.current.inputHeight,
+                            labelGap: lastAcceptedResizePreviewRef.current.labelGap,
+                            inputHelpGap: lastAcceptedResizePreviewRef.current.inputHelpGap,
+                            topShift: lastAcceptedResizePreviewRef.current.topShift,
+                            constrainedPosition: lastAcceptedResizePreviewRef.current.constrainedPosition,
+                            constrainedSize: lastAcceptedResizePreviewRef.current.constrainedSize,
+                        };
+                    }
+                }
+                return;
+            }
+
+            const settledPreview: NonNullable<typeof resizePreview> = {
+                ...resizePreview,
+                constrainedPosition: actualPosition,
+                constrainedSize: actualSize,
+            };
+            lastAcceptedResizePreviewRef.current = settledPreview;
+            if (resizePreviewBoundaryLockRef.current) {
+                devLogger.info('resize.preview.boundary.lock.released', {
+                    componentId: component.id,
+                    componentType: component.type,
+                    handle: resizePreviewBoundaryLockRef.current.handle,
+                    reason: 'settled-preview-validated-cleanly',
+                    lockedPosition: resizePreviewBoundaryLockRef.current.preview.constrainedPosition,
+                    lockedSize: resizePreviewBoundaryLockRef.current.preview.constrainedSize,
+                });
+            }
+            resizePreviewBoundaryLockRef.current = null;
+            if (
+                settledPreview.inputHeight !== undefined ||
+                settledPreview.labelGap !== undefined ||
+                settledPreview.inputHelpGap !== undefined
+            ) {
+                lastVerticalPreviewRef.current = {
+                    inputHeight: settledPreview.inputHeight,
+                    labelGap: settledPreview.labelGap,
+                    inputHelpGap: settledPreview.inputHelpGap,
+                    topShift: settledPreview.topShift,
+                    constrainedPosition: settledPreview.constrainedPosition,
+                    constrainedSize: settledPreview.constrainedSize,
+                };
+            }
+        });
+
+        return () => {
+            cancelled = true;
+            window.cancelAnimationFrame(rafId);
+        };
+    }, [resizePreview, isResizingState, component, component.id, component.type, displayLeft, displayTop, scale]);
 
     // Absolute Positioning Logic
     // During resize, disable dnd-kit transform to prevent position interference
@@ -3621,6 +4447,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     },
                     mode: caps.resizeConstraints.mode,
                     allowMoveOutOfExistingOverlap: true,
+                    overlapEpsilonPx: 1,
                 });
                 if (resolved.accepted && (resolved.position.x !== currentX || resolved.position.y !== currentY)) {
                     useBuilderStore.getState().updateComponent(component.id, { position: resolved.position });
@@ -3632,13 +4459,17 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     // Divider-specific resize handlers - must be at top level (hooks rules)
     const isDivider = component.type === 'divider';
     const dividerStylesForCallbacks = isDivider ? computeFieldStyles(globalStyles, component.props.styleOverrides, 100, spacingOverrides) : null;
-    const dividerCurrentBorderWidth = dividerStylesForCallbacks?.computed?.textBorderWidth ?? dividerStylesForCallbacks?.computed?.borderWidth ?? 1;
+    const dividerCurrentBorderWidth = dividerStylesForCallbacks?.computed?.dividerBorderWidth ?? dividerStylesForCallbacks?.computed?.borderWidth ?? 1;
     const dividerCurrentWidthPx = isDivider
-        ? (component.props.width?.endsWith('px') ? parseInt(component.props.width, 10) : (component.props.width?.endsWith('%') ? parseFloat(component.props.width) : 300))
+        ? (component.props.width?.endsWith('px') 
+            ? parseInt(component.props.width, 10) 
+            : (component.props.width?.endsWith('%') 
+                ? Math.round((parseFloat(component.props.width) / 100) * (useBuilderStore.getState().formDefinition?.canvasSettings?.width || 1920)) 
+                : 300))
         : 300;
     const dividerHandleResize = useCallback((deltaWidth: number, deltaHeight: number, handle: HandlePosition) => {
         if (handle === 'n' || handle === 's') {
-            const newBorderWidth = Math.max(1, Math.min(10, dividerCurrentBorderWidth + (handle === 's' ? deltaHeight : -deltaHeight)));
+            const newBorderWidth = Math.max(1, Math.min(20, dividerCurrentBorderWidth + (handle === 's' ? deltaHeight : -deltaHeight)));
             const topShift = handle === 'n' ? -deltaHeight : 0;
             setResizePreview({ inputHeight: newBorderWidth, topShift, width: undefined });
             lastVerticalPreviewRef.current = { inputHeight: newBorderWidth, topShift };
@@ -3661,30 +4492,30 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         if (horizontalHandle === 'w' && previewLeftShift !== undefined && previewLeftShift !== 0) {
             const newX = currentX + previewLeftShift;
             updateComponent(component.id, {
-                props: { width: `${newWidth}px` },
+                props: { ...component.props, width: `${newWidth}px` },
                 position: { x: newX, y: currentY }
             });
         } else {
             updateComponent(component.id, {
-                props: { width: `${newWidth}px` },
+                props: { ...component.props, width: `${newWidth}px` },
                 position: { x: currentX, y: currentY }
             });
         }
         setResizePreview(null);
-    }, [component.id, component.position, resizePreview, updateComponent]);
+    }, [component.id, component.position, component.props, resizePreview, updateComponent]);
     const dividerHandleBorderWidthChange = useCallback((handle: 'n' | 's', deltaY: number) => {
         const previewBorderWidth = lastVerticalPreviewRef.current?.inputHeight;
         const previewTopShift = lastVerticalPreviewRef.current?.topShift;
-        const finalBorderWidth = previewBorderWidth ?? Math.max(1, Math.min(10, dividerCurrentBorderWidth + (handle === 's' ? deltaY : -deltaY)));
+        const finalBorderWidth = previewBorderWidth ?? Math.max(1, Math.min(20, dividerCurrentBorderWidth + (handle === 's' ? deltaY : -deltaY)));
         const newStyleOverrides = {
             ...(component.props.styleOverrides || {}),
-            textBorderWidth: finalBorderWidth,
+            dividerBorderWidth: finalBorderWidth, // Store in dividerBorderWidth
         };
         const currentX = component.position?.x ?? 0;
         const currentY = component.position?.y ?? 0;
         if (handle === 'n' && previewTopShift !== undefined) {
             updateComponent(component.id, {
-                props: { styleOverrides: newStyleOverrides },
+                props: { ...component.props, styleOverrides: newStyleOverrides },
                 position: { x: currentX, y: currentY + previewTopShift }
             });
         } else {
@@ -3815,6 +4646,8 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     >
                         <ResizeHandles 
                             {...resizeHandleProps}
+                            hideHorizontalHandles={component.type === 'rating'}
+                            hideCornerHandles={component.type === 'rating' ? true : resizeHandleProps.hideCornerHandles}
                         />
                     </ResizeHandlesWrapper>
                 )}
@@ -3831,7 +4664,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         // Divider-specific style calculations for resize preview
         // Use scale=100; CSS transform handles visual scaling
         const styles = computeFieldStyles(globalStyles, component.props.styleOverrides, 100, spacingOverrides);
-        const currentBorderWidth = styles.computed.textBorderWidth ?? styles.computed.borderWidth ?? 1;
+        const currentBorderWidth = styles.computed.dividerBorderWidth ?? styles.computed.borderWidth ?? 1;
         const dividerWidth = (component.props.width ?? styles.computed.dividerWidth ?? '100%') as string;
         
         // Parse width (length)
@@ -3883,6 +4716,11 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                     componentId={component.id}
                     component={component}
                     previewWidth={isHorizontalResize ? resizePreview?.width : undefined}
+                    previewObjectWidthOverrides={
+                        isHorizontalResize && resizePreview?.width !== undefined
+                            ? { inputWidthOverride: resizePreview.width }
+                            : undefined
+                    }
                     previewStyleOverrides={isVerticalResize ? previewStyleOverrides : undefined}
                     previewSpacingOverrides={isVerticalResize ? previewSpacingOverrides : undefined}
                     previewScale={undefined}

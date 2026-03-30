@@ -15,6 +15,9 @@ import { TermsPropertiesSection } from './properties/TermsPropertiesSection';
 import { TextareaPropertiesSection } from './properties/TextareaPropertiesSection';
 import { OptionsSection } from './properties/OptionsSection';
 import { DatePropertiesSection } from './properties/DatePropertiesSection';
+import { UrlPropertiesSection } from './properties/UrlPropertiesSection';
+import { RatingPropertiesSection } from './properties/RatingPropertiesSection';
+import { DividerPropertiesSection } from './properties/DividerPropertiesSection';
 import GridLayoutSection from './properties/GridLayoutSection';
 import { ObjectLayoutSection } from './properties/ObjectLayoutSection';
 import { LogicPanel } from './logic/LogicPanel';
@@ -27,6 +30,7 @@ import { AIAgentPanel } from './ai/AIAgentPanel';
 const TYPE_COMPATIBILITY: Record<string, string[]> = {
     'text': ['text', 'email', 'phone', 'first-name', 'textarea'],
     'email': ['email', 'text'],
+    'url': ['url', 'text'],
     'phone': ['phone', 'text'],
     'first-name': ['first-name', 'text'],
     'textarea': ['textarea', 'text'],
@@ -623,6 +627,33 @@ export const PropertiesPanel: React.FC = () => {
                     />
                 )}
 
+                {/* URL Properties Section - for url component */}
+                {selectedComponent.type === 'url' && (
+                    <UrlPropertiesSection
+                        props={selectedComponent.props}
+                        onPropsChange={handlePropsChange}
+                    />
+                )}
+
+                {/* Rating Properties Section - for rating component */}
+                {selectedComponent.type === 'rating' && (
+                    <RatingPropertiesSection
+                        props={selectedComponent.props}
+                        onPropsChange={handlePropsChange}
+                    />
+                )}
+
+                {/* Divider Properties Section */}
+                {selectedComponent.type === 'divider' && (
+                    <DividerPropertiesSection
+                        styleOverrides={selectedComponent.props.styleOverrides}
+                        onStyleOverridesChange={handleStyleOverridesChange}
+                        props={selectedComponent.props}
+                        onPropsChange={handlePropsChange}
+                        globalStyles={globalStyles}
+                    />
+                )}
+
                 {/* ═══════════════════════════════════════════════════════════════ */}
                 {/* IDENTITY & BEHAVIOR + DATA COLLECTION (from GeneralSection) */}
                 {/* ═══════════════════════════════════════════════════════════════ */}
@@ -664,7 +695,7 @@ export const PropertiesPanel: React.FC = () => {
                 {/* ═══════════════════════════════════════════════════════════════ */}
                 {/* VALIDATION RULES */}
                 {/* ═══════════════════════════════════════════════════════════════ */}
-                {!['submit-button', 'divider', 'header', 'paragraph'].includes(selectedComponent.type) && (
+                {!['submit-button', 'divider', 'header', 'paragraph', 'rating'].includes(selectedComponent.type) && (
                     <ValidationSection
                         validation={selectedComponent.props.validation}
                         onValidationChange={handleValidationChange}

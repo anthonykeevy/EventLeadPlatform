@@ -142,6 +142,7 @@ const ValidationTester: React.FC<{
     const getInputType = () => {
         switch (componentType) {
             case 'email': return 'email';
+            case 'url': return 'url';
             case 'number': return 'number';
             case 'date': return 'date';
             default: return 'text';
@@ -295,6 +296,7 @@ export const ValidationSection: React.FC<ValidationSectionProps> = ({
     const isTextType = ['text', 'textarea', 'first-name'].includes(componentType);
     const isNumberType = componentType === 'number';
     const isEmailType = componentType === 'email';
+    const isUrlType = componentType === 'url';
     const isPhoneType = componentType === 'phone';
     const isDateType = componentType === 'date';
     const isSelectionType = ['select', 'checkbox', 'radio'].includes(componentType);
@@ -863,6 +865,76 @@ export const ValidationSection: React.FC<ValidationSectionProps> = ({
                                     onChange={(value) => onValidationChange({ customError: value || undefined })}
                                     placeholder="Please enter a valid email..."
                                     helpText="Shown when any validation fails"
+                                />
+                            </CollapsibleTier>
+                        </>
+                    )}
+
+                    {/* ═══════════════════════════════════════════════════════════════ */}
+                    {/* URL VALIDATION RULES */}
+                    {/* ═══════════════════════════════════════════════════════════════ */}
+                    {isUrlType && (
+                        <>
+                            <CollapsibleTier
+                                title="URL Format"
+                                icon={AtSign}
+                                iconColor="text-blue-500"
+                            >
+                                <PropertyToggle
+                                    label={<RuleLabel label="Valid URL Format" ruleKey="url" />}
+                                    checked={validation.url ?? true}
+                                    onChange={(checked) => onValidationChange({ url: checked })}
+                                    helpText="Requires a valid web address structure"
+                                />
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <PropertyNumberInput
+                                        label={<RuleLabel label="Min Length" ruleKey="minLength" />}
+                                        value={validation.minLength ?? 0}
+                                        onChange={(value) => onValidationChange({ minLength: value || undefined })}
+                                        min={0}
+                                        max={4096}
+                                        helpText="Minimum characters"
+                                    />
+                                    <PropertyNumberInput
+                                        label={<RuleLabel label="Max Length" ruleKey="maxLength" />}
+                                        value={validation.maxLength ?? 2048}
+                                        onChange={(value) => onValidationChange({ maxLength: value || undefined })}
+                                        min={0}
+                                        max={4096}
+                                        helpText="Maximum characters"
+                                    />
+                                </div>
+                            </CollapsibleTier>
+
+                            <CollapsibleTier
+                                title="Advanced"
+                                icon={Settings2}
+                                iconColor="text-purple-500"
+                                bgColor="bg-gray-50 dark:bg-gray-800/50"
+                                defaultOpen={false}
+                            >
+                                <PropertyTextInput
+                                    label={<RuleLabel label="Custom Pattern (Regex)" ruleKey="pattern" />}
+                                    value={validation.pattern || ''}
+                                    onChange={(value) => onValidationChange({ pattern: value || undefined })}
+                                    placeholder="^https?://.*$"
+                                    helpText="Optional extra URL pattern rule"
+                                />
+
+                                <PropertyTextInput
+                                    label="Custom Error Message"
+                                    value={validation.customError || ''}
+                                    onChange={(value) => onValidationChange({ customError: value || undefined })}
+                                    placeholder="Please enter a valid URL..."
+                                    helpText="Shown when any URL validation fails"
+                                />
+
+                                <PropertyToggle
+                                    label={<RuleLabel label="DNS Must Resolve (Online Submit)" ruleKey="urlDnsCheck" />}
+                                    checked={validation.urlDnsCheck ?? false}
+                                    onChange={(checked) => onValidationChange({ urlDnsCheck: checked || undefined })}
+                                    helpText="Skips automatically when user is offline"
                                 />
                             </CollapsibleTier>
                         </>

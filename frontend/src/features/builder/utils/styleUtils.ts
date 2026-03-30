@@ -76,6 +76,10 @@ export interface ComputedFieldStyles {
         dividerBorderWidth: number;
         dividerWidth: string;
 
+        // Rating styles
+        ratingColor?: string;
+        ratingBackgroundColor?: string;
+
         // Colors
         primaryColor: string;
         textColor: string;
@@ -188,6 +192,10 @@ export interface EffectiveStyles {
     dividerWidth: string;
     dividerBorderColor?: string;
     dividerBorderWidth?: number;
+
+    // Rating
+    ratingColor?: string;
+    ratingBackgroundColor?: string;
 }
 
 /**
@@ -234,6 +242,10 @@ export function getEffectiveStyles(
         dividerBorderColor: overrides?.dividerBorderColor ?? base.dividerBorderColor,
         dividerBorderWidth: overrides?.dividerBorderWidth ?? base.dividerBorderWidth,
         dividerWidth: base.dividerWidth,
+
+        // Rating styles
+        ratingColor: overrides?.ratingColor ?? base.ratingColor,
+        ratingBackgroundColor: overrides?.ratingBackgroundColor ?? base.ratingBackgroundColor,
 
         // Colors
         primaryColor: base.primaryColor,
@@ -509,6 +521,10 @@ export function computeFieldStyles(
             dividerBorderColor: effective.dividerBorderColor ?? '',
             dividerBorderWidth: Math.round((effective.dividerBorderWidth ?? 1) * scaleFactor),
             dividerWidth: effective.dividerWidth,
+
+            // Rating styles
+            ratingColor: effective.ratingColor,
+            ratingBackgroundColor: effective.ratingBackgroundColor,
 
             // Colors
             primaryColor: effective.primaryColor,

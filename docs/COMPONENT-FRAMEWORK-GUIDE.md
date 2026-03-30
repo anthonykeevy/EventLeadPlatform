@@ -37,6 +37,33 @@
 
 ---
 
+## Component Inventory
+
+| Type | Category | Purpose | Key Props | Default Behaviour |
+|------|----------|---------|-----------|-------------------|
+| `text` | input | Generic single-line text field | `label`, `placeholder`, `validation.maxLength` | Vertical label/input/validation stack with text-length support |
+| `first-name` | input | First-name optimized text field | `label`, `placeholder`, `validation.maxLength` | Preconfigured max-length guidance for first-name capture |
+| `number` | input | Numeric input field | `label`, `placeholder`, `validation.minValue/maxValue` | Numeric keyboard/type with shared validation object |
+| `email` | input | Email capture field | `label`, `placeholder`, `validation.email` | Email input semantics + email validation rules |
+| `phone` | input | Phone number capture | `label`, `placeholder`, `validation.phone` | Tel-style input with phone validation support |
+| `url` | input | Website/URL capture | `label`, `placeholder`, `urlPrefix`, `urlPattern`, `validation.url` | URL input with optional prefix helper and URL validation |
+| `textarea` | input | Multi-line long-form text | `label`, `placeholder`, `resizeMode`, `showCharacterCount` | Multi-line input with optional char counter in runtime |
+| `dropdown` | input | Single-option selection list | `label`, `options`, `allowEmpty`, `searchable` | Styled select with optional grouped options/extra text |
+| `date` | input | Date/time capture | `dateType`, `pickerStyle`, `dateFormat`, `dateParts` | Supports `dateType`: `"date"` \| `"time"` \| `"datetime"` |
+| `checkbox` | input | Multi-select options | `options`, `minSelections`, `maxSelections` | Checkbox list with optional per-option extra text |
+| `radio` | input | Single-select options | `options`, `optionsDirection` | Radio list with one selected value |
+| `address` | input | Address capture shell | `enableAutocomplete`, `decomposeAddress`, `validation.maxLength` | Text-style address field, autocomplete-ready |
+| `rating` | input | UI rating selector | `ratingMax`, `ratingStyle`, `ratingLabels` | Renders stars, numbers, or emoji scale (UI shell only) |
+| `terms` | action/legal | Terms acceptance checkbox + link | `termsLinkText`, `termsUrl`, `termsContent`, `required` | Horizontal checkbox + linked terms content |
+| `submit-button` | action/legal | Form submit action | `buttonText`, `buttonAlign`, `buttonWidth`, `disableUntilValid` | Action object + optional loading + first-error feedback |
+| `header` | display | Section heading text | `label` | Heading-style content object in display category |
+| `paragraph` | display | Body paragraph copy block | `text`, `label` | Promoted in Story 6.2.1 to first-class display component |
+| `divider` | display | Visual separator | `width` | Divider line object using global divider styles |
+
+Background images are handled at the page level (`FormPage.background`), not as components.
+
+---
+
 ## Component Props Reference
 
 ### Width/Sizing Properties

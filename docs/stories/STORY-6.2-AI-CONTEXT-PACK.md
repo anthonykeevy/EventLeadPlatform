@@ -1,7 +1,7 @@
 # STORY-6.2 AI Context Pack
 
-**Context Pack Version:** 1.0  
-**Last Updated:** 2026-02-27  
+**Context Pack Version:** 1.1  
+**Last Updated:** 2026-03-20  
 **Owner:** SM Agent
 
 ---
@@ -27,8 +27,10 @@ Provide a consistent instruction bundle for the LLM so generated `DefinitionJSON
 
 Allowed component types for Story 6.2 MVP generation:
 - `text`
+- `first-name`
 - `email`
 - `phone`
+- `url`
 - `number`
 - `date`
 - `dropdown`
@@ -36,9 +38,18 @@ Allowed component types for Story 6.2 MVP generation:
 - `radio`
 - `textarea`
 - `address`
+- `rating`
+- `terms`
 - `header`
+- `paragraph`
 - `divider`
 - `submit-button`
+
+Component-specific notes for expanded set:
+- `url`: use `validation.url: true`; optional `urlPrefix` and `urlPattern` can be included.
+- `rating`: include `ratingMax` (typically 5 or 10) and `ratingStyle` (`stars` | `numbers` | `emoji`).
+- `paragraph`: display-only content block (prefer `text`, fallback `label` for legacy compatibility).
+- `file-upload`: planned (Story 6.2.2), not available in Story 6.2/6.2.1 generation output.
 
 For each component:
 - Must include stable `id`.

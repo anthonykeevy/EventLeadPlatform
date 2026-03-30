@@ -153,3 +153,30 @@ def test_t7_malformed_json_parseable_payload_returns_controlled_response(api_cli
     assert body["collisions"] == []
     assert len(body["schemaErrors"]) == 1
     assert "definition" in body["schemaErrors"][0]["path"]
+
+
+def test_story_621_url_rating_paragraph_types_accepted(api_client):
+    """Story 6.2.1: validator must accept url, rating, and paragraph components."""
+    payload = _valid_definition_payload()
+    comps = payload["definition"]["pages"][0]["components"]
+    base_y = 120
+    extra = [
+        ("c-url", "url", {"label": "Site", "urlPrefix": "https://"}),
+        ("c-rating", "rating", {"label": "Score", "ratingMax": 5, "ratingStyle": "stars"}),
+        ("c-paragraph", "paragraph", {"label": "Note", "content": "Hello"}),
+    ]
+    for i, (cid, ctype, props) in enumerate(extra):
+        comps.append(
+            {
+                "id": cid,
+                "type": ctype,
+                "props": props,
+                "position": {"x": 20, "y": base_y + i * 72},
+                "style": {"width": 200, "height": 56},
+            }
+        )
+    response = api_client.post("/api/form-validate", json=payload)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["valid"] is True
+    assert body["schemaErrors"] == []

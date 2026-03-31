@@ -64,7 +64,7 @@ Record environment (URLs, form id, token suffix) in `STORY-6.2.2-UAT-RESULTS.md`
 | ID | Steps | Expected |
 |----|-------|----------|
 | 5.1 | Form with **only** text + submit | Still submits. |
-| 5.2 | Existing url/rating/paragraph fields |unchanged behaviour. |
+| 5.2 | Existing url/rating/paragraph fields | Unchanged behaviour. |
 
 ---
 

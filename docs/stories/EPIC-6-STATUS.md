@@ -68,7 +68,7 @@ This fundamentally changes the payment architecture. We must implement two diffe
 | **6.2** | AI Form Builder UI & Agent Loop (POC) | End-to-end POC: chat UI, AI generation endpoint, retry loop, context pack v1, model comparison. | ✅ **Complete** (2026-03-20, PR #53) |
 | **6.2.1** | Component Library Expansion | Add `url`, `rating`, promote `paragraph`; update COMPONENT-FRAMEWORK docs; Properties Panel controls; frontend UAT for all new components on toolbox/canvas/runtime surfaces. | ✅ **Complete** (2026-03-30, PR #54) |
 | **6.2.2** | File Upload Component (Full Stack) | `file-upload` builder component + public upload endpoint + SubmissionAttachment model + secure download API for company (`GET .../attachments/.../content`). In-product download UX → **Epic 8**. Submission-scoped attachment IDs ensure no cross-contamination. | ✅ **Complete** (2026-03-31, PR #55) |
-| **6.3** | AI Context Uplift & Benchmark Baseline | Pipeline hardening + AI Context Pack v2 + 10-benchmark test harness + quality baseline. Absorbs deferred "reshaped 6.2" scope from closeout. | ⏳ Pending (unblocked — 6.2.2 done) |
+| **6.3** | AI Context Uplift & Benchmark Baseline | Pipeline hardening + AI Context Pack v2 + 10-benchmark test harness + quality baseline. Absorbs deferred "reshaped 6.2" scope from closeout. | 📋 **Prepared** (2026-03-31 — SM artifacts in `docs/stories/`; unblocked — 6.2.2 done) |
 | **6.4** | AI Iteration on Existing Designs | Allow users to refine/modify an existing form via AI; "change the layout", "add a field", etc. | ⏳ Pending (depends on 6.3) |
 
 ### Phase B: Platform Billing & Monetization (deferred)

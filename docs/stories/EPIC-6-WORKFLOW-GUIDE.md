@@ -5,7 +5,7 @@
 **Current Focus:** Story 6.3 - AI Context Uplift & Benchmark Baseline (Epic 6)  
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
-**Story 6.3 Status:** ⏳ Pending (next — unblocked)  
+**Story 6.3 Status:** 📋 **Prepared** — `story-6.3.md`, `story-context-6.3.xml`, `STORY-6.3-UAT-TEST-GUIDE.md`, `STORY-6.3-SINGLE-SESSION-DEV-PROMPT.md`, baseline template `STORY-6.3-BENCHMARK-BASELINE.md` (2026-03-31); run `new-story.ps1` then Dev  
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Story:** 6.3 — AI Context Uplift & Benchmark Baseline  
 **Agent:** `@bmad-agent-bmm-dev`  
-**Worktree:** _Run `./scripts/git/new-story.ps1` — example:_ `C:\wt\elp\story-epic6-6.3-ai-context-benchmark-baseline`  
+**Worktree:** _Created by **`@bmad-agent-bmm-sm`** via `./scripts/git/new-story.ps1` — example:_ `C:\wt\elp\story-epic6-6.3-ai-context-benchmark-baseline`  
 **Branch:** `story/epic6-6.3-ai-context-benchmark-baseline` (expected)  
 **PR:** Draft PR → merge to `master` via GitHub  
 
@@ -16,7 +16,7 @@ You are the Dev agent. Implement **`docs/stories/story-6.3.md`** using **`docs/s
 
 ## Step 0 — Preflight
 
-After Human creates the worktree, run (adjust paths if script echoes different folder):
+After **SM** has created the worktree and Human opened it in this Cursor window, run (adjust paths if SM reported different folder names):
 
 ```powershell
 .\scripts\workflow\preflight-story.ps1 `

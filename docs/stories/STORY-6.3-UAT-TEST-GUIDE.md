@@ -60,7 +60,23 @@ If not run, note **“Skipped — mock CI only”** in UAT results.
 
 ---
 
-## §5 — UAT Result
+## §5 — Builder canvas visibility (**mandatory** — Story 6.3 AC-9)
+
+**Goal:** Confirm that improvements from 6.3 are visible **in the Form Builder** (not only via API/pytest). The normal path is: **Builder** → open a form → **Global Properties / AI** entry point → **Generate** → definition **replaces** the canvas via `applyValidatedDefinition`.
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 5.1 | Open an existing draft form (or create new) in **Form Builder** | Canvas and AI panel load |
+| 5.2 | Paste **Benchmark 1** prompt from `STORY-6.2-BENCHMARK-FORMS.md` → **Generate** | Status succeeds (or clear user-facing error if model/config missing) |
+| 5.3 | **Without** leaving the builder, inspect **canvas** | **All** generated field types from the benchmark appear as components (RSVP: name, phone, email, radio, number, submit) — selectable, not empty canvas |
+| 5.4 | Repeat **5.2–5.3** for **at least one** other benchmark (e.g. **2** or **3**) | Same: visible layout on canvas after success |
+| 5.5 | Optional: click a component → **Properties** updates | Confirms store/canvas binding still works |
+
+If §5 cannot run (no API key), record **FAIL for AC-9** and raise a follow-up task — **do not** mark Story 6.3 Complete on Human sign-off without Anthony seeing canvas output or an agreed exception.
+
+---
+
+## §6 — UAT Result
 
 | Section | Pass / Fail / Skipped | Notes |
 |---------|----------------------|-------|
@@ -68,5 +84,6 @@ If not run, note **“Skipped — mock CI only”** in UAT results.
 | §2 Context pack + runtime footprints (incl. 2.4) | | |
 | §3 Baseline doc | | |
 | §4 Live smoke | | |
+| §5 Builder canvas (AC-9) | | |
 
 **Sign-off:** _Name / date_

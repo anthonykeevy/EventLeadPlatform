@@ -15,10 +15,10 @@
     add benchmark harness + STORY-6.3-BENCHMARK-BASELINE.md.
   </overview>
 
-  <component-footprints rfc="Anthony 2026-03-31">
+  <component-footprints>
     <product-note>Toolbox shows rich previews but uses compact surface rules; AI layout must use canvas defaults.</product-note>
-    <frontend files="AIAgentPanel.tsx buildRuntimeContext; estimateConfiguredFootprint; collisionDetection.getComponentDimensions; ComponentRegistry default props"/>
-    <backend consumer="form_ai.service._minimum_render_width/_height uses runtime_context componentFootprints"/>
+    <frontend-hint>AIAgentPanel buildRuntimeContext; estimateConfiguredFootprint; collisionDetection.getComponentDimensions; ComponentRegistry default props.</frontend-hint>
+    <backend-hint>form_ai.service uses runtime_context componentFootprints for minimum render width/height heuristics.</backend-hint>
   </component-footprints>
 
   <dependencies>
@@ -74,6 +74,7 @@
     <ac id="6">Epic workflow/status docs updated at closeout.</ac>
     <ac id="7">Context pack v2 includes default canvas footprint table synced with code.</ac>
     <ac id="8">buildRuntimeContext supplies canvas-scale componentFootprints; FE test covers empty form.</ac>
+    <ac id="9">Generate from AI panel applies definition to builder canvas; Human UAT §5 PASS.</ac>
   </acceptance-mapping>
 
 </story-context>

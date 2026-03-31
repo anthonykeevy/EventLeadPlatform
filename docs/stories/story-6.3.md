@@ -76,6 +76,14 @@ Raise **AI form-generation quality** and **operational reliability** by:
 | **Tests** | Frontend unit test(s): for an empty definition, runtime context footprints for `text` (and 1–2 other types) match expected **canvas-scale** ranges, not sub-50px thumbnail sizes. |
 | **Docs** | Short comment in `AIAgentPanel.tsx` at `buildRuntimeContext` explaining why toolbox bounds are insufficient. |
 
+### 2.6 Builder-visible delivery (Anthony must see results on canvas)
+
+| Area | Requirement |
+|------|-------------|
+| **Product path** | Story 6.3 changes must **not** break the existing flow: user opens **Form Builder** on a form → **AI** panel (Global Properties workflow) → enters prompt → **Generate** → on success the app calls **`applyValidatedDefinition`** so the draft loads onto the **canvas** (components selectable, editable, same as a manual build). |
+| **Regression guard** | If implementation touches `AIAgentPanel.tsx` / `applyValidatedDefinition` / generation API wiring, Dev verifies in browser (or documents agent-browser evidence) that **at least one** benchmark-style prompt produces a **visible** multi-field layout on canvas after generate — not only a 200 JSON response or passing pytest. |
+| **Scope note** | Automated pytest does **not** replace this; it validates contracts. **Human UAT §5** in `STORY-6.3-UAT-TEST-GUIDE.md` is **mandatory** for sign-off so Anthony can judge layout quality for 6.3 vs future work. |
+
 ---
 
 ## 3) Out of Scope
@@ -98,7 +106,8 @@ Raise **AI form-generation quality** and **operational reliability** by:
 5. **AC-5 (Regressions):** Existing Story 6.2 tests (`test_story_6_2_ai_generation_loop.py`) still pass unless story explicitly updates behavior with documented rationale.  
 6. **AC-6 (Docs):** `EPIC-6-WORKFLOW-GUIDE.md` **Current Focus** / 6.3 status updated at story closeout per checklist; `EPIC-6-STATUS.md` row for 6.3 gets PR # and Complete when merged.  
 7. **AC-7 (Dimensions in Context Pack v2):** `STORY-6.2-AI-CONTEXT-PACK.md` includes a **default canvas footprint** subsection per §2.1; values stay in sync with §2.5 implementation (same numbers or generated from one exported JSON — document which).  
-8. **AC-8 (Runtime footprints):** `buildRuntimeContext` (or successor) supplies **canvas-scale** `componentFootprints` for AI generation on **new** and **existing** forms per §2.5; frontend test proves thumbnails are not the only source for empty forms.
+8. **AC-8 (Runtime footprints):** `buildRuntimeContext` (or successor) supplies **canvas-scale** `componentFootprints` for AI generation on **new** and **existing** forms per §2.5; frontend test proves thumbnails are not the only source for empty forms.  
+9. **AC-9 (Builder canvas):** Successful **Generate** from the in-app AI panel **applies** the definition to the **builder canvas** per §2.6; components are visible and interactable. **No** closeout if the only proof is backend tests — **§5** of the UAT guide must be **PASS** (or documented blocker with follow-up task).
 
 ---
 
@@ -107,7 +116,7 @@ Raise **AI form-generation quality** and **operational reliability** by:
 - [ ] All AC satisfied; gate evidence in `STORY-6.3-GATE-EVIDENCE.md`  
 - [ ] `npm run lint` + `npm run test:unit -- --watch=false` green  
 - [ ] `python -m pytest --tb=short` green  
-- [ ] Human UAT per `STORY-6.3-UAT-TEST-GUIDE.md`  
+- [ ] Human UAT per `STORY-6.3-UAT-TEST-GUIDE.md` (includes **§5** builder canvas visibility)  
 - [ ] Story PR merged via GitHub; closeout checklist in workflow guide applied  
 
 ---

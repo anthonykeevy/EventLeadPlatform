@@ -82,11 +82,18 @@ Record output in **`docs/stories/STORY-6.3-GATE-EVIDENCE.md`**.
 
 ---
 
-## Step 7 — Closeout
+## Step 7 — Builder apply path (before Human UAT)
+
+- Confirm **`AIAgentPanel`** still calls **`applyValidatedDefinition`** (or equivalent) on **`status === "completed"`** so the generated `DefinitionJSON` appears **on the canvas** — not only in network tab.  
+- If wiring changes, run **agent-browser** or local browser check: one benchmark prompt → components **visible** and selectable. Capture snapshot ref or short note in gate evidence.
+
+---
+
+## Step 8 — Closeout
 
 - Update `story-6.3.md`: Status Complete, PR #, dates, Dev Agent Record.  
 - **`EPIC-6-STATUS.md`** + **`EPIC-6-WORKFLOW-GUIDE.md`** per story closeout checklist.  
-- Open/merge PR via GitHub.
+- Open/merge PR via GitHub. **Anthony** signs off **§5** of `STORY-6.3-UAT-TEST-GUIDE.md` (builder canvas) for AC-9.
 
 ---
 

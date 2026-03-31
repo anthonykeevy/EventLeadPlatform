@@ -27,8 +27,9 @@ Deliver a first-class **`file-upload`** component across the **builder**, **publ
 |------|-------------|
 | **Type** | Add `'file-upload'` to `ComponentType` and backend `ComponentType` enum (`file-upload` string value, consistent with kebab-case types). |
 | **Registry** | Full `ComponentDefinition`: toolbox, structure defaults, drag preview, canvas preview, runtime renderer. |
-| **Properties** | `accept` / `acceptedFileTypes` (MIME or extension list), `maxFileSizeBytes` (or MB prop + normalize), `allowMultiple`, optional `maxFiles`, labels/help. |
+| **Properties** | `accept` / `acceptedFileTypes` (MIME or extension list), `maxFileSizeBytes` (or MB prop + normalize), **`allowMultiple`** (default **`false`**), **`maxFiles`** when multiple is on, labels/help. |
 | **Validation** | Required / min-max files at submit time; client-side pre-checks (size/type) before upload. |
+| **Product note** | **Default single file per component** keeps simple forms simple; authors enable **multiple** for “résumé + cover letter” style flows (common in general-purpose builders: JotForm-style `allowMultiple` + cap). Extra files can always be gathered by **adding another** `file-upload` component. |
 
 ### 2.2 Public runtime (frontend)
 
@@ -43,14 +44,25 @@ Deliver a first-class **`file-upload`** component across the **builder**, **publ
 |------|-------------|
 | **Upload** | New authenticated-by-token endpoint(s) under existing public forms router, e.g. `POST /api/public/forms/{token}/attachments` (multipart). Validates link + optional preview/prod rules mirroring submission. |
 | **Constraints** | Enforce max size, allowed MIME/extension, rate/size totals per link or per client session as reasonable MVP (document limits). |
-| **Storage** | Persist file bytes to a **defined storage root** (config-driven path for MVP; document env var). Store **metadata** in DB (see §2.4). |
+| **Storage (physical)** | **Reuse the same storage stack as company background assets** — `modules/assets/storage.py` (`load_storage_config`, `AssetStorageProvider`: **local** under `ASSET_STORAGE_LOCAL_DIR` or **Azure** when configured). Use a **distinct object key prefix** for submission files (e.g. `submissions/{formPublicLinkId}/{opaqueId}.{ext}`). **Do not** persist anonymous public uploads as **`dbo.Asset`** rows; metadata lives in **`SubmissionAttachment`** only. |
+| **Checksum** | Store **SHA-256** on each `SubmissionAttachment` row; enables integrity checks and **optional scoped dedupe** (§2.4.1). |
 | **Submission** | Extend submission handler to accept attachment reference shape in answers; bind attachments to **created `FormSubmissionID`** when submission succeeds (see lifecycle below). |
 
 ### 2.4 Data model (backend + DB)
 
 | Entity | Purpose |
 |--------|---------|
-| **`SubmissionAttachment`** (or `FormSubmissionAttachment`) | Row per uploaded file: FK to `FormPublicLink`, optional FK to `FormSubmission` (NULL until submit succeeds), **opaque public id** (UUID) returned to client, original filename, content type, size, storage path/key, checksum optional, `CreatedAt`, `ExpiresAt` optional for orphan cleanup. |
+| **`SubmissionAttachment`** (or `FormSubmissionAttachment`) | **Canonical list of all submission-scoped files** for support, audit, download ACL, and cleanup. Columns (minimum): FK `FormPublicLink`, nullable FK `FormSubmission`, **public attachment id** (UUID), `OriginalFileName`, `ContentType`, `SizeBytes`, **`Sha256`**, `StorageProvider`, `StorageKey`, `CreatedAt`, optional `ClientUploadSessionKey` / context fields for binding, optional `ExpiresAt` for orphans. |
+
+### 2.4.1 Duplicate uploads & deduplication
+
+| Scenario | Expected behaviour |
+|----------|-------------------|
+| **User uploads the same bytes twice** (same link + same browser session / upload batch, per context fields) | **Optional MVP:** if an existing **pending** row (`FormSubmissionID` NULL) matches **same `FormPublicLinkID` + scoped session + `Sha256`**, API may return the **existing** public attachment id and **not** write a second blob (document in closeout). **Do not** dedupe across unrelated respondents or arbitrary cross-link reuse — keeps privacy and audit clear. |
+| **User selects a new file after already selecting one** (`allowMultiple: false`) | Replace pending attachment reference in UI; prior pending row may stay until TTL/orphan cleanup or be soft-invalidated per implementation. |
+| **Multiple files in one control** (`allowMultiple: true`, within `maxFiles`) | One answer value holds **array of attachment ids**; each id maps to its own `SubmissionAttachment` row. |
+
+**Tests:** at least one automated case for “second upload same hash same session returns stable id or second row” **as implemented**, and **reject** reusing another session’s attachment id on submit (per AC-3).
 
 **Lifecycle (submission-scoped):**
 
@@ -79,9 +91,8 @@ Deliver a first-class **`file-upload`** component across the **builder**, **publ
 ## 3) Out of Scope
 
 | Item | Reason |
-|------|--------|
 | Virus scanning | Future hardening |
-| S3/Azure Blob | MVP uses configurable local disk path unless already standard in repo |
+| New third-party blob product | Use existing **local + Azure** asset storage only |
 | AI generation of forms with uploads | Story 6.3 may consume catalogue update; generation prompts separate |
 | Email delivery of attachments | Not required |
 | Chunked/resumable uploads | Simple multipart POST is sufficient for MVP |
@@ -125,6 +136,13 @@ Deliver a first-class **`file-upload`** component across the **builder**, **publ
 - `npm run test:unit -- --watch=false` — pass  
 - `python -m pytest --tb=short` — pass, including **new** tests for upload, submit binding, and access control
 
+### AC-6: Storage & registry alignment
+
+- **Given** implementation is complete  
+- **Then** submission files are written via **`AssetStorageProvider`** (same config as `modules/assets`) with submission-specific keys  
+- **And** **`SubmissionAttachment`** is the system-of-record table listing attachments (not `dbo.Asset` for anonymous uploads)  
+- **And** deduplication behaviour matches §2.4.1 and is covered by tests described there  
+
 ---
 
 ## 5) Risks & Mitigations
@@ -154,5 +172,6 @@ _(Filled by Dev during implementation)_
 |------|-------|
 | Migration revision id | |
 | Public upload route(s) | |
-| Storage config key | |
+| Storage | `AssetStorageProvider` + key prefix; env vars documented |
+| Dedup policy (§2.4.1) implemented as | |
 | Closeout / merge notes | |

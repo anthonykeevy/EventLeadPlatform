@@ -50,8 +50,8 @@ alembic upgrade head
 
 ## Step 3 — Backend implementation order (suggested)
 
-1. Model + migration file.  
-2. Storage helper: save stream → disk path from settings; return relative key.  
+1. Model + migration file (include **Sha256**, **StorageProvider**, **StorageKey**; optional session columns for §2.4.1 dedupe).  
+2. Storage: **reuse** `modules/assets/storage.py` (`load_storage_config`, `get_storage_provider`) with submission-specific **storage keys** — do **not** use `dbo.Asset` for public uploads.  
 3. `POST` multipart upload endpoint: resolve token → link → enforce size/MIME → write file → insert row with `FormSubmissionID NULL` + `PublicAttachmentId`.  
 4. Submission path: parse file-upload answers; verify each id belongs to this link + session rule from story; on commit set `FormSubmissionID`.  
 5. Authenticated download endpoint with company ACL.  

@@ -14,10 +14,32 @@
 
   <constraints>
     <item>Do NOT run Alembic upgrade/downgrade/revision in agent shell; prepare migration file(s) and give Anthony exact commands.</item>
-    <item>Never commit secrets; storage path from env/config only.</item>
-    <item>Attach uploaded files to FormSubmission only after successful submission; never expose raw storage paths to browser.</item>
+    <item>Never commit secrets; storage path from env/config only (same env vars as assets: ASSET_STORAGE_PROVIDER, ASSET_STORAGE_LOCAL_DIR, Azure connection string + container when used).</item>
+    <item>Attach uploaded files to FormSubmission only after successful submission; never expose raw storage keys or filesystem paths to browser—only public attachment UUIDs.</item>
     <item>Use opaque UUID (or similar) as client-facing attachment id; validate ownership on submit.</item>
+    <item>Do NOT insert anonymous submission uploads into dbo.Asset; Asset is CompanyID + AssetType scoped. SubmissionAttachment is the listing table for all lead/scoped files.</item>
   </constraints>
+
+  <physical-storage>
+    <summary>Reuse modules/assets/storage.py — load_storage_config(), get_storage_provider() — same LocalAssetStorageProvider / Azure behavior as background image uploads.</summary>
+    <key-prefix>Use a dedicated prefix for blobs (e.g. submissions/{FormPublicLinkID or hash}/{attachmentPublicId}.ext) so backups and lifecycle policies can treat them separately from company/{sha256} asset keys.</key-prefix>
+    <reference-files>
+      <file path="backend/modules/assets/storage.py" note="AssetStorageConfig, LocalAssetStorageProvider, Azure provider"/>
+      <file path="backend/modules/assets/service.py" note="Reference only: SHA-256 dedupe pattern for company assets (lines ~311–343); adapt scoped dedupe for SubmissionAttachment per story §2.4.1, not cross-company."/>
+    </reference-files>
+  </physical-storage>
+
+  <deduplication>
+    <policy>Optional MVP: same FormPublicLink + same client upload context + same Sha256 while FormSubmissionID IS NULL may return existing public attachment id and skip second blob write.</policy>
+    <anti-patterns>No global dedupe across tokens; no attaching another respondent's pending upload id to your submission.</anti-patterns>
+    <tests>Implement one test documenting chosen behaviour (reuse id vs always new row); keep AC-3 cross-session rejection test.</tests>
+  </deduplication>
+
+  <component-multiplicity>
+    <default>allowMultiple defaults to false — one primary file per component unless author enables multi.</default>
+    <when-multiple>maxFiles cap; answer shape is array of attachment ids; one SubmissionAttachment row per id.</when-multiple>
+    <alternatives>Authors may add a second file-upload component instead of allowMultiple for stricter column-style reporting.</alternatives>
+  </component-multiplicity>
 
   <files-to-modify>
     <file path="backend/schemas/form_definition.py"
@@ -49,7 +71,7 @@
   </files-to-modify>
 
   <new-files>
-    <file path="backend/models/submission_attachment.py" purpose="SQLAlchemy model SubmissionAttachment (name aligned with migration)."/>
+    <file path="backend/models/submission_attachment.py" purpose="SQLAlchemy model SubmissionAttachment: Sha256, StorageProvider, StorageKey, FormPublicLink FK, nullable FormSubmission FK, public UUID, optional session/context columns for scoped dedupe."/>
     <file path="backend/modules/forms/public_attachment_router.py" purpose="Optional: multipart upload + download handlers if cleaner than monolithic router."/>
     <file path="backend/migrations/versions/051_story_622_submission_attachment.py" purpose="Example name—use next revision after current Alembic head."/>
     <file path="backend/tests/test_story_622_file_upload.py" purpose="Integration-style tests: validate definition, upload mock, submit bind, auth download."/>
@@ -65,7 +87,10 @@
       See story-context-6.2.1.xml for registry + structureDefaults + PropertiesPanel patterns (url/rating).
     </pattern>
     <pattern name="migration">
-      Follow 035_form_submission_table.py style: MSSQL types, dbo schema, explicit FKs and indexes.
+      Follow 035_form_submission_table.py style: MSSQL types, dbo schema, explicit FKs and indexes. Index SubmissionAttachment on public id, FormPublicLinkID, FormSubmissionID, Sha256 (partial where useful for dedupe lookup).
+    </pattern>
+    <pattern name="asset-storage-reuse">
+      Import get_storage_provider / load_storage_config from modules.assets.storage (or thin wrapper in forms module) to write bytes; mirror Asset row fields at attachment layer only (no Asset ORM).
     </pattern>
   </reference-patterns>
 

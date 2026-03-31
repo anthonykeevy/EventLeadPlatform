@@ -242,8 +242,18 @@ git worktree remove "..\\EventLeadPlatform.wt\\task-3.10-T03-grid-css"
 
 When all tasks are merged and UAT passes:
 - Finalize story docs + status docs
-- Merge story PR → `master`
+- Merge story PR → `master` (**prefer GitHub merge UI or `gh pr merge`** so the PR shows merged and reviews stay auditable)
 - Delete story worktree and branch when safe
+
+**Story merge hygiene (Epic 6 BMAD — also see `docs/stories/EPIC-6-WORKFLOW-GUIDE.md`):**
+- Update **`EPIC-6-WORKFLOW-GUIDE.md` header** (“Current focus” / completed story lines) in the **same** merge or immediate follow-up commit so the next session does not start on stale “in progress” text.
+- **`EPIC-6-STATUS.md`:** correct story row + **PR number** (avoid mixing PRs from adjacent stories).
+- **`story-6.x.md`:** DoD text matches reality (no “draft PR” wording after merge).
+- **`STORY-6.x-GATE-EVIDENCE`:** full backend test summary when required, or explicit note if only focused tests + CI will run full suite.
+- Optional **`STORY-6.x-CLOSEOUT-REPORT.md`** for deferrals and audit.
+- Remove stray binaries/scratch files from the tree before the final push.
+
+**Before starting the next story:** `git fetch origin`; `git switch master`; `git pull origin master`; `gh pr list` (confirm prior story closed). Then create the new story branch/worktree.
 
 ---
 

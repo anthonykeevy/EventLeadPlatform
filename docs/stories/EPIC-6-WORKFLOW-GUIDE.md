@@ -2,10 +2,10 @@
 
 **Workflow:** BMAD method only. SM agent prepares Story, context, and UAT; SM reviews artifacts; Dev agent builds via single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.2.2 - File Upload Component (Full Stack) (Epic 6) — **implementation**  
+**Current Focus:** Story 6.3 - AI Context Uplift & Benchmark Baseline (Epic 6)  
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
-**Story 6.2.2 Status:** 🔄 In progress — Phase 1 artifacts on branch; Draft PR #55  
-**Story 6.3 Status:** ⏳ Blocked until 6.2.2 merges  
+**Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
+**Story 6.3 Status:** ⏳ Pending (next — unblocked)  
 
 ---
 
@@ -15,15 +15,54 @@ This is the streamlined workflow established at the end of Epic 5.
 
 | Step | Actor | Action |
 |------|-------|--------|
-| 0 | **Human** | Confirm PR closed, `git pull origin master` in main repo |
+| 0 | **Human** | Confirm story PR merged on GitHub, **`git fetch origin`**, **`git pull origin master`** in main repo; sync or retire old story worktrees (see **Pre-next-story sync** below) |
 | 1 | **@bmad-agent-bmm-pm** | Approves scope; finalizes PM decisions doc (`docs/stories/story-6.x.md`) |
 | 2 | **@bmad-agent-bmm-sm** | Prepares context (`story-context-6.x.xml`) & UAT guide (`STORY-6.x-UAT-TEST-GUIDE.md`) |
 | 3 | **@bmad-agent-bmm-sm** | Uses `Shell` tool to run `./scripts/git/new-story.ps1` and set up the Git worktree & Draft PR |
 | 4 | **Human** | Switch Cursor window to the newly created worktree (`C:\wt\elp\...`) |
 | 5 | **@bmad-agent-bmm-dev** | Implements the story end-to-end. Runs `pytest` & `npm test`. Fixes issues. Creates final commit & PR. |
-| 6 | **Human** | Manual UAT per `STORY-6.x-UAT-TEST-GUIDE.md` and merge PR via GitHub/gh |
+| 6 | **Human** | Manual UAT per `STORY-6.x-UAT-TEST-GUIDE.md`; **merge story PR via GitHub** (preferred) or `gh pr merge`; then run **Story closeout checklist** below |
 
 **Artifacts:** `story-6.x.md`, `story-context-6.x.xml`, `STORY-6.x-UAT-TEST-GUIDE.md`, `STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md`
+
+Optional parity: `STORY-6.x-CLOSEOUT-REPORT.md` (recommended for cross-cutting or release-grade stories).
+
+---
+
+## 📋 Story closeout checklist (Dev + Human — before marking **Complete**)
+
+Use this to avoid stale roadmap/workflow docs and wrong PR numbers (common gap pattern).
+
+| # | Check | Owner |
+|---|--------|-------|
+| 1 | `docs/stories/story-6.x.md` — **Status** Complete, **Completed** date, **PR #** matches the **story’s** GitHub PR (do not confuse with another row in `EPIC-6-STATUS.md`, e.g. 6.2 vs 6.2.2). | Dev |
+| 2 | `docs/stories/EPIC-6-STATUS.md` — story row **Complete** + **correct PR #** + one-line scope note if deferred work moved. | Dev |
+| 3 | **`docs/stories/EPIC-6-WORKFLOW-GUIDE.md` (this file)** — **Current Focus** = **next** story; completed story lines show ✅ + merge date/PR; **no** “in progress / blocked” for a story already on `master`. | Dev |
+| 4 | `STORY-6.x-GATE-EVIDENCE.md` — **full** `python -m pytest --tb=short` summary line recorded **when policy requires it**; if only focused tests are run locally, state that explicitly and point to **CI** or follow-up full run so reviewers know. | Dev |
+| 5 | Remove stray artifacts (`downloaded.bin`, `temp*.txt`, scratch logs) — **never commit**. | Dev |
+| 6 | Optional: `STORY-6.x-CLOSEOUT-REPORT.md` for audit trail (esp. merges with deferrals like “UX → Epic 8”). | Dev |
+
+**Merge discipline:** Prefer **merge via GitHub** (or `gh pr merge`) so the PR shows **merged** and history matches `master`. Local fast-forward-only merges without updating the PR confuse “is PR #N closed?” checks.
+
+---
+
+## 🔄 Pre-next-story sync (Human — mandatory before SM Phase 0 / `new-story.ps1`)
+
+Run from **main repo** (`EventLeadPlatform` checkout, not necessarily a story worktree):
+
+```powershell
+git fetch origin
+git switch master
+git pull origin master
+gh pr list --state open
+```
+
+Then:
+
+- **Optional:** `git worktree list` — note old story worktrees; **`git fetch`** inside each if you keep using it, or **`git worktree remove`** when the branch is fully abandoned per `AGENTIC-GIT-WORKTREE-WORKFLOW.md`.
+- **Confirm** `origin/master` has the latest merge before running **`./scripts/git/new-story.ps1`** so Phase 0 branches from the correct base.
+
+Agents taking a “wrap-up” or “start next story” task should run the same **fetch + pull** (or ask Human to confirm) before pushing new work.
 
 ---
 
@@ -42,7 +81,7 @@ This workflow follows the platform-wide Git rules in:
 To prevent technical debt accumulation and AI Hallucinations regarding test status, the Dev agent is strictly bound by the Green CI/CD Rule:
 1. Before creating the final closeout commit, the Dev agent **MUST** run:
    - Frontend: `npm run lint` and `npm run test:unit -- --watch=false`
-   - Backend: `python -m pytest --tb=short`
+   - Backend: `python -m pytest --tb=short` (**full** suite unless risk is negligible—if only a **focused** file ran locally, say so in `STORY-X.X-GATE-EVIDENCE.md` and ensure CI or Human confirms full green)
 2. **ANTI-HALLUCINATION PROTOCOL:** The agent MUST read the exact output of the test run. If the test process times out, hangs, or the output is truncated before showing the final `=== X passed, Y failed ===` summary, the agent MUST treat the test as **FAILED**.
 3. The agent is **NOT** allowed to end its turn or close the story until all tests demonstrably pass and **0** linting errors/warnings remain in the touched files.
 4. If the test suites or linters fail, the Dev agent must fix them as part of the story implementation loop before asking the human for help.

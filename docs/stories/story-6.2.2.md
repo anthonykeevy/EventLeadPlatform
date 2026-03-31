@@ -159,8 +159,8 @@ Deliver a first-class **`file-upload`** component across the **builder**, **publ
 
 - All ACs satisfied; gate evidence in `STORY-6.2.2-GATE-EVIDENCE.md`  
 - UAT results in `STORY-6.2.2-UAT-RESULTS.md` (human + automation sections)  
-- Closeout report; Draft PR #55 ready for review/merge  
-- `EPIC-6-STATUS.md`: 6.2.2 → Complete with merge date (on merge PR)
+- PR **#55** merged to `master`  
+- `EPIC-6-STATUS.md`: 6.2.2 → Complete with merge date
 
 ---
 

@@ -9,14 +9,12 @@
 
 ## Summary of Changes
 
-Added a new Alembic migration that creates `ref.AssetType` (seeded with `IMAGE`) and `dbo.Asset` with required audit/soft-delete columns, referential integrity, and hash-based deduplication support (unique filtered index). Synced missing KB migrations (`036`, `037`) into the worktree to align Alembic history with the current DB revision.
+Added a new Alembic migration that creates `ref.AssetType` (seeded with `IMAGE`) and `dbo.Asset` with required audit/soft-delete columns, referential integrity, and hash-based deduplication support (unique filtered index). At the time, revisions `036`/`037` (SQL KB schema) were present in the chain for history alignment; **KB was retired later**—see `052_drop_kb_knowledge_base.py`.
 
 ## Files Changed
 
 | File | Change | Reason |
 |------|--------|--------|
-| `backend/migrations/versions/036_kb_knowledge_base.py` | Created | Bring KB migration into worktree (needed for Alembic history) |
-| `backend/migrations/versions/037_kb_docref_null_safe_uniqueness.py` | Created | Bring KB migration into worktree (needed for Alembic history) |
 | `backend/migrations/versions/038_asset_metadata_tables.py` | Created | Create `ref.AssetType` + `dbo.Asset`, seed `IMAGE`, add dedup/indexes |
 | `docs/tasks/5.1/T02-db-migration-asset-metadata.md` | Modified | PR bootstrap: mark task as In Progress (Approved) |
 

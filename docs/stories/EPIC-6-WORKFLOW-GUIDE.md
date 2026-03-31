@@ -1,11 +1,11 @@
 # Epic 6 Workflow Guide — BMAD Method (No Ralf)
 
-**Workflow:** BMAD method only. SM agent prepares Story, context, and UAT; SM reviews artifacts; Dev agent builds via single-session prompt. No Ralf decomposition or task cycle.
+**Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
 **Current Focus:** Story 6.3 - AI Context Uplift & Benchmark Baseline (Epic 6)  
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
-**Story 6.3 Status:** 📋 **Prepared** — `story-6.3.md`, `story-context-6.3.xml`, `STORY-6.3-UAT-TEST-GUIDE.md`, `STORY-6.3-SINGLE-SESSION-DEV-PROMPT.md`, baseline template `STORY-6.3-BENCHMARK-BASELINE.md` (2026-03-31); run `new-story.ps1` then Dev  
+**Story 6.3 Status:** 📋 **Prepared** — artifacts in `docs/stories/` (2026-03-31); **`@bmad-agent-bmm-sm` runs `new-story.ps1`** (worktree + Draft PR), then **`@bmad-agent-bmm-dev`** implements  
 
 ---
 
@@ -15,12 +15,12 @@ This is the streamlined workflow established at the end of Epic 5.
 
 | Step | Actor | Action |
 |------|-------|--------|
-| 0 | **Human** | Confirm story PR merged on GitHub, **`git fetch origin`**, **`git pull origin master`** in main repo; sync or retire old story worktrees (see **Pre-next-story sync** below) |
-| 1 | **@bmad-agent-bmm-pm** | Approves scope; finalizes PM decisions doc (`docs/stories/story-6.x.md`) |
-| 2 | **@bmad-agent-bmm-sm** | Prepares context (`story-context-6.x.xml`) & UAT guide (`STORY-6.x-UAT-TEST-GUIDE.md`) |
-| 3 | **@bmad-agent-bmm-sm** | Uses `Shell` tool to run `./scripts/git/new-story.ps1` and set up the Git worktree & Draft PR |
-| 4 | **Human** | Switch Cursor window to the newly created worktree (`C:\wt\elp\...`) |
-| 5 | **@bmad-agent-bmm-dev** | Implements the story end-to-end. Runs `pytest` & `npm test`. Fixes issues. Creates final commit & PR. |
+| 0 | **Human** | **`git fetch origin`**, **`git pull origin master`** in main repo; confirm prior story merged on GitHub; note or remove stale worktrees (see **Pre-next-story sync**). You **do not** run `new-story.ps1` in the normal flow. |
+| 1 | **@bmad-agent-bmm-pm** | Approves scope; signs off `docs/stories/story-6.x.md` (may be drafted by SM first — align in chat). |
+| 2 | **@bmad-agent-bmm-sm** | Produces the story pack: `story-context-6.x.xml`, `STORY-6.x-UAT-TEST-GUIDE.md`, `STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md`, and any templates (`STORY-6.x-BENCHMARK-BASELINE.md`, etc.); finalizes `story-6.x.md` wording with PM as needed. |
+| 3 | **@bmad-agent-bmm-sm** | **Runs `./scripts/git/new-story.ps1`** via the **Shell** tool (`-CreateWorktree`, `-DraftPR`, `-Epic`, `-Story`, `-Slug`, `-WorktreeRoot` per machine, e.g. `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"`). Confirms worktree path + branch + PR URL in chat and updates the dev prompt with **exact** paths. |
+| 4 | **Human** | **Open the SM-created worktree** in Cursor (e.g. **File → Open Folder** → `C:\wt\elp\story-epic6-...`). Point **@bmad-agent-bmm-dev** at that window so all edits land on the story branch. |
+| 5 | **@bmad-agent-bmm-dev** | Implements in the **worktree** only. Runs `pytest` & `npm test`. Pushes to the story branch (Draft PR already exists). |
 | 6 | **Human** | Manual UAT per `STORY-6.x-UAT-TEST-GUIDE.md`; **merge story PR via GitHub** (preferred) or `gh pr merge`; then run **Story closeout checklist** below |
 
 **Artifacts:** `story-6.x.md`, `story-context-6.x.xml`, `STORY-6.x-UAT-TEST-GUIDE.md`, `STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md`
@@ -46,9 +46,11 @@ Use this to avoid stale roadmap/workflow docs and wrong PR numbers (common gap p
 
 ---
 
-## 🔄 Pre-next-story sync (Human — mandatory before SM Phase 0 / `new-story.ps1`)
+## 🔄 Pre-next-story sync (Human + SM — mandatory before `new-story.ps1`)
 
-Run from **main repo** (`EventLeadPlatform` checkout, not necessarily a story worktree):
+**Purpose:** `master` must match **`origin/master`** before the **SM agent** runs **`new-story.ps1`** (the script branches from local `master`).
+
+**Human** — from **main repo** (`EventLeadPlatform` checkout, not a story worktree):
 
 ```powershell
 git fetch origin
@@ -59,10 +61,17 @@ gh pr list --state open
 
 Then:
 
-- **Optional:** `git worktree list` — note old story worktrees; **`git fetch`** inside each if you keep using it, or **`git worktree remove`** when the branch is fully abandoned per `AGENTIC-GIT-WORKTREE-WORKFLOW.md`.
-- **Confirm** `origin/master` has the latest merge before running **`./scripts/git/new-story.ps1`** so Phase 0 branches from the correct base.
+- **Optional:** `git worktree list` — remove or retire old story worktrees per `AGENTIC-GIT-WORKTREE-WORKFLOW.md`.
+- Tell **`@bmad-agent-bmm-sm`** that sync is done (or SM runs **fetch/pull** via Shell on wrap-up).
 
-Agents taking a “wrap-up” or “start next story” task should run the same **fetch + pull** (or ask Human to confirm) before pushing new work.
+**SM agent** — after a green base:
+
+- Run **`./scripts/git/new-story.ps1 ... -CreateWorktree -DraftPR`** (Human does not run this in the normal Epic 6 loop).
+- If the script fails (permissions, path length, `gh` auth), SM diagnoses; Human assists with environment fixes only.
+
+**@bmad-agent-bmm-sm** on “prepare next story” / Phase 0: sync **or** confirm with Human, **then** run `new-story.ps1`.
+
+Agents taking a “wrap-up” or “start next story” task should run the same **fetch + pull** (or ask Human to confirm) before SM runs `new-story.ps1`.
 
 ---
 
@@ -124,27 +133,28 @@ The Epic 6 kickoff path leverages the newly updated **BMAD v6** commands (`@bmad
 - Phase 1: Story artifacts (SM prepares Story, context, UAT)
 - Phase 2: Dev single-session implementation
 
-### 📋 Phase 0 & 1: Agentic Setup for Story 6.1 (Main Chat)
+### 📋 Phase 0 & 1: Agentic Setup (SM owns `new-story.ps1` + worktree)
 
-**Prompt for `@bmad-agent-bmm-sm.md`:**
+**Pattern:** Human pulls **`master`**; **`@bmad-agent-bmm-sm`** prepares artifacts on **`master`** (or a short-lived docs PR if policy requires), then **runs `new-story.ps1` from the main repo** so the story branch and worktree are created **before** Dev starts.
+
+**Example prompt — Story 6.3 (current):**
 
 ```markdown
-@bmad-agent-bmm-sm.md Please act as Scrum Master and orchestrate Phase 0 and Phase 1 for Story 6.1: AI Foundation: Static Validator.
+@bmad-agent-bmm-sm.md After Human has `git pull origin master`, please:
+1. Confirm story pack exists: `docs/stories/story-6.3.md`, `story-context-6.3.xml`, `STORY-6.3-UAT-TEST-GUIDE.md`, `STORY-6.3-SINGLE-SESSION-DEV-PROMPT.md`.
+2. Use Shell to run (adjust WorktreeRoot if needed):
+   `./scripts/git/new-story.ps1 -Epic 6 -Story "6.3" -Slug "ai-context-benchmark-baseline" -CreateWorktree -DraftPR`
+   (If you use ELP_WORKTREE_ROOT, the script picks it up; otherwise pass `-WorktreeRoot "C:\wt\elp"`.)
+3. Paste the worktree path, branch name, and Draft PR URL into chat; update `STORY-6.3-SINGLE-SESSION-DEV-PROMPT.md` Step 0 preflight paths if they differ from the template.
+4. Tell Human to open that folder in Cursor for `@bmad-agent-bmm-dev`.
+```
 
-Git discipline:
-1. Use the Shell tool to run: `./scripts/git/new-story.ps1 -Epic 6 -Story "6.1" -Slug "ai-foundation-static-validator" -CreateWorktree -DraftPR -WorktreeRoot "C:\wt\elp"`
-2. Wait for the script to finish successfully.
+**Historical example — Story 6.1:**
 
-Context:
-- Epic scope/roadmap: `docs/stories/EPIC-6-STATUS.md`
-- Concept: `docs/AI-FORM-BUILDING-IDEA.md`
-- Goal: Build a static backend validator API (`POST /api/form-validate`) that accepts `DefinitionJSON` and returns schema + collision/boundary errors without needing a DOM.
-
-Requirements:
-1. Create `docs/stories/story-6.1.md` focusing purely on the backend validation API.
-2. Create `docs/stories/story-context-6.1.xml` highlighting that this leverages existing collision logic.
-3. Create `docs/stories/STORY-6.1-UAT-TEST-GUIDE.md` with Postman/Swagger test instructions.
-4. Create `docs/stories/STORY-6.1-SINGLE-SESSION-DEV-PROMPT.md` containing the strict Green CI/CD instructions for the Dev agent.
+```markdown
+@bmad-agent-bmm-sm.md Orchestrate Phase 0–1 for Story 6.1. After Human syncs `master`, run:
+`./scripts/git/new-story.ps1 -Epic 6 -Story "6.1" -Slug "ai-foundation-static-validator" -CreateWorktree -DraftPR`
+then ensure `story-6.1.md`, `story-context-6.1.xml`, `STORY-6.1-UAT-TEST-GUIDE.md`, `STORY-6.1-SINGLE-SESSION-DEV-PROMPT.md` are ready and dev prompt paths match the created worktree.
 ```
 
 ---
@@ -209,7 +219,7 @@ If summaries are missing, truncated, or non-final, the story is treated as **NOT
 1. Update story completion status in `docs/stories/EPIC-6-STATUS.md`.
 2. Record lessons/process adjustments in this workflow changelog section.
 3. In main repo, confirm PR merged and run `git pull origin master`.
-4. Confirm next story focus and regenerate the next story prompt pack.
+4. Confirm next story focus; **`@bmad-agent-bmm-sm`** prepares the next story pack **and** runs **`new-story.ps1`** for the next worktree (Human opens the folder for Dev).
 5. Record developer-agent feedback on script/tool usage:
    - `.\scripts\workflow\collect-tool-feedback.ps1 ...`
 
@@ -259,3 +269,4 @@ This preserves your learning objective (multi-agent experience) without weakenin
 | 2026-02-26 | Added Cloud Co-Developer Worktree Model | Enable second developer agent usage while maintaining branch integrity and quality control |
 | 2026-02-26 | Added workflow automation scripts + mandatory tool feedback logging | Reduce repetitive agent effort and create continuous improvement loop |
 | 2026-02-26 | Added database connection consistency rule for test/runtime parity | Prevent recurring SQL backend drift between app runtime and pytest harness |
+| 2026-03-31 | Clarified **SM owns `new-story.ps1` + worktree + Draft PR**; Human syncs `master` and opens worktree for Dev | Match practiced flow; Human was not expected to run the script in normal Epic 6 loop |

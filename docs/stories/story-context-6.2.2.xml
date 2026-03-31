@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.2.2 — File Upload Component (Full Stack)
+  Implementation context for Dev Agent
+  Created: 2026-03-30 (SM bootstrap)
+-->
+<story-context story="6.2.2" title="File Upload Component (Full Stack)">
+
+  <overview>
+    Introduce file-upload end-to-end: builder + runtime + token-scoped public upload
+    API + SubmissionAttachment persistence + bind on submit + company download.
+    Align types with existing DefinitionJSON / form_definition.py patterns from 6.2.1.
+  </overview>
+
+  <constraints>
+    <item>Do NOT run Alembic upgrade/downgrade/revision in agent shell; prepare migration file(s) and give Anthony exact commands.</item>
+    <item>Never commit secrets; storage path from env/config only.</item>
+    <item>Attach uploaded files to FormSubmission only after successful submission; never expose raw storage paths to browser.</item>
+    <item>Use opaque UUID (or similar) as client-facing attachment id; validate ownership on submit.</item>
+  </constraints>
+
+  <files-to-modify>
+    <file path="backend/schemas/form_definition.py"
+          purpose="Add FILE_UPLOAD = 'file-upload' to ComponentType enum; extend ComponentProps if needed for documented props."/>
+    <file path="backend/modules/forms/public_form_router.py"
+          purpose="Submission handler: accept attachment references in answers; orchestrate link to FormSubmissionID."/>
+    <file path="backend/modules/forms/public_submission_schemas.py"
+          purpose="Document/validate answer shapes for file-upload (e.g. array of attachment ids or structured object)."/>
+    <file path="backend/modules/forms/public_router.py"
+          purpose="Mount new upload route module if split from router for clarity."/>
+    <file path="frontend/src/features/builder/types/builder.types.ts"
+          purpose="Add 'file-upload' to ComponentType; file-upload props (accept, max size, multiple, maxFiles)."/>
+    <file path="frontend/src/features/builder/registry/ComponentRegistry.tsx"
+          purpose="Register file-upload with structure, preview, runtime."/>
+    <file path="frontend/src/features/builder/utils/structureDefaults.ts"
+          purpose="Treat file-upload as input with label+input+validation pattern."/>
+    <file path="frontend/src/features/builder/components/ComponentPreview.tsx"
+          purpose="Drag preview placeholder for file-upload."/>
+    <file path="frontend/src/features/builder/components/PropertiesPanel.tsx"
+          purpose="Wire FileUploadPropertiesSection or inline controls."/>
+    <file path="frontend/src/features/renderer/components/PublicFormArtboard.tsx"
+          purpose="Render file input; call upload API; merge ids into submit payload."/>
+    <file path="frontend/src/features/renderer/api/publicSubmissionApi.ts"
+          purpose="uploadAttachment(token, file) + extend submit types."/>
+    <file path="docs/COMPONENT-FRAMEWORK-GUIDE.md"
+          purpose="Inventory + behaviour for file-upload."/>
+    <file path="docs/stories/STORY-6.2-AI-CONTEXT-PACK.md"
+          purpose="Mark file-upload as implemented; constraints for AI."/>
+  </files-to-modify>
+
+  <new-files>
+    <file path="backend/models/submission_attachment.py" purpose="SQLAlchemy model SubmissionAttachment (name aligned with migration)."/>
+    <file path="backend/modules/forms/public_attachment_router.py" purpose="Optional: multipart upload + download handlers if cleaner than monolithic router."/>
+    <file path="backend/migrations/versions/051_story_622_submission_attachment.py" purpose="Example name—use next revision after current Alembic head."/>
+    <file path="backend/tests/test_story_622_file_upload.py" purpose="Integration-style tests: validate definition, upload mock, submit bind, auth download."/>
+    <file path="frontend/src/features/builder/components/properties/FileUploadPropertiesSection.tsx" purpose="accept, size, multiple controls."/>
+  </new-files>
+
+  <reference-patterns>
+    <pattern name="public-submission">
+      See existing POST submissions in public_form_router.py; mirror token resolution, link type, idempotency.
+      answers_by_component_id is JSON-serializable dict—keep attachment refs as strings or small objects agreed in schema.
+    </pattern>
+    <pattern name="component-621">
+      See story-context-6.2.1.xml for registry + structureDefaults + PropertiesPanel patterns (url/rating).
+    </pattern>
+    <pattern name="migration">
+      Follow 035_form_submission_table.py style: MSSQL types, dbo schema, explicit FKs and indexes.
+    </pattern>
+  </reference-patterns>
+
+  <security-checklist>
+    <item>Validate token → FormPublicLink → FormID/Version/Correct status for upload and submit.</item>
+    <item>Reject attachment ids that belong to another FormPublicLink or orphaned row not tied to client context.</item>
+    <item>Download endpoint: reuse same authorization as lead/submission export APIs.</item>
+  </security-checklist>
+
+</story-context>

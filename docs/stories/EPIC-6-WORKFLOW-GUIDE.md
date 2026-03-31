@@ -2,7 +2,10 @@
 
 **Workflow:** BMAD method only. SM agent prepares Story, context, and UAT; SM reviews artifacts; Dev agent builds via single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.1 - AI Foundation: Static Validator (Epic 6)  
+**Current Focus:** Story 6.2.2 - File Upload Component (Full Stack) (Epic 6) — **implementation**  
+**Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
+**Story 6.2.2 Status:** 🔄 In progress — Phase 1 artifacts on branch; Draft PR #55  
+**Story 6.3 Status:** ⏳ Blocked until 6.2.2 merges  
 
 ---
 

@@ -8,8 +8,6 @@ import type { ComponentType } from '../types/builder.types';
  * - Makes it explicit when a component intentionally deviates from defaults.
  */
 export interface ComponentCapabilities {
-  /** Shows Object Layout section + supports objectLayout/layoutGroups editing */
-  supportsObjectLayout: boolean;
   /** Shows TextLengthIndicator (builder visual guide) */
   supportsTextLengthIndicator: boolean;
   /** Shows Export Name field in Properties Panel (for data collection) */
@@ -24,7 +22,6 @@ export interface ComponentCapabilities {
  * Default capabilities for data-collecting input components
  */
 const INPUT_CAPABILITIES: ComponentCapabilities = {
-  supportsObjectLayout: true,
   supportsTextLengthIndicator: false,
   supportsExportName: true,
   supportsTabOrder: true,
@@ -43,7 +40,6 @@ const TEXT_INPUT_CAPABILITIES: ComponentCapabilities = {
  * Capabilities for non-data components (divider, header)
  */
 const NON_DATA_CAPABILITIES: ComponentCapabilities = {
-  supportsObjectLayout: false,
   supportsTextLengthIndicator: false,
   supportsExportName: false,
   supportsTabOrder: false,
@@ -54,7 +50,6 @@ const NON_DATA_CAPABILITIES: ComponentCapabilities = {
  * Capabilities for action components (submit button)
  */
 const ACTION_CAPABILITIES: ComponentCapabilities = {
-  supportsObjectLayout: true,
   supportsTextLengthIndicator: false,
   supportsExportName: false,
   supportsTabOrder: false,

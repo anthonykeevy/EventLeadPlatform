@@ -18,11 +18,12 @@ import {
     ChevronDown, Link, Unlink, Tag, Type, MessageSquare, 
     ArrowUpDown, Palette, Maximize2, Wand2, LayoutGrid, RotateCcw, Star 
 } from 'lucide-react';
-import { TypographyCard, PropertySelect, PropertyNumberInput, PropertyColorPicker } from './inputs';
+import { TypographyCard, PropertySelect, PropertyNumberInput } from './inputs';
 import { StyleOverrides, GlobalStyles, FontWeightValue, FontStyleType, ComponentProps, AlignType, ComponentStructure, ObjectLayoutType } from '../../types/builder.types';
 import { SpacingSection } from './SpacingSection';
 import { ScaleAnchor } from '../../utils/scaleUtils';
 import { devLogger } from '../../utils/devLogger';
+import { getRatingMarksTypographyInfo } from '../../data/validationRuleSeed';
 
 // Interface for sticky anchor during slider drag
 interface StickyAnchor {
@@ -417,13 +418,13 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
     const labelOverrides = ['labelFontFamily', 'labelFontSize', 'labelFontWeight', 'labelFontStyle', 'labelColor', 'labelBackgroundColor', 'labelBorderColor', 'labelBorderWidth', 'labelBorderRadius']
         .filter(key => key in overrides).length;
     
-    const inputOverrides = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textColor', 'textBackgroundColor', 'textBorderColor', 'textBorderWidth', 'textBorderRadius']
-        .filter(key => key in overrides).length;
+    const inputOverrides = [
+        'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textColor', 'textBackgroundColor',
+        'textBorderColor', 'textBorderWidth', 'textBorderRadius', 'inputHeight',
+        'ratingColor', 'ratingBackgroundColor',
+    ].filter(key => key in overrides).length;
     
     const helpOverrides = ['helpTextFontFamily', 'helpTextFontSize', 'helpTextFontWeight', 'helpTextFontStyle', 'helpTextColor', 'helpTextBackgroundColor', 'helpTextBorderColor', 'helpTextBorderWidth', 'helpTextBorderRadius']
-        .filter(key => key in overrides).length;
-
-    const ratingOverrides = ['ratingColor', 'ratingBackgroundColor']
         .filter(key => key in overrides).length;
 
     const totalOverrides = Object.keys(overrides).length;
@@ -451,21 +452,17 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 
     const resetInputStyles = () => {
         const updates = { ...overrides };
-        ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textColor', 'textBackgroundColor', 'textBorderColor', 'textBorderWidth', 'textBorderRadius']
-            .forEach(key => delete updates[key as keyof StyleOverrides]);
+        [
+            'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textColor', 'textBackgroundColor',
+            'textBorderColor', 'textBorderWidth', 'textBorderRadius', 'inputHeight',
+            'ratingColor', 'ratingBackgroundColor',
+        ].forEach(key => delete updates[key as keyof StyleOverrides]);
         onOverridesChange(updates);
     };
 
     const resetHelpStyles = () => {
         const updates = { ...overrides };
         ['helpTextFontFamily', 'helpTextFontSize', 'helpTextFontWeight', 'helpTextFontStyle', 'helpTextColor', 'helpTextBackgroundColor', 'helpTextBorderColor', 'helpTextBorderWidth', 'helpTextBorderRadius']
-            .forEach(key => delete updates[key as keyof StyleOverrides]);
-        onOverridesChange(updates);
-    };
-
-    const resetRatingStyles = () => {
-        const updates = { ...overrides };
-        ['ratingColor', 'ratingBackgroundColor']
             .forEach(key => delete updates[key as keyof StyleOverrides]);
         onOverridesChange(updates);
     };
@@ -958,8 +955,8 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                 />
                             )}
 
-                            {/* 2. Input Text Card - Hidden for submit-button and display components */}
-                            {!['submit-button', 'header', 'paragraph', 'rating'].includes(componentType) && (
+                            {/* 2. Input Text Card — rating uses same controls for marks row (stars / numbers / emoji cells) */}
+                            {!['submit-button', 'header', 'paragraph'].includes(componentType) && (
                                 <>
                                     <div className="relative">
                                         <div className="absolute -top-1 right-2 z-10">
@@ -970,9 +967,14 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                             />
                                         </div>
                                         <TypographyCard
-                                            title="Input Text"
-                                            icon={Type}
-                                            iconColor="text-blue-500"
+                                            title={componentType === 'rating' ? 'Rating marks' : 'Input Text'}
+                                            titleInfo={
+                                                componentType === 'rating'
+                                                    ? getRatingMarksTypographyInfo()
+                                                    : undefined
+                                            }
+                                            icon={componentType === 'rating' ? Star : Type}
+                                            iconColor={componentType === 'rating' ? 'text-amber-500' : 'text-blue-500'}
                                             fontFamily={getEffective('fontFamily', 'fontFamily')}
                                             fontSize={getEffective('fontSize', 'fontSize') ?? 14}
                                             fontWeight={getEffective('fontWeight', 'fontWeight') ?? '400'}
@@ -1055,42 +1057,6 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                                 </div>
                             )}
 
-                            {/* 4. Rating Style Card */}
-                            {componentType === 'rating' && (
-                                <div className="relative">
-                                    <div className="absolute -top-1 right-2 z-10">
-                                        <ChainIndicator 
-                                            isOverridden={ratingOverrides > 0} 
-                                            onReset={resetRatingStyles}
-                                            overrideCount={ratingOverrides}
-                                        />
-                                    </div>
-                                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                                        {/* Card Header */}
-                                        <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-                                            <Star size={14} className="text-amber-500" />
-                                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Rating Style</span>
-                                        </div>
-                                        
-                                        {/* Colors */}
-                                        <div className="p-3 border-b border-gray-100 dark:border-gray-700">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <PropertyColorPicker
-                                                    label="Active Color"
-                                                    value={getEffective('ratingColor', 'ratingColor') || globalStyles.ratingColor || '#F59E0B'}
-                                                    onChange={(v) => onOverridesChange({ ratingColor: v })}
-                                                />
-                                                <PropertyColorPicker
-                                                    label="Background"
-                                                    value={getDisplayValue('ratingBackgroundColor', 'ratingBackgroundColor') || globalStyles.ratingBackgroundColor || 'transparent'}
-                                                    onChange={(v) => onOverridesChange({ ratingBackgroundColor: v })}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
                             {/* Reset All Button */}
                             {totalOverrides > 0 && (
                                 <button
@@ -1116,7 +1082,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
                         >
                             <SpacingSection
                                 structure={structure}
-                                currentLayout={(props.objectLayout || globalStyles.defaultObjectLayout || structure.defaultLayout) as ObjectLayoutType}
+                                currentLayout={(props.objectLayout || structure.defaultLayout || 'vertical') as ObjectLayoutType}
                                 globalStyles={globalStyles}
                                 objectSpacing={props.objectSpacing}
                                 onGlobalStylesChange={onGlobalStylesChange || (() => {})}

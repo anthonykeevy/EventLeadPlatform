@@ -580,7 +580,7 @@ export const BuilderPage: React.FC = () => {
             const type = active.data.current?.type as ComponentType;
             if (!type) return;
 
-            const newComponent = generateComponent(type);
+            const newComponent = generateComponent(type, formDefinition?.globalStyles);
             
             if (canvasRef.current) {
                 const canvasRect = canvasRef.current.getBoundingClientRect();
@@ -1103,7 +1103,7 @@ export const BuilderPage: React.FC = () => {
   if (activeId) {
       if (activeId.toString().startsWith('toolbox-')) {
           const type = activeId.toString().replace('toolbox-', '') as ComponentType;
-          activeComponent = generateComponent(type);
+          activeComponent = generateComponent(type, formDefinition?.globalStyles);
       } else {
           const findRecursive = (list: FormComponent[]): FormComponent | null => {
               for(const c of list) {

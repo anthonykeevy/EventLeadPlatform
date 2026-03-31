@@ -13,10 +13,17 @@ import { ChevronDown, ChevronUp, LucideIcon } from 'lucide-react';
 import { CategoryFontSelect } from './CategoryFontSelect';
 import { FontWeightControl } from './FontWeightControl';
 import { FontWeightValue, FontStyleType, FONT_WEIGHT_LABELS } from '../../../types/builder.types';
+import { RuleEducationalInfo } from '../../../types/validationRule.types';
+import { InfoTooltip } from '../../ui/InfoTooltip';
 
 interface TypographyCardProps {
     /** Title for the card (e.g., "Input Text") */
     title: string;
+    /**
+     * Same pattern as Export Field Name: structured help via HelpCircle + portal tooltip
+     * (`InfoTooltip` / `RuleEducationalInfo`). Omit for cards that do not need inline help.
+     */
+    titleInfo?: RuleEducationalInfo;
     /** Icon to display next to title */
     icon: LucideIcon;
     /** Icon color class (e.g., "text-blue-500") */
@@ -247,6 +254,7 @@ function isLightColor(hex: string): boolean {
 
 export const TypographyCard: React.FC<TypographyCardProps> = ({
     title,
+    titleInfo,
     icon: Icon,
     iconColor,
     fontFamily,
@@ -300,48 +308,51 @@ export const TypographyCard: React.FC<TypographyCardProps> = ({
 
     return (
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
-            {/* Header - Always visible, clickable to expand/collapse */}
-            <button
-                type="button"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
-            >
-                <div className="flex items-center gap-2 min-w-0">
-                    <Icon size={14} className={iconColor} />
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                        {title}
-                    </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                    {/* Color preview swatches in header */}
+            {/* Header: title toggles expand; right cluster matches Export Field Name (label + gap-1.5 + InfoTooltip). Nested buttons avoided. */}
+            <div className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors gap-2">
+                <button
+                    type="button"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="flex items-center gap-2 min-w-0 flex-1 text-left rounded-md -mx-1 px-1 py-0.5 hover:bg-gray-100/80 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                    <Icon size={14} className={`shrink-0 ${iconColor}`} />
+                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{title}</span>
+                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                    {titleInfo ? <InfoTooltip info={titleInfo} size={12} /> : null}
                     {color && (
-                        <div 
+                        <div
                             className="w-4 h-4 rounded border border-gray-300 dark:border-gray-500 shadow-sm"
                             style={{ backgroundColor: color }}
                             title="Text color"
                         />
                     )}
                     {backgroundColor && (
-                        <div 
+                        <div
                             className="w-4 h-4 rounded border border-gray-300 dark:border-gray-500 shadow-sm"
                             style={{
                                 backgroundColor: backgroundColor === 'transparent' ? 'transparent' : backgroundColor,
-                                backgroundImage: backgroundColor === 'transparent'
-                                    ? 'linear-gradient(45deg, #e5e5e5 25%, transparent 25%, transparent 75%, #e5e5e5 75%, #e5e5e5), linear-gradient(45deg, #e5e5e5 25%, transparent 25%, transparent 75%, #e5e5e5 75%, #e5e5e5)'
-                                    : undefined,
+                                backgroundImage:
+                                    backgroundColor === 'transparent'
+                                        ? 'linear-gradient(45deg, #e5e5e5 25%, transparent 25%, transparent 75%, #e5e5e5 75%, #e5e5e5), linear-gradient(45deg, #e5e5e5 25%, transparent 25%, transparent 75%, #e5e5e5 75%, #e5e5e5)'
+                                        : undefined,
                                 backgroundSize: backgroundColor === 'transparent' ? '6px 6px' : undefined,
                                 backgroundPosition: backgroundColor === 'transparent' ? '0 0, 3px 3px' : undefined,
                             }}
                             title={backgroundColor === 'transparent' ? 'Background: transparent' : 'Background color'}
                         />
                     )}
-                    {isExpanded ? (
-                        <ChevronUp size={14} className="text-gray-400 ml-1" />
-                    ) : (
-                        <ChevronDown size={14} className="text-gray-400 ml-1" />
-                    )}
+                    <button
+                        type="button"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="p-0.5 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        aria-expanded={isExpanded}
+                        aria-label={isExpanded ? 'Collapse typography' : 'Expand typography'}
+                    >
+                        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </button>
                 </div>
-            </button>
+            </div>
 
             {/* Summary - Only visible when collapsed */}
             {!isExpanded && (

@@ -99,6 +99,7 @@ export interface ComputedFieldStyles {
         textBorderColor?: string;
         textBorderWidth?: number;
         textBorderRadius?: number;
+        textHasBorder?: boolean;
         
         // Borders & Sizing
         borderRadius: number;
@@ -545,6 +546,7 @@ export function computeFieldStyles(
             textBorderColor: effective.textBorderColor,
             textBorderWidth: effective.textBorderWidth ? Math.round(effective.textBorderWidth * scaleFactor) : undefined,
             textBorderRadius: effective.textBorderRadius ? Math.round(effective.textBorderRadius * scaleFactor) : undefined,
+            textHasBorder: Boolean(effective.textHasBorder),
             
             // Borders & Sizing (scaled)
             borderRadius: scaledBorderRadius,

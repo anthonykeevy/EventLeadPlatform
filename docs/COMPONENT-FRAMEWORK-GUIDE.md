@@ -163,11 +163,7 @@ Add to `componentCapabilities.ts`:
 
 ```typescript
 interface ComponentCapabilities {
-  // Existing
-  supportsObjectLayout: boolean;
   supportsTextLengthIndicator: boolean;
-  
-  // NEW
   supportsExportName: boolean;
   supportsTabOrder: boolean;
   supportsInitialState: boolean;

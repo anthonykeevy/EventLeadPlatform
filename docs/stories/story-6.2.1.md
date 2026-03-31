@@ -3,7 +3,8 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.2.1  
 **Title:** Component Library Expansion  
-**Status:** Ready for UAT  
+**Status:** ✅ Complete  
+**Completed:** 2026-03-30 (manual UAT PASS; merged to `master`)  
 **Branch:** `story/epic6-6.2.1-component-library-expansion`  
 **PR:** #54  
 **Depends On:** Story 6.2 (✅ Complete)  
@@ -244,6 +245,10 @@ ratingLabels?: { low?: string; high?: string };  // e.g., "Not likely" / "Very l
   - N/S commits previously emitted only `resize.constraints.vertical`,
   - N/S parity patch has been applied to add collision/boundary enforcement on vertical commit.
 - Pending final manual confirmation: post-patch N/S + corner overlap/off-canvas blocking behavior.
+
+### Story complete (2026-03-30)
+- Manual UAT recorded **PASS** for steps 1.2–1.4, 2.1–2.6, 3.1–3.5, 4.1–4.3, 5.1–5.2, 6.1–6.2 in `STORY-6.2.1-UAT-TEST-GUIDE.md`.
+- Branch merged to `master` after status update.
 
 ### Resize / move notes (2026-03-30 closeout)
 - Long-form resize investigation doc was **removed from the branch** as PR noise; a short summary lives in `STORY-6.2.1-CLOSEOUT-REPORT.md` §6 and detailed UAT + log evidence remains in `STORY-6.2.1-UAT-RESULTS.md`.

@@ -1004,6 +1004,31 @@ export function getExportNameInfo(): RuleEducationalInfo {
 }
 
 /**
+ * Educational tooltip content for Rating marks typography (same UI pattern as Export Field Name → InfoTooltip).
+ */
+export function getRatingMarksTypographyInfo(): RuleEducationalInfo {
+    return {
+        ruleKey: 'ratingMarksTypography',
+        displayName: 'Rating marks',
+        description:
+            'Styles the stars, numbers, or emoji cells using the same Typography controls as Input Text (font, text/background colour, optional border, field height).',
+        pros: [
+            'Text colour applies to Lucide stars and to number glyphs',
+            'Background, border, font size, and height apply to stars, numbers, and emoji cells',
+            'Uses the same Label ↓ Input and Input ↓ Help spacing sliders as other fields',
+        ],
+        cons: [
+            'Emoji pictures use platform glyph colours; text colour does not recolour the emoji artwork',
+        ],
+        bestFor: 'Keeping rating visuals aligned with the rest of your input styling',
+        example: 'Amber text + white cell background + corner radius for star mode',
+        warning:
+            'Older forms may still store legacy ratingColor / ratingBackgroundColor; resetting this card clears those keys with the other input overrides.',
+        canAutoFix: false,
+    };
+}
+
+/**
  * Get all rule educational info as a map
  */
 export function getRuleEducationalMap(): RuleEducationalMap {

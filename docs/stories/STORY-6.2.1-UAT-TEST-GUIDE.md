@@ -7,6 +7,24 @@
 
 ---
 
+## UAT progress log (Form 340, 2026-03-30)
+
+UAT follow-up run: tests **1.2–1.4**, **2.1–2.6**, **3.1–3.5**, **4.1–4.3**, **5.1–5.2**, **6.1–6.2** recorded **PASS** on **2026-03-30**.
+
+| Test | Status | Notes |
+|------|--------|--------|
+| **1.1** Toolbox — URL visible | **PASS** | Website URL in Input category |
+| **1.2** Canvas — URL presentation | **PASS** | Re-test after URL/layout fixes: prefix + `example.com` placeholder, no double scheme. |
+| **1.3** Properties — URL / General | **PASS** | Label/placeholder/required/URL sections behave |
+| **1.3b** Identity **Layout** vs canvas | **PASS** | Horizontal/vertical on URL confirmed after `objectLayout` wiring. |
+| **1.3c** Global **Default Object Layout** vs existing canvas | **PASS** | Behaviour matches product rule: existing instances not reshuffled by live global. |
+| **1.4** Runtime parity | **PASS** | URL matches canvas; no builder chrome. |
+| **1.5** Backend validation | *Covered by automation* | `test_story_621_url_rating_paragraph_types_accepted` |
+
+**Reference doc vs raised issues:** `COMPONENT-FRAMEWORK-REFERENCE.md` states that `defaultObjectLayout` is **applied** when there is no `props.objectLayout` override (inheritance from form global). Your expectation is **stricter**: global default must **not** reshuffle already-placed components; only **toolbox + new drops** follow the live global. The implementation now follows **your** rule; the reference file was **not** edited — if you want the doc updated to match, say so.
+
+---
+
 ## Pre-UAT Checklist
 
 Before starting manual UAT, verify the Dev agent's evidence package:
@@ -30,7 +48,7 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 1. Drag the URL component from the toolbox onto the canvas
 2. **Verify:** Component appears with:
    - Label text (e.g., "Website URL")
-   - Input area showing URL placeholder (e.g., "https://...")
+   - When `urlPrefix` is set (e.g. `https://`): prefix shown **once** beside the field; inner placeholder is **`example.com`** only (not a second full URL)
    - Validation area below
 
 ### 1.3 Properties Panel
@@ -53,11 +71,11 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 
 | Step | Expected | Pass/Fail |
 |------|----------|-----------|
-| 1.1 Toolbox | URL visible in Input category | |
-| 1.2 Canvas | Renders with label, input, validation | |
-| 1.3 Properties | Controls work, canvas updates live | |
-| 1.4 Runtime | Identical to canvas, no builder chrome | |
-| 1.5 Validation | Backend accepts url type | |
+| 1.1 Toolbox | URL visible in Input category | **PASS** (2026-03-30) |
+| 1.2 Canvas | Renders with label, input (prefix + `example.com` placeholder), validation — no double scheme | **PASS** (2026-03-30) |
+| 1.3 Properties | Controls work, canvas updates live; Identity **Layout** changes `objectLayout` on canvas | **PASS** (2026-03-30) |
+| 1.4 Runtime | Identical to canvas, no builder chrome | **PASS** (2026-03-30) |
+| 1.5 Validation | Backend accepts url type | **PASS** (automated test) |
 
 ---
 
@@ -102,12 +120,12 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 
 | Step | Expected | Pass/Fail |
 |------|----------|-----------|
-| 2.1 Toolbox | Rating visible in Input category | |
-| 2.2 Canvas | Renders with label, stars, validation | |
-| 2.3 Properties (stars) | Star-specific controls, default 5 stars | |
-| 2.4 Properties (NPS) | Numbers mode, 0-10, labels work | |
-| 2.5 Runtime | Identical to canvas for both modes | |
-| 2.6 Validation | Backend accepts rating type | |
+| 2.1 Toolbox | Rating visible in Input category | **PASS** (2026-03-30) |
+| 2.2 Canvas | Renders with label, stars, validation | **PASS** (2026-03-30) |
+| 2.3 Properties (stars) | Star-specific controls, default 5 stars | **PASS** (2026-03-30) |
+| 2.4 Properties (NPS) | Numbers mode, 0-10, labels work | **PASS** (2026-03-30) |
+| 2.5 Runtime | Identical to canvas for both modes | **PASS** (2026-03-30) |
+| 2.6 Validation | Backend accepts rating type | **PASS** (2026-03-30) |
 
 ---
 
@@ -144,11 +162,11 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 
 | Step | Expected | Pass/Fail |
 |------|----------|-----------|
-| 3.1 Toolbox | Paragraph visible in Display category | |
-| 3.2 Canvas | Renders with paragraph text | |
-| 3.3 Properties | Text controls work, no validation section | |
-| 3.4 Runtime | Identical to canvas | |
-| 3.5 Validation | Backend accepts paragraph type | |
+| 3.1 Toolbox | Paragraph visible in Display category | **PASS** (2026-03-30) |
+| 3.2 Canvas | Renders with paragraph text | **PASS** (2026-03-30) |
+| 3.3 Properties | Text controls work, no validation section | **PASS** (2026-03-30) |
+| 3.4 Runtime | Identical to canvas | **PASS** (2026-03-30) |
+| 3.5 Validation | Backend accepts paragraph type | **PASS** (2026-03-30) |
 
 ---
 
@@ -179,9 +197,9 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 
 | Step | Expected | Pass/Fail |
 |------|----------|-----------|
-| 4.1 Build | All components render on canvas | |
-| 4.2 Runtime | WYSIWYG parity, correct order | |
-| 4.3 Validate | Backend accepts all types | |
+| 4.1 Build | All components render on canvas | **PASS** (2026-03-30) |
+| 4.2 Runtime | WYSIWYG parity, correct order | **PASS** (2026-03-30) |
+| 4.3 Validate | Backend accepts all types | **PASS** (2026-03-30) |
 
 ---
 
@@ -201,8 +219,8 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 
 | Step | Expected | Pass/Fail |
 |------|----------|-----------|
-| 5.1 Regression | All existing components work | |
-| 5.2 Date modes | time and datetime modes render correctly | |
+| 5.1 Regression | All existing components work | **PASS** (2026-03-30) |
+| 5.2 Date modes | time and datetime modes render correctly | **PASS** (2026-03-30) |
 
 ---
 
@@ -222,8 +240,8 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 
 | Step | Expected | Pass/Fail |
 |------|----------|-----------|
-| 6.1 Guide | Complete inventory with all components | |
-| 6.2 Context Pack | New types listed in catalog | |
+| 6.1 Guide | Complete inventory with all components | **PASS** (2026-03-30) |
+| 6.2 Context Pack | New types listed in catalog | **PASS** (2026-03-30) |
 
 ---
 
@@ -231,17 +249,17 @@ Before starting manual UAT, verify the Dev agent's evidence package:
 
 | Test | Description | Result |
 |------|------------|--------|
-| Test 1 | URL Component (5 steps) | |
-| Test 2 | Rating Component (6 steps) | |
-| Test 3 | Paragraph Component (5 steps) | |
-| Test 4 | Mixed Form (3 steps) | |
-| Test 5 | Regression Check (2 steps) | |
-| Test 6 | Documentation (2 steps) | |
+| Test 1 | URL Component (5 steps) | **PASS** — 1.1–1.5 (1.5 automated) |
+| Test 2 | Rating Component (6 steps) | **PASS** |
+| Test 3 | Paragraph Component (5 steps) | **PASS** |
+| Test 4 | Mixed Form (3 steps) | **PASS** |
+| Test 5 | Regression Check (2 steps) | **PASS** |
+| Test 6 | Documentation (2 steps) | **PASS** |
 
-**Overall UAT Result:** ____________________  
-**Tested By:** ____________________  
-**Date:** ____________________  
-**Notes:** ____________________
+**Overall UAT Result:** **PASS** (manual steps 1.2–1.4, 2.1–2.6, 3.1–3.5, 4.1–4.3, 5.1–5.2, 6.1–6.2)  
+**Tested By:** Human (manual UAT)  
+**Date:** 2026-03-30  
+**Notes:** Follow-up run after URL/layout/Rating marks UX fixes; all listed steps passed.
 
 ---
 

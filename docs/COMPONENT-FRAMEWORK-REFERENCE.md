@@ -445,8 +445,15 @@ This section has been deprecated and removed.
 
 | Global control (UI) | `GlobalStyles` key(s) | Type | Purpose | Current mapping notes |
 |---|---|---|---|---|
-| Default Object Layout | `defaultObjectLayout` | `ObjectLayoutType` | Default internal object layout (`vertical/horizontal/mixed`) | **Applied** by `UniversalFieldShell` when a component has no `props.objectLayout` override. |
-| Default Layout Groups (Mixed) | `defaultLayoutGroups` | `Record<string, string[]> \| undefined` | Default row grouping for mixed layouts | Used as a fallback in `UniversalFieldShell` when a component has no `props.layoutGroups` override. |
+| Default Object Layout | `defaultObjectLayout` | `ObjectLayoutType` | Default **flex/object** layout (`vertical` / `horizontal` / `mixed`) for new drops and toolbox previews | **Not a silent fallback on every render:** `UniversalFieldShell` uses **CSS Grid** whenever an effective `gridLayout` is present (from `props.gridLayout` or `globalStyles.defaultGridLayout`). In that mode, `props.objectLayout` does **not** change layout until the instance opts out of grid (see below). Global `defaultObjectLayout` is still snapped onto **new** components when the generator seeds props; existing instances keep their saved `objectLayout` / `gridLayout` as stored. |
+| Default Layout Groups (Mixed) | `defaultLayoutGroups` | `Record<string, string[]> \| undefined` | Default row grouping for mixed layouts | Used as a fallback in `UniversalFieldShell` when a component has no `props.layoutGroups` override (object-layout / mixed path). Mixed grouping for grid mode is edited in **Grid Layout**. |
+
+#### Grid vs object layout (precedence)
+
+- **Grid wins when active:** If `component.props.gridLayout` resolves to a concrete grid (including inheritance from `globalStyles.defaultGridLayout`), the shell renders **`data-layout-type="grid"`** and ignores `objectLayout` for major layout direction.
+- **Object layout mode:** Set **`gridLayout: null`** on the instance (Identity → **Layout** does this when choosing horizontal/vertical/mixed) so the component **opts out** of inherited grid and `objectLayout` applies via `groupObjectsByLayout`.
+- **Clear layout override** (when implemented in the panel): removes instance overrides so grid and object layout **re-inherit** from globals again.
+- **Per-component Properties Panel:** The legacy **Object Layout** block (`ObjectLayoutSection`) has been **removed**. Use **Identity → Layout** for `objectLayout` / grid opt-out and **Grid Layout** (`GridLayoutSection`) for grid geometry, cell assignment, and mixed `layoutGroups` where relevant.
 
 ---
 
@@ -638,6 +645,7 @@ This section documents **which property names represent intent vs resolved vs re
 | Normalized (Canvas px) | `objectMetrics.canvasRect.*`, `canvasBounds.*`, `canvasMetrics.screenToCanvasRatio` | Rendered values mapped to canvas coordinates. |
 
 ### Interpretation Rules
+- **`objectLayout` vs `gridLayout`:** If the effective layout is grid (see [Grid vs object layout](#grid-vs-object-layout-precedence)), treat `objectLayout` as inactive for rendering until `gridLayout` is cleared/`null` on that instance.
 - **Do not compare `props.*WidthOverride` directly to `objectMetrics.rect.width`.** Overrides express intent; the layout engine may clamp or redistribute widths.
 - **Use `objectMetrics.rect.width` for what the user sees.** This is the authoritative rendered width.
 - **For width equations**, use resolved px values:  
@@ -654,14 +662,15 @@ This section documents **which property names represent intent vs resolved vs re
 - **Identity & Behavior**: Properties Panel → `GeneralSection` (top)
 - **Data Collection**: Properties Panel → `GeneralSection` (bottom)
 - **Validation Rules**: Properties Panel → `ValidationSection`
-- **Object Layout**: Properties Panel → `ObjectLayoutSection`
+- **Layout (object direction + grid opt-out)**: Properties Panel → `GeneralSection` → Identity **Layout** (`objectLayout`, sets `gridLayout: null` when choosing non-grid mode)
+- **Grid Layout**: Properties Panel → `GridLayoutSection` (cells, spans, merges, grid gaps; mixed `layoutGroups` as used by grid tooling)
 - **Options**: Properties Panel → `OptionsSection`
 - **Date Settings**: Properties Panel → `DatePropertiesSection`
 - **Button Settings**: Properties Panel → `ButtonPropertiesSection`
 - **Terms Settings**: Properties Panel → `TermsPropertiesSection`
 - **Data Export**: Properties Panel → `DataExportSection`
 - **Divider Properties**: Properties Panel → `DividerPropertiesSection`
-- **Appearance > Dimensions / Typography & Colors / Spacing**: Properties Panel → `AppearanceSection`
+- **Appearance > Dimensions / Typography & Colors / Spacing**: Properties Panel → `AppearanceSection` (rating uses the same **Input Text** typography card pattern for the marks row, titled **Rating marks**, with **`InfoTooltip`** + `getRatingMarksTypographyInfo()` beside the title — same pattern as **Export Field Name** + `getExportNameInfo()`)
 - **Global Typography & Spacing**: Global Properties Panel → Typography & Spacing
 - **Global Object Layout**: Global Properties Panel → Object Layout
 
@@ -675,7 +684,6 @@ To avoid feature logic being scattered across many files, component feature enab
 
 Examples:
 - **Text Length Indicator** is enabled only when `supportsTextLengthIndicator === true` (builder visual guide).
-- **Object Layout panel** is shown only when `supportsObjectLayout === true` (e.g., Divider disables it).
 
 ### Surface capabilities (toolbox vs canvas vs runtime)
 
@@ -703,7 +711,7 @@ Key implemented surface differences:
 | `exportName` | `string` | export schema | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection |
 | `tabOrder` | `number` | keyboard navigation | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection | Data Collection |
 | `validation` | `ValidationRules` | `input` validation + `validation` message | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules | Validation Rules |
-| `objectLayout` / `layoutGroups` / `rowAlignment` | object/enums | internal object grouping | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout | Object Layout |
+| `objectLayout` / `layoutGroups` / `rowAlignment` | object/enums | internal object grouping | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout | Identity (Layout) / Grid Layout |
 | `objectSpacing` | `{ horizontalGap?, verticalSpacing?, objectGap? }` | layout-engine object gaps | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing | Appearance > Spacing |
 | `width` / `height` / `textAlign` / `componentScale` | sizing/enums | container + object sizing | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions | Appearance > Dimensions |
 | `styleOverrides.*` | `StyleOverrides` | `PrimaryLabel` / `InputControl` / `HelperText` | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors | Appearance > Typography & Colors |
@@ -1147,9 +1155,9 @@ Proportional scaling is now **exclusive** to the Properties Panel control:
 The `UniversalFieldShell` (`components/UniversalFieldShell.tsx`) is the universal wrapper for all form components. It manages layout, spacing, conditional visibility, and integrates the `SmartBorder`.
 
 ### Key Responsibilities
-1. **Layout Management:** Supports **Grid Layout** *and* **Object Layout**.
-   - **Grid Layout (preferred):** when `component.props.gridLayout` (or `globalStyles.defaultGridLayout`) is enabled, it renders a CSS Grid container (`data-layout-type="grid"`) and positions objects via `cellAssignments` (+ `mergedCells` / `objectSpans`) using `gridLayoutUtils`. **Note:** Columns containing `input`, `display`, or `divider` objects are rendered as flexible `minmax(0, 1fr)` tracks to allow stretching, while columns with only static objects (`label`, `validation`, etc.) use `minmax(0, max-content)`.
-   - **Object Layout (legacy/transition):** otherwise it falls back to `vertical` / `horizontal` / `mixed` grouping via `groupObjectsByLayout`.
+1. **Layout Management:** Supports **Grid Layout** and **object layout** (flex grouping). **Grid takes precedence** whenever an effective grid config exists; object layout applies when grid is inactive or the instance sets **`gridLayout: null`** to opt out of inherited grid (see [Grid vs object layout](#grid-vs-object-layout-precedence)).
+   - **Grid Layout (primary editor experience):** when `component.props.gridLayout` (or `globalStyles.defaultGridLayout`) is enabled, it renders a CSS Grid container (`data-layout-type="grid"`) and positions objects via `cellAssignments` (+ `mergedCells` / `objectSpans`) using `gridLayoutUtils`. **Note:** Columns containing `input`, `display`, or `divider` objects are rendered as flexible `minmax(0, 1fr)` tracks to allow stretching, while columns with only static objects (`label`, `validation`, etc.) use `minmax(0, max-content)`.
+   - **Object layout (non-grid path):** when grid is not effective, it falls back to `vertical` / `horizontal` / `mixed` grouping via `groupObjectsByLayout`.
 2. **Conditional Rendering:** Filters objects based on `conditionalContext`. In `builderMode`, conditional objects are always rendered (so SmartBorder accounts for their space).
 3. **SmartBorder Integration:** Wraps content in `<SmartBorder>` when in `builderMode` to provide the collision/selection boundary.
 4. **Spacing:** 
@@ -1182,6 +1190,22 @@ Keep the **top-level structure** simple and consistent:
 - **Dropdown**: `vertical` (`label`, `input`, `validation`)
 - **Radio**: `vertical` (`label`, `input`, `validation`)
 - **Checkbox**: `horizontal` for (`input`, `label`) with `validation` below (via layout groups)
+
+#### Rating: marks row typography (Input Text parity)
+
+The **rating** component uses the **same Typography & Colors card as other inputs** for the marks row (stars, numbers, or emoji cells). In the Properties Panel the card is titled **Rating marks**; **`InfoTooltip`** with **`getRatingMarksTypographyInfo()`** (structured `RuleEducationalInfo` from `validationRuleSeed.ts`, same UX as **Export Field Name** + `getExportNameInfo()`) documents stars vs emoji behaviour and legacy keys.
+
+| `styleOverrides` / input archetype | Stars | Numbers | Emoji |
+|------------------------------------|-------|---------|-------|
+| `fontFamily`, `fontSize`, `fontWeight`, `fontStyle` | Scales Lucide **Star** size from font size; button uses same font context | Number glyphs use full typography | Font size scales the cell; **emoji glyph colour is not controllable** via text colour (platform emoji) |
+| `textColor` | Star stroke/fill (active/idle) | Digit colour | No effect on emoji picture |
+| `textBackgroundColor` | Cell background | Cell background | Cell background |
+| `textBorderColor` / `textBorderWidth` / `textBorderRadius`, resolved like other inputs | Per-cell border (`objectRenderers` uses the same resolved border as `inputStyle`) | Same | Same |
+| `inputHeight` | Contributes to minimum cell size; number cells also use `max(font×2, min(inputHeight, 50))` | Same | Same |
+| **Label ↓ Input** / **Input ↓ Help text** (`labelGap`, `inputHelpGap`) | Same spacing sliders as other fields (see [Grid vs object layout](#grid-vs-object-layout-precedence) for grid vs margin behaviour) | | |
+| **Legacy** `ratingColor` / `ratingBackgroundColor` | Still read when **`textColor`** / **`textBackgroundColor`** are not explicitly overridden on the instance (older forms). Reset **Rating marks** clears these keys with the rest of the input-style bundle. | | |
+
+Implementation: `frontend/src/features/builder/utils/objectRenderers.tsx` (rating branch inside `createInputRenderer`).
 
 The per-option extra inputs are rendered **inside** the selection `input` renderer (not as separate top-level objects). Internally, the renderer uses a stable two-column layout:
 
@@ -1740,7 +1764,7 @@ get().pushToHistory('Update phone format to Australian');
 - ✅ Typography & Spacing section with 3 TypographyCards (Label, Input, Help)
 - ✅ SpacingDivider between cards for gaps
 - ✅ Layout (Legacy) section removed
-- ✅ Object Layout section present
+- ✅ Object Layout section present (global default object layout + layout groups for defaults)
 
 **Gaps Identified:**
 | Gap | Description | Priority |
@@ -1807,7 +1831,7 @@ interface SpacingProperties {
 **Current State (`PropertiesPanel.tsx` lines 542-727):**
 - ✅ Full property editing for selected component
 - ✅ Component-specific sections (Button, Terms, Textarea, Options, Date, Divider)
-- ✅ GeneralSection, ValidationSection, ObjectLayoutSection, AppearanceSection
+- ✅ GeneralSection (Identity **Layout** + grid opt-out), ValidationSection, GridLayoutSection, AppearanceSection
 - ✅ Debug info (ID, Position, Export name)
 
 **Gaps Identified:**

@@ -18,7 +18,7 @@ import {
   Star,
   Minus,
 } from 'lucide-react';
-import { ComponentType, FormComponent, StyleOverrides, GlobalStyles, LayoutType, ComponentStructure } from '../types/builder.types';
+import { ComponentType, FormComponent, StyleOverrides, GlobalStyles, LayoutType, ComponentStructure, ObjectLayoutType } from '../types/builder.types';
 import { getDefaultStructure } from '../utils/structureDefaults';
 import { UniversalFieldShell } from '../components/UniversalFieldShell';
 import { getRenderersForComponent } from '../utils/componentRenderers';
@@ -1303,7 +1303,7 @@ export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinitio
   }
 } as Partial<Record<ComponentType, ComponentDefinition>>;
 
-export const generateComponent = (type: ComponentType): FormComponent => {
+export const generateComponent = (type: ComponentType, globalStyles?: GlobalStyles): FormComponent => {
   const def = ComponentRegistry[type];
   if (!def) {
       // Fallback or error if type is legacy but not in registry
@@ -1320,14 +1320,16 @@ export const generateComponent = (type: ComponentType): FormComponent => {
   const structure = def.structure;
   const props: Record<string, unknown> = { ...def.defaultProps };
   
-  // IMPORTANT:
-  // Components should follow Global Defaults by default.
-  //
-  // - Toolbox previews receive `globalStyles` from `ComponentSidebar`, so they naturally render with
-  //   `globalStyles.defaultObjectLayout` unless a component has an explicit override.
-  // - When adding a component to the canvas, we intentionally do NOT seed `props.objectLayout` /
-  //   `props.layoutGroups` from the structure, otherwise the component would override Global Defaults
-  //   immediately (this is exactly what caused first-name to switch from toolbox-vertical → canvas-mixed).
+  // Snapshot current form Global Object Layout onto the new instance so:
+  // - Toolbox previews still follow *live* global defaults (via ComponentSidebar).
+  // - Canvas instances do not "drift" when the user later changes Global → Default Object Layout.
+  // Only seed vertical/horizontal (mixed needs explicit layoutGroups).
+  const seed: ObjectLayoutType | undefined =
+    globalStyles?.defaultObjectLayout ?? (globalStyles?.defaultLayout as LayoutType | undefined);
+  if (seed === 'vertical' || seed === 'horizontal') {
+    props.objectLayout = seed;
+  }
+
   void structure;
   
   return {

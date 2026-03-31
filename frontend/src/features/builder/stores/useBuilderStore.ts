@@ -199,7 +199,8 @@ function createEmptyFormDefinition(formId: string): FormDefinition {
     };
 }
 
-function selectAuthoredPages(def: FormDefinition): FormPage[] {
+/** Prefer desktop preview pages when present (must match canvas / getSelectedComponent). */
+export function selectAuthoredPages(def: FormDefinition): FormPage[] {
     if (def.desktopPages && def.desktopPages.length > 0) return def.desktopPages;
     return def.pages ?? [];
 }
@@ -211,7 +212,7 @@ function writeAuthoredPages(def: FormDefinition, pages: FormPage[]): FormDefinit
     return { ...def, pages };
 }
 
-function writeAuthoredPagesForState(def: FormDefinition, pages: FormPage[]): FormDefinition {
+export function writeAuthoredPagesForState(def: FormDefinition, pages: FormPage[]): FormDefinition {
     return writeAuthoredPages(def, pages);
 }
 

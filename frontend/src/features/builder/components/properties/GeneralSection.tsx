@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ChevronDown, AlertCircle, AlertTriangle, User, Database } from 'lucide-react';
 import { PropertyTextInput, PropertyToggle, PropertySelect, PropertyNumberInput } from './inputs';
-import { ComponentProps, LayoutType } from '../../types/builder.types';
+import { ComponentProps, LayoutType, ObjectLayoutType } from '../../types/builder.types';
 import { InfoTooltip } from '../ui/InfoTooltip';
 import { getExportNameInfo } from '../../data/validationRuleSeed';
 
@@ -9,7 +9,9 @@ interface GeneralSectionProps {
     props: ComponentProps;
     onPropsChange: (updates: Partial<ComponentProps>) => void;
     componentType: string;
-    /** Global default layout for "use global" indicator */
+    /** Structure/registry default (what canvas uses when there is no objectLayout override). */
+    structureDefaultLayout?: 'vertical' | 'horizontal';
+    /** Form Global Styles default — used for new toolbox drops and help text only. */
     globalDefaultLayout?: 'vertical' | 'horizontal';
 }
 
@@ -45,15 +47,17 @@ export const GeneralSection: React.FC<GeneralSectionProps> = ({
     props,
     onPropsChange,
     componentType,
+    structureDefaultLayout = 'vertical',
     globalDefaultLayout = 'vertical',
 }) => {
     const [isExpanded, setIsExpanded] = React.useState(true);
     const [isDataExpanded, setIsDataExpanded] = React.useState(true);
     const prevLabelRef = useRef(props.label);
     
-    // Determine effective layout (component override or global default)
-    const hasLayoutOverride = props.layout !== undefined;
-    const effectiveLayout = props.layout || globalDefaultLayout;
+    // Object layout: Identity "Layout" drives props.objectLayout. When unset, canvas uses structure default (not live global).
+    // Legacy persisted `layout` is still read for older definitions.
+    const hasLayoutOverride = props.objectLayout !== undefined || props.layout !== undefined;
+    const displayLayout = (props.objectLayout || props.layout || structureDefaultLayout) as LayoutType;
     
     const isDisplayComponent = ['header', 'paragraph'].includes(componentType);
     const showPlaceholder = !isDisplayComponent && componentType !== 'rating';
@@ -153,21 +157,34 @@ export const GeneralSection: React.FC<GeneralSectionProps> = ({
                             <div className="space-y-1">
                                 <PropertySelect
                                     label="Layout"
-                                    value={effectiveLayout}
-                                    onChange={(value) => onPropsChange({ layout: value as LayoutType })}
+                                    value={displayLayout}
+                                    onChange={(value) =>
+                                        onPropsChange({
+                                            objectLayout: value as ObjectLayoutType,
+                                            layout: undefined,
+                                            // Opt out of CSS grid for this instance so objectLayout (horizontal/vertical) applies.
+                                            gridLayout: null,
+                                        })
+                                    }
                                     options={LAYOUT_OPTIONS}
-                                    helpText={hasLayoutOverride 
-                                        ? "Custom layout for this component" 
-                                        : `Using global default (${globalDefaultLayout})`
+                                    helpText={hasLayoutOverride
+                                        ? "Label/input arrangement (object layout). Grid layout is off for this field while this override is set."
+                                        : `Canvas follows structure default (${structureDefaultLayout}) until you change this. If a global grid layout is on, use this control to switch to horizontal/vertical (opts out of grid for this component). Form default for new drops: ${globalDefaultLayout}.`
                                     }
                                 />
                                 {hasLayoutOverride && (
                                     <button
                                         type="button"
-                                        onClick={() => onPropsChange({ layout: undefined })}
+                                        onClick={() =>
+                                            onPropsChange({
+                                                objectLayout: undefined,
+                                                layout: undefined,
+                                                gridLayout: undefined,
+                                            })
+                                        }
                                         className="text-xs text-blue-600 hover:text-blue-800 underline"
                                     >
-                                        Reset to global default
+                                        Clear layout override
                                     </button>
                                 )}
                             </div>

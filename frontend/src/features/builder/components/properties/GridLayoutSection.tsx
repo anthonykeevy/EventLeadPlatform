@@ -367,7 +367,7 @@ export const GridLayoutSection: React.FC<GridLayoutSectionProps> = ({
         return hasGridLayoutOverride(component.props.gridLayout ?? undefined);
     }, [component.props.gridLayout]);
     
-    // Get visible objects from structure (same logic as ObjectLayoutSection)
+    // Get visible objects from structure (filtered by builder/runtime visibility)
     const visibleObjects = useMemo(() => {
         return structure.objects.filter(obj => {
             if (obj.type === 'validation') return true;

@@ -110,7 +110,7 @@ const renderInputPlaceholder = (component: FormComponent) => {
       return (
         <div className={`${baseClasses} flex items-center gap-2`}>
           <LinkIcon size={14} className="text-gray-400" />
-          <span>{component.props.placeholder || 'https://example.com'}</span>
+          <span>{component.props.placeholder || 'example.com'}</span>
         </div>
       );
     case 'rating':

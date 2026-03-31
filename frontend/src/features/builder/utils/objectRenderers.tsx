@@ -16,6 +16,31 @@ import { measureTextWidth } from '../utils/widthCalculator';
 import { getComponentCapabilities } from './componentCapabilities';
 import { getComponentSurfaceCapabilities, type ComponentSurface } from './componentSurfaceCapabilities';
 
+/** Placeholder inside the URL field is host/path only when a prefix (e.g. https://) is shown beside it. */
+function effectiveUrlInputPlaceholder(placeholder: string | undefined, prefix: string | undefined): string {
+    const fallback = 'example.com';
+    let text = (placeholder ?? '').trim() || fallback;
+    const pref = (prefix ?? '').trim();
+    if (pref && text.toLowerCase().startsWith(pref.toLowerCase())) {
+        text = text.slice(pref.length).trim() || fallback;
+    }
+    return text;
+}
+
+/**
+ * When true, strip label/input vertical margins so flex row alignment or same-row grid cells stay aligned.
+ * Grid + one object per row keeps margins so Typography "Label ↓ Input" still affects canvas/runtime.
+ */
+function suppressVerticalFieldMargins(
+    layout: ObjectLayoutType,
+    isGridLayout?: boolean,
+    inRowGroup?: boolean
+): boolean {
+    if (layout === 'horizontal') return true;
+    if (inRowGroup && (isGridLayout || layout === 'mixed')) return true;
+    return false;
+}
+
 const TermsLinkComponent: React.FC<{
     component: FormComponent;
     primaryColor?: string;
@@ -273,7 +298,7 @@ export interface ObjectRenderers {
  * Create a standard label renderer with Required * support.
  */
 export function createLabelRenderer(): ObjectRenderer {
-    return ({ component, styles, required, componentId, labelWidthOverride, layout, inRowGroup, surface, builderMode }) => {
+    return ({ component, styles, required, componentId, labelWidthOverride, layout, inRowGroup, surface, builderMode, isGridLayout }) => {
         const label = component.props.label;
         if (!label && !required) {
             return null;
@@ -292,10 +317,9 @@ export function createLabelRenderer(): ObjectRenderer {
             // In horizontal/mixed rows, do NOT override alignSelf, otherwise the label will
             // ignore rowAlignment (flex align-items) and appear stuck to the top.
             ...(inRowGroup ? {} : { alignSelf: 'flex-start' }),
-            // Remove vertical margins in horizontal/mixed layouts to avoid unintended offsets.
-            // Vertical alignment should be controlled by rowAlignment (Object Layout), not per-component margin hacks.
-            marginTop: (layout === 'horizontal' || layout === 'mixed') ? 0 : styles.labelStyle.marginTop,
-            marginBottom: (layout === 'horizontal' || layout === 'mixed') ? 0 : styles.labelStyle.marginBottom,
+            // Remove vertical margins when objects share one flex/grid row; keep for vertical stacks (incl. grid rows).
+            marginTop: suppressVerticalFieldMargins(layout, isGridLayout, inRowGroup) ? 0 : styles.labelStyle.marginTop,
+            marginBottom: suppressVerticalFieldMargins(layout, isGridLayout, inRowGroup) ? 0 : styles.labelStyle.marginBottom,
             ...(labelWidthOverride && {
                 maxWidth: labelWidthOverride,
                 // Allow wrapping when width is constrained
@@ -336,7 +360,7 @@ export function createLabelRenderer(): ObjectRenderer {
  * Create a standard input renderer with StyledInput.
  */
 export function createInputRenderer(): ObjectRenderer {
-    return ({ component, styles, value, onChange, disabled, required, error, componentId, primaryColor, inputRef, tabIndex, inputWidthOverride, builderMode, layout, surface, isGridLayout, simulateFocus }) => {
+    return ({ component, styles, value, onChange, disabled, required, error, componentId, primaryColor, inputRef, tabIndex, inputWidthOverride, builderMode, layout, surface, isGridLayout, inRowGroup, simulateFocus }) => {
         const inputId = componentId ? `${componentId}-input` : undefined;
         const placeholder = component.props.placeholder;
         
@@ -383,8 +407,8 @@ export function createInputRenderer(): ObjectRenderer {
         
         const inputStyle: React.CSSProperties = {
             ...styles.inputStyle,
-            marginTop: (layout === 'horizontal' || layout === 'mixed') ? 0 : styles.inputStyle.marginTop,
-            marginBottom: (layout === 'horizontal' || layout === 'mixed') ? 0 : styles.inputStyle.marginBottom,
+            marginTop: suppressVerticalFieldMargins(layout, isGridLayout, inRowGroup) ? 0 : styles.inputStyle.marginTop,
+            marginBottom: suppressVerticalFieldMargins(layout, isGridLayout, inRowGroup) ? 0 : styles.inputStyle.marginBottom,
             ...(normalizedInputWidth && allowInputWidthOverride && {
                 width: normalizedInputWidth,
                 maxWidth: normalizedInputWidth,
@@ -434,6 +458,7 @@ export function createInputRenderer(): ObjectRenderer {
             const isRuntime = effectiveSurface === 'runtime';
             const runtimeValue = typeof value === 'string' ? value : '';
             const prefix = component.props.urlPrefix;
+            const urlPlaceholder = effectiveUrlInputPlaceholder(placeholder, prefix);
 
             // When prefix is active, we render a flex container with the prefix and a borderless input
             if (prefix) {
@@ -477,7 +502,7 @@ export function createInputRenderer(): ObjectRenderer {
                             required={required}
                             tabIndex={tabIndex}
                             maxLength={maxLength}
-                            placeholder={placeholder || 'example.com'}
+                            placeholder={urlPlaceholder}
                             value={isRuntime ? runtimeValue : ''}
                             onChange={e => onChange?.(e.target.value)}
                             style={{
@@ -522,7 +547,7 @@ export function createInputRenderer(): ObjectRenderer {
                     error={error}
                     componentId={componentId}
                     type="url"
-                    placeholder={placeholder || 'example.com'}
+                    placeholder={urlPlaceholder}
                     value={isRuntime ? runtimeValue : ''}
                     onChange={e => onChange?.(e.target.value)}
                     maxLength={maxLength}
@@ -547,10 +572,44 @@ export function createInputRenderer(): ObjectRenderer {
             const isRuntime = effectiveSurface === 'runtime';
             const currentValueRaw = typeof value === 'number' ? value : Number(value ?? 0);
             const currentValue = Number.isFinite(currentValueRaw) ? currentValueRaw : 0;
-            // Use specific ratingColor override, fallback to global primaryColor if not set
-            const iconColor = styles.computed.ratingColor || styles.computed.primaryColor || '#2563EB';
-            const ratingBgColor = styles.computed.ratingBackgroundColor || 'transparent';
-            const textColor = styles.computed.textColor || '#1F2937';
+            const so = component.props.styleOverrides;
+            const hasTextColorOverride = Boolean(so && 'textColor' in so && so.textColor !== undefined);
+            const hasRatingColorOverride = Boolean(so && 'ratingColor' in so && so.ratingColor !== undefined);
+            // Typography "Input Text" colour drives marks; legacy ratingColor if only that was set.
+            const markColor = hasTextColorOverride
+                ? styles.computed.textColor
+                : hasRatingColorOverride
+                  ? String(so!.ratingColor)
+                  : styles.computed.ratingColor || styles.computed.textColor || styles.computed.primaryColor || '#2563EB';
+            const hasTextBgOverride = Boolean(so && 'textBackgroundColor' in so && so.textBackgroundColor !== undefined);
+            const hasRatingBgOverride = Boolean(so && 'ratingBackgroundColor' in so && so.ratingBackgroundColor !== undefined);
+            const cellBg = hasTextBgOverride
+                ? (styles.computed.textBackgroundColor ?? 'transparent')
+                : hasRatingBgOverride
+                  ? String(so!.ratingBackgroundColor)
+                  : styles.computed.ratingBackgroundColor ?? styles.computed.textBackgroundColor ?? 'transparent';
+            const fontSz = styles.computed.fontSize ?? 14;
+            const starSize = Math.max(14, Math.round(fontSz * 1.25));
+            const numberSide = Math.max(28, Math.round(fontSz * 2), Math.min(styles.computed.inputHeight, 50));
+            // Match resolved input border (same rules as Typography → Input, including per-component textBorder*).
+            const resolvedBorderW = styles.inputStyle.borderWidth;
+            const useTypographyBorder =
+                (typeof resolvedBorderW === 'string' && resolvedBorderW !== '0px') ||
+                (typeof resolvedBorderW === 'number' && resolvedBorderW > 0);
+            const borderCol = (styles.inputStyle.borderColor as string | undefined) ?? '#D1D5DB';
+            const borderW = useTypographyBorder
+                ? Math.max(
+                      1,
+                      typeof resolvedBorderW === 'string'
+                          ? Number.parseFloat(resolvedBorderW) || 1
+                          : Number(resolvedBorderW) || 1
+                  )
+                : 1;
+            const cellBorderRadius: React.CSSProperties['borderRadius'] = useTypographyBorder
+                ? (styles.inputStyle.borderRadius as React.CSSProperties['borderRadius'])
+                : ratingStyle === 'numbers'
+                  ? 6
+                  : 0;
 
             const renderMark = (index: number) => {
                 if (ratingStyle === 'numbers') {
@@ -561,9 +620,9 @@ export function createInputRenderer(): ObjectRenderer {
                 }
                 return (
                     <Star
-                        size={18}
-                        fill={index + 1 <= currentValue ? iconColor : 'none'}
-                        color={iconColor}
+                        size={starSize}
+                        fill={index + 1 <= currentValue ? markColor : 'none'}
+                        color={markColor}
                     />
                 );
             };
@@ -579,6 +638,20 @@ export function createInputRenderer(): ObjectRenderer {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         {Array.from({ length: ratingMax }).map((_, index) => {
                             const selected = index + 1 <= currentValue;
+                            const defaultNumberBorder = `${borderW}px solid ${selected ? markColor : borderCol}`;
+                            const cellBorder = useTypographyBorder
+                                ? `${borderW}px solid ${borderCol}`
+                                : ratingStyle === 'numbers'
+                                  ? defaultNumberBorder
+                                  : 'none';
+                            const numberBg =
+                                ratingStyle === 'numbers' && !useTypographyBorder
+                                    ? selected
+                                        ? `${markColor}20`
+                                        : cellBg
+                                    : cellBg;
+                            const starEmojiBg = cellBg;
+
                             return (
                                 <button
                                     key={`rating-${index}`}
@@ -589,17 +662,27 @@ export function createInputRenderer(): ObjectRenderer {
                                         onChange?.(index + 1);
                                     }}
                                     style={{
-                                        width: ratingStyle === 'numbers' ? 30 : undefined,
-                                        height: ratingStyle === 'numbers' ? 30 : undefined,
-                                        border: ratingStyle === 'numbers' ? `1px solid ${selected ? iconColor : '#D1D5DB'}` : 'none',
-                                        borderRadius: ratingStyle === 'numbers' ? 6 : 0,
-                                        background: ratingStyle === 'numbers' ? (selected ? `${iconColor}20` : ratingBgColor) : ratingBgColor,
-                                        color: textColor,
+                                        fontFamily: styles.computed.fontFamily,
+                                        fontSize: ratingStyle === 'emoji' ? `${Math.round(fontSz * 1.1)}px` : `${fontSz}px`,
+                                        fontWeight: styles.computed.fontWeight,
+                                        fontStyle: styles.computed.fontStyle,
+                                        width: ratingStyle === 'numbers' ? numberSide : undefined,
+                                        height: ratingStyle === 'numbers' ? numberSide : undefined,
+                                        minWidth: ratingStyle === 'stars' || ratingStyle === 'emoji' ? starSize + 8 : undefined,
+                                        minHeight: ratingStyle === 'stars' || ratingStyle === 'emoji' ? starSize + 8 : undefined,
+                                        border: cellBorder,
+                                        borderRadius: cellBorderRadius,
+                                        background:
+                                            ratingStyle === 'numbers'
+                                                ? numberBg
+                                                : starEmojiBg,
+                                        color: markColor,
                                         cursor: !isRuntime || disabled ? 'default' : 'pointer',
-                                        padding: 0,
+                                        padding: ratingStyle === 'numbers' ? 0 : 4,
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
+                                        boxSizing: 'border-box',
                                     }}
                                 >
                                     {renderMark(index)}

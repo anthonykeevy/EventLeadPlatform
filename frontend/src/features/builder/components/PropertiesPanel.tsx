@@ -1,9 +1,9 @@
 import React from 'react';
 import { Settings, X, Layers, Users, GitBranch, SlidersHorizontal, Sparkles } from 'lucide-react';
-import { useBuilderStore } from '../stores/useBuilderStore';
+import { useBuilderStore, selectAuthoredPages, writeAuthoredPagesForState } from '../stores/useBuilderStore';
 import { useAuth } from '../../auth/context/AuthContext';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
-import { DEFAULT_GLOBAL_STYLES, FormPage, FormComponent, StyleOverrides } from '../types/builder.types';
+import { DEFAULT_GLOBAL_STYLES, FormPage, FormComponent, StyleOverrides, ObjectLayoutType } from '../types/builder.types';
 import { GeneralSection } from './properties/GeneralSection';
 import { ValidationSection } from './properties/ValidationSection';
 import { AppearanceSection } from './properties/AppearanceSection';
@@ -19,7 +19,6 @@ import { UrlPropertiesSection } from './properties/UrlPropertiesSection';
 import { RatingPropertiesSection } from './properties/RatingPropertiesSection';
 import { DividerPropertiesSection } from './properties/DividerPropertiesSection';
 import GridLayoutSection from './properties/GridLayoutSection';
-import { ObjectLayoutSection } from './properties/ObjectLayoutSection';
 import { LogicPanel } from './logic/LogicPanel';
 import { AIAgentPanel } from './ai/AIAgentPanel';
 
@@ -218,10 +217,11 @@ export const PropertiesPanel: React.FC = () => {
         
         useBuilderStore.setState((state) => {
             if (!state.formDefinition) return state;
-            
-            const activePage = state.formDefinition.pages.find(p => p.id === state.activePageId);
+
+            const pages = selectAuthoredPages(state.formDefinition);
+            const activePage = pages.find(p => p.id === state.activePageId);
             if (!activePage) return state;
-            
+
             // Find the component and get its CURRENT overrides from state (not from closure)
             const findComponent = (components: typeof activePage.components): typeof activePage.components[0] | null => {
                 for (const comp of components) {
@@ -233,13 +233,13 @@ export const PropertiesPanel: React.FC = () => {
                 }
                 return null;
             };
-            
+
             const currentComponent = findComponent(activePage.components);
             if (!currentComponent) return state;
-            
+
             // Get current overrides from STATE (not from closure)
             const currentOverrides = currentComponent.props.styleOverrides || {};
-            
+
             // Determine new overrides
             let newOverrides: StyleOverrides | undefined;
             if (!updates || Object.keys(updates).length === 0) {
@@ -249,7 +249,11 @@ export const PropertiesPanel: React.FC = () => {
                 // Merge with current overrides
                 newOverrides = mergeStyleOverrides(currentOverrides, updates);
             }
-            
+
+            // Typography gap sliders use styleOverrides; pixel overrides from resize win unless cleared.
+            const clearLabelGapOverride = Boolean(updates && 'labelGap' in updates);
+            const clearInputHelpGapOverride = Boolean(updates && 'inputHelpGap' in updates);
+
             // Update the component in the state tree
             const updateComponentInList = (components: typeof activePage.components): typeof activePage.components => {
                 return components.map(comp => {
@@ -259,6 +263,8 @@ export const PropertiesPanel: React.FC = () => {
                             props: {
                                 ...comp.props,
                                 styleOverrides: newOverrides,
+                                ...(clearLabelGapOverride ? { labelGapOverride: undefined } : {}),
+                                ...(clearInputHelpGapOverride ? { inputHelpGapOverride: undefined } : {}),
                             },
                         };
                     }
@@ -271,17 +277,14 @@ export const PropertiesPanel: React.FC = () => {
                     return comp;
                 });
             };
-            
+
             const newComponents = updateComponentInList(activePage.components);
-            const newPages = state.formDefinition.pages.map(p =>
+            const newPages = pages.map(p =>
                 p.id === state.activePageId ? { ...p, components: newComponents } : p
             );
-            
+
             return {
-                formDefinition: {
-                    ...state.formDefinition,
-                    pages: newPages,
-                },
+                formDefinition: writeAuthoredPagesForState(state.formDefinition, newPages),
             };
         });
     }, [selectedComponentId]);
@@ -549,10 +552,6 @@ export const PropertiesPanel: React.FC = () => {
     const selectedStructure = selectedComponent ? ComponentRegistry[selectedComponent.type]?.structure : undefined;
     const canShowObjectGridLayout =
         Boolean(selectedStructure?.objects?.length) && !['divider', 'header', 'paragraph'].includes(selectedComponent?.type || '');
-    const isGridMode =
-        !!selectedComponent &&
-        selectedComponent.props.gridLayout !== null &&
-        (selectedComponent.props.gridLayout !== undefined || Boolean(globalStyles.defaultGridLayout));
 
     return (
         <aside className={panelClassName}>
@@ -662,7 +661,14 @@ export const PropertiesPanel: React.FC = () => {
                         props={selectedComponent.props}
                         onPropsChange={handlePropsChange}
                         componentType={selectedComponent.type}
-                        globalDefaultLayout={globalStyles.defaultLayout}
+                        structureDefaultLayout={
+                            selectedStructure?.defaultLayout === 'horizontal'
+                                ? 'horizontal'
+                                : 'vertical'
+                        }
+                        globalDefaultLayout={
+                            globalStyles.defaultObjectLayout ?? globalStyles.defaultLayout ?? 'vertical'
+                        }
                     />
                 )}
 
@@ -670,26 +676,12 @@ export const PropertiesPanel: React.FC = () => {
                 {/* LAYOUT MODE (Object Layout vs Grid Layout) */}
                 {/* ═══════════════════════════════════════════════════════════════ */}
                 {canShowObjectGridLayout && selectedStructure && (
-                    <>
-                        <GridLayoutSection
-                            component={selectedComponent}
-                            structure={selectedStructure}
-                            onPropsChange={handlePropsChange}
-                            globalStyles={globalStyles}
-                        />
-                        {/* Only show Object Layout editor when in Object mode */}
-                        {!isGridMode && (
-                            <ObjectLayoutSection
-                                component={selectedComponent}
-                                structure={selectedStructure}
-                                onPropsChange={handlePropsChange}
-                                globalStyles={{
-                                    defaultObjectLayout: globalStyles.defaultObjectLayout,
-                                    defaultLayoutGroups: globalStyles.defaultLayoutGroups,
-                                }}
-                            />
-                        )}
-                    </>
+                    <GridLayoutSection
+                        component={selectedComponent}
+                        structure={selectedStructure}
+                        onPropsChange={handlePropsChange}
+                        globalStyles={globalStyles}
+                    />
                 )}
 
                 {/* ═══════════════════════════════════════════════════════════════ */}
@@ -722,7 +714,12 @@ export const PropertiesPanel: React.FC = () => {
                         overrides={selectedComponent.props.styleOverrides}
                         globalStyles={globalStyles}
                         onOverridesChange={handleStyleOverridesChange}
-                        currentLayout={selectedComponent.props.layout || globalStyles.defaultLayout}
+                        currentLayout={
+                            (selectedComponent.props.objectLayout ||
+                                selectedComponent.props.layout ||
+                                selectedStructure?.defaultLayout ||
+                                'vertical') as ObjectLayoutType
+                        }
                         props={selectedComponent.props}
                         onPropsChange={handlePropsChange}
                         componentType={selectedComponent.type}

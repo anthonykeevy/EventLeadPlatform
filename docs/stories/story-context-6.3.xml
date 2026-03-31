@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.3 — AI Context Uplift & Benchmark Baseline
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-03-31
+-->
+<story-context story="6.3" title="AI Context Uplift &amp; Benchmark Baseline">
+
+  <overview>
+    Upgrade the AI instruction bundle (Context Pack) to v2 aligned with the real builder surface
+    post-Stories 6.2.1/6.2.2; harden form_ai loading/config for testability; add a deterministic
+    pytest harness over all 10 prompts in STORY-6.2-BENCHMARK-FORMS.md; record results in
+    STORY-6.3-BENCHMARK-BASELINE.md.
+  </overview>
+
+  <dependencies>
+    <story id="6.2">POC loop, validator integration, context pack v1 path</story>
+    <story id="6.2.1">Expanded component types (url, rating, paragraph)</story>
+    <story id="6.2.2">file-upload full stack; attachment UUID rules</story>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic upgrade/downgrade in agent shell unless Anthony explicitly asks; this story expects no new migrations.</item>
+    <item>Do not commit secrets or real LLM responses containing PII.</item>
+    <item>Benchmark harness must pass in CI with mocked LLM — no API key dependency.</item>
+    <item>Preserve single-page generation product rule unless Epic scope changes.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/service.py"
+          note="_load_context_pack(), CONTEXT_PACK_PATH, generate_form_definition(), prompt assembly, post-processing (normalize props, spacing)."/>
+    <path file="docs/stories/STORY-6.2-AI-CONTEXT-PACK.md"
+          note="Target document for v2.0 uplift; keep examples valid DefinitionJSON."/>
+    <path file="docs/stories/STORY-6.2-BENCHMARK-FORMS.md"
+          note="Authoritative list of 10 prompts + expected fields + rubric text."/>
+    <path file="backend/tests/test_story_6_2_ai_generation_loop.py"
+          note="Existing behavior contracts — avoid regressions."/>
+    <path file="docs/COMPONENT-FRAMEWORK-GUIDE.md"
+          note="Align context pack prop names and allowed types with this inventory."/>
+  </primary-code-paths>
+
+  <suggested-new-files>
+    <file path="backend/tests/test_story_63_benchmark_harness.py"
+          purpose="Parametrized benchmark tests + fixtures (JSON stubs) under backend/tests/fixtures/story_63/ if useful."/>
+    <file path="docs/stories/STORY-6.3-BENCHMARK-BASELINE.md"
+          purpose="Baseline table at merge; update when live model run is approved."/>
+    <file path="docs/stories/STORY-6.3-GATE-EVIDENCE.md"
+          purpose="Standard gate log for Epic 6 closeout."/>
+  </suggested-new-files>
+
+  <optional-enhancement>
+    <item>Env var FORM_AI_CONTEXT_PACK_PATH (or project convention) read in service.py for pack path override + test coverage.</item>
+    <item>Extract minimal machine-readable benchmark metadata (YAML/JSON) if maintaining markdown tables in tests becomes brittle — keep markdown doc as human source if so.</item>
+  </optional-enhancement>
+
+  <acceptance-mapping>
+    <ac id="1">Context pack v2 content + version header + changelog section.</ac>
+    <ac id="2">Env-based pack path + doc line in env.example/backend README.</ac>
+    <ac id="3">10/10 benchmarks in pytest with mocks.</ac>
+    <ac id="4">STORY-6.3-BENCHMARK-BASELINE.md filled for CI mocked run.</ac>
+    <ac id="5">Story 6.2 test module still green.</ac>
+    <ac id="6">Epic workflow/status docs updated at closeout.</ac>
+  </acceptance-mapping>
+
+</story-context>

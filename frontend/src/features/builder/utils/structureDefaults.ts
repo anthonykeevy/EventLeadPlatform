@@ -84,6 +84,7 @@ function isInputFieldType(type: ComponentType): boolean {
         'date',
         'address',
         'rating',
+        'file-upload',
         'first-name'
     ].includes(type);
 }

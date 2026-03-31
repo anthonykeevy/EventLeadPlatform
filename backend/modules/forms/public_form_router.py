@@ -11,7 +11,8 @@ import asyncio
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
+from fastapi import APIRouter, Depends, File, HTTPException, Path, Request, Response, UploadFile, status
+from fastapi import Form as FormField
 from sqlalchemy.orm import Session
 from sqlalchemy import select, desc
 from sqlalchemy.exc import IntegrityError
@@ -32,11 +33,16 @@ from modules.form_defaults.service import resolve_definition_for_render
 
 from .public_form_schemas import PublicFormResolveResponse
 from .public_submission_schemas import (
+    PublicAttachmentUploadResponse,
     PublicFormSubmissionRequest,
     PublicFormSubmissionResponse,
     PublicValidationEventRequest,
     PublicUrlDnsValidationRequest,
     PublicUrlDnsValidationResponse,
+)
+from .submission_attachment_service import (
+    create_pending_attachment,
+    validate_and_bind_attachments_for_submission,
 )
 
 logger = get_logger(__name__)
@@ -274,6 +280,99 @@ async def request_republish(
 
 
 @router.post(
+    "/forms/{token}/attachments",
+    response_model=PublicAttachmentUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload file for a public form file-upload field (Story 6.2.2)",
+)
+async def upload_public_form_attachment(
+    file: UploadFile = File(..., description="File to upload"),
+    component_id: str = FormField(..., alias="componentId"),
+    client_session_id: str = FormField(..., alias="clientSessionId"),
+    token: str = Path(..., description="Public form token"),
+    db: Session = Depends(get_db),
+) -> PublicAttachmentUploadResponse:
+    link = db.execute(
+        select(FormPublicLink)
+        .where(
+            FormPublicLink.Token == token,
+            FormPublicLink.IsActive == True,
+        )
+        .order_by(desc(FormPublicLink.CreatedDate))
+    ).scalars().first()
+
+    if not link:
+        _raise_invalid_link()
+
+    if link.ExpiresAt and link.ExpiresAt < datetime.utcnow():
+        _raise_invalid_link()
+
+    form = db.execute(
+        select(Form).where(
+            Form.FormID == link.FormID,
+            Form.IsDeleted == False,
+        )
+    ).scalar_one_or_none()
+
+    if not form:
+        _raise_invalid_link()
+
+    link_type = str(link.LinkType).upper()
+    if link_type == "PREVIEW":
+        version = db.execute(
+            select(FormVersion)
+            .where(FormVersion.FormID == link.FormID)
+            .order_by(desc(FormVersion.VersionNumber))
+        ).scalars().first()
+    else:
+        version = db.execute(
+            select(FormVersion).where(
+                FormVersion.FormID == link.FormID,
+                FormVersion.IsActive == True,
+            )
+            .order_by(desc(FormVersion.VersionNumber))
+        ).scalars().first()
+
+    if not version:
+        _raise_invalid_link()
+
+    body = await file.read()
+    filename = file.filename or "upload"
+    content_type = file.content_type or "application/octet-stream"
+
+    try:
+        public_id, is_dup = create_pending_attachment(
+            db,
+            link=link,
+            version=version,
+            component_id=component_id,
+            file_body=body,
+            original_filename=filename,
+            content_type=content_type,
+            client_session_key=client_session_id,
+        )
+        db.commit()
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    except Exception as exc:
+        db.rollback()
+        logger.error("Public attachment upload failed for token=%s: %s", token, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Upload failed.",
+        ) from exc
+
+    return PublicAttachmentUploadResponse(
+        attachmentId=public_id,
+        duplicateOfExisting=is_dup,
+    )
+
+
+@router.post(
     "/forms/{token}/submissions",
     response_model=PublicFormSubmissionResponse,
     summary="Submit public form responses",
@@ -359,6 +458,23 @@ async def submit_public_form(
             form.DemoLeadsCollected = (form.DemoLeadsCollected or 0) + 1
         else:
             form.ProductionLeadsCollected = (form.ProductionLeadsCollected or 0) + 1
+
+        db.flush()
+        try:
+            validate_and_bind_attachments_for_submission(
+                db,
+                link=link,
+                client_session_key=payload.context.client_session_id,
+                answers_by_component_id=payload.answers_by_component_id,
+                definition_raw=version.definition,
+                submission_id=submission.FormSubmissionID,
+            )
+        except ValueError as exc:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
+            ) from exc
 
         db.commit()
         db.refresh(submission)

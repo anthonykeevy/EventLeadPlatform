@@ -36,6 +36,7 @@ DEFAULT_HEIGHT_BY_TYPE: Dict[str, float] = {
     "textarea": 150.0,
     "address": 100.0,
     "terms": 60.0,
+    "file-upload": 120.0,
 }
 
 

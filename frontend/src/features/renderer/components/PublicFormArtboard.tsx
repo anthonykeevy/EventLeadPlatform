@@ -88,6 +88,7 @@ const NON_VALIDATED_COMPONENT_TYPES = new Set([
   'terms',
   'submit-button',
   'divider',
+  'file-upload',
 ])
 
 function toValidationErrorCategory(ruleKey?: string): PublicValidationErrorCategory {
@@ -1089,6 +1090,11 @@ export const PublicFormArtboard: React.FC<{
                       styleOverrides={c.props.styleOverrides}
                       globalStyles={definition.globalStyles}
                       layout={c.props.layout}
+                      publicFormUploadContext={
+                        token && c.type === 'file-upload' && !isBuilderLayout
+                          ? { token, clientSessionId }
+                          : undefined
+                      }
                     />
                   </ComponentErrorBoundary>
                 </div>

@@ -16,6 +16,7 @@ import { TextareaPropertiesSection } from './properties/TextareaPropertiesSectio
 import { OptionsSection } from './properties/OptionsSection';
 import { DatePropertiesSection } from './properties/DatePropertiesSection';
 import { UrlPropertiesSection } from './properties/UrlPropertiesSection';
+import { FileUploadPropertiesSection } from './properties/FileUploadPropertiesSection';
 import { RatingPropertiesSection } from './properties/RatingPropertiesSection';
 import { DividerPropertiesSection } from './properties/DividerPropertiesSection';
 import GridLayoutSection from './properties/GridLayoutSection';
@@ -634,6 +635,13 @@ export const PropertiesPanel: React.FC = () => {
                     />
                 )}
 
+                {selectedComponent.type === 'file-upload' && (
+                    <FileUploadPropertiesSection
+                        props={selectedComponent.props}
+                        onPropsChange={handlePropsChange}
+                    />
+                )}
+
                 {/* Rating Properties Section - for rating component */}
                 {selectedComponent.type === 'rating' && (
                     <RatingPropertiesSection
@@ -687,7 +695,7 @@ export const PropertiesPanel: React.FC = () => {
                 {/* ═══════════════════════════════════════════════════════════════ */}
                 {/* VALIDATION RULES */}
                 {/* ═══════════════════════════════════════════════════════════════ */}
-                {!['submit-button', 'divider', 'header', 'paragraph', 'rating'].includes(selectedComponent.type) && (
+                {!['submit-button', 'divider', 'header', 'paragraph', 'rating', 'file-upload'].includes(selectedComponent.type) && (
                     <ValidationSection
                         validation={selectedComponent.props.validation}
                         onValidationChange={handleValidationChange}

@@ -23,6 +23,7 @@ class ComponentType(str, Enum):
     EMAIL = "email"
     PHONE = "phone"
     RATING = "rating"
+    FILE_UPLOAD = "file-upload"
     ADDRESS = "address"
     FIRST_NAME = "first-name"
     TERMS = "terms"

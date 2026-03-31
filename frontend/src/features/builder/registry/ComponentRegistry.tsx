@@ -17,7 +17,9 @@ import {
   Send,
   Star,
   Minus,
+  Upload,
 } from 'lucide-react';
+import { uploadPublicFormAttachment } from '../../renderer/api/publicSubmissionApi';
 import { ComponentType, FormComponent, StyleOverrides, GlobalStyles, LayoutType, ComponentStructure, ObjectLayoutType } from '../types/builder.types';
 import { getDefaultStructure } from '../utils/structureDefaults';
 import { UniversalFieldShell } from '../components/UniversalFieldShell';
@@ -120,7 +122,186 @@ export interface RuntimeComponentProps {
   globalStyles?: GlobalStyles;
   /** Layout orientation */
   layout?: LayoutType;
+  /** Public form only: token + session for attachment upload (Story 6.2.2) */
+  publicFormUploadContext?: {
+    token: string;
+    clientSessionId: string;
+  };
 }
+
+const FileUploadRuntimeComponent: React.FC<RuntimeComponentProps> = ({
+  component,
+  value,
+  onChange,
+  disabled,
+  required,
+  error,
+  tabIndex,
+  primaryColor,
+  publicFormUploadContext,
+}) => {
+  const allowMulti = Boolean(component.props.allowMultiple);
+  const maxFiles =
+    typeof component.props.maxFiles === 'number' && component.props.maxFiles > 0
+      ? component.props.maxFiles
+      : 8;
+  const maxBytes =
+    typeof component.props.maxFileSizeBytes === 'number' && component.props.maxFileSizeBytes > 0
+      ? component.props.maxFileSizeBytes
+      : typeof component.props.maxFileSizeMb === 'number' && component.props.maxFileSizeMb > 0
+        ? Math.round(component.props.maxFileSizeMb * 1024 * 1024)
+        : 10 * 1024 * 1024;
+
+  const accept =
+    component.props.accept ||
+    (Array.isArray(component.props.acceptedFileTypes)
+      ? component.props.acceptedFileTypes.join(',')
+      : undefined);
+
+  const ids: string[] = allowMulti
+    ? Array.isArray(value)
+      ? (value as string[]).filter(Boolean)
+      : []
+    : typeof value === 'string' && value
+      ? [value]
+      : [];
+
+  const [busy, setBusy] = React.useState(false);
+  const [localError, setLocalError] = React.useState<string | null>(null);
+  /** Display names keyed by attachmentId (form value stays UUID-only for submit). */
+  const [fileLabelById, setFileLabelById] = React.useState<Record<string, string>>({});
+  const displayError = error || localError;
+  const label = component.props.label || 'File upload';
+  const help = component.props.helpText;
+
+  const onPick: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setLocalError(null);
+    const ctx = publicFormUploadContext;
+    if (!ctx?.token) {
+      setLocalError('Upload is available on the published form only.');
+      e.target.value = '';
+      return;
+    }
+    const picked = Array.from(files);
+    if (!allowMulti && picked.length > 1) {
+      setLocalError('Only one file is allowed.');
+      e.target.value = '';
+      return;
+    }
+    const room = allowMulti ? Math.max(0, maxFiles - ids.length) : 1;
+    if (room <= 0) {
+      setLocalError(`Maximum ${maxFiles} file(s).`);
+      e.target.value = '';
+      return;
+    }
+    const slice = picked.slice(0, room);
+    setBusy(true);
+    try {
+      if (allowMulti) {
+        const next = [...ids];
+        for (const file of slice) {
+          if (file.size > maxBytes) {
+            setLocalError(`File exceeds ${Math.round(maxBytes / (1024 * 1024))} MB.`);
+            continue;
+          }
+          const res = await uploadPublicFormAttachment(ctx.token, {
+            file,
+            componentId: component.id,
+            clientSessionId: ctx.clientSessionId,
+          });
+          next.push(res.attachmentId);
+          setFileLabelById((prev) => ({ ...prev, [res.attachmentId]: file.name }));
+        }
+        onChange(next);
+      } else {
+        const file = slice[0];
+        if (file.size > maxBytes) {
+          setLocalError(`File exceeds ${Math.round(maxBytes / (1024 * 1024))} MB.`);
+        } else {
+          const res = await uploadPublicFormAttachment(ctx.token, {
+            file,
+            componentId: component.id,
+            clientSessionId: ctx.clientSessionId,
+          });
+          onChange(res.attachmentId);
+          setFileLabelById({ [res.attachmentId]: file.name });
+        }
+      }
+    } catch {
+      setLocalError('Upload failed. Check connection and try again.');
+    } finally {
+      setBusy(false);
+      e.target.value = '';
+    }
+  };
+
+  const accent = primaryColor ?? '#0055FF';
+
+  return (
+    <div className="space-y-1 w-full">
+      <label className="block text-sm font-medium text-gray-800">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      {help ? <p className="text-xs text-gray-500">{help}</p> : null}
+      <label
+        className={`inline-flex items-center gap-2 rounded-md border border-dashed px-3 py-2 text-sm cursor-pointer select-none ${
+          disabled || busy ? 'opacity-50 pointer-events-none' : 'hover:bg-gray-50'
+        }`}
+        style={{ borderColor: accent }}
+      >
+        <Upload size={16} style={{ color: accent }} />
+        <span>{busy ? 'Uploading…' : 'Choose file'}</span>
+        <input
+          type="file"
+          className="sr-only"
+          accept={accept}
+          disabled={disabled || busy}
+          multiple={allowMulti}
+          tabIndex={tabIndex}
+          onChange={onPick}
+        />
+      </label>
+      {ids.length > 0 && (
+        <ul className="text-xs text-gray-600 space-y-1 mt-1">
+          {ids.map((id) => {
+            const displayName = fileLabelById[id] || 'Uploaded file';
+            return (
+              <li key={id} className="flex items-center justify-between gap-2">
+                <span className="truncate min-w-0" title={`${displayName} (${id})`}>
+                  {displayName}
+                </span>
+                <button
+                  type="button"
+                  className="text-red-600 hover:underline shrink-0"
+                  disabled={disabled || busy}
+                  onClick={() => {
+                    if (allowMulti) {
+                      setFileLabelById((prev) => {
+                        const next = { ...prev };
+                        delete next[id];
+                        return next;
+                      });
+                      onChange(ids.filter((x) => x !== id));
+                    } else {
+                      setFileLabelById({});
+                      onChange('');
+                    }
+                  }}
+                >
+                  Remove
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {displayError ? <p className="text-xs text-red-600 mt-1">{displayError}</p> : null}
+    </div>
+  );
+};
 
 const SubmitButtonRuntimeComponent: React.FC<RuntimeComponentProps> = ({
   component,
@@ -1129,6 +1310,46 @@ export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinitio
         />
       );
     },
+  },
+
+  'file-upload': {
+    type: 'file-upload',
+    label: 'File upload',
+    icon: <Upload size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'Upload a file',
+      required: false,
+      helpText: '',
+      allowMultiple: false,
+      maxFileSizeMb: 10,
+      maxFileSizeBytes: 10 * 1024 * 1024,
+      accept: '',
+    },
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+      ],
+      defaultLayout: 'vertical',
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'file-upload',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2 },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Upload a file',
+        required: false,
+      },
+    }),
+    runtimeComponent: FileUploadRuntimeComponent,
   },
 
   // Submit Button

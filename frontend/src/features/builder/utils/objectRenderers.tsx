@@ -427,6 +427,23 @@ export function createInputRenderer(): ObjectRenderer {
                 : undefined;
         
         // Terms (canvas/builder): checkbox input (single option)
+        if (component.type === 'file-upload') {
+            return (
+                <div
+                    style={{
+                        ...inputStyle,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        color: styles.computed.helpTextColor || '#6b7280',
+                    }}
+                >
+                    <span aria-hidden>📎</span>
+                    <span>File upload</span>
+                </div>
+            );
+        }
+
         if (component.type === 'terms') {
             const primary = primaryColor || styles.computed.primaryColor;
             return (

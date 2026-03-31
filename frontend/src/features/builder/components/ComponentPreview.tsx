@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormComponent } from '../types/builder.types';
-import { AlertCircle, Link as LinkIcon, Star } from 'lucide-react';
+import { AlertCircle, Link as LinkIcon, Paperclip, Star } from 'lucide-react';
 
 interface ComponentPreviewProps {
   component: FormComponent;
@@ -119,6 +119,13 @@ const renderInputPlaceholder = (component: FormComponent) => {
           {Array.from({ length: 5 }).map((_, index) => (
             <Star key={index} size={16} />
           ))}
+        </div>
+      );
+    case 'file-upload':
+      return (
+        <div className={`${baseClasses} flex items-center gap-2`}>
+          <Paperclip size={14} className="text-gray-400" />
+          <span>Choose file…</span>
         </div>
       );
     default: // text, email, number, date

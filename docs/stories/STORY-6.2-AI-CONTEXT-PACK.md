@@ -39,6 +39,7 @@ Allowed component types for Story 6.2 MVP generation:
 - `textarea`
 - `address`
 - `rating`
+- `file-upload`
 - `terms`
 - `header`
 - `paragraph`
@@ -49,7 +50,7 @@ Component-specific notes for expanded set:
 - `url`: use `validation.url: true`; optional `urlPrefix` and `urlPattern` can be included.
 - `rating`: include `ratingMax` (typically 5 or 10) and `ratingStyle` (`stars` | `numbers` | `emoji`).
 - `paragraph`: display-only content block (prefer `text`, fallback `label` for legacy compatibility).
-- `file-upload`: planned (Story 6.2.2), not available in Story 6.2/6.2.1 generation output.
+- `file-upload`: **available** (Story 6.2.2). Use `allowMultiple` / `maxFiles` only when multiple files in one control are required; answers store **public attachment UUIDs** only (never paths). Generation must respect max size and `accept` / `acceptedFileTypes` hints.
 
 For each component:
 - Must include stable `id`.

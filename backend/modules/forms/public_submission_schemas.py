@@ -69,6 +69,11 @@ class PublicFormSubmissionResponse(PublicSchemaBase):
     status: Literal["ACCEPTED", "DUPLICATE"]
 
 
+class PublicAttachmentUploadResponse(PublicSchemaBase):
+    attachment_id: str = Field(..., alias="attachmentId")
+    duplicate_of_existing: bool = Field(False, alias="duplicateOfExisting")
+
+
 PublicSubmissionLinkType = Literal["PREVIEW", "PRODUCTION"]
 
 ValueDiagnosticsType = Literal["null", "string", "number", "boolean", "array", "object", "unknown"]

@@ -11,7 +11,7 @@ export const ComponentSidebar: React.FC = () => {
   const allowedTypes = initComponents?.map(c => c.componentCode) ?? null;
   // Story 6.2.1: Always surface newly introduced components even if the
   // persisted Init API catalog has not been uplifted yet.
-  const story621ForceInclude = new Set(['url', 'rating', 'paragraph']);
+  const story621ForceInclude = new Set(['url', 'rating', 'paragraph', 'file-upload']);
   const components = allowedTypes
     ? baseComponents.filter(c => allowedTypes.includes(c.type) || story621ForceInclude.has(c.type))
     : baseComponents;

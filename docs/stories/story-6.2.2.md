@@ -3,9 +3,9 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.2.2  
 **Title:** File Upload Component (Full Stack)  
-**Status:** 🔄 Phase 1 complete — ready for Dev implementation  
-**Branch:** `story/epic6-6.2.2-file-upload-full-stack`  
-**PR:** [#55](https://github.com/anthonykeevy/EventLeadPlatform/pull/55) (Draft)  
+**Status:** ✅ **Complete** (2026-03-31 — UAT §1–3/5 PASS; §4 company download **deferred to Epic 8** product UX; gates in `STORY-6.2.2-GATE-EVIDENCE.md`; merged to `master`)  
+**Branch:** `story/epic6-6.2.2-file-upload-full-stack` (merge commit on `master`)  
+**PR:** [#55](https://github.com/anthonykeevy/EventLeadPlatform/pull/55)  
 **Depends On:** Story 6.2.1 (✅ Complete)  
 **Blocks:** Story 6.3 (AI Context Uplift & Benchmark Baseline)  
 **Created:** 2026-03-30  
@@ -170,8 +170,10 @@ _(Filled by Dev during implementation)_
 
 | Field | Value |
 |------|-------|
-| Migration revision id | |
-| Public upload route(s) | |
-| Storage | `AssetStorageProvider` + key prefix; env vars documented |
-| Dedup policy (§2.4.1) implemented as | |
-| Closeout / merge notes | |
+| Migration revision id | `051` (`051_story_622_submission_attachment.py`) |
+| Public upload route(s) | `POST /api/public/forms/{token}/attachments` (multipart: `file`, `componentId`, `clientSessionId`) |
+| Storage | `AssetStorageProvider` via `modules/assets/storage.py`; keys under `submissions/{FormPublicLinkID}/{uuid}.ext` |
+| Dedup policy (§2.4.1) implemented as | Same link + same `ClientUploadSessionKey` + same SHA-256 while `FormSubmissionID` IS NULL → return existing `attachmentId`, `duplicateOfExisting: true` |
+| Closeout / merge notes | Anthony: `cd backend` then `alembic upgrade head`. SQL Server integration tests skip until table exists. |
+| UAT | `STORY-6.2.2-UAT-RESULTS.md` — §1–3, §5 PASS; §4 deferred Epic 8. |
+| Company download UX | **Epic 8** — API `GET /api/forms/{formId}/attachments/{attachmentPublicId}/content` retained; in-app download not in 6.2.2 UAT scope. |

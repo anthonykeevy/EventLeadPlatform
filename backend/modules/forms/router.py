@@ -3,7 +3,9 @@ Form Management Router
 Endpoints for form CRUD operations
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from typing import Optional, List
 from datetime import datetime
 
@@ -11,6 +13,8 @@ from common.database import get_db
 from modules.auth.dependencies import get_current_user
 from modules.auth.models import CurrentUser
 from models.form import Form
+from models.form_submission import FormSubmission
+from models.submission_attachment import SubmissionAttachment
 from .schemas import (
     FormCreateSchema,
     FormUpdateSchema,
@@ -38,6 +42,7 @@ from .service import (
     get_form_approval_statuses,
     transfer_form_ownership
 )
+from .submission_attachment_service import load_attachment_bytes
 from .approval_service import ApprovalService
 from common.logger import get_logger
 
@@ -317,6 +322,62 @@ async def get_form_details(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch form"
         )
+
+
+@router.get(
+    "/{form_id}/attachments/{attachment_public_id}/content",
+    summary="Download submission attachment (Story 6.2.2)",
+    response_class=Response,
+)
+async def download_submission_attachment(
+    form_id: int,
+    attachment_public_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    form = await get_form_by_id(
+        db=db,
+        form_id=form_id,
+        company_id=current_user.company_id,
+        user_id=current_user.user_id,
+    )
+    if not form:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Form not found.")
+
+    row = (
+        db.execute(
+            select(SubmissionAttachment)
+            .join(
+                FormSubmission,
+                SubmissionAttachment.FormSubmissionID == FormSubmission.FormSubmissionID,
+            )
+            .where(
+                SubmissionAttachment.PublicAttachmentId == attachment_public_id,
+                FormSubmission.FormID == form_id,
+                FormSubmission.IsDeleted == False,
+                SubmissionAttachment.FormSubmissionID.isnot(None),
+            )
+        )
+        .scalars()
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attachment not found.")
+
+    data = load_attachment_bytes(row)
+    logger.info(
+        "Submission attachment downloaded: FormID=%s PublicAttachmentId=%s UserID=%s",
+        form_id,
+        attachment_public_id,
+        current_user.user_id,
+    )
+    return Response(
+        content=data,
+        media_type=row.ContentType or "application/octet-stream",
+        headers={
+            "Content-Disposition": f'attachment; filename="{row.OriginalFileName}"',
+        },
+    )
 
 
 @router.put(

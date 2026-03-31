@@ -54,6 +54,7 @@
 | `radio` | input | Single-select options | `options`, `optionsDirection` | Radio list with one selected value |
 | `address` | input | Address capture shell | `enableAutocomplete`, `decomposeAddress`, `validation.maxLength` | Text-style address field, autocomplete-ready |
 | `rating` | input | UI rating selector | `ratingMax`, `ratingStyle`, `ratingLabels` | Renders stars, numbers, or emoji scale (UI shell only) |
+| `file-upload` | input | Anonymous file attach via public upload API | `accept`, `acceptedFileTypes`, `maxFileSizeBytes` / `maxFileSizeMb`, `allowMultiple`, `maxFiles` | Two-phase flow: `POST /api/public/forms/{token}/attachments` then submit answers as attachment UUID string(s); company download `GET /api/forms/{formId}/attachments/{attachmentId}/content` (Story 6.2.2) |
 | `terms` | action/legal | Terms acceptance checkbox + link | `termsLinkText`, `termsUrl`, `termsContent`, `required` | Horizontal checkbox + linked terms content |
 | `submit-button` | action/legal | Form submit action | `buttonText`, `buttonAlign`, `buttonWidth`, `disableUntilValid` | Action object + optional loading + first-error feedback |
 | `header` | display | Section heading text | `label` | Heading-style content object in display category |

@@ -69,6 +69,7 @@ from .form_version import FormVersion
 from .form_access_control import FormAccessControl
 from .form_approval_token import FormApprovalToken
 from .form_submission import FormSubmission
+from .submission_attachment import SubmissionAttachment
 from .asset import Asset
 from .global_form_defaults import GlobalFormDefaults
 from .global_form_defaults_version import GlobalFormDefaultsVersion
@@ -145,6 +146,7 @@ __all__ = [
     "FormAccessControl",
     "FormApprovalToken",
     "FormSubmission",
+    "SubmissionAttachment",
     "Asset",
     "GlobalFormDefaults",
     "GlobalFormDefaultsVersion",
@@ -233,7 +235,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 75  # +2 Story 5.6 (CompanyFormTestConfig, FormPublishRequest)
+    expected_count = 78  # keep in sync with len(__all__)
     actual_count = len(__all__)
     
     if actual_count != expected_count:

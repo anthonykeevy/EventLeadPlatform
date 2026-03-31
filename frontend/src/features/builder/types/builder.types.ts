@@ -21,6 +21,7 @@ export type ComponentType =
   | 'date'
   | 'address'         // Address with autocomplete (placeholder for future)
   | 'rating'          // Rating selector (stars, numbers, emoji)
+  | 'file-upload'     // File attachment(s) via public upload API (Story 6.2.2)
   | 'first-name'      // POC component
   // Action/Legal Components
   | 'terms'           // Terms & Conditions checkbox
@@ -620,6 +621,22 @@ export interface ComponentProps {
         low?: string;
         high?: string;
     };
+
+    // ═══════════════════════════════════════════════════════════════
+    // FILE UPLOAD (Story 6.2.2)
+    // ═══════════════════════════════════════════════════════════════
+    /** HTML input accept string or MIME/extension list */
+    accept?: string;
+    /** Allowed types (MIME or leading-dot extension), alternative to accept */
+    acceptedFileTypes?: string[];
+    /** Max upload size in bytes (server enforces on upload) */
+    maxFileSizeBytes?: number;
+    /** Max size in megabytes (converted to bytes for API) */
+    maxFileSizeMb?: number;
+    /** Allow more than one file in this control */
+    allowMultiple?: boolean;
+    /** Cap when allowMultiple is true */
+    maxFiles?: number;
     
     // ═══════════════════════════════════════════════════════════════
     // TERMS & CONDITIONS SPECIFIC

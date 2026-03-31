@@ -8,10 +8,18 @@
 
   <overview>
     Upgrade the AI instruction bundle (Context Pack) to v2 aligned with the real builder surface
-    post-Stories 6.2.1/6.2.2; harden form_ai loading/config for testability; add a deterministic
-    pytest harness over all 10 prompts in STORY-6.2-BENCHMARK-FORMS.md; record results in
-    STORY-6.3-BENCHMARK-BASELINE.md.
+    post-Stories 6.2.1/6.2.2 — including default canvas width/height per component type for layout.
+    Fix AIAgentPanel runtimeContext: toolbox thumbnails are compact (not canvas 1:1); seed
+    componentFootprints with canvas-scale dimensions (shared policy with new-drop sizing /
+    getComponentDimensions at 100% or extracted estimateConfiguredFootprint). Harden form_ai;
+    add benchmark harness + STORY-6.3-BENCHMARK-BASELINE.md.
   </overview>
+
+  <component-footprints rfc="Anthony 2026-03-31">
+    <product-note>Toolbox shows rich previews but uses compact surface rules; AI layout must use canvas defaults.</product-note>
+    <frontend files="AIAgentPanel.tsx buildRuntimeContext; estimateConfiguredFootprint; collisionDetection.getComponentDimensions; ComponentRegistry default props"/>
+    <backend consumer="form_ai.service._minimum_render_width/_height uses runtime_context componentFootprints"/>
+  </component-footprints>
 
   <dependencies>
     <story id="6.2">POC loop, validator integration, context pack v1 path</story>
@@ -37,6 +45,10 @@
           note="Existing behavior contracts — avoid regressions."/>
     <path file="docs/COMPONENT-FRAMEWORK-GUIDE.md"
           note="Align context pack prop names and allowed types with this inventory."/>
+    <path file="frontend/src/features/builder/components/ai/AIAgentPanel.tsx"
+          note="buildRuntimeContext — replace or augment toolbox getBoundingClientRect footprints with canvas-scale synthetic components."/>
+    <path file="frontend/src/features/builder/utils/collisionDetection.ts"
+          note="getComponentDimensions(component, null, 100) for estimator without DOM."/>
   </primary-code-paths>
 
   <suggested-new-files>
@@ -60,6 +72,8 @@
     <ac id="4">STORY-6.3-BENCHMARK-BASELINE.md filled for CI mocked run.</ac>
     <ac id="5">Story 6.2 test module still green.</ac>
     <ac id="6">Epic workflow/status docs updated at closeout.</ac>
+    <ac id="7">Context pack v2 includes default canvas footprint table synced with code.</ac>
+    <ac id="8">buildRuntimeContext supplies canvas-scale componentFootprints; FE test covers empty form.</ac>
   </acceptance-mapping>
 
 </story-context>

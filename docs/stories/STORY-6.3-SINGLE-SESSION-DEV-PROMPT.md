@@ -40,9 +40,11 @@ If paths differ, use the actual paths from `git worktree list`.
 
 ---
 
-## Step 2 — Context Pack v2
+## Step 2 — Context Pack v2 + canvas footprints
 
 - Edit **`STORY-6.2-AI-CONTEXT-PACK.md`**: bump **Context Pack Version** to **2.0**, add **Changes from v1.1**, align component catalog and examples with **`docs/COMPONENT-FRAMEWORK-GUIDE.md`** and post-6.2.2 **`file-upload`** semantics (public attachment IDs only).  
+- Add **Default canvas footprints** (width/height per type) **matching** the implementation in §2.5 of `story-6.3.md` — toolbox thumbnails are not 1:1 canvas size.  
+- Implement **`AIAgentPanel.tsx`** `buildRuntimeContext` so **`componentFootprints`** uses **canvas-scale** defaults (synthetic components + `getComponentDimensions(..., 100)` or shared estimator — not toolbox `getBoundingClientRect` alone on empty forms).  
 - Keep JSON-only contract and validator-correction mapping sections accurate.
 
 ---

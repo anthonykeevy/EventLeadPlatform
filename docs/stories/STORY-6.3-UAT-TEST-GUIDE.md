@@ -34,6 +34,7 @@
 | 2.1 | Open `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md` | Version **2.0**, “Changes from v1.1” present |
 | 2.2 | Skim component catalog | Includes **file-upload**, **url**, **rating**, **paragraph**, and other registered types used in benchmarks |
 | 2.3 | If `FORM_AI_CONTEXT_PACK_PATH` (or final env name) exists: set to a temp copy, restart API, trigger one generation | Uses override file; restore default or unset after test |
+| 2.4 | Open **Context Pack v2** § default canvas footprints + trigger **Generate** on a **new empty form**; capture request payload or backend log redaction of `runtimeContext.componentFootprints` | Widths/heights are **canvas-scale** (e.g. inputs ~hundreds of px wide on 1920 canvas), not tiny toolbox-thumb pixels only |
 
 ---
 
@@ -64,7 +65,7 @@ If not run, note **“Skipped — mock CI only”** in UAT results.
 | Section | Pass / Fail / Skipped | Notes |
 |---------|----------------------|-------|
 | §1 Gates | | |
-| §2 Context pack | | |
+| §2 Context pack + runtime footprints (incl. 2.4) | | |
 | §3 Baseline doc | | |
 | §4 Live smoke | | |
 

@@ -12,12 +12,28 @@ export interface AttemptValidationSummary {
   errorCount: number;
 }
 
+export interface PostProcessingComponentPositionDelta {
+  componentId: string;
+  componentType?: string | null;
+  before: { x: number; y: number };
+  after: { x: number; y: number };
+}
+
+export interface PostProcessingSummary {
+  changedComponentCount: number;
+  changedComponents: PostProcessingComponentPositionDelta[];
+  canvasHeightBefore?: number | null;
+  canvasHeightAfter?: number | null;
+  canvasHeightChanged: boolean;
+}
+
 export interface AttemptTraceEntry {
   attemptNumber: number;
   phase: "initial" | "correction";
   validation: AttemptValidationSummary;
   correctionIssued: boolean;
   notes?: string | null;
+  postProcessing?: PostProcessingSummary | null;
 }
 
 export interface AiGenerationTrace {
@@ -27,6 +43,7 @@ export interface AiGenerationTrace {
   terminalReason: string;
   attempts: AttemptTraceEntry[];
   validationSummary?: AttemptValidationSummary | null;
+  postProcessingSummary?: PostProcessingSummary | null;
 }
 
 export interface AiFormGenerationResponse {
@@ -34,6 +51,8 @@ export interface AiFormGenerationResponse {
   definitionJSON?: Record<string, unknown> | null;
   trace: AiGenerationTrace;
   userMessage: string;
+  /** True when status is failed but definitionJSON is the last invalid draft for canvas inspection */
+  draftHasValidationIssues?: boolean;
 }
 
 export interface RuntimeComponentFootprint {
@@ -49,12 +68,6 @@ export interface RuntimeCanvasContext {
   gridSize?: number;
 }
 
-export interface RuntimeLockedGlobals {
-  theme?: Record<string, unknown> | null;
-  globalStyles?: Record<string, unknown> | null;
-  canvasSettings?: Record<string, unknown> | null;
-}
-
 export interface RuntimeTermsDefaults {
   companyId?: number;
   hasCompanyTerms?: boolean;
@@ -66,31 +79,69 @@ export interface RuntimeTermsDefaults {
   preserveCompanyTermsLink?: boolean;
 }
 
+/** Factual event metadata when the user enables “Include event information” on the AI panel. */
+export interface RuntimeEventInformation {
+  eventId: number;
+  name: string;
+  startDateTime?: string;
+  endDateTime?: string | null;
+  timezoneIdentifier?: string | null;
+  venueName?: string | null;
+  venueAddress?: string | null;
+  city?: string | null;
+  state?: string | null;
+  shortDescription?: string | null;
+}
+
 export interface AiRuntimeContext {
   formId?: string;
-  canvas?: RuntimeCanvasContext;
-  lockedGlobals?: RuntimeLockedGlobals;
+  canvasSettings?: RuntimeCanvasContext;
+  globalStylesLocked?: boolean;
+  globalStyles?: Record<string, unknown> | null;
+  theme?: Record<string, unknown> | null;
   termsDefaults?: RuntimeTermsDefaults;
   componentFootprints?: RuntimeComponentFootprint[];
+  eventInformation?: RuntimeEventInformation;
 }
+
+export interface AiGenerationOptions {
+  maxSystemCorrectionAttempts?: number;
+}
+
+/**
+ * Client wait budget for POST /api/form-ai/generate.
+ * Backend may call OpenAI up to (max correction attempts + 1) times, each with up to
+ * OPENAI_TIMEOUT_SECONDS (default 180s) — see backend/modules/form_ai/service.py.
+ * Keep this above that worst-case total so the UI does not abort while the server is still working.
+ */
+const FORM_AI_GENERATE_TIMEOUT_MS = 1_200_000;
 
 export async function generateAiDefinition(
   prompt: string,
-  runtimeContext?: AiRuntimeContext
+  runtimeContext?: AiRuntimeContext,
+  options: AiGenerationOptions = {}
 ): Promise<AiFormGenerationResponse> {
   try {
+    const { maxSystemCorrectionAttempts } = options;
     const response = await apiClient.post<AiFormGenerationResponse>(
       "/api/form-ai/generate",
-      { prompt, runtimeContext },
-      // Story 6.2: generation can include multiple retries and exceed the default 30s timeout.
-      { timeout: 180000 }
+      {
+        prompt,
+        runtimeContext,
+        maxSystemCorrectionAttempts,
+      },
+      { timeout: FORM_AI_GENERATE_TIMEOUT_MS }
     );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+      const seconds = Math.round(FORM_AI_GENERATE_TIMEOUT_MS / 1000);
+      const minutes = Math.round(FORM_AI_GENERATE_TIMEOUT_MS / 60000);
       throw new Error(
-        "AI generation is taking longer than expected (timeout after 180s). " +
-          "Try a shorter prompt or retry once."
+        `Request timed out after ${seconds}s (${minutes} min client wait). ` +
+          "One generate call runs up to 4 model attempts on the server (initial + 3 corrections); " +
+          "each attempt can take a long time. Try again, or shorten the prompt / reduce validator load. " +
+          "“Load last draft” only appears when the server returns JSON — a client timeout cancels the request before any draft arrives."
       );
     }
     throw formatError(error);

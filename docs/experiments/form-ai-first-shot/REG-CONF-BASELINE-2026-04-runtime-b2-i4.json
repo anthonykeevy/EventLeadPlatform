@@ -1,0 +1,64 @@
+{
+  "formId": "403",
+  "canvas": {
+    "width": 1920,
+    "height": 980,
+    "gridSize": 32
+  },
+  "componentFootprints": [
+    {
+      "componentType": "header",
+      "width": 560,
+      "height": 63,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "paragraph",
+      "width": 560,
+      "height": 99,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "first-name",
+      "width": 560,
+      "height": 110,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "text",
+      "width": 560,
+      "height": 110,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "address",
+      "width": 560,
+      "height": 109,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "phone",
+      "width": 560,
+      "height": 110,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "email",
+      "width": 560,
+      "height": 110,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "textarea",
+      "width": 720,
+      "height": 209,
+      "recommendedGapAfter": 24
+    },
+    {
+      "componentType": "submit-button",
+      "width": 220,
+      "height": 72,
+      "recommendedGapAfter": 24
+    }
+  ]
+}

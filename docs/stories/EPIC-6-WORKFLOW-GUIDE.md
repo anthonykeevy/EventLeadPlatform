@@ -2,10 +2,10 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.3 - AI Context Uplift & Benchmark Baseline (Epic 6)  
+**Current Focus:** Story 6.x redesign planning - AI generation architecture rethink (post-6.3 closeout)  
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
-**Story 6.3 Status:** 📋 **Prepared** — artifacts in `docs/stories/` (2026-03-31); **`@bmad-agent-bmm-sm` runs `new-story.ps1`** (worktree + Draft PR), then **`@bmad-agent-bmm-dev`** implements  
+**Story 6.3 Status:** 🟨 **Closed (learning capture)** — implementation + diagnostics complete, but human UAT quality was not satisfactory; redesign required (see `STORY-6.3-CLOSEOUT-REPORT.md`)  
 
 ---
 
@@ -270,3 +270,4 @@ This preserves your learning objective (multi-agent experience) without weakenin
 | 2026-02-26 | Added workflow automation scripts + mandatory tool feedback logging | Reduce repetitive agent effort and create continuous improvement loop |
 | 2026-02-26 | Added database connection consistency rule for test/runtime parity | Prevent recurring SQL backend drift between app runtime and pytest harness |
 | 2026-03-31 | Clarified **SM owns `new-story.ps1` + worktree + Draft PR**; Human syncs `master` and opens worktree for Dev | Match practiced flow; Human was not expected to run the script in normal Epic 6 loop |
+| 2026-04-02 | Story 6.3 closed as learning capture (not release-ready); next focus shifted to architecture redesign planning | Preserve learnings and avoid forcing incremental tuning on a foundation that needs redesign |

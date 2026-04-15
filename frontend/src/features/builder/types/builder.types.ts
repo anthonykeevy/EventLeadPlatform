@@ -1128,6 +1128,15 @@ export interface CanvasSettings {
  * - Different layouts (position, size) per device
  * - Single export schema regardless of which device was used
  */
+/** Last AI Agent prompt + options; persisted with the form definition (Story 6.3 UAT). */
+export interface AiAgentSettings {
+    lastPrompt?: string;
+    includeEventInformation?: boolean;
+    maxSystemCorrectionAttempts?: number;
+    globalStylesLocked?: boolean;
+    sectionedPromptProfileVersion?: string;
+}
+
 export interface FormDefinition {
     schemaVersion: string;
     formId: string;
@@ -1141,6 +1150,9 @@ export interface FormDefinition {
     
     // Canvas Settings
     canvasSettings?: CanvasSettings;
+
+    /** Builder AI Agent panel; saved with draft so prompts survive reload (optional). */
+    aiAgentSettings?: AiAgentSettings;
     
     // ═══════════════════════════════════════════════════════════════
     // DEVICE-SPECIFIC PAGE ARRAYS

@@ -319,6 +319,103 @@ class DiagnosticLogger:
                 result = conn.execute(correlation_query).fetchone()
             
             return dict(result._mapping) if result else {}
+
+    def get_correlated_api_request_bundle(self, inbound_request_id: str) -> List[Dict]:
+        """
+        All log.ApiRequest rows tied to one inbound HTTP request.
+
+        Inbound browser/API calls use RequestID = the correlation UUID.
+        Outbound provider calls (e.g. OpenAI) log separate rows with
+        RequestID = '{inbound_request_id}:outbound:{new_uuid}' — see
+        middleware/outbound_request_logger.py.
+        """
+        pattern = f"{inbound_request_id}:outbound:%"
+        with self.engine.connect() as conn:
+            query = text(
+                """
+                SELECT
+                    ApiRequestID,
+                    Method,
+                    Path,
+                    StatusCode,
+                    DurationMs,
+                    RequestID,
+                    UserID,
+                    CreatedDate,
+                    RequestPayload,
+                    ResponsePayload,
+                    Headers,
+                    QueryParams
+                FROM log.ApiRequest
+                WHERE RequestID = :rid OR RequestID LIKE :out_pattern
+                ORDER BY ApiRequestID ASC
+                """
+            )
+            rows = conn.execute(
+                query, {"rid": inbound_request_id, "out_pattern": pattern}
+            ).fetchall()
+            return [dict(row._mapping) for row in rows]
+
+    def print_correlated_api_request_bundle(
+        self, rows: List[Dict], inbound_request_id: str
+    ) -> None:
+        """Print inbound + synthetic outbound ApiRequest rows for one trace."""
+        print("\n" + "=" * 100)
+        print("CORRELATED log.ApiRequest CHAIN (inbound + outbound)")
+        print("=" * 100)
+        print(
+            f"Inbound RequestID (pass this to --request-id): {inbound_request_id}\n"
+            "Outbound rows use RequestID = '<inbound>:outbound:<uuid>' and Path "
+            "like '/outbound/openai/v1/...'.\n"
+            "Note: HTTP 200 on /api/form-ai/generate can still return JSON with "
+            '"status": "failed" (e.g. retry-cap-exhausted). Check ResponsePayload '
+            "on the generate row for trace.terminalReason and attempts[]."
+        )
+        if not rows:
+            print("\nNo ApiRequest rows found for this RequestID (check exact GUID).")
+            return
+
+        print(f"\n--- Summary ({len(rows)} row(s)) ---")
+        for req in rows:
+            tail = req["RequestID"]
+            if len(tail) > 72:
+                tail = tail[:36] + "..." + tail[-30:]
+            print(
+                f"  ApiRequestID={req['ApiRequestID']} | {req['Method']} {req['Path']} | "
+                f"{req['StatusCode']} | {req['DurationMs']}ms | {tail}"
+            )
+
+        outbound_preview_chars = 1200
+        for req in rows:
+            print("\n" + "-" * 100)
+            print(
+                f"[{req['CreatedDate']}] {req['Method']} {req['Path']} "
+                f"| Status: {req['StatusCode']} | Duration: {req['DurationMs']}ms"
+            )
+            print(f"  ApiRequestID: {req['ApiRequestID']} | UserID: {req['UserID'] or 'NULL'}")
+            print(f"  RequestID: {req['RequestID']}")
+
+            is_outbound = str(req.get("Path") or "").startswith("/outbound/")
+            if req.get("Headers"):
+                try:
+                    hdr = json.loads(req["Headers"]) if isinstance(req["Headers"], str) else req["Headers"]
+                    if isinstance(hdr, dict) and hdr.get("direction") == "outbound":
+                        print(f"  Outbound provider: {hdr.get('provider', '?')} | url: {hdr.get('url', '')[:120]}")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+            if req.get("RequestPayload"):
+                p = self.format_json(req["RequestPayload"])
+                if is_outbound and len(p) > outbound_preview_chars:
+                    p = p[:outbound_preview_chars] + "\n    ... [TRUNCATED for outbound preview]"
+                print(f"  Request Payload:\n    {p}")
+
+            if req.get("ResponsePayload"):
+                r = self.format_json(req["ResponsePayload"])
+                max_len = outbound_preview_chars if is_outbound else 20000
+                if len(r) > max_len:
+                    r = r[:max_len] + "\n    ... [TRUNCATED]"
+                print(f"  Response Payload:\n    {r}")
     
     def get_performance_metrics(self, hours: int = 24) -> Dict:
         """Get performance metrics for the last N hours"""
@@ -508,10 +605,13 @@ class DiagnosticLogger:
             if entry.get('Comments'):
                 print(f"  Comments: {entry['Comments']}")
     
-    def print_correlation_analysis(self, correlation: Dict):
-        """Print correlated analysis for failed requests"""
+    def print_correlation_analysis(self, correlation: Dict, request_id: Optional[str] = None):
+        """Print correlated analysis for failed requests or a specific RequestID."""
         print("\n" + "=" * 100)
-        print("CORRELATION ANALYSIS (Most Recent Failure)")
+        if request_id:
+            print(f"CORRELATION ANALYSIS (RequestID: {request_id})")
+        else:
+            print("CORRELATION ANALYSIS (Most Recent Failure)")
         print("=" * 100)
         
         if not correlation:
@@ -595,7 +695,10 @@ class DiagnosticLogger:
         
         self.print_email_deliveries(email_deliveries)
         self.print_audit_trail(audit_trail)
-        self.print_correlation_analysis(correlation)
+        self.print_correlation_analysis(correlation, request_id=request_id)
+        if request_id:
+            chain = self.get_correlated_api_request_bundle(request_id)
+            self.print_correlated_api_request_bundle(chain, request_id)
         self.print_performance_metrics(performance)
         
         print("\n" + "=" * 100)
@@ -608,7 +711,12 @@ def main():
     
     parser = argparse.ArgumentParser(description="Enhanced Diagnostic Logs for EventLeadPlatform")
     parser.add_argument("--limit", "-l", type=int, default=5, help="Number of entries per table (default: 5)")
-    parser.add_argument("--request-id", "-r", type=str, help="Specific RequestID to analyze")
+    parser.add_argument("--request-id", "-r", type=str, help="Specific inbound RequestID (correlation UUID) to analyze")
+    parser.add_argument(
+        "--correlation-only",
+        action="store_true",
+        help="With --request-id: print only correlation summary + full ApiRequest chain (inbound + outbound); skip other tables",
+    )
     parser.add_argument("--performance-hours", "-p", type=int, default=24, help="Hours for performance metrics (default: 24)")
     parser.add_argument("--theme-requests", "-t", action="store_true", default=True, help="Show theme/profile enhancement requests (default: True)")
     parser.add_argument("--no-theme-requests", action="store_false", dest="theme_requests", help="Hide theme/profile enhancement requests")
@@ -626,7 +734,18 @@ def main():
     try:
         diagnostic = DiagnosticLogger(limit=args.limit)
 
-        if args.frontend_only:
+        if args.correlation_only:
+            if not args.request_id:
+                parser.error("--correlation-only requires --request-id (-r)")
+            diagnostic = DiagnosticLogger(limit=args.limit)
+            correlation = diagnostic.get_correlation_analysis(args.request_id)
+            diagnostic.print_correlation_analysis(correlation, request_id=args.request_id)
+            chain = diagnostic.get_correlated_api_request_bundle(args.request_id)
+            diagnostic.print_correlated_api_request_bundle(chain, args.request_id)
+            print("\n" + "=" * 100)
+            print("CORRELATION TRACE COMPLETE")
+            print("=" * 100)
+        elif args.frontend_only:
             frontend_events = diagnostic.get_recent_frontend_events(
                 event_filter=args.frontend_filter,
                 component_id=args.frontend_component_id,

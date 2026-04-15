@@ -25,4 +25,8 @@ async def generate_form_with_ai(
     # Keep dependency to enforce authenticated use in Builder flows.
     _ = current_user
     runtime_context = body.runtimeContext.model_dump() if body.runtimeContext else None
-    return generate_form_definition(body.prompt, runtime_context=runtime_context)
+    return generate_form_definition(
+        body.prompt,
+        runtime_context=runtime_context,
+        max_system_correction_attempts=body.maxSystemCorrectionAttempts,
+    )

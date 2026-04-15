@@ -1,0 +1,43 @@
+# BMM workflow: Form AI first-shot tuning (system addendum experiments, 5-loop blocks)
+name: form-ai-first-shot-tuning
+description: >
+  Tune the first LLM response for EventLead form-AI: fixed user prompt, measurable scores,
+  documented hypotheses per change, blocks of 5 runs, mandatory human checkpoint between blocks.
+
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+
+installed_path: "{project-root}/_bmad/bmm/workflows/form-ai-first-shot-tuning"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: "{installed_path}/experiment-review-template.md"
+
+# Path to EventLead backend (scripts + scoring). Override in this file if your clone differs.
+variables:
+  eventlead_backend_root: "../EventLeadPlatform/backend"
+  experiment_id: "EXP-UNDEFINED"
+  user_prompt_sha: ""
+  runs_per_block: 5
+  changelog_jsonl: "{project-root}/docs/experiments/form-ai-first-shot/changelog.jsonl"
+
+default_output_file: "{project-root}/docs/experiments/form-ai-first-shot/{{experiment_id}}-review.md"
+
+required_tools:
+  - read_file
+  - write_file
+  - run_terminal_cmd
+
+tags:
+  - form-ai
+  - first-shot
+  - bmm
+  - experiments
+
+execution_hints:
+  interactive: true
+  autonomous: false
+  iterative: true

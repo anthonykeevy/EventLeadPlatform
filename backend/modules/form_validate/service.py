@@ -39,6 +39,10 @@ DEFAULT_HEIGHT_BY_TYPE: Dict[str, float] = {
     "file-upload": 120.0,
 }
 
+# Builder vertical fields often render label + validation below `style.height` suggests.
+# Without this, deterministic collision checks underestimate tall fields (e.g. textarea vs submit).
+_TEXTAREA_COLLISION_EXTRA = 60.0
+
 
 def _error_path(loc: Iterable[Any]) -> str:
     return ".".join(str(item) for item in loc) if loc else "root"
@@ -59,22 +63,42 @@ def _parse_dimension(value: Any, fallback: float) -> float:
     return fallback
 
 
-def _component_size(component: FormComponent) -> Tuple[float, float]:
-    width = None
-    height = None
+def _inflate_height_for_collision(component_type: str, height: float) -> float:
+    if component_type == "textarea":
+        return max(height, 140.0) + _TEXTAREA_COLLISION_EXTRA
+    return height
 
-    if component.style:
-        width = component.style.width
-        height = component.style.height
+
+def _component_size(component: FormComponent) -> Tuple[float, float]:
+    style_w = component.style.width if component.style else None
+    style_h = component.style.height if component.style else None
+    props = component.props
+    props_w = getattr(props, "width", None) if props else None
+    props_h = getattr(props, "height", None) if props else None
 
     fallback_width = 300.0
     fallback_height = DEFAULT_HEIGHT_BY_TYPE.get(component.type, 100.0)
 
-    props_width = getattr(component.props, "width", None)
-    if width is None and props_width is not None:
-        width = props_width
+    parsed_sw = _parse_dimension(style_w, 0.0)
+    parsed_pw = _parse_dimension(props_w, 0.0)
+    parsed_sh = _parse_dimension(style_h, 0.0)
+    parsed_ph = _parse_dimension(props_h, 0.0)
 
-    return _parse_dimension(width, fallback_width), _parse_dimension(height, fallback_height)
+    # Width: prefer authored `style.width`, then props (do not max both — stale props can be full-bleed).
+    if parsed_sw > 0:
+        width = parsed_sw
+    elif parsed_pw > 0:
+        width = parsed_pw
+    else:
+        width = fallback_width
+
+    # Height: max of style vs props catches builder sync drift; inflate textarea for label/validation chrome.
+    height = max(parsed_sh, parsed_ph)
+    if height <= 0:
+        height = fallback_height
+    height = _inflate_height_for_collision(component.type, height)
+
+    return width, height
 
 
 def _flatten_components(

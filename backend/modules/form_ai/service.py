@@ -3,7 +3,6 @@ import logging
 import os
 import re
 import time
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -17,26 +16,23 @@ from modules.form_validate.schemas import (
     SchemaError,
     ValidationSummary,
 )
-from modules.form_validate.service import validate_definition_payload
+from modules.form_validate.service import (
+    _inflate_height_for_collision,
+    validate_definition_payload,
+)
+from .system_prompt_sections_1_6 import SYSTEM_PROMPT_SECTIONS_1_TO_6
 
 from .schemas import (
     AttemptTraceEntry,
     AttemptValidationSummary,
     FormAiGenerateResponse,
     GenerationTraceMetadata,
+    PostProcessingSummary,
 )
 
 MAX_SYSTEM_CORRECTION_ATTEMPTS = 3
-_ROOT_PATH = Path(__file__).resolve().parents[3]
-CONTEXT_PACK_PATH = _ROOT_PATH / "docs" / "stories" / "STORY-6.2-AI-CONTEXT-PACK.md"
 LOGGER = logging.getLogger(__name__)
-
-
-def _load_context_pack() -> str:
-    try:
-        return CONTEXT_PACK_PATH.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise RuntimeError("context-pack-load-failed") from exc
+ENABLE_POST_PROCESSING = False
 
 
 def _extract_json_candidate(raw_content: str) -> Dict[str, Any]:
@@ -107,6 +103,15 @@ def _prompt_requests_heading(prompt: str) -> bool:
     return any(re.search(rf"\b{re.escape(marker)}\b", lowered) for marker in heading_markers)
 
 
+def _runtime_has_event_information(runtime_context: Optional[Dict[str, Any]]) -> bool:
+    if not runtime_context:
+        return False
+    ev = runtime_context.get("eventInformation")
+    if not isinstance(ev, dict):
+        return False
+    return bool(str(ev.get("name", "")).strip())
+
+
 def _is_placeholder_heading_text(value: Any) -> bool:
     if not isinstance(value, str):
         return True
@@ -131,7 +136,7 @@ def _sort_index_for_tab_order(component: Dict[str, Any], fallback_index: int) ->
 def _resolve_canvas_height(
     definition: Dict[str, Any], runtime_context: Optional[Dict[str, Any]]
 ) -> float:
-    runtime_canvas = runtime_context.get("canvas") if runtime_context else None
+    runtime_canvas = _runtime_canvas_settings(runtime_context)
     if isinstance(runtime_canvas, dict):
         runtime_height = _parse_positive_dimension(runtime_canvas.get("height"), 0.0)
         if runtime_height > 0:
@@ -157,6 +162,42 @@ def _effective_component_height(
         style_height = _parse_positive_dimension(style.get("height"), 0.0)
     min_height = _minimum_render_height(component_type, props, runtime_footprints)
     return max(style_height, min_height)
+
+
+# Generated submit buttons are often over-height; cap so vertical rebalance preserves bottom margin.
+_SUBMIT_BUTTON_MAX_RENDER_HEIGHT = 72.0
+
+
+def _clamp_submit_button_heights(definition: Dict[str, Any]) -> None:
+    pages = definition.get("pages")
+    if not isinstance(pages, list):
+        return
+
+    def walk(items: List[Any]) -> None:
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("type", "")).strip() == "submit-button":
+                props = item.get("props")
+                if isinstance(props, dict):
+                    raw_h = props.get("height")
+                    if isinstance(raw_h, (int, float)) and float(raw_h) > _SUBMIT_BUTTON_MAX_RENDER_HEIGHT:
+                        props["height"] = int(round(_SUBMIT_BUTTON_MAX_RENDER_HEIGHT))
+                style = item.get("style")
+                if isinstance(style, dict):
+                    sh = _parse_positive_dimension(style.get("height"), 0.0)
+                    if sh > _SUBMIT_BUTTON_MAX_RENDER_HEIGHT:
+                        style["height"] = int(round(_SUBMIT_BUTTON_MAX_RENDER_HEIGHT))
+            children = item.get("children")
+            if isinstance(children, list):
+                walk(children)
+
+    for page in pages:
+        if not isinstance(page, dict):
+            continue
+        components = page.get("components")
+        if isinstance(components, list):
+            walk(components)
 
 
 def _sync_style_dimensions_into_props(definition: Dict[str, Any]) -> Dict[str, Any]:
@@ -222,7 +263,7 @@ def _rebalance_single_column_vertical_spacing(
 
     runtime_footprints = _build_runtime_footprint_map(runtime_context)
     grid_size = 0.0
-    runtime_canvas = runtime_context.get("canvas") if runtime_context else None
+    runtime_canvas = _runtime_canvas_settings(runtime_context)
     if isinstance(runtime_canvas, dict):
         grid_size = _parse_positive_dimension(runtime_canvas.get("gridSize"), 0.0)
 
@@ -244,20 +285,22 @@ def _rebalance_single_column_vertical_spacing(
         )
         heights: List[float] = []
         for _, component in sorted_components:
-            height = _effective_component_height(component, runtime_footprints)
-            heights.append(height)
+            component_type = str(component.get("type", "")).strip()
+            raw_height = _effective_component_height(component, runtime_footprints)
+            layout_height = _inflate_height_for_collision(component_type, raw_height)
+            heights.append(layout_height)
 
             style = component.get("style")
             if not isinstance(style, dict):
                 style = {}
                 component["style"] = style
-            style["height"] = int(round(height))
+            style["height"] = int(round(raw_height))
 
             props = component.get("props")
             if not isinstance(props, dict):
                 props = {}
                 component["props"] = props
-            props["height"] = int(round(height))
+            props["height"] = int(round(raw_height))
 
         total_height = sum(heights)
         if total_height <= 0:
@@ -267,8 +310,9 @@ def _rebalance_single_column_vertical_spacing(
         if available_space <= 0:
             continue
 
-        spaces = len(sorted_components) + 1
-        gap = float(int(available_space // spaces))
+        # Float gap so top and bottom margins match (integer // left remainder on bottom only).
+        spaces = float(len(sorted_components) + 1)
+        gap = available_space / spaces
         if gap < 0:
             gap = 0.0
 
@@ -284,6 +328,271 @@ def _rebalance_single_column_vertical_spacing(
     return definition
 
 
+def _rectangles_overlap(a: Dict[str, float], b: Dict[str, float]) -> bool:
+    x_overlap = min(a["x"] + a["width"], b["x"] + b["width"]) - max(a["x"], b["x"])
+    y_overlap = min(a["y"] + a["height"], b["y"] + b["height"]) - max(a["y"], b["y"])
+    return x_overlap > 0 and y_overlap > 0
+
+
+def _component_rect(
+    component: Dict[str, Any], runtime_footprints: Dict[str, Dict[str, float]]
+) -> Dict[str, float]:
+    position = component.get("position")
+    if not isinstance(position, dict):
+        position = {}
+    x = _parse_number(position.get("x"), 0.0)
+    y = _parse_number(position.get("y"), 0.0)
+    style = component.get("style") if isinstance(component.get("style"), dict) else {}
+    props = component.get("props") if isinstance(component.get("props"), dict) else {}
+    component_type = str(component.get("type", "")).strip()
+    minimum_width = _minimum_render_width(component_type, runtime_footprints)
+    raw_width = style.get("width", props.get("width"))
+    stated_width = _parse_positive_dimension(raw_width, 0.0)
+    width = stated_width if stated_width > 0 else minimum_width
+    stated_height = max(
+        _parse_positive_dimension(style.get("height"), 0.0),
+        _parse_positive_dimension(props.get("height"), 0.0),
+    )
+    min_height = _minimum_render_height(component_type, props, runtime_footprints)
+    height = _inflate_height_for_collision(component_type, max(stated_height, min_height))
+    return {"x": x, "y": y, "width": width, "height": height}
+
+
+def _snap_down_to_grid(value: float, grid_size: float) -> float:
+    if grid_size <= 0:
+        return max(0.0, value)
+    return max(0.0, float(int(value // grid_size) * grid_size))
+
+
+def _guardrail_submit_button_placement(
+    definition: Dict[str, Any], runtime_context: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
+    pages = definition.get("pages")
+    if not isinstance(pages, list) or not pages:
+        return definition
+
+    runtime_footprints = _build_runtime_footprint_map(runtime_context)
+    runtime_canvas = _runtime_canvas_settings(runtime_context) or {}
+    canvas = definition.get("canvasSettings")
+    canvas_width = 1920.0
+    canvas_height = 980.0
+    grid_size = 8.0
+    if isinstance(canvas, dict):
+        canvas_width = _parse_positive_dimension(canvas.get("width"), canvas_width)
+        canvas_height = _parse_positive_dimension(canvas.get("height"), canvas_height)
+        grid_size = _parse_positive_dimension(canvas.get("gridSize"), grid_size)
+    if isinstance(runtime_canvas, dict):
+        canvas_width = _parse_positive_dimension(runtime_canvas.get("width"), canvas_width)
+        canvas_height = _parse_positive_dimension(runtime_canvas.get("height"), canvas_height)
+        grid_size = _parse_positive_dimension(runtime_canvas.get("gridSize"), grid_size)
+
+    for page in pages:
+        if not isinstance(page, dict):
+            continue
+        components = page.get("components")
+        if not isinstance(components, list):
+            continue
+
+        typed_components = [item for item in components if isinstance(item, dict)]
+        for submit in typed_components:
+            if str(submit.get("type", "")).strip() != "submit-button":
+                continue
+
+            position = submit.get("position")
+            if not isinstance(position, dict):
+                position = {}
+                submit["position"] = position
+            rect = _component_rect(submit, runtime_footprints)
+
+            max_x = max(0.0, canvas_width - rect["width"])
+            max_y = max(0.0, canvas_height - rect["height"])
+            current_x = _snap_down_to_grid(min(max(0.0, rect["x"]), max_x), grid_size)
+            current_y = _snap_down_to_grid(min(max(0.0, rect["y"]), max_y), grid_size)
+
+            # Try common CTA lanes to avoid overlap with the last field row.
+            centered_x = _snap_down_to_grid((canvas_width - rect["width"]) / 2.0, grid_size)
+            right_x = _snap_down_to_grid(canvas_width - rect["width"] - 64.0, grid_size)
+            left_x = _snap_down_to_grid(64.0, grid_size)
+            candidate_xs = [current_x, centered_x, right_x, left_x]
+            deduped_xs: List[float] = []
+            for candidate in candidate_xs:
+                normalized = min(max(0.0, candidate), max_x)
+                if normalized not in deduped_xs:
+                    deduped_xs.append(normalized)
+
+            chosen_x = current_x
+            chosen_y = current_y
+            chosen_overlap_count: Optional[int] = None
+            for candidate_x in deduped_xs:
+                candidate_rect = {
+                    "x": candidate_x,
+                    "y": current_y,
+                    "width": rect["width"],
+                    "height": rect["height"],
+                }
+                overlap_count = 0
+                for other in typed_components:
+                    if other is submit:
+                        continue
+                    other_rect = _component_rect(other, runtime_footprints)
+                    if _rectangles_overlap(candidate_rect, other_rect):
+                        overlap_count += 1
+                if chosen_overlap_count is None or overlap_count < chosen_overlap_count:
+                    chosen_overlap_count = overlap_count
+                    chosen_x = candidate_x
+                if overlap_count == 0:
+                    break
+
+            position["x"] = int(round(chosen_x))
+            position["y"] = int(round(chosen_y))
+
+    return definition
+
+
+def _snap_up_to_grid(value: float, grid_size: float) -> float:
+    if grid_size <= 0:
+        return max(0.0, value)
+    quotient = value / grid_size
+    rounded_up = int(quotient) if float(int(quotient)) == quotient else int(quotient) + 1
+    return max(0.0, float(rounded_up * grid_size))
+
+
+def _enforce_column_flow_and_canvas_fit(
+    definition: Dict[str, Any], runtime_context: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
+    pages = definition.get("pages")
+    if not isinstance(pages, list) or not pages:
+        return definition
+
+    runtime_footprints = _build_runtime_footprint_map(runtime_context)
+    runtime_canvas = _runtime_canvas_settings(runtime_context) or {}
+    canvas = definition.get("canvasSettings")
+    if not isinstance(canvas, dict):
+        canvas = {}
+        definition["canvasSettings"] = canvas
+
+    canvas_width = _parse_positive_dimension(canvas.get("width"), 1920.0)
+    canvas_height = _parse_positive_dimension(canvas.get("height"), 980.0)
+    grid_size = _parse_positive_dimension(canvas.get("gridSize"), 8.0)
+    canvas_width = _parse_positive_dimension(runtime_canvas.get("width"), canvas_width)
+    canvas_height = _parse_positive_dimension(runtime_canvas.get("height"), canvas_height)
+    grid_size = _parse_positive_dimension(runtime_canvas.get("gridSize"), grid_size)
+    gap = max(24.0, grid_size if grid_size > 0 else 24.0)
+
+    for page in pages:
+        if not isinstance(page, dict):
+            continue
+        components = page.get("components")
+        if not isinstance(components, list):
+            continue
+
+        typed_components = [item for item in components if isinstance(item, dict)]
+        submit_components = [
+            item
+            for item in typed_components
+            if str(item.get("type", "")).strip() == "submit-button"
+        ]
+        non_submit_components = [
+            item
+            for item in typed_components
+            if str(item.get("type", "")).strip() != "submit-button"
+        ]
+        sorted_components = sorted(
+            non_submit_components,
+            key=lambda item: _sort_index_for_tab_order(item, 0),
+        )
+        placed_rects: List[Dict[str, float]] = []
+        max_bottom_non_submit = 0.0
+
+        for component in sorted_components:
+            position = component.get("position")
+            if not isinstance(position, dict):
+                position = {}
+                component["position"] = position
+
+            rect = _component_rect(component, runtime_footprints)
+            proposed_x = min(
+                max(0.0, rect["x"]), max(0.0, canvas_width - rect["width"])
+            )
+            # Compact pass: compute the earliest legal Y from already-placed overlapping lanes.
+            proposed_y = 64.0
+
+            for placed in placed_rects:
+                x_overlap = min(
+                    proposed_x + rect["width"], placed["x"] + placed["width"]
+                ) - max(proposed_x, placed["x"])
+                if x_overlap > 0:
+                    proposed_y = max(proposed_y, placed["y"] + placed["height"] + gap)
+
+            position["x"] = int(round(_snap_down_to_grid(proposed_x, grid_size)))
+            position["y"] = int(round(_snap_up_to_grid(proposed_y, grid_size)))
+
+            rect = _component_rect(component, runtime_footprints)
+            placed_rects.append(rect)
+            max_bottom_non_submit = max(max_bottom_non_submit, rect["y"] + rect["height"])
+
+        max_bottom = max_bottom_non_submit
+        if submit_components:
+            # Place submit CTA after all primary inputs/content to avoid lane collisions.
+            submit_y = _snap_up_to_grid(max_bottom_non_submit + gap, grid_size)
+            for submit in submit_components:
+                position = submit.get("position")
+                if not isinstance(position, dict):
+                    position = {}
+                    submit["position"] = position
+
+                rect = _component_rect(submit, runtime_footprints)
+                max_x = max(0.0, canvas_width - rect["width"])
+                current_x = _snap_down_to_grid(
+                    min(max(0.0, rect["x"]), max_x), grid_size
+                )
+                centered_x = _snap_down_to_grid(
+                    (canvas_width - rect["width"]) / 2.0, grid_size
+                )
+                right_x = _snap_down_to_grid(
+                    canvas_width - rect["width"] - 64.0, grid_size
+                )
+                left_x = _snap_down_to_grid(64.0, grid_size)
+                candidate_xs = [right_x, centered_x, current_x, left_x]
+                deduped_xs: List[float] = []
+                for candidate in candidate_xs:
+                    normalized = min(max(0.0, candidate), max_x)
+                    if normalized not in deduped_xs:
+                        deduped_xs.append(normalized)
+
+                chosen_x = deduped_xs[0] if deduped_xs else 0.0
+                chosen_overlap_count: Optional[int] = None
+                for candidate_x in deduped_xs:
+                    candidate_rect = {
+                        "x": candidate_x,
+                        "y": submit_y,
+                        "width": rect["width"],
+                        "height": rect["height"],
+                    }
+                    overlap_count = 0
+                    for placed in placed_rects:
+                        if _rectangles_overlap(candidate_rect, placed):
+                            overlap_count += 1
+                    if chosen_overlap_count is None or overlap_count < chosen_overlap_count:
+                        chosen_overlap_count = overlap_count
+                        chosen_x = candidate_x
+                    if overlap_count == 0:
+                        break
+
+                position["x"] = int(round(chosen_x))
+                position["y"] = int(round(submit_y))
+                submit_rect = _component_rect(submit, runtime_footprints)
+                placed_rects.append(submit_rect)
+                max_bottom = max(max_bottom, submit_rect["y"] + submit_rect["height"])
+
+        required_height = _snap_up_to_grid(max_bottom + gap, grid_size)
+        if required_height > canvas_height:
+            canvas["height"] = int(round(required_height))
+            canvas_height = required_height
+
+    return definition
+
+
 def _post_process_generated_definition(
     definition: Dict[str, Any], prompt: str, runtime_context: Optional[Dict[str, Any]]
 ) -> Dict[str, Any]:
@@ -291,7 +600,11 @@ def _post_process_generated_definition(
     if not isinstance(pages, list):
         return definition
 
-    allow_heading = _prompt_requests_heading(prompt)
+    _clamp_submit_button_heights(definition)
+
+    allow_heading = _prompt_requests_heading(prompt) or _runtime_has_event_information(
+        runtime_context
+    )
     for page in pages:
         if not isinstance(page, dict):
             continue
@@ -331,8 +644,11 @@ def _post_process_generated_definition(
 
         page["components"] = filtered_components
 
+    definition = _guardrail_submit_button_placement(definition, runtime_context)
     definition = _sync_style_dimensions_into_props(definition)
-    return _rebalance_single_column_vertical_spacing(definition, runtime_context)
+    definition = _rebalance_single_column_vertical_spacing(definition, runtime_context)
+    definition = _enforce_column_flow_and_canvas_fit(definition, runtime_context)
+    return definition
 
 
 def _validate_single_page_guardrail(definition: Dict[str, Any]) -> List[SchemaError]:
@@ -383,6 +699,88 @@ def _validation_summary(validation: FormValidationResponse) -> AttemptValidation
     )
 
 
+def _extract_component_positions(
+    definition: Dict[str, Any],
+) -> Dict[str, Dict[str, Any]]:
+    pages = definition.get("pages")
+    if not isinstance(pages, list):
+        return {}
+
+    snapshots: Dict[str, Dict[str, Any]] = {}
+
+    def walk(items: List[Any]) -> None:
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            component_id = str(item.get("id", "")).strip()
+            position = item.get("position")
+            if component_id and isinstance(position, dict):
+                snapshots[component_id] = {
+                    "componentType": str(item.get("type", "")).strip() or None,
+                    "x": _parse_number(position.get("x"), 0.0),
+                    "y": _parse_number(position.get("y"), 0.0),
+                }
+            children = item.get("children")
+            if isinstance(children, list):
+                walk(children)
+
+    for page in pages:
+        if not isinstance(page, dict):
+            continue
+        components = page.get("components")
+        if isinstance(components, list):
+            walk(components)
+    return snapshots
+
+
+def _extract_canvas_height(definition: Dict[str, Any]) -> Optional[float]:
+    canvas = definition.get("canvasSettings")
+    if not isinstance(canvas, dict):
+        return None
+    height = _parse_positive_dimension(canvas.get("height"), 0.0)
+    return height if height > 0 else None
+
+
+def _summarize_post_processing(
+    before: Dict[str, Any], after: Dict[str, Any]
+) -> PostProcessingSummary:
+    before_positions = _extract_component_positions(before)
+    after_positions = _extract_component_positions(after)
+    changed_components: List[Dict[str, Any]] = []
+    for component_id, after_pos in after_positions.items():
+        before_pos = before_positions.get(component_id)
+        if not before_pos:
+            continue
+        if before_pos["x"] == after_pos["x"] and before_pos["y"] == after_pos["y"]:
+            continue
+        changed_components.append(
+            {
+                "componentId": component_id,
+                "componentType": after_pos.get("componentType"),
+                "before": {"x": before_pos["x"], "y": before_pos["y"]},
+                "after": {"x": after_pos["x"], "y": after_pos["y"]},
+            }
+        )
+
+    changed_components.sort(
+        key=lambda item: (
+            str(item.get("componentType") or ""),
+            str(item.get("componentId") or ""),
+        )
+    )
+    canvas_before = _extract_canvas_height(before)
+    canvas_after = _extract_canvas_height(after)
+    return PostProcessingSummary(
+        changedComponentCount=len(changed_components),
+        changedComponents=changed_components[:40],
+        canvasHeightBefore=canvas_before,
+        canvasHeightAfter=canvas_after,
+        canvasHeightChanged=canvas_before != canvas_after
+        if canvas_before is not None or canvas_after is not None
+        else False,
+    )
+
+
 def _build_runtime_footprint_map(
     runtime_context: Optional[Dict[str, Any]],
 ) -> Dict[str, Dict[str, float]]:
@@ -411,32 +809,106 @@ def _build_runtime_footprint_map(
     return mapped
 
 
-def _build_runtime_context_block(runtime_context: Optional[Dict[str, Any]]) -> str:
+def _runtime_canvas_settings(
+    runtime_context: Optional[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
     if not runtime_context:
-        return ""
-    try:
-        safe_payload = json.dumps(runtime_context, ensure_ascii=True)
-    except (TypeError, ValueError):
-        return ""
-    terms_defaults = runtime_context.get("termsDefaults")
-    terms_rules = ""
-    if isinstance(terms_defaults, dict) and terms_defaults.get("hasCompanyTerms") is True:
-        link_text = terms_defaults.get("termsLinkText")
-        terms_rules = (
-            "\nTerms defaults rule: company-managed terms are available. "
-            "Use a `terms` component for consent, keep `props.termsUrl` and `props.termsContent` empty "
-            "unless user explicitly asks to replace legal source, and preserve company link behavior."
-        )
-        if isinstance(link_text, str) and link_text.strip():
-            terms_rules += f" Prefer `props.termsLinkText` = \"{link_text.strip()}\"."
-    return (
-        "Runtime layout context (authoritative, measured from toolbox/canvas):\n"
-        + safe_payload
-        + "\n\n"
-        + "Use runtime context as hard constraints. Do not change lockedGlobals values. "
-        + "Generate pages/components placement that stays fully within canvas."
-        + terms_rules
+        return None
+    canvas = runtime_context.get("canvasSettings")
+    if isinstance(canvas, dict):
+        return canvas
+    legacy_canvas = runtime_context.get("canvas")
+    return legacy_canvas if isinstance(legacy_canvas, dict) else None
+
+
+def _json_block(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=True, sort_keys=True)
+
+
+def _build_user_message(prompt: str, runtime_context: Optional[Dict[str, Any]]) -> str:
+    context = runtime_context or {}
+    canvas = _runtime_canvas_settings(context) or {}
+    global_styles_locked = bool(context.get("globalStylesLocked", True))
+    lock_state = "locked" if global_styles_locked else "unlocked"
+    global_styles = (
+        context.get("globalStyles")
+        if isinstance(context.get("globalStyles"), dict)
+        else {}
     )
+    theme = context.get("theme") if isinstance(context.get("theme"), dict) else {}
+    footprints = (
+        context.get("componentFootprints")
+        if isinstance(context.get("componentFootprints"), list)
+        else []
+    )
+    event_information = (
+        context.get("eventInformation")
+        if isinstance(context.get("eventInformation"), dict)
+        else {}
+    )
+    terms_defaults = (
+        context.get("termsDefaults")
+        if isinstance(context.get("termsDefaults"), dict)
+        else None
+    )
+    include_terms_defaults = bool(
+        terms_defaults
+        and any(value is not None for value in terms_defaults.values())
+        and (
+            terms_defaults.get("hasCompanyTerms") is True
+            or terms_defaults.get("source") in {"company-default", "form-existing"}
+        )
+    )
+    form_id = context.get("formId")
+
+    lines = [
+        "## Runtime Context",
+        "",
+        "### Canvas",
+        f"- Width: {int(_parse_positive_dimension(canvas.get('width'), 1920.0))}px",
+        f"- Height: {int(_parse_positive_dimension(canvas.get('height'), 980.0))}px",
+        f"- Grid Size: {int(_parse_positive_dimension(canvas.get('gridSize'), 8.0))}px",
+        "",
+        "### Global Styles Lock State",
+        lock_state,
+        "",
+        "### Current Global Styles",
+        _json_block(global_styles),
+        "",
+        "### Theme",
+        _json_block(theme),
+        "",
+        "### Component Footprints",
+        _json_block(footprints),
+        "",
+        "### Event Information",
+        f"- Event Name: {str(event_information.get('name') or 'TBA')}",
+        f"- Start: {str(event_information.get('startDateTime') or 'TBA')}",
+        f"- End: {str(event_information.get('endDateTime') or 'TBA')}",
+        f"- Timezone: {str(event_information.get('timezoneIdentifier') or 'TBA')}",
+        f"- Venue: {str(event_information.get('venueName') or 'TBA')}",
+        f"- City: {str(event_information.get('city') or 'TBA')}",
+    ]
+    if include_terms_defaults and terms_defaults is not None:
+        lines.extend(
+            [
+                "",
+                "### Terms Defaults",
+                _json_block(terms_defaults),
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "### Form ID",
+            str(form_id or ""),
+            "",
+            "## User Request",
+            "",
+            prompt,
+        ]
+    )
+    return "\n".join(lines)
 
 
 def _parse_positive_dimension(value: Any, fallback: float) -> float:
@@ -477,7 +949,7 @@ def _minimum_render_height(
     base_by_type = {
         "header": 52.0,
         "divider": 20.0,
-        "submit-button": 60.0,
+        "submit-button": 56.0,
         "text": 110.0,
         "email": 110.0,
         "phone": 110.0,
@@ -488,16 +960,16 @@ def _minimum_render_height(
         "select": 120.0,
         "checkbox": 120.0,
         "radio": 120.0,
-        "textarea": 140.0,
+        # Aligned with STORY-6.2-AI-CONTEXT-PACK / runtime footprints (~200): label + control + validation band.
+        "textarea": 200.0,
         "terms": 120.0,
     }
     minimum_height = base_by_type.get(component_type, 110.0)
     if runtime_footprints and component_type in runtime_footprints:
         minimum_height = max(minimum_height, runtime_footprints[component_type]["height"])
-    if component_type in ("checkbox", "radio", "dropdown", "select"):
-        options = component_props.get("options")
-        if isinstance(options, list):
-            minimum_height += max(0, len(options) - 3) * 20.0
+    # Collision geometry uses rest-state control footprints.
+    # Do not inflate height by option count for selection components.
+    # Open-state option lists are transient UI and should not trigger collision failures.
     return minimum_height
 
 
@@ -554,15 +1026,21 @@ def _flatten_visual_components(
                 props = item.get("props") if isinstance(item.get("props"), dict) else {}
                 component_type = str(item.get("type", "text"))
                 minimum_width = _minimum_render_width(component_type, runtime_footprints)
-                stated_width = _parse_positive_dimension(
-                    style.get("width", props.get("width")), minimum_width
+                raw_width = style.get("width", props.get("width"))
+                stated_width = _parse_positive_dimension(raw_width, 0.0)
+                # Honor explicit generated width for collision checks.
+                # Only fall back to minimum footprint when no usable width is provided.
+                width = stated_width if stated_width > 0 else minimum_width
+                stated_height = max(
+                    _parse_positive_dimension(style.get("height"), 0.0),
+                    _parse_positive_dimension(props.get("height"), 0.0),
                 )
-                width = max(stated_width, minimum_width)
-                stated_height = _parse_positive_dimension(style.get("height"), 0.0)
                 min_height = _minimum_render_height(
                     component_type, props, runtime_footprints
                 )
-                height = max(stated_height, min_height)
+                height = _inflate_height_for_collision(
+                    component_type, max(stated_height, min_height)
+                )
                 flattened.append(
                     {
                         "id": str(item.get("id", "")),
@@ -624,12 +1102,13 @@ def _collect_visual_boundary_violations(
     if isinstance(canvas, dict):
         canvas_width = _parse_positive_dimension(canvas.get("width"), 1920.0)
         canvas_height = _parse_positive_dimension(canvas.get("height"), 980.0)
-    runtime_canvas = (runtime_context or {}).get("canvas")
+    runtime_canvas = _runtime_canvas_settings(runtime_context)
     if isinstance(runtime_canvas, dict):
-        canvas_width = _parse_positive_dimension(runtime_canvas.get("width"), canvas_width)
-        canvas_height = _parse_positive_dimension(
-            runtime_canvas.get("height"), canvas_height
-        )
+        runtime_width = _parse_positive_dimension(runtime_canvas.get("width"), canvas_width)
+        runtime_height = _parse_positive_dimension(runtime_canvas.get("height"), canvas_height)
+        # Respect runtime baseline, but allow post-processing to grow canvasSettings when needed.
+        canvas_width = max(canvas_width, runtime_width)
+        canvas_height = max(canvas_height, runtime_height)
 
     violations: List[BoundaryViolation] = []
     for item in flattened:
@@ -730,28 +1209,17 @@ def _merge_visual_collisions(
 
 
 def _build_initial_messages(
-    prompt: str, context_pack: str, runtime_context: Optional[Dict[str, Any]] = None
+    prompt: str,
+    runtime_context: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, str]]:
-    runtime_context_block = _build_runtime_context_block(runtime_context)
     return [
         {
             "role": "system",
-            "content": (
-                "You generate EventLead form DefinitionJSON for Story 6.2.\n"
-                "Output a single JSON object only. No markdown or prose.\n"
-                "Ensure schemaVersion is '1.0', include formId, theme, canvasSettings, and pages.\n"
-                "Use only Story 6.2 MVP components and single-page constraints.\n\n"
-                f"{context_pack}"
-                + ("\n\n" + runtime_context_block if runtime_context_block else "")
-            ),
+            "content": SYSTEM_PROMPT_SECTIONS_1_TO_6,
         },
         {
             "role": "user",
-            "content": (
-                "Generate a DefinitionJSON for this request.\n"
-                f"Prompt: {prompt}\n"
-                "Return only valid JSON."
-            ),
+            "content": _build_user_message(prompt, runtime_context),
         },
     ]
 
@@ -987,66 +1455,80 @@ def generate_form_definition(
     prompt: str,
     model_override: str | None = None,
     runtime_context: Optional[Dict[str, Any]] = None,
+    max_system_correction_attempts: Optional[int] = None,
 ) -> FormAiGenerateResponse:
     trace_entries: List[AttemptTraceEntry] = []
-
-    try:
-        context_pack = _load_context_pack()
-    except RuntimeError:
-        trace = GenerationTraceMetadata(
-            attemptCount=0,
-            maxSystemCorrectionAttempts=MAX_SYSTEM_CORRECTION_ATTEMPTS,
-            systemCorrectionAttemptsUsed=0,
-            terminalReason="context-pack-load-failed",
-            attempts=[],
-            validationSummary=None,
-        )
-        return FormAiGenerateResponse(
-            status="failed",
-            definitionJSON=None,
-            trace=trace,
-            userMessage=(
-                "AI generation failed before execution. "
-                "Please contact support and try again."
-            ),
-        )
+    correction_cap = (
+        MAX_SYSTEM_CORRECTION_ATTEMPTS
+        if max_system_correction_attempts is None
+        else max(0, int(max_system_correction_attempts))
+    )
 
     messages = _build_initial_messages(
-        prompt=prompt, context_pack=context_pack, runtime_context=runtime_context
+        prompt=prompt,
+        runtime_context=runtime_context,
     )
     last_validation: AttemptValidationSummary | None = None
     last_valid_definition: Dict[str, Any] | None = None
+    last_candidate: Dict[str, Any] | None = None
+    last_post_processing: PostProcessingSummary | None = None
 
-    for attempt_number in range(1, MAX_SYSTEM_CORRECTION_ATTEMPTS + 2):
+    max_attempts = correction_cap + 1
+    for attempt_number in range(1, correction_cap + 2):
         phase = "initial" if attempt_number == 1 else "correction"
-        correction_issued = attempt_number <= MAX_SYSTEM_CORRECTION_ATTEMPTS
+        correction_issued = attempt_number <= correction_cap
 
+        LOGGER.info(
+            "form-ai generate attempt %s/%s phase=%s",
+            attempt_number,
+            max_attempts,
+            phase,
+        )
         try:
             provider_content = _request_chatgpt_completion(
                 messages, model_override=model_override
             )
             candidate = _extract_json_candidate(provider_content)
+            raw_candidate = json.loads(json.dumps(candidate))
             candidate = _normalize_display_component_props(candidate)
-            candidate = _post_process_generated_definition(
-                candidate, prompt, runtime_context
+            if ENABLE_POST_PROCESSING:
+                candidate = _post_process_generated_definition(
+                    candidate, prompt, runtime_context
+                )
+            post_processing = _summarize_post_processing(raw_candidate, candidate)
+            last_post_processing = post_processing
+            last_candidate = candidate
+        except (httpx.HTTPError, RuntimeError, ValueError) as exc:
+            LOGGER.exception(
+                "form-ai generate failed before validation (attempt %s/%s): %s",
+                attempt_number,
+                max_attempts,
+                exc,
             )
-        except (httpx.HTTPError, RuntimeError, ValueError):
             trace = GenerationTraceMetadata(
                 attemptCount=attempt_number,
-                maxSystemCorrectionAttempts=MAX_SYSTEM_CORRECTION_ATTEMPTS,
+                maxSystemCorrectionAttempts=correction_cap,
                 systemCorrectionAttemptsUsed=max(0, attempt_number - 1),
                 terminalReason="provider-error",
                 attempts=trace_entries,
                 validationSummary=last_validation,
+                postProcessingSummary=last_post_processing,
             )
+            has_draft = last_candidate is not None
             return FormAiGenerateResponse(
                 status="failed",
-                definitionJSON=None,
+                definitionJSON=last_candidate if has_draft else None,
                 trace=trace,
                 userMessage=(
-                    "AI generation could not be completed right now. "
-                    "Please try again."
+                    "AI provider call failed before validation could finish. "
+                    + (
+                        "The last draft from the previous successful model response is included — "
+                        "you can load it on the canvas to inspect layout."
+                        if has_draft
+                        else "Please try again."
+                    )
                 ),
+                draftHasValidationIssues=has_draft,
             )
 
         validation = validate_definition_payload({"definition": candidate})
@@ -1067,15 +1549,26 @@ def generate_form_definition(
                 validation=summary,
                 correctionIssued=(not summary.valid) and correction_issued,
                 notes=None if summary.valid else "validator-retry-required",
+                postProcessing=post_processing,
             )
         )
         last_validation = summary
+
+        LOGGER.info(
+            "form-ai generate attempt %s/%s validation valid=%s errors=%s collisions=%s boundaries=%s",
+            attempt_number,
+            max_attempts,
+            summary.valid,
+            summary.errorCount,
+            summary.collisionCount,
+            summary.boundaryViolationCount,
+        )
 
         if validation.valid:
             last_valid_definition = candidate
             break
 
-        if attempt_number > MAX_SYSTEM_CORRECTION_ATTEMPTS:
+        if attempt_number > correction_cap:
             break
         messages.append({"role": "assistant", "content": json.dumps(candidate)})
         messages.append({"role": "user", "content": _build_correction_message(validation)})
@@ -1083,11 +1576,12 @@ def generate_form_definition(
     if last_valid_definition is not None:
         trace = GenerationTraceMetadata(
             attemptCount=len(trace_entries),
-            maxSystemCorrectionAttempts=MAX_SYSTEM_CORRECTION_ATTEMPTS,
+            maxSystemCorrectionAttempts=correction_cap,
             systemCorrectionAttemptsUsed=max(0, len(trace_entries) - 1),
             terminalReason="validated-success",
             attempts=trace_entries,
             validationSummary=last_validation,
+            postProcessingSummary=last_post_processing,
         )
         return FormAiGenerateResponse(
             status="completed",
@@ -1097,22 +1591,31 @@ def generate_form_definition(
                 "AI draft generated and validated successfully. "
                 "The canvas has been updated."
             ),
+            draftHasValidationIssues=False,
         )
 
     trace = GenerationTraceMetadata(
         attemptCount=len(trace_entries),
-        maxSystemCorrectionAttempts=MAX_SYSTEM_CORRECTION_ATTEMPTS,
+        maxSystemCorrectionAttempts=correction_cap,
         systemCorrectionAttemptsUsed=max(0, len(trace_entries) - 1),
         terminalReason="retry-cap-exhausted",
         attempts=trace_entries,
         validationSummary=last_validation,
+        postProcessingSummary=last_post_processing,
     )
+    has_draft = last_candidate is not None
     return FormAiGenerateResponse(
         status="failed",
-        definitionJSON=None,
+        definitionJSON=last_candidate if has_draft else None,
         trace=trace,
         userMessage=(
             "AI generation could not produce a valid form within 3 correction attempts. "
-            "Please revise your prompt and try again."
+            + (
+                "The last draft is included so you can load it on the canvas to inspect collisions or layout. "
+                if has_draft
+                else ""
+            )
+            + "You may revise your prompt and try again."
         ),
+        draftHasValidationIssues=has_draft,
     )

@@ -358,9 +358,11 @@ def test_story_6_2_rebalances_single_column_spacing_from_effective_heights(monke
     assert result.definitionJSON is not None
     components = result.definitionJSON["pages"][0]["components"]
 
-    expected_y = [24, 178, 332, 486, 730, 874]
+    expected_y = [25, 181, 336, 492, 737, 883]
     actual_y = [component["position"]["y"] for component in components]
     assert actual_y == expected_y
+    assert components[-1]["style"]["height"] == 72
+    assert components[-1]["props"]["height"] == 72
 
 
 def test_story_6_2_runtime_footprint_plus_options_growth_affects_spacing(monkeypatch):
@@ -416,10 +418,11 @@ def test_story_6_2_runtime_footprint_plus_options_growth_affects_spacing(monkeyp
     components = result.definitionJSON["pages"][0]["components"]
 
     # Checkbox: baseline 131 + options growth (8 options => +100) => effective 231.
-    # total heights: 130 + 231 + 81 = 442; available 538; spaces 4 => gap floor 134
-    assert [component["position"]["y"] for component in components] == [134, 398, 763]
+    # Submit height clamped 81 -> 72: total 130 + 231 + 72 = 433; available 547; spaces 4
+    assert [component["position"]["y"] for component in components] == [137, 404, 771]
     assert components[1]["style"]["height"] == 231
     assert components[1]["props"]["height"] == 231
+    assert components[2]["style"]["height"] == 72
 
 
 def test_story_6_2_syncs_style_dimensions_to_props_for_builder(monkeypatch):

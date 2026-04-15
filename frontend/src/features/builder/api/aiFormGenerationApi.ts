@@ -12,28 +12,25 @@ export interface AttemptValidationSummary {
   errorCount: number;
 }
 
-export interface PostProcessingComponentPositionDelta {
-  componentId: string;
-  componentType?: string | null;
-  before: { x: number; y: number };
-  after: { x: number; y: number };
-}
-
-export interface PostProcessingSummary {
-  changedComponentCount: number;
-  changedComponents: PostProcessingComponentPositionDelta[];
-  canvasHeightBefore?: number | null;
-  canvasHeightAfter?: number | null;
-  canvasHeightChanged: boolean;
-}
-
 export interface AttemptTraceEntry {
   attemptNumber: number;
   phase: "initial" | "correction";
   validation: AttemptValidationSummary;
   correctionIssued: boolean;
   notes?: string | null;
-  postProcessing?: PostProcessingSummary | null;
+  /** This attempt's collisionCount minus the previous; absent on first attempt. */
+  collisionDeltaFromPrevious?: number | null;
+  /** vs prior attempt; n_a on first attempt. */
+  collisionTrendVsPrevious?: "improved" | "worse" | "unchanged" | "n_a" | null;
+}
+
+/** Request + env resolution: sync = one response body; stream = SSE. Auto uses FORM_AI_OPENAI_TRANSPORT on the server (default sync). */
+export type OpenAiTransportMode = "auto" | "sync" | "stream";
+
+export interface AiGenerationOptions {
+  openaiTransport?: OpenAiTransportMode;
+  maxSystemCorrectionAttempts?: number;
+  systemPromptAddendum?: string;
 }
 
 export interface AiGenerationTrace {
@@ -43,7 +40,8 @@ export interface AiGenerationTrace {
   terminalReason: string;
   attempts: AttemptTraceEntry[];
   validationSummary?: AttemptValidationSummary | null;
-  postProcessingSummary?: PostProcessingSummary | null;
+  /** After resolution (auto → sync|stream); compare with your selection to confirm behavior. */
+  resolvedOpenaiTransport?: "sync" | "stream" | null;
 }
 
 export interface AiFormGenerationResponse {
@@ -68,6 +66,12 @@ export interface RuntimeCanvasContext {
   gridSize?: number;
 }
 
+export interface RuntimeLockedGlobals {
+  theme?: Record<string, unknown> | null;
+  globalStyles?: Record<string, unknown> | null;
+  canvasSettings?: Record<string, unknown> | null;
+}
+
 export interface RuntimeTermsDefaults {
   companyId?: number;
   hasCompanyTerms?: boolean;
@@ -79,33 +83,12 @@ export interface RuntimeTermsDefaults {
   preserveCompanyTermsLink?: boolean;
 }
 
-/** Factual event metadata when the user enables “Include event information” on the AI panel. */
-export interface RuntimeEventInformation {
-  eventId: number;
-  name: string;
-  startDateTime?: string;
-  endDateTime?: string | null;
-  timezoneIdentifier?: string | null;
-  venueName?: string | null;
-  venueAddress?: string | null;
-  city?: string | null;
-  state?: string | null;
-  shortDescription?: string | null;
-}
-
 export interface AiRuntimeContext {
   formId?: string;
-  canvasSettings?: RuntimeCanvasContext;
-  globalStylesLocked?: boolean;
-  globalStyles?: Record<string, unknown> | null;
-  theme?: Record<string, unknown> | null;
+  canvas?: RuntimeCanvasContext;
+  lockedGlobals?: RuntimeLockedGlobals;
   termsDefaults?: RuntimeTermsDefaults;
   componentFootprints?: RuntimeComponentFootprint[];
-  eventInformation?: RuntimeEventInformation;
-}
-
-export interface AiGenerationOptions {
-  maxSystemCorrectionAttempts?: number;
 }
 
 /**
@@ -122,13 +105,19 @@ export async function generateAiDefinition(
   options: AiGenerationOptions = {}
 ): Promise<AiFormGenerationResponse> {
   try {
-    const { maxSystemCorrectionAttempts } = options;
+    const {
+      openaiTransport = "auto",
+      maxSystemCorrectionAttempts,
+      systemPromptAddendum,
+    } = options;
     const response = await apiClient.post<AiFormGenerationResponse>(
       "/api/form-ai/generate",
       {
         prompt,
         runtimeContext,
+        openaiTransport,
         maxSystemCorrectionAttempts,
+        systemPromptAddendum,
       },
       { timeout: FORM_AI_GENERATE_TIMEOUT_MS }
     );

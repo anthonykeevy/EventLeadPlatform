@@ -38,9 +38,11 @@ describe("generateAiDefinition", () => {
       {
         prompt: "Build a contact form",
         runtimeContext: undefined,
+        openaiTransport: "auto",
         maxSystemCorrectionAttempts: undefined,
+        systemPromptAddendum: undefined,
       },
-      { timeout: 1200000 }
+      { timeout: 1_200_000 }
     );
     expect(result.status).toBe("completed");
     expect(result.trace.attemptCount).toBe(1);

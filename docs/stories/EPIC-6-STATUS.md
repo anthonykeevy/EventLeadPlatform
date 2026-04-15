@@ -68,8 +68,9 @@ This fundamentally changes the payment architecture. We must implement two diffe
 | **6.2** | AI Form Builder UI & Agent Loop (POC) | End-to-end POC: chat UI, AI generation endpoint, retry loop, context pack v1, model comparison. | ✅ **Complete** (2026-03-20, PR #53) |
 | **6.2.1** | Component Library Expansion | Add `url`, `rating`, promote `paragraph`; update COMPONENT-FRAMEWORK docs; Properties Panel controls; frontend UAT for all new components on toolbox/canvas/runtime surfaces. | ✅ **Complete** (2026-03-30, PR #54) |
 | **6.2.2** | File Upload Component (Full Stack) | `file-upload` builder component + public upload endpoint + SubmissionAttachment model + secure download API for company (`GET .../attachments/.../content`). In-product download UX → **Epic 8**. Submission-scoped attachment IDs ensure no cross-contamination. | ✅ **Complete** (2026-03-31, PR #55) |
-| **6.3** | AI Context Uplift & Benchmark Baseline | Pipeline hardening + AI Context Pack v2 + 10-benchmark test harness + quality baseline. Absorbs deferred "reshaped 6.2" scope from closeout. | 🟨 **Closed (learning capture)** (2026-04-02 — UAT quality not satisfactory; redesign required, see `STORY-6.3-CLOSEOUT-REPORT.md`) |
-| **6.4** | AI Iteration on Existing Designs | Allow users to refine/modify an existing form via AI; "change the layout", "add a field", etc. | ⏳ Pending (depends on 6.3) |
+| **6.3** | AI Context Uplift & Benchmark Baseline | Delivered benchmark/logging uplift and tuning controls, but closed as a learning story after UAT quality gap findings. See `STORY-6.3-CLOSEOUT-REPORT.md`. | ✅ **Closed (Learning)** (2026-04-15) |
+| **6.3.1** | Simplified AI Output + Deterministic Layout Foundation | Bridge story: simplify AI response contract and shift geometry math/layout correction to deterministic planner + explicit transforms. | 📋 **Prepared** (2026-04-15 — required before 6.4) |
+| **6.4** | AI Iteration on Existing Designs | Allow users to refine/modify an existing form via AI; "change the layout", "add a field", etc. | ⏳ Pending (depends on 6.3.1) |
 
 ### Phase B: Platform Billing & Monetization (deferred)
 
@@ -84,4 +85,4 @@ This fundamentally changes the payment architecture. We must implement two diffe
 ---
 
 *Epic 6 Status Document*  
-*Last Updated: 2026-04-02 (Story 6.3 closed as learning capture; redesign required before release-quality AI generation)*
+*Last Updated: 2026-04-15 (Story 6.3 closed for learning; 6.3.1 added as prerequisite bridge before 6.4)*

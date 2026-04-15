@@ -45,7 +45,7 @@ Primary blockers observed:
 Decision:
 
 - Close Story 6.3 now as a **learning and baseline story**, not a release-quality completion story.
-- Use the captured artifacts as the input for a full architecture rethink in future stories.
+- Use the captured artifacts as the input for a full architecture rethink in follow-up story 6.3.1.
 
 ---
 

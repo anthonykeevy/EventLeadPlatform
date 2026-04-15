@@ -3,13 +3,12 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.3  
 **Title:** AI Context Uplift & Benchmark Baseline  
-**Status:** 🟨 **Closed (learning capture)** — UAT not satisfactory; redesign required before release  
+**Status:** ✅ **Closed (Learning Story)** — UAT quality target not met; redesign required before release  
 **Branch:** `story/epic6-6.3-ai-context-benchmark-baseline` (expected; confirm in worktree)  
 **PR:** _TBD_  
 **Depends On:** Story 6.2.2 (✅ Complete, PR #55)  
-**Blocks:** Story 6.4 (AI Iteration on Existing Designs)  
+**Blocks:** Story 6.3.1 (Simplified Generation + Deterministic Layout Foundation)  
 **Created:** 2026-03-31  
-**Closed:** 2026-04-02  
 **Sources:** `EPIC-6-STATUS.md`, `STORY-6.2-CLOSEOUT-REPORT.md` §2, `STORY-6.2-BENCHMARK-FORMS.md`, `STORY-6.2-AI-CONTEXT-PACK.md`, `backend/modules/form_ai/service.py`
 
 ---
@@ -23,6 +22,15 @@ Raise **AI form-generation quality** and **operational reliability** by:
 3. **Hardening** the generation pipeline (errors, configurability, testability) without changing product UX flows.  
 4. Implementing a **repeatable automated harness** over the **10 benchmarks** in `STORY-6.2-BENCHMARK-FORMS.md`.  
 5. Establishing a **documented quality baseline** (pass/fail + rubric dimensions) so Story **6.4** and future tuning can compare against a fixed reference.
+
+### 1.1 Closeout note (2026-04-15)
+
+Story 6.3 is now closed as a learning story based on Human UAT outcomes:
+
+- The benchmark and observability uplift delivered useful diagnostics and tuning controls.
+- The release-quality UAT bar was not met consistently for first-shot layout reliability.
+- Follow-up implementation should proceed through `docs/stories/story-6.3.1.md` before Story 6.4.
+- Supporting closeout detail is captured in `docs/stories/STORY-6.3-CLOSEOUT-REPORT.md`.
 
 ---
 
@@ -120,8 +128,6 @@ Raise **AI form-generation quality** and **operational reliability** by:
 - [ ] Human UAT per `STORY-6.3-UAT-TEST-GUIDE.md` (includes **§5** builder canvas visibility)  
 - [ ] Story PR merged via GitHub; closeout checklist in workflow guide applied  
 
-**Closeout note:** This story was intentionally closed for learning capture and redesign planning. Human UAT did not reach satisfactory quality; see `STORY-6.3-CLOSEOUT-REPORT.md`.
-
 ---
 
 ## 6) References
@@ -129,7 +135,6 @@ Raise **AI form-generation quality** and **operational reliability** by:
 - `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`  
 - `docs/stories/STORY-6.2-BENCHMARK-FORMS.md`  
 - `docs/stories/STORY-6.2-CLOSEOUT-REPORT.md`  
-- `docs/stories/STORY-6.3-CLOSEOUT-REPORT.md`
 - `docs/FORM-AI-POST-PROCESSING-GUIDE.md`
 - `backend/modules/form_ai/service.py` (`CONTEXT_PACK_PATH`, `generate_form_definition`)  
 - `backend/tests/test_story_6_2_ai_generation_loop.py`  
@@ -145,36 +150,12 @@ Raise **AI form-generation quality** and **operational reliability** by:
 
 ### Agent Model Used
 
-Cursor agent (Amelia dev prompt / single-session Story 6.3 instructions).
+_TBD_
 
 ### Completion Notes List
 
-- Context Pack v2.0 in `STORY-6.2-AI-CONTEXT-PACK.md` with changelog + default canvas footprints (aligned with `buildAiRuntimeFootprints.ts`).
-- `FORM_AI_CONTEXT_PACK_PATH` + `get_context_pack_path()` in `backend/modules/form_ai/service.py`; tests in `test_story_63_context_pack_path.py`.
-- Canvas-faithful `componentFootprints` via `buildAiRuntimeFootprints.ts` + `AIAgentPanel` (`initComponents` filter parity with sidebar).
-- Benchmark harness `test_story_63_benchmark_harness.py` (10 parametrized cases, mocked `_request_chatgpt_completion`).
-- Baseline `STORY-6.3-BENCHMARK-BASELINE.md`; gate log `STORY-6.3-GATE-EVIDENCE.md`.
-- AC-9: `applyValidatedDefinition` on completed generate unchanged; browser UAT still required.
-- UAT feedback ledger: `STORY-6.3-BENCHMARK-UAT-FEEDBACK-LOG.md` (BM01: vertical margin fix, context-only width/label guidance; benchmark prompts unchanged for baseline).
-- Story closeout decision recorded in `STORY-6.3-CLOSEOUT-REPORT.md` (learning captured, redesign required; no release-ready claim).
-- Post-processing usage guidance documented in `docs/FORM-AI-POST-PROCESSING-GUIDE.md`.
+_TBD_
 
 ### File List
 
-- `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`
-- `docs/stories/STORY-6.3-BENCHMARK-BASELINE.md`
-- `docs/stories/STORY-6.3-BENCHMARK-UAT-FEEDBACK-LOG.md`
-- `docs/stories/STORY-6.3-GATE-EVIDENCE.md`
-- `docs/stories/story-6.3.md`
-- `.env.example`
-- `backend/modules/form_ai/service.py`
-- `backend/tests/test_story_63_benchmark_harness.py`
-- `backend/tests/test_story_63_context_pack_path.py`
-- `frontend/src/features/builder/components/ai/buildAiRuntimeFootprints.ts`
-- `frontend/src/features/builder/components/ai/AIAgentPanel.tsx`
-- `frontend/src/features/builder/components/ai/__tests__/buildAiRuntimeFootprints.test.ts`
-- `docs/stories/STORY-6.3-BENCHMARK-PROMPTS-AND-OUTCOMES.md`
-- `docs/stories/STORY-6.3-CLOSEOUT-REPORT.md`
-- `docs/stories/STORY-6.2-BENCHMARK-FORMS.md` (baseline prompts frozen)
-- `backend/tests/test_story_6_2_ai_generation_loop.py` (rebalance expected `y` after float gap)
-- `docs/FORM-AI-POST-PROCESSING-GUIDE.md`
+_TBD_

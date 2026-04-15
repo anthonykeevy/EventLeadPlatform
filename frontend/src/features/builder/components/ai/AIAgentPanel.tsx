@@ -2,19 +2,18 @@ import React from "react";
 import { Sparkles, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import {
-  AiGenerationOptions,
   AiRuntimeContext,
   AttemptTraceEntry,
-  RuntimeEventInformation,
+  AiGenerationOptions,
   generateAiDefinition,
+  OpenAiTransportMode,
 } from "../../api/aiFormGenerationApi";
-import { getEventById } from "../../../events/api/eventsApi";
 import { useBuilderStore } from "../../stores/useBuilderStore";
 import { FormComponent, FormDefinition } from "../../types/builder.types";
 import { getCompanyTermsAssets } from "../../../dashboard/api/companyAssetsApi";
 import { getComponentDimensions } from "../../utils/collisionDetection";
-import { buildComponentFootprintsForAiRuntime } from "./buildAiRuntimeFootprints";
 import { devLogger } from "../../utils/devLogger";
+import { buildSectionedSystemAddendum } from "./sectionedPromptArchitecture";
 
 type GenerationUiStatus =
   | "idle"
@@ -33,8 +32,6 @@ const STATUS_LABELS: Record<GenerationUiStatus, string> = {
   failed: "Failed",
 };
 
-const SYSTEM_PROMPT_PROFILE_VERSION = "AI-FORM-BUILDER-SYSTEM-PROMPT sections-1-6";
-
 function parsePositiveNumber(value: unknown, fallback: number): number {
   if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
   if (typeof value === "string") {
@@ -43,6 +40,77 @@ function parsePositiveNumber(value: unknown, fallback: number): number {
     if (Number.isFinite(parsed) && parsed > 0) return parsed;
   }
   return fallback;
+}
+
+function estimateConfiguredFootprint(
+  component: FormComponent,
+  canvasWidth: number
+): { width: number; height: number } {
+  const style = (component.style ?? {}) as Record<string, unknown>;
+  const widthFromStyle = parsePositiveNumber(style.width, 0);
+  const heightFromStyle = parsePositiveNumber(style.height, 0);
+
+  const baseHeightByType: Record<string, number> = {
+    header: 52,
+    divider: 20,
+    "submit-button": 81,
+    text: 110,
+    email: 110,
+    phone: 110,
+    number: 110,
+    date: 110,
+    address: 120,
+    dropdown: 120,
+    select: 120,
+    checkbox: 120,
+    radio: 120,
+    textarea: 200,
+    terms: 120,
+  };
+
+  const options = Array.isArray(component.props?.options)
+    ? component.props.options
+    : [];
+  const optionsGrowth =
+    component.type === "checkbox" ||
+    component.type === "radio" ||
+    component.type === "dropdown" ||
+    component.type === "select"
+      ? Math.max(0, options.length - 3) * 20
+      : 0;
+
+  const minHeight = (baseHeightByType[component.type] ?? 110) + optionsGrowth;
+  const estimatedHeight = Math.max(heightFromStyle, minHeight);
+
+  const defaultWidth =
+    component.type === "submit-button"
+      ? 220
+      : Math.max(240, canvasWidth - 40);
+  const estimatedWidth = Math.max(widthFromStyle, defaultWidth);
+
+  return {
+    width: Math.round(estimatedWidth),
+    height: Math.round(estimatedHeight),
+  };
+}
+
+function flattenComponents(definition: FormDefinition): FormComponent[] {
+  const pages =
+    definition.desktopPages && definition.desktopPages.length > 0
+      ? definition.desktopPages
+      : definition.pages ?? [];
+  const firstPage = pages[0];
+  if (!firstPage) return [];
+
+  const collected: FormComponent[] = [];
+  const walk = (components: FormComponent[]) => {
+    components.forEach((component) => {
+      collected.push(component);
+      if (component.children && component.children.length > 0) walk(component.children);
+    });
+  };
+  walk(firstPage.components ?? []);
+  return collected;
 }
 
 function getFirstPageComponents(definition: FormDefinition): FormComponent[] {
@@ -73,8 +141,15 @@ function formatAttemptLine(entry: AttemptTraceEntry): string {
     entry.phase === "initial"
       ? "Attempt 1 (initial)"
       : `Attempt ${entry.attemptNumber} (correction ${entry.attemptNumber - 1})`;
+  const delta = entry.collisionDeltaFromPrevious;
+  const trend =
+    entry.collisionTrendVsPrevious != null &&
+    entry.collisionTrendVsPrevious !== "n_a" &&
+    delta != null
+      ? ` — collisions ${delta < 0 ? "↓" : delta > 0 ? "↑" : "="} (${entry.collisionTrendVsPrevious})`
+      : "";
   if (v.valid) {
-    return `${phaseLabel}: validation passed`;
+    return `${phaseLabel}: validation passed${trend}`;
   }
   const bits: string[] = [];
   if (v.collisionCount > 0) bits.push(`${v.collisionCount} collision(s)`);
@@ -82,7 +157,16 @@ function formatAttemptLine(entry: AttemptTraceEntry): string {
   if (v.schemaErrorCount > 0) bits.push(`${v.schemaErrorCount} schema`);
   const detail = bits.length > 0 ? bits.join(", ") : `${v.errorCount} error(s)`;
   const tail = entry.correctionIssued ? " → sent correction to model" : "";
-  return `${phaseLabel}: ${detail}${tail}`;
+  return `${phaseLabel}: ${detail}${trend}${tail}`;
+}
+
+function hashText(value: string): string {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `h_${(hash >>> 0).toString(16)}`;
 }
 
 function findFirstTermsComponent(definition: FormDefinition): FormComponent | null {
@@ -108,23 +192,8 @@ function findFirstTermsComponent(definition: FormDefinition): FormComponent | nu
 }
 
 export const AIAgentPanel: React.FC = () => {
-  const {
-    applyValidatedDefinition,
-    formDefinition,
-    formContext,
-    scale,
-    initComponents,
-    setAiAgentSettings,
-  } = useBuilderStore();
-  const prompt =
-    formDefinition?.aiAgentSettings?.lastPrompt ?? "";
-  const includeEventInformation =
-    formDefinition?.aiAgentSettings?.includeEventInformation ?? true;
-  const maxSystemCorrectionAttempts =
-    formDefinition?.aiAgentSettings?.maxSystemCorrectionAttempts ?? 1;
-  const globalStylesLocked =
-    formDefinition?.aiAgentSettings?.globalStylesLocked ?? true;
-
+  const { applyValidatedDefinition, formDefinition, formContext, scale } = useBuilderStore();
+  const [prompt, setPrompt] = React.useState("");
   const [status, setStatus] = React.useState<GenerationUiStatus>("idle");
   const [message, setMessage] = React.useState<string | null>(null);
   const [traceSummary, setTraceSummary] = React.useState<string | null>(null);
@@ -135,17 +204,57 @@ export const AIAgentPanel: React.FC = () => {
     unknown
   > | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [openaiTransport, setOpenaiTransport] = React.useState<OpenAiTransportMode>("auto");
+  const [maxSystemCorrectionAttempts, setMaxSystemCorrectionAttempts] = React.useState(1);
 
   const buildRuntimeContext = React.useCallback(async (): Promise<AiRuntimeContext | undefined> => {
     if (!formDefinition) return undefined;
-    // componentFootprints: use canvas-scale defaults from registry (new-drop policy), not toolbox
-    // thumbnail getBoundingClientRect — toolbox uses compact surface previews (story-6.3 §2.5).
-    const initCodes = initComponents?.map((c) => c.componentCode) ?? null;
-    const componentFootprints = buildComponentFootprintsForAiRuntime(
-      formDefinition,
-      scale,
-      initCodes
+    const canvasWidth = formDefinition.canvasSettings?.width ?? 1920;
+
+    const nodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-toolbox-component-type]")
     );
+    const toolboxFootprints = nodes
+      .map((node) => {
+        const componentType = node.dataset.toolboxComponentType?.trim();
+        if (!componentType) return null;
+        const bounds = node.getBoundingClientRect();
+        if (!Number.isFinite(bounds.width) || !Number.isFinite(bounds.height)) return null;
+        if (bounds.width <= 0 || bounds.height <= 0) return null;
+        return {
+          componentType,
+          width: Math.round(bounds.width),
+          height: Math.round(bounds.height),
+          recommendedGapAfter: 24,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const mergedFootprints = new Map<
+      string,
+      { width: number; height: number; recommendedGapAfter: number }
+    >();
+
+    toolboxFootprints.forEach((footprint) => {
+      mergedFootprints.set(footprint.componentType, footprint);
+    });
+
+    flattenComponents(formDefinition).forEach((component) => {
+      const type = component.type?.trim();
+      if (!type) return;
+      const existing = mergedFootprints.get(type);
+      if (existing) {
+        // Keep toolbox rendered dimensions authoritative when available.
+        return;
+      }
+      const estimated = estimateConfiguredFootprint(component, canvasWidth);
+      mergedFootprints.set(type, {
+        componentType: type,
+        width: estimated.width,
+        height: estimated.height,
+        recommendedGapAfter: 24,
+      });
+    });
 
     const existingTerms = findFirstTermsComponent(formDefinition);
     const existingTermsLinkText =
@@ -202,49 +311,23 @@ export const AIAgentPanel: React.FC = () => {
       }
     }
 
-    let eventInformation: RuntimeEventInformation | undefined;
-    const useEvent =
-      (formDefinition?.aiAgentSettings?.includeEventInformation ?? true) &&
-      Boolean(formContext?.eventId && formContext.eventId > 0);
-    const eventId = formContext?.eventId;
-    if (useEvent && typeof eventId === "number" && eventId > 0) {
-      try {
-        const ev = await getEventById(eventId);
-        if (ev.name?.trim()) {
-          eventInformation = {
-            eventId: ev.eventId,
-            name: ev.name.trim(),
-            startDateTime: ev.startDateTime,
-            endDateTime: ev.endDateTime,
-            timezoneIdentifier: ev.timezoneIdentifier,
-            venueName: ev.venueName,
-            venueAddress: ev.venueAddress,
-            city: ev.city,
-            state: ev.state,
-            shortDescription: ev.shortDescription,
-          };
-        }
-      } catch {
-        // Omit event block if the event cannot be loaded (permissions, network, etc.).
-      }
-    }
-
     return {
       formId: formDefinition.formId,
-      canvasSettings: {
+      canvas: {
         width: formDefinition.canvasSettings?.width ?? 1920,
         height: formDefinition.canvasSettings?.height ?? 980,
         gridSize: formDefinition.canvasSettings?.gridSize,
       },
-      globalStylesLocked,
-      theme: (formDefinition.theme as unknown as Record<string, unknown>) ?? null,
-      globalStyles:
-        (formDefinition.globalStyles as unknown as Record<string, unknown>) ?? null,
+      lockedGlobals: {
+        theme: (formDefinition.theme as Record<string, unknown>) ?? null,
+        globalStyles: (formDefinition.globalStyles as Record<string, unknown>) ?? null,
+        canvasSettings:
+          (formDefinition.canvasSettings as Record<string, unknown>) ?? null,
+      },
       termsDefaults,
-      componentFootprints,
-      ...(eventInformation ? { eventInformation } : {}),
+      componentFootprints: Array.from(mergedFootprints.values()),
     };
-  }, [formContext, formDefinition, globalStylesLocked, initComponents, scale]);
+  }, [formContext, formDefinition]);
 
   const relayoutFromRenderedHeights = React.useCallback(
     async (definition: FormDefinition): Promise<FormDefinition | null> => {
@@ -298,7 +381,8 @@ export const AIAgentPanel: React.FC = () => {
       const availableSpace = canvasHeight - totalHeight;
       if (availableSpace <= 0) return null;
 
-      const gap = availableSpace / (sorted.length + 1);
+      const gap = Math.floor(availableSpace / (sorted.length + 1));
+      if (gap < 0) return null;
 
       const cloned = JSON.parse(JSON.stringify(definition)) as FormDefinition;
       const clonedComponents = getFirstPageComponents(cloned);
@@ -342,46 +426,56 @@ export const AIAgentPanel: React.FC = () => {
 
     try {
       const runtimeContext = await buildRuntimeContext();
-      setAiAgentSettings({
-        sectionedPromptProfileVersion: SYSTEM_PROMPT_PROFILE_VERSION,
+      const sectioned = buildSectionedSystemAddendum();
+      const sectionSummaries = sectioned.sections.map((section) => {
+        const body = [
+          `Objective: ${section.objective}`,
+          ...section.instructions.map((instruction) => `- ${instruction}`),
+        ].join("\n");
+        return {
+          id: section.id,
+          title: section.title,
+          chars: body.length,
+          hash: hashText(body),
+        };
       });
       devLogger.info("ai.sections.run.start", {
-        profileVersion: SYSTEM_PROMPT_PROFILE_VERSION,
         promptChars: trimmed.length,
+        openaiTransport,
         maxSystemCorrectionAttempts,
-        globalStylesLocked,
+        sectionCount: sectioned.sections.length,
+        sections: sectionSummaries,
       });
-      const options: AiGenerationOptions = {
+      const generationOptions: AiGenerationOptions = {
+        openaiTransport,
         maxSystemCorrectionAttempts,
+        systemPromptAddendum: sectioned.addendum,
       };
-      const response = await generateAiDefinition(trimmed, runtimeContext, options);
+      const response = await generateAiDefinition(
+        trimmed,
+        runtimeContext,
+        generationOptions
+      );
       setStatus("validating");
 
       const lines = (response.trace.attempts ?? []).map((entry) => formatAttemptLine(entry));
       setAttemptLines(lines.length > 0 ? lines : null);
 
       const usedRetries = response.trace.systemCorrectionAttemptsUsed;
-      const postProcessChanged = response.trace.postProcessingSummary?.changedComponentCount ?? 0;
-      const summary = `Server attempts: ${response.trace.attemptCount} · Retries used: ${usedRetries}/${response.trace.maxSystemCorrectionAttempts} · Terminal: ${response.trace.terminalReason} · Post-process moves: ${postProcessChanged}`;
+      const transport =
+        response.trace.resolvedOpenaiTransport ?? "—";
+      const summary = `OpenAI transport (resolved): ${transport} · Server attempts: ${response.trace.attemptCount} · Retries used: ${usedRetries}/${response.trace.maxSystemCorrectionAttempts} · Terminal: ${response.trace.terminalReason}`;
       setTraceSummary(summary);
       devLogger.info("ai.sections.run.result", {
-        profileVersion: SYSTEM_PROMPT_PROFILE_VERSION,
         status: response.status,
         terminalReason: response.trace.terminalReason,
         attemptCount: response.trace.attemptCount,
+        openaiTransport,
+        resolvedOpenaiTransport: transport,
         maxSystemCorrectionAttempts,
-        globalStylesLocked,
         validationSummary: response.trace.validationSummary ?? null,
-        postProcessingSummary: response.trace.postProcessingSummary ?? null,
-        attemptPostProcessing: (response.trace.attempts ?? []).map((entry) => ({
-          attemptNumber: entry.attemptNumber,
-          phase: entry.phase,
-          changedComponentCount: entry.postProcessing?.changedComponentCount ?? 0,
-          changedComponents: entry.postProcessing?.changedComponents ?? [],
-          canvasHeightBefore: entry.postProcessing?.canvasHeightBefore ?? null,
-          canvasHeightAfter: entry.postProcessing?.canvasHeightAfter ?? null,
-          canvasHeightChanged: entry.postProcessing?.canvasHeightChanged ?? false,
-        })),
+        sectionCount: sectioned.sections.length,
+        sections: sectionSummaries,
       });
 
       if (response.status === "completed" && response.definitionJSON) {
@@ -416,13 +510,11 @@ export const AIAgentPanel: React.FC = () => {
     } catch (error) {
       setStatus("failed");
       setAttemptLines(null);
-      setPendingInvalidDraft(null);
-      const raw = error instanceof Error ? error.message : "AI generation failed.";
-      setMessage(raw);
+      setMessage(error instanceof Error ? error.message : "AI generation failed.");
       devLogger.error("ai.sections.run.error", {
+        openaiTransport,
         maxSystemCorrectionAttempts,
-        globalStylesLocked,
-        message: raw,
+        message: error instanceof Error ? error.message : "AI generation failed",
       });
     } finally {
       setIsSubmitting(false);
@@ -432,10 +524,9 @@ export const AIAgentPanel: React.FC = () => {
     buildRuntimeContext,
     isSubmitting,
     maxSystemCorrectionAttempts,
-    globalStylesLocked,
+    openaiTransport,
     prompt,
     relayoutFromRenderedHeights,
-    setAiAgentSettings,
   ]);
 
   const handleLoadInvalidDraft = React.useCallback(() => {
@@ -468,64 +559,44 @@ export const AIAgentPanel: React.FC = () => {
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400">
           One request may run several internal validator retries on the server before the
-          HTTP response returns. The status log shows each attempt after the response arrives.
+          HTTP response returns. Use the status log below to see each attempt after the
+          response arrives.
         </p>
       </div>
 
       <div className="p-4 space-y-3">
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={includeEventInformation}
-            onChange={(e) =>
-              setAiAgentSettings({ includeEventInformation: e.target.checked })
-            }
-            disabled={!formContext?.eventId || formContext.eventId <= 0}
-            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 disabled:opacity-50"
-          />
-          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            Include event information
-          </span>
-        </label>
-        {formContext?.eventId && formContext.eventId > 0 ? (
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
-            Sends the linked event&apos;s name, schedule, and venue (when loaded) in the AI
-            request. Turn off if you want a generic layout only.
-          </p>
-        ) : (
-          <p className="text-[11px] text-amber-700/90 dark:text-amber-300/90 -mt-2">
-            This form is not linked to an event — event details cannot be included.
-          </p>
-        )}
-
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={globalStylesLocked}
-            onChange={(e) =>
-              setAiAgentSettings({ globalStylesLocked: e.target.checked })
-            }
-            disabled={isSubmitting}
-            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 disabled:opacity-50"
-          />
-          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            Lock global styles (preserve company brand)
-          </span>
-        </label>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
-          When locked, AI can still use per-component style overrides but should keep
-          globalStyles unchanged.
-        </p>
-
         <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
           Prompt
         </label>
         <textarea
           value={prompt}
-          onChange={(event) => setAiAgentSettings({ lastPrompt: event.target.value })}
+          onChange={(event) => setPrompt(event.target.value)}
           placeholder="Example: Create a registration form with name, email, phone, and consent checkbox."
           className="w-full min-h-[140px] rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
         />
+
+        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
+          OpenAI outbound transport
+        </label>
+        <select
+          value={openaiTransport}
+          onChange={(event) =>
+            setOpenaiTransport(event.target.value as OpenAiTransportMode)
+          }
+          disabled={isSubmitting}
+          className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
+          aria-label="OpenAI outbound transport"
+        >
+          <option value="auto">
+            Auto (server env FORM_AI_OPENAI_TRANSPORT, default sync)
+          </option>
+          <option value="sync">Sync (single HTTP response per attempt)</option>
+          <option value="stream">Stream (SSE; may reduce long idle timeouts)</option>
+        </select>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+          Compare modes when diagnosing timeouts. The trace below shows the resolved transport
+          the server used after applying auto + env.
+        </p>
 
         <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
           System correction attempts (retry count)
@@ -540,17 +611,14 @@ export const AIAgentPanel: React.FC = () => {
             const parsed = Number(event.target.value);
             if (!Number.isFinite(parsed)) return;
             const clamped = Math.max(0, Math.min(10, Math.round(parsed)));
-            setAiAgentSettings({ maxSystemCorrectionAttempts: clamped });
+            setMaxSystemCorrectionAttempts(clamped);
           }}
           disabled={isSubmitting}
           className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
           aria-label="System correction attempts"
         />
-        <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
-          Set to <code>1</code> for baseline section-evaluation runs.
-        </p>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
-          System prompt profile: <code>{SYSTEM_PROMPT_PROFILE_VERSION}</code>.
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+          Set to <code>1</code> for section-level evaluation runs in the AI Agent panel.
         </p>
 
         <button

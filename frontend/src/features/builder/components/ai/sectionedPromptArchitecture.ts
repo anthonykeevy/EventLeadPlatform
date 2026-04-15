@@ -1,5 +1,3 @@
-export const SECTIONED_PROMPT_PROFILE_VERSION = "v1.0.1";
-
 export type PromptSectionId =
   | "layout"
   | "data_collection"
@@ -19,82 +17,79 @@ const SECTION_DEFINITIONS: PromptSection[] = [
   {
     id: "layout",
     title: "Canvas Layout",
-    objective: "Place components on canvas with no overlap and no boundary violations.",
+    objective: "Place components cleanly on canvas with no overlap.",
     instructions: [
-      "Use runtimeContext.componentFootprints as authoritative geometry when provided.",
-      "Treat dropdown/select as closed controls for placement geometry.",
-      "Keep all components within canvasSettings width and height bounds.",
-      "Use deterministic vertical rhythm and spacing with readable row flow.",
+      "Use runtimeContext.componentFootprints as authoritative closed-control geometry.",
+      "Keep all components inside canvasSettings bounds.",
+      "Preserve readable vertical rhythm and row alignment.",
+      "For dropdown/select, plan for closed control size (not expanded list).",
     ],
   },
   {
     id: "data_collection",
     title: "Data Collection",
-    objective: "Capture requested fields and options with stable structure.",
+    objective: "Capture requested fields/options with stable ids and tab order.",
     instructions: [
-      "Include all requested inputs with deterministic ids and labels.",
-      "Set required flags, placeholders, and option lists where relevant.",
-      "Assign tabOrder in visual reading order.",
-      "Use component types that best match user intent.",
+      "Include all requested fields exactly once unless prompt asks for duplicates.",
+      "Use explicit labels, placeholders, required flags, and options where relevant.",
+      "Use deterministic tabOrder in visual reading order.",
+      "Keep export-friendly naming and consistent component typing.",
     ],
   },
   {
     id: "validation_rules",
     title: "Validation Rules",
-    objective: "Apply clear validation contract per input type.",
+    objective: "Define clear validation behavior for each input.",
     instructions: [
-      "Use validation keys compatible with Story 6.2 schema.",
-      "Apply required, email, phone, url, and length constraints where implied.",
+      "Apply required/format constraints per field type (email, phone, required text).",
       "Keep validation messages concise and user-friendly.",
-      "Never emit unsupported keys.",
+      "Do not add unsupported keys; keep schema-valid structure.",
+      "Ensure validation objects align to Story 6.2 schema expectations.",
     ],
   },
   {
     id: "appearance",
     title: "Appearance Typography Colors",
-    objective: "Preserve readability while respecting locked globals and framework defaults.",
+    objective: "Respect locked global style context while keeping readability.",
     instructions: [
-      "Respect runtimeContext.lockedGlobals for theme/globalStyles/canvasSettings.",
-      "Prefer framework-consistent default dimensions over inflated widths.",
-      "Keep styles editable in builder after generation.",
-      "Maintain toolbox/canvas/runtime parity assumptions.",
+      "Preserve runtimeContext.lockedGlobals values; do not mutate locked globals.",
+      "Use style props and component dimensions consistent with framework defaults.",
+      "Keep visual parity between toolbox/canvas/runtime assumptions.",
+      "Avoid excessive width inflation; keep controls near natural content width.",
     ],
   },
   {
     id: "logic",
     title: "Logic Rules",
-    objective: "Add only necessary logic with valid references.",
+    objective: "Attach only necessary logic with valid source/target references.",
     instructions: [
-      "Add logic only when user asks or behavior clearly requires it.",
-      "Ensure sourceComponentId and targetComponentId exist and are different.",
-      "Use valid operator/action pairs.",
-      "Keep rule set minimal and deterministic.",
+      "Include logic only when required by prompt or obvious UX necessity.",
+      "Ensure source and target component ids exist and are not identical.",
+      "Use valid operator/action pairs compatible with schema and runtime.",
+      "Keep logic minimal and deterministic.",
     ],
   },
   {
     id: "delivery_summary",
     title: "Delivery Summary",
-    objective: "Guarantee parseable deterministic JSON output.",
+    objective: "Return concise internal summary metadata for logging and evaluation.",
     instructions: [
-      "Return a single DefinitionJSON object only.",
-      "Place tabOrder only inside component.props.tabOrder, never as component.tabOrder.",
-      "Do not include markdown, prose, or code fences.",
+      "Ensure output remains one valid DefinitionJSON object only.",
+      "Prefer deterministic naming and property ordering when possible.",
+      "Do not include markdown or prose outside JSON.",
       "Prioritize schema validity first, then layout quality.",
     ],
   },
 ];
 
 export interface BuiltSectionedPrompt {
-  version: string;
   sections: PromptSection[];
   addendum: string;
 }
 
 export function buildSectionedSystemAddendum(): BuiltSectionedPrompt {
   const lines: string[] = [];
-  lines.push(
-    `Sectioned Prompt Architecture ${SECTIONED_PROMPT_PROFILE_VERSION} (apply all sections):`
-  );
+  lines.push("Sectioned Prompt Architecture v1 (apply all sections):");
   lines.push("");
   SECTION_DEFINITIONS.forEach((section, index) => {
     lines.push(`${index + 1}. [${section.id}] ${section.title}`);
@@ -104,9 +99,7 @@ export function buildSectionedSystemAddendum(): BuiltSectionedPrompt {
     });
     lines.push("");
   });
-
   return {
-    version: SECTIONED_PROMPT_PROFILE_VERSION,
     sections: SECTION_DEFINITIONS,
     addendum: lines.join("\n").trim(),
   };

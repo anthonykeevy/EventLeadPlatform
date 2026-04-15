@@ -2,130 +2,128 @@
 
 ## Purpose
 
-This guide documents the active post-processing behavior in `backend/modules/form_ai/service.py`, including what each step does, associated risks, and when to enable or disable it during Story 6.3+ tuning.
+This guide defines the current post-processing workflow in `backend/modules/form_ai/service.py`, what each step does, the risks, and when each step should be enabled for Story 6.3 tuning.
 
-Current execution order in `generate_form_definition(...)`:
+Current pipeline order in `generate_form_definition`:
 
 1. `_extract_json_candidate(...)`
 2. `_normalize_display_component_props(...)`
 3. `_post_process_generated_definition(...)`
-   - heading filtering + prompt intent gating
-   - tab-order normalization
-   - `_sync_style_dimensions_into_props(...)`
-   - `_rebalance_single_column_vertical_spacing(...)`
+   - internal: heading filtering + tab order normalization
+   - internal: `_sync_style_dimensions_into_props(...)`
+   - internal: `_rebalance_single_column_vertical_spacing(...)`
 
 ---
 
-## Active Post-Processing Steps
+## Post-Processing Steps
 
 ### 1) `_normalize_display_component_props`
 
-- **Function**
-  - Recursively walks generated components.
-  - For `header` and `paragraph`, copies `props.text` into `props.label` when `label` is missing/empty.
-- **Primary benefit**
-  - Prevents render inconsistencies for display components when the model emits text in one field only.
+- **What it does**
+  - Walks all components recursively.
+  - For `header` and `paragraph`, if `props.label` is empty and `props.text` exists, copies trimmed `props.text` into `props.label`.
+- **Why it exists**
+  - Prevents display components from failing builder/renderer expectations when the model outputs text in one property but not the other.
 - **Risks**
-  - Can hide prompt/schema drift by auto-repairing missing labels.
-  - Can obscure intentional text/label divergence if that pattern is introduced later.
+  - Can mask prompt/schema drift by auto-filling label instead of forcing model correction.
+  - If both fields intentionally differ in future UX patterns, this can hide that intent.
 - **Enable when**
-  - You need resilient rendering while prompt architecture is still unstable.
+  - You want robust rendering while prompt quality is still being tuned.
+  - You see frequent display-component schema or rendering mismatches.
 - **Disable when**
-  - You are evaluating strict raw-model compliance with no mutation.
+  - You need strict raw-model-output evaluation and want no automatic text normalization.
 
 ### 2) `_sync_style_dimensions_into_props`
 
-- **Function**
-  - Mirrors `style.width` and `style.height` into `props.width` and `props.height`.
-  - Normalizes width to pixel string and height to integer.
-- **Primary benefit**
-  - Keeps size fields consistent for parts of the stack that still read from `props`.
+- **What it does**
+  - Copies `style.width` and `style.height` into `props.width` and `props.height` for each component.
+  - Normalizes width to `"Npx"` string and height to numeric integer.
+- **Why it exists**
+  - Keeps duplicated size fields aligned where parts of the stack read from `props` while others read from `style`.
 - **Risks**
-  - Overwrites intentional differences between `style` and `props`.
-  - Makes raw-vs-final diffing harder in diagnostics.
+  - Can overwrite intentionally different values between `style` and `props`.
+  - Can make root-cause analysis harder because the final JSON no longer reflects the model's exact field split.
 - **Enable when**
-  - Any active renderer/editor/validator path still expects `props` dimensions.
+  - Builder runtime still depends on `props` dimensions in any rendering, validation, or editing paths.
+  - You are stabilizing cross-layer compatibility.
 - **Disable when**
-  - Contract is style-first and you need exact model-output observability.
+  - Contract is fully unified on `style` and you want zero mutation for diagnostics.
 
 ### 3) `_rebalance_single_column_vertical_spacing`
 
-- **Function**
-  - Detects single-column layouts.
-  - Recomputes effective component heights from style + minimum footprint rules.
-  - Rewrites `position.y` to evenly distribute spacing in available canvas height.
-  - Synchronizes resulting height values into `style` and `props`.
-- **Primary benefit**
-  - Reduces dense-stack overlap for single-column drafts.
-  - Improves immediate readability in many first-shot outputs.
+- **What it does**
+  - Detects probable single-column layouts.
+  - Recomputes component heights using footprint/min-height rules.
+  - Redistributes `position.y` so components are evenly spaced within canvas height.
+  - Writes resulting heights into both `style.height` and `props.height`.
+- **Why it exists**
+  - Reduces vertical overlaps when model outputs dense/stacked layouts.
+  - Produces cleaner first-pass readability for single-column forms.
 - **Risks**
-  - Mutates model-authored coordinates; can mask prompt improvements/regressions.
-  - Even spacing can conflict with intended visual grouping hierarchy.
-  - Quality depends on runtime footprint fidelity.
+  - Alters model-authored y-positions, which can hide prompt improvements/regressions.
+  - Even spacing may conflict with intentional grouping rhythm (tight group, larger section gap).
+  - Depends on runtime footprint quality; weak footprints can create wrong spacing decisions.
 - **Enable when**
-  - UX stability is prioritized over strict model-coordinate fidelity.
+  - You prioritize immediate non-overlap readability over strict fidelity to model coordinates.
+  - Runtime footprints are trusted and canvas sizing is reliable.
 - **Disable when**
-  - Benchmarking prompt quality and layout logic without backend mutation.
+  - You are benchmarking raw placement quality from prompt-only changes.
+  - You need exact model-vs-render coordinate diagnostics.
 
 ---
 
-## Additional Behavior Inside `_post_process_generated_definition`
+## Additional Logic Inside `_post_process_generated_definition`
 
-### Heading gating and placeholder filtering
+### Heading gating + placeholder filtering
 
-- Removes placeholder `header`/`paragraph` entries and suppresses headings when prompt intent does not request title/intro content.
-- **Use for:** reducing decorative noise.
-- **Risk:** may remove user-expected heading content in ambiguous prompts.
+- Removes placeholder `header`/`paragraph` labels and suppresses headers when prompt intent does not request heading/title content.
+- **Use when:** controlling noisy decorative output in generic prompts.
+- **Risk:** can remove content that user expected if prompt intent detection is too strict.
 
-### Deterministic tab-order normalization
+### Tab order normalization
 
-- Reassigns `props.tabOrder` in top-to-bottom, then left-to-right order.
-- **Use for:** keyboard navigation consistency.
-- **Risk:** overrides deliberate custom tab-order intent from prompt/user.
+- Rewrites `props.tabOrder` sequentially from layout order (top-to-bottom, then left-to-right).
+- **Use when:** keyboard navigation consistency is required.
+- **Risk:** can override deliberate custom tab order from prompt/user intent.
 
 ---
 
-## Recommended Operating Modes
+## Recommended Enablement Profiles
 
-### A) Prompt Benchmark Mode (for first-shot tuning)
+### Profile A: Prompt Benchmark Mode (recommended for first-shot tuning)
 
 - Keep: `_normalize_display_component_props`
-- Disable: `_sync_style_dimensions_into_props`, `_rebalance_single_column_vertical_spacing`
-- Optional: disable heading gating/tab-order normalization if strict raw-output analysis is required
-- **Goal:** maximize diagnostic fidelity
+- Disable: `_sync_style_dimensions_into_props`, `_rebalance_single_column_vertical_spacing`, heading filtering
+- Keep or disable tab order normalization based on whether tab order is in scope for the benchmark
+- **Goal:** measure raw model layout quality with minimal mutation.
 
-### B) UX Stability Mode (for production-facing behavior)
+### Profile B: UX Stability Mode (recommended for production safety)
 
-- Keep all active post-processing enabled
-- **Goal:** maximize usable drafts and reduce obvious overlap/ordering failures
+- Keep all three steps enabled.
+- Keep heading filtering and tab order normalization enabled.
+- **Goal:** maximize usable canvas output and keyboard consistency, even when model output is imperfect.
 
-### C) Hybrid Mode (for controlled rollout)
+### Profile C: Hybrid Mode (recommended during controlled rollout)
 
-- Keep: `_normalize_display_component_props`, tab-order normalization
-- Conditional: `_sync_style_dimensions_into_props` only if props-based consumers remain
-- Conditional: `_rebalance_single_column_vertical_spacing` only for known single-column overlap classes
-- **Goal:** balance fidelity with practical safety
-
----
-
-## Decision Checklist
-
-Before enabling any post-processing step:
-
-1. Confirm it addresses a recurring, measured failure class.
-2. Confirm it does not hide the metric currently being tuned.
-3. Confirm its mutations are visible in trace/log diagnostics.
-4. Confirm there are tests for both enabled and disabled behavior where practical.
-5. Confirm rollback is trivial (feature flag or isolated function toggle).
+- Keep: `_normalize_display_component_props`, tab order normalization
+- Toggle: `_sync_style_dimensions_into_props` only if downstream consumers still require `props` dimensions
+- Toggle: `_rebalance_single_column_vertical_spacing` only for known failing prompt classes
+- **Goal:** preserve most model intent while preventing common breakages.
 
 ---
 
-## Suggested Follow-up Improvement
+## Decision Criteria Checklist
 
-Introduce per-step feature flags so benchmark/stability modes can be toggled without code edits:
+Before enabling a post-processing step, confirm:
 
-- `FORM_AI_PP_NORMALIZE_DISPLAY_PROPS`
-- `FORM_AI_PP_SYNC_STYLE_TO_PROPS`
-- `FORM_AI_PP_REBALANCE_SINGLE_COLUMN`
-- `FORM_AI_PP_HEADING_FILTER`
-- `FORM_AI_PP_TABORDER_NORMALIZE`
+1. The step fixes a recurring class of failures observed in logs.
+2. The step does not hide the metric currently being tuned.
+3. The step's mutations are observable in trace/log output.
+4. There is at least one test proving expected behavior when the step is on.
+5. There is at least one test proving raw behavior when the step is off (if benchmark mode is used).
+
+---
+
+## Suggested Next Improvement
+
+Add per-step feature flags (example: `FORM_AI_PP_NORMALIZE`, `FORM_AI_PP_SYNC_STYLE_PROPS`, `FORM_AI_PP_REBALANCE_SINGLE_COLUMN`) so you can run benchmark and stability modes without code edits.

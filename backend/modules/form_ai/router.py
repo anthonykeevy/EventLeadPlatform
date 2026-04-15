@@ -28,5 +28,7 @@ async def generate_form_with_ai(
     return generate_form_definition(
         body.prompt,
         runtime_context=runtime_context,
+        openai_transport=body.openaiTransport,
         max_system_correction_attempts=body.maxSystemCorrectionAttempts,
+        system_prompt_addendum=body.systemPromptAddendum,
     )

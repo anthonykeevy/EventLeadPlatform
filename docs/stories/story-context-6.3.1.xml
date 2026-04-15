@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.3.1 — Simplified AI Output + Deterministic Layout Foundation
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-04-15
+-->
+<story-context story="6.3.1" title="Simplified AI Output + Deterministic Layout Foundation">
+
+  <overview>
+    Replace coordinate-heavy LLM output with a simplified semantic contract and deterministic
+    grid compiler pipeline. Build DB-rooted prompt/capability/version governance, ensure
+    per-component validation contracts are structured, and make width-class resolution
+    canvas-responsive (compact/half/full). Preserve strict traceability from prompt versions
+    to final DefinitionJSON.
+  </overview>
+
+  <critical-objectives>
+    <item>Step 1 owns intent; Step 2 owns deterministic grid resolution.</item>
+    <item>Capabilities and validation rules are auto-ingested from framework metadata snapshots.</item>
+    <item>Tuning uses one-variable-at-a-time changes with correlated logging evidence.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.3">Closed as learning; provides diagnostic and tuning foundations.</story>
+    <doc path="docs/analysis/eventlead_form_ai_workflow.md">Target architecture and stage responsibilities.</doc>
+    <doc path="docs/COMPONENT-FRAMEWORK-REFERENCE.md">Authoritative component behavior/capability contract.</doc>
+    <doc path="docs/AGENT-LOGGING-GUIDE.md">Canonical RequestID + outbound correlation workflow.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Grid-only layout model for AI compile path. No non-grid execution path.</item>
+    <item>Do NOT run Alembic commands from agent shell unless Anthony explicitly asks.</item>
+    <item>No hidden auto-repair without trace visibility (raw semantic plan vs final output).</item>
+    <item>Benchmark and CI flows must run without OpenAI secrets by default (mocked harness).</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/service.py"
+          note="Entry point for generation, trace capture, correction loop behavior, and deterministic compile stages."/>
+    <path file="backend/modules/form_ai/schemas.py"
+          note="Request/response contracts and trace metadata structures."/>
+    <path file="backend/modules/form_ai/router.py"
+          note="API route contract for /api/form-ai/generate."/>
+    <path file="frontend/src/features/builder/components/ai/AIAgentPanel.tsx"
+          note="Builder AI entrypoint, runtime context assembly, and apply-to-canvas flow."/>
+    <path file="frontend/src/features/builder/components/ai/sectionedPromptArchitecture.ts"
+          note="Current sectioned prompt structure to align with DB-rooted prompt registry approach."/>
+    <path file="docs/COMPONENT-FRAMEWORK-REFERENCE.md"
+          note="Framework source for component capabilities, surfaces, spacing, and validation expectations."/>
+    <path file="docs/AGENT-LOGGING-GUIDE.md"
+          note="Correlation and extraction guide for inbound/outbound chain diagnostics."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/STORY-6.3.1-SINGLE-SESSION-DEV-PROMPT.md"
+          purpose="Dev execution contract including one-change tuning discipline."/>
+    <file path="docs/stories/STORY-6.3.1-UAT-TEST-GUIDE.md"
+          purpose="Human UAT with capability snapshot and correlated logging checks."/>
+    <file path="docs/stories/STORY-6.3.1-GATE-EVIDENCE.md"
+          purpose="Gate evidence with AC mapping, RequestID chains, and benchmark outcomes."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">Simplified semantic output contract; no explicit pixel geometry required from model.</ac>
+    <ac id="2">Deterministic planner compiles semantic output into valid DefinitionJSON.</ac>
+    <ac id="3">Trace includes raw semantic summary and final transformed summary.</ac>
+    <ac id="4">Post-processing transforms are explicit and configurable.</ac>
+    <ac id="5">Benchmark baseline records first-shot and final outcomes for all 10 prompts.</ac>
+    <ac id="6">Builder apply path remains visible/selectable/editable on canvas.</ac>
+    <ac id="7">Existing regression tests remain green or changes are documented.</ac>
+    <ac id="8">Capabilities are versioned, machine-readable, framework-driven snapshots.</ac>
+    <ac id="9">Validation normalization is contract-driven per component type.</ac>
+    <ac id="10">Width classes resolve against current canvas width/grid with deterministic fallbacks.</ac>
+    <ac id="11">Generation run captures prompt/capability/validation/width policy versions.</ac>
+    <ac id="12">Framework source-of-truth validation confirms new components are auto-covered.</ac>
+    <ac id="13">At least one controlled one-variable tuning sequence includes correlated logs.</ac>
+    <ac id="14">SM story pack artifacts exist before Dev execution begins.</ac>
+  </acceptance-mapping>
+
+</story-context>

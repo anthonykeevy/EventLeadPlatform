@@ -253,6 +253,12 @@ class CanvasSettings(BaseModel):
     model_config = {"extra": "forbid"}
 
 
+# ─── AI Agent panel (builder UI; persisted with DefinitionJSON) ───
+class AiAgentSettings(BaseModel):
+    lastPrompt: Optional[str] = Field(default=None, max_length=4000)
+    includeEventInformation: bool = True
+
+
 # ─── FormDefinition ───
 class FormDefinition(BaseModel):
     schemaVersion: Literal["1.0"] = "1.0"
@@ -265,6 +271,7 @@ class FormDefinition(BaseModel):
     desktopPages: Optional[List[FormPage]] = None
     tabletPages: Optional[List[FormPage]] = None
     mobilePages: Optional[List[FormPage]] = None
+    aiAgentSettings: Optional[AiAgentSettings] = None
     model_config = {"extra": "forbid"}
 
     def _collect_component_ids(self, pages: Optional[List[FormPage]]) -> List[str]:

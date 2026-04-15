@@ -1,0 +1,211 @@
+{
+  "schemaVersion": "1.0",
+  "formId": "tech-conf-registration",
+  "theme": {
+    "primaryColor": "#0055FF",
+    "backgroundColor": "#9CA3AF",
+    "fontFamily": "Inter"
+  },
+  "canvasSettings": {
+    "width": 1920,
+    "height": 980,
+    "gridSize": 32
+  },
+  "pages": [
+    {
+      "id": "page-1",
+      "title": "Conference Registration",
+      "components": [
+        {
+          "id": "header-1",
+          "type": "header",
+          "props": {
+            "text": "Tech Conference Registration",
+            "label": "Tech Conference Registration",
+            "tabOrder": 1,
+            "width": "560px",
+            "height": 63
+          },
+          "position": {
+            "x": 160,
+            "y": 20
+          },
+          "style": {
+            "width": 560,
+            "height": 63
+          }
+        },
+        {
+          "id": "first-name",
+          "type": "first-name",
+          "props": {
+            "label": "First Name",
+            "tabOrder": 2,
+            "width": "560px",
+            "height": 110
+          },
+          "position": {
+            "x": 160,
+            "y": 120
+          },
+          "style": {
+            "width": 560,
+            "height": 110
+          }
+        },
+        {
+          "id": "last-name",
+          "type": "text",
+          "props": {
+            "label": "Last Name",
+            "tabOrder": 3,
+            "width": "560px",
+            "height": 110
+          },
+          "position": {
+            "x": 784,
+            "y": 120
+          },
+          "style": {
+            "width": 560,
+            "height": 110
+          }
+        },
+        {
+          "id": "email",
+          "type": "email",
+          "props": {
+            "label": "Email Address",
+            "tabOrder": 4,
+            "width": "560px",
+            "height": 110
+          },
+          "position": {
+            "x": 160,
+            "y": 254
+          },
+          "style": {
+            "width": 560,
+            "height": 110
+          }
+        },
+        {
+          "id": "phone",
+          "type": "phone",
+          "props": {
+            "label": "Phone Number",
+            "tabOrder": 5,
+            "width": "560px",
+            "height": 110
+          },
+          "position": {
+            "x": 784,
+            "y": 254
+          },
+          "style": {
+            "width": 560,
+            "height": 110
+          }
+        },
+        {
+          "id": "company",
+          "type": "text",
+          "props": {
+            "label": "Company Name",
+            "tabOrder": 6,
+            "width": "560px",
+            "height": 110
+          },
+          "position": {
+            "x": 160,
+            "y": 388
+          },
+          "style": {
+            "width": 560,
+            "height": 110
+          }
+        },
+        {
+          "id": "job-title",
+          "type": "text",
+          "props": {
+            "label": "Job Title",
+            "tabOrder": 7,
+            "width": "560px",
+            "height": 110
+          },
+          "position": {
+            "x": 784,
+            "y": 388
+          },
+          "style": {
+            "width": 560,
+            "height": 110
+          }
+        },
+        {
+          "id": "country",
+          "type": "dropdown",
+          "props": {
+            "label": "Country",
+            "options": [
+              {
+                "label": "Australia",
+                "value": "Australia"
+              },
+              {
+                "label": "United States",
+                "value": "United States"
+              },
+              {
+                "label": "United Kingdom",
+                "value": "United Kingdom"
+              },
+              {
+                "label": "Canada",
+                "value": "Canada"
+              },
+              {
+                "label": "New Zealand",
+                "value": "New Zealand"
+              },
+              {
+                "label": "Other",
+                "value": "Other"
+              }
+            ],
+            "tabOrder": 8,
+            "width": "560px",
+            "height": 110
+          },
+          "position": {
+            "x": 160,
+            "y": 522
+          },
+          "style": {
+            "width": 560,
+            "height": 110
+          }
+        },
+        {
+          "id": "submit",
+          "type": "submit-button",
+          "props": {
+            "label": "Register",
+            "tabOrder": 9,
+            "width": "220px",
+            "height": 72
+          },
+          "position": {
+            "x": 160,
+            "y": 704
+          },
+          "style": {
+            "width": 220,
+            "height": 72
+          }
+        }
+      ]
+    }
+  ]
+}

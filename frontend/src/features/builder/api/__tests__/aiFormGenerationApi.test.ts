@@ -33,10 +33,15 @@ describe("generateAiDefinition", () => {
 
     const result = await generateAiDefinition("Build a contact form");
 
-    expect(apiClient.post).toHaveBeenCalledWith("/api/form-ai/generate", {
-      prompt: "Build a contact form",
-      runtimeContext: undefined,
-    }, { timeout: 180000 });
+    expect(apiClient.post).toHaveBeenCalledWith(
+      "/api/form-ai/generate",
+      {
+        prompt: "Build a contact form",
+        runtimeContext: undefined,
+        maxSystemCorrectionAttempts: undefined,
+      },
+      { timeout: 1200000 }
+    );
     expect(result.status).toBe("completed");
     expect(result.trace.attemptCount).toBe(1);
   });

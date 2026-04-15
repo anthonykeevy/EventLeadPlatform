@@ -3,12 +3,13 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.3  
 **Title:** AI Context Uplift & Benchmark Baseline  
-**Status:** 📋 **Prepared** — awaiting `./scripts/git/new-story.ps1` + Draft PR + Dev implementation  
+**Status:** 🟨 **Closed (learning capture)** — UAT not satisfactory; redesign required before release  
 **Branch:** `story/epic6-6.3-ai-context-benchmark-baseline` (expected; confirm in worktree)  
 **PR:** _TBD_  
 **Depends On:** Story 6.2.2 (✅ Complete, PR #55)  
 **Blocks:** Story 6.4 (AI Iteration on Existing Designs)  
 **Created:** 2026-03-31  
+**Closed:** 2026-04-02  
 **Sources:** `EPIC-6-STATUS.md`, `STORY-6.2-CLOSEOUT-REPORT.md` §2, `STORY-6.2-BENCHMARK-FORMS.md`, `STORY-6.2-AI-CONTEXT-PACK.md`, `backend/modules/form_ai/service.py`
 
 ---
@@ -119,6 +120,8 @@ Raise **AI form-generation quality** and **operational reliability** by:
 - [ ] Human UAT per `STORY-6.3-UAT-TEST-GUIDE.md` (includes **§5** builder canvas visibility)  
 - [ ] Story PR merged via GitHub; closeout checklist in workflow guide applied  
 
+**Closeout note:** This story was intentionally closed for learning capture and redesign planning. Human UAT did not reach satisfactory quality; see `STORY-6.3-CLOSEOUT-REPORT.md`.
+
 ---
 
 ## 6) References
@@ -126,6 +129,8 @@ Raise **AI form-generation quality** and **operational reliability** by:
 - `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`  
 - `docs/stories/STORY-6.2-BENCHMARK-FORMS.md`  
 - `docs/stories/STORY-6.2-CLOSEOUT-REPORT.md`  
+- `docs/stories/STORY-6.3-CLOSEOUT-REPORT.md`
+- `docs/FORM-AI-POST-PROCESSING-GUIDE.md`
 - `backend/modules/form_ai/service.py` (`CONTEXT_PACK_PATH`, `generate_form_definition`)  
 - `backend/tests/test_story_6_2_ai_generation_loop.py`  
 - `docs/COMPONENT-FRAMEWORK-GUIDE.md`  
@@ -140,12 +145,36 @@ Raise **AI form-generation quality** and **operational reliability** by:
 
 ### Agent Model Used
 
-_TBD_
+Cursor agent (Amelia dev prompt / single-session Story 6.3 instructions).
 
 ### Completion Notes List
 
-_TBD_
+- Context Pack v2.0 in `STORY-6.2-AI-CONTEXT-PACK.md` with changelog + default canvas footprints (aligned with `buildAiRuntimeFootprints.ts`).
+- `FORM_AI_CONTEXT_PACK_PATH` + `get_context_pack_path()` in `backend/modules/form_ai/service.py`; tests in `test_story_63_context_pack_path.py`.
+- Canvas-faithful `componentFootprints` via `buildAiRuntimeFootprints.ts` + `AIAgentPanel` (`initComponents` filter parity with sidebar).
+- Benchmark harness `test_story_63_benchmark_harness.py` (10 parametrized cases, mocked `_request_chatgpt_completion`).
+- Baseline `STORY-6.3-BENCHMARK-BASELINE.md`; gate log `STORY-6.3-GATE-EVIDENCE.md`.
+- AC-9: `applyValidatedDefinition` on completed generate unchanged; browser UAT still required.
+- UAT feedback ledger: `STORY-6.3-BENCHMARK-UAT-FEEDBACK-LOG.md` (BM01: vertical margin fix, context-only width/label guidance; benchmark prompts unchanged for baseline).
+- Story closeout decision recorded in `STORY-6.3-CLOSEOUT-REPORT.md` (learning captured, redesign required; no release-ready claim).
+- Post-processing usage guidance documented in `docs/FORM-AI-POST-PROCESSING-GUIDE.md`.
 
 ### File List
 
-_TBD_
+- `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`
+- `docs/stories/STORY-6.3-BENCHMARK-BASELINE.md`
+- `docs/stories/STORY-6.3-BENCHMARK-UAT-FEEDBACK-LOG.md`
+- `docs/stories/STORY-6.3-GATE-EVIDENCE.md`
+- `docs/stories/story-6.3.md`
+- `.env.example`
+- `backend/modules/form_ai/service.py`
+- `backend/tests/test_story_63_benchmark_harness.py`
+- `backend/tests/test_story_63_context_pack_path.py`
+- `frontend/src/features/builder/components/ai/buildAiRuntimeFootprints.ts`
+- `frontend/src/features/builder/components/ai/AIAgentPanel.tsx`
+- `frontend/src/features/builder/components/ai/__tests__/buildAiRuntimeFootprints.test.ts`
+- `docs/stories/STORY-6.3-BENCHMARK-PROMPTS-AND-OUTCOMES.md`
+- `docs/stories/STORY-6.3-CLOSEOUT-REPORT.md`
+- `docs/stories/STORY-6.2-BENCHMARK-FORMS.md` (baseline prompts frozen)
+- `backend/tests/test_story_6_2_ai_generation_loop.py` (rebalance expected `y` after float gap)
+- `docs/FORM-AI-POST-PROCESSING-GUIDE.md`

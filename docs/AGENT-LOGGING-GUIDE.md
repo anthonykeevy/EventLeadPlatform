@@ -2,6 +2,8 @@
 
 **Purpose:** Help agents (and UAT testers) quickly capture and interpret **what the user did** and **what the UI rendered** for Component Framework issues across **Toolbox / Canvas / Properties** (including **Grid Layout** + **resize**).
 
+**For Form AI / API failures:** Treat this guide as the **canonical way to get the truth**. Do **not** infer root cause from the generic UI copy alone. Use `log.ApiRequest` (inbound + outbound chain) and `backend/enhanced_diagnostic_logs.py` as described below — same database the product already writes.
+
 **Primary reference:** `docs/COMPONENT-FRAMEWORK-REFERENCE.md`
 
 ---
@@ -52,6 +54,13 @@ Use the backend diagnostic tool to collect recent API/auth/error context:
 python backend/enhanced_diagnostic_logs.py --limit 50
 ```
 
+**Form AI / generate failures:** narrow to the route, then correlate by `RequestID`:
+
+```bash
+python backend/enhanced_diagnostic_logs.py --path-filter form-ai --limit 20
+python backend/enhanced_diagnostic_logs.py --request-id "<inbound-uuid>" --correlation-only
+```
+
 For frontend builder events stored in `log.FrontendEvent`, use:
 
 ```bash
@@ -74,7 +83,8 @@ python backend/enhanced_diagnostic_logs.py --frontend-only --frontend-filter "re
 
 ### Useful CLI options (focused modes)
 - `--limit / -l`: rows per table (default 5)
-- `--request-id / -r`: correlation analysis for a specific request
+- `--request-id / -r`: correlation analysis for a specific **inbound** request (the correlation UUID from `log.ApiRequest.RequestID` on the browser/API row — **not** the `:outbound:` suffix rows; see below)
+- `--correlation-only`: with `--request-id`, print **only** the correlation block + the full **ApiRequest chain** (parent + all synthetic outbound rows). Use this for Form AI / OpenAI traces without dumping every recent table.
 - `--performance-hours / -p`: time window for performance metrics
 - `--path-filter`: only show API requests matching a path pattern
 - `--no-theme-requests`: hide profile/theme enhancement request section
@@ -83,6 +93,80 @@ python backend/enhanced_diagnostic_logs.py --frontend-only --frontend-filter "re
 - `--frontend-component-id`: filter by `ComponentID`
 - `--frontend-session-id`: filter by `SessionID`
 - `--frontend-level`: filter by log level (`debug|info|warn|error`)
+
+---
+
+## `log.ApiRequest`: inbound vs outbound (Form AI, OpenAI)
+
+Agents often confuse **one user action** with **multiple rows** in `log.ApiRequest`. This section matches the implementation in `backend/middleware/outbound_request_logger.py` and `backend/middleware/request_logger.py`.
+
+### Inbound rows (real HTTP)
+
+- **What:** The API route the browser or integration called (e.g. `POST /api/form-ai/generate`).
+- **RequestID:** A single correlation UUID (e.g. `1d5a1cb1-820a-4ee6-9956-dce5820a6a5d`).
+- **Path:** Starts with `/api/...` (or your app prefix).
+
+### Outbound rows (synthetic path, tied to the same user request)
+
+- **What:** Each backend HTTP call to an external provider (e.g. OpenAI) is logged as its own `log.ApiRequest` row so duration and payloads appear in the same diagnostics stream.
+- **Path:** **Synthetic** — built as `/outbound/{provider}{upstream_path}`, e.g. `/outbound/openai/v1/responses`. This is **not** a route clients call; it is only how the logger stores the outbound call.
+- **RequestID:** `{inbound_correlation_uuid}:outbound:{new_uuid}` (parent id **plus** `:outbound:` **plus** another GUID).
+- **Headers column:** JSON often includes `"direction": "outbound"`, `"provider": "openai"`, and `"url": "https://api.openai.com/..."`.
+
+So for **one** click on “Generate Form Draft” you typically see **one** inbound row plus **N** outbound rows (N = number of LLM round-trips in that request, often up to **four**: initial generation plus up to three validator correction attempts).
+
+### HTTP 200 ≠ “success” for Form AI
+
+`POST /api/form-ai/generate` usually returns **HTTP 200** even when the JSON body says the draft failed, e.g. `"status": "failed"`, `"trace": { "terminalReason": "retry-cap-exhausted", ... }`. Always read **`ResponsePayload`** on the **inbound** `/api/form-ai/generate` row for the real outcome (`trace.attempts[]`, validation counts, `userMessage`).
+
+OpenAI outbound rows also show **200** when the provider returned a normal response; they do **not** by themselves mean the form validated.
+
+### Form AI: map UI / `trace.terminalReason` → where the truth lives
+
+| UI or `trace.terminalReason` | What actually failed | Where to read the truth |
+|------------------------------|----------------------|-------------------------|
+| **`retry-cap-exhausted`** | Validator / collisions / boundaries after one or more **successful** model round-trips | Inbound `POST /api/form-ai/generate` → **`ResponsePayload`**: `trace.attempts[]` (counts per attempt). Optionally pull **last** `"Your previous JSON failed..."` block from outbound **`RequestPayload`** (the correction prompt sent to the model). |
+| **`provider-error`** | Exception **before** validation (OpenAI HTTP error, missing key, empty response, JSON parse, etc.) | 1) Inbound **`ResponsePayload`**: `trace.attempts` is often **empty**; `attemptCount` may be **1**. 2) **First** row in the chain with `Path LIKE '/outbound/openai%'`: **`StatusCode`** and **`ResponsePayload`**. If **`StatusCode` ≥ 400**, body usually has OpenAI `error` JSON. If **200** but inbound still `provider-error`, failure was after HTTP (parse/post-process) — use **backend stdout**: search for `form-ai generate failed before validation` (full exception is logged). |
+| **`context-pack-load-failed`** | Could not read context pack file | Startup path; fix `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md` / `FORM_AI_CONTEXT_PACK_PATH`; not an OpenAI row. |
+
+**Getting `RequestID`:** From SQL (latest `Path = '/api/form-ai/generate'`), from **`enhanced_diagnostic_logs.py --path-filter form-ai`**, or from your browser’s Network tab correlation if exposed. Then run `--correlation-only` with that **inbound** UUID.
+
+### How to pull a full trace (recommended)
+
+From the **repository root** (same as Quick Start; `.env` in `backend/` and `DATABASE_URL` / `common.database` must work):
+
+```bash
+python backend/enhanced_diagnostic_logs.py --request-id "1d5a1cb1-820a-4ee6-9956-dce5820a6a5d" --correlation-only
+```
+
+(Alternatively: `cd backend` then `python enhanced_diagnostic_logs.py ...`.)
+
+This prints:
+
+1. Correlation analysis (join with `ApplicationError` / `ApiRequest` / `AuthEvent` when present — **exact** `RequestID` match only on the inbound id).
+2. **CORRELATED log.ApiRequest CHAIN**: every row where `RequestID = '<guid>'` **OR** `RequestID LIKE '<guid>:outbound:%'`, ordered by `ApiRequestID`.
+
+Previously, `--request-id` only surfaced **one** `ApiRequest` row (exact match), so **outbound** OpenAI calls were easy to miss unless you queried SQL manually. The chain section fixes that.
+
+### SQL equivalent (SSMS / diagnostics)
+
+```sql
+DECLARE @id NVARCHAR(100) = N'1d5a1cb1-820a-4ee6-9956-dce5820a6a5d';
+
+SELECT ApiRequestID, RequestID, Method, Path, StatusCode, DurationMs, UserID, CreatedDate
+FROM log.ApiRequest
+WHERE RequestID = @id OR RequestID LIKE @id + N':outbound:%'
+ORDER BY ApiRequestID;
+
+-- Business outcome (often large JSON):
+SELECT ResponsePayload
+FROM log.ApiRequest
+WHERE RequestID = @id AND Path = N'/api/form-ai/generate';
+```
+
+### Payload size / truncation
+
+`RequestPayload` / `ResponsePayload` on `log.ApiRequest` may be **truncated** or omitted depending on app settings (`ConfigurationService` logging capture flags and max size in `outbound_request_logger.py` / request logger). If `ResponsePayload` is null, check server stdout logs or temporarily relax logging limits in **non-production** only.
 
 ---
 
@@ -152,9 +236,23 @@ When debugging “it looks wrong”, trust snapshot **Rendered/Normalized** fiel
 ### Undo/Redo (helps reconstruct “what changed”)
 - `history.push`, `history.undo`, `history.redo`
 
+### Sectioned Form AI runs (AI Agent panel)
+- `ai.sections.run.start` (logs section ids/titles/hash/size + retry count + transport)
+- `ai.sections.run.result` (logs status/terminal reason/attempts + section metadata)
+  - includes `postProcessingSummary` with:
+    - `changedComponentCount`
+    - `changedComponents[]` (`componentId`, `componentType`, `before{x,y}`, `after{x,y}`)
+    - `canvasHeightBefore`, `canvasHeightAfter`, `canvasHeightChanged`
+  - includes `attemptPostProcessing[]` per attempt for retry-loop diagnostics
+- `ai.sections.run.error` (logs failed run config + error message)
+
 ---
 
 ## Known limitations (important so agents don’t get stuck)
+
+### Form AI traces need the inbound RequestID + chain semantics
+
+Do not assume a single `log.ApiRequest` row per generate. Read **`log.ApiRequest` inbound vs outbound (Form AI, OpenAI)** above and use `--correlation-only` or the SQL `LIKE ':outbound:%'` pattern.
 
 ### Backend syncing is opt-in
 
@@ -172,7 +270,7 @@ Some events are named `canvas.*` but may be emitted from toolbox preview render 
 - **Component identifiers**: component type + componentId (from Properties debug section if needed)
 - **What action?** add/drop, drag, resize handle used (E/W/N/S/NE/etc), grid/object layout edits
 - **Attach logs**: downloaded `dev-logs-*.json`
-- **If API involved**: include `backend/enhanced_diagnostic_logs.py --limit 10` output
+- **If API involved**: include `backend/enhanced_diagnostic_logs.py --limit 10` output (or **`--request-id … --correlation-only`** for Form AI)
 
 ---
 

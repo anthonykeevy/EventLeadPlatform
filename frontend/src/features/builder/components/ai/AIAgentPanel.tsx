@@ -1,11 +1,20 @@
 import React from "react";
 import { Sparkles, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 
-import { AiRuntimeContext, generateAiDefinition } from "../../api/aiFormGenerationApi";
+import {
+  AiGenerationOptions,
+  AiRuntimeContext,
+  AttemptTraceEntry,
+  RuntimeEventInformation,
+  generateAiDefinition,
+} from "../../api/aiFormGenerationApi";
+import { getEventById } from "../../../events/api/eventsApi";
 import { useBuilderStore } from "../../stores/useBuilderStore";
 import { FormComponent, FormDefinition } from "../../types/builder.types";
 import { getCompanyTermsAssets } from "../../../dashboard/api/companyAssetsApi";
 import { getComponentDimensions } from "../../utils/collisionDetection";
+import { buildComponentFootprintsForAiRuntime } from "./buildAiRuntimeFootprints";
+import { devLogger } from "../../utils/devLogger";
 
 type GenerationUiStatus =
   | "idle"
@@ -24,6 +33,8 @@ const STATUS_LABELS: Record<GenerationUiStatus, string> = {
   failed: "Failed",
 };
 
+const SYSTEM_PROMPT_PROFILE_VERSION = "AI-FORM-BUILDER-SYSTEM-PROMPT sections-1-6";
+
 function parsePositiveNumber(value: unknown, fallback: number): number {
   if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
   if (typeof value === "string") {
@@ -32,77 +43,6 @@ function parsePositiveNumber(value: unknown, fallback: number): number {
     if (Number.isFinite(parsed) && parsed > 0) return parsed;
   }
   return fallback;
-}
-
-function estimateConfiguredFootprint(
-  component: FormComponent,
-  canvasWidth: number
-): { width: number; height: number } {
-  const style = (component.style ?? {}) as Record<string, unknown>;
-  const widthFromStyle = parsePositiveNumber(style.width, 0);
-  const heightFromStyle = parsePositiveNumber(style.height, 0);
-
-  const baseHeightByType: Record<string, number> = {
-    header: 52,
-    divider: 20,
-    "submit-button": 81,
-    text: 110,
-    email: 110,
-    phone: 110,
-    number: 110,
-    date: 110,
-    address: 120,
-    dropdown: 120,
-    select: 120,
-    checkbox: 120,
-    radio: 120,
-    textarea: 140,
-    terms: 120,
-  };
-
-  const options = Array.isArray(component.props?.options)
-    ? component.props.options
-    : [];
-  const optionsGrowth =
-    component.type === "checkbox" ||
-    component.type === "radio" ||
-    component.type === "dropdown" ||
-    component.type === "select"
-      ? Math.max(0, options.length - 3) * 20
-      : 0;
-
-  const minHeight = (baseHeightByType[component.type] ?? 110) + optionsGrowth;
-  const estimatedHeight = Math.max(heightFromStyle, minHeight);
-
-  const defaultWidth =
-    component.type === "submit-button"
-      ? 220
-      : Math.max(240, canvasWidth - 40);
-  const estimatedWidth = Math.max(widthFromStyle, defaultWidth);
-
-  return {
-    width: Math.round(estimatedWidth),
-    height: Math.round(estimatedHeight),
-  };
-}
-
-function flattenComponents(definition: FormDefinition): FormComponent[] {
-  const pages =
-    definition.desktopPages && definition.desktopPages.length > 0
-      ? definition.desktopPages
-      : definition.pages ?? [];
-  const firstPage = pages[0];
-  if (!firstPage) return [];
-
-  const collected: FormComponent[] = [];
-  const walk = (components: FormComponent[]) => {
-    components.forEach((component) => {
-      collected.push(component);
-      if (component.children && component.children.length > 0) walk(component.children);
-    });
-  };
-  walk(firstPage.components ?? []);
-  return collected;
 }
 
 function getFirstPageComponents(definition: FormDefinition): FormComponent[] {
@@ -125,6 +65,24 @@ function isSingleColumn(components: FormComponent[], gridSize: number): boolean 
 async function nextPaint(): Promise<void> {
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function formatAttemptLine(entry: AttemptTraceEntry): string {
+  const v = entry.validation;
+  const phaseLabel =
+    entry.phase === "initial"
+      ? "Attempt 1 (initial)"
+      : `Attempt ${entry.attemptNumber} (correction ${entry.attemptNumber - 1})`;
+  if (v.valid) {
+    return `${phaseLabel}: validation passed`;
+  }
+  const bits: string[] = [];
+  if (v.collisionCount > 0) bits.push(`${v.collisionCount} collision(s)`);
+  if (v.boundaryViolationCount > 0) bits.push(`${v.boundaryViolationCount} boundary`);
+  if (v.schemaErrorCount > 0) bits.push(`${v.schemaErrorCount} schema`);
+  const detail = bits.length > 0 ? bits.join(", ") : `${v.errorCount} error(s)`;
+  const tail = entry.correctionIssued ? " → sent correction to model" : "";
+  return `${phaseLabel}: ${detail}${tail}`;
 }
 
 function findFirstTermsComponent(definition: FormDefinition): FormComponent | null {
@@ -150,66 +108,44 @@ function findFirstTermsComponent(definition: FormDefinition): FormComponent | nu
 }
 
 export const AIAgentPanel: React.FC = () => {
-  const { applyValidatedDefinition, formDefinition, formContext, scale } = useBuilderStore();
-  const [prompt, setPrompt] = React.useState("");
+  const {
+    applyValidatedDefinition,
+    formDefinition,
+    formContext,
+    scale,
+    initComponents,
+    setAiAgentSettings,
+  } = useBuilderStore();
+  const prompt =
+    formDefinition?.aiAgentSettings?.lastPrompt ?? "";
+  const includeEventInformation =
+    formDefinition?.aiAgentSettings?.includeEventInformation ?? true;
+  const maxSystemCorrectionAttempts =
+    formDefinition?.aiAgentSettings?.maxSystemCorrectionAttempts ?? 1;
+  const globalStylesLocked =
+    formDefinition?.aiAgentSettings?.globalStylesLocked ?? true;
+
   const [status, setStatus] = React.useState<GenerationUiStatus>("idle");
   const [message, setMessage] = React.useState<string | null>(null);
   const [traceSummary, setTraceSummary] = React.useState<string | null>(null);
+  const [promptSnapshot, setPromptSnapshot] = React.useState<string | null>(null);
+  const [attemptLines, setAttemptLines] = React.useState<string[] | null>(null);
+  const [pendingInvalidDraft, setPendingInvalidDraft] = React.useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const buildRuntimeContext = React.useCallback(async (): Promise<AiRuntimeContext | undefined> => {
     if (!formDefinition) return undefined;
-    const canvasWidth = formDefinition.canvasSettings?.width ?? 1920;
-
-    const nodes = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-toolbox-component-type]")
+    // componentFootprints: use canvas-scale defaults from registry (new-drop policy), not toolbox
+    // thumbnail getBoundingClientRect — toolbox uses compact surface previews (story-6.3 §2.5).
+    const initCodes = initComponents?.map((c) => c.componentCode) ?? null;
+    const componentFootprints = buildComponentFootprintsForAiRuntime(
+      formDefinition,
+      scale,
+      initCodes
     );
-    const toolboxFootprints = nodes
-      .map((node) => {
-        const componentType = node.dataset.toolboxComponentType?.trim();
-        if (!componentType) return null;
-        const bounds = node.getBoundingClientRect();
-        if (!Number.isFinite(bounds.width) || !Number.isFinite(bounds.height)) return null;
-        if (bounds.width <= 0 || bounds.height <= 0) return null;
-        return {
-          componentType,
-          width: Math.round(bounds.width),
-          height: Math.round(bounds.height),
-          recommendedGapAfter: 24,
-        };
-      })
-      .filter((item): item is NonNullable<typeof item> => item !== null);
-
-    const mergedFootprints = new Map<
-      string,
-      { width: number; height: number; recommendedGapAfter: number }
-    >();
-
-    toolboxFootprints.forEach((footprint) => {
-      mergedFootprints.set(footprint.componentType, footprint);
-    });
-
-    flattenComponents(formDefinition).forEach((component) => {
-      const type = component.type?.trim();
-      if (!type) return;
-      const estimated = estimateConfiguredFootprint(component, canvasWidth);
-      const existing = mergedFootprints.get(type);
-      if (!existing) {
-        mergedFootprints.set(type, {
-          componentType: type,
-          width: estimated.width,
-          height: estimated.height,
-          recommendedGapAfter: 24,
-        });
-        return;
-      }
-      mergedFootprints.set(type, {
-        componentType: type,
-        width: Math.max(existing.width, estimated.width),
-        height: Math.max(existing.height, estimated.height),
-        recommendedGapAfter: Math.max(existing.recommendedGapAfter ?? 24, 24),
-      });
-    });
 
     const existingTerms = findFirstTermsComponent(formDefinition);
     const existingTermsLinkText =
@@ -266,23 +202,49 @@ export const AIAgentPanel: React.FC = () => {
       }
     }
 
+    let eventInformation: RuntimeEventInformation | undefined;
+    const useEvent =
+      (formDefinition?.aiAgentSettings?.includeEventInformation ?? true) &&
+      Boolean(formContext?.eventId && formContext.eventId > 0);
+    const eventId = formContext?.eventId;
+    if (useEvent && typeof eventId === "number" && eventId > 0) {
+      try {
+        const ev = await getEventById(eventId);
+        if (ev.name?.trim()) {
+          eventInformation = {
+            eventId: ev.eventId,
+            name: ev.name.trim(),
+            startDateTime: ev.startDateTime,
+            endDateTime: ev.endDateTime,
+            timezoneIdentifier: ev.timezoneIdentifier,
+            venueName: ev.venueName,
+            venueAddress: ev.venueAddress,
+            city: ev.city,
+            state: ev.state,
+            shortDescription: ev.shortDescription,
+          };
+        }
+      } catch {
+        // Omit event block if the event cannot be loaded (permissions, network, etc.).
+      }
+    }
+
     return {
       formId: formDefinition.formId,
-      canvas: {
+      canvasSettings: {
         width: formDefinition.canvasSettings?.width ?? 1920,
         height: formDefinition.canvasSettings?.height ?? 980,
         gridSize: formDefinition.canvasSettings?.gridSize,
       },
-      lockedGlobals: {
-        theme: (formDefinition.theme as Record<string, unknown>) ?? null,
-        globalStyles: (formDefinition.globalStyles as Record<string, unknown>) ?? null,
-        canvasSettings:
-          (formDefinition.canvasSettings as Record<string, unknown>) ?? null,
-      },
+      globalStylesLocked,
+      theme: (formDefinition.theme as unknown as Record<string, unknown>) ?? null,
+      globalStyles:
+        (formDefinition.globalStyles as unknown as Record<string, unknown>) ?? null,
       termsDefaults,
-      componentFootprints: Array.from(mergedFootprints.values()),
+      componentFootprints,
+      ...(eventInformation ? { eventInformation } : {}),
     };
-  }, [formContext, formDefinition]);
+  }, [formContext, formDefinition, globalStylesLocked, initComponents, scale]);
 
   const relayoutFromRenderedHeights = React.useCallback(
     async (definition: FormDefinition): Promise<FormDefinition | null> => {
@@ -336,8 +298,7 @@ export const AIAgentPanel: React.FC = () => {
       const availableSpace = canvasHeight - totalHeight;
       if (availableSpace <= 0) return null;
 
-      const gap = Math.floor(availableSpace / (sorted.length + 1));
-      if (gap < 0) return null;
+      const gap = availableSpace / (sorted.length + 1);
 
       const cloned = JSON.parse(JSON.stringify(definition)) as FormDefinition;
       const clonedComponents = getFirstPageComponents(cloned);
@@ -371,17 +332,57 @@ export const AIAgentPanel: React.FC = () => {
 
     setIsSubmitting(true);
     setStatus("generating");
-    setMessage("Generating draft DefinitionJSON...");
+    setPromptSnapshot(trimmed.length > 160 ? `${trimmed.slice(0, 160)}…` : trimmed);
+    setAttemptLines(null);
+    setPendingInvalidDraft(null);
+    setMessage(
+      "Sending one request to the server. It may run up to 4 internal model attempts (initial + 3 corrections); this can take several minutes."
+    );
     setTraceSummary(null);
 
     try {
       const runtimeContext = await buildRuntimeContext();
-      const response = await generateAiDefinition(trimmed, runtimeContext);
+      setAiAgentSettings({
+        sectionedPromptProfileVersion: SYSTEM_PROMPT_PROFILE_VERSION,
+      });
+      devLogger.info("ai.sections.run.start", {
+        profileVersion: SYSTEM_PROMPT_PROFILE_VERSION,
+        promptChars: trimmed.length,
+        maxSystemCorrectionAttempts,
+        globalStylesLocked,
+      });
+      const options: AiGenerationOptions = {
+        maxSystemCorrectionAttempts,
+      };
+      const response = await generateAiDefinition(trimmed, runtimeContext, options);
       setStatus("validating");
 
+      const lines = (response.trace.attempts ?? []).map((entry) => formatAttemptLine(entry));
+      setAttemptLines(lines.length > 0 ? lines : null);
+
       const usedRetries = response.trace.systemCorrectionAttemptsUsed;
-      const summary = `Attempts: ${response.trace.attemptCount} (retries: ${usedRetries}/3), terminal reason: ${response.trace.terminalReason}`;
+      const postProcessChanged = response.trace.postProcessingSummary?.changedComponentCount ?? 0;
+      const summary = `Server attempts: ${response.trace.attemptCount} · Retries used: ${usedRetries}/${response.trace.maxSystemCorrectionAttempts} · Terminal: ${response.trace.terminalReason} · Post-process moves: ${postProcessChanged}`;
       setTraceSummary(summary);
+      devLogger.info("ai.sections.run.result", {
+        profileVersion: SYSTEM_PROMPT_PROFILE_VERSION,
+        status: response.status,
+        terminalReason: response.trace.terminalReason,
+        attemptCount: response.trace.attemptCount,
+        maxSystemCorrectionAttempts,
+        globalStylesLocked,
+        validationSummary: response.trace.validationSummary ?? null,
+        postProcessingSummary: response.trace.postProcessingSummary ?? null,
+        attemptPostProcessing: (response.trace.attempts ?? []).map((entry) => ({
+          attemptNumber: entry.attemptNumber,
+          phase: entry.phase,
+          changedComponentCount: entry.postProcessing?.changedComponentCount ?? 0,
+          changedComponents: entry.postProcessing?.changedComponents ?? [],
+          canvasHeightBefore: entry.postProcessing?.canvasHeightBefore ?? null,
+          canvasHeightAfter: entry.postProcessing?.canvasHeightAfter ?? null,
+          canvasHeightChanged: entry.postProcessing?.canvasHeightChanged ?? false,
+        })),
+      });
 
       if (response.status === "completed" && response.definitionJSON) {
         if (usedRetries > 0) setStatus("retrying");
@@ -396,18 +397,58 @@ export const AIAgentPanel: React.FC = () => {
         }
         setStatus("completed");
         setMessage(response.userMessage);
+        setPendingInvalidDraft(null);
         return;
       }
 
       setStatus("failed");
       setMessage(response.userMessage);
+      const offerInvalidDraft =
+        response.definitionJSON &&
+        (response.draftHasValidationIssues ??
+          /* older API responses omitted the flag; any definition on failed is inspectable */
+          true);
+      if (offerInvalidDraft) {
+        setPendingInvalidDraft(response.definitionJSON as Record<string, unknown>);
+      } else {
+        setPendingInvalidDraft(null);
+      }
     } catch (error) {
       setStatus("failed");
-      setMessage(error instanceof Error ? error.message : "AI generation failed.");
+      setAttemptLines(null);
+      setPendingInvalidDraft(null);
+      const raw = error instanceof Error ? error.message : "AI generation failed.";
+      setMessage(raw);
+      devLogger.error("ai.sections.run.error", {
+        maxSystemCorrectionAttempts,
+        globalStylesLocked,
+        message: raw,
+      });
     } finally {
       setIsSubmitting(false);
     }
-  }, [applyValidatedDefinition, buildRuntimeContext, isSubmitting, prompt, relayoutFromRenderedHeights]);
+  }, [
+    applyValidatedDefinition,
+    buildRuntimeContext,
+    isSubmitting,
+    maxSystemCorrectionAttempts,
+    globalStylesLocked,
+    prompt,
+    relayoutFromRenderedHeights,
+    setAiAgentSettings,
+  ]);
+
+  const handleLoadInvalidDraft = React.useCallback(() => {
+    if (!pendingInvalidDraft) return;
+    applyValidatedDefinition(
+      pendingInvalidDraft as unknown as FormDefinition,
+      "Load AI draft (unresolved validation issues)"
+    );
+    setPendingInvalidDraft(null);
+    setMessage(
+      "Draft loaded on canvas. Collisions or boundaries may still be present — inspect in the builder."
+    );
+  }, [applyValidatedDefinition, pendingInvalidDraft]);
 
   const statusColorClass =
     status === "completed"
@@ -426,21 +467,91 @@ export const AIAgentPanel: React.FC = () => {
           </h3>
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Describe a single-page form. AI generates, validates, and retries up to 3
-          correction attempts before applying to canvas.
+          One request may run several internal validator retries on the server before the
+          HTTP response returns. The status log shows each attempt after the response arrives.
         </p>
       </div>
 
       <div className="p-4 space-y-3">
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={includeEventInformation}
+            onChange={(e) =>
+              setAiAgentSettings({ includeEventInformation: e.target.checked })
+            }
+            disabled={!formContext?.eventId || formContext.eventId <= 0}
+            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 disabled:opacity-50"
+          />
+          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+            Include event information
+          </span>
+        </label>
+        {formContext?.eventId && formContext.eventId > 0 ? (
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
+            Sends the linked event&apos;s name, schedule, and venue (when loaded) in the AI
+            request. Turn off if you want a generic layout only.
+          </p>
+        ) : (
+          <p className="text-[11px] text-amber-700/90 dark:text-amber-300/90 -mt-2">
+            This form is not linked to an event — event details cannot be included.
+          </p>
+        )}
+
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={globalStylesLocked}
+            onChange={(e) =>
+              setAiAgentSettings({ globalStylesLocked: e.target.checked })
+            }
+            disabled={isSubmitting}
+            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 disabled:opacity-50"
+          />
+          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+            Lock global styles (preserve company brand)
+          </span>
+        </label>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
+          When locked, AI can still use per-component style overrides but should keep
+          globalStyles unchanged.
+        </p>
+
         <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
           Prompt
         </label>
         <textarea
           value={prompt}
-          onChange={(event) => setPrompt(event.target.value)}
+          onChange={(event) => setAiAgentSettings({ lastPrompt: event.target.value })}
           placeholder="Example: Create a registration form with name, email, phone, and consent checkbox."
           className="w-full min-h-[140px] rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
         />
+
+        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
+          System correction attempts (retry count)
+        </label>
+        <input
+          type="number"
+          min={0}
+          max={10}
+          step={1}
+          value={maxSystemCorrectionAttempts}
+          onChange={(event) => {
+            const parsed = Number(event.target.value);
+            if (!Number.isFinite(parsed)) return;
+            const clamped = Math.max(0, Math.min(10, Math.round(parsed)));
+            setAiAgentSettings({ maxSystemCorrectionAttempts: clamped });
+          }}
+          disabled={isSubmitting}
+          className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
+          aria-label="System correction attempts"
+        />
+        <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
+          Set to <code>1</code> for baseline section-evaluation runs.
+        </p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">
+          System prompt profile: <code>{SYSTEM_PROMPT_PROFILE_VERSION}</code>.
+        </p>
 
         <button
           type="button"
@@ -454,14 +565,40 @@ export const AIAgentPanel: React.FC = () => {
 
         <div className={`rounded-md border px-3 py-2 text-xs ${statusColorClass}`}>
           <div className="font-semibold mb-1">Status: {STATUS_LABELS[status]}</div>
-          {message && <div>{message}</div>}
-          {traceSummary && <div className="mt-1 opacity-90">{traceSummary}</div>}
+          {promptSnapshot && (
+            <div className="mb-1 text-[11px] opacity-90 border-b border-current/10 pb-1">
+              <span className="font-medium">Prompt: </span>
+              {promptSnapshot}
+            </div>
+          )}
+          {message && <div className="whitespace-pre-wrap">{message}</div>}
+          {attemptLines && attemptLines.length > 0 && (
+            <ul className="mt-2 list-disc pl-4 space-y-0.5 text-[11px] opacity-95">
+              {attemptLines.map((line, idx) => (
+                <li key={idx}>{line}</li>
+              ))}
+            </ul>
+          )}
+          {traceSummary && <div className="mt-2 text-[11px] opacity-90">{traceSummary}</div>}
+          {pendingInvalidDraft && (
+            <button
+              type="button"
+              onClick={handleLoadInvalidDraft}
+              className="mt-2 w-full rounded-md border border-amber-300 bg-amber-50 px-2 py-1.5 text-[11px] font-medium text-amber-900 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-900/40"
+            >
+              Load last draft on canvas (has validation issues)
+            </button>
+          )}
         </div>
 
         <div className="rounded-md border border-gray-200 dark:border-gray-700 p-3 text-xs text-gray-600 dark:text-gray-400">
           <div className="flex items-start gap-2 mb-1">
             <CheckCircle2 size={13} className="text-emerald-500 mt-0.5" />
-            <span>Validated output is applied to canvas only after passing validator.</span>
+            <span>
+              On success, the validated draft is applied automatically. If generation fails
+              but a last draft is returned, you can load it to inspect collisions on the
+              canvas. After a client timeout, no draft is available until the server responds.
+            </span>
           </div>
           <div className="flex items-start gap-2">
             <AlertTriangle size={13} className="text-amber-500 mt-0.5" />

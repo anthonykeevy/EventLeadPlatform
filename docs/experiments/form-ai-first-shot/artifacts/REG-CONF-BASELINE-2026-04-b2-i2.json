@@ -1,0 +1,232 @@
+{
+  "schemaVersion": "1.0",
+  "formId": "tech-conf-registration",
+  "theme": {
+    "primaryColor": "#0055FF",
+    "backgroundColor": "#9CA3AF",
+    "fontFamily": "Inter"
+  },
+  "globalStyles": {
+    "fontFamily": "Inter",
+    "defaultLayout": "vertical",
+    "defaultObjectLayout": "vertical",
+    "inputHeight": 40,
+    "objectRowGapPx": 24
+  },
+  "canvasSettings": {
+    "width": 760,
+    "height": 640,
+    "gridSize": 8
+  },
+  "pages": [
+    {
+      "id": "page-1",
+      "title": "Tech Conference Registration",
+      "components": [
+        {
+          "id": "header-1",
+          "type": "header",
+          "props": {
+            "text": "Tech Conference Registration",
+            "label": "Tech Conference Registration",
+            "tabOrder": 1,
+            "width": "712px",
+            "height": 56
+          },
+          "position": {
+            "x": 24,
+            "y": 24
+          },
+          "style": {
+            "width": 712,
+            "height": 56
+          }
+        },
+        {
+          "id": "first-name",
+          "type": "first-name",
+          "props": {
+            "label": "First name",
+            "name": "firstName",
+            "placeholder": "",
+            "tabOrder": 2,
+            "width": "324px",
+            "height": 40
+          },
+          "position": {
+            "x": 24,
+            "y": 104
+          },
+          "style": {
+            "width": 324,
+            "height": 40
+          }
+        },
+        {
+          "id": "last-name",
+          "type": "text",
+          "props": {
+            "label": "Last name",
+            "name": "lastName",
+            "placeholder": "",
+            "tabOrder": 3,
+            "width": "324px",
+            "height": 40
+          },
+          "position": {
+            "x": 412,
+            "y": 104
+          },
+          "style": {
+            "width": 324,
+            "height": 40
+          }
+        },
+        {
+          "id": "email",
+          "type": "email",
+          "props": {
+            "label": "Email address",
+            "name": "email",
+            "placeholder": "",
+            "tabOrder": 4,
+            "width": "324px",
+            "height": 40
+          },
+          "position": {
+            "x": 24,
+            "y": 168
+          },
+          "style": {
+            "width": 324,
+            "height": 40
+          }
+        },
+        {
+          "id": "phone",
+          "type": "phone",
+          "props": {
+            "label": "Phone number",
+            "name": "phone",
+            "placeholder": "",
+            "tabOrder": 5,
+            "width": "324px",
+            "height": 40
+          },
+          "position": {
+            "x": 412,
+            "y": 168
+          },
+          "style": {
+            "width": 324,
+            "height": 40
+          }
+        },
+        {
+          "id": "company",
+          "type": "text",
+          "props": {
+            "label": "Company name",
+            "name": "company",
+            "placeholder": "",
+            "tabOrder": 6,
+            "width": "712px",
+            "height": 40
+          },
+          "position": {
+            "x": 24,
+            "y": 232
+          },
+          "style": {
+            "width": 712,
+            "height": 40
+          }
+        },
+        {
+          "id": "job-title",
+          "type": "text",
+          "props": {
+            "label": "Job title",
+            "name": "jobTitle",
+            "placeholder": "",
+            "tabOrder": 7,
+            "width": "712px",
+            "height": 40
+          },
+          "position": {
+            "x": 24,
+            "y": 296
+          },
+          "style": {
+            "width": 712,
+            "height": 40
+          }
+        },
+        {
+          "id": "country",
+          "type": "dropdown",
+          "props": {
+            "label": "Country",
+            "name": "country",
+            "placeholder": "Select country",
+            "options": [
+              {
+                "label": "Australia",
+                "value": "Australia"
+              },
+              {
+                "label": "United States",
+                "value": "United States"
+              },
+              {
+                "label": "United Kingdom",
+                "value": "United Kingdom"
+              },
+              {
+                "label": "Canada",
+                "value": "Canada"
+              },
+              {
+                "label": "New Zealand",
+                "value": "New Zealand"
+              },
+              {
+                "label": "Other",
+                "value": "Other"
+              }
+            ],
+            "tabOrder": 8,
+            "width": "712px",
+            "height": 40
+          },
+          "position": {
+            "x": 24,
+            "y": 360
+          },
+          "style": {
+            "width": 712,
+            "height": 40
+          }
+        },
+        {
+          "id": "submit",
+          "type": "submit-button",
+          "props": {
+            "label": "Register",
+            "tabOrder": 9,
+            "width": "180px",
+            "height": 56
+          },
+          "position": {
+            "x": 24,
+            "y": 472
+          },
+          "style": {
+            "width": 180,
+            "height": 56
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -13,16 +13,24 @@ export interface PromptSection {
   instructions: string[];
 }
 
+// Story 6.3.1: the deterministic compiler now owns ALL layout, sizing, and
+// styling. The LLM only emits a FormSemanticPlan (component types, labels,
+// validation intent, semantic grouping). The sections below intentionally
+// avoid any instructions about coordinates, pixel widths, canvas bounds, or
+// styles — those used to drift the model into emitting layout it cannot
+// influence (and into trusting `componentFootprints` types the capability
+// snapshot rejects).
 const SECTION_DEFINITIONS: PromptSection[] = [
   {
     id: "layout",
-    title: "Canvas Layout",
-    objective: "Place components cleanly on canvas with no overlap.",
+    title: "Semantic Grouping",
+    objective:
+      "Express intent only — the deterministic compiler computes positions, widths, and canvas size.",
     instructions: [
-      "Use runtimeContext.componentFootprints as authoritative closed-control geometry.",
-      "Keep all components inside canvasSettings bounds.",
-      "Preserve readable vertical rhythm and row alignment.",
-      "For dropdown/select, plan for closed control size (not expanded list).",
+      "Do NOT emit position, x/y, pixel widths, style blocks, or canvasSettings — the compiler owns all geometry.",
+      "Group related fields by setting the same `section` (e.g. \"contact\", \"company\") on consecutive components.",
+      "Use `rowGroup` on two adjacent components when they should sit side-by-side on the same row.",
+      "`widthIntent` is a HINT (compact | half | full) — choose only from the values listed in ALLOWED COMPONENT TYPES for that type. The deterministic compiler decides the final pixel width from a per-type tier table and may shrink the component further or wrap it onto its own row to make the layout fit. Treat widthIntent as a *cap*: pick \"compact\" for short content (zip, age, state code), \"full\" only when the field truly should span the row.",
     ],
   },
   {
@@ -30,10 +38,10 @@ const SECTION_DEFINITIONS: PromptSection[] = [
     title: "Data Collection",
     objective: "Capture requested fields/options with stable ids and tab order.",
     instructions: [
+      "Use only `componentType` values listed in ALLOWED COMPONENT TYPES; if a requested feature has no registered type, pick the closest type and explain in helpText.",
       "Include all requested fields exactly once unless prompt asks for duplicates.",
-      "Use explicit labels, placeholders, required flags, and options where relevant.",
-      "Use deterministic tabOrder in visual reading order.",
-      "Keep export-friendly naming and consistent component typing.",
+      "Use explicit labels, placeholders, and options where relevant.",
+      "Tab order is implied by component order in the array; sequence them in visual reading order.",
     ],
   },
   {
@@ -41,21 +49,20 @@ const SECTION_DEFINITIONS: PromptSection[] = [
     title: "Validation Rules",
     objective: "Define clear validation behavior for each input.",
     instructions: [
+      "Emit `validationIntent` as an OBJECT (e.g. {\"required\": true, \"email\": true}) — never an array of strings.",
       "Apply required/format constraints per field type (email, phone, required text).",
-      "Keep validation messages concise and user-friendly.",
-      "Do not add unsupported keys; keep schema-valid structure.",
-      "Ensure validation objects align to Story 6.2 schema expectations.",
+      "Use only the keys allowed for the type by the registered validation contract.",
+      "Omit `validationIntent` entirely for components that do not need validation (e.g. submit-button, header).",
     ],
   },
   {
     id: "appearance",
-    title: "Appearance Typography Colors",
-    objective: "Respect locked global style context while keeping readability.",
+    title: "Theming Hands-Off",
+    objective: "Do not touch styling — the canvas owns theme, colours, fonts, and component dimensions.",
     instructions: [
-      "Preserve runtimeContext.lockedGlobals values; do not mutate locked globals.",
-      "Use style props and component dimensions consistent with framework defaults.",
-      "Keep visual parity between toolbox/canvas/runtime assumptions.",
-      "Avoid excessive width inflation; keep controls near natural content width.",
+      "Do NOT emit `theme`, `globalStyles`, `style`, `width`, `height`, or any colour/font keys.",
+      "lockedGlobals in runtimeContext are read-only context; never mirror or mutate them in the plan.",
+      "Visual parity is guaranteed by the deterministic compiler + canvas — your job is semantics, not appearance.",
     ],
   },
   {
@@ -72,12 +79,12 @@ const SECTION_DEFINITIONS: PromptSection[] = [
   {
     id: "delivery_summary",
     title: "Delivery Summary",
-    objective: "Return concise internal summary metadata for logging and evaluation.",
+    objective: "Return one valid FormSemanticPlan JSON object — nothing else.",
     instructions: [
-      "Ensure output remains one valid DefinitionJSON object only.",
-      "Prefer deterministic naming and property ordering when possible.",
-      "Do not include markdown or prose outside JSON.",
-      "Prioritize schema validity first, then layout quality.",
+      "Output must be a single valid FormSemanticPlan JSON object, no markdown or prose.",
+      "Required root keys: semanticPlanVersion (\"1.0\"), formId, title, components.",
+      "Do not emit a DefinitionJSON shape — coordinates, pages[], or style blocks will be rejected.",
+      "Prioritise schema validity and component-type validity over everything else.",
     ],
   },
 ];

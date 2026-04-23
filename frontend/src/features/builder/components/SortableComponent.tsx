@@ -1,7 +1,8 @@
 import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { FormComponent, type ComponentType } from '../types/builder.types';
+import { DEVICE_DIMENSIONS, FormComponent, type ComponentType } from '../types/builder.types';
+import { applyMobileLayoutDowngrade } from '../utils/layoutMode';
 import { SubmitButtonField } from './fields/SubmitButtonField';
 import { ComponentRegistry } from '../registry/ComponentRegistry';
 import { useBuilderStore } from '../stores/useBuilderStore';
@@ -267,7 +268,7 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [component.id, component.type]);
     // Get the current Canvas Scale, Layer, Selection state, and Global Styles from store
-    const { scale, activeLayer, selectedComponentIds, selectComponent, globalStyles, canvasSettings, updateComponentProps, updateComponent, activeId, dragPosition } = useBuilderStore(state => ({ 
+    const { scale, activeLayer, selectedComponentIds, selectComponent, globalStyles: storedGlobalStyles, canvasSettings, updateComponentProps, updateComponent, activeId, dragPosition, previewMode } = useBuilderStore(state => ({
         scale: state.scale, 
         activeLayer: state.activeLayer,
         selectedComponentIds: state.selectedComponentIds,
@@ -278,7 +279,41 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
         updateComponent: state.updateComponent,
         activeId: state.activeId,
         dragPosition: state.dragPosition,
+        previewMode: state.previewMode,
     }));
+
+    // Story 6.3.1 (UAT round 6) — Phase 1 *completion*: render-time
+    // mobile-canvas downgrade.
+    //
+    // The AI panel's request-side downgrade only changes what we send to the
+    // LLM/compiler. The renderer used to read ``defaultObjectLayout`` straight
+    // from the form's stored globalStyles, so a horizontal-mode form previewed
+    // on a 375px Mobile canvas still painted ``[ Label ][ Input ][ Validation ]``
+    // per row and ended up cramped to the point of being unusable.
+    //
+    // ``applyMobileLayoutDowngrade`` mirrors the AI-side rule (single source
+    // of truth, ``HORIZONTAL_LAYOUT_MIN_WIDTH_PX = 600``) and returns:
+    //
+    //   * the SAME object reference if the active preview canvas is wide
+    //     enough — so React shallow-equality short-circuits every memo
+    //     downstream of ``globalStyles``; or
+    //   * a NEW object with only ``defaultObjectLayout`` overridden to
+    //     ``"vertical"`` if the active preview canvas is below the
+    //     threshold — every other Global Style field is preserved.
+    //
+    // The form's stored Global Styles are NOT mutated, so switching the
+    // preview from Mobile back to Tablet/Desktop reverts to the user's
+    // ``"horizontal"`` choice automatically with no persistence.
+    //
+    // We use ``DEVICE_DIMENSIONS[previewMode].width`` (the active preview
+    // canvas) NOT ``canvasSettings.width`` (the form's stored canvas), so
+    // the rule is genuinely device-aware: identical inputs to what the AI
+    // panel uses when it builds the runtime context.
+    const effectiveCanvasWidth = DEVICE_DIMENSIONS[previewMode]?.width ?? canvasSettings?.width;
+    const globalStyles = useMemo(
+        () => applyMobileLayoutDowngrade(storedGlobalStyles, effectiveCanvasWidth ?? Number.NaN),
+        [storedGlobalStyles, effectiveCanvasWidth]
+    );
     
     // Local state for live resize preview
     const [resizePreview, setResizePreview] = useState<{ 
@@ -3666,9 +3701,54 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
     // During horizontal resize, ALWAYS use resizePreview.width if available
     // This ensures the container width updates during drag
     const baseWidthPx = resizePreview?.width ?? (hasExplicitWidth ? parseComponentWidthPx(component.props.width) : undefined);
+
+    // Story 6.3.1 (UAT round 11) — rating wrapper auto-grows with content.
+    //
+    // Rating component width is content-driven: ratingMax × cell width +
+    // gaps. When the AI compiler stamped ``props.width`` for a 5-star
+    // rating the bounding box was sized for 5 stars, but the user can
+    // edit ratingMax / ratingStyle in the Properties Panel after
+    // generation. With the wrapper pinned at the compile-time width,
+    // adding stars caused the rating row to overflow into the validation
+    // column (UAT round 10 #2) and even with the inline-grid track fix
+    // the validation pill ended up off-canvas (UAT round 11 #1).
+    //
+    // Resolution: derive a natural minimum wrapper width from the actual
+    // rating geometry (label band + gaps + rating row + gaps + validation
+    // band) and use it as the FLOOR for ``displayWidth``. The compiler-
+    // stamped ``props.width`` is still respected when it's larger than
+    // the natural minimum (so user-set widths via E/W resize still win),
+    // and the rating's own E/W resize handles are re-enabled (further
+    // down) so users can grow the wrapper beyond the natural minimum if
+    // they want extra trailing whitespace.
+    const ratingNaturalMinPx = (() => {
+        if (component.type !== 'rating') return undefined;
+        const ratingMax = Math.max(1, Math.min(10, Number(component.props.ratingMax ?? 5)));
+        const ratingStyle = component.props.ratingStyle ?? 'stars';
+        const fontSz = Number(fieldStyles.computed.fontSize) || 14;
+        // Mirror objectRenderers.tsx rating cell sizing.
+        const starSize = Math.max(14, Math.round(fontSz * 1.25));
+        const numberSide = Math.max(28, Math.round(fontSz * 2));
+        const cellMinWidth = ratingStyle === 'numbers'
+            ? numberSide
+            : starSize + 8;
+        const interStarGap = 6;
+        const ratingRowPx = ratingMax * cellMinWidth + Math.max(0, ratingMax - 1) * interStarGap;
+        // Reserve label band (form-wide horizontalLabelBandPx if set, else
+        // a sensible default) + 2 inter-column gaps + a small validation
+        // floor so the validation pill always has room to land next to
+        // the last star without wrapping.
+        const labelBandPx = Number(globalStyles?.horizontalLabelBandPx) || 200;
+        const intraGapPx = 16;
+        const validationFloorPx = 180;
+        return labelBandPx + intraGapPx + ratingRowPx + intraGapPx + validationFloorPx;
+    })();
+
     // NOTE: DO NOT multiply by displayScale here - the CSS transform: scale() handles visual scaling
     // Multiplying here causes double-scaling which breaks anchor positioning
-    const displayWidthPx = baseWidthPx;
+    const displayWidthPx = ratingNaturalMinPx !== undefined && baseWidthPx !== undefined
+        ? Math.max(baseWidthPx, ratingNaturalMinPx)
+        : ratingNaturalMinPx ?? baseWidthPx;
     
     // If inputWidthOverride is set and makes SmartBorder wider than component width, expand outer container
     // to match SmartBorder width so resize handles align properly
@@ -4644,10 +4724,23 @@ export const SortableComponent: React.FC<SortableComponentProps> = ({ component 
                         componentId={component.id}
                         forceUpdateKey={`${component.props.width}-${component.props.inputWidthOverride}-${component.props.labelWidthOverride}-${component.props.helpWidthOverride}`}
                     >
+                        {/* Story 6.3.1 (UAT round 11) — rating wrapper resize.
+                          *
+                          * Previously horizontal + corner handles were hidden
+                          * for ``rating`` because the wrapper was assumed to
+                          * auto-size with the rating row. After the AI-
+                          * compiler started pinning ``props.width``, the
+                          * wrapper became fixed and users could no longer
+                          * adjust it (UAT round 11 #1 — "there is no EW
+                          * resize handles the user is not able to adjust
+                          * the width which is locked"). The wrapper now
+                          * floors at the rating's natural width (see
+                          * ``ratingNaturalMinPx`` above) and the E/W
+                          * handles let users grow it beyond that floor —
+                          * dragging below the floor is a no-op because the
+                          * floor protects the rating row from squeezing. */}
                         <ResizeHandles 
                             {...resizeHandleProps}
-                            hideHorizontalHandles={component.type === 'rating'}
-                            hideCornerHandles={component.type === 'rating' ? true : resizeHandleProps.hideCornerHandles}
                         />
                     </ResizeHandlesWrapper>
                 )}

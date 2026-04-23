@@ -4,10 +4,17 @@ import math
 import os
 import re
 import time
+import uuid
+import hashlib
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Optional
+from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple
 
 import httpx
+from pydantic import ValidationError
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from common.request_context import get_current_request_context
 
 from middleware.outbound_request_logger import timed_log_outbound_http_request
 from modules.form_validate.schemas import (
@@ -27,8 +34,22 @@ from modules.form_validate.service import (
 from .schemas import (
     AttemptTraceEntry,
     AttemptValidationSummary,
+    FormSemanticPlan,
     FormAiGenerateResponse,
+    FormAiRemeasureRequest,
+    FormAiRemeasureResponse,
     GenerationTraceMetadata,
+    SemanticComponentIntent,
+    SemanticPlanViolation,
+)
+from .compiler import (
+    LAYOUT_MODE_HORIZONTAL_STACKED,
+    compile_semantic_plan_to_definition,
+    resolve_layout_mode,
+)
+from .semantic_validator import (
+    SemanticPlanValidationResult,
+    validate_semantic_plan,
 )
 
 MAX_SYSTEM_CORRECTION_ATTEMPTS = 3
@@ -42,6 +63,134 @@ def _load_context_pack() -> str:
         return CONTEXT_PACK_PATH.read_text(encoding="utf-8")
     except OSError as exc:
         raise RuntimeError("context-pack-load-failed") from exc
+
+
+def _env_flag(name: str, default: bool) -> bool:
+    """Read a boolean env flag. Falls back to ``default`` when unset/empty/invalid.
+
+    Truthy values: 1, true, yes, on. Falsy values: 0, false, no, off.
+    Used by Story 6.3.1 to gate post-processing transforms in the deterministic-grid
+    compiler path so the compiler stays the single owner of layout by default.
+    """
+    raw = os.getenv(name, "").strip().lower()
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
+def _summarise_semantic_plan_error(exc: BaseException) -> str:
+    """Compact, model-friendly summary of why FormSemanticPlan parsing failed."""
+    if isinstance(exc, ValidationError):
+        parts: List[str] = []
+        for err in exc.errors()[:6]:
+            loc = ".".join(str(p) for p in err.get("loc", ())) or "<root>"
+            msg = err.get("msg", "invalid")
+            parts.append(f"{loc}: {msg}")
+        more = max(0, len(exc.errors()) - 6)
+        if more:
+            parts.append(f"...and {more} more")
+        return " | ".join(parts) or str(exc)
+    return str(exc)
+
+
+def _build_semantic_plan_correction_message(error_summary: str) -> str:
+    return (
+        "Your previous JSON failed FormSemanticPlan validation. Errors:\n"
+        f"  {error_summary}\n\n"
+        "Return a corrected JSON object that strictly matches FormSemanticPlan:\n"
+        "  - semanticPlanVersion MUST be the string \"1.0\".\n"
+        "  - Root keys: semanticPlanVersion, formId, title, components.\n"
+        "  - Each component: componentType (required), label, optional placeholder/helpText, "
+        "widthIntent in {compact|half|full}, optional options (array of {label,value}), "
+        "optional validationIntent.\n"
+        "  - validationIntent MUST be an OBJECT with boolean keys "
+        "(required, email, phone, url) or numeric keys (minLength, maxLength, min, max). "
+        "Do NOT use a list of strings.\n"
+        "Return only valid JSON. No markdown, no prose."
+    )
+
+
+def _correction_message_for_json_parse(error_summary: str) -> str:
+    """Story 6.3.1 (failure-mode separation): correction prompt for the
+    json-parse stage.
+
+    Distinct from the semantic-plan correction message because the LLM has not
+    even produced parseable JSON at this point, so listing FormSemanticPlan
+    field rules adds noise. Keep this short and focused on the JSON shape.
+    """
+    return (
+        "Your previous response was not parseable JSON.\n"
+        f"Parser said: {error_summary}\n\n"
+        "Return a single JSON object (no markdown fences, no prose, no comments) "
+        "that conforms to FormSemanticPlan. Re-emit the entire object."
+    )
+
+
+def _correction_message_for_semantic_rules(
+    violations: List[SemanticPlanViolation],
+) -> str:
+    """Story 6.3.1 (failure-mode separation): correction prompt for the
+    semantic-validation gate (LLM-fault rules that run before compile).
+
+    Renders the violation list with stable rule codes the LLM can act on. Each
+    line names the offending component (by id when present, else by index) so
+    the model can target the fix instead of regenerating the entire plan.
+    """
+    lines: List[str] = []
+    for violation in violations:
+        target = violation.componentId or (
+            f"components[{violation.componentIndex}]"
+            if violation.componentIndex is not None
+            else "(plan)"
+        )
+        suffix = (
+            f" Suggestion: {violation.suggestion}" if violation.suggestion else ""
+        )
+        lines.append(
+            f"- [{violation.code}] {target}: {violation.message}{suffix}"
+        )
+
+    return (
+        "Your previous semantic plan parsed but failed the policy gate "
+        "(componentType registry, widthClasses, options, validation contract, "
+        "or unique componentIds). Fix every issue below and re-emit the "
+        "entire FormSemanticPlan as one JSON object:\n"
+        + "\n".join(lines)
+        + "\n\nKeep the user's original intent. Only change what is necessary "
+        "to clear these violations."
+    )
+
+
+# Story 6.3.1 (failure-mode separation): map terminalReason -> coarse failure
+# class for dashboards. New reasons added by this slice are listed first; the
+# legacy reasons keep their existing semantics.
+_FAILURE_CLASS_BY_REASON: Dict[str, str] = {
+    "validated-success": "none",
+    "provider-error": "provider-fault",
+    "context-pack-load-failed": "infrastructure-fault",
+    "json-parse-failed": "llm-fault",
+    "semantic-plan-invalid": "llm-fault",
+    "semantic-rules-violated": "llm-fault",
+    "compiler-error": "compiler-fault",
+    "compiler-validation-failed": "compiler-fault",
+    "retry-cap-exhausted": "llm-fault",
+    "first-shot-invalid": "llm-fault",
+}
+
+
+def _classify_failure(terminal_reason: str) -> str:
+    """Return the failure-class label for a terminalReason value.
+
+    Defaults to ``"llm-fault"`` for unknown reasons rather than ``"none"``
+    because an unknown terminal reason means we have a non-success outcome we
+    forgot to map; surfacing it as an llm-fault is the safer dashboard
+    default (it shows up in the same bucket as retry-cap-exhausted).
+    """
+    if not terminal_reason:
+        return "llm-fault"
+    return _FAILURE_CLASS_BY_REASON.get(terminal_reason, "llm-fault")
 
 
 def _extract_json_candidate(raw_content: str) -> Dict[str, Any]:
@@ -67,6 +216,115 @@ def _extract_json_candidate(raw_content: str) -> Dict[str, Any]:
     if not isinstance(parsed, dict):
         raise ValueError("json-parse-failed")
     return parsed
+
+
+def _infer_width_intent_from_component(
+    component: Dict[str, Any], canvas_width: float
+) -> str:
+    # Story 6.3.1 (semantic gate compatibility): submit-button is universally
+    # compact/half in registered snapshots. Mapping a legacy 9999-px style.width
+    # to "full" trips the new semantic-validation gate even though the legacy
+    # input was clearly broken. Clamp here so the legacy bridge always emits a
+    # gate-safe intent for submit-button.
+    component_type = str(component.get("type", "")).strip()
+    if component_type == "submit-button":
+        return "compact"
+    style = component.get("style") if isinstance(component.get("style"), dict) else {}
+    props = component.get("props") if isinstance(component.get("props"), dict) else {}
+    width = _parse_positive_dimension(style.get("width", props.get("width")), 0.0)
+    if width <= 0:
+        return "half"
+    full_threshold = canvas_width * 0.72
+    compact_threshold = canvas_width * 0.28
+    if width >= full_threshold:
+        return "full"
+    if width <= compact_threshold:
+        return "compact"
+    return "half"
+
+
+def _semantic_plan_from_legacy_definition(
+    definition_candidate: Dict[str, Any]
+) -> FormSemanticPlan:
+    pages = definition_candidate.get("pages")
+    if not isinstance(pages, list) or not pages:
+        raise ValueError("semantic-plan-missing-components")
+    first_page = pages[0] if isinstance(pages[0], dict) else {}
+    components = first_page.get("components")
+    if not isinstance(components, list):
+        raise ValueError("semantic-plan-missing-components")
+
+    canvas = definition_candidate.get("canvasSettings")
+    canvas_width = 1920.0
+    if isinstance(canvas, dict):
+        canvas_width = _parse_positive_dimension(canvas.get("width"), 1920.0)
+
+    semantic_components: List[Dict[str, Any]] = []
+    for component in components:
+        if not isinstance(component, dict):
+            continue
+        component_type = str(component.get("type", "")).strip()
+        if not component_type:
+            continue
+        props = component.get("props") if isinstance(component.get("props"), dict) else {}
+        label = props.get("label")
+        # Story 6.3.1 (semantic gate compatibility): only carry a
+        # validationIntent into the plan when the legacy props supplied an
+        # explicit validation dict OR required=True. Synthesising a default
+        # {"required": False} would trip the new invalid-validation-rule check
+        # for component types whose contract allows no rules (submit-button,
+        # header, paragraph, divider, ...).
+        validation_intent: Optional[Dict[str, Any]]
+        if isinstance(props.get("validation"), dict):
+            validation_intent = props.get("validation")
+        elif bool(props.get("required")):
+            validation_intent = {"required": True}
+        else:
+            validation_intent = None
+        semantic_components.append(
+            {
+                "componentId": component.get("id"),
+                "componentType": component_type,
+                "label": label if isinstance(label, str) else None,
+                "placeholder": props.get("placeholder")
+                if isinstance(props.get("placeholder"), str)
+                else None,
+                "helpText": props.get("helpText")
+                if isinstance(props.get("helpText"), str)
+                else None,
+                "widthIntent": _infer_width_intent_from_component(component, canvas_width),
+                "actionAlignment": (
+                    "center" if component_type == "submit-button" else None
+                ),
+                "options": props.get("options")
+                if isinstance(props.get("options"), list)
+                else None,
+                "validationIntent": validation_intent,
+            }
+        )
+
+    return FormSemanticPlan.model_validate(
+        {
+            "semanticPlanVersion": "1.0",
+            "formId": str(definition_candidate.get("formId", "ai-generated-form")),
+            "title": first_page.get("title")
+            if isinstance(first_page.get("title"), str)
+            else "Page 1",
+            "components": semantic_components,
+        }
+    )
+
+
+def _extract_semantic_plan_candidate(raw_candidate: Dict[str, Any]) -> FormSemanticPlan:
+    if "components" in raw_candidate and "semanticPlanVersion" in raw_candidate:
+        return FormSemanticPlan.model_validate(raw_candidate)
+    if "components" in raw_candidate and "pages" not in raw_candidate:
+        candidate = dict(raw_candidate)
+        candidate.setdefault("semanticPlanVersion", "1.0")
+        return FormSemanticPlan.model_validate(candidate)
+    if "pages" in raw_candidate:
+        return _semantic_plan_from_legacy_definition(raw_candidate)
+    raise ValueError("semantic-plan-parse-failed")
 
 
 def _normalize_display_component_props(definition: Dict[str, Any]) -> Dict[str, Any]:
@@ -121,6 +379,54 @@ def _is_placeholder_heading_text(value: Any) -> bool:
     if text in {"-", "--", "---", "_", ".", "|", "~"}:
         return True
     return False
+
+
+def _filter_unrequested_headings_from_plan(
+    semantic_plan: FormSemanticPlan, prompt: str
+) -> Tuple[FormSemanticPlan, int]:
+    """Strip ``header``/``paragraph`` intents from the semantic plan when the
+    user prompt didn't ask for one.
+
+    Background: The LLM frequently emits a courtesy ``header`` intent ("Contact
+    Form" etc.) even when the prompt has no heading-related keyword. The
+    *post-compile* heading filter then drops the rendered header from the page,
+    but the compiler has already laid out the rest of the form *below* that
+    header — so first-name ends up at ``y = margin + header_height + row_gap``
+    (~104 px) and a ghost gap is left at the top of the canvas (UAT round 5
+    reproduced this on prompt 1: the live canvas had ~80 px of empty space
+    above First name).
+
+    Filtering at the *plan* stage instead means the compiler never reserves
+    that vertical real estate, so the first real component sits exactly at
+    ``DEFAULT_MARGIN_Y`` and the top gap matches every other inter-row gap.
+
+    Placeholder-text headings (``"-"``, ``""``, etc.) are still dropped here
+    too — there's no point laying them out and then removing them, regardless
+    of what the prompt says.
+
+    Returns the (possibly new) plan and the count of intents removed so we can
+    surface the diagnostic via ``compileSummary``.
+    """
+    if not semantic_plan.components:
+        return semantic_plan, 0
+    allow_heading = _prompt_requests_heading(prompt)
+    kept: List[SemanticComponentIntent] = []
+    dropped = 0
+    for component in semantic_plan.components:
+        component_type = (component.componentType or "").strip().lower()
+        if component_type in {"header", "paragraph"}:
+            label = component.label
+            if _is_placeholder_heading_text(label):
+                dropped += 1
+                continue
+            if component_type == "header" and not allow_heading:
+                dropped += 1
+                continue
+        kept.append(component)
+    if dropped == 0:
+        return semantic_plan, 0
+    filtered = semantic_plan.model_copy(update={"components": kept})
+    return filtered, dropped
 
 
 def _sort_index_for_tab_order(component: Dict[str, Any], fallback_index: int) -> tuple[float, float, int]:
@@ -290,11 +596,48 @@ def _rebalance_single_column_vertical_spacing(
 
 
 def _post_process_generated_definition(
-    definition: Dict[str, Any], prompt: str, runtime_context: Optional[Dict[str, Any]]
-) -> Dict[str, Any]:
+    definition: Dict[str, Any],
+    prompt: str,
+    runtime_context: Optional[Dict[str, Any]],
+    *,
+    compiler_mode: str = "legacy",
+) -> tuple[Dict[str, Any], Dict[str, bool]]:
+    """Run flag-gated post-processing transforms on a generated definition.
+
+    Returns the (possibly mutated) definition together with a record of which
+    transforms actually ran, so AC-3 (transform visibility) can surface the
+    decision through ``compileSummary.postProcessingApplied``.
+
+    Defaults change per ``compiler_mode``:
+    - ``deterministic-grid``: destructive geometry transforms (sync-style-into-props,
+      single-column rebalance) default OFF so the compiler stays the single owner
+      of layout. Heading filter and tab order rewrite stay ON.
+    - ``legacy``: all transforms default ON to preserve pre-Story-6.3.1 behaviour.
+
+    Each transform can still be force-toggled via env var:
+      FORM_AI_PP_HEADING_FILTER, FORM_AI_PP_TAB_ORDER,
+      FORM_AI_PP_SYNC_STYLE_PROPS, FORM_AI_PP_REBALANCE.
+    """
+    is_deterministic = compiler_mode == "deterministic-grid"
+    apply_heading_filter = _env_flag("FORM_AI_PP_HEADING_FILTER", default=True)
+    apply_tab_order = _env_flag("FORM_AI_PP_TAB_ORDER", default=True)
+    apply_sync_style_props = _env_flag(
+        "FORM_AI_PP_SYNC_STYLE_PROPS", default=not is_deterministic
+    )
+    apply_rebalance = _env_flag(
+        "FORM_AI_PP_REBALANCE", default=not is_deterministic
+    )
+
+    applied: Dict[str, bool] = {
+        "headingFilter": False,
+        "tabOrder": False,
+        "syncStyleProps": False,
+        "rebalance": False,
+    }
+
     pages = definition.get("pages")
     if not isinstance(pages, list):
-        return definition
+        return definition, applied
 
     allow_heading = _prompt_requests_heading(prompt)
     for page in pages:
@@ -304,40 +647,50 @@ def _post_process_generated_definition(
         if not isinstance(components, list):
             continue
 
-        filtered_components: List[Dict[str, Any]] = []
-        for component in components:
-            if not isinstance(component, dict):
-                continue
-            component_type = str(component.get("type", "")).strip()
-            props = component.get("props")
-            if not isinstance(props, dict):
-                props = {}
-                component["props"] = props
-
-            if component_type in {"header", "paragraph"}:
-                label = props.get("label")
-                if _is_placeholder_heading_text(label):
+        if apply_heading_filter:
+            filtered_components: List[Dict[str, Any]] = []
+            for component in components:
+                if not isinstance(component, dict):
                     continue
-                if component_type == "header" and not allow_heading:
-                    continue
-            filtered_components.append(component)
+                component_type = str(component.get("type", "")).strip()
+                props = component.get("props")
+                if not isinstance(props, dict):
+                    props = {}
+                    component["props"] = props
 
-        # Always produce deterministic, contiguous tab order values for generated output.
-        sorted_pairs = sorted(
-            enumerate(filtered_components),
-            key=lambda pair: _sort_index_for_tab_order(pair[1], pair[0]),
-        )
-        for tab_order, (_, component) in enumerate(sorted_pairs, start=1):
-            props = component.get("props")
-            if not isinstance(props, dict):
-                props = {}
-                component["props"] = props
-            props["tabOrder"] = tab_order
+                if component_type in {"header", "paragraph"}:
+                    label = props.get("label")
+                    if _is_placeholder_heading_text(label):
+                        continue
+                    if component_type == "header" and not allow_heading:
+                        continue
+                filtered_components.append(component)
+            applied["headingFilter"] = True
+        else:
+            filtered_components = [c for c in components if isinstance(c, dict)]
+
+        if apply_tab_order:
+            sorted_pairs = sorted(
+                enumerate(filtered_components),
+                key=lambda pair: _sort_index_for_tab_order(pair[1], pair[0]),
+            )
+            for tab_order, (_, component) in enumerate(sorted_pairs, start=1):
+                props = component.get("props")
+                if not isinstance(props, dict):
+                    props = {}
+                    component["props"] = props
+                props["tabOrder"] = tab_order
+            applied["tabOrder"] = True
 
         page["components"] = filtered_components
 
-    definition = _sync_style_dimensions_into_props(definition)
-    return _rebalance_single_column_vertical_spacing(definition, runtime_context)
+    if apply_sync_style_props:
+        definition = _sync_style_dimensions_into_props(definition)
+        applied["syncStyleProps"] = True
+    if apply_rebalance:
+        definition = _rebalance_single_column_vertical_spacing(definition, runtime_context)
+        applied["rebalance"] = True
+    return definition, applied
 
 
 def _validate_single_page_guardrail(definition: Dict[str, Any]) -> List[SchemaError]:
@@ -414,6 +767,115 @@ def _build_runtime_footprint_map(
             "recommendedGapAfter": gap,
         }
     return mapped
+
+
+def _capability_type_summary(
+    capability_snapshot_json: Optional[Dict[str, Any]],
+) -> List[Tuple[str, List[str]]]:
+    """Return [(componentType, [allowed width classes])] from the active snapshot.
+
+    Empty list when the snapshot is missing or malformed; callers should treat
+    that as "no allow-list known" (e.g. legacy DB-empty governance) and fall
+    back to permissive behaviour.
+    """
+    if not isinstance(capability_snapshot_json, dict):
+        return []
+    components = capability_snapshot_json.get("components")
+    if not isinstance(components, list):
+        return []
+    summary: List[Tuple[str, List[str]]] = []
+    for row in components:
+        if not isinstance(row, dict):
+            continue
+        component_type = str(row.get("type", "")).strip()
+        if not component_type:
+            continue
+        width_classes_raw = row.get("widthClasses")
+        if isinstance(width_classes_raw, list):
+            widths = [
+                str(item).strip()
+                for item in width_classes_raw
+                if isinstance(item, (str, int, float)) and str(item).strip()
+            ]
+        else:
+            widths = []
+        summary.append((component_type, widths))
+    summary.sort(key=lambda pair: pair[0])
+    return summary
+
+
+def _filter_runtime_context_to_capability(
+    runtime_context: Optional[Dict[str, Any]],
+    capability_snapshot_json: Optional[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """Drop ``componentFootprints`` entries the active snapshot doesn't register.
+
+    The frontend builds ``componentFootprints`` from the live toolbox DOM,
+    which can advertise types (``rating``, ``file-upload``, ``first-name``...)
+    that are not registered in the current capability snapshot. Sending those
+    to the LLM led the model to emit unregistered components, which the
+    semantic-validation gate then rejected as ``unknown-component-type`` — and
+    the only correction round-trip was wasted relabelling them. Filtering up
+    front gives the LLM a faithful palette of what the compiler actually
+    accepts.
+
+    Behaviour:
+      * No snapshot known → return ``runtime_context`` unchanged (permissive).
+      * Snapshot present → keep only footprints whose ``componentType`` is in
+        the snapshot's ``components[].type`` set.
+      * No ``runtime_context`` → return ``None`` unchanged.
+    """
+    if runtime_context is None:
+        return None
+    summary = _capability_type_summary(capability_snapshot_json)
+    if not summary:
+        return runtime_context
+    allowed_types = {component_type for component_type, _ in summary}
+    footprints = runtime_context.get("componentFootprints")
+    if not isinstance(footprints, list):
+        return runtime_context
+    filtered: List[Any] = []
+    for entry in footprints:
+        if not isinstance(entry, dict):
+            continue
+        component_type = str(entry.get("componentType", "")).strip()
+        if component_type and component_type in allowed_types:
+            filtered.append(entry)
+    if filtered == footprints:
+        return runtime_context
+    next_context = dict(runtime_context)
+    next_context["componentFootprints"] = filtered
+    return next_context
+
+
+def _build_capability_prompt_block(
+    capability_snapshot_json: Optional[Dict[str, Any]],
+) -> str:
+    """Render an "ALLOWED COMPONENT TYPES" block for the system prompt.
+
+    Lists each registered ``componentType`` with its allowed ``widthIntent``
+    values so the LLM can self-constrain on the first attempt — eliminating
+    the most common cause of correction-loop usage observed in UAT. The widths
+    here are the *vocabulary* the compiler will accept as a hint; the final
+    pixel width is decided by the deterministic compiler's tier table.
+    """
+    summary = _capability_type_summary(capability_snapshot_json)
+    if not summary:
+        return ""
+    lines = ["ALLOWED COMPONENT TYPES (snapshot-authoritative; do NOT invent others):"]
+    for component_type, widths in summary:
+        if widths:
+            lines.append(
+                f"  - {component_type} (allowed widthIntent hints: {', '.join(widths)})"
+            )
+        else:
+            lines.append(f"  - {component_type}")
+    lines.append(
+        "If the user asks for a feature that isn't in this list "
+        "(e.g. star rating, file upload), use the closest registered type "
+        "(e.g. radio for rating, text for file links) and put a brief explanation in helpText."
+    )
+    return "\n".join(lines)
 
 
 def _build_runtime_context_block(runtime_context: Optional[Dict[str, Any]]) -> str:
@@ -559,14 +1021,45 @@ def _collision_component_width_height(
     fallback_height = DEFAULT_HEIGHT_BY_TYPE.get(component_type, 100.0)
     width = _parse_dimension(width_raw, fallback_width)
     height_base = _parse_dimension(height_raw, fallback_height)
-    min_height = _minimum_render_height(component_type, props, runtime_footprints)
-    if component_type in ("dropdown", "select"):
-        # Collision checks model the closed control footprint, not an expanded/open menu list.
-        options = props.get("options")
-        if isinstance(options, list):
-            min_height -= max(0, len(options) - 3) * 20.0
-    height = max(height_base, min_height)
+    # UAT round 11 — trust compiler-stamped heights when they look plausible
+    # (see ``MIN_PLAUSIBLE_RENDER_HEIGHT_PX`` comment). Falling back to the
+    # ``_minimum_render_height`` inflation only when the stated height is
+    # missing/degenerate keeps legacy tests (which omit ``style.height``) and
+    # vertical-stacked layouts safe, while fixing the horizontal-stacked
+    # phantom-collision bug where compiler heights of 52 px were inflated to
+    # 110-120 px and crashed into the next row.
+    if height_base >= MIN_PLAUSIBLE_RENDER_HEIGHT_PX:
+        height = height_base
+    else:
+        min_height = _minimum_render_height(component_type, props, runtime_footprints)
+        if component_type in ("dropdown", "select"):
+            # Collision checks model the closed control footprint, not an expanded/open menu list.
+            options = props.get("options")
+            if isinstance(options, list):
+                min_height -= max(0, len(options) - 3) * 20.0
+        height = max(height_base, min_height)
     return width, height
+
+
+# UAT round 5 (run 42) — anything below this is treated as "the LLM emitted a
+# nonsense width" (e.g. ``"width": 10`` or stripped ``"width": "0px"``) and
+# falls back to ``_minimum_render_width``. Above the floor we trust whatever
+# the deterministic compiler placed there — its tier table already accounts
+# for the canvas size and would never legitimately produce <60 px inputs.
+MIN_PLAUSIBLE_RENDER_WIDTH_PX = 60.0
+
+# UAT round 11 — same trust-the-compiler escape hatch for height. The legacy
+# ``_minimum_render_height`` table assumed every component renders the
+# vertical-stacked footprint (label on top, input below, validation below) and
+# inflated short stated heights to 110-120 px. That made horizontal-stacked
+# rows (label/input/validation in a single 52 px row) overlap the next row in
+# the validator even though the canvas had a clean 24 px vertical gap between
+# them. The deterministic compiler now stamps a layout-mode-aware height on
+# every component (``_component_height(layout_mode=...)`` + ``_row_chrome``),
+# so as long as the stated height looks plausible (>= floor) we trust it.
+# Mobile/vertical-stacked forms still pass through the inflation path because
+# the compiler stamps the full vertical footprint there.
+MIN_PLAUSIBLE_RENDER_HEIGHT_PX = 32.0
 
 
 def _flatten_boundary_visual_components(
@@ -599,16 +1092,41 @@ def _flatten_boundary_visual_components(
                 style = item.get("style") if isinstance(item.get("style"), dict) else {}
                 props = item.get("props") if isinstance(item.get("props"), dict) else {}
                 component_type = str(item.get("type", "text"))
-                minimum_width = _minimum_render_width(component_type, runtime_footprints)
+                # UAT round 5 (run 42) — width: trust the deterministic
+                # compiler's emitted ``style.width`` whenever it's a positive
+                # number. The legacy ``max(stated, minimum)`` rule was a guard
+                # against early LLM-emitted geometry that often reported tiny
+                # 100 px inputs; the deterministic compiler now emits widths
+                # that are sized for the actual canvas (e.g. 295 px on a
+                # 375 px mobile screen), so inflating to the 460 px desktop
+                # toolbox footprint creates phantom boundary failures on
+                # narrow canvases. We keep ``MIN_PLAUSIBLE_RENDER_WIDTH_PX``
+                # as a hard safety net for genuinely degenerate widths
+                # (sub-60 px is never a real input on any canvas).
                 stated_width = _parse_positive_dimension(
-                    style.get("width", props.get("width")), minimum_width
+                    style.get("width", props.get("width")), 0.0
                 )
-                width = max(stated_width, minimum_width)
+                if stated_width >= MIN_PLAUSIBLE_RENDER_WIDTH_PX:
+                    width = stated_width
+                else:
+                    minimum_width = _minimum_render_width(
+                        component_type, runtime_footprints
+                    )
+                    width = max(stated_width, minimum_width)
                 stated_height = _parse_positive_dimension(style.get("height"), 0.0)
-                min_height = _minimum_render_height(
-                    component_type, props, runtime_footprints
-                )
-                height = max(stated_height, min_height)
+                # UAT round 11 — same trust-the-compiler escape hatch as width.
+                # Compiler-stamped heights >= the plausibility floor are taken
+                # at face value; only short/missing values get inflated by the
+                # vertical-stacked ``_minimum_render_height`` table, which
+                # otherwise creates phantom bottom-edge boundary failures on
+                # horizontal-stacked rows.
+                if stated_height >= MIN_PLAUSIBLE_RENDER_HEIGHT_PX:
+                    height = stated_height
+                else:
+                    min_height = _minimum_render_height(
+                        component_type, props, runtime_footprints
+                    )
+                    height = max(stated_height, min_height)
                 flattened.append(
                     {
                         "id": str(item.get("id", "")),
@@ -707,6 +1225,13 @@ def _collect_visual_boundary_violations(
     if not flattened:
         return []
 
+    # The compiled ``definition.canvasSettings`` is authoritative for boundary
+    # checks: the deterministic compiler is allowed to grow the canvas
+    # vertically when the form needs more space (canvasHeightGrew=true in
+    # compileSummary). The runtime context only carries the *initial* canvas
+    # the user opened the builder with, so using it would falsely flag every
+    # component placed past row N+1 of a tall form. We therefore take the
+    # max of (definition, runtime) so the runtime can only act as a floor.
     canvas = definition.get("canvasSettings")
     canvas_width = 1920.0
     canvas_height = 980.0
@@ -715,10 +1240,14 @@ def _collect_visual_boundary_violations(
         canvas_height = _parse_positive_dimension(canvas.get("height"), 980.0)
     runtime_canvas = (runtime_context or {}).get("canvas")
     if isinstance(runtime_canvas, dict):
-        canvas_width = _parse_positive_dimension(runtime_canvas.get("width"), canvas_width)
-        canvas_height = _parse_positive_dimension(
+        runtime_width = _parse_positive_dimension(
+            runtime_canvas.get("width"), canvas_width
+        )
+        runtime_height = _parse_positive_dimension(
             runtime_canvas.get("height"), canvas_height
         )
+        canvas_width = max(canvas_width, runtime_width)
+        canvas_height = max(canvas_height, runtime_height)
 
     violations: List[BoundaryViolation] = []
     for item in flattened:
@@ -818,20 +1347,261 @@ def _merge_visual_collisions(
     )
 
 
+# Story 6.3.1 UAT round 5 (run 42 follow-up) — locale-aware terminology block.
+#
+# EventLead is launching in Australia first, with most early users authoring
+# forms for the Australian / New Zealand market. The default LLM voice is
+# American English (zip code, organization, cell phone, color), which produces
+# forms that read awkwardly to AU/NZ end-users and require manual relabelling.
+#
+# This map is a small, deliberately narrow set of high-traffic terminology
+# swaps that materially affect form labels, placeholders, and helpText. We
+# intentionally do NOT try to do full en-AU/en-NZ spelling normalisation —
+# that's the LLM's job once it knows the convention; trying to enforce it via
+# explicit lists would be brittle and miss edge cases.
+#
+# Wiring guidance for future extension:
+#   - Today this is a hard-coded "AU/NZ" default applied to every request.
+#   - When the user/event country is plumbed into ``run_form_ai_generation``,
+#     replace the hard-coded ``"AU"`` in ``_build_locale_prompt_block`` with
+#     the resolved ISO code and add new entries here keyed by region.
+#   - The block is opt-out via ``locale_code=None`` so we can always disable
+#     for tests / specific tenants.
+_LOCALE_PROMPT_BLOCKS: Dict[str, str] = {
+    "AU": (
+        "## REGION / LOCALE — Australia & New Zealand (default for the EventLead "
+        "early-access launch)\n"
+        "Treat the form as if it will be filled in by Australian or New Zealand "
+        "end-users unless the user prompt clearly states otherwise (e.g. \"US "
+        "customers\", \"international audience\"). Apply these conventions to all "
+        "labels, placeholders, helpText and option text:\n"
+        "  - Use Australian/British spelling: ``organisation`` (not organization), "
+        "    ``customise``, ``colour``, ``favourite``, ``licence`` (noun) / "
+        "    ``license`` (verb), ``programme`` (event/series) vs ``program`` (software).\n"
+        "  - Address fields:\n"
+        "      * Use ``Postcode`` (single word, no space) — never ``ZIP``, "
+        "        ``Zip Code``, or ``Postal Code``.\n"
+        "      * Use ``Suburb`` for the city/town field — not ``City`` or ``Town``.\n"
+        "      * Use ``State`` and accept Australian states (NSW, VIC, QLD, WA, SA, "
+        "        TAS, ACT, NT) or New Zealand regions; never use US state lists.\n"
+        "      * Country defaults to Australia or New Zealand if a country field "
+        "        is needed.\n"
+        "      * Address placeholders should look like \"123 George Street, Sydney "
+        "        NSW 2000\" — never US-style \"123 Main St, Springfield IL 62704\".\n"
+        "  - Phone fields:\n"
+        "      * Use ``Mobile`` for personal mobile numbers, not ``Cell`` / "
+        "        ``Cell phone``.\n"
+        "      * Placeholders use AU/NZ formats: \"04xx xxx xxx\" (AU mobile), "
+        "        \"(02) xxxx xxxx\" (AU landline), \"021 xxx xxxx\" (NZ mobile). "
+        "        Never \"+1 (555) 555-0123\" or \"(555) 555-5555\".\n"
+        "      * helpText should reference \"+61\" / \"+64\" if it mentions "
+        "        country codes — never \"+1\".\n"
+        "  - Names: ``Surname`` is acceptable as a last-name label alongside "
+        "    ``Last name``. ``Given name`` / ``First name`` both fine.\n"
+        "  - Money / GST: prices are in AUD or NZD by default; if the form "
+        "    discusses tax, use ``GST`` not ``Sales tax`` / ``VAT``.\n"
+        "  - Dates: prefer DD/MM/YYYY ordering in placeholders and helpText "
+        "    (e.g. \"31/12/2026\"). Never use US-style MM/DD/YYYY.\n"
+        "  - Education / professional: use ``Year 12``/``School certificate`` "
+        "    style descriptors over US ``Grade 12``/``High school diploma`` "
+        "    when the form is education-related.\n"
+        "  - Generally: avoid Americanisms in copy — e.g. ``rubbish`` over "
+        "    ``trash``, ``car park`` over ``parking lot``, ``mobile`` over "
+        "    ``cellphone``.\n"
+        "If the user prompt explicitly names a different region (\"US customers\", "
+        "\"UK launch\", etc.), follow the user's stated region instead.\n"
+    ),
+}
+
+
+# Story 6.3.1 UAT round 5 (Prompts 9/10 follow-up) — consent / legal-
+# acknowledgement guidance.
+#
+# Background: when prompts asked for "Marketing consent" / "I agree to receive
+# updates" / "GDPR opt-in" / "I have read the privacy policy", the model was
+# emitting a plain ``checkbox`` with the consent sentence as the label. That
+# renders, but it loses the value the ``terms`` component adds for
+# legal/consent intent specifically:
+#
+#   * ``terms`` exposes ``props.termsLinkText`` + a clickable link the
+#     end-user can open to read the full document before agreeing — required
+#     for GDPR/CCPA/AU Privacy Act enforceability ("evidence of informed
+#     consent"). Plain checkbox has nowhere to put that link.
+#   * When company-managed terms are uploaded (see ``termsDefaults`` in
+#     runtime context), ``terms`` auto-wires the company doc, so the form
+#     stays consistent across the customer's whole event suite without the
+#     LLM having to fabricate copy.
+#   * ``terms`` is rendered with consent-specific affordances (label
+#     emphasis, link styling, required-by-default semantics).
+#
+# This block is locale-independent — the AU/NZ locale rules already cover
+# spelling/terminology; consent semantics are universal.
+#
+# Wiring guidance:
+#   * Block is always-on in ``_build_initial_messages`` (no opt-out flag);
+#     the rules are conservative and won't fire unless the prompt actually
+#     mentions consent/agreement language.
+#   * Pairs with the existing ``terms_rules`` block in
+#     ``_build_runtime_context_block``: that block adds *runtime* context
+#     ("company terms exist, here's the link text"); this block adds
+#     *semantic* guidance ("which component type to pick").
+_CONSENT_GUIDANCE_BLOCK = (
+    "## CONSENT & LEGAL ACKNOWLEDGEMENTS — component selection\n"
+    "When the form needs the end-user to acknowledge or agree to a legal / "
+    "policy / marketing statement, prefer the ``terms`` component over a "
+    "plain ``checkbox``. ``terms`` is purpose-built for consent: it carries "
+    "a clickable link to the full document so the user can actually read it "
+    "before agreeing (an enforceability requirement under GDPR, CCPA and the "
+    "AU Privacy Act), and integrates with company-managed terms when the "
+    "runtime context provides them.\n"
+    "Use ``terms`` for any of these intents (and any close variants in the "
+    "user prompt):\n"
+    "  - Marketing consent / opt-in to receive marketing communications, "
+    "    newsletters, promotional emails or SMS.\n"
+    "  - Acceptance of Terms of Service, Terms & Conditions, T&Cs, EULA, "
+    "    user agreement, vendor agreement.\n"
+    "  - Acknowledgement of a Privacy Policy, Privacy Notice, Privacy "
+    "    Collection Statement, or data-handling notice.\n"
+    "  - GDPR / CCPA / AU Privacy Act consent or opt-in (data processing, "
+    "    profiling, automated decision-making, lawful basis acknowledgement).\n"
+    "  - Cookies / tracking consent, when collected on a form rather than a "
+    "    banner.\n"
+    "  - Liability waivers, photo / media release, code-of-conduct "
+    "    acknowledgement, indemnity declarations.\n"
+    "Set ``componentType: \"terms\"`` for these. Keep the consent sentence "
+    "in ``label`` (or in ``props.termsContent`` if the runtime context does "
+    "not provide company terms), set ``validationIntent.required = true`` "
+    "unless the prompt clearly says the consent is optional, and let the "
+    "compiler / runtime fill in ``props.termsLinkText`` / ``props.termsUrl``.\n"
+    "Reserve plain ``checkbox`` for non-legal multi-select intent — "
+    "interests, preferences, dietary requirements, available time slots, "
+    "feature toggles. If you're unsure whether something is consent vs. a "
+    "preference, the deciding question is: \"Would a regulator expect the "
+    "end-user to be able to read a document before ticking this?\" If yes, "
+    "use ``terms``.\n"
+)
+
+
+# Story 6.3.1 (UAT round 6) — Phase 2 LLM nudge for horizontal-stacked
+# layout. Only injected when ``compiler.resolve_layout_mode`` reports
+# ``"horizontal-stacked"`` for the current request; otherwise the prompt is
+# unchanged so vertical-mode generations don't see any new instructions.
+#
+# Why a separate block?
+#   * In horizontal-stacked mode every input renders as
+#     ``[ Label ][ Input ][ Validation ]`` on a single row, so the rowGroup
+#     packing the LLM normally uses to put two fields side-by-side
+#     (first-name + last-name, city + state) actively *hurts* the layout —
+#     the row solver would have to fit two label/input/validation triplets
+#     in the same horizontal band.
+#   * The compiler's Phase 3 horizontal-stacked branch will ignore rowGroup
+#     entirely (one input per row, period), but that branch isn't built yet.
+#     For Phase 2 we still route to the packed-rows code path; this addendum
+#     just steers the LLM toward output that *also* works once Phase 3 lands
+#     (and looks better today on a horizontal-mode form).
+_HORIZONTAL_STACKED_LAYOUT_NUDGE = (
+    "## LAYOUT MODE — HORIZONTAL STACKED (active for this request)\n"
+    "The form's Global Styles set ``defaultObjectLayout = \"horizontal\"``: "
+    "every input will render as ``[ Label ][ Input ][ Validation ]`` on its "
+    "own row. The compiler enforces a single-column ordering, so:\n"
+    "  - Do NOT use ``rowGroup`` to pack two fields side-by-side. Each "
+    "    component gets its own row regardless of what you set, and using "
+    "    rowGroup just makes the trace noisier. Leave ``rowGroup`` empty "
+    "    (or omit it) for every standard input.\n"
+    "  - Order components by reading order — natural top-to-bottom flow "
+    "    (contact details → address → message → consent → submit), not by "
+    "    visual columns.\n"
+    "  - ``widthIntent`` still influences the *input column* width (the "
+    "    middle of the three columns), so keep using ``\"compact\"`` for "
+    "    short fields (zip / age / state code), ``\"full\"`` for long-form "
+    "    fields (textarea / description), and the default for everything "
+    "    else. The compiler picks the actual pixel widths and keeps the "
+    "    label and validation columns aligned across the form.\n"
+    "  - ``terms`` and ``submit-button`` are special: the compiler renders "
+    "    them edge-to-edge (terms) and left-aligned with their own width "
+    "    (submit), regardless of the label/input grid. You don't need to "
+    "    do anything special — just include them in the natural reading "
+    "    order.\n"
+)
+
+
+def _build_locale_prompt_block(locale_code: Optional[str] = "AU") -> str:
+    """Return the locale-specific terminology block for ``locale_code``.
+
+    Currently only ``"AU"`` is wired (covers AU + NZ — the early-access
+    market). Returns an empty string when ``locale_code`` is None or unknown
+    so test fixtures can opt out cleanly.
+
+    Wiring note (future): when company / event country is plumbed through
+    ``run_form_ai_generation``, pass the ISO-3166 code here. Map e.g.
+    ``"AU"`` and ``"NZ"`` → the ``"AU"`` block (shared AU/NZ market), and
+    add fresh blocks for ``"US"`` / ``"GB"`` / etc. as we expand.
+    """
+    if not locale_code:
+        return ""
+    return _LOCALE_PROMPT_BLOCKS.get(locale_code.upper(), "")
+
+
 def _build_initial_messages(
     prompt: str,
     context_pack: str,
     runtime_context: Optional[Dict[str, Any]] = None,
     *,
     system_prompt_addendum: str | None = None,
+    capability_snapshot_json: Optional[Dict[str, Any]] = None,
+    locale_code: Optional[str] = "AU",
 ) -> List[Dict[str, str]]:
     runtime_context_block = _build_runtime_context_block(runtime_context)
+    capability_block = _build_capability_prompt_block(capability_snapshot_json)
+    locale_block = _build_locale_prompt_block(locale_code)
+
+    # Story 6.3.1 (UAT round 6) — Phase 2 LLM nudge for horizontal-stacked
+    # layout. ``resolve_layout_mode`` returns the legacy
+    # ``"vertical-packed"`` for any non-horizontal request, in which case
+    # ``layout_mode_block`` is empty and the prompt is unchanged.
+    layout_mode = resolve_layout_mode(runtime_context)
+    layout_mode_block = (
+        _HORIZONTAL_STACKED_LAYOUT_NUDGE
+        if layout_mode == LAYOUT_MODE_HORIZONTAL_STACKED
+        else ""
+    )
+
     system_body = (
-        "You generate EventLead form DefinitionJSON for Story 6.2.\n"
+        "You generate an EventLead semantic form plan for Story 6.3.1.\n"
         "Output a single JSON object only. No markdown or prose.\n"
-        "Ensure schemaVersion is '1.0', include formId, theme, canvasSettings, and pages.\n"
-        "Use only Story 6.2 MVP components and single-page constraints.\n\n"
-        f"{context_pack}"
+        "Return FormSemanticPlan only; do not output any coordinates, pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"
+        "\n"
+        + (locale_block + "\n" if locale_block else "")
+        + _CONSENT_GUIDANCE_BLOCK
+        + (layout_mode_block + "\n" if layout_mode_block else "")
+        + "\n"
+        + "REQUIRED ROOT KEYS (exact, case-sensitive):\n"
+        "  - semanticPlanVersion: must be the string \"1.0\" (do NOT use the story number).\n"
+        "  - formId: short slug or id (string).\n"
+        "  - title: form title (string).\n"
+        "  - components: array of component intents (see below).\n"
+        "Do NOT add any other root keys.\n"
+        "\n"
+        "EACH COMPONENT (object):\n"
+        "  - componentType (required), label, placeholder, helpText, section, rowGroup,\n"
+        "  - widthIntent: one of \"compact\" | \"half\" | \"full\".\n"
+        "    This is a HINT, not a final width. The deterministic compiler picks\n"
+        "    the actual pixel width from a per-type tier table and may shrink the\n"
+        "    component further (or wrap it onto its own row) so the layout fits\n"
+        "    the canvas. Treat widthIntent as a maximum cap: use \"compact\" when\n"
+        "    the field's content is short (e.g. zip, age, state code), \"full\"\n"
+        "    only when you genuinely want the field to span the row.\n"
+        "    Use rowGroup to indicate which fields you'd like packed side-by-side;\n"
+        "    the compiler decides whether they actually fit.\n"
+        "  - options: array of {label,value} for dropdown/radio,\n"
+        "  - validationIntent: an OBJECT (not an array) with any of these boolean/number keys:\n"
+        "      required, email, phone, url, minLength, maxLength, min, max, pattern.\n"
+        "    Example: \"validationIntent\": { \"required\": true, \"email\": true }.\n"
+        "    NEVER emit validationIntent as a list of strings (e.g. [\"required\",\"email\"]).\n"
+        "\n"
+        "Use only Story 6.2/6.3.1 supported component catalog and single-page constraints.\n\n"
+        + (capability_block + "\n\n" if capability_block else "")
+        + f"{context_pack}"
         + ("\n\n" + runtime_context_block if runtime_context_block else "")
     )
     if system_prompt_addendum and system_prompt_addendum.strip():
@@ -847,7 +1617,7 @@ def _build_initial_messages(
         {
             "role": "user",
             "content": (
-                "Generate a DefinitionJSON for this request.\n"
+                "Generate a semantic plan for this request.\n"
                 f"Prompt: {prompt}\n"
                 "Return only valid JSON."
             ),
@@ -1484,6 +2254,787 @@ def _request_chatgpt_completion(
         return call_responses_api(client)
 
 
+def _safe_json_dumps(value: Any) -> str:
+    try:
+        return json.dumps(value, ensure_ascii=True, default=str)
+    except Exception:
+        return json.dumps({"serializationError": True}, ensure_ascii=True)
+
+
+def _sha256_hex(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8", errors="ignore")).hexdigest()
+
+
+def _coerce_form_id(runtime_context: Optional[Dict[str, Any]]) -> Optional[int]:
+    if not runtime_context or not isinstance(runtime_context, dict):
+        return None
+    raw = runtime_context.get("formId")
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        raw = raw.strip()
+        if raw.isdigit():
+            return int(raw)
+    return None
+
+
+def _build_request_id_fallback() -> str:
+    return f"form-ai-{uuid.uuid4()}"
+
+
+def _resolve_runtime_governance_versions(
+    db_session: Optional[Session],
+) -> Dict[str, Any]:
+    default_payload: Dict[str, Any] = {
+        "promptTemplateVersionId": None,
+        "promptTemplateVersionRef": None,
+        "promptAssemblyProfileId": None,
+        "promptAssemblyProfileRef": None,
+        "capabilityPolicyVersionId": None,
+        "capabilityPolicyVersionRef": None,
+        "componentCapabilitySnapshotId": None,
+        "componentCapabilitySnapshotRef": None,
+        "widthClassPolicyVersionId": None,
+        "widthClassPolicyVersionRef": None,
+        "validationContractVersion": None,
+        "governanceResolutionSource": "no-db-session",
+        "capabilityPolicyJson": None,
+        "widthClassPolicyJson": None,
+        "componentCapabilitySnapshotJson": None,
+        "validationContracts": [],
+    }
+    if db_session is None:
+        return default_payload
+
+    payload = dict(default_payload)
+    payload["governanceResolutionSource"] = "db-active"
+
+    try:
+        prompt_template_version = db_session.execute(
+            text(
+                """
+                SELECT TOP 1
+                    PromptTemplateVersionID,
+                    PromptTemplateID,
+                    VersionNumber
+                FROM config.PromptTemplateVersion
+                WHERE IsActive = 1 AND IsDeleted = 0
+                ORDER BY ActivatedDate DESC, CreatedDate DESC, PromptTemplateVersionID DESC
+                """
+            )
+        ).mappings().first()
+        if prompt_template_version is not None:
+            payload["promptTemplateVersionId"] = prompt_template_version["PromptTemplateVersionID"]
+            payload["promptTemplateVersionRef"] = (
+                f"{prompt_template_version['PromptTemplateID']}:v{prompt_template_version['VersionNumber']}"
+            )
+
+        prompt_assembly_profile = db_session.execute(
+            text(
+                """
+                SELECT TOP 1
+                    PromptAssemblyProfileID,
+                    ProfileKey,
+                    StepName
+                FROM config.PromptAssemblyProfile
+                WHERE IsActive = 1 AND IsDeleted = 0
+                ORDER BY UpdatedDate DESC, CreatedDate DESC, PromptAssemblyProfileID DESC
+                """
+            )
+        ).mappings().first()
+        if prompt_assembly_profile is not None:
+            payload["promptAssemblyProfileId"] = prompt_assembly_profile["PromptAssemblyProfileID"]
+            payload["promptAssemblyProfileRef"] = (
+                f"{prompt_assembly_profile['ProfileKey']}:{prompt_assembly_profile['StepName']}"
+            )
+
+        capability_policy_version = db_session.execute(
+            text(
+                """
+                SELECT TOP 1
+                    CapabilityPolicyVersionID,
+                    PolicyKey,
+                    VersionNumber,
+                    PolicyJson
+                FROM config.CapabilityPolicyVersion
+                WHERE IsActive = 1 AND IsDeleted = 0
+                ORDER BY ActivatedDate DESC, CreatedDate DESC, CapabilityPolicyVersionID DESC
+                """
+            )
+        ).mappings().first()
+        if capability_policy_version is not None:
+            payload["capabilityPolicyVersionId"] = (
+                capability_policy_version["CapabilityPolicyVersionID"]
+            )
+            payload["capabilityPolicyVersionRef"] = (
+                f"{capability_policy_version['PolicyKey']}:v{capability_policy_version['VersionNumber']}"
+            )
+            if isinstance(capability_policy_version.get("PolicyJson"), str):
+                try:
+                    payload["capabilityPolicyJson"] = json.loads(
+                        capability_policy_version["PolicyJson"]
+                    )
+                except json.JSONDecodeError:
+                    payload["capabilityPolicyJson"] = None
+
+        capability_snapshot = db_session.execute(
+            text(
+                """
+                SELECT TOP 1
+                    ComponentCapabilitySnapshotID,
+                    SnapshotVersion,
+                    SnapshotJson
+                FROM config.ComponentCapabilitySnapshot
+                WHERE IsActive = 1 AND IsDeleted = 0
+                ORDER BY GeneratedDate DESC, ComponentCapabilitySnapshotID DESC
+                """
+            )
+        ).mappings().first()
+        if capability_snapshot is not None:
+            payload["componentCapabilitySnapshotId"] = (
+                capability_snapshot["ComponentCapabilitySnapshotID"]
+            )
+            payload["componentCapabilitySnapshotRef"] = capability_snapshot["SnapshotVersion"]
+            if isinstance(capability_snapshot.get("SnapshotJson"), str):
+                try:
+                    payload["componentCapabilitySnapshotJson"] = json.loads(
+                        capability_snapshot["SnapshotJson"]
+                    )
+                except json.JSONDecodeError:
+                    payload["componentCapabilitySnapshotJson"] = None
+
+        width_policy_version = db_session.execute(
+            text(
+                """
+                SELECT TOP 1
+                    WidthClassPolicyVersionID,
+                    PolicyKey,
+                    VersionNumber,
+                    PolicyJson
+                FROM config.WidthClassPolicyVersion
+                WHERE IsActive = 1 AND IsDeleted = 0
+                ORDER BY ActivatedDate DESC, CreatedDate DESC, WidthClassPolicyVersionID DESC
+                """
+            )
+        ).mappings().first()
+        if width_policy_version is not None:
+            payload["widthClassPolicyVersionId"] = (
+                width_policy_version["WidthClassPolicyVersionID"]
+            )
+            payload["widthClassPolicyVersionRef"] = (
+                f"{width_policy_version['PolicyKey']}:v{width_policy_version['VersionNumber']}"
+            )
+            if isinstance(width_policy_version.get("PolicyJson"), str):
+                try:
+                    payload["widthClassPolicyJson"] = json.loads(
+                        width_policy_version["PolicyJson"]
+                    )
+                except json.JSONDecodeError:
+                    payload["widthClassPolicyJson"] = None
+
+        contracts = db_session.execute(
+            text(
+                """
+                SELECT
+                    ComponentType,
+                    ContractVersion,
+                    AllowedRulesJson,
+                    RuleParameterSchemaJson,
+                    RuleCompatibilityJson,
+                    MessagePolicyJson
+                FROM config.ComponentValidationContract
+                WHERE IsActive = 1 AND IsDeleted = 0
+                ORDER BY ComponentType ASC, ContractVersion ASC
+                """
+            )
+        ).mappings().all()
+        if contracts:
+            normalized_contracts: List[Dict[str, Any]] = []
+            for row in contracts:
+                allowed_rules: List[str] = []
+                if isinstance(row.get("AllowedRulesJson"), str):
+                    try:
+                        parsed_rules = json.loads(row["AllowedRulesJson"])
+                        if isinstance(parsed_rules, list):
+                            allowed_rules = [
+                                str(rule).strip() for rule in parsed_rules if str(rule).strip()
+                            ]
+                    except json.JSONDecodeError:
+                        allowed_rules = []
+                normalized_contracts.append(
+                    {
+                        "componentType": row.get("ComponentType"),
+                        "contractVersion": row.get("ContractVersion"),
+                        "allowedRules": allowed_rules,
+                    }
+                )
+            payload["validationContracts"] = normalized_contracts
+            signature = "|".join(
+                f"{row['ComponentType']}:{row['ContractVersion']}" for row in contracts
+            )
+            payload["validationContractVersion"] = (
+                f"contracts-{_sha256_hex(signature)[:12]}-{len(contracts)}"
+            )
+
+        if not any(
+            payload[key] is not None
+            for key in (
+                "promptTemplateVersionId",
+                "promptAssemblyProfileId",
+                "capabilityPolicyVersionId",
+                "componentCapabilitySnapshotId",
+                "widthClassPolicyVersionId",
+                "validationContractVersion",
+            )
+        ):
+            payload["governanceResolutionSource"] = "db-empty"
+        return payload
+    except Exception:
+        LOGGER.exception("form-ai governance resolution failed")
+        payload["governanceResolutionSource"] = "db-resolution-error"
+        return payload
+
+
+def _persist_generation_run_and_artifacts(
+    *,
+    db_session: Optional[Session],
+    actor_user_id: Optional[int],
+    company_id: Optional[int],
+    prompt: str,
+    runtime_context: Optional[Dict[str, Any]],
+    response: FormAiGenerateResponse,
+    raw_attempt_payloads: List[Dict[str, Any]],
+    semantic_attempt_payloads: List[Dict[str, Any]],
+    compiled_attempt_payloads: List[Dict[str, Any]],
+    governance_versions: Dict[str, Any],
+    compile_input_plans: Optional[List[Dict[str, Any]]] = None,
+) -> Optional[int]:
+    """Persist a GenerationRun + its artifacts. Returns the GenerationRunID
+    on success (or None if no DB session was available, or persistence
+    failed). Story 6.3.1 UAT round 5: the id is needed by the response so
+    the frontend can call ``/remeasure`` against the same run.
+    """
+    if db_session is None:
+        return None
+
+    try:
+        context = get_current_request_context()
+        request_id = (
+            context.request_id if context and isinstance(context.request_id, str) and context.request_id else None
+        ) or _build_request_id_fallback()
+
+        resolved_company_id = company_id
+        if resolved_company_id is None and context is not None:
+            resolved_company_id = context.company_id
+
+        prompt_hash = _sha256_hex(prompt)
+        runtime_context_text = _safe_json_dumps(runtime_context or {})
+        runtime_context_hash = _sha256_hex(runtime_context_text)
+        form_id = _coerce_form_id(runtime_context)
+        resolved_form_id = form_id
+        if resolved_form_id is not None:
+            form_exists = db_session.execute(
+                text("SELECT TOP 1 FormID FROM dbo.Form WHERE FormID = :form_id"),
+                {"form_id": resolved_form_id},
+            ).scalar_one_or_none()
+            if form_exists is None:
+                resolved_form_id = None
+
+        resolved_company_fk = resolved_company_id
+        if resolved_company_fk is not None:
+            company_exists = db_session.execute(
+                text("SELECT TOP 1 CompanyID FROM dbo.Company WHERE CompanyID = :company_id"),
+                {"company_id": resolved_company_fk},
+            ).scalar_one_or_none()
+            if company_exists is None:
+                resolved_company_fk = None
+
+        run_insert = db_session.execute(
+            text(
+                """
+                INSERT INTO dbo.GenerationRun
+                (
+                    RequestID,
+                    CompanyID,
+                    FormID,
+                    PromptTemplateVersionID,
+                    PromptAssemblyProfileID,
+                    CapabilityPolicyVersionID,
+                    ComponentCapabilitySnapshotID,
+                    WidthClassPolicyVersionID,
+                    ValidationContractVersion,
+                    PromptHash,
+                    RuntimeContextHash,
+                    Status,
+                    TerminalReason,
+                    AttemptCount,
+                    FirstShotValid,
+                    IsReplayable,
+                    CreatedBy
+                )
+                OUTPUT inserted.GenerationRunID
+                VALUES
+                (
+                    :request_id,
+                    :company_id,
+                    :form_id,
+                    :prompt_template_version_id,
+                    :prompt_assembly_profile_id,
+                    :capability_policy_version_id,
+                    :component_capability_snapshot_id,
+                    :width_class_policy_version_id,
+                    :validation_contract_version,
+                    :prompt_hash,
+                    :runtime_context_hash,
+                    :status,
+                    :terminal_reason,
+                    :attempt_count,
+                    :first_shot_valid,
+                    :is_replayable,
+                    :created_by
+                )
+                """
+            ),
+            {
+                "request_id": request_id,
+                "company_id": resolved_company_fk,
+                "form_id": resolved_form_id,
+                "prompt_template_version_id": governance_versions.get("promptTemplateVersionId"),
+                "prompt_assembly_profile_id": governance_versions.get("promptAssemblyProfileId"),
+                "capability_policy_version_id": governance_versions.get("capabilityPolicyVersionId"),
+                "component_capability_snapshot_id": governance_versions.get(
+                    "componentCapabilitySnapshotId"
+                ),
+                "width_class_policy_version_id": governance_versions.get("widthClassPolicyVersionId"),
+                "validation_contract_version": governance_versions.get(
+                    "validationContractVersion"
+                ),
+                "prompt_hash": prompt_hash,
+                "runtime_context_hash": runtime_context_hash,
+                "status": response.status,
+                "terminal_reason": response.trace.terminalReason,
+                "attempt_count": response.trace.attemptCount,
+                "first_shot_valid": (
+                    response.trace.attempts[0].validation.valid
+                    if response.trace.attempts
+                    else None
+                ),
+                "is_replayable": True,
+                "created_by": actor_user_id,
+            },
+        )
+        generation_run_id = run_insert.scalar_one()
+
+        artifact_insert_stmt = text(
+            """
+            INSERT INTO dbo.GenerationArtifact
+            (
+                GenerationRunID,
+                ArtifactType,
+                SequenceNumber,
+                ArtifactJson,
+                ArtifactHash,
+                IsCompressed,
+                CreatedBy
+            )
+            VALUES
+            (
+                :generation_run_id,
+                :artifact_type,
+                :sequence_number,
+                :artifact_json,
+                :artifact_hash,
+                :is_compressed,
+                :created_by
+            )
+            """
+        )
+        artifact_rows: List[Dict[str, Any]] = []
+        for payload in raw_attempt_payloads:
+            payload_json = _safe_json_dumps(payload)
+            artifact_rows.append(
+                {
+                    "generation_run_id": generation_run_id,
+                    "artifact_type": "raw-semantic-attempt",
+                    "sequence_number": int(payload.get("attemptNumber", 1)),
+                    "artifact_json": payload_json,
+                    "artifact_hash": _sha256_hex(payload_json),
+                    "is_compressed": False,
+                    "created_by": actor_user_id,
+                }
+            )
+        for payload in semantic_attempt_payloads:
+            payload_json = _safe_json_dumps(payload)
+            artifact_rows.append(
+                {
+                    "generation_run_id": generation_run_id,
+                    "artifact_type": "semantic-plan-attempt",
+                    "sequence_number": int(payload.get("attemptNumber", 1)),
+                    "artifact_json": payload_json,
+                    "artifact_hash": _sha256_hex(payload_json),
+                    "is_compressed": False,
+                    "created_by": actor_user_id,
+                }
+            )
+        for payload in compiled_attempt_payloads:
+            payload_json = _safe_json_dumps(payload)
+            artifact_rows.append(
+                {
+                    "generation_run_id": generation_run_id,
+                    "artifact_type": "compiled-definition-attempt",
+                    "sequence_number": int(payload.get("attemptNumber", 1)),
+                    "artifact_json": payload_json,
+                    "artifact_hash": _sha256_hex(payload_json),
+                    "is_compressed": False,
+                    "created_by": actor_user_id,
+                }
+            )
+        # Story 6.3.1 UAT round 5 — render-then-measure: persist the exact
+        # plan that was fed to the compiler (i.e. after heading-filter and
+        # any other pre-compile transforms). The /remeasure endpoint loads
+        # this artifact and feeds it straight back into the compiler with
+        # measured heights, so the second pass is byte-identical to the
+        # first except for the resolved height per component.
+        for payload in compile_input_plans or []:
+            payload_json = _safe_json_dumps(payload)
+            artifact_rows.append(
+                {
+                    "generation_run_id": generation_run_id,
+                    "artifact_type": "compile-input-plan",
+                    "sequence_number": int(payload.get("attemptNumber", 1)),
+                    "artifact_json": payload_json,
+                    "artifact_hash": _sha256_hex(payload_json),
+                    "is_compressed": False,
+                    "created_by": actor_user_id,
+                }
+            )
+
+        trace_json = _safe_json_dumps(response.trace.model_dump())
+        artifact_rows.append(
+            {
+                "generation_run_id": generation_run_id,
+                "artifact_type": "trace-metadata",
+                "sequence_number": 1,
+                "artifact_json": trace_json,
+                "artifact_hash": _sha256_hex(trace_json),
+                "is_compressed": False,
+                "created_by": actor_user_id,
+            }
+        )
+        if response.definitionJSON is not None:
+            final_json = _safe_json_dumps(response.definitionJSON)
+            artifact_rows.append(
+                {
+                    "generation_run_id": generation_run_id,
+                    "artifact_type": "final-definition",
+                    "sequence_number": 1,
+                    "artifact_json": final_json,
+                    "artifact_hash": _sha256_hex(final_json),
+                    "is_compressed": False,
+                    "created_by": actor_user_id,
+                }
+            )
+
+        for row in artifact_rows:
+            db_session.execute(artifact_insert_stmt, row)
+        db_session.commit()
+        return generation_run_id
+    except Exception:
+        db_session.rollback()
+        LOGGER.exception("form-ai generation run/artifact persistence failed")
+        return None
+
+
+def _build_trace_metadata(
+    *,
+    terminal_reason: str,
+    attempts: List[AttemptTraceEntry],
+    correction_cap: int,
+    last_validation: Optional[AttemptValidationSummary],
+    resolved_transport: Literal["sync", "stream"],
+    governance_versions: Dict[str, Any],
+    last_compile_summary: Optional[Dict[str, Any]],
+    last_violations: Optional[List[SemanticPlanViolation]] = None,
+    attempt_count_override: Optional[int] = None,
+) -> GenerationTraceMetadata:
+    """Build a GenerationTraceMetadata from the live loop state.
+
+    Centralises the (previously 4x duplicated) trace assembly so adding new
+    governance/failure fields is one edit. ``attempt_count_override`` exists
+    for the provider-error path which counts the in-flight attempt even
+    though no AttemptTraceEntry was appended for it.
+    """
+    attempt_count = (
+        attempt_count_override
+        if attempt_count_override is not None
+        else len(attempts)
+    )
+    return GenerationTraceMetadata(
+        attemptCount=attempt_count,
+        maxSystemCorrectionAttempts=correction_cap,
+        systemCorrectionAttemptsUsed=max(0, attempt_count - 1),
+        terminalReason=terminal_reason,
+        attempts=attempts,
+        validationSummary=last_validation,
+        resolvedOpenaiTransport=resolved_transport,
+        promptTemplateVersionId=governance_versions.get("promptTemplateVersionId"),
+        promptTemplateVersionRef=governance_versions.get("promptTemplateVersionRef"),
+        promptAssemblyProfileId=governance_versions.get("promptAssemblyProfileId"),
+        promptAssemblyProfileRef=governance_versions.get("promptAssemblyProfileRef"),
+        capabilityPolicyVersionId=governance_versions.get("capabilityPolicyVersionId"),
+        capabilityPolicyVersionRef=governance_versions.get("capabilityPolicyVersionRef"),
+        componentCapabilitySnapshotId=governance_versions.get("componentCapabilitySnapshotId"),
+        componentCapabilitySnapshotRef=governance_versions.get("componentCapabilitySnapshotRef"),
+        widthClassPolicyVersionId=governance_versions.get("widthClassPolicyVersionId"),
+        widthClassPolicyVersionRef=governance_versions.get("widthClassPolicyVersionRef"),
+        validationContractVersion=governance_versions.get("validationContractVersion"),
+        governanceResolutionSource=governance_versions.get("governanceResolutionSource"),
+        compilerMode="deterministic-grid",
+        compileSummary=last_compile_summary,
+        failureClass=_classify_failure(terminal_reason),
+        semanticValidationViolations=last_violations,
+    )
+
+
+def remeasure_form_definition(
+    body: FormAiRemeasureRequest,
+    *,
+    runtime_context: Optional[Dict[str, Any]],
+    db_session: Session,
+    actor_user_id: Optional[int] = None,
+) -> FormAiRemeasureResponse:
+    """Story 6.3.1 UAT round 5 — render-then-measure second pass.
+
+    Loads the original ``compile-input-plan`` artifact for ``generationRunId``,
+    re-runs the deterministic compiler with the supplied DOM heights, and
+    returns a refined ``DefinitionJSON`` that exactly matches what the
+    renderer is going to paint. The first pass is left untouched on the
+    canvas while this runs; the frontend swaps to the refined definition
+    on success and keeps the first pass on failure.
+
+    The endpoint never calls the LLM, so retries / semantic violations /
+    transport selection are all N/A. It does call the same compiler +
+    post-processing + validation pipeline as ``/generate`` so the returned
+    ``DefinitionJSON`` is governed exactly the same way.
+    """
+    # ----- 1. Load the persisted compile-input-plan ----------------------
+    plan_row = db_session.execute(
+        text(
+            """
+            SELECT TOP 1 ArtifactJson
+            FROM dbo.GenerationArtifact
+            WHERE GenerationRunID = :run_id
+              AND ArtifactType = 'compile-input-plan'
+            ORDER BY SequenceNumber DESC, GenerationArtifactID DESC
+            """
+        ),
+        {"run_id": body.generationRunId},
+    ).mappings().first()
+
+    if plan_row is None:
+        # No compile-input-plan persisted — almost always means the run is
+        # from before UAT round 5 shipped. Fall back to "remeasure not
+        # available" so the frontend keeps the first-pass definition.
+        return FormAiRemeasureResponse(
+            status="failed",
+            definitionJSON=None,
+            compileSummary=None,
+            validationSummary=None,
+            userMessage=(
+                "Render-then-measure is unavailable for this generation. "
+                "The first-pass layout will be used."
+            ),
+            generationRunId=body.generationRunId,
+        )
+
+    try:
+        plan_envelope = json.loads(plan_row["ArtifactJson"])
+        plan_dict = plan_envelope.get("plan") if isinstance(plan_envelope, dict) else None
+        if not isinstance(plan_dict, dict):
+            raise ValueError("compile-input-plan envelope missing 'plan'")
+        semantic_plan = FormSemanticPlan.model_validate(plan_dict)
+    except Exception:
+        LOGGER.exception(
+            "form-ai /remeasure: failed to load compile-input-plan for run %s",
+            body.generationRunId,
+        )
+        return FormAiRemeasureResponse(
+            status="failed",
+            definitionJSON=None,
+            compileSummary=None,
+            validationSummary=None,
+            userMessage=(
+                "Render-then-measure could not load the original semantic plan. "
+                "The first-pass layout will be used."
+            ),
+            generationRunId=body.generationRunId,
+        )
+
+    # ----- 2. Resolve governance the same way /generate does -------------
+    # Same active versions snapshot. The first pass might have used a
+    # different version if the policy changed between the two calls; this
+    # is fine for the second pass because the compiler accepts the same
+    # FormSemanticPlan shape across active versions and the validator is
+    # version-stable. We still log when the snapshot id drifts.
+    governance_versions = _resolve_runtime_governance_versions(db_session)
+
+    # ----- 3. Build the measurement map ----------------------------------
+    measured_heights: Dict[str, float] = {
+        m.componentId: float(m.height) for m in body.measurements
+    }
+
+    # ----- 4. Recompile with measurements --------------------------------
+    try:
+        candidate, compile_summary = compile_semantic_plan_to_definition(
+            semantic_plan,
+            runtime_context=runtime_context,
+            capability_policy_json=governance_versions.get("capabilityPolicyJson"),
+            width_policy_json=governance_versions.get("widthClassPolicyJson"),
+            capability_snapshot_json=governance_versions.get(
+                "componentCapabilitySnapshotJson"
+            ),
+            validation_contracts=governance_versions.get("validationContracts"),
+            measured_heights=measured_heights,
+        )
+        candidate = _normalize_display_component_props(candidate)
+        compiler_mode = (
+            str(compile_summary.get("compilerMode", "deterministic-grid"))
+            if isinstance(compile_summary, dict)
+            else "deterministic-grid"
+        )
+        # Use the prompt placeholder from the captured plan envelope when
+        # available; otherwise pass an empty prompt — post-processing only
+        # uses the prompt for heuristics that are no-ops on a remeasure
+        # pass (e.g. heading dropping has already happened pre-compile).
+        candidate, post_processing_applied = _post_process_generated_definition(
+            candidate,
+            "",
+            runtime_context,
+            compiler_mode=compiler_mode,
+        )
+        if isinstance(compile_summary, dict):
+            compile_summary["postProcessingApplied"] = post_processing_applied
+            compile_summary["remeasureRunId"] = body.generationRunId
+    except Exception:
+        LOGGER.exception(
+            "form-ai /remeasure: compile failed for run %s",
+            body.generationRunId,
+        )
+        return FormAiRemeasureResponse(
+            status="failed",
+            definitionJSON=None,
+            compileSummary=None,
+            validationSummary=None,
+            userMessage=(
+                "Render-then-measure recompile failed. "
+                "The first-pass layout will be used."
+            ),
+            generationRunId=body.generationRunId,
+        )
+
+    # ----- 5. Validate the refined definition ----------------------------
+    validation = validate_definition_payload({"definition": candidate})
+    validation = _merge_guardrail_errors(
+        validation, _validate_single_page_guardrail(candidate)
+    )
+    validation = _merge_visual_boundaries(
+        validation, _collect_visual_boundary_violations(candidate, runtime_context)
+    )
+    validation = _merge_visual_collisions(
+        validation, _collect_visual_collisions(candidate, runtime_context)
+    )
+    summary = _validation_summary(validation)
+
+    # ----- 6. Persist remeasure artifacts on the same run ----------------
+    try:
+        artifact_insert_stmt = text(
+            """
+            INSERT INTO dbo.GenerationArtifact
+            (GenerationRunID, ArtifactType, SequenceNumber, ArtifactJson,
+             ArtifactHash, IsCompressed, CreatedBy)
+            VALUES
+            (:generation_run_id, :artifact_type, :sequence_number,
+             :artifact_json, :artifact_hash, :is_compressed, :created_by)
+            """
+        )
+        # Sequence number = 1 + existing remeasure-output rows so multiple
+        # remeasure calls on the same run are tracked in order.
+        existing = db_session.execute(
+            text(
+                """
+                SELECT COUNT(*) AS n FROM dbo.GenerationArtifact
+                WHERE GenerationRunID = :run_id
+                  AND ArtifactType = 'remeasure-output'
+                """
+            ),
+            {"run_id": body.generationRunId},
+        ).scalar_one()
+        next_sequence = int(existing) + 1
+
+        input_json = _safe_json_dumps(
+            {
+                "measurements": [m.model_dump() for m in body.measurements],
+                "runtimeContext": runtime_context,
+            }
+        )
+        output_json = _safe_json_dumps(
+            {
+                "definition": candidate,
+                "compileSummary": compile_summary,
+                "validation": summary.model_dump(),
+            }
+        )
+        db_session.execute(
+            artifact_insert_stmt,
+            {
+                "generation_run_id": body.generationRunId,
+                "artifact_type": "remeasure-input",
+                "sequence_number": next_sequence,
+                "artifact_json": input_json,
+                "artifact_hash": _sha256_hex(input_json),
+                "is_compressed": False,
+                "created_by": actor_user_id,
+            },
+        )
+        db_session.execute(
+            artifact_insert_stmt,
+            {
+                "generation_run_id": body.generationRunId,
+                "artifact_type": "remeasure-output",
+                "sequence_number": next_sequence,
+                "artifact_json": output_json,
+                "artifact_hash": _sha256_hex(output_json),
+                "is_compressed": False,
+                "created_by": actor_user_id,
+            },
+        )
+        db_session.commit()
+    except Exception:
+        db_session.rollback()
+        LOGGER.exception(
+            "form-ai /remeasure: artifact persistence failed for run %s",
+            body.generationRunId,
+        )
+
+    # ----- 7. Build response -------------------------------------------------
+    is_valid = bool(summary.valid)
+    return FormAiRemeasureResponse(
+        status="completed" if is_valid else "failed",
+        definitionJSON=candidate if is_valid else None,
+        compileSummary=compile_summary if isinstance(compile_summary, dict) else None,
+        validationSummary=summary,
+        userMessage=(
+            "Layout refined using rendered measurements."
+            if is_valid
+            else (
+                "Render-then-measure produced a layout with validation issues. "
+                "The first-pass layout will be used."
+            )
+        ),
+        generationRunId=body.generationRunId,
+    )
+
+
 def generate_form_definition(
     prompt: str,
     model_override: str | None = None,
@@ -1492,8 +3043,17 @@ def generate_form_definition(
     *,
     max_system_correction_attempts: int | None = None,
     system_prompt_addendum: str | None = None,
+    db_session: Optional[Session] = None,
+    actor_user_id: Optional[int] = None,
+    actor_company_id: Optional[int] = None,
 ) -> FormAiGenerateResponse:
     trace_entries: List[AttemptTraceEntry] = []
+    raw_attempt_payloads: List[Dict[str, Any]] = []
+    semantic_attempt_payloads: List[Dict[str, Any]] = []
+    compiled_attempt_payloads: List[Dict[str, Any]] = []
+    # Story 6.3.1 UAT round 5 — captured per-attempt for /remeasure replay.
+    compile_input_plans: List[Dict[str, Any]] = []
+    governance_versions = _resolve_runtime_governance_versions(db_session)
     resolved_transport = _resolve_openai_transport(openai_transport)
     correction_cap = (
         max_system_correction_attempts
@@ -1502,19 +3062,42 @@ def generate_form_definition(
     )
     correction_cap = max(0, min(correction_cap, 10))
 
+    def _finalize(response: FormAiGenerateResponse) -> FormAiGenerateResponse:
+        run_id = _persist_generation_run_and_artifacts(
+            db_session=db_session,
+            actor_user_id=actor_user_id,
+            company_id=actor_company_id,
+            prompt=prompt,
+            runtime_context=runtime_context,
+            response=response,
+            raw_attempt_payloads=raw_attempt_payloads,
+            semantic_attempt_payloads=semantic_attempt_payloads,
+            compiled_attempt_payloads=compiled_attempt_payloads,
+            governance_versions=governance_versions,
+            compile_input_plans=compile_input_plans,
+        )
+        # Story 6.3.1 UAT round 5 — surface the persisted run id so the
+        # frontend can call ``/remeasure`` with DOM heights for a refined
+        # second-pass layout. None when persistence is disabled (tests) or
+        # the insert failed (caught and logged inside the persist helper).
+        if run_id is not None:
+            response.generationRunId = run_id
+        return response
+
     try:
         context_pack = _load_context_pack()
     except RuntimeError:
-        trace = GenerationTraceMetadata(
-            attemptCount=0,
-            maxSystemCorrectionAttempts=correction_cap,
-            systemCorrectionAttemptsUsed=0,
-            terminalReason="context-pack-load-failed",
+        trace = _build_trace_metadata(
+            terminal_reason="context-pack-load-failed",
             attempts=[],
-            validationSummary=None,
-            resolvedOpenaiTransport=resolved_transport,
+            correction_cap=correction_cap,
+            last_validation=None,
+            resolved_transport=resolved_transport,
+            governance_versions=governance_versions,
+            last_compile_summary=None,
+            attempt_count_override=0,
         )
-        return FormAiGenerateResponse(
+        return _finalize(FormAiGenerateResponse(
             status="failed",
             definitionJSON=None,
             trace=trace,
@@ -1523,17 +3106,120 @@ def generate_form_definition(
                 "Please contact support and try again."
             ),
             draftHasValidationIssues=False,
-        )
+        ))
+
+    # Filter the runtime palette to types the active capability snapshot
+    # actually registers. The frontend builds ``componentFootprints`` from the
+    # toolbox DOM, which can advertise types the snapshot doesn't accept; that
+    # was the dominant cause of UAT failures (the LLM used ``rating`` /
+    # ``file-upload`` / ``first-name``, the semantic gate rejected them, and
+    # the only correction round-trip was wasted relabelling them).
+    capability_snapshot_for_prompt = governance_versions.get(
+        "componentCapabilitySnapshotJson"
+    )
+    runtime_context_for_prompt = _filter_runtime_context_to_capability(
+        runtime_context, capability_snapshot_for_prompt
+    )
 
     messages = _build_initial_messages(
         prompt=prompt,
         context_pack=context_pack,
-        runtime_context=runtime_context,
+        runtime_context=runtime_context_for_prompt,
         system_prompt_addendum=system_prompt_addendum,
+        capability_snapshot_json=capability_snapshot_for_prompt,
     )
     last_validation: AttemptValidationSummary | None = None
     last_valid_definition: Dict[str, Any] | None = None
     last_candidate: Dict[str, Any] | None = None
+    last_compile_summary: Dict[str, Any] | None = None
+    # Story 6.3.1 (failure-mode separation): violations from the most recent
+    # attempt that exercised the gate. Cleared on the next attempt that passes
+    # the gate or fails before reaching it. Surfaced on terminal exit so the
+    # UI/triage can show the LLM's last semantic mistakes.
+    last_violations: Optional[List[SemanticPlanViolation]] = None
+
+    def _llm_fault_summary() -> AttemptValidationSummary:
+        """Single-error stub validation summary used for LLM-fault stages
+        that fail before validate_definition_payload runs."""
+        return AttemptValidationSummary(
+            valid=False,
+            schemaErrorCount=1,
+            boundaryViolationCount=0,
+            collisionCount=0,
+            errorCount=1,
+        )
+
+    def _user_message_for_terminal(
+        terminal_reason: str, *, has_draft: bool
+    ) -> str:
+        """Story 6.3.1: per-terminalReason user-facing message. Compiler-fault
+        messages explicitly tell the user it is not their prompt's fault."""
+        draft_suffix = (
+            "The last draft is included so you can load it on the canvas to inspect."
+            if has_draft
+            else "Please try again."
+        )
+        if terminal_reason == "json-parse-failed":
+            return (
+                "The AI returned a response that was not valid JSON. "
+                "Please try again or refine your prompt."
+            )
+        if terminal_reason == "semantic-plan-invalid":
+            return (
+                "The AI returned a response that did not match the semantic plan contract "
+                "(JSON shape). Please try again or refine the prompt."
+            )
+        if terminal_reason == "semantic-rules-violated":
+            return (
+                "The AI's plan failed policy validation (component types, "
+                "options, validation rules) within the retry budget. "
+                "Please refine your prompt and try again."
+            )
+        if terminal_reason == "compiler-error":
+            return (
+                "Internal compiler error while building the form layout. "
+                "This is not your prompt's fault. Please report this run to support. "
+                + draft_suffix
+            )
+        if terminal_reason == "compiler-validation-failed":
+            return (
+                "The compiler produced a layout that did not pass our self-check "
+                "(schema or geometry). This is not your prompt's fault; please report it. "
+                + draft_suffix
+            )
+        # Unchanged messages for legacy terminal reasons:
+        if terminal_reason == "provider-error":
+            return (
+                "AI provider call failed before validation could finish. "
+                + (
+                    "The last draft from the previous successful model response is included - "
+                    "you can load it on the canvas to inspect layout."
+                    if has_draft
+                    else "Please try again."
+                )
+            )
+        if terminal_reason == "first-shot-invalid":
+            return (
+                "The first model response did not pass validation. "
+                + (
+                    "The draft JSON is included so you can inspect layout. "
+                    if has_draft
+                    else ""
+                )
+                + "Tune system instructions (addendum) or the prompt and try again."
+            )
+        if terminal_reason == "retry-cap-exhausted":
+            return (
+                f"AI generation could not produce a valid form within "
+                f"{correction_cap} correction attempt(s). "
+                + (
+                    "The last draft is included so you can load it on the canvas to inspect. "
+                    if has_draft
+                    else ""
+                )
+                + "You may revise your prompt and try again."
+            )
+        return "AI generation failed. Please try again."
 
     max_attempts = correction_cap + 1
     for attempt_number in range(1, correction_cap + 2):
@@ -1546,51 +3232,420 @@ def generate_form_definition(
             max_attempts,
             phase,
         )
+
+        # ============================================================
+        # PROVIDER CALL. True provider failures exit immediately.
+        # ============================================================
         try:
             provider_content = _request_chatgpt_completion(
                 messages,
                 model_override=model_override,
                 openai_transport=resolved_transport,
             )
-            candidate = _extract_json_candidate(provider_content)
-            candidate = _normalize_display_component_props(candidate)
-            candidate = _post_process_generated_definition(
-                candidate, prompt, runtime_context
+            raw_attempt_payloads.append(
+                {
+                    "attemptNumber": attempt_number,
+                    "phase": phase,
+                    "providerContent": provider_content,
+                }
             )
-            last_candidate = candidate
-        except (httpx.HTTPError, RuntimeError, ValueError) as exc:
+        except (httpx.HTTPError, RuntimeError) as exc:
             LOGGER.exception(
-                "form-ai generate failed before validation (attempt %s/%s): %s",
+                "form-ai provider call failed (attempt %s/%s): %s",
                 attempt_number,
                 max_attempts,
                 exc,
             )
-            trace = GenerationTraceMetadata(
-                attemptCount=attempt_number,
-                maxSystemCorrectionAttempts=correction_cap,
-                systemCorrectionAttemptsUsed=max(0, attempt_number - 1),
-                terminalReason="provider-error",
+            trace = _build_trace_metadata(
+                terminal_reason="provider-error",
                 attempts=trace_entries,
-                validationSummary=last_validation,
-                resolvedOpenaiTransport=resolved_transport,
+                correction_cap=correction_cap,
+                last_validation=last_validation,
+                resolved_transport=resolved_transport,
+                governance_versions=governance_versions,
+                last_compile_summary=last_compile_summary,
+                last_violations=last_violations,
+                attempt_count_override=attempt_number,
             )
             has_draft = last_candidate is not None
-            return FormAiGenerateResponse(
+            return _finalize(FormAiGenerateResponse(
                 status="failed",
                 definitionJSON=last_candidate if has_draft else None,
                 trace=trace,
-                userMessage=(
-                    "AI provider call failed before validation could finish. "
-                    + (
-                        "The last draft from the previous successful model response is included — "
-                        "you can load it on the canvas to inspect layout."
-                        if has_draft
-                        else "Please try again."
-                    )
+                userMessage=_user_message_for_terminal(
+                    "provider-error", has_draft=has_draft
                 ),
                 draftHasValidationIssues=has_draft,
-            )
+            ))
 
+        # ============================================================
+        # PHASE 1: JSON parse. LLM-fault: feeds back to LLM.
+        # ============================================================
+        try:
+            semantic_raw = _extract_json_candidate(provider_content)
+        except (ValueError, json.JSONDecodeError) as exc:
+            error_summary = str(exc) or "json-parse-failed"
+            LOGGER.warning(
+                "form-ai json-parse failed (attempt %s/%s): %s",
+                attempt_number,
+                max_attempts,
+                error_summary,
+            )
+            last_violations = None  # not a gate failure
+            trace_entries.append(
+                AttemptTraceEntry(
+                    attemptNumber=attempt_number,
+                    phase=phase,
+                    validation=_llm_fault_summary(),
+                    correctionIssued=correction_issued,
+                    notes=f"json-parse-failed: {error_summary[:240]}",
+                    collisionDeltaFromPrevious=None,
+                    collisionTrendVsPrevious="n_a",
+                    compileDiagnostics={"jsonParseError": error_summary},
+                    failedAt="json-parse",
+                )
+            )
+            last_validation = trace_entries[-1].validation
+            if attempt_number > correction_cap:
+                trace = _build_trace_metadata(
+                    terminal_reason="json-parse-failed",
+                    attempts=trace_entries,
+                    correction_cap=correction_cap,
+                    last_validation=last_validation,
+                    resolved_transport=resolved_transport,
+                    governance_versions=governance_versions,
+                    last_compile_summary=last_compile_summary,
+                    last_violations=last_violations,
+                )
+                has_draft = last_candidate is not None
+                return _finalize(FormAiGenerateResponse(
+                    status="failed",
+                    definitionJSON=last_candidate if has_draft else None,
+                    trace=trace,
+                    userMessage=_user_message_for_terminal(
+                        "json-parse-failed", has_draft=has_draft
+                    ),
+                    draftHasValidationIssues=has_draft,
+                ))
+            messages.append({"role": "assistant", "content": provider_content})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": _correction_message_for_json_parse(error_summary),
+                }
+            )
+            continue
+
+        # ============================================================
+        # PHASE 2: Semantic plan parse (Pydantic shape).
+        # LLM-fault: feeds back to LLM.
+        # ============================================================
+        try:
+            semantic_plan = _extract_semantic_plan_candidate(semantic_raw)
+            semantic_attempt_payloads.append(
+                {
+                    "attemptNumber": attempt_number,
+                    "phase": phase,
+                    "semanticPlan": semantic_plan.model_dump(),
+                }
+            )
+        except (ValidationError, ValueError) as exc:
+            error_summary = _summarise_semantic_plan_error(exc)
+            LOGGER.warning(
+                "form-ai semantic-plan parse failed (attempt %s/%s): %s",
+                attempt_number,
+                max_attempts,
+                error_summary,
+            )
+            last_violations = None  # not a gate failure
+            trace_entries.append(
+                AttemptTraceEntry(
+                    attemptNumber=attempt_number,
+                    phase=phase,
+                    validation=_llm_fault_summary(),
+                    correctionIssued=correction_issued,
+                    notes=f"semantic-plan-invalid: {error_summary[:240]}",
+                    collisionDeltaFromPrevious=None,
+                    collisionTrendVsPrevious="n_a",
+                    compileDiagnostics={
+                        "semanticPlanError": error_summary,
+                        "errorType": type(exc).__name__,
+                    },
+                    failedAt="semantic-plan",
+                )
+            )
+            last_validation = trace_entries[-1].validation
+            if attempt_number > correction_cap:
+                trace = _build_trace_metadata(
+                    terminal_reason="semantic-plan-invalid",
+                    attempts=trace_entries,
+                    correction_cap=correction_cap,
+                    last_validation=last_validation,
+                    resolved_transport=resolved_transport,
+                    governance_versions=governance_versions,
+                    last_compile_summary=last_compile_summary,
+                    last_violations=last_violations,
+                )
+                has_draft = last_candidate is not None
+                return _finalize(FormAiGenerateResponse(
+                    status="failed",
+                    definitionJSON=last_candidate if has_draft else None,
+                    trace=trace,
+                    userMessage=_user_message_for_terminal(
+                        "semantic-plan-invalid", has_draft=has_draft
+                    ),
+                    draftHasValidationIssues=has_draft,
+                ))
+            messages.append({"role": "assistant", "content": provider_content})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": _build_semantic_plan_correction_message(error_summary),
+                }
+            )
+            continue
+
+        # ============================================================
+        # PHASE 3: Semantic-validation gate (NEW).
+        # Catches LLM faults that the Pydantic shape parser cannot:
+        # unknown component type, disallowed widthIntent, missing
+        # options, disallowed validation rule, duplicate componentId.
+        # LLM-fault: feeds back to LLM.
+        # ============================================================
+        gate_result: SemanticPlanValidationResult = validate_semantic_plan(
+            semantic_plan,
+            capability_snapshot_json=governance_versions.get(
+                "componentCapabilitySnapshotJson"
+            ),
+            validation_contracts=governance_versions.get("validationContracts"),
+        )
+        if not gate_result.valid:
+            last_violations = gate_result.violations
+            LOGGER.warning(
+                "form-ai semantic-rules failed (attempt %s/%s): %s violation(s)",
+                attempt_number,
+                max_attempts,
+                len(gate_result.violations),
+            )
+            trace_entries.append(
+                AttemptTraceEntry(
+                    attemptNumber=attempt_number,
+                    phase=phase,
+                    validation=_llm_fault_summary(),
+                    correctionIssued=correction_issued,
+                    notes=(
+                        f"semantic-rules-violated: {len(gate_result.violations)} "
+                        "violation(s)"
+                    ),
+                    collisionDeltaFromPrevious=None,
+                    collisionTrendVsPrevious="n_a",
+                    compileDiagnostics={
+                        "semanticGateViolations": [
+                            v.model_dump() for v in gate_result.violations
+                        ],
+                    },
+                    failedAt="semantic-rules",
+                )
+            )
+            last_validation = trace_entries[-1].validation
+            if attempt_number > correction_cap:
+                trace = _build_trace_metadata(
+                    terminal_reason="semantic-rules-violated",
+                    attempts=trace_entries,
+                    correction_cap=correction_cap,
+                    last_validation=last_validation,
+                    resolved_transport=resolved_transport,
+                    governance_versions=governance_versions,
+                    last_compile_summary=last_compile_summary,
+                    last_violations=last_violations,
+                )
+                has_draft = last_candidate is not None
+                return _finalize(FormAiGenerateResponse(
+                    status="failed",
+                    definitionJSON=last_candidate if has_draft else None,
+                    trace=trace,
+                    userMessage=_user_message_for_terminal(
+                        "semantic-rules-violated", has_draft=has_draft
+                    ),
+                    draftHasValidationIssues=has_draft,
+                ))
+            messages.append({"role": "assistant", "content": provider_content})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": _correction_message_for_semantic_rules(
+                        gate_result.violations
+                    ),
+                }
+            )
+            continue
+
+        # Plan passed the gate; clear last attempt's violations so the
+        # terminal trace doesn't carry stale data.
+        last_violations = None
+
+        # ============================================================
+        # PHASE 4: Compile + post-process.
+        # COMPILER-FAULT: never feeds back to LLM. Terminate immediately.
+        # ============================================================
+        try:
+            # UAT round 5 (run 40, prompt 1) — strip courtesy headers BEFORE
+            # compile so the row solver doesn't reserve vertical space for a
+            # component the post-compile filter is going to drop. Without this
+            # the first real component lands at ~y=104 instead of y=24 and the
+            # canvas appears to have a large blank band at the top.
+            plan_for_compile, headings_dropped = _filter_unrequested_headings_from_plan(
+                semantic_plan, prompt
+            )
+            # Story 6.3.1 UAT round 5 — capture the *exact* plan we hand to
+            # the compiler so /remeasure can replay it byte-for-byte with
+            # measured heights. The semantic-plan-attempt artifact is the
+            # raw model output (pre-filter); this one is the post-filter
+            # plan that matches the compiled-definition-attempt.
+            compile_input_plans.append(
+                {
+                    "attemptNumber": attempt_number,
+                    "phase": phase,
+                    "plan": plan_for_compile.model_dump(),
+                    "headingsDropped": headings_dropped,
+                }
+            )
+            candidate, compile_summary = compile_semantic_plan_to_definition(
+                plan_for_compile,
+                runtime_context=runtime_context,
+                capability_policy_json=governance_versions.get("capabilityPolicyJson"),
+                width_policy_json=governance_versions.get("widthClassPolicyJson"),
+                capability_snapshot_json=governance_versions.get(
+                    "componentCapabilitySnapshotJson"
+                ),
+                validation_contracts=governance_versions.get("validationContracts"),
+            )
+            if isinstance(compile_summary, dict) and headings_dropped:
+                compile_summary["preCompileHeadingsDropped"] = headings_dropped
+            candidate = _normalize_display_component_props(candidate)
+            compiler_mode = (
+                str(compile_summary.get("compilerMode", "deterministic-grid"))
+                if isinstance(compile_summary, dict)
+                else "deterministic-grid"
+            )
+            candidate, post_processing_applied = _post_process_generated_definition(
+                candidate,
+                prompt,
+                runtime_context,
+                compiler_mode=compiler_mode,
+            )
+            if isinstance(compile_summary, dict):
+                compile_summary["postProcessingApplied"] = post_processing_applied
+            last_candidate = candidate
+            last_compile_summary = compile_summary
+            compiled_attempt_payloads.append(
+                {
+                    "attemptNumber": attempt_number,
+                    "phase": phase,
+                    "definition": candidate,
+                    "compileSummary": compile_summary,
+                }
+            )
+        except Exception as exc:  # broad: ANY compile/post-process failure is a compiler bug
+            LOGGER.exception(
+                "form-ai compiler/post-process failed (attempt %s/%s): %s",
+                attempt_number,
+                max_attempts,
+                exc,
+            )
+            trace_entries.append(
+                AttemptTraceEntry(
+                    attemptNumber=attempt_number,
+                    phase=phase,
+                    validation=_llm_fault_summary(),  # validation slot is unused for compile faults
+                    correctionIssued=False,
+                    notes=f"compiler-error: {type(exc).__name__}: {str(exc)[:200]}",
+                    collisionDeltaFromPrevious=None,
+                    collisionTrendVsPrevious="n_a",
+                    compileDiagnostics={
+                        "compilerError": str(exc),
+                        "errorType": type(exc).__name__,
+                    },
+                    failedAt="compile",
+                )
+            )
+            last_validation = trace_entries[-1].validation
+            trace = _build_trace_metadata(
+                terminal_reason="compiler-error",
+                attempts=trace_entries,
+                correction_cap=correction_cap,
+                last_validation=last_validation,
+                resolved_transport=resolved_transport,
+                governance_versions=governance_versions,
+                last_compile_summary=last_compile_summary,
+                last_violations=None,
+            )
+            has_draft = last_candidate is not None
+            return _finalize(FormAiGenerateResponse(
+                status="failed",
+                definitionJSON=last_candidate if has_draft else None,
+                trace=trace,
+                userMessage=_user_message_for_terminal(
+                    "compiler-error", has_draft=has_draft
+                ),
+                draftHasValidationIssues=has_draft,
+            ))
+
+        # Story 6.3.1 (compiler-drops self-check): the gate should have
+        # rejected anything the compiler would silently drop. If we still see
+        # drops, that is a compiler bug surfacing - terminate as compiler-fault
+        # rather than swallowing the missing components into a "successful"
+        # response.
+        dropped_count = 0
+        if isinstance(compile_summary, dict):
+            dropped_count = int(compile_summary.get("droppedComponentCount", 0) or 0)
+        if dropped_count > 0:
+            LOGGER.error(
+                "form-ai compiler dropped %s component(s) after gate passed (attempt %s/%s)",
+                dropped_count,
+                attempt_number,
+                max_attempts,
+            )
+            trace_entries.append(
+                AttemptTraceEntry(
+                    attemptNumber=attempt_number,
+                    phase=phase,
+                    validation=_llm_fault_summary(),
+                    correctionIssued=False,
+                    notes=f"compiler-error: dropped {dropped_count} component(s) post-gate",
+                    collisionDeltaFromPrevious=None,
+                    collisionTrendVsPrevious="n_a",
+                    compileDiagnostics=last_compile_summary,
+                    failedAt="compile",
+                )
+            )
+            last_validation = trace_entries[-1].validation
+            trace = _build_trace_metadata(
+                terminal_reason="compiler-error",
+                attempts=trace_entries,
+                correction_cap=correction_cap,
+                last_validation=last_validation,
+                resolved_transport=resolved_transport,
+                governance_versions=governance_versions,
+                last_compile_summary=last_compile_summary,
+                last_violations=None,
+            )
+            return _finalize(FormAiGenerateResponse(
+                status="failed",
+                definitionJSON=last_candidate,
+                trace=trace,
+                userMessage=_user_message_for_terminal(
+                    "compiler-error", has_draft=True
+                ),
+                draftHasValidationIssues=True,
+            ))
+
+        # ============================================================
+        # PHASE 5: Definition self-check (was: LLM-correction loop).
+        # Schema + visual collisions/boundaries on the COMPILER's output.
+        # COMPILER-FAULT: terminate, return draft so user/ops can inspect.
+        # NEVER feeds back to LLM (the LLM does not own these positions).
+        # ============================================================
         validation = validate_definition_payload({"definition": candidate})
         validation = _merge_guardrail_errors(
             validation, _validate_single_page_guardrail(candidate)
@@ -1617,21 +3672,24 @@ def generate_form_definition(
                 collision_trend = "worse"
             else:
                 collision_trend = "unchanged"
+
         trace_entries.append(
             AttemptTraceEntry(
                 attemptNumber=attempt_number,
                 phase=phase,
                 validation=summary,
-                correctionIssued=(not summary.valid) and correction_issued,
-                notes=None if summary.valid else "validator-retry-required",
+                correctionIssued=False,  # compiler-fault path: no LLM correction
+                notes=None if summary.valid else "compiler-validation-failed",
                 collisionDeltaFromPrevious=collision_delta,
                 collisionTrendVsPrevious=collision_trend,
+                compileDiagnostics=last_compile_summary,
+                failedAt="none" if summary.valid else "compile-validation",
             )
         )
         last_validation = summary
 
         LOGGER.info(
-            "form-ai generate attempt %s/%s validation valid=%s errors=%s collisions=%s "
+            "form-ai generate attempt %s/%s self-check valid=%s errors=%s collisions=%s "
             "boundaries=%s collision_trend=%s collision_delta=%s",
             attempt_number,
             max_attempts,
@@ -1647,27 +3705,40 @@ def generate_form_definition(
             last_valid_definition = candidate
             break
 
-        if attempt_number > correction_cap:
-            break
-        messages.append({"role": "assistant", "content": json.dumps(candidate)})
-        messages.append(
-            {
-                "role": "user",
-                "content": _build_correction_message(validation, candidate, runtime_context),
-            }
+        # Self-check failed -> compiler-fault, terminate. The LLM cannot fix
+        # geometry it did not produce; this is a bug in the compiler.
+        trace = _build_trace_metadata(
+            terminal_reason="compiler-validation-failed",
+            attempts=trace_entries,
+            correction_cap=correction_cap,
+            last_validation=last_validation,
+            resolved_transport=resolved_transport,
+            governance_versions=governance_versions,
+            last_compile_summary=last_compile_summary,
+            last_violations=None,
         )
+        return _finalize(FormAiGenerateResponse(
+            status="failed",
+            definitionJSON=last_candidate,
+            trace=trace,
+            userMessage=_user_message_for_terminal(
+                "compiler-validation-failed", has_draft=True
+            ),
+            draftHasValidationIssues=True,
+        ))
 
     if last_valid_definition is not None:
-        trace = GenerationTraceMetadata(
-            attemptCount=len(trace_entries),
-            maxSystemCorrectionAttempts=correction_cap,
-            systemCorrectionAttemptsUsed=max(0, len(trace_entries) - 1),
-            terminalReason="validated-success",
+        trace = _build_trace_metadata(
+            terminal_reason="validated-success",
             attempts=trace_entries,
-            validationSummary=last_validation,
-            resolvedOpenaiTransport=resolved_transport,
+            correction_cap=correction_cap,
+            last_validation=last_validation,
+            resolved_transport=resolved_transport,
+            governance_versions=governance_versions,
+            last_compile_summary=last_compile_summary,
+            last_violations=None,
         )
-        return FormAiGenerateResponse(
+        return _finalize(FormAiGenerateResponse(
             status="completed",
             definitionJSON=last_valid_definition,
             trace=trace,
@@ -1676,43 +3747,30 @@ def generate_form_definition(
                 "The canvas has been updated."
             ),
             draftHasValidationIssues=False,
-        )
+        ))
 
+    # Loop exited without success and without an explicit terminal return.
+    # In the new pipeline this only happens when the LLM-fault correction
+    # loop runs out of attempts AND the most recent failure was at the
+    # semantic-rules gate (because json-parse and semantic-plan terminate
+    # explicitly when the cap is exhausted). retry-cap-exhausted is kept for
+    # back-compat with existing dashboards.
     fail_reason = "first-shot-invalid" if correction_cap == 0 else "retry-cap-exhausted"
-    trace = GenerationTraceMetadata(
-        attemptCount=len(trace_entries),
-        maxSystemCorrectionAttempts=correction_cap,
-        systemCorrectionAttemptsUsed=max(0, len(trace_entries) - 1),
-        terminalReason=fail_reason,
+    trace = _build_trace_metadata(
+        terminal_reason=fail_reason,
         attempts=trace_entries,
-        validationSummary=last_validation,
-        resolvedOpenaiTransport=resolved_transport,
+        correction_cap=correction_cap,
+        last_validation=last_validation,
+        resolved_transport=resolved_transport,
+        governance_versions=governance_versions,
+        last_compile_summary=last_compile_summary,
+        last_violations=last_violations,
     )
     has_draft = last_candidate is not None
-    if correction_cap == 0:
-        fail_msg = (
-            "The first model response did not pass validation. "
-            + (
-                "The draft JSON is included so you can inspect layout. "
-                if has_draft
-                else ""
-            )
-            + "Tune system instructions (addendum) or the prompt and try again."
-        )
-    else:
-        fail_msg = (
-            f"AI generation could not produce a valid form within {correction_cap} correction attempt(s). "
-            + (
-                "The last draft is included so you can load it on the canvas to inspect collisions or layout. "
-                if has_draft
-                else ""
-            )
-            + "You may revise your prompt and try again."
-        )
-    return FormAiGenerateResponse(
+    return _finalize(FormAiGenerateResponse(
         status="failed",
         definitionJSON=last_candidate if has_draft else None,
         trace=trace,
-        userMessage=fail_msg,
+        userMessage=_user_message_for_terminal(fail_reason, has_draft=has_draft),
         draftHasValidationIssues=has_draft,
-    )
+    ))

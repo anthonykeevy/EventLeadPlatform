@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useEffect, useCallback } from 'react';
+import React, { forwardRef, useEffect, useCallback } from 'react';
 import { 
     useDroppable,
 } from '@dnd-kit/core';
@@ -27,9 +27,10 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
         activeLayer,
         setActiveLayer,
         clearSelection, // Story 3.5
-        selectedComponentIds // Story 3.5
+        selectedComponentIds, // Story 3.5
+        previewMode, // Story 6.3.1 — moved into store so AIAgentPanel can read it
+        setPreviewMode,
     } = useBuilderStore();
-    const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
     const authoredPages = formDefinition?.desktopPages?.length
         ? formDefinition.desktopPages
@@ -95,48 +96,65 @@ export const FormBuilderCanvas = forwardRef<HTMLDivElement, FormBuilderCanvasPro
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedComponentIds, clearSelection]);
 
+    // Story 6.3.1 UAT round 4 — the rendered stage height must reflect the
+    // compiler-grown canvas, not just the hardcoded device baseline. The AI
+    // compiler now writes a tall canvasSettings.height (e.g. 1176 for mobile
+    // forms with multiple textareas) so every component fits without scroll;
+    // before this fix the stage was clamped to DEVICE_DIMENSIONS[mobile] =
+    // 667, hiding everything below the fold and making it impossible to spot
+    // submit-button collisions in edit mode.
+    //
+    // We keep WIDTH at the device baseline (the user is previewing for that
+    // device size) but take HEIGHT = max(device baseline, canvasSettings.height
+    // from the definition). That way:
+    //   - manually-authored forms still render at the device default
+    //   - AI-grown forms reveal the full content
+    //   - the user can scroll vertically inside the viewport to inspect
+    const deviceDim = DEVICE_DIMENSIONS[previewMode];
+    const definitionCanvasHeight = formDefinition?.canvasSettings?.height ?? 0;
+    const stageHeight = Math.max(deviceDim.height, definitionCanvasHeight);
+    const targetDim = { width: deviceDim.width, height: stageHeight };
+
     // Auto-Scale Logic - recalculates when container size changes (including panel resizes)
     useEffect(() => {
         const calculateScale = () => {
             if (!containerRef.current) return;
-            
+
             const availableWidth = containerRef.current.clientWidth - 64; // Padding
             const availableHeight = containerRef.current.clientHeight - 64;
-            
-            const targetDim = DEVICE_DIMENSIONS[previewMode];
-            
+
             const scaleX = availableWidth / targetDim.width;
             const scaleY = availableHeight / targetDim.height;
-            
+
             // Use the smaller scale to fit both dimensions, capped at 1 (don't upscale pixelated)
             const newScale = Math.min(scaleX, scaleY, 1);
-            
+
             // Use Store Action
             setScale(Math.max(0.2, Math.min(1, newScale)));
         };
 
         calculateScale();
-        
+
         // Use ResizeObserver to detect container size changes (e.g., when panels are resized)
         const resizeObserver = new ResizeObserver(() => {
             // Debounce the calculation slightly for smoother resizing
             requestAnimationFrame(calculateScale);
         });
-        
+
         if (containerRef.current) {
             resizeObserver.observe(containerRef.current);
         }
-        
+
         // Also listen to window resize as fallback
         window.addEventListener('resize', calculateScale);
-        
+
         return () => {
             resizeObserver.disconnect();
             window.removeEventListener('resize', calculateScale);
         };
-    }, [previewMode, setScale]);
-
-    const targetDim = DEVICE_DIMENSIONS[previewMode];
+        // targetDim.height changes whenever the definition canvas grows (e.g.
+        // after AI generation), so we must re-fit the scale.
+    }, [previewMode, setScale, targetDim.width, targetDim.height]);
 
     if (!formDefinition) return <div>Loading Canvas...</div>;
 

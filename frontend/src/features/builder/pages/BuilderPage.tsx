@@ -24,7 +24,7 @@ import { PropertiesPanel } from '../components/PropertiesPanel'; // Story 3.5
 import { ComponentPreview } from '../components/ComponentPreview';
 import { ComponentRegistry, generateComponent } from '../registry/ComponentRegistry';
 import { LoadingSpinner } from '../../ux/components/LoadingSpinner';
-import { ComponentType, FormComponent } from '../types/builder.types';
+import { ComponentType, DEVICE_DIMENSIONS, FormComponent } from '../types/builder.types';
 import { devLogger } from '../utils/devLogger';
 import { captureComponentSnapshot } from '../utils/componentSnapshot';
 import {
@@ -36,6 +36,7 @@ import {
 } from '../utils/collisionDetection';
 import { isBackgroundFullyOffCanvas, createDefaultPlacement } from '../utils/backgroundPlacementUtils';
 import { UniversalFieldShell } from '../components/UniversalFieldShell';
+import { applyMobileLayoutDowngrade } from '../utils/layoutMode';
 import { getRenderersForComponent } from '../utils/componentRenderers';
 import { apiClient } from '../../../lib/apiClient';
 import { getComponentSurfaceCapabilities } from '../utils/componentSurfaceCapabilities';
@@ -92,6 +93,25 @@ export const BuilderPage: React.FC = () => {
   const previewWindowRef = useRef<Window | null>(null);
 
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Story 6.3.1 (UAT round 6) — Phase 1 *completion*: keep the toolbox-drag
+  // overlay in lockstep with the canvas paint. When the active preview is
+  // narrow (Mobile), the canvas-side ``SortableComponent`` already downgrades
+  // ``defaultObjectLayout`` to ``"vertical"``; the drag overlay must do the
+  // same so the user doesn't see horizontal layout in the overlay and then
+  // a vertical drop on canvas. Single source of truth is
+  // ``applyMobileLayoutDowngrade`` from ``utils/layoutMode``.
+  //
+  // IMPORTANT: these hooks MUST be declared above all early returns
+  // (`isLoading`, `loadError`, `!formId`, `isInlinePreviewOpen`) to satisfy
+  // React's rules of hooks; otherwise React reports "Rendered fewer hooks
+  // than expected" when the early-return branches change between renders.
+  const previewModeForOverlay = useBuilderStore(state => state.previewMode);
+  const overlayCanvasWidth = DEVICE_DIMENSIONS[previewModeForOverlay]?.width ?? formDefinition?.canvasSettings?.width;
+  const overlayGlobalStyles = React.useMemo(
+    () => applyMobileLayoutDowngrade(formDefinition?.globalStyles, overlayCanvasWidth ?? Number.NaN),
+    [formDefinition?.globalStyles, overlayCanvasWidth]
+  );
 
   // Story 1.16: Register Form Builder with unsaved work tracker so auth-change-from-other-tab
   // shows Save banner instead of immediately redirecting (avoids data loss)
@@ -1217,7 +1237,7 @@ export const BuilderPage: React.FC = () => {
               objectLayout={component.props.objectLayout}
               layoutGroups={component.props.layoutGroups}
               styleOverrides={component.props.styleOverrides}
-              globalStyles={formDefinition?.globalStyles}
+              globalStyles={overlayGlobalStyles}
               componentId={component.id}
               component={component}
               builderMode={{

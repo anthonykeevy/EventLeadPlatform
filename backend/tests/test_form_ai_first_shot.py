@@ -29,20 +29,31 @@ def _valid_definition() -> dict:
 
 
 def test_max_correction_zero_issues_only_one_provider_call(monkeypatch):
-    invalid = _valid_definition()
-    invalid["pages"][0]["components"][0]["position"]["x"] = -10
+    """With max_system_correction_attempts=0, the provider must be called
+    exactly once and no LLM-correction loop kicks in.
+
+    Story 6.3.1 (failure-mode separation) note: a legacy-shaped definition
+    with a negative position is now CORRECTED by the deterministic compiler,
+    so the same scenario that used to fail with first-shot-invalid now
+    succeeds. To preserve the test's original intent ("cap=0 means one call
+    only, even when the response is broken"), use a non-JSON response that
+    fails the json-parse phase deterministically.
+    """
     calls: list[int] = []
 
     def fake(messages, model_override=None, **kwargs):
         calls.append(1)
-        return json.dumps(invalid)
+        return "this is not json at all"
 
     monkeypatch.setattr(service, "_request_chatgpt_completion", fake)
-    result = service.generate_form_definition("test prompt", max_system_correction_attempts=0)
+    result = service.generate_form_definition(
+        "test prompt", max_system_correction_attempts=0
+    )
 
     assert len(calls) == 1
     assert result.trace.attemptCount == 1
-    assert result.trace.terminalReason == "first-shot-invalid"
+    assert result.trace.terminalReason == "json-parse-failed"
+    assert result.trace.failureClass == "llm-fault"
     assert result.status == "failed"
 
 

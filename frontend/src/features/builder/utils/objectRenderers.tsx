@@ -652,7 +652,27 @@ export function createInputRenderer(): ObjectRenderer {
                     minHeight: styles.computed.inputHeight ? `${styles.computed.inputHeight}px` : undefined,
                     justifyContent: 'center'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    {/* Story 6.3.1 (UAT round 10) — rating no-wrap policy.
+                       *
+                       * Previously this row used ``flexWrap: 'wrap'`` which
+                       * masked an underlying width-budget mismatch: in canvas
+                       * the ``ValidationArea`` placeholder ("Validation error
+                       * message") gives the validation grid track a
+                       * ``max-content`` width of ~170 px, leaving the input
+                       * track too narrow for >5 stars and wrapping the row.
+                       * In runtime the placeholder is absent so the same
+                       * rating renders cleanly on one line. The result was a
+                       * designer/runtime parity break — UAT round 10 #2 / #7.
+                       *
+                       * Resolution: pin ``flexWrap: 'nowrap'`` so the rating
+                       * always renders on a single line in BOTH surfaces. If
+                       * the user adds stars beyond the AI-reserved bounding
+                       * box the rating extends past the box edge instead of
+                       * silently wrapping — which is the right visual cue
+                       * that the component needs more horizontal room (the
+                       * AI generation snapshot reserved space for the
+                       * stars-at-compile-time count, not for later edits). */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'nowrap' }}>
                         {Array.from({ length: ratingMax }).map((_, index) => {
                             const selected = index + 1 <= currentValue;
                             const defaultNumberBorder = `${borderW}px solid ${selected ? markColor : borderCol}`;

@@ -240,11 +240,27 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
             [structure.objects, effectiveLayout, effectiveLayoutGroups]
         );
 
-        // Get width override for an object
-        const getWidthOverride = (objectId: string): number | undefined => {
-            if (!previewObjectWidthOverrides) return undefined;
-            
-            // Map object ID to override key
+        // Story 6.3.1 (UAT round 6) — Fix B: persisted ``*WidthOverride`` props
+        // are now honoured outside the resize-preview path.
+        //
+        // Background: ``previewObjectWidthOverrides`` is a transient prop set
+        // ONLY while the user is actively dragging a resize handle (see
+        // ``SortableComponent.tsx`` — only populated when ``resizePreview`` is
+        // active). The ``AppearanceSection`` writes the slider values to
+        // ``component.props.{label,input,help,action}WidthOverride`` and those
+        // values were silently ignored at render time because this lookup
+        // short-circuited on ``!previewObjectWidthOverrides``. That regression
+        // explains the user-reported "Appearance → Dimensions sliders no
+        // longer change the object widths".
+        //
+        // Resolution order for an object's width override:
+        //   1. Active resize preview (``previewObjectWidthOverrides``) — wins
+        //      so the user sees real-time geometry while dragging.
+        //   2. Persisted props (``component.props.*WidthOverride``) — applied
+        //      always, including in the static rendered state.
+        //   3. ``undefined`` — let the renderer/grid track decide (current
+        //      behaviour for unspecified objects).
+        const overrideKeyForObjectId = (objectId: string): keyof PreviewObjectWidthOverrides | undefined => {
             const overrideMap: Record<string, keyof PreviewObjectWidthOverrides> = {
                 label: 'labelWidthOverride',
                 input: 'inputWidthOverride',
@@ -256,10 +272,24 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                 content: 'inputWidthOverride', // Fallback for display object ids
                 line: 'inputWidthOverride',    // Divider uses line id
             };
-            
-            const key = overrideMap[objectId] || overrideMap[obj.type];
-            
-            return key ? previewObjectWidthOverrides[key] : undefined;
+            return overrideMap[objectId];
+        };
+
+        const getWidthOverride = (objectId: string): number | undefined => {
+            const key = overrideKeyForObjectId(objectId);
+            if (!key) return undefined;
+
+            const previewValue = previewObjectWidthOverrides?.[key];
+            if (typeof previewValue === 'number' && Number.isFinite(previewValue)) {
+                return previewValue;
+            }
+
+            const persistedValue = component?.props?.[key];
+            if (typeof persistedValue === 'number' && Number.isFinite(persistedValue)) {
+                return persistedValue;
+            }
+
+            return undefined;
         };
 
         // Render a single object
@@ -406,38 +436,249 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
             // - Columns containing an input, display, or divider object become flexible: minmax(0, 1fr)
             // - Other columns remain content-sized (but shrinkable): minmax(0, max-content)
             const flexColumnSet = new Set<number>();
+            // Story 6.3.1 (UAT round 6) — Fix A/B/C support: walk every cell so
+            // the column-template builder can answer "which object lives in
+            // column N?" in one place instead of re-scanning later.
+            const objectIdByColumn = new Map<number, string>();
+            const objectTypeByColumn = new Map<number, ComponentObject['type']>();
             for (const [key, objectId] of Object.entries(effectiveGridLayout.cellAssignments || {})) {
                 const obj = structure.objects.find(o => o.id === objectId);
-                const isFlexObj = obj && (obj.type === 'input' || obj.type === 'display' || obj.type === 'divider');
-                if (!isFlexObj && objectId !== 'input') continue;
-                
                 const [rowStr, colStr] = key.split('-');
                 void rowStr;
                 const col = Number.parseInt(colStr, 10);
                 if (!Number.isFinite(col)) continue;
                 const span = effectiveGridLayout.objectSpans?.[objectId]?.colSpan ?? 1;
+
+                // Track the *first* object placed in each column so the gap /
+                // width fallback chains can introspect column membership. If
+                // multiple objects share a column (overlay use-case) the first
+                // one wins — that's the column the renderer actually paints.
+                for (let i = 0; i < Math.max(1, span); i += 1) {
+                    const c = col + i;
+                    if (!objectIdByColumn.has(c)) {
+                        objectIdByColumn.set(c, objectId);
+                        if (obj?.type) objectTypeByColumn.set(c, obj.type);
+                    }
+                }
+
+                const isFlexObj = obj && (obj.type === 'input' || obj.type === 'display' || obj.type === 'divider');
+                if (!isFlexObj && objectId !== 'input') continue;
                 for (let i = 0; i < Math.max(1, span); i += 1) {
                     flexColumnSet.add(col + i);
                 }
             }
 
+            // Story 6.3.1 (UAT round 6) — Fix A: bridge the Typography & Colors
+            // ``labelGap`` / ``inputHelpGap`` (Layer 2 spacing) into Grid mode
+            // so the slider users adjust to set "gap between label and input"
+            // is no longer silently ignored when the form switches to Grid
+            // layout (the regression that triggered the user's "I think this
+            // happened when we switched from object layout to grid layout"
+            // observation).
+            //
+            // Resolution order for the gap track between columns ``c`` and
+            // ``c+1``:
+            //   1. ``effectiveGridLayout.columnGaps[c]`` — explicit per-column
+            //      override from Grid Layout → "Individual Column Spacing".
+            //      Wins because the user set it directly for this gap track.
+            //   2. ``labelGapPx`` (Typography & Colors) — when columns ``c``
+            //      and ``c+1`` host a label↔input/display pair (the original
+            //      Layer 2 semantics).
+            //   3. ``inputHelpGapPx`` — when columns host an input↔validation
+            //      / input↔help pair.
+            //   4. ``effectiveGridLayout.columnGap`` — generic grid default.
+            const labelGapPx = fieldStyles.computed.labelGap;
+            const inputHelpGapPx = fieldStyles.computed.inputHelpGap;
+
+            const isLabelType = (t: ComponentObject['type'] | undefined) => t === 'label';
+            const isInputLikeType = (t: ComponentObject['type'] | undefined) =>
+                t === 'input' || t === 'display' || t === 'action';
+            const isHelpLikeType = (t: ComponentObject['type'] | undefined) =>
+                t === 'validation' || t === 'help';
+
+            const resolveLayer2GapPx = (
+                leftType: ComponentObject['type'] | undefined,
+                rightType: ComponentObject['type'] | undefined
+            ): number | undefined => {
+                if (
+                    (isLabelType(leftType) && isInputLikeType(rightType)) ||
+                    (isInputLikeType(leftType) && isLabelType(rightType))
+                ) {
+                    return labelGapPx;
+                }
+                if (
+                    (isInputLikeType(leftType) && isHelpLikeType(rightType)) ||
+                    (isHelpLikeType(leftType) && isInputLikeType(rightType))
+                ) {
+                    return inputHelpGapPx;
+                }
+                return undefined;
+            };
+
+            // Story 6.3.1 (UAT round 6) — Fix B+C: per-column track resolution.
+            //
+            // For LABEL columns the resolution order is:
+            //   1. ``getWidthOverride('label')`` — already merges resize-preview
+            //      and persisted ``props.labelWidthOverride`` (Fix B).
+            //   2. ``globalStyles.horizontalLabelBandPx`` — form-wide label
+            //      band so every component lines up at the same input
+            //      left-edge (Fix C — the AI compiler stamps this for
+            //      horizontal-mode forms).
+            //   3. ``'auto'`` — original content-sized behaviour.
+            //
+            // For INPUT-like columns the resolution order is:
+            //   1. Persisted ``props.{input,help,action}WidthOverride`` (Fix B)
+            //      pinned as an absolute px track when set — otherwise the
+            //      explicit slider value gets swallowed by the ``1fr``
+            //      flex-track fallback below.
+            //   2. The original flex/auto branches (unchanged).
+            const resolveColumnTrack = (col: number): string => {
+                const objectId = objectIdByColumn.get(col);
+                const objectType = objectTypeByColumn.get(col);
+
+                if (isLabelType(objectType)) {
+                    const explicitLabelPx = getWidthOverride(objectId ?? 'label');
+                    if (typeof explicitLabelPx === 'number' && explicitLabelPx > 0) {
+                        // Story 6.3.1 (UAT round 11) — terms label uses
+                        // ``fit-content(px)`` so the track is content-sized
+                        // up to the override cap.
+                        //
+                        // The AI compiler stamps ``labelWidthOverride`` only
+                        // for the terms component (Fix G item 3). The value
+                        // is a WORST-CASE estimate (consent_chars *
+                        // AVG_CHAR_PX + padding); the actual rendered text
+                        // is usually narrower. A previous attempt used
+                        // ``minmax(0, ${px}px)`` to let the track shrink,
+                        // but Grid's default ``justify-self: stretch`` keeps
+                        // the label filling whatever the track sizes to —
+                        // and the track resolves to its max via the
+                        // standard intrinsic-sizing pass, so the gap
+                        // persisted (UAT round 11 #3 — "Even after a
+                        // refresh it still looks the same").
+                        //
+                        // ``fit-content(${px}px)`` is the right primitive:
+                        // it sizes the track to ``min(max-content, ${px}px)``
+                        // without depending on item ``justify-self``. So the
+                        // consent text gets a track exactly its rendered
+                        // width, and the validation column slides up next
+                        // to it with no trailing whitespace. The cap still
+                        // protects against pathologically long consent
+                        // copy (rare, but possible — guarantees the
+                        // validation column never gets pushed off-screen).
+                        //
+                        // For NON-terms components the override is user-set
+                        // (Properties Panel → Appearance → Dimensions) and
+                        // expresses an intentional pin; we keep the
+                        // original fixed-px track so manual sizing still
+                        // works.
+                        if (component?.type === 'terms') {
+                            return `fit-content(${explicitLabelPx}px)`;
+                        }
+                        return `${explicitLabelPx}px`;
+                    }
+                    const formWideBand = globalStyles?.horizontalLabelBandPx;
+                    if (typeof formWideBand === 'number' && formWideBand > 0) {
+                        return `${formWideBand}px`;
+                    }
+                    return 'auto';
+                }
+
+                // Non-label columns: a persisted ``*WidthOverride`` from
+                // Appearance → Dimensions should pin the column track even
+                // when the column would otherwise stretch as 1fr.
+                if (objectId) {
+                    const explicitObjectPx = getWidthOverride(objectId);
+                    if (typeof explicitObjectPx === 'number' && explicitObjectPx > 0) {
+                        return `${explicitObjectPx}px`;
+                    }
+                }
+
+                // Story 6.3.1 (UAT round 11) — rating intrinsic-content floor.
+                //
+                // CSS Grid sizes columns by the track rule, NOT by the inner
+                // content's overflow. ``minmax(0, 1fr)`` means "0 floor, take
+                // a share of leftover space" — when the rating renderer holds
+                // 10 stars (~300 px wide) inside a 1fr-of-leftover track that
+                // only got ~200 px, the ``flex-wrap: nowrap`` row visually
+                // overflows RIGHTWARD into the validation column, causing the
+                // overlap the UAT-round-11 preview screenshot shows.
+                //
+                // Resolution: for ``rating`` only, raise the input-track floor
+                // to ``max-content`` so the column itself grows to the actual
+                // star-row width and the validation column is pushed past it.
+                // The wrapper may overflow horizontally if the user added
+                // stars beyond the AI-reserved bounding box (an honest cue
+                // that the component needs more room), but the validation
+                // pill no longer collides with the stars.
+                //
+                // Other input-like components (text, dropdown, paragraph,
+                // textarea) keep the ``minmax(0, 1fr)`` track because their
+                // ``max-content`` would over-claim space (long placeholder /
+                // dropdown options / paragraph text) and squeeze validation
+                // off-screen. They naturally absorb-or-shrink with the
+                // wrapper which is the correct framework-first behaviour.
+                if (flexColumnSet.has(col)) {
+                    if (
+                        component?.type === 'rating' &&
+                        isInputLikeType(objectType)
+                    ) {
+                        return shouldFillWidth
+                            ? 'minmax(max-content, 1fr)'
+                            : 'max-content';
+                    }
+                    return shouldFillWidth ? 'minmax(0, 1fr)' : 'auto';
+                }
+                return shouldFillWidth ? 'minmax(0, max-content)' : 'auto';
+            };
+
             const columnTemplate: string[] = [];
             for (let col = 0; col < effectiveGridLayout.columns; col += 1) {
-                const track = shouldFillWidth && flexColumnSet.has(col) ? 'minmax(0, 1fr)' : 'auto';
-                const nonInputTrack = shouldFillWidth ? 'minmax(0, max-content)' : 'auto';
-                columnTemplate.push(flexColumnSet.has(col) ? track : nonInputTrack);
+                columnTemplate.push(resolveColumnTrack(col));
                 if (col < effectiveGridLayout.columns - 1) {
-                    const gap = effectiveGridLayout.columnGaps?.[col] ?? effectiveGridLayout.columnGap;
+                    const explicitColumnGap = effectiveGridLayout.columnGaps?.[col];
+                    let gap: number;
+                    if (typeof explicitColumnGap === 'number' && Number.isFinite(explicitColumnGap)) {
+                        gap = explicitColumnGap;
+                    } else {
+                        const layer2Gap = resolveLayer2GapPx(
+                            objectTypeByColumn.get(col),
+                            objectTypeByColumn.get(col + 1)
+                        );
+                        gap = typeof layer2Gap === 'number' ? layer2Gap : effectiveGridLayout.columnGap;
+                    }
                     columnTemplate.push(`${gap}px`);
                 }
             }
 
             // Rows: keep as auto (with explicit gap tracks) so the shell height matches content.
+            // Story 6.3.1 (UAT round 6) — Fix A also bridges Layer 2 spacing
+            // into the row-gap chain. Same precedence as columnGaps: explicit
+            // per-row override → label/input/validation Layer 2 gap (when the
+            // adjacent rows host the matching object pair) → grid default.
+            const objectTypeByRow = new Map<number, ComponentObject['type']>();
+            for (const [key, objectId] of Object.entries(effectiveGridLayout.cellAssignments || {})) {
+                const obj = structure.objects.find(o => o.id === objectId);
+                const [rowStr] = key.split('-');
+                const r = Number.parseInt(rowStr, 10);
+                if (!Number.isFinite(r)) continue;
+                if (!objectTypeByRow.has(r) && obj?.type) objectTypeByRow.set(r, obj.type);
+            }
+
             const rowTemplate: string[] = [];
             for (let row = 0; row < effectiveGridLayout.rows; row += 1) {
                 rowTemplate.push('auto');
                 if (row < effectiveGridLayout.rows - 1) {
-                    const gap = effectiveGridLayout.rowGaps?.[row] ?? effectiveGridLayout.rowGap;
+                    const explicitRowGap = effectiveGridLayout.rowGaps?.[row];
+                    let gap: number;
+                    if (typeof explicitRowGap === 'number' && Number.isFinite(explicitRowGap)) {
+                        gap = explicitRowGap;
+                    } else {
+                        const layer2Gap = resolveLayer2GapPx(
+                            objectTypeByRow.get(row),
+                            objectTypeByRow.get(row + 1)
+                        );
+                        gap = typeof layer2Gap === 'number' ? layer2Gap : effectiveGridLayout.rowGap;
+                    }
                     rowTemplate.push(`${gap}px`);
                 }
             }
@@ -482,14 +723,36 @@ export const UniversalFieldShell = forwardRef<HTMLDivElement, UniversalFieldShel
                         const inRowGroup = rowIndex !== undefined ? (rowCounts.get(rowIndex) ?? 0) > 1 : false;
 
                         const isFlexObj = obj.type === 'input' || obj.type === 'display' || obj.type === 'divider';
+                        // Story 6.3.1 (UAT round 6) — Fix B/C: when a label /
+                        // validation column has an explicit pixel track (per-
+                        // component override or form-wide ``horizontalLabelBandPx``)
+                        // the wrapper should fill the column band so the inner
+                        // label/help text wraps cleanly within the reserved
+                        // width instead of shrink-wrapping to its intrinsic
+                        // length and leaving the band visually empty on the
+                        // right.
+                        const hasExplicitObjectWidth = (() => {
+                            const persisted = getWidthOverride(obj.id);
+                            if (typeof persisted === 'number' && persisted > 0) return true;
+                            if (
+                                obj.type === 'label' &&
+                                typeof globalStyles?.horizontalLabelBandPx === 'number' &&
+                                globalStyles.horizontalLabelBandPx > 0
+                            ) {
+                                return true;
+                            }
+                            return false;
+                        })();
                         const wrapperStyle: React.CSSProperties = {
                             gridRow: area.gridRow,
                             gridColumn: area.gridColumn,
                             // Important for grid children with long text: allow shrinking/wrapping instead of overflow.
                             minWidth: 0,
-                            justifySelf: isFlexObj ? 'stretch' : 'start',
+                            justifySelf: isFlexObj || hasExplicitObjectWidth ? 'stretch' : 'start',
                             alignSelf: isFlexObj ? 'stretch' : 'start',
-                            ...(isFlexObj ? { width: '100%' } : { display: 'inline-block' }),
+                            ...(isFlexObj || hasExplicitObjectWidth
+                                ? { width: '100%' }
+                                : { display: 'inline-block' }),
                         };
 
                         return (

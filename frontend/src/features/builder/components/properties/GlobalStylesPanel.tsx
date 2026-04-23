@@ -6,6 +6,7 @@ import { PropertyNumberInput, PropertyColorPicker, PropertySelect, TypographyCar
 import { 
     GlobalStyles, 
     ObjectLayoutType,
+    HorizontalInputBandPreset,
     DEFAULT_GLOBAL_STYLES,
 } from '../../types/builder.types';
 
@@ -23,6 +24,16 @@ interface GlobalStylesPanelProps {
 const OBJECT_LAYOUT_OPTIONS = [
     { value: 'vertical', label: 'Vertical' },
     { value: 'horizontal', label: 'Horizontal' },
+];
+
+// Story 6.3.1 (UAT round 6) — Fix D item 4: form-wide input-band density
+// preset. Scales the per-type comfortable character counts on the backend
+// when the AI compiler stamps `props.inputWidthOverride`. Per-component
+// overrides (Appearance → Dimensions) always win.
+const INPUT_BAND_PRESET_OPTIONS = [
+    { value: 'compact', label: 'Compact (denser inputs)' },
+    { value: 'standard', label: 'Standard (recommended)' },
+    { value: 'spacious', label: 'Spacious (roomier inputs)' },
 ];
 
 /** Props for section components shared with FormBrandingDefaultsPage */
@@ -197,6 +208,15 @@ export const GridLayoutDefaultsSection: React.FC<GlobalStylesSectionProps> = ({ 
             options={OBJECT_LAYOUT_OPTIONS}
             helpText="Default object layout for components with structure (vertical/horizontal/mixed)"
         />
+        {globalStyles.defaultObjectLayout === 'horizontal' && (
+            <PropertySelect
+                label="Input Band Preset"
+                value={globalStyles.horizontalInputBandPreset || 'standard'}
+                onChange={(value) => onGlobalStylesChange({ horizontalInputBandPreset: value as HorizontalInputBandPreset })}
+                options={INPUT_BAND_PRESET_OPTIONS}
+                helpText="Density of input fields when AI compiles a horizontal layout. Per-component widths still win."
+            />
+        )}
         <div className="flex items-center gap-3">
             <span className="text-[10px] text-gray-500 dark:text-gray-400 w-24">Default Rows</span>
             <PropertyNumberInput
@@ -568,6 +588,16 @@ export const GlobalStylesPanel: React.FC<GlobalStylesPanelProps> = ({
                         options={OBJECT_LAYOUT_OPTIONS}
                         helpText="Default object layout for components with structure (vertical/horizontal/mixed)"
                     />
+
+                    {effectiveGlobalStyles.defaultObjectLayout === 'horizontal' && (
+                        <PropertySelect
+                            label="Input Band Preset"
+                            value={effectiveGlobalStyles.horizontalInputBandPreset || 'standard'}
+                            onChange={(value) => onGlobalStylesChange({ horizontalInputBandPreset: value as HorizontalInputBandPreset })}
+                            options={INPUT_BAND_PRESET_OPTIONS}
+                            helpText="Density of input fields when AI compiles a horizontal layout. Per-component widths still win."
+                        />
+                    )}
 
                     {/* Default Rows */}
                     <div className="flex items-center gap-3">

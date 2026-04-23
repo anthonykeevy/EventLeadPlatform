@@ -1,19 +1,25 @@
 import React from "react";
-import { Sparkles, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Upload } from "lucide-react";
 
 import {
+  AiComponentMeasurement,
   AiRuntimeContext,
   AttemptTraceEntry,
   AiGenerationOptions,
   generateAiDefinition,
   OpenAiTransportMode,
+  remeasureAiDefinition,
 } from "../../api/aiFormGenerationApi";
 import { useBuilderStore } from "../../stores/useBuilderStore";
-import { FormComponent, FormDefinition } from "../../types/builder.types";
+import { DEVICE_DIMENSIONS, FormComponent, FormDefinition } from "../../types/builder.types";
 import { getCompanyTermsAssets } from "../../../dashboard/api/companyAssetsApi";
 import { getComponentDimensions } from "../../utils/collisionDetection";
 import { devLogger } from "../../utils/devLogger";
 import { buildSectionedSystemAddendum } from "./sectionedPromptArchitecture";
+import {
+  HORIZONTAL_LAYOUT_MIN_WIDTH_PX,
+  resolveLayoutModeForRequest,
+} from "./resolveLayoutModeForRequest";
 
 type GenerationUiStatus =
   | "idle"
@@ -192,7 +198,7 @@ function findFirstTermsComponent(definition: FormDefinition): FormComponent | nu
 }
 
 export const AIAgentPanel: React.FC = () => {
-  const { applyValidatedDefinition, formDefinition, formContext, scale } = useBuilderStore();
+  const { applyValidatedDefinition, formDefinition, formContext, scale, previewMode } = useBuilderStore();
   const [prompt, setPrompt] = React.useState("");
   const [status, setStatus] = React.useState<GenerationUiStatus>("idle");
   const [message, setMessage] = React.useState<string | null>(null);
@@ -205,11 +211,30 @@ export const AIAgentPanel: React.FC = () => {
   > | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [openaiTransport, setOpenaiTransport] = React.useState<OpenAiTransportMode>("auto");
-  const [maxSystemCorrectionAttempts, setMaxSystemCorrectionAttempts] = React.useState(1);
+  // Story 6.3.1: bumped from 1 → 2 so a single semantic-validation rejection
+  // (e.g. unknown component type from an LLM hallucination) doesn't burn the
+  // entire correction budget before the LLM has a chance to recover.
+  const [maxSystemCorrectionAttempts, setMaxSystemCorrectionAttempts] = React.useState(2);
+  // Story 6.3.1 UAT round 6 — surfaces the "horizontal-layout-downgraded-to-
+  // vertical-because-canvas-is-too-narrow" notice. Set as a side-effect of
+  // ``buildRuntimeContext`` and rendered in the panel header. Cleared on each
+  // new generate so the notice doesn't stick after the user switches preview
+  // mode back to desktop.
+  const [layoutDowngradeNotice, setLayoutDowngradeNotice] = React.useState<
+    string | null
+  >(null);
 
   const buildRuntimeContext = React.useCallback(async (): Promise<AiRuntimeContext | undefined> => {
     if (!formDefinition) return undefined;
-    const canvasWidth = formDefinition.canvasSettings?.width ?? 1920;
+    // Story 6.3.1 UAT round 3 — compile against the device tab the user is
+    // actively previewing (desktop / tablet / mobile). Previously we always
+    // sent the desktop canvas (1920x980), which is why "switch to mobile and
+    // re-run the prompt" produced a desktop layout that overflowed the mobile
+    // viewport. The compiler will pin x to MARGIN_X, shrink columns to fit,
+    // and grow canvas height vertically as needed.
+    const deviceDim = DEVICE_DIMENSIONS[previewMode];
+    const canvasWidth = deviceDim.width;
+    const canvasHeight = deviceDim.height;
 
     const nodes = Array.from(
       document.querySelectorAll<HTMLElement>("[data-toolbox-component-type]")
@@ -311,23 +336,66 @@ export const AIAgentPanel: React.FC = () => {
       }
     }
 
+    // Story 6.3.1 UAT round 6 — pre-flight horizontal→vertical downgrade
+    // when the active preview canvas is too narrow for horizontal label
+    // layout. We override only the per-request ``defaultObjectLayout`` and
+    // leave the form's stored Global Styles untouched so the user's
+    // preference persists for desktop generations.
+    const storedGlobalStyles =
+      (formDefinition.globalStyles as Record<string, unknown>) ?? null;
+    const layoutDecision = resolveLayoutModeForRequest(
+      storedGlobalStyles,
+      canvasWidth
+    );
+    const effectiveGlobalStyles: Record<string, unknown> | null =
+      storedGlobalStyles
+        ? layoutDecision.downgraded
+          ? { ...storedGlobalStyles, defaultObjectLayout: layoutDecision.layout }
+          : storedGlobalStyles
+        : null;
+
+    if (layoutDecision.downgraded) {
+      const notice =
+        `Horizontal label layout needs at least ${HORIZONTAL_LAYOUT_MIN_WIDTH_PX}px ` +
+        `of canvas width — this preview is ${Math.round(canvasWidth)}px. ` +
+        "Generating with vertical layout for this run; your form's Global Styles are unchanged.";
+      setLayoutDowngradeNotice(notice);
+      devLogger.info("ai.runtime.layout-downgraded", {
+        previewMode,
+        canvasWidth: Math.round(canvasWidth),
+        threshold: HORIZONTAL_LAYOUT_MIN_WIDTH_PX,
+        originalLayout: layoutDecision.originalLayout,
+        effectiveLayout: layoutDecision.layout,
+      });
+    } else {
+      setLayoutDowngradeNotice(null);
+    }
+
     return {
       formId: formDefinition.formId,
       canvas: {
-        width: formDefinition.canvasSettings?.width ?? 1920,
-        height: formDefinition.canvasSettings?.height ?? 980,
+        width: canvasWidth,
+        height: canvasHeight,
         gridSize: formDefinition.canvasSettings?.gridSize,
       },
+      // ``lockedGlobals.canvasSettings`` still ships the form's stored
+      // canvasSettings so the LLM (if it ever inspects locked globals) sees
+      // the canonical width — but ``runtimeContext.canvas`` (used by the
+      // compiler) reflects the active device preview.
+      //
+      // ``lockedGlobals.globalStyles`` may have ``defaultObjectLayout``
+      // overridden for this single request when the canvas is below
+      // ``HORIZONTAL_LAYOUT_MIN_WIDTH_PX`` — see ``resolveLayoutModeForRequest``.
       lockedGlobals: {
         theme: (formDefinition.theme as Record<string, unknown>) ?? null,
-        globalStyles: (formDefinition.globalStyles as Record<string, unknown>) ?? null,
+        globalStyles: effectiveGlobalStyles,
         canvasSettings:
           (formDefinition.canvasSettings as Record<string, unknown>) ?? null,
       },
       termsDefaults,
       componentFootprints: Array.from(mergedFootprints.values()),
     };
-  }, [formContext, formDefinition]);
+  }, [formContext, formDefinition, previewMode]);
 
   const relayoutFromRenderedHeights = React.useCallback(
     async (definition: FormDefinition): Promise<FormDefinition | null> => {
@@ -410,6 +478,109 @@ export const AIAgentPanel: React.FC = () => {
     [scale]
   );
 
+  /**
+   * Story 6.3.1 UAT round 5 — render-then-measure second pass.
+   *
+   * After the first-pass DefinitionJSON is painted on the canvas, walk every
+   * component element, measure its actual rendered height from the DOM, and
+   * POST those heights to ``/api/form-ai/remeasure``. The backend recompiles
+   * with ground-truth heights so spacing matches what the user sees, fixing
+   * the "compiler said 131px / validator inflated to 220px / collision fired"
+   * class of bugs that no amount of per-type estimation can eliminate.
+   *
+   * Returns the refined ``FormDefinition`` on success, or ``null`` if the
+   * pass should be skipped (no run id, missing elements, server error, or
+   * the refined definition failed validation). Callers fall back to the
+   * first-pass definition when this returns ``null``.
+   */
+  const measureAndRemeasure = React.useCallback(
+    async (
+      generationRunId: number,
+      firstPassDefinition: FormDefinition,
+      runtimeContext: AiRuntimeContext
+    ): Promise<FormDefinition | null> => {
+      // One paint cycle so the canvas has had a chance to render the new
+      // components before we measure them. Two cycles in case the renderer
+      // does its own post-mount measurement (terms component, file-upload
+      // dropzone, etc.) that bumps the height after first paint.
+      await nextPaint();
+      await nextPaint();
+
+      const components = getFirstPageComponents(firstPassDefinition);
+      if (components.length === 0) {
+        devLogger.info("ai.remeasure.skipped", {
+          reason: "no-components",
+        });
+        return null;
+      }
+
+      const measurements: AiComponentMeasurement[] = [];
+      const missing: string[] = [];
+      for (const component of components) {
+        const element = document.querySelector(
+          `[data-component-id="${component.id}"]`
+        ) as HTMLElement | null;
+        if (!element) {
+          missing.push(component.id);
+          continue;
+        }
+        const dims = getComponentDimensions(component, element, scale * 100);
+        const measuredHeight = Math.max(
+          1,
+          Math.round(
+            Math.max(
+              dims.height,
+              parsePositiveNumber(component.props?.height, 0),
+              parsePositiveNumber(component.style?.height, 0)
+            )
+          )
+        );
+        measurements.push({
+          componentId: component.id,
+          height: measuredHeight,
+        });
+      }
+
+      // If we couldn't find any element to measure, the canvas hasn't
+      // mounted yet — bail rather than send an empty measurement set.
+      if (measurements.length === 0) {
+        devLogger.info("ai.remeasure.skipped", {
+          reason: "no-elements-found",
+          missingComponentIds: missing,
+        });
+        return null;
+      }
+
+      try {
+        const refined = await remeasureAiDefinition({
+          generationRunId,
+          measurements,
+          runtimeContext,
+        });
+        devLogger.info("ai.remeasure.result", {
+          status: refined.status,
+          measuredCount: measurements.length,
+          missingCount: missing.length,
+          validationSummary: refined.validationSummary ?? null,
+          compileSummary: refined.compileSummary ?? null,
+        });
+        if (refined.status === "completed" && refined.definitionJSON) {
+          return refined.definitionJSON as unknown as FormDefinition;
+        }
+        return null;
+      } catch (error) {
+        // Render-then-measure is a refinement, not a hard requirement.
+        // Log + fall back to the first-pass definition.
+        devLogger.error("ai.remeasure.error", {
+          generationRunId,
+          message: error instanceof Error ? error.message : "remeasure failed",
+        });
+        return null;
+      }
+    },
+    [scale]
+  );
+
   const handleGenerate = React.useCallback(async () => {
     const trimmed = prompt.trim();
     if (!trimmed || isSubmitting) return;
@@ -464,7 +635,11 @@ export const AIAgentPanel: React.FC = () => {
       const usedRetries = response.trace.systemCorrectionAttemptsUsed;
       const transport =
         response.trace.resolvedOpenaiTransport ?? "—";
-      const summary = `OpenAI transport (resolved): ${transport} · Server attempts: ${response.trace.attemptCount} · Retries used: ${usedRetries}/${response.trace.maxSystemCorrectionAttempts} · Terminal: ${response.trace.terminalReason}`;
+      const compilerMode = response.trace.compilerMode ?? "legacy";
+      const compileSummary = response.trace.compileSummary as
+        | { fallbackCount?: number; outputComponentCount?: number; canvasHeightGrew?: boolean }
+        | undefined;
+      const summary = `OpenAI transport (resolved): ${transport} · Server attempts: ${response.trace.attemptCount} · Retries used: ${usedRetries}/${response.trace.maxSystemCorrectionAttempts} · Compiler: ${compilerMode} · Output components: ${compileSummary?.outputComponentCount ?? "—"} · Fallbacks: ${compileSummary?.fallbackCount ?? "—"} · Canvas grew: ${compileSummary?.canvasHeightGrew ? "yes" : "no"} · Terminal: ${response.trace.terminalReason}`;
       setTraceSummary(summary);
       devLogger.info("ai.sections.run.result", {
         status: response.status,
@@ -482,12 +657,51 @@ export const AIAgentPanel: React.FC = () => {
         if (usedRetries > 0) setStatus("retrying");
         const aiDefinition = response.definitionJSON as unknown as FormDefinition;
         applyValidatedDefinition(aiDefinition, "Apply AI generated layout");
-        const measuredRelayout = await relayoutFromRenderedHeights(aiDefinition);
-        if (measuredRelayout) {
-          applyValidatedDefinition(
-            measuredRelayout,
-            "Rebalance AI layout from rendered component heights"
-          );
+        // Story 6.3.1 UAT round 5 — branch on compiler mode for the post-
+        // apply refinement step. Two distinct, mutually-exclusive flows:
+        //
+        //   * deterministic-grid (current): run the render-then-measure
+        //     second pass. The first-pass layout uses per-type height
+        //     estimates which can disagree with what the renderer actually
+        //     paints (option-heavy checkbox, paragraph text wrap, etc.) —
+        //     the second pass swaps them out for ground-truth DOM heights
+        //     so collisions can't fire from estimation error. See
+        //     measureAndRemeasure() above for the full rationale.
+        //   * legacy: keep relayoutFromRenderedHeights, the Story 6.2
+        //     single-column reflow that re-measures heights and redis-
+        //     tributes y positions evenly. Not safe for deterministic-grid
+        //     because it overwrites style.height with body+chrome heights,
+        //     which the textarea/submit renderers interpret as input-body
+        //     only and re-stack chrome on top of, causing the exact
+        //     "Comments overlaps Submit" failure the chrome budget fixes.
+        const isDeterministicGrid = compilerMode === "deterministic-grid";
+        if (isDeterministicGrid) {
+          if (typeof response.generationRunId === "number") {
+            const refined = await measureAndRemeasure(
+              response.generationRunId,
+              aiDefinition,
+              runtimeContext
+            );
+            if (refined) {
+              applyValidatedDefinition(
+                refined,
+                "Refine AI layout with rendered measurements"
+              );
+            }
+          } else {
+            devLogger.info("ai.remeasure.skipped", {
+              reason: "no-generation-run-id",
+              compilerMode,
+            });
+          }
+        } else {
+          const measuredRelayout = await relayoutFromRenderedHeights(aiDefinition);
+          if (measuredRelayout) {
+            applyValidatedDefinition(
+              measuredRelayout,
+              "Rebalance AI layout from rendered component heights"
+            );
+          }
         }
         setStatus("completed");
         setMessage(response.userMessage);
@@ -524,6 +738,7 @@ export const AIAgentPanel: React.FC = () => {
     buildRuntimeContext,
     isSubmitting,
     maxSystemCorrectionAttempts,
+    measureAndRemeasure,
     openaiTransport,
     prompt,
     relayoutFromRenderedHeights,
@@ -540,6 +755,50 @@ export const AIAgentPanel: React.FC = () => {
       "Draft loaded on canvas. Collisions or boundaries may still be present — inspect in the builder."
     );
   }, [applyValidatedDefinition, pendingInvalidDraft]);
+
+  // ---- Dev-only: load a DefinitionJSON from a local file -------------------
+  // Story 6.3.1 UAT round 3: pairs with backend/scripts/story_631_replay.py to
+  // let an operator iterate on compiler tweaks without burning OpenAI calls.
+  // Visible only when VITE_ENABLE_DEV_LOGS=true so it never ships to prod
+  // builders.
+  const devLogsEnabled = import.meta.env.VITE_ENABLE_DEV_LOGS === "true";
+  const replayFileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const handleLoadDefinitionFromFile = React.useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      // Reset so the same file can be re-selected after iteration.
+      event.target.value = "";
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text) as unknown;
+        if (
+          !parsed ||
+          typeof parsed !== "object" ||
+          !("pages" in (parsed as Record<string, unknown>)) ||
+          !Array.isArray((parsed as { pages: unknown }).pages)
+        ) {
+          setMessage(
+            `Selected file does not look like a FormDefinition (missing "pages" array): ${file.name}`
+          );
+          return;
+        }
+        applyValidatedDefinition(
+          parsed as FormDefinition,
+          `Load DefinitionJSON from file (${file.name})`
+        );
+        setMessage(
+          `Loaded ${file.name} onto the canvas — bypassing the LLM. Compile diagnostics from the file are not shown here.`
+        );
+      } catch (exc) {
+        setMessage(
+          `Failed to load ${file.name}: ${exc instanceof Error ? exc.message : String(exc)}`
+        );
+      }
+    },
+    [applyValidatedDefinition]
+  );
 
   const statusColorClass =
     status === "completed"
@@ -630,6 +889,44 @@ export const AIAgentPanel: React.FC = () => {
           {isSubmitting ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
           Generate Form Draft
         </button>
+
+        {devLogsEnabled && (
+          <div className="space-y-1">
+            <input
+              ref={replayFileInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleLoadDefinitionFromFile}
+              className="hidden"
+              aria-label="Load DefinitionJSON from file"
+            />
+            <button
+              type="button"
+              onClick={() => replayFileInputRef.current?.click()}
+              disabled={isSubmitting}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-violet-700 dark:text-violet-300 border border-dashed border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-950/20 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Upload size={12} />
+              Load DefinitionJSON from file (dev only)
+            </button>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+              Pairs with <code>backend/scripts/story_631_replay.py</code>. Loads the file
+              straight onto the canvas — no LLM call, no validation gate.
+            </p>
+          </div>
+        )}
+
+        {layoutDowngradeNotice && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-[11px] text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+            data-testid="ai-panel-layout-downgrade-notice"
+          >
+            <div className="font-semibold mb-0.5">Layout adjusted for narrow canvas</div>
+            <div className="whitespace-pre-wrap">{layoutDowngradeNotice}</div>
+          </div>
+        )}
 
         <div className={`rounded-md border px-3 py-2 text-xs ${statusColorClass}`}>
           <div className="font-semibold mb-1">Status: {STATUS_LABELS[status]}</div>

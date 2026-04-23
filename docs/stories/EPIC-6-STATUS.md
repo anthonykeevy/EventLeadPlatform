@@ -55,6 +55,7 @@ This fundamentally changes the payment architecture. We must implement two diffe
 ### Out of Scope
 - Subscription billing (we are sticking to one-time per-publish fees).
 - AI generation of multi-page forms (MVP AI will stick to single-page layouts to control collision complexity).
+- **AI iteration on existing designs** (deferred post-MVP per 2026-04-23 PM/SM scope review). Iteration is a high-risk novel capability; MVP differentiator shifts to **Image-to-Form** instead. Edit/refine actions in MVP are handled by direct builder tools (Properties Panel, drag/drop, undo). See `EPIC-6-WORKFLOW-GUIDE.md` changelog for rationale.
 
 ---
 
@@ -70,19 +71,27 @@ This fundamentally changes the payment architecture. We must implement two diffe
 | **6.2.2** | File Upload Component (Full Stack) | `file-upload` builder component + public upload endpoint + SubmissionAttachment model + secure download API for company (`GET .../attachments/.../content`). In-product download UX → **Epic 8**. Submission-scoped attachment IDs ensure no cross-contamination. | ✅ **Complete** (2026-03-31, PR #55) |
 | **6.3** | AI Context Uplift & Benchmark Baseline | Delivered benchmark/logging uplift and tuning controls, but closed as a learning story after UAT quality gap findings. See `STORY-6.3-CLOSEOUT-REPORT.md`. | ✅ **Closed (Learning)** (2026-04-15) |
 | **6.3.1** | Simplified AI Output + Deterministic Layout Foundation | Bridge story: AI emits coordinate-free `FormSemanticPlan`, deterministic Python compiler owns geometry; render-then-measure round-trip; governance (capability snapshot, validation contracts, prompt versioning, generation runs); UAT rounds 1–11 PASS. See `STORY-6.3.1-CLOSEOUT-REPORT.md`. | ✅ **Complete** (2026-04-15, PR #64) |
-| **6.4** | AI Iteration on Existing Designs | Allow users to refine/modify an existing form via AI; "change the layout", "add a field", etc. | ⏳ Pending (foundation in place — ready for SM to plan) |
+| **6.4** | **AI Agent Panel Production Polish** *(rescoped 2026-04-23)* | Take the AI Agent panel from "demonstrably working POC" to "ship-ready production UI". Persist last prompt; replace-existing-form warning with "don't show again" pref (referencing Undo); hide outbound transport selector (lock to Auto); default retries=2; silent autoload on validation issues (no warning surfaced to end user). XS-S, no schema changes expected. | ⏳ Pending (SM drafting; ready for execution after PR #65 merges) |
+| **6.4.1** | *(Optional micro-story — only if surfaces during 6.4)* Submit-button validation parity (design pill ↔ preview summary) — `g-frontend-submit-parity` from 6.3.1 carry-forward backlog. | Promote from `EPIC-6-CARRY-FORWARD-BACKLOG.md` only if a 6.4 polish task naturally bumps into it; otherwise leaves with rest of carry-forward. | ⏳ Conditional |
+| **6.5** | **Image-to-Form** *(new, 2026-04-23)* | Differentiator feature: user uploads a screenshot/photo of an existing form; multimodal LLM produces a `FormSemanticPlan`; deterministic compiler converts to `DefinitionJSON`; result loads onto canvas for refinement. Reuses 6.3.1 architecture wholesale — only new piece is the vision-prompt path. Gated on a 1-day feasibility check (see `STORY-6.5-FEASIBILITY-NOTES.md`). | ⏳ Pending (feasibility check first; SM to draft after Tonyk reviews findings) |
 
-### Phase B: Platform Billing & Monetization (deferred)
+### Phase B: Platform Billing & Monetization (deferred — renumbered 2026-04-23)
 
 | Story | Title | Goal | Status |
 |------|-------|------|--------|
-| **6.5** | Platform Billing Infrastructure | Set up Stripe Direct, webhooks, and the database schema for Payments and Invoices. | ⏳ Pending |
-| **6.6** | Unified Publish & Payment Gate | Integrate the Stripe Checkout into the Epic 5 Admin Review & Publish flow. | ⏳ Pending |
-| **6.7** | Australian GST Invoicing | Auto-generate compliant PDF invoices and email them upon successful payment. | ⏳ Pending |
-| **6.8** | Stripe Connect Infrastructure | Allow companies to securely link their Stripe accounts via OAuth in Company Settings. | ⏳ Pending |
-| **6.9** | Form Payment Component | Add a Payment component to the builder and upgrade the submission API to handle B2B2C checkout. | ⏳ Pending |
+| **6.6** | Platform Billing Infrastructure | Set up Stripe Direct, webhooks, and the database schema for Payments and Invoices. | ⏳ Pending |
+| **6.7** | Unified Publish & Payment Gate | Integrate the Stripe Checkout into the Epic 5 Admin Review & Publish flow. | ⏳ Pending |
+| **6.8** | Australian GST Invoicing | Auto-generate compliant PDF invoices and email them upon successful payment. | ⏳ Pending |
+| **6.9** | Stripe Connect Infrastructure | Allow companies to securely link their Stripe accounts via OAuth in Company Settings. | ⏳ Pending |
+| **6.10** | Form Payment Component | Add a Payment component to the builder and upgrade the submission API to handle B2B2C checkout. | ⏳ Pending |
+
+### 🛑 Deferred Post-MVP
+
+| Item | Reason |
+|------|--------|
+| **AI Iteration on Existing Designs** (was Story 6.4) | High-risk novel capability requiring same architectural-discovery pattern that consumed Story 6.3 + 6.3.1. PM/SM joint review on 2026-04-23 concluded value-vs-effort doesn't justify shipping in MVP. Image-to-form (6.5) gives a sharper differentiator at lower architectural risk. Revisit post-revenue. |
 
 ---
 
 *Epic 6 Status Document*  
-*Last Updated: 2026-04-15 (Story 6.3.1 complete via PR #64 — deterministic compiler foundation in place; Story 6.4 is next)*
+*Last Updated: 2026-04-23 (Post-6.3.1 PM/SM scope pivot: 6.4 rescoped to UI polish, new 6.5 = Image-to-Form, billing renumbered 6.6–6.10, AI iteration deferred post-MVP)*

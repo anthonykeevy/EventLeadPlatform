@@ -26,7 +26,7 @@ This is the streamlined workflow established at the end of Epic 5.
 
 **Artifacts:** `story-6.x.md`, `story-context-6.x.xml`, `STORY-6.x-UAT-TEST-GUIDE.md`, `STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md`
 
-Optional parity: `STORY-6.x-CLOSEOUT-REPORT.md` (recommended for cross-cutting or release-grade stories).
+**`STORY-6.x-CLOSEOUT-REPORT.md` is MANDATORY** when a story (a) introduces or modifies a public API surface, (b) ships ≥1 schema migration, or (c) defers in-scope work to a future story. Otherwise optional but strongly recommended (see Story 6.3.1 closeout report for the canonical template — TL;DR, AC matrix, architecture sketch, "what this unlocks", carry-forward backlog, risks, green gates, hygiene, decision).
 
 ---
 
@@ -41,7 +41,9 @@ Use this to avoid stale roadmap/workflow docs and wrong PR numbers (common gap p
 | 3 | **`docs/stories/EPIC-6-WORKFLOW-GUIDE.md` (this file)** — **Current Focus** = **next** story; completed story lines show ✅ + merge date/PR; **no** “in progress / blocked” for a story already on `master`. | Dev |
 | 4 | `STORY-6.x-GATE-EVIDENCE.md` — **full** `python -m pytest --tb=short` summary line recorded **when policy requires it**; if only focused tests are run locally, state that explicitly and point to **CI** or follow-up full run so reviewers know. | Dev |
 | 5 | Remove stray artifacts (`downloaded.bin`, `temp*.txt`, scratch logs) — **never commit**. | Dev |
-| 6 | Optional: `STORY-6.x-CLOSEOUT-REPORT.md` for audit trail (esp. merges with deferrals like “UX → Epic 8”). | Dev |
+| 6 | `STORY-6.x-CLOSEOUT-REPORT.md` present per the mandatory criteria above (API change / migration / deferred scope); otherwise optional but recommended for audit trail. | Dev |
+| 7 | **Date-stamp parity** — Both **`Completed`** in `story-6.x.md` and the merge date in `EPIC-6-STATUS.md` must equal the GitHub **`mergedAt`** date (UTC) for the story PR. Confirm via `gh pr view <N> --json mergedAt,state` before stamping. If "dev complete" and "merged" dates differ, record both explicitly (e.g. *Dev complete: 2026-04-15 / Merged: 2026-04-23 (PR #64)*) — never quietly use the dev-complete date as the merge date. | Dev |
+| 8 | **Worktree retired** — After PR merge confirmed and any local artefacts harvested, prune the merged worktree: `git worktree remove "<path>"`. Keeps `git worktree list` clean and avoids stale-DB-pointing IDE windows from previous stories. | Dev / Human |
 
 **Merge discipline:** Prefer **merge via GitHub** (or `gh pr merge`) so the PR shows **merged** and history matches `master`. Local fast-forward-only merges without updating the PR confuse “is PR #N closed?” checks.
 
@@ -62,7 +64,7 @@ gh pr list --state open
 
 Then:
 
-- **Optional:** `git worktree list` — remove or retire old story worktrees per `AGENTIC-GIT-WORKTREE-WORKFLOW.md`.
+- **Strongly recommended:** Run `git worktree list` and `git worktree remove "<merged-story-path>"` for any **merged** story worktrees before SM runs `new-story.ps1` for the next story (see closeout checklist row 8). This prevents stale IDE windows pointing at deleted branches and keeps the worktree root tidy. Retain only worktrees whose PR is still open or in active triage. See `AGENTIC-GIT-WORKTREE-WORKFLOW.md` for the full retirement procedure.
 - Tell **`@bmad-agent-bmm-sm`** that sync is done (or SM runs **fetch/pull** via Shell on wrap-up).
 
 **SM agent** — after a green base:
@@ -123,6 +125,15 @@ To prevent test/runtime drift:
    - `os.getenv("DATABASE_URL")`
    - runtime-resolved DB URL from `common.database`.
 4. Any mismatch that changes selected DB backend (for example SQL Server vs SQLite) must be treated as a gate-risk and corrected before closeout.
+
+### 🧬 Capability Snapshot Rule (AI Form Generation)
+
+Established post Story 6.3.1 (migrations 056 → 057 round-trip):
+
+1. When a story adds an AI capability that depends on a frontend `ComponentRegistry` renderer (e.g. via `ComponentCapabilitySnapshot`), the **matching renderer must already exist on `master`** before the capability migration is applied in CI/UAT environments.
+2. If a capability slips through without a renderer, ship an **immediate follow-up migration to drop it** in the same story (canonical example: migration `057_story_631_form_ai_capability_drop_last_name.py` cleaned up `056`).
+3. Do **not** close a story with an active capability snapshot whose target renderer is missing — the LLM will silently substitute (e.g. `radio` for `rating`) and silently regress UAT prompts in the next story.
+4. Capability snapshot version (`FORM_AI_CAPABILITY_POLICY:vN`) must be referenced in `STORY-6.x-GATE-EVIDENCE.md` whenever a story adds or removes capabilities.
 
 ---
 
@@ -195,6 +206,21 @@ If summaries are missing, truncated, or non-final, the story is treated as **NOT
 
 ---
 
+## 🔁 Multi-Round UAT Protocol (recommended for tuning-heavy stories)
+
+Established post Story 6.3.1 (which executed 11 UAT rounds with one-variable-at-a-time tuning). When a story is expected to need **more than two** UAT rounds (typical for AI generation, layout solver, or prompt-tuning work), Dev should adopt this protocol from **Round 1**:
+
+1. Open `STORY-6.x-UAT-RESULTS.md` early with two tables:
+   - **§9 Final result** — section-by-section pass/fail (updated after each round, never overwritten between rounds).
+   - **Round-by-round summary (chronological)** — one row per round capturing: focus, **single variable changed**, `RequestID` chain (per `docs/AGENT-LOGGING-GUIDE.md`), outcome (Pass / Partial / Fail / Pass-with-caveat), follow-up.
+2. **One meaningful variable per round.** Prompt section, policy flag, layout rule, validation contract, capability snapshot — change only one so causality is measurable. If two variables must move together, document the coupling rationale in the round row.
+3. Each round's `RequestID` (and `generationRunId` when relevant) must be referenced in the round row so the run is replayable via the story's replay tooling.
+4. Carry-forward items discovered during rounds go into the round row **and** are mirrored to the `STORY-6.x-CLOSEOUT-REPORT.md` carry-forward backlog at closeout.
+
+**Canonical example:** `STORY-6.3.1-UAT-RESULTS.md` (11 rounds, single-variable per round, full RequestID lineage).
+
+---
+
 ## 🧪 Phase 3: Human UAT + Merge Gate
 
 **Owner:** Human  
@@ -208,6 +234,21 @@ If summaries are missing, truncated, or non-final, the story is treated as **NOT
    - Green CI/CD evidence is complete,
    - Manual UAT passes,
    - Scope boundaries are preserved.
+
+---
+
+## 📌 Story 6.4 Pre-conditions (carried forward from Story 6.3.1)
+
+These items must be addressed **inside Story 6.4** scope (in-scope, deferred-with-rationale, or moved to a 6.4.1):
+
+| ID | Source | Required outcome in 6.4 |
+|----|--------|-------------------------|
+| `g-frontend-submit-parity` | 6.3.1 carry-forward | Visual parity between submit-button validation in design mode (per-field pill) and preview (form-level summary). |
+| `g4b-second-pass-rows` | 6.3.1 carry-forward | Wire measured heights into row reservation for horizontal-stacked rows (currently vertical-only). |
+| `GenerationRun` growth policy | 6.3.1 closeout report §6 risk #1 | Decide and document a TTL or `parentRunId`-pruning strategy for `GenerationRun` / `GenerationArtifact`. Iteration multiplies row volume — do not close 6.4 without an answer. |
+| Layout-mode threshold (600 px) | 6.3.1 closeout report §6 risk #3 | If 6.4 introduces a "preview at narrow width" iteration command, lift the 600 px threshold into the width policy (`FORM_AI_WIDTH_POLICY`). |
+| Capability snapshot vs renderer | Capability Snapshot Rule above | Confirm any new components touched by iteration commands have matching renderers before the snapshot migration ships. |
+| `g-doc` (framework-first pattern) | 6.3.1 carry-forward | May defer to a post-6.4 documentation pass; record the deferral explicitly in the 6.4 closeout report. |
 
 ---
 
@@ -272,3 +313,4 @@ This preserves your learning objective (multi-agent experience) without weakenin
 | 2026-02-26 | Added database connection consistency rule for test/runtime parity | Prevent recurring SQL backend drift between app runtime and pytest harness |
 | 2026-03-31 | Clarified **SM owns `new-story.ps1` + worktree + Draft PR**; Human syncs `master` and opens worktree for Dev | Match practiced flow; Human was not expected to run the script in normal Epic 6 loop |
 | 2026-04-15 | Story 6.3.1 complete (PR #64). Architectural shift: **AI emits semantic intent only**, deterministic Python compiler owns geometry, render-then-measure provides ground-truth heights, governance tables (capability/validation/width/prompt) make every run replayable. Carry-forward follow-ups (`g-frontend-submit-parity`, `g4b-second-pass-rows`, `g-doc`, `g-backlog-dropdown-font`) tracked into Story 6.4 backlog. | Establish the foundation Story 6.4 (AI iteration on existing designs) was waiting on; next SM cycle starts on this baseline. |
+| 2026-04-23 | Post-6.3.1 SM review. Workflow improvements: **(1)** Closeout checklist rows 7–8 added (date-stamp parity vs `gh pr view --json mergedAt`; mandatory worktree retirement). **(2)** `STORY-6.x-CLOSEOUT-REPORT.md` upgraded from "optional" to **mandatory** when API surface changes / migrations ship / scope is deferred. **(3)** New **Multi-Round UAT Protocol** section codifying single-variable-per-round + RequestID lineage (canonical example: `STORY-6.3.1-UAT-RESULTS.md`). **(4)** New **Capability Snapshot Rule** under DB Consistency (renderer must exist before capability migration; immediate drop-migration if it slips). **(5)** New **Story 6.4 Pre-conditions** section listing carry-forwards + `GenerationRun` growth policy + 600 px layout-mode threshold review. | 6.3.1 closeout exposed three drift patterns (date stamps, stale worktrees, capability/renderer skew) and one scaling pattern (`GenerationRun` row volume under iteration); fold lessons into the guide before opening Story 6.4 so the next cycle inherits them. |

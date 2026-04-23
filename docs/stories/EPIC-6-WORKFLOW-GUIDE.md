@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.4 — AI Iteration on Existing Designs (next; SM to plan)  
+**Current Focus:** Story 6.4 — AI Agent Panel Production Polish (next; SM to draft after PR #65 merge). Story 6.5 (Image-to-Form) follows after a 1-day feasibility check. *AI Iteration on Existing Designs is deferred post-MVP per 2026-04-23 PM scope review (see changelog).*  
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -26,7 +26,7 @@ This is the streamlined workflow established at the end of Epic 5.
 
 **Artifacts:** `story-6.x.md`, `story-context-6.x.xml`, `STORY-6.x-UAT-TEST-GUIDE.md`, `STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md`
 
-**`STORY-6.x-CLOSEOUT-REPORT.md` is MANDATORY** when a story (a) introduces or modifies a public API surface, (b) ships ≥1 schema migration, or (c) defers in-scope work to a future story. Otherwise optional but strongly recommended (see Story 6.3.1 closeout report for the canonical template — TL;DR, AC matrix, architecture sketch, "what this unlocks", carry-forward backlog, risks, green gates, hygiene, decision).
+**`STORY-6.x-CLOSEOUT-REPORT.md` is MANDATORY** when a story (a) introduces or modifies a **public API surface** — defined as: a new or changed HTTP endpoint, a new or changed Pydantic schema returned to clients, or a new or changed exported TypeScript type/interface in `frontend/src/.../types/*` consumed across feature boundaries — (b) ships ≥1 schema migration, or (c) defers in-scope work to a future story. Otherwise optional but strongly recommended (see Story 6.3.1 closeout report for the canonical template — TL;DR, AC matrix, architecture sketch, "what this unlocks", carry-forward backlog, risks, green gates, hygiene, decision).
 
 ---
 
@@ -237,21 +237,6 @@ Established post Story 6.3.1 (which executed 11 UAT rounds with one-variable-at-
 
 ---
 
-## 📌 Story 6.4 Pre-conditions (carried forward from Story 6.3.1)
-
-These items must be addressed **inside Story 6.4** scope (in-scope, deferred-with-rationale, or moved to a 6.4.1):
-
-| ID | Source | Required outcome in 6.4 |
-|----|--------|-------------------------|
-| `g-frontend-submit-parity` | 6.3.1 carry-forward | Visual parity between submit-button validation in design mode (per-field pill) and preview (form-level summary). |
-| `g4b-second-pass-rows` | 6.3.1 carry-forward | Wire measured heights into row reservation for horizontal-stacked rows (currently vertical-only). |
-| `GenerationRun` growth policy | 6.3.1 closeout report §6 risk #1 | Decide and document a TTL or `parentRunId`-pruning strategy for `GenerationRun` / `GenerationArtifact`. Iteration multiplies row volume — do not close 6.4 without an answer. |
-| Layout-mode threshold (600 px) | 6.3.1 closeout report §6 risk #3 | If 6.4 introduces a "preview at narrow width" iteration command, lift the 600 px threshold into the width policy (`FORM_AI_WIDTH_POLICY`). |
-| Capability snapshot vs renderer | Capability Snapshot Rule above | Confirm any new components touched by iteration commands have matching renderers before the snapshot migration ships. |
-| `g-doc` (framework-first pattern) | 6.3.1 carry-forward | May defer to a post-6.4 documentation pass; record the deferral explicitly in the 6.4 closeout report. |
-
----
-
 ## 🔄 Phase 4: Story Closeout + Next Story Reset
 
 **Owner:** `@bmad-agent-bmm-pm` or `@bmad-agent-bmm-sm`  
@@ -313,4 +298,5 @@ This preserves your learning objective (multi-agent experience) without weakenin
 | 2026-02-26 | Added database connection consistency rule for test/runtime parity | Prevent recurring SQL backend drift between app runtime and pytest harness |
 | 2026-03-31 | Clarified **SM owns `new-story.ps1` + worktree + Draft PR**; Human syncs `master` and opens worktree for Dev | Match practiced flow; Human was not expected to run the script in normal Epic 6 loop |
 | 2026-04-15 | Story 6.3.1 complete (PR #64). Architectural shift: **AI emits semantic intent only**, deterministic Python compiler owns geometry, render-then-measure provides ground-truth heights, governance tables (capability/validation/width/prompt) make every run replayable. Carry-forward follow-ups (`g-frontend-submit-parity`, `g4b-second-pass-rows`, `g-doc`, `g-backlog-dropdown-font`) tracked into Story 6.4 backlog. | Establish the foundation Story 6.4 (AI iteration on existing designs) was waiting on; next SM cycle starts on this baseline. |
-| 2026-04-23 | Post-6.3.1 SM review. Workflow improvements: **(1)** Closeout checklist rows 7–8 added (date-stamp parity vs `gh pr view --json mergedAt`; mandatory worktree retirement). **(2)** `STORY-6.x-CLOSEOUT-REPORT.md` upgraded from "optional" to **mandatory** when API surface changes / migrations ship / scope is deferred. **(3)** New **Multi-Round UAT Protocol** section codifying single-variable-per-round + RequestID lineage (canonical example: `STORY-6.3.1-UAT-RESULTS.md`). **(4)** New **Capability Snapshot Rule** under DB Consistency (renderer must exist before capability migration; immediate drop-migration if it slips). **(5)** New **Story 6.4 Pre-conditions** section listing carry-forwards + `GenerationRun` growth policy + 600 px layout-mode threshold review. | 6.3.1 closeout exposed three drift patterns (date stamps, stale worktrees, capability/renderer skew) and one scaling pattern (`GenerationRun` row volume under iteration); fold lessons into the guide before opening Story 6.4 so the next cycle inherits them. |
+| 2026-04-23 | Post-6.3.1 SM review. Workflow improvements: **(1)** Closeout checklist rows 7–8 added (date-stamp parity vs `gh pr view --json mergedAt`; mandatory worktree retirement). **(2)** `STORY-6.x-CLOSEOUT-REPORT.md` upgraded from "optional" to **mandatory** when API surface changes / migrations ship / scope is deferred (with "public API surface" defined inline). **(3)** New **Multi-Round UAT Protocol** section codifying single-variable-per-round + RequestID lineage (canonical example: `STORY-6.3.1-UAT-RESULTS.md`). **(4)** New **Capability Snapshot Rule** under DB Consistency (renderer must exist before capability migration; immediate drop-migration if it slips). | 6.3.1 closeout exposed three drift patterns (date stamps, stale worktrees, capability/renderer skew) the team had to discover the hard way; fold lessons into the guide before opening the next story so the next cycle inherits them. |
+| 2026-04-23 | **Epic 6 scope pivot (PM/SM joint review)**. Story 6.4 originally framed as "AI Iteration on Existing Designs" was **deferred post-MVP** after PM analysis: iteration is a high-risk novel capability whose value-vs-effort doesn't justify shipping in MVP. Replacement: **Story 6.4 = AI Agent Panel Production Polish** (XS-S, ships clean) and **new Story 6.5 = Image-to-Form** (M, key differentiator: snap a screenshot of an existing form, get a working form). Image-to-form leverages the 6.3.1 deterministic-compiler architecture unchanged — only the input transport (multimodal LLM) is new. Billing stories renumbered to 6.6–6.10. See `EPIC-6-STATUS.md` for the updated roadmap. | After 6.3 + 6.3.1 cost ~3 weeks of architecture discovery, the team needs a fast clean shipment to rebuild momentum. Iteration would have repeated the discovery pattern; image-to-form is well-trodden multimodal territory with a much sharper user value proposition (one-screenshot conversion from competing tools). Aligns with Tonyk's *"AI gets you 80%, builder tools get the last 20%"* differentiator. |

@@ -991,11 +991,57 @@ export interface GlobalStyles {
     defaultGridLayout?: Partial<GridLayoutConfig>;
 
     /**
+     * Story 6.3.1 (UAT round 6) — form-wide horizontal label band.
+     *
+     * When set, every component rendered in horizontal-stacked grid mode uses
+     * this pixel value as the width of its label column, giving the whole form
+     * a consistent left-edge for inputs even when individual labels are very
+     * short or very long. This is the form-wide alignment knob that sits
+     * between component-level `props.labelWidthOverride` (per-component) and
+     * the renderer's `'auto'` fallback (browser-determined).
+     *
+     * Resolution order in `UniversalFieldShell` for the label grid column:
+     *   `gridLayout.columnGaps[c]` is for inter-column gaps (separate concern).
+     *   For label column WIDTH:
+     *     1. `props.labelWidthOverride` (per-component, from Appearance →
+     *        Dimensions slider)
+     *     2. `globalStyles.horizontalLabelBandPx` (this property — form-wide)
+     *     3. `'auto'` (content-sized — original behaviour)
+     *
+     * The AI compiler computes a sensible default by measuring the longest
+     * label in the semantic plan and clamping to a canvas-aware band, then
+     * stamps it on the form when `defaultObjectLayout === 'horizontal'`.
+     * Users can still override per-component via Appearance → Dimensions.
+     */
+    horizontalLabelBandPx?: number;
+
+    /**
+     * Story 6.3.1 (UAT round 6) — Fix D: form-wide input-band density preset
+     * for horizontal-stacked grid mode.
+     *
+     * Scales the per-type comfortable character counts (in
+     * `INPUT_COMFORTABLE_CHARS` on the backend) by a multiplier:
+     *   - 'compact'  → 0.80x (denser inputs, more components fit per row)
+     *   - 'standard' → 1.00x (default; Baymard P95-ish content widths)
+     *   - 'spacious' → 1.25x (roomier inputs, marketing-style forms)
+     *
+     * Per-component `inputWidthOverride` always wins. Tier min/max still
+     * clamp the result so the preset never produces a degenerate width.
+     */
+    horizontalInputBandPreset?: HorizontalInputBandPreset;
+
+    /**
      * Per-component grid defaults (form-wide). Used when a component does not
      * define a gridLayout override, enabling Grid layout as the primary layout mode.
      */
     defaultGridLayoutsByComponent?: Partial<Record<ComponentType, Partial<GridLayoutConfig>>>;
 }
+
+/**
+ * Story 6.3.1 (UAT round 6) — Fix D: input-band density presets for
+ * horizontal-stacked grid mode. See `GlobalStyles.horizontalInputBandPreset`.
+ */
+export type HorizontalInputBandPreset = 'compact' | 'standard' | 'spacious';
 
 /**
  * Default global styles - sensible defaults for new forms

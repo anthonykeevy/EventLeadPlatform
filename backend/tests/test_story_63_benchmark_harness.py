@@ -1,339 +1,258 @@
 """
-Story 6.3 benchmark harness: all 10 prompts from docs/stories/STORY-6.2-BENCHMARK-FORMS.md
-with mocked LLM output. Asserts validator acceptance, expected component types, single-page rule.
+Story 6.3.1 benchmark harness: all 10 prompts from
+``docs/stories/STORY-6.3-BENCHMARK-PROMPTS-AND-OUTCOMES.md`` run end-to-end
+through the deterministic compiler with mocked LLM output.
+
+History note: pre-Story-6.3.1, the LLM mock returned a full
+``DefinitionJSON`` (with x/y/style stamped by the model) and the test
+asserted validator acceptance. With the deterministic-grid compiler the
+LLM now returns a ``FormSemanticPlan`` (no coordinates) and the compiler
+owns geometry. Each ``_bm0X`` fixture has been rewritten as a semantic
+plan; the asserted contract is:
+
+* ``status == "completed"`` (compiler accepted the plan)
+* single-page rule still holds
+* the rendered component-type set is consistent with the plan, after the
+  heading-filter post-process which strips ``header``/``paragraph``
+  intents whose label is a placeholder OR whose owning prompt does not
+  mention any heading keyword (``header``, ``heading``, ``title``, etc.).
 """
 
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Dict, FrozenSet, List, Tuple
 
 import pytest
 
 from modules.form_ai import service
 
-# --- builders ---
 
-def _theme() -> Dict[str, str]:
-    return {"primaryColor": "#0055FF", "backgroundColor": "#FFFFFF", "fontFamily": "Inter"}
+# --- builders ---------------------------------------------------------------
 
-
-def _form(canvas_h: int, components: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _plan(components: List[Dict[str, Any]], *, form_id: str = "story-631-benchmark", title: str = "Benchmark") -> Dict[str, Any]:
     return {
-        "schemaVersion": "1.0",
-        "formId": "story-63-benchmark",
-        "theme": _theme(),
-        "canvasSettings": {"width": 1920, "height": canvas_h, "gridSize": 8},
-        "pages": [{"id": "page-1", "title": "Benchmark", "components": components}],
+        "semanticPlanVersion": "1.0",
+        "formId": form_id,
+        "title": title,
+        "components": components,
     }
 
 
-def _c(
-    idx: int,
-    ctype: str,
-    y: int,
-    props: Dict[str, Any],
-    w: int = 1840,
-    h: int = 120,
-) -> Dict[str, Any]:
-    return {
-        "id": f"bm-c{idx}",
-        "type": ctype,
-        "props": props,
-        "position": {"x": 40, "y": y},
-        "style": {"width": w, "height": h},
+def _i(component_type: str, label: str, *, intent: str = "full", required: bool = False, **extra: Any) -> Dict[str, Any]:
+    out: Dict[str, Any] = {
+        "componentType": component_type,
+        "label": label,
+        "widthIntent": intent,
     }
+    if required:
+        out["validationIntent"] = {"required": True}
+    out.update(extra)
+    return out
 
 
-def _yseq(start: int, n: int, step: int = 140) -> List[int]:
-    return [start + i * step for i in range(n)]
+def _opts(*pairs: Tuple[str, str]) -> List[Dict[str, str]]:
+    return [{"label": label, "value": value} for label, value in pairs]
 
 
-# --- benchmark fixtures (ideal/smoothed JSON) ---
+# --- semantic-plan fixtures (one per benchmark prompt) ---------------------
 
 def _bm01() -> Dict[str, Any]:
-    ys = _yseq(40, 6)
-    radio_opts = [{"label": "Yes", "value": "yes"}, {"label": "No", "value": "no"}]
-    return _form(
-        1100,
+    radio_opts = _opts(("Yes", "yes"), ("No", "no"))
+    return _plan(
         [
-            _c(0, "text", ys[0], {"label": "Full Name", "required": True}),
-            _c(1, "phone", ys[1], {"label": "Phone Number", "required": False}),
-            _c(2, "email", ys[2], {"label": "Email", "required": True}),
-            _c(3, "radio", ys[3], {"label": "Will you be attending?", "required": True, "options": radio_opts}),
-            _c(4, "number", ys[4], {"label": "How many guests?", "required": False}),
-            _c(5, "submit-button", ys[5], {"buttonText": "Submit", "buttonAction": "submit"}, h=81, w=220),
+            _i("text", "Full Name", required=True),
+            _i("phone", "Phone Number", intent="half"),
+            _i("email", "Email", intent="half", required=True),
+            _i("radio", "Will you be attending?", required=True, options=radio_opts),
+            _i("number", "How many guests?", intent="compact"),
+            _i("submit-button", "Submit", intent="compact"),
         ],
     )
 
 
 def _bm02() -> Dict[str, Any]:
-    ys = _yseq(40, 8)
-    return _form(
-        1200,
+    return _plan(
         [
-            _c(0, "text", ys[0], {"label": "First Name", "required": True}),
-            _c(1, "text", ys[1], {"label": "Last Name", "required": True}),
-            _c(2, "address", ys[2], {"label": "Address", "required": False}),
-            _c(3, "phone", ys[3], {"label": "Phone", "required": False}),
-            _c(4, "email", ys[4], {"label": "Email", "required": True}),
-            _c(5, "text", ys[5], {"label": "Company Name", "required": False}),
-            _c(6, "textarea", ys[6], {"label": "Comments or Questions", "required": False}, h=140),
-            _c(7, "submit-button", ys[7], {"buttonText": "Submit", "buttonAction": "submit"}, h=81, w=220),
+            _i("text", "First Name", intent="half", required=True),
+            _i("text", "Last Name", intent="half", required=True),
+            _i("address", "Address"),
+            _i("phone", "Phone", intent="half"),
+            _i("email", "Email", intent="half", required=True),
+            _i("text", "Company Name"),
+            _i("textarea", "Comments or Questions"),
+            _i("submit-button", "Submit", intent="compact"),
         ],
     )
 
 
 def _bm03() -> Dict[str, Any]:
-    countries = [
-        {"label": "Australia", "value": "au"},
-        {"label": "United States", "value": "us"},
-        {"label": "United Kingdom", "value": "uk"},
-        {"label": "Canada", "value": "ca"},
-        {"label": "New Zealand", "value": "nz"},
-        {"label": "Other", "value": "other"},
-    ]
-    ys = _yseq(40, 8)
-    return _form(
-        1200,
+    countries = _opts(
+        ("Australia", "au"), ("United States", "us"), ("United Kingdom", "uk"),
+        ("Canada", "ca"), ("New Zealand", "nz"), ("Other", "other"),
+    )
+    return _plan(
         [
-            _c(0, "text", ys[0], {"label": "First Name", "required": True}),
-            _c(1, "text", ys[1], {"label": "Last Name", "required": True}),
-            _c(2, "email", ys[2], {"label": "Email Address", "required": True}),
-            _c(3, "phone", ys[3], {"label": "Phone Number", "required": True}),
-            _c(4, "text", ys[4], {"label": "Company", "required": True}),
-            _c(5, "text", ys[5], {"label": "Job Title", "required": True}),
-            _c(6, "dropdown", ys[6], {"label": "Country", "required": True, "options": countries}),
-            _c(7, "submit-button", ys[7], {"buttonText": "Register", "buttonAction": "submit"}, h=81, w=220),
+            _i("text", "First Name", intent="half", required=True),
+            _i("text", "Last Name", intent="half", required=True),
+            _i("email", "Email Address", intent="half", required=True),
+            _i("phone", "Phone Number", intent="half", required=True),
+            _i("text", "Company", intent="half", required=True),
+            _i("text", "Job Title", intent="half", required=True),
+            _i("dropdown", "Country", required=True, options=countries),
+            _i("submit-button", "Register", intent="compact"),
         ],
     )
 
 
 def _bm04() -> Dict[str, Any]:
-    hear = [
-        {"label": "Company Website", "value": "web"},
-        {"label": "LinkedIn", "value": "li"},
-        {"label": "Facebook", "value": "fb"},
-        {"label": "Referral", "value": "ref"},
-        {"label": "Other", "value": "other"},
-    ]
-    ys = _yseq(40, 11, 130)
-    return _form(
-        1500,
+    hear = _opts(
+        ("Company Website", "web"), ("LinkedIn", "li"), ("Facebook", "fb"),
+        ("Referral", "ref"), ("Other", "other"),
+    )
+    return _plan(
         [
-            _c(0, "text", ys[0], {"label": "First Name", "required": True}),
-            _c(1, "text", ys[1], {"label": "Last Name", "required": True}),
-            _c(2, "email", ys[2], {"label": "Email", "required": True}),
-            _c(3, "phone", ys[3], {"label": "Phone", "required": False}),
-            _c(4, "text", ys[4], {"label": "Location", "required": False}),
-            _c(5, "url", ys[5], {"label": "LinkedIn Profile", "required": False}),
-            _c(6, "textarea", ys[6], {"label": "Why are you interested?", "required": True}, h=140),
-            _c(
-                7,
-                "file-upload",
-                ys[7],
-                {"label": "Upload Resume", "required": True, "acceptedFileTypes": ".pdf,.doc,.docx"},
-                h=140,
-            ),
-            _c(8, "dropdown", ys[8], {"label": "How did you hear about us?", "required": False, "options": hear}),
-            _c(9, "terms", ys[9], {"label": "I agree to the privacy policy", "required": True}),
-            _c(10, "submit-button", ys[10], {"buttonText": "Apply Now", "buttonAction": "submit"}, h=81, w=220),
+            _i("text", "First Name", intent="half", required=True),
+            _i("text", "Last Name", intent="half", required=True),
+            _i("email", "Email", intent="half", required=True),
+            _i("phone", "Phone", intent="half"),
+            _i("text", "Location"),
+            _i("url", "LinkedIn Profile"),
+            _i("textarea", "Why are you interested?", required=True),
+            _i("file-upload", "Upload Resume", required=True, acceptedFileTypes=".pdf,.doc,.docx"),
+            _i("dropdown", "How did you hear about us?", options=hear),
+            _i("terms", "I agree to the privacy policy", required=True),
+            _i("submit-button", "Apply Now", intent="compact"),
         ],
     )
 
 
 def _bm05() -> Dict[str, Any]:
-    find_us = [
-        {"label": "Search Engine", "value": "se"},
-        {"label": "Social Media", "value": "sm"},
-        {"label": "Friend", "value": "fr"},
-        {"label": "Advertisement", "value": "ad"},
-        {"label": "Other", "value": "o"},
-    ]
-    ys = _yseq(40, 7, 135)
-    return _form(
-        1100,
+    find_us = _opts(
+        ("Search Engine", "se"), ("Social Media", "sm"), ("Friend", "fr"),
+        ("Advertisement", "ad"), ("Other", "o"),
+    )
+    return _plan(
         [
-            _c(0, "header", ys[0], {"label": "Customer Feedback"}, h=52),
-            _c(
-                1,
-                "rating",
-                ys[1],
-                {"label": "Overall Experience", "required": True, "ratingMax": 5, "ratingStyle": "stars"},
-                h=96,
-            ),
-            _c(
-                2,
-                "rating",
-                ys[2],
-                {
-                    "label": "Recommend Us",
-                    "required": True,
-                    "ratingMax": 10,
-                    "ratingStyle": "numbers",
-                    "ratingLabels": {"low": "Not likely", "high": "Very likely"},
-                },
-                h=120,
-            ),
-            _c(3, "textarea", ys[3], {"label": "What did you like most?", "required": False}, h=140),
-            _c(4, "textarea", ys[4], {"label": "What could we improve?", "required": False}, h=140),
-            _c(5, "dropdown", ys[5], {"label": "How did you find us?", "required": False, "options": find_us}),
-            _c(6, "submit-button", ys[6], {"buttonText": "Submit", "buttonAction": "submit"}, h=81, w=220),
+            _i("header", "Customer Feedback"),
+            _i("rating", "Overall Experience", intent="half", required=True, ratingMax=5, ratingStyle="stars"),
+            _i("rating", "Recommend Us", intent="half", required=True, ratingMax=10, ratingStyle="numbers",
+               ratingLabels={"low": "Not likely", "high": "Very likely"}),
+            _i("textarea", "What did you like most?"),
+            _i("textarea", "What could we improve?"),
+            _i("dropdown", "How did you find us?", options=find_us),
+            _i("submit-button", "Submit", intent="compact"),
         ],
     )
 
 
 def _bm06() -> Dict[str, Any]:
-    opts = [
-        {"label": "Facebook", "value": "fb"},
-        {"label": "Instagram", "value": "ig"},
-        {"label": "Twitter", "value": "tw"},
-        {"label": "YouTube", "value": "yt"},
-        {"label": "Television", "value": "tv"},
-        {"label": "Internet Search", "value": "is"},
-        {"label": "Referral", "value": "rf"},
-        {"label": "Other", "value": "ot"},
-    ]
-    ys = _yseq(40, 8, 145)
-    return _form(
-        1300,
+    opts = _opts(
+        ("Facebook", "fb"), ("Instagram", "ig"), ("Twitter", "tw"),
+        ("YouTube", "yt"), ("Television", "tv"), ("Internet Search", "is"),
+        ("Referral", "rf"), ("Other", "ot"),
+    )
+    return _plan(
         [
-            _c(0, "text", ys[0], {"label": "First Name", "required": True}),
-            _c(1, "text", ys[1], {"label": "Last Name", "required": True}),
-            _c(2, "email", ys[2], {"label": "Email", "required": True}),
-            _c(3, "phone", ys[3], {"label": "Phone Number", "required": False}),
-            _c(4, "address", ys[4], {"label": "Shipping Address", "required": True}),
-            _c(5, "checkbox", ys[5], {"label": "How did you hear about us?", "required": False, "options": opts}, h=300),
-            _c(6, "textarea", ys[6], {"label": "Special Instructions", "required": False}, h=140),
-            _c(7, "submit-button", ys[7], {"buttonText": "Place Order", "buttonAction": "submit"}, h=81, w=220),
+            _i("text", "First Name", intent="half", required=True),
+            _i("text", "Last Name", intent="half", required=True),
+            _i("email", "Email", intent="half", required=True),
+            _i("phone", "Phone Number", intent="half"),
+            _i("address", "Shipping Address", required=True),
+            _i("checkbox", "How did you hear about us?", options=opts),
+            _i("textarea", "Special Instructions"),
+            _i("submit-button", "Place Order", intent="compact"),
         ],
     )
 
 
 def _bm07() -> Dict[str, Any]:
-    ys = _yseq(40, 4, 130)
-    return _form(
-        700,
+    # Prompt explicitly mentions "heading" and "paragraph" so heading filter keeps both.
+    return _plan(
         [
-            _c(0, "header", ys[0], {"label": "Stay in the loop"}, h=52),
-            _c(1, "paragraph", ys[1], {"text": "Get the latest updates delivered to your inbox."}, h=88),
-            _c(2, "email", ys[2], {"label": "Email Address", "required": True}),
-            _c(3, "submit-button", ys[3], {"buttonText": "Subscribe", "buttonAction": "submit"}, h=81, w=220),
+            _i("header", "Stay in the loop"),
+            _i("paragraph", "Get the latest updates delivered to your inbox."),
+            _i("email", "Email Address", required=True),
+            _i("submit-button", "Subscribe", intent="compact"),
         ],
     )
 
 
 def _bm08() -> Dict[str, Any]:
-    ys = _yseq(40, 10, 135)
-    return _form(
-        1500,
+    return _plan(
         [
-            _c(0, "text", ys[0], {"label": "First Name", "required": True}),
-            _c(1, "text", ys[1], {"label": "Middle Name", "required": False}),
-            _c(2, "text", ys[2], {"label": "Last Name", "required": True}),
-            _c(3, "phone", ys[3], {"label": "Phone Number", "required": True}),
-            _c(4, "email", ys[4], {"label": "Email", "required": True}),
-            _c(5, "address", ys[5], {"label": "Delivery Address", "required": True}),
-            _c(6, "date", ys[6], {"label": "Preferred Date", "required": True, "dateType": "date"}),
-            _c(7, "date", ys[7], {"label": "Preferred Time", "required": False, "dateType": "time"}),
-            _c(8, "textarea", ys[8], {"label": "Special Delivery Notes", "required": False}, h=140),
-            _c(9, "submit-button", ys[9], {"buttonText": "Place Pre-Order", "buttonAction": "submit"}, h=81, w=220),
+            _i("text", "First Name", intent="half", required=True),
+            _i("text", "Middle Name", intent="half"),
+            _i("text", "Last Name", intent="half", required=True),
+            _i("phone", "Phone Number", intent="half", required=True),
+            _i("email", "Email", intent="half", required=True),
+            _i("address", "Delivery Address", required=True),
+            _i("date", "Preferred Date", intent="half", required=True, dateType="date"),
+            _i("date", "Preferred Time", intent="half", dateType="time"),
+            _i("textarea", "Special Delivery Notes"),
+            _i("submit-button", "Place Pre-Order", intent="compact"),
         ],
     )
 
 
 def _bm09() -> Dict[str, Any]:
-    cat = [
-        {"label": "Billing", "value": "b"},
-        {"label": "Technical", "value": "t"},
-        {"label": "Account", "value": "a"},
-        {"label": "Shipping", "value": "s"},
-        {"label": "Other", "value": "o"},
-    ]
-    pri = [
-        {"label": "Low", "value": "l"},
-        {"label": "Medium", "value": "m"},
-        {"label": "High", "value": "h"},
-        {"label": "Urgent", "value": "u"},
-    ]
-    ys = _yseq(40, 10, 135)
-    return _form(
-        1500,
+    cat = _opts(("Billing", "b"), ("Technical", "t"), ("Account", "a"), ("Shipping", "s"), ("Other", "o"))
+    pri = _opts(("Low", "l"), ("Medium", "m"), ("High", "h"), ("Urgent", "u"))
+    return _plan(
         [
-            _c(0, "header", ys[0], {"label": "Submit a Support Request"}, h=52),
-            _c(1, "text", ys[1], {"label": "Your Name", "required": True}),
-            _c(2, "email", ys[2], {"label": "Email Address", "required": True}),
-            _c(3, "text", ys[3], {"label": "Order / Reference Number", "required": False}),
-            _c(4, "dropdown", ys[4], {"label": "Issue Category", "required": True, "options": cat}),
-            _c(5, "dropdown", ys[5], {"label": "Priority", "required": True, "options": pri}),
-            _c(6, "text", ys[6], {"label": "Subject", "required": True}),
-            _c(7, "textarea", ys[7], {"label": "Describe Your Issue", "required": True}, h=160),
-            _c(
-                8,
-                "file-upload",
-                ys[8],
-                {"label": "Attachments", "required": False, "acceptedFileTypes": ".pdf,.jpg,.png"},
-                h=140,
-            ),
-            _c(9, "submit-button", ys[9], {"buttonText": "Submit Request", "buttonAction": "submit"}, h=81, w=220),
+            _i("header", "Submit a Support Request"),
+            _i("text", "Your Name", intent="half", required=True),
+            _i("email", "Email Address", intent="half", required=True),
+            _i("text", "Order / Reference Number"),
+            _i("dropdown", "Issue Category", intent="half", required=True, options=cat),
+            _i("dropdown", "Priority", intent="half", required=True, options=pri),
+            _i("text", "Subject", required=True),
+            _i("textarea", "Describe Your Issue", required=True),
+            _i("file-upload", "Attachments", acceptedFileTypes=".pdf,.jpg,.png"),
+            _i("submit-button", "Submit Request", intent="compact"),
         ],
     )
 
 
 def _bm10() -> Dict[str, Any]:
-    sizes = [
-        {"label": "1-10", "value": "1"},
-        {"label": "11-50", "value": "2"},
-        {"label": "51-200", "value": "3"},
-        {"label": "201-500", "value": "4"},
-        {"label": "500+", "value": "5"},
-    ]
-    ys = _yseq(40, 11, 135)
-    return _form(
-        1650,
+    sizes = _opts(
+        ("1-10", "1"), ("11-50", "2"), ("51-200", "3"),
+        ("201-500", "4"), ("500+", "5"),
+    )
+    return _plan(
         [
-            _c(0, "header", ys[0], {"label": "Talk to Sales"}, h=52),
-            _c(1, "text", ys[1], {"label": "First Name", "required": True}),
-            _c(2, "text", ys[2], {"label": "Last Name", "required": True}),
-            _c(3, "email", ys[3], {"label": "Work Email", "required": True}),
-            _c(4, "phone", ys[4], {"label": "Phone Number", "required": False}),
-            _c(5, "text", ys[5], {"label": "Company Name", "required": True}),
-            _c(6, "dropdown", ys[6], {"label": "Company Size", "required": True, "options": sizes}),
-            _c(
-                7,
-                "rating",
-                ys[7],
-                {"label": "How interested are you?", "required": False, "ratingMax": 5, "ratingStyle": "stars"},
-                h=96,
-            ),
-            _c(8, "textarea", ys[8], {"label": "Message", "required": False}, h=140),
-            _c(
-                9,
-                "terms",
-                ys[9],
-                {"label": "I consent to receiving marketing communications", "required": True},
-            ),
-            _c(10, "submit-button", ys[10], {"buttonText": "Get in Touch", "buttonAction": "submit"}, h=81, w=220),
+            _i("header", "Talk to Sales"),
+            _i("text", "First Name", intent="half", required=True),
+            _i("text", "Last Name", intent="half", required=True),
+            _i("email", "Work Email", intent="half", required=True),
+            _i("phone", "Phone Number", intent="half"),
+            _i("text", "Company Name", required=True),
+            _i("dropdown", "Company Size", intent="half", required=True, options=sizes),
+            _i("rating", "How interested are you?", intent="half", ratingMax=5, ratingStyle="stars"),
+            _i("textarea", "Message"),
+            _i("terms", "I consent to receiving marketing communications", required=True),
+            _i("submit-button", "Get in Touch", intent="compact"),
         ],
     )
 
 
+# Each tuple: (id, prompt, semantic plan, expected component types after compile).
+# ``expected_types`` is the *plan* set minus heading/paragraph intents that the
+# heading-filter strips when the prompt has no heading-keyword (see
+# ``_prompt_requests_heading``).
 BENCHMARK_CASES: List[Tuple[int, str, Dict[str, Any], FrozenSet[str]]] = [
     (
         1,
-        (
-            "Create an RSVP form for a party. I need the guest's full name, phone, email, "
-            "Yes/No radio, guest count number, and submit."
-        ),
+        "Create an RSVP form for a party. I need the guest's full name, phone, email, "
+        "Yes/No radio, guest count number, and submit.",
         _bm01(),
         frozenset({"text", "phone", "email", "radio", "number", "submit-button"}),
     ),
     (
         2,
-        (
-            "Create a contact form with first and last name, address, phone, email required, "
-            "company, comments textarea, submit button."
-        ),
+        "Create a contact form with first and last name, address, phone, email required, "
+        "company, comments textarea, submit button.",
         _bm02(),
         frozenset({"text", "address", "phone", "email", "textarea", "submit-button"}),
     ),
@@ -345,19 +264,15 @@ BENCHMARK_CASES: List[Tuple[int, str, Dict[str, Any], FrozenSet[str]]] = [
     ),
     (
         4,
-        (
-            "Create a job application form with resume file upload, url, terms, dropdown, "
-            "textarea and Apply Now button."
-        ),
+        "Create a job application form with resume file upload, url, terms, dropdown, "
+        "textarea and Apply Now button.",
         _bm04(),
         frozenset({"text", "email", "phone", "url", "textarea", "file-upload", "dropdown", "terms", "submit-button"}),
     ),
     (
         5,
-        (
-            "Build customer feedback with heading Customer Feedback, two ratings, textareas, "
-            "dropdown and submit."
-        ),
+        "Build customer feedback with heading Customer Feedback, two ratings, textareas, "
+        "dropdown and submit.",
         _bm05(),
         frozenset({"header", "rating", "textarea", "dropdown", "submit-button"}),
     ),
@@ -394,39 +309,81 @@ BENCHMARK_CASES: List[Tuple[int, str, Dict[str, Any], FrozenSet[str]]] = [
 ]
 
 
-@pytest.mark.parametrize("bm_id,prompt,fixture,expected_types", BENCHMARK_CASES, ids=[f"bm{c[0]:02d}" for c in BENCHMARK_CASES])
-def test_story_63_benchmark_passes_validator_and_types(
+def _walk_types(items: List[Any], acc: List[str]) -> None:
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        t = str(item.get("type", "")).strip()
+        if t:
+            acc.append(t)
+        ch = item.get("children")
+        if isinstance(ch, list):
+            _walk_types(ch, acc)
+
+
+@pytest.mark.parametrize(
+    "bm_id,prompt,plan,expected_types",
+    BENCHMARK_CASES,
+    ids=[f"bm{c[0]:02d}" for c in BENCHMARK_CASES],
+)
+def test_story_631_benchmark_compiles_semantic_plan_into_valid_definition(
     monkeypatch: pytest.MonkeyPatch,
     bm_id: int,
     prompt: str,
-    fixture: Dict[str, Any],
+    plan: Dict[str, Any],
     expected_types: FrozenSet[str],
 ) -> None:
     monkeypatch.setattr(
         service,
         "_request_chatgpt_completion",
-        lambda _messages, model_override=None: json.dumps(fixture),
+        lambda *_args, **_kwargs: json.dumps(plan),
     )
 
-    result = service.generate_form_definition(prompt, runtime_context=None)
-    assert result.status == "completed", (bm_id, result.trace.terminalReason, result.userMessage)
+    result = service.generate_form_definition(
+        prompt,
+        runtime_context={"canvas": {"width": 1920, "height": 980, "gridSize": 8}},
+        max_system_correction_attempts=0,
+        db_session=None,
+    )
+
+    assert result.status == "completed", (
+        bm_id, result.trace.terminalReason, result.userMessage,
+    )
     assert result.definitionJSON is not None
+    assert result.trace.compilerMode == "deterministic-grid"
+
     pages = result.definitionJSON.get("pages")
-    assert isinstance(pages, list) and len(pages) == 1
+    assert isinstance(pages, list) and len(pages) == 1, (bm_id, pages)
 
-    def walk_types(items: List[Any], acc: List[str]) -> None:
-        for item in items:
-            if not isinstance(item, dict):
-                continue
-            t = str(item.get("type", "")).strip()
-            if t:
-                acc.append(t)
-            ch = item.get("children")
-            if isinstance(ch, list):
-                walk_types(ch, acc)
-
-    comps = pages[0].get("components")
-    assert isinstance(comps, list)
+    components = pages[0].get("components")
+    assert isinstance(components, list)
     found: List[str] = []
-    walk_types(comps, found)
-    assert expected_types == frozenset(found), (bm_id, found)
+    _walk_types(components, found)
+    assert frozenset(found) == expected_types, (bm_id, found)
+
+    # Compiler is the single source of geometry; no component should have a
+    # negative position or stray off the bottom of the (possibly grown) canvas.
+    canvas = result.definitionJSON["canvasSettings"]
+    canvas_h = canvas["height"]
+    canvas_w = canvas["width"]
+    for component in components:
+        x = component["position"]["x"]
+        y = component["position"]["y"]
+        w = component["style"]["width"]
+        h = component["style"]["height"]
+        assert x >= 0 and y >= 0, (bm_id, component["id"], x, y)
+        assert x + w <= canvas_w + 1, (bm_id, component["id"], x + w, canvas_w)
+        assert y + h <= canvas_h + 1, (bm_id, component["id"], y + h, canvas_h)
+
+
+def test_story_631_benchmark_prompt_keywords_match_expected_heading_policy():
+    """Documents the contract behind ``expected_types``: any benchmark
+    case that *includes* ``header``/``paragraph`` in expected types must
+    have a heading-keyword in its prompt; cases that *exclude* them must
+    not. If this drifts, the heading filter or the keyword list moved.
+    """
+    keyword_re = re.compile(r"\b(header|heading|title|banner|intro|introduction)\b", re.IGNORECASE)
+    for bm_id, prompt, _plan_payload, expected_types in BENCHMARK_CASES:
+        wants_heading = bool(keyword_re.search(prompt))
+        has_heading_in_expected = "header" in expected_types or "paragraph" in expected_types
+        assert wants_heading == has_heading_in_expected, (bm_id, prompt, expected_types)

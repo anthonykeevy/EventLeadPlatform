@@ -40,8 +40,18 @@ DEFAULT_HEIGHT_BY_TYPE: Dict[str, float] = {
 }
 
 # Builder vertical fields often render label + validation below `style.height` suggests.
-# Without this, deterministic collision checks underestimate tall fields (e.g. textarea vs submit).
+# Historically we always inflated textarea by +60 to catch under-stated LLM heights;
+# the deterministic compiler now reserves the full rendered footprint up-front, so the
+# inflation only fires as a guardrail when the authored height is implausibly small.
+#
+# Story 6.3.1 UAT round 4: trust floor stays at 200 to match the new compiler
+# default (DEFAULT_COMPONENT_HEIGHTS["textarea"] = 200). 200 also lines up with
+# the typical rendered-DOM height (label + textarea body + helper/validation
+# chrome). Anything below 200 is treated as "implausibly small" and inflated
+# as a safety net for legacy / hand-authored definitions where the LLM emitted
+# a footprint-only ~109 px height.
 _TEXTAREA_COLLISION_EXTRA = 60.0
+_TEXTAREA_TRUSTED_HEIGHT_PX = 200.0
 
 
 def _error_path(loc: Iterable[Any]) -> str:
@@ -64,7 +74,7 @@ def _parse_dimension(value: Any, fallback: float) -> float:
 
 
 def _inflate_height_for_collision(component_type: str, height: float) -> float:
-    if component_type == "textarea":
+    if component_type == "textarea" and height < _TEXTAREA_TRUSTED_HEIGHT_PX:
         return max(height, 140.0) + _TEXTAREA_COLLISION_EXTRA
     return height
 

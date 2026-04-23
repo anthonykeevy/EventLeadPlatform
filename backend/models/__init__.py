@@ -78,11 +78,20 @@ from .company_form_defaults_version import CompanyFormDefaultsVersion
 from .company_form_test_config import CompanyFormTestConfig
 from .form_publish_request import FormPublishRequest
 from .form_republish_request import FormRepublishRequest
+from .generation_run import GenerationRun
+from .generation_artifact import GenerationArtifact
 
 # Configuration tables (config schema)
 from .config import (
     AppSetting,
     ValidationRule,
+    PromptTemplate,
+    PromptTemplateVersion,
+    CapabilityPolicyVersion,
+    ComponentCapabilitySnapshot,
+    ComponentValidationContract,
+    WidthClassPolicyVersion,
+    PromptAssemblyProfile,
 )
 
 # Audit tables (audit schema)
@@ -99,6 +108,7 @@ from .log import (
     AuthEvent,
     ApplicationError,
     EmailDelivery,
+    FrontendEvent,
 )
 
 # Cache tables (cache schema)
@@ -155,6 +165,8 @@ __all__ = [
     "CompanyFormTestConfig",
     "FormPublishRequest",
     "FormRepublishRequest",
+    "GenerationRun",
+    "GenerationArtifact",
     
     # Reference tables (ref)
     "Country",
@@ -187,6 +199,13 @@ __all__ = [
     # Configuration tables (config)
     "AppSetting",
     "ValidationRule",
+    "PromptTemplate",
+    "PromptTemplateVersion",
+    "CapabilityPolicyVersion",
+    "ComponentCapabilitySnapshot",
+    "ComponentValidationContract",
+    "WidthClassPolicyVersion",
+    "PromptAssemblyProfile",
     
     # Audit tables (audit)
     "ActivityLog",
@@ -199,6 +218,7 @@ __all__ = [
     "AuthEvent",
     "ApplicationError",
     "EmailDelivery",
+    "FrontendEvent",
     
     # Cache tables (cache)
     "ABRSearch",
@@ -235,7 +255,7 @@ def validate_models() -> None:
     """
     from common.database import Base
     
-    expected_count = 78  # keep in sync with len(__all__)
+    expected_count = len(__all__)
     actual_count = len(__all__)
     
     if actual_count != expected_count:

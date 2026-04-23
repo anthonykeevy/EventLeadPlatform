@@ -11,6 +11,17 @@ This structure lets the LLM focus on form design intent while the compiler handl
 
 This version is deliberately **grid-only**. Non-grid layout modes are removed from semantic and compiler stages.
 
+### Implementation status (Story 6.3.1 hard switch)
+
+- Runtime generation now treats LLM output as semantic intent input (or converts legacy DefinitionJSON into semantic intent), then compiles final layout deterministically in application code.
+- Compiler path is enforced as `compilerMode = deterministic-grid` in generation trace metadata.
+- Governance versions are used at runtime for compiler decisions via:
+  - capability policy JSON
+  - width class policy JSON
+  - component capability snapshot JSON
+  - component validation contracts
+- Generation artifacts now persist semantic and compiled attempt payloads for replay/audit.
+
 ---
 
 ## Critical Review Summary

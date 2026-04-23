@@ -22,6 +22,7 @@ export interface AttemptTraceEntry {
   collisionDeltaFromPrevious?: number | null;
   /** vs prior attempt; n_a on first attempt. */
   collisionTrendVsPrevious?: "improved" | "worse" | "unchanged" | "n_a" | null;
+  compileDiagnostics?: Record<string, unknown> | null;
 }
 
 /** Request + env resolution: sync = one response body; stream = SSE. Auto uses FORM_AI_OPENAI_TRANSPORT on the server (default sync). */
@@ -42,6 +43,20 @@ export interface AiGenerationTrace {
   validationSummary?: AttemptValidationSummary | null;
   /** After resolution (auto → sync|stream); compare with your selection to confirm behavior. */
   resolvedOpenaiTransport?: "sync" | "stream" | null;
+  promptTemplateVersionId?: number | null;
+  promptTemplateVersionRef?: string | null;
+  promptAssemblyProfileId?: number | null;
+  promptAssemblyProfileRef?: string | null;
+  capabilityPolicyVersionId?: number | null;
+  capabilityPolicyVersionRef?: string | null;
+  componentCapabilitySnapshotId?: number | null;
+  componentCapabilitySnapshotRef?: string | null;
+  widthClassPolicyVersionId?: number | null;
+  widthClassPolicyVersionRef?: string | null;
+  validationContractVersion?: string | null;
+  governanceResolutionSource?: string | null;
+  compilerMode?: "deterministic-grid" | null;
+  compileSummary?: Record<string, unknown> | null;
 }
 
 export interface AiFormGenerationResponse {
@@ -51,6 +66,39 @@ export interface AiFormGenerationResponse {
   userMessage: string;
   /** True when status is failed but definitionJSON is the last invalid draft for canvas inspection */
   draftHasValidationIssues?: boolean;
+  /**
+   * Story 6.3.1 UAT round 5 — server-side run id for the second-pass
+   * /remeasure call. Absent when the server didn't persist the run (e.g.
+   * tests with no DB session). Frontends that don't implement
+   * render-then-measure can ignore it entirely.
+   */
+  generationRunId?: number | null;
+}
+
+// ---------- Story 6.3.1 UAT round 5 — render-then-measure ----------
+
+/** A single DOM-measured component height the frontend will POST to /remeasure. */
+export interface AiComponentMeasurement {
+  componentId: string;
+  /** Rendered height in CSS pixels (e.g. element.getBoundingClientRect().height / scale). */
+  height: number;
+}
+
+export interface AiRemeasureRequest {
+  generationRunId: number;
+  measurements: AiComponentMeasurement[];
+  /** Same runtime context the original /generate call used. */
+  runtimeContext?: AiRuntimeContext;
+}
+
+export interface AiRemeasureResponse {
+  status: AiGenerationStatus;
+  /** Refined DefinitionJSON. Null when status === "failed". */
+  definitionJSON?: Record<string, unknown> | null;
+  compileSummary?: Record<string, unknown> | null;
+  validationSummary?: AttemptValidationSummary | null;
+  userMessage: string;
+  generationRunId: number;
 }
 
 export interface RuntimeComponentFootprint {
@@ -131,6 +179,39 @@ export async function generateAiDefinition(
           "One generate call runs up to 4 model attempts on the server (initial + 3 corrections); " +
           "each attempt can take a long time. Try again, or shorten the prompt / reduce validator load. " +
           "“Load last draft” only appears when the server returns JSON — a client timeout cancels the request before any draft arrives."
+      );
+    }
+    throw formatError(error);
+  }
+}
+
+/**
+ * Story 6.3.1 UAT round 5 — render-then-measure second pass.
+ *
+ * Sends the DOM-rendered heights of each component to the backend, which
+ * recompiles using ground-truth measurements instead of per-type estimates.
+ * Returns a refined DefinitionJSON that exactly matches what the renderer
+ * is going to paint. The caller is responsible for falling back to the
+ * first-pass definition on failure (status === "failed").
+ *
+ * The endpoint runs no LLM calls so this is fast (~50–200 ms typical).
+ */
+const FORM_AI_REMEASURE_TIMEOUT_MS = 30_000;
+
+export async function remeasureAiDefinition(
+  request: AiRemeasureRequest
+): Promise<AiRemeasureResponse> {
+  try {
+    const response = await apiClient.post<AiRemeasureResponse>(
+      "/api/form-ai/remeasure",
+      request,
+      { timeout: FORM_AI_REMEASURE_TIMEOUT_MS }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+      throw new Error(
+        "Render-then-measure timed out. The first-pass layout will be used."
       );
     }
     throw formatError(error);

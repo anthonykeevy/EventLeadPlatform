@@ -4,14 +4,20 @@
 
 This guide defines the current post-processing workflow in `backend/modules/form_ai/service.py`, what each step does, the risks, and when each step should be enabled for Story 6.3 tuning.
 
-Current pipeline order in `generate_form_definition`:
+Current compiler-first pipeline order in `generate_form_definition`:
 
 1. `_extract_json_candidate(...)`
-2. `_normalize_display_component_props(...)`
-3. `_post_process_generated_definition(...)`
+2. semantic plan extraction/validation (`_extract_semantic_plan_candidate(...)`)
+3. deterministic compile (`compile_semantic_plan_to_definition(...)`)
+4. `_normalize_display_component_props(...)`
+5. `_post_process_generated_definition(...)`
    - internal: heading filtering + tab order normalization
    - internal: `_sync_style_dimensions_into_props(...)`
    - internal: `_rebalance_single_column_vertical_spacing(...)`
+
+Notes:
+- The LLM no longer owns final coordinates in the runtime path.
+- Post-processing is now compatibility/finalization logic after deterministic compile, not a primary layout generator.
 
 ---
 
@@ -124,6 +130,78 @@ Before enabling a post-processing step, confirm:
 
 ---
 
-## Suggested Next Improvement
+## Per-step feature flags (Story 6.3.1)
 
-Add per-step feature flags (example: `FORM_AI_PP_NORMALIZE`, `FORM_AI_PP_SYNC_STYLE_PROPS`, `FORM_AI_PP_REBALANCE_SINGLE_COLUMN`) so you can run benchmark and stability modes without code edits.
+The post-processing pipeline now exposes four boolean env flags. They are read on every call to `_post_process_generated_definition` and surfaced in `compileSummary.postProcessingApplied` for trace visibility (AC-3).
+
+| Env var | Controls | Default in `deterministic-grid` | Default in `legacy` |
+|---------|----------|---------------------------------|---------------------|
+| `FORM_AI_PP_HEADING_FILTER` | Heading gating + placeholder text filter | `true` | `true` |
+| `FORM_AI_PP_TAB_ORDER` | Sequential tab-order rewrite from layout | `true` | `true` |
+| `FORM_AI_PP_SYNC_STYLE_PROPS` | `_sync_style_dimensions_into_props` (copies `style.width/height` into `props`) | `false` | `true` |
+| `FORM_AI_PP_REBALANCE` | `_rebalance_single_column_vertical_spacing` (rewrites `position.y` and heights) | `false` | `true` |
+
+Truthy values: `1`, `true`, `yes`, `on`. Falsy values: `0`, `false`, `no`, `off`. Anything else (including unset) uses the per-mode default.
+
+The destructive geometry transforms (`SYNC_STYLE_PROPS`, `REBALANCE`) default OFF in the deterministic-grid path so the compiler stays the single owner of layout. They remain ON in the legacy fallback path so pre-Story-6.3.1 generations keep their previous behaviour.
+
+`_normalize_display_component_props` is non-destructive (only fills missing `props.label` from `props.text` for header/paragraph) and runs unconditionally.
+
+### Profile recipes
+
+| Profile | Env settings |
+|---------|--------------|
+| **A — Prompt benchmark mode** | `FORM_AI_PP_SYNC_STYLE_PROPS=false`, `FORM_AI_PP_REBALANCE=false` (already the default for deterministic-grid) |
+| **B — UX stability mode** | `FORM_AI_PP_SYNC_STYLE_PROPS=true`, `FORM_AI_PP_REBALANCE=true` (forces all mutations even in deterministic-grid) |
+| **C — Hybrid mode** | `FORM_AI_PP_SYNC_STYLE_PROPS=true`, `FORM_AI_PP_REBALANCE=false` |
+
+---
+
+## Failure modes (Story 6.3.1)
+
+The form-AI generation pipeline now runs as five explicit phases. Each phase has its own failure handling so that LLM-fault outcomes (the model emitted something we asked it to fix) are never confused with compiler-fault outcomes (our deterministic pipeline produced an invalid definition).
+
+```
+[provider] -> [json-parse] -> [semantic-plan] -> [semantic-rules gate] -> [compile + post-process] -> [compile-validation self-check]
+```
+
+LLM-fault stages (`json-parse`, `semantic-plan`, `semantic-rules`) feed a phase-specific correction message back to the model and burn one of the `max_system_correction_attempts` (default 3, capped at 10). When the cap is exhausted, the run terminates with the corresponding `terminalReason`.
+
+Compiler-fault stages (`compile`, `compile-validation`) **never feed back to the LLM**: the model cannot fix geometry it did not produce. The run terminates immediately and the draft (when available) is returned so the user/ops can inspect it on the canvas.
+
+| `terminalReason` | Phase | `failureClass` | LLM correction? | Surface |
+|------------------|-------|----------------|-----------------|---------|
+| `validated-success` | (none — happy path) | `none` | n/a | `definitionJSON` populated, `status="completed"` |
+| `provider-error` | provider call (httpx / OpenAI SDK) | `provider-fault` | no | retains last good draft if any |
+| `context-pack-load-failed` | startup (context pack file missing) | `infrastructure-fault` | no | no attempts recorded |
+| `json-parse-failed` | LLM output is not parseable JSON | `llm-fault` | yes (until cap) | `attempts[].failedAt="json-parse"`, `compileDiagnostics.jsonParseError` |
+| `semantic-plan-invalid` | JSON parses but does not match `FormSemanticPlan` (Pydantic shape) | `llm-fault` | yes (until cap) | `attempts[].failedAt="semantic-plan"`, `compileDiagnostics.semanticPlanError` |
+| `semantic-rules-violated` | Plan parses but the policy gate found rule violations (unknown component type, disallowed widthIntent, missing options, invalid validation rule, duplicate componentId) | `llm-fault` | yes (until cap) | `attempts[].failedAt="semantic-rules"`, `compileDiagnostics.semanticGateViolations`, `trace.semanticValidationViolations` |
+| `compiler-error` | Exception in `compile_semantic_plan_to_definition` or `_post_process_generated_definition`; OR the compiler dropped a component the gate said was clean | `compiler-fault` | **never** | `attempts[].failedAt="compile"`, `compileDiagnostics.compilerError`, `compileSummary.droppedComponentReasons` (when applicable) |
+| `compiler-validation-failed` | `validate_definition_payload` (schema + visual collisions/boundaries) reports invalid output | `compiler-fault` | **never** | `attempts[].failedAt="compile-validation"`, draft returned for inspection |
+| `retry-cap-exhausted` | LLM-fault correction loop ran out of attempts at the semantic-rules gate | `llm-fault` | already exhausted | last attempt's diagnostics |
+| `first-shot-invalid` | `max_system_correction_attempts=0` and the first attempt failed an LLM-fault stage | `llm-fault` | n/a | last attempt's diagnostics |
+
+`failureClass` is a coarse roll-up for dashboards and is set on every terminal exit (including `validated-success` → `"none"`).
+
+### Triage rules of thumb
+
+- `failureClass="llm-fault"` and the same `terminalReason` keeps recurring across runs → tighten the prompt template, add an example, or extend the validation contract.
+- `failureClass="compiler-fault"` ever → file a bug. The user's prompt is not at fault. Check `attempts[-1].compileDiagnostics` and `compileSummary` (especially `droppedComponentReasons` and `stageDiagnostics`) for root cause.
+- `failureClass="provider-fault"` recurring → check OpenAI status / API key / rate limits, not the form-AI code.
+- `failureClass="infrastructure-fault"` ever → bad deploy (missing context pack file). Check the build artefacts.
+
+### Semantic-validation gate rules
+
+The gate (`backend/modules/form_ai/semantic_validator.py`) runs AFTER `FormSemanticPlan` parses and BEFORE the compiler. It catches LLM faults that the Pydantic shape parser cannot:
+
+| Rule code | Fires when |
+|-----------|------------|
+| `empty-plan` | `components` is empty. |
+| `unknown-component-type` | `componentType` is not registered in the resolved capability snapshot. |
+| `width-intent-not-allowed` | `widthIntent` is not in this component's allowed `widthClasses`. |
+| `missing-options-for-choice` | `componentType` ∈ {`dropdown`, `radio`, `checkbox`, `select`} but `options` is missing or empty. |
+| `invalid-validation-rule` | A key in `validationIntent` is not in this component's `allowedRules` from the validation contract. |
+| `duplicate-component-id` | The same `componentId` is reused (only enforced when explicitly set; auto-synthesised ids are always unique). |
+
+The gate is permissive when no governance is configured (no capability snapshot or no validation contracts in the resolved governance bundle) so a fresh install can still generate forms.

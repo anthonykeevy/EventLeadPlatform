@@ -3,9 +3,10 @@
 **Epic:** 6 — AI Generation & Monetization Engine
 **Story ID:** 6.4
 **Title:** AI Agent Panel Production Polish + User Preferences Architecture Foundation
-**Status:** 📝 **Draft** (SM authoring)
-**Branch:** `story/epic6-6.4-ai-panel-polish-and-prefs-foundation` (to be created)
-**PR:** *(none yet)*
+**Status:** ✅ **Complete** — UAT Rounds 1–3 PASS, ready to merge
+**Branch:** `story/epic6-6.4-ai-panel-polish-and-prefs-foundation`
+**PR:** [#66](https://github.com/anthonykeevy/EventLeadPlatform/pull/66)
+**Completed:** 2026-04-24 *(date-stamp parity to be reconciled against PR `mergedAt` post-merge per workflow checklist row 7)*
 **Depends On:**
 - Story 6.3.1 ✅ Complete (PR #64) — semantic plan + deterministic compiler foundation
 - PR #65 (workflow guide post-6.3.1 improvements) — should merge before this story moves to Dev so the new mandatory closeout criteria + Multi-Round UAT Protocol are the active workflow when 6.4 closes
@@ -320,18 +321,46 @@ A new doc `docs/USER-PREFERENCES-ARCHITECTURE.md` (~200-400 lines) covering: sch
 
 ## 8) Dev Agent Record
 
-*To be completed by Dev during execution per the standard story template.*
+**Agent:** `@bmad-agent-bmm-dev` (Amelia)
+**Sessions:** Multi-session — clean boundary between foundation layer (§A: schema + API + Notifications UI) and polish-consumption layer (§B: AIAgentPanel wiring)
+**Start:** 2026-04-24
+**Closeout:** 2026-04-24 — UAT Rounds 1–3 PASS
 
-**Agent:** *(TBD — recommend `@bmad-agent-bmm-dev` Amelia)*
-**Sessions:** *(TBD — multi-session likely given M-L sizing; recommend a clean session boundary between the foundation layer and the polish-consumption layer)*
-**Start:** *(TBD)*
-**Closeout:** *(TBD)*
+Full record lives in `STORY-6.4-CLOSEOUT-REPORT.md`. Summary below.
 
 ### What was implemented
-*(TBD)*
+
+- **Foundation (§A):** 3 new tables (`ref.UserPreferenceCategory`, `ref.UserPreferenceKey`, `dbo.UserPreference`) mirroring the `config.AppSetting` pattern; `UserPreferenceKey.SettingTypeID` reuses existing `ref.SettingType` (no parallel type system); `GET / PATCH / DELETE /api/me/preferences` with atomic write semantics + default-fallback reads + soft-delete reset; dynamically-rendering Notifications popup in the Preferences UI (controls dispatch from `settingType`); architecture documented at `docs/USER-PREFERENCES-ARCHITECTURE.md`.
+- **Polish (§B):** Last AI prompt persisted via `definition.aiAgentSettings.lastPrompt` (no schema change — field already existed from 6.3); replace-form modal warning with "don't show again" preference (consumes new preferences API); transport selector hidden (locked to `auto`); retry override input removed (backend reads `form_ai.default_retries` from `config.AppSetting` with startup cache); soft-validation drafts auto-applied to canvas without user action.
+- **Hygiene:** Dead UI removed (`pendingInvalidDraft` state and "Load last draft" button); unused imports cleaned; AI panel hint text removed.
+- **UAT-driven additions:** Cancel button + AbortController wired to abort in-flight AI generation on explicit cancel and on component unmount via explicit navigation. Surfaced HTTP/2 production requirement (`g-64-http2-prod`) — see carry-forward backlog.
 
 ### Decisions / deviations
-*(TBD)*
+
+- **DDL + 3 seed migrations as 4 files** (within AC-17 ≤4 bound). Conceptually 6 migrations (3 tables + 3 seeds) collapsed into one DDL file + three seed files.
+- **`SettingTypeID` FK to existing `ref.SettingType`** instead of a new type table — explicitly chosen to avoid parallel type systems.
+- **AppSetting cache is process-scoped** — multi-worker deployments each cache independently. Documented in closeout report §6 risk register.
+- **Soft-delete only for user preference rows** — never hard-delete; absence-means-default semantics preserved.
+- **HTTP/2 finding promoted to P1 infra carry-forward** rather than blocking the story, since dev under HTTP/1.1 still works (the symptom is queueing, not failure) and prod hosts (nginx/APIM) typically terminate HTTP/2 already.
 
 ### File List
-*(TBD)*
+
+Full file inventory is in `STORY-6.4-GATE-EVIDENCE.md` §3. High-level:
+
+- **Migrations (4):** `058_story_64_user_pref_tables.py`, `059_story_64_seed_user_pref_categories.py`, `060_story_64_seed_user_pref_keys.py`, `061_story_64_seed_form_ai_default_retries.py`
+- **Backend models (3):** `ref/user_preference_category.py`, `ref/user_preference_key.py`, `user_preference.py`
+- **Backend module:** `modules/preferences/` (router + service + schemas)
+- **Backend modified:** `modules/form_ai/service.py` (`_get_default_retries` + cache)
+- **Backend tests:** `tests/test_user_preferences.py` (+41 tests)
+- **Frontend new:** `features/preferences/components/NotificationsSettingsPopup.tsx`, `features/preferences/api/preferencesApi.ts`, `features/preferences/types/preferences.types.ts`, plus tests
+- **Frontend modified:** `features/builder/components/ai/AIAgentPanel.tsx` (§B polish + abort wiring)
+- **Docs:** `docs/USER-PREFERENCES-ARCHITECTURE.md` (AC-16)
+
+### Gates at closeout
+
+- Backend `pytest tests/test_user_preferences.py -v` → 41 passed, 0 failed (0.09s)
+- Frontend `npm run lint` → 0 errors, 0 warnings (`--max-warnings 0`)
+- Frontend `npm run test:unit -- --watch=false` → 283 passed (28 files), 10.71s
+- UAT Round 1 (Foundation) → PASS 2026-04-24
+- UAT Round 2 (Polish) → PASS 2026-04-24
+- UAT Round 3 (Regression + hygiene) → PASS 2026-04-24

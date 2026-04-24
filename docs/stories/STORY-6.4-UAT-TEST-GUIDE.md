@@ -186,11 +186,18 @@ UAT considered PASS when:
 
 Any FAIL in §2 or §3 should trigger a single-variable fix + re-test the affected sub-section only (per Multi-Round UAT Protocol). Avoid making multiple unrelated fixes in a single iteration.
 
-**Anthony's sign-off goes here:**
+**Anthony's sign-off:**
 
 ```
-Round 1 (foundation): __________________  Date: __________
-Round 2 (polish): _____________________  Date: __________
-Round 3 (regression + hygiene): _______  Date: __________
-Final UAT PASS: ______________________  Date: __________
+Round 1 (foundation): PASS  Date: 2026-04-24
+Round 2 (polish):     PASS  Date: 2026-04-24
+Round 3 (regression): PASS  Date: 2026-04-24
+Final UAT PASS:       PASS  Date: 2026-04-24
 ```
+
+**Notes:**
+- AC-1 (prompt persistence): confirmed restored after form exit and re-entry.
+- AC-2/3/4 (replace-form warning): modal appeared on non-empty canvas; "don't show again" persisted correctly; Notifications toggle reflected the saved state.
+- Transient collision observation on first generate run: `/api/form-ai/remeasure` was not visible in DevTools (likely queued behind the AI generation connection under HTTP/1.1 dev server). On second run DevTools confirmed remeasure completed and no collisions were present. Tracked in carry-forward `g-64-http2-prod` — benign once HTTP/2 is in place.
+- Cancel button verified working immediately.
+- Navigate-away during generation noted as a known quirk (soft route change does not fire unmount signal); documented in closeout carry-forward.

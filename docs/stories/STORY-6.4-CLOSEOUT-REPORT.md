@@ -3,9 +3,9 @@
 **Story:** 6.4  
 **Title:** AI Agent Panel Production Polish + User Preferences Architecture Foundation  
 **Branch:** `story/epic6-6.4-ai-panel-polish-and-prefs-foundation`  
-**PR:** [#66](https://github.com/anthonykeevy/EventLeadPlatform/pull/66) — pending merge  
+**PR:** [#66](https://github.com/anthonykeevy/EventLeadPlatform/pull/66) — UAT PASS, ready to merge  
 **Date:** 2026-04-24  
-**Disposition:** ✅ **Complete and release-eligible** — all 19 ACs implemented, green gates, User Preferences architecture in place  
+**Disposition:** ✅ **Complete and release-eligible** — all 19 ACs implemented, green gates, UAT Rounds 1–3 PASS, User Preferences architecture in place  
 **Author:** `@bmad-agent-bmm-dev` (Amelia)  
 **Audience:** `@bmad-agent-bmm-sm` — use this report to plan Story 6.5.
 
@@ -122,8 +122,11 @@
 | `python -m pytest tests/test_user_preferences.py -v` | **41 passed, 0 failed** in 0.09s |
 | `npm run lint` (`frontend/`) | **0 errors, 0 warnings** (`--max-warnings 0`) |
 | `npm run test:unit -- --watch=false` (`frontend/`) | **283 passed (28 files)** in 10.71s |
+| UAT Round 1 — Foundation | **PASS** 2026-04-24 |
+| UAT Round 2 — Polish | **PASS** 2026-04-24 |
+| UAT Round 3 — Regression + hygiene | **PASS** 2026-04-24 |
 
-Full evidence captured inline above. No skip or xfail escalations.
+Full evidence: `STORY-6.4-GATE-EVIDENCE.md`. Full UAT outcome: `STORY-6.4-UAT-RESULTS.md`. No skip or xfail escalations.
 
 ---
 
@@ -151,17 +154,15 @@ Anthony must run migrations in sequence (`058 → 059 → 060 → 061`) before U
 
 ## 10) Closeout decision
 
-Story 6.4 is **closed Complete** and ready for Anthony to run migrations then execute UAT per `docs/stories/STORY-6.4-UAT-TEST-GUIDE.md`.
+Story 6.4 is **closed Complete**. UAT Rounds 1–3 PASS (2026-04-24). Ready to merge PR #66 to `master`.
 
 **SM next actions:**
 
-1. Run migrations 058–061 against the dev DB.
-2. Start backend and frontend dev servers.
-3. Execute UAT Round 1 (§A Foundation) per `STORY-6.4-UAT-TEST-GUIDE.md`.
-4. On Round 1 pass, execute UAT Round 2 (§B Polish).
-5. On Round 2 pass, execute UAT Round 3 (catch-all + regression).
-6. Mark PR #66 ready for review and merge to `master`.
-7. Plan Story 6.5 using §4 (unlocked capabilities) and §5 (carry-forward) of this report.
+1. Merge PR #66 to `master`.
+2. Confirm merge date matches `Completed:` field in `story-6.4.md` and `EPIC-6-STATUS.md`.
+3. Retire the story worktree: `git worktree remove "<story worktree path>"`.
+4. Plan Story 6.5 using §4 (unlocked capabilities) and §5 (carry-forward) of this report.
+5. Add `g-64-http2-prod` (P1 infra) to the pre-production infrastructure checklist.
 
 ---
 

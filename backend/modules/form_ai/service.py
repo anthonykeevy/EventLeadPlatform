@@ -52,7 +52,13 @@ from .semantic_validator import (
     validate_semantic_plan,
 )
 
-MAX_SYSTEM_CORRECTION_ATTEMPTS = 3
+# Fallback used when AppSetting row is absent or DB is unreachable on startup.
+_DEFAULT_RETRIES_FALLBACK = 2
+# Module-level cache for form_ai.default_retries AppSetting value.
+# Set to None to force a reload on next call to _get_default_retries().
+_cached_default_retries: Optional[int] = None
+
+MAX_SYSTEM_CORRECTION_ATTEMPTS = _DEFAULT_RETRIES_FALLBACK  # kept for backward compat
 _ROOT_PATH = Path(__file__).resolve().parents[3]
 CONTEXT_PACK_PATH = _ROOT_PATH / "docs" / "stories" / "STORY-6.2-AI-CONTEXT-PACK.md"
 LOGGER = logging.getLogger(__name__)
@@ -78,6 +84,49 @@ def _env_flag(name: str, default: bool) -> bool:
     if raw in {"0", "false", "no", "off"}:
         return False
     return default
+
+
+def _get_default_retries(db_session: Optional[Session] = None) -> int:
+    """Return the default system correction attempt count from config.AppSetting.
+
+    Value is module-level cached after the first successful read.
+    Falls back to ``_DEFAULT_RETRIES_FALLBACK`` (2) when:
+      - The AppSetting row does not exist yet (pre-migration environment)
+      - No db_session is supplied
+      - Any DB error occurs
+
+    Call ``_invalidate_default_retries_cache()`` to force a reload (e.g. from an
+    ops endpoint after updating the AppSetting row).
+    """
+    global _cached_default_retries
+    if _cached_default_retries is not None:
+        return _cached_default_retries
+
+    if db_session is None:
+        return _DEFAULT_RETRIES_FALLBACK
+
+    try:
+        from sqlalchemy import text as _text
+        row = db_session.execute(
+            _text(
+                "SELECT TOP 1 [SettingValue] FROM [config].[AppSetting] "
+                "WHERE [SettingKey] = N'form_ai.default_retries' AND [IsDeleted] = 0"
+            )
+        ).fetchone()
+        if row and row[0] is not None:
+            value = max(0, min(10, int(row[0])))
+            _cached_default_retries = value
+            return value
+    except Exception as exc:
+        LOGGER.warning("form_ai.default_retries: AppSetting read failed (%s), using fallback %d", exc, _DEFAULT_RETRIES_FALLBACK)
+
+    return _DEFAULT_RETRIES_FALLBACK
+
+
+def _invalidate_default_retries_cache() -> None:
+    """Reset the module-level cache so the next call re-reads from AppSetting."""
+    global _cached_default_retries
+    _cached_default_retries = None
 
 
 def _summarise_semantic_plan_error(exc: BaseException) -> str:
@@ -3058,7 +3107,7 @@ def generate_form_definition(
     correction_cap = (
         max_system_correction_attempts
         if max_system_correction_attempts is not None
-        else MAX_SYSTEM_CORRECTION_ATTEMPTS
+        else _get_default_retries(db_session)
     )
     correction_cap = max(0, min(correction_cap, 10))
 

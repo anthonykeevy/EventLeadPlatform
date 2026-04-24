@@ -42,6 +42,7 @@ from modules.forms.publish_request_router import router as publish_request_route
 from modules.form_validate.router import router as form_validate_router  # Story 6.1: Static DefinitionJSON validator
 from modules.form_ai.router import router as form_ai_router  # Story 6.2: AI generation with validator retries
 from modules.logging.router import router as logging_router  # Frontend dev logging ingestion/query
+from modules.preferences.router import router as preferences_router  # Story 6.4: User Preferences
 
 # Configure application-wide logging
 configure_logging(log_level="INFO")
@@ -117,6 +118,7 @@ app.include_router(publish_request_router)  # Story 5.6: Publish request create,
 app.include_router(form_validate_router)  # Story 6.1: schema + boundary + collision validation
 app.include_router(form_ai_router)  # Story 6.2: AI generation + correction loop
 app.include_router(logging_router)  # Frontend logging APIs (/api/v1/logs/*)
+app.include_router(preferences_router)  # Story 6.4: User Preferences (/api/me/preferences)
 
 @app.get("/")
 async def root():

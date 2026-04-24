@@ -32,11 +32,15 @@ async def generate_form_with_ai(
 ) -> FormAiGenerateResponse:
     # Keep dependency to enforce authenticated use in Builder flows.
     runtime_context = body.runtimeContext.model_dump() if body.runtimeContext else None
+    # Story 6.4 AC-6: maxSystemCorrectionAttempts is no longer forwarded from the
+    # request payload — the server reads form_ai.default_retries from AppSetting.
+    # The field is kept in the Pydantic schema for backward compatibility but
+    # intentionally ignored here so the AppSetting is always the source of truth.
     return generate_form_definition(
         body.prompt,
         runtime_context=runtime_context,
         openai_transport=body.openaiTransport,
-        max_system_correction_attempts=body.maxSystemCorrectionAttempts,
+        max_system_correction_attempts=None,  # always use AppSetting default
         system_prompt_addendum=body.systemPromptAddendum,
         db_session=db,
         actor_user_id=current_user.user_id,

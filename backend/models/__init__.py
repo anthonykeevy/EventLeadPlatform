@@ -47,6 +47,8 @@ from .ref import (
     CompanyRelationshipType,
     AssetType,
     FormDefaultsSchemaVersion,
+    UserPreferenceCategory,
+    UserPreferenceKey,
 )
 
 # Core business models (dbo schema)
@@ -80,6 +82,7 @@ from .form_publish_request import FormPublishRequest
 from .form_republish_request import FormRepublishRequest
 from .generation_run import GenerationRun
 from .generation_artifact import GenerationArtifact
+from .user_preference import UserPreference
 
 # Configuration tables (config schema)
 from .config import (
@@ -167,6 +170,7 @@ __all__ = [
     "FormRepublishRequest",
     "GenerationRun",
     "GenerationArtifact",
+    "UserPreference",
     
     # Reference tables (ref)
     "Country",
@@ -195,6 +199,8 @@ __all__ = [
     "CompanyRelationshipType",
     "AssetType",
     "FormDefaultsSchemaVersion",
+    "UserPreferenceCategory",
+    "UserPreferenceKey",
     
     # Configuration tables (config)
     "AppSetting",

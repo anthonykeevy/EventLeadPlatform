@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Upload } from "lucide-react";
+import { Sparkles, RefreshCw, Upload } from "lucide-react";
 
 import {
   AiComponentMeasurement,
@@ -10,7 +10,7 @@ import {
   OpenAiTransportMode,
   remeasureAiDefinition,
 } from "../../api/aiFormGenerationApi";
-import { useBuilderStore } from "../../stores/useBuilderStore";
+import { useBuilderStore, selectAuthoredPages } from "../../stores/useBuilderStore";
 import { DEVICE_DIMENSIONS, FormComponent, FormDefinition } from "../../types/builder.types";
 import { getCompanyTermsAssets } from "../../../dashboard/api/companyAssetsApi";
 import { getComponentDimensions } from "../../utils/collisionDetection";
@@ -20,6 +20,9 @@ import {
   HORIZONTAL_LAYOUT_MIN_WIDTH_PX,
   resolveLayoutModeForRequest,
 } from "./resolveLayoutModeForRequest";
+import { getPreferences, patchPreferences } from "../../../preferences/api/preferencesApi";
+
+const SUPPRESS_WARNING_KEY = "notifications.ai_agent.suppress_replace_warning";
 
 type GenerationUiStatus =
   | "idle"
@@ -198,23 +201,24 @@ function findFirstTermsComponent(definition: FormDefinition): FormComponent | nu
 }
 
 export const AIAgentPanel: React.FC = () => {
-  const { applyValidatedDefinition, formDefinition, formContext, scale, previewMode } = useBuilderStore();
+  const {
+    applyValidatedDefinition,
+    setAiAgentSettings,
+    saveDraft,
+    formDefinition,
+    formContext,
+    scale,
+    previewMode,
+  } = useBuilderStore();
   const [prompt, setPrompt] = React.useState("");
   const [status, setStatus] = React.useState<GenerationUiStatus>("idle");
   const [message, setMessage] = React.useState<string | null>(null);
   const [traceSummary, setTraceSummary] = React.useState<string | null>(null);
   const [promptSnapshot, setPromptSnapshot] = React.useState<string | null>(null);
   const [attemptLines, setAttemptLines] = React.useState<string[] | null>(null);
-  const [pendingInvalidDraft, setPendingInvalidDraft] = React.useState<Record<
-    string,
-    unknown
-  > | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [openaiTransport, setOpenaiTransport] = React.useState<OpenAiTransportMode>("auto");
-  // Story 6.3.1: bumped from 1 → 2 so a single semantic-validation rejection
-  // (e.g. unknown component type from an LLM hallucination) doesn't burn the
-  // entire correction budget before the LLM has a chance to recover.
-  const [maxSystemCorrectionAttempts, setMaxSystemCorrectionAttempts] = React.useState(2);
+  // Story 6.4 AC-5: transport is locked to "auto"; selector removed.
+  const [openaiTransport] = React.useState<OpenAiTransportMode>("auto");
   // Story 6.3.1 UAT round 6 — surfaces the "horizontal-layout-downgraded-to-
   // vertical-because-canvas-is-too-narrow" notice. Set as a side-effect of
   // ``buildRuntimeContext`` and rendered in the panel header. Cleared on each
@@ -223,6 +227,59 @@ export const AIAgentPanel: React.FC = () => {
   const [layoutDowngradeNotice, setLayoutDowngradeNotice] = React.useState<
     string | null
   >(null);
+
+  // Story 6.4 AC-2/3: replace-form warning modal state
+  const [showReplaceWarning, setShowReplaceWarning] = React.useState(false);
+  const [dontShowAgain, setDontShowAgain] = React.useState(false);
+  const [suppressWarning, setSuppressWarning] = React.useState(false);
+
+  // Holds the AbortController for the in-flight generate + remeasure requests.
+  // Aborted on component unmount (user navigates away) and on Cancel button click.
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      // Abort any in-flight AI generation when the panel unmounts (navigation away).
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  // Story 6.4 AC-1: hydrate prompt from DB-backed lastPrompt on mount
+  const promptHydratedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (promptHydratedRef.current) return;
+    const lastPrompt = formDefinition?.aiAgentSettings?.lastPrompt;
+    if (lastPrompt) {
+      setPrompt(lastPrompt);
+      promptHydratedRef.current = true;
+    } else if (formDefinition) {
+      // formDefinition loaded but no lastPrompt — mark as hydrated so we don't
+      // overwrite if user types before formDefinition resolves
+      promptHydratedRef.current = true;
+    }
+  }, [formDefinition]);
+
+  // Story 6.4 AC-3: load suppress-warning preference on mount
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const prefs = await getPreferences();
+        if (cancelled) return;
+        for (const cat of prefs.categories) {
+          for (const entry of cat.entries) {
+            if (entry.preferenceKey === SUPPRESS_WARNING_KEY) {
+              setSuppressWarning(entry.value === "true");
+              return;
+            }
+          }
+        }
+      } catch {
+        // Preference load failure is non-blocking; default to show warning
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const buildRuntimeContext = React.useCallback(async (): Promise<AiRuntimeContext | undefined> => {
     if (!formDefinition) return undefined;
@@ -497,7 +554,8 @@ export const AIAgentPanel: React.FC = () => {
     async (
       generationRunId: number,
       firstPassDefinition: FormDefinition,
-      runtimeContext: AiRuntimeContext
+      runtimeContext: AiRuntimeContext,
+      signal?: AbortSignal
     ): Promise<FormDefinition | null> => {
       // One paint cycle so the canvas has had a chance to render the new
       // components before we measure them. Two cycles in case the renderer
@@ -556,7 +614,7 @@ export const AIAgentPanel: React.FC = () => {
           generationRunId,
           measurements,
           runtimeContext,
-        });
+        }, signal);
         devLogger.info("ai.remeasure.result", {
           status: refined.status,
           measuredCount: measurements.length,
@@ -581,15 +639,25 @@ export const AIAgentPanel: React.FC = () => {
     [scale]
   );
 
-  const handleGenerate = React.useCallback(async () => {
+  const handleCancelGenerate = React.useCallback(() => {
+    abortControllerRef.current?.abort();
+  }, []);
+
+  // Story 6.4 AC-2/3/4: check replace-warning condition then kick off generation
+  const executeGenerate = React.useCallback(async () => {
     const trimmed = prompt.trim();
     if (!trimmed || isSubmitting) return;
+
+    // Create a fresh AbortController for this run. Any prior run was already
+    // completed or cancelled, so the old controller can be discarded safely.
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const { signal } = controller;
 
     setIsSubmitting(true);
     setStatus("generating");
     setPromptSnapshot(trimmed.length > 160 ? `${trimmed.slice(0, 160)}…` : trimmed);
     setAttemptLines(null);
-    setPendingInvalidDraft(null);
     setMessage(
       "Sending one request to the server. It may run up to 4 internal model attempts (initial + 3 corrections); this can take several minutes."
     );
@@ -613,19 +681,20 @@ export const AIAgentPanel: React.FC = () => {
       devLogger.info("ai.sections.run.start", {
         promptChars: trimmed.length,
         openaiTransport,
-        maxSystemCorrectionAttempts,
         sectionCount: sectioned.sections.length,
         sections: sectionSummaries,
       });
+      // Story 6.4 AC-6: maxSystemCorrectionAttempts no longer sent from frontend.
+      // The backend reads form_ai.default_retries from config.AppSetting.
       const generationOptions: AiGenerationOptions = {
         openaiTransport,
-        maxSystemCorrectionAttempts,
         systemPromptAddendum: sectioned.addendum,
       };
       const response = await generateAiDefinition(
         trimmed,
         runtimeContext,
-        generationOptions
+        generationOptions,
+        signal
       );
       setStatus("validating");
 
@@ -647,7 +716,6 @@ export const AIAgentPanel: React.FC = () => {
         attemptCount: response.trace.attemptCount,
         openaiTransport,
         resolvedOpenaiTransport: transport,
-        maxSystemCorrectionAttempts,
         validationSummary: response.trace.validationSummary ?? null,
         sectionCount: sectioned.sections.length,
         sections: sectionSummaries,
@@ -680,7 +748,8 @@ export const AIAgentPanel: React.FC = () => {
             const refined = await measureAndRemeasure(
               response.generationRunId,
               aiDefinition,
-              runtimeContext
+              runtimeContext,
+              signal
             );
             if (refined) {
               applyValidatedDefinition(
@@ -705,56 +774,93 @@ export const AIAgentPanel: React.FC = () => {
         }
         setStatus("completed");
         setMessage(response.userMessage);
-        setPendingInvalidDraft(null);
+        // Story 6.4 AC-1: persist last prompt to DB on successful dispatch
+        setAiAgentSettings({ lastPrompt: trimmed });
+        const formId = formDefinition?.formId;
+        if (formId) {
+          saveDraft(formId).catch(() => {
+            // Non-blocking: prompt is in local state; DB persistence failure
+            // is noted but doesn't interrupt the generation success flow.
+          });
+        }
         return;
       }
 
       setStatus("failed");
       setMessage(response.userMessage);
-      const offerInvalidDraft =
-        response.definitionJSON &&
-        (response.draftHasValidationIssues ??
-          /* older API responses omitted the flag; any definition on failed is inspectable */
-          true);
-      if (offerInvalidDraft) {
-        setPendingInvalidDraft(response.definitionJSON as Record<string, unknown>);
-      } else {
-        setPendingInvalidDraft(null);
+
+      // Story 6.4 AC-7: silent autoload — if backend returned a definition
+      // (even with soft validation issues) apply it immediately without prompting.
+      const hasDefinition = !!response.definitionJSON;
+      const hasSoftIssues =
+        response.draftHasValidationIssues ??
+        /* older API responses omitted the flag; any definition on failed is inspectable */
+        true;
+      if (hasDefinition && hasSoftIssues) {
+        applyValidatedDefinition(
+          response.definitionJSON as unknown as FormDefinition,
+          "Load AI draft (soft validation issues — auto-applied)"
+        );
+        // Also save the prompt that produced this draft
+        setAiAgentSettings({ lastPrompt: trimmed });
+        const formId = formDefinition?.formId;
+        if (formId) saveDraft(formId).catch(() => {});
       }
+      // Story 6.4 AC-8: if no definition returned, keep the existing failure message (already set above)
     } catch (error) {
-      setStatus("failed");
-      setAttemptLines(null);
-      setMessage(error instanceof Error ? error.message : "AI generation failed.");
-      devLogger.error("ai.sections.run.error", {
-        openaiTransport,
-        maxSystemCorrectionAttempts,
-        message: error instanceof Error ? error.message : "AI generation failed",
-      });
+      if (error instanceof DOMException && error.name === "AbortError") {
+        // User navigated away or clicked Cancel — treat as a clean cancellation.
+        setStatus("idle");
+        setMessage(null);
+        setTraceSummary(null);
+        devLogger.info("ai.sections.run.cancelled", { openaiTransport });
+      } else {
+        setStatus("failed");
+        setAttemptLines(null);
+        setMessage(error instanceof Error ? error.message : "AI generation failed.");
+        devLogger.error("ai.sections.run.error", {
+          openaiTransport,
+          message: error instanceof Error ? error.message : "AI generation failed",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
   }, [
     applyValidatedDefinition,
     buildRuntimeContext,
+    formDefinition,
     isSubmitting,
-    maxSystemCorrectionAttempts,
     measureAndRemeasure,
     openaiTransport,
     prompt,
     relayoutFromRenderedHeights,
+    saveDraft,
+    setAiAgentSettings,
   ]);
 
-  const handleLoadInvalidDraft = React.useCallback(() => {
-    if (!pendingInvalidDraft) return;
-    applyValidatedDefinition(
-      pendingInvalidDraft as unknown as FormDefinition,
-      "Load AI draft (unresolved validation issues)"
-    );
-    setPendingInvalidDraft(null);
-    setMessage(
-      "Draft loaded on canvas. Collisions or boundaries may still be present — inspect in the builder."
-    );
-  }, [applyValidatedDefinition, pendingInvalidDraft]);
+  // Story 6.4 AC-2/3/4: entry point for Generate button click
+  const handleGenerate = React.useCallback(async () => {
+    const trimmed = prompt.trim();
+    if (!trimmed || isSubmitting) return;
+
+    // AC-4: empty canvas → skip warning
+    const allComponents = formDefinition
+      ? selectAuthoredPages(formDefinition).flatMap((p) => p.components)
+      : [];
+    const hasComponents = allComponents.length > 0;
+
+    if (hasComponents && !suppressWarning) {
+      // Show the replace-form warning modal; actual generation proceeds from modal Confirm
+      setShowReplaceWarning(true);
+      return;
+    }
+
+    await executeGenerate();
+  }, [prompt, isSubmitting, formDefinition, suppressWarning, executeGenerate]);
+
+  // Story 6.4 AC-7: silent autoload means handleLoadInvalidDraft is no longer used.
+  // Kept as a no-op placeholder to avoid breaking any downstream references during transition.
 
   // ---- Dev-only: load a DefinitionJSON from a local file -------------------
   // Story 6.3.1 UAT round 3: pairs with backend/scripts/story_631_replay.py to
@@ -834,61 +940,27 @@ export const AIAgentPanel: React.FC = () => {
           className="w-full min-h-[140px] rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
         />
 
-        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
-          OpenAI outbound transport
-        </label>
-        <select
-          value={openaiTransport}
-          onChange={(event) =>
-            setOpenaiTransport(event.target.value as OpenAiTransportMode)
-          }
-          disabled={isSubmitting}
-          className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
-          aria-label="OpenAI outbound transport"
-        >
-          <option value="auto">
-            Auto (server env FORM_AI_OPENAI_TRANSPORT, default sync)
-          </option>
-          <option value="sync">Sync (single HTTP response per attempt)</option>
-          <option value="stream">Stream (SSE; may reduce long idle timeouts)</option>
-        </select>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">
-          Compare modes when diagnosing timeouts. The trace below shows the resolved transport
-          the server used after applying auto + env.
-        </p>
-
-        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
-          System correction attempts (retry count)
-        </label>
-        <input
-          type="number"
-          min={0}
-          max={10}
-          step={1}
-          value={maxSystemCorrectionAttempts}
-          onChange={(event) => {
-            const parsed = Number(event.target.value);
-            if (!Number.isFinite(parsed)) return;
-            const clamped = Math.max(0, Math.min(10, Math.round(parsed)));
-            setMaxSystemCorrectionAttempts(clamped);
-          }}
-          disabled={isSubmitting}
-          className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
-          aria-label="System correction attempts"
-        />
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">
-          Set to <code>1</code> for section-level evaluation runs in the AI Agent panel.
-        </p>
-
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={isSubmitting || prompt.trim().length < 3}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          Generate Form Draft
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={isSubmitting || prompt.trim().length < 3}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            Generate Form Draft
+          </button>
+          {isSubmitting && (
+            <button
+              type="button"
+              onClick={handleCancelGenerate}
+              className="inline-flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              title="Cancel generation and free the browser connection"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
 
         {devLogsEnabled && (
           <div className="space-y-1">
@@ -945,35 +1017,61 @@ export const AIAgentPanel: React.FC = () => {
             </ul>
           )}
           {traceSummary && <div className="mt-2 text-[11px] opacity-90">{traceSummary}</div>}
-          {pendingInvalidDraft && (
-            <button
-              type="button"
-              onClick={handleLoadInvalidDraft}
-              className="mt-2 w-full rounded-md border border-amber-300 bg-amber-50 px-2 py-1.5 text-[11px] font-medium text-amber-900 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-900/40"
-            >
-              Load last draft on canvas (has validation issues)
-            </button>
-          )}
         </div>
 
-        <div className="rounded-md border border-gray-200 dark:border-gray-700 p-3 text-xs text-gray-600 dark:text-gray-400">
-          <div className="flex items-start gap-2 mb-1">
-            <CheckCircle2 size={13} className="text-emerald-500 mt-0.5" />
-            <span>
-              On success, the validated draft is applied automatically. If generation fails
-              but a last draft is returned, you can load it to inspect collisions on the
-              canvas. After a client timeout, no draft is available until the server responds.
-            </span>
-          </div>
-          <div className="flex items-start gap-2">
-            <AlertTriangle size={13} className="text-amber-500 mt-0.5" />
-            <span>
-              If retries are exhausted, refine your prompt and run again. Single-page
-              generation only in Story 6.2.
-            </span>
+      </div>
+
+      {/* Story 6.4 AC-2/3: Replace-form warning modal */}
+      {showReplaceWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">
+              Replace existing form?
+            </h3>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+              Generating a new form will <strong>replace</strong> what's currently on the
+              canvas. You can <strong>Undo</strong> this if needed (Ctrl/Cmd+Z). Continue?
+            </p>
+            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={dontShowAgain}
+                onChange={(e) => setDontShowAgain(e.target.checked)}
+                className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+              />
+              Don't show this again
+            </label>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowReplaceWarning(false);
+                  setDontShowAgain(false);
+                }}
+                className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowReplaceWarning(false);
+                  if (dontShowAgain) {
+                    setSuppressWarning(true);
+                    // Persist preference — fire and forget
+                    patchPreferences({ [SUPPRESS_WARNING_KEY]: "true" }).catch(() => {});
+                  }
+                  setDontShowAgain(false);
+                  await executeGenerate();
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

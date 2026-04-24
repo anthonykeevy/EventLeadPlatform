@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.4 — AI Agent Panel Production Polish + User Preferences Architecture Foundation
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-04-23
+-->
+<story-context story="6.4" title="AI Agent Panel Production Polish + User Preferences Architecture Foundation">
+
+  <overview>
+    Two intertwined deliverables in one PR:
+    (1) Polish the AI Agent panel for production: persist last prompt to DB (via existing
+        aiAgentSettings.lastPrompt), add replace-form warning with "don't show again" preference,
+        hide power-user controls (transport selector, retry input — backend defaults take over),
+        silently autoload definitions even when soft validation issues are present.
+    (2) Establish a User Preferences architecture foundation that mirrors the existing
+        config.AppSetting pattern (UserPreference table + 2 ref tables + 3 endpoints + frontend
+        Notifications section). The "don't show again" preference is the first consumer; all
+        future preference-driven features plug into the same surface.
+  </overview>
+
+  <critical-objectives>
+    <item>The User Preferences architecture mirrors AppSetting and reuses ref.SettingType — no parallel type system.</item>
+    <item>Existing User.ThemePreferenceID / LayoutDensityID / FontSizeID / PreferredLanguageID / CountryID columns stay UNCHANGED. Migrating them is explicitly out of scope.</item>
+    <item>Default-value fallback semantics: when no UserPreference row exists for a user × key, return ref.UserPreferenceKey.DefaultValue. No backfill needed for existing users.</item>
+    <item>Frontend Notifications section dispatches controls dynamically by SettingType — adding a future preference must require zero frontend code changes for the ref-driven controls.</item>
+    <item>Last-prompt persistence reuses the existing aiAgentSettings.lastPrompt schema field from Story 6.3 — frontend wiring only, no backend schema change for this AC.</item>
+    <item>Retry default sourced from a new config.AppSetting row (form_ai.default_retries=2) — frontend stops sending the value at all.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.3.1">Closed; provides semantic plan + deterministic compiler + the existing aiAgentSettings.lastPrompt schema field that AC-1 reuses.</story>
+    <pr id="65">Workflow guide post-6.3.1 improvements (mandatory-closeout rule lands here). Should merge before Story 6.4 moves to Dev.</pr>
+    <doc path="docs/stories/story-6.4.md">Authoritative story doc with all 19 ACs.</doc>
+    <doc path="docs/stories/EPIC-6-WORKFLOW-GUIDE.md">SM/Dev workflow + closeout checklist.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic migrations from agent shell. Anthony runs migrations per the workspace database-migration-validator rule.</item>
+    <item>Do NOT modify existing User.ThemePreferenceID / LayoutDensityID / FontSizeID / PreferredLanguageID / CountryID — they stay as-is.</item>
+    <item>Do NOT bypass the mandatory-closeout-report rule from PR #65. Story 6.4 triggers BOTH (a) public API surface + (b) ≥1 schema migration.</item>
+    <item>Migration set is bounded per AC-17: 6 migrations expected (collapsible to ≤4 files). Anything above that is a scope-creep red flag — pause and confirm with SM.</item>
+    <item>Frontend Notifications section MUST render dynamically from API response — do NOT hardcode the AI panel toggle. AC-15 explicitly proves this with a demo preference key.</item>
+    <item>Reuse existing ref.SettingType — do NOT create a parallel type ref for user preferences.</item>
+    <item>Per Multi-Round UAT Protocol: 3 UAT rounds expected, single-variable per round. Round 1 = preferences foundation; Round 2 = AI panel polish ACs against the new prefs; Round 3 = catch-all + regression.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <!-- AI Agent panel polish surfaces -->
+    <path file="frontend/src/features/builder/components/ai/AIAgentPanel.tsx"
+          note="The polish target. Lines ~838-857 (transport selector to remove), ~860-881 (retry input to remove), ~202-206 (prompt + promptSnapshot state for AC-1 hydration), handleGenerate (apply path for AC-2/3 modal + AC-7 silent autoload)."/>
+    <path file="frontend/src/features/builder/stores/useBuilderStore.ts"
+          note="historyPast / historyFuture for the Undo reference in the modal copy (AC-2). components.length is the trigger condition for the warning."/>
+    <path file="frontend/src/features/builder/api/aiFormGenerationApi.ts"
+          note="Request payload shape. AC-3 stops sending maxSystemCorrectionAttempts; AC-5 always passes 'auto' for transport."/>
+    <path file="backend/schemas/form_definition.py"
+          note="aiAgentSettings.lastPrompt field already exists (line 258). AC-1 reuses unchanged."/>
+    <path file="backend/tests/test_form_definition_ai_agent_settings.py"
+          note="Existing tests for aiAgentSettings — must remain green or be updated with rationale."/>
+
+    <!-- User Preferences architecture foundation -->
+    <path file="backend/models/config/app_setting.py"
+          note="The pattern UserPreference must mirror. Schema: SettingKey/SettingValue/SettingCategoryID/SettingTypeID/DefaultValue/IsEditable/ValidationRegex/etc."/>
+    <path file="backend/models/ref/setting_type.py"
+          note="REUSE this for UserPreferenceKey.SettingTypeID — do not create a parallel type ref."/>
+    <path file="backend/models/ref/setting_category.py"
+          note="Pattern reference for ref.UserPreferenceCategory."/>
+    <path file="backend/models/user.py"
+          note="Existing User model. ThemePreferenceID / LayoutDensityID / FontSizeID / PreferredLanguageID / CountryID stay UNCHANGED. New UserPreference relationships added via back_populates."/>
+    <path file="backend/modules/users/router.py"
+          note="Existing user router. New /api/me/preferences endpoints (GET/PATCH/DELETE) likely live here OR in a sibling backend/modules/preferences/router.py — Dev call."/>
+
+    <!-- Frontend Preferences UI -->
+    <path file="frontend/src/features/preferences/components/AccountSettingsPopup.tsx"
+          note="Pattern reference for the new Notifications section/popup. Modal structure, data loading pattern, hasChanges tracking, useToastNotifications usage."/>
+    <path file="frontend/src/features/preferences/index.ts"
+          note="Barrel export — add the new Notifications component here."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/STORY-6.4-SINGLE-SESSION-DEV-PROMPT.md"
+          purpose="Dev execution contract: Step 0 preflight, file list, AC mapping, gate commands."/>
+    <file path="docs/stories/STORY-6.4-UAT-TEST-GUIDE.md"
+          purpose="Human UAT covering polish ACs (1-8) + foundation ACs (9-16) + process ACs (17-19). 3 UAT rounds expected."/>
+    <file path="docs/stories/STORY-6.4-GATE-EVIDENCE.md"
+          purpose="Gate evidence with AC matrix, test summary lines, migration list with rationale, RequestID samples."/>
+    <file path="docs/USER-PREFERENCES-ARCHITECTURE.md"
+          purpose="Canonical reference for the new architecture: schema diagram, comparison with AppSetting, 3-step recipe for adding new prefs, default-value fallback semantics, migration policy. Required by AC-16."/>
+    <file path="docs/stories/STORY-6.4-CLOSEOUT-REPORT.md"
+          purpose="MANDATORY closeout report (triggered by criterion (a) public API surface + (b) ≥1 schema migration of the new rule shipped in PR #65)."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac-group label="AI Agent panel polish (the tactical layer)">
+      <ac id="1">Last prompt persistence — DB-backed via existing aiAgentSettings.lastPrompt; survives reload, switching forms, cross-device.</ac>
+      <ac id="2">Replace-form warning — first time — modal containing words "replace" and "Undo" with Confirm/Cancel.</ac>
+      <ac id="3">Replace-form warning — suppressed via UserPreference; survives logout/login; toggle in Notifications section restores warning.</ac>
+      <ac id="4">Empty canvas — no warning regardless of preference state.</ac>
+      <ac id="5">Outbound transport selector hidden; trace summary still shows resolved transport.</ac>
+      <ac id="6">Retry input hidden; backend reads default from config.AppSetting form_ai.default_retries; updating row to 3 + reload causes 3 retries.</ac>
+      <ac id="7">Silent autoload on soft validation issues — no banner/dialog; trace summary still shows counts.</ac>
+      <ac id="8">Hard failure unchanged — definition-not-returned still surfaces existing failure message.</ac>
+    </ac-group>
+    <ac-group label="User Preferences architecture (the foundational layer)">
+      <ac id="9">Three new tables exist with column shapes per §2.6.2; unique constraint on UserPreference (UserID + PreferenceKeyID); FK to existing ref.SettingType; standard audit columns matching User/AppSetting patterns.</ac>
+      <ac id="10">GET /api/me/preferences returns prefs grouped by category with effective value (override OR default); brand-new user with no rows still sees all catalogue entries with DefaultValue.</ac>
+      <ac id="11">PATCH /api/me/preferences accepts partial dict; validates each key against ref.UserPreferenceKey; transactional (no partial writes on validation failure); returns updated prefs.</ac>
+      <ac id="12">DELETE /api/me/preferences/{key} removes the user's override row; next read returns DefaultValue.</ac>
+      <ac id="13">Notifications section visible in Preferences UI; contains AI panel suppress-warning toggle; reads/writes via new endpoints; optimistic UI with rollback on error.</ac>
+      <ac id="14">Default-value fallback works end-to-end — user who has never visited Notifications still sees default toggle state (warning enabled); modal shows on Generate over non-empty canvas; UserPreference row materializes on Confirm.</ac>
+      <ac id="15">Future-extensibility demo — add a second demo preference (e.g. notifications.ai_agent.show_compile_summary) via ref seed only; Notifications UI auto-renders a control for it with no frontend code change. Proves SettingType-dispatch architecture genuinely scales.</ac>
+      <ac id="16">docs/USER-PREFERENCES-ARCHITECTURE.md exists with schema, AppSetting comparison, 3-step recipe, fallback semantics, migration policy.</ac>
+    </ac-group>
+    <ac-group label="Process / hygiene">
+      <ac id="17">Bounded migration set: 6 expected (3 tables + 3 seeds), collapsible to ≤4 files. Any additional = scope-creep red flag.</ac>
+      <ac id="18">Regression safety — backend baseline 705 passed / 26 skipped; frontend baseline 272 passed.</ac>
+      <ac id="19">SM context pack (story-context-6.4.xml + STORY-6.4-SINGLE-SESSION-DEV-PROMPT.md + STORY-6.4-UAT-TEST-GUIDE.md) exists before Dev execution.</ac>
+    </ac-group>
+  </acceptance-mapping>
+
+</story-context>

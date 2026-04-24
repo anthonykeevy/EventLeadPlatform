@@ -7,10 +7,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User as UserIcon, LogOut, Settings, Palette, ChevronDown, Shield, Building2 } from 'lucide-react'
+import { User as UserIcon, LogOut, Settings, Palette, ChevronDown, Shield, Building2, Bell } from 'lucide-react'
 import { useAuth } from '../../auth'
 import { ThemeSettingsPopup } from './ThemeSettingsPopup'
 import { AccountSettingsPopup } from '../../preferences/components/AccountSettingsPopup'
+import { NotificationsSettingsPopup } from '../../preferences/components/NotificationsSettingsPopup'
 
 interface UserMenuProps {
   user: {
@@ -29,6 +30,7 @@ export function UserMenu({ user, companySettingsLink }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [showThemePopup, setShowThemePopup] = useState(false)
   const [showAccountPopup, setShowAccountPopup] = useState(false)
+  const [showNotificationsPopup, setShowNotificationsPopup] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   // Check if user is system admin
@@ -61,6 +63,11 @@ export function UserMenu({ user, companySettingsLink }: UserMenuProps) {
 
   const handleAccountSettings = () => {
     setShowAccountPopup(true)
+    setIsOpen(false)
+  }
+
+  const handleNotificationsSettings = () => {
+    setShowNotificationsPopup(true)
     setIsOpen(false)
   }
 
@@ -157,6 +164,15 @@ export function UserMenu({ user, companySettingsLink }: UserMenuProps) {
                 <span>Account Settings</span>
               </button>
 
+              {/* Notifications Settings — Story 6.4 */}
+              <button
+                onClick={handleNotificationsSettings}
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Bell className="w-4 h-4 text-gray-500" />
+                <span>Notifications</span>
+              </button>
+
               {/* Divider */}
               <div className="border-t border-gray-100 my-2"></div>
 
@@ -183,6 +199,12 @@ export function UserMenu({ user, companySettingsLink }: UserMenuProps) {
       <AccountSettingsPopup
         isOpen={showAccountPopup}
         onClose={() => setShowAccountPopup(false)}
+      />
+
+      {/* Notifications Settings Popup — Story 6.4 */}
+      <NotificationsSettingsPopup
+        isOpen={showNotificationsPopup}
+        onClose={() => setShowNotificationsPopup(false)}
       />
     </>
   )

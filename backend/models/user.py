@@ -126,6 +126,8 @@ class User(Base):
     password_reset_tokens = relationship("UserPasswordResetToken", back_populates="user")
     refresh_tokens = relationship("UserRefreshToken", back_populates="user")
     
+    user_preferences = relationship("UserPreference", back_populates="user", foreign_keys="[UserPreference.UserID]")
+
     activity_logs = relationship("ActivityLog", back_populates="user", foreign_keys="[ActivityLog.UserID]")
     auth_events = relationship("AuthEvent", back_populates="user")
     api_requests = relationship("ApiRequest", back_populates="user")

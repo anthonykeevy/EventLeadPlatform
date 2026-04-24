@@ -30,6 +30,8 @@ from .form_access_control_access_type import FormAccessControlAccessType
 from .company_relationship_type import CompanyRelationshipType
 from .asset_type import AssetType
 from .form_defaults_schema_version import FormDefaultsSchemaVersion
+from .user_preference_category import UserPreferenceCategory
+from .user_preference_key import UserPreferenceKey
 
 __all__ = [
     "Country",
@@ -60,5 +62,7 @@ __all__ = [
     "CompanyRelationshipType",
     "AssetType",
     "FormDefaultsSchemaVersion",
+    "UserPreferenceCategory",
+    "UserPreferenceKey",
 ]
 

@@ -150,7 +150,8 @@ const FORM_AI_GENERATE_TIMEOUT_MS = 1_200_000;
 export async function generateAiDefinition(
   prompt: string,
   runtimeContext?: AiRuntimeContext,
-  options: AiGenerationOptions = {}
+  options: AiGenerationOptions = {},
+  signal?: AbortSignal
 ): Promise<AiFormGenerationResponse> {
   try {
     const {
@@ -167,10 +168,13 @@ export async function generateAiDefinition(
         maxSystemCorrectionAttempts,
         systemPromptAddendum,
       },
-      { timeout: FORM_AI_GENERATE_TIMEOUT_MS }
+      { timeout: FORM_AI_GENERATE_TIMEOUT_MS, signal }
     );
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      throw new DOMException("AI generation was cancelled.", "AbortError");
+    }
     if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
       const seconds = Math.round(FORM_AI_GENERATE_TIMEOUT_MS / 1000);
       const minutes = Math.round(FORM_AI_GENERATE_TIMEOUT_MS / 60000);
@@ -199,16 +203,20 @@ export async function generateAiDefinition(
 const FORM_AI_REMEASURE_TIMEOUT_MS = 30_000;
 
 export async function remeasureAiDefinition(
-  request: AiRemeasureRequest
+  request: AiRemeasureRequest,
+  signal?: AbortSignal
 ): Promise<AiRemeasureResponse> {
   try {
     const response = await apiClient.post<AiRemeasureResponse>(
       "/api/form-ai/remeasure",
       request,
-      { timeout: FORM_AI_REMEASURE_TIMEOUT_MS }
+      { timeout: FORM_AI_REMEASURE_TIMEOUT_MS, signal }
     );
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      throw new DOMException("Remeasure was cancelled.", "AbortError");
+    }
     if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
       throw new Error(
         "Render-then-measure timed out. The first-pass layout will be used."

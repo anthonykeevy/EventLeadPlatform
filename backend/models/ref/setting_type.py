@@ -47,6 +47,7 @@ class SettingType(Base):
     
     # Relationships
     settings = relationship("AppSetting", back_populates="setting_type")
+    user_preference_keys = relationship("UserPreferenceKey", back_populates="setting_type")
     
     def __repr__(self) -> str:
         return f"<SettingType(SettingTypeID={self.SettingTypeID}, TypeCode='{self.TypeCode}', TypeName='{self.TypeName}')>"

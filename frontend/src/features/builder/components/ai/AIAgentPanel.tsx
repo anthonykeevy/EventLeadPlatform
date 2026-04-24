@@ -233,6 +233,17 @@ export const AIAgentPanel: React.FC = () => {
   const [dontShowAgain, setDontShowAgain] = React.useState(false);
   const [suppressWarning, setSuppressWarning] = React.useState(false);
 
+  // Holds the AbortController for the in-flight generate + remeasure requests.
+  // Aborted on component unmount (user navigates away) and on Cancel button click.
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      // Abort any in-flight AI generation when the panel unmounts (navigation away).
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
   // Story 6.4 AC-1: hydrate prompt from DB-backed lastPrompt on mount
   const promptHydratedRef = React.useRef(false);
   React.useEffect(() => {
@@ -543,7 +554,8 @@ export const AIAgentPanel: React.FC = () => {
     async (
       generationRunId: number,
       firstPassDefinition: FormDefinition,
-      runtimeContext: AiRuntimeContext
+      runtimeContext: AiRuntimeContext,
+      signal?: AbortSignal
     ): Promise<FormDefinition | null> => {
       // One paint cycle so the canvas has had a chance to render the new
       // components before we measure them. Two cycles in case the renderer
@@ -602,7 +614,7 @@ export const AIAgentPanel: React.FC = () => {
           generationRunId,
           measurements,
           runtimeContext,
-        });
+        }, signal);
         devLogger.info("ai.remeasure.result", {
           status: refined.status,
           measuredCount: measurements.length,
@@ -627,10 +639,20 @@ export const AIAgentPanel: React.FC = () => {
     [scale]
   );
 
+  const handleCancelGenerate = React.useCallback(() => {
+    abortControllerRef.current?.abort();
+  }, []);
+
   // Story 6.4 AC-2/3/4: check replace-warning condition then kick off generation
   const executeGenerate = React.useCallback(async () => {
     const trimmed = prompt.trim();
     if (!trimmed || isSubmitting) return;
+
+    // Create a fresh AbortController for this run. Any prior run was already
+    // completed or cancelled, so the old controller can be discarded safely.
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const { signal } = controller;
 
     setIsSubmitting(true);
     setStatus("generating");
@@ -671,7 +693,8 @@ export const AIAgentPanel: React.FC = () => {
       const response = await generateAiDefinition(
         trimmed,
         runtimeContext,
-        generationOptions
+        generationOptions,
+        signal
       );
       setStatus("validating");
 
@@ -725,7 +748,8 @@ export const AIAgentPanel: React.FC = () => {
             const refined = await measureAndRemeasure(
               response.generationRunId,
               aiDefinition,
-              runtimeContext
+              runtimeContext,
+              signal
             );
             if (refined) {
               applyValidatedDefinition(
@@ -784,13 +808,21 @@ export const AIAgentPanel: React.FC = () => {
       }
       // Story 6.4 AC-8: if no definition returned, keep the existing failure message (already set above)
     } catch (error) {
-      setStatus("failed");
-      setAttemptLines(null);
-      setMessage(error instanceof Error ? error.message : "AI generation failed.");
-      devLogger.error("ai.sections.run.error", {
-        openaiTransport,
-        message: error instanceof Error ? error.message : "AI generation failed",
-      });
+      if (error instanceof DOMException && error.name === "AbortError") {
+        // User navigated away or clicked Cancel — treat as a clean cancellation.
+        setStatus("idle");
+        setMessage(null);
+        setTraceSummary(null);
+        devLogger.info("ai.sections.run.cancelled", { openaiTransport });
+      } else {
+        setStatus("failed");
+        setAttemptLines(null);
+        setMessage(error instanceof Error ? error.message : "AI generation failed.");
+        devLogger.error("ai.sections.run.error", {
+          openaiTransport,
+          message: error instanceof Error ? error.message : "AI generation failed",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -908,15 +940,27 @@ export const AIAgentPanel: React.FC = () => {
           className="w-full min-h-[140px] rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
         />
 
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={isSubmitting || prompt.trim().length < 3}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          Generate Form Draft
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={isSubmitting || prompt.trim().length < 3}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            Generate Form Draft
+          </button>
+          {isSubmitting && (
+            <button
+              type="button"
+              onClick={handleCancelGenerate}
+              className="inline-flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              title="Cancel generation and free the browser connection"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
 
         {devLogsEnabled && (
           <div className="space-y-1">

@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Upload } from "lucide-react";
+import { Sparkles, RefreshCw, Upload } from "lucide-react";
 
 import {
   AiComponentMeasurement,
@@ -1019,23 +1019,6 @@ export const AIAgentPanel: React.FC = () => {
           {traceSummary && <div className="mt-2 text-[11px] opacity-90">{traceSummary}</div>}
         </div>
 
-        <div className="rounded-md border border-gray-200 dark:border-gray-700 p-3 text-xs text-gray-600 dark:text-gray-400">
-          <div className="flex items-start gap-2 mb-1">
-            <CheckCircle2 size={13} className="text-emerald-500 mt-0.5" />
-            <span>
-              On success, the validated draft is applied automatically. If generation
-              returns soft validation issues, the draft is still applied — check the
-              trace below for details. After a client timeout, no draft is available.
-            </span>
-          </div>
-          <div className="flex items-start gap-2">
-            <AlertTriangle size={13} className="text-amber-500 mt-0.5" />
-            <span>
-              If retries are exhausted, refine your prompt and run again. Single-page
-              generation only in Story 6.2.
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Story 6.4 AC-2/3: Replace-form warning modal */}

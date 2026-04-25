@@ -1,103 +1,56 @@
-# Form AI Eval Diff + Statistics
+# Form AI Eval Diff And Statistics
 
-**Status:** Template ready; Dev completes during Story 6.4.3c  
-**Audience:** Dev, SM, PM reviewing prompt experiment evidence  
-**Scope:** Compare eval runs and interpret structural/judge deltas. Prompt sweeps begin in Story 6.4.4.
+Story 6.4.3c adds the comparison layer used by Story 6.4.4 prompt shrink experiments. It compares two eval run folders, applies deterministic structural gates, includes judge-score deltas when judge summaries exist, and writes Markdown, CSV, and JSON evidence.
 
----
+## Compare Baseline Vs Variant
 
-## Purpose
-
-Story 6.4.3c adds the decision-support layer for the Form AI eval harness:
-
-- compare two eval run folders,
-- identify structural blockers,
-- summarise advisory deltas,
-- include judge metrics when available,
-- calculate statistical evidence,
-- produce Markdown/CSV/JSON outputs for review.
-
----
-
-## Example Command
-
-Dev fills the exact final command after implementation.
+From the repo root:
 
 ```powershell
 python -m backend.tests.form_ai_eval.diff `
-  --baseline-run "_bmad-output/eval-runs/story-6.4.3a-live-full-10row-baseline" `
-  --variant-run "_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline" `
-  --output-dir "_bmad-output/eval-runs/story-6.4.3c-sample-diff"
+  --baseline-run "_bmad-output/eval-runs/<baseline-run-id>" `
+  --variant-run "_bmad-output/eval-runs/<variant-run-id>" `
+  --output-dir "_bmad-output/eval-runs/<comparison-id>"
 ```
 
-Expected outputs:
+The output directory contains:
 
-- `diff-report.md`
-- `diff-details.csv`
-- `diff-summary.json`
+- `diff-report.md` for PM/SM review,
+- `diff-details.csv` for row and metric inspection,
+- `diff-summary.json` for machine-readable handoff.
 
----
+If `--output-dir` is omitted, the tool writes under `_bmad-output/eval-runs/<baseline>-vs-<variant>-diff/`.
 
-## Blocking Outcomes
+## Blocking Vs Advisory Outcomes
 
-These block a prompt change unless explicitly overruled by SM/PM:
+Blocking outcomes stop a ship decision until investigated:
 
-- `schema_valid` regression of one or more rows,
-- any `boundary_violation_count > 0`.
+- `schema_valid` regression: baseline row was valid and variant row is invalid.
+- `boundary_violation_count > 0`: variant produced any boundary violation.
 
----
+All other deltas are advisory in 6.4.3c. Component count, collision count, attempt count, duration, token/cost fields, judge scores, agreement, and GPT-5 mini bias deltas should be reviewed by PM/SM with the report context.
 
-## Advisory Outcomes
+## Statistics
 
-These are reported for human review:
+`backend/tests/form_ai_eval/stats.py` intentionally uses the Python standard library only.
 
-- component count changes,
-- collision count changes,
-- attempt count changes,
-- duration changes,
-- token/cost changes,
-- judge metric deltas,
-- GPT-5 mini self-bias deltas,
-- judge agreement changes.
+- Welch t-test compares continuous metric samples without assuming equal variance.
+- Cohen's `d` reports effect-size magnitude for continuous metric deltas.
+- Fisher exact compares binary outcomes such as valid vs invalid rows.
 
----
+For continuous metrics, a statistically useful win requires `p < 0.05` and effect size at least `0.3`. For Category B judge metrics, `p > 0.05` is inconclusive and the report recommends rerunning at `n=15`.
 
-## Statistical Rules
+## Story 6.4.4 Usage
 
-Continuous metrics:
+For each H1/H2/H4 or combined prompt variant:
 
-- Welch's t-test for p-value.
-- Cohen's `d` for effect size.
-- A win requires `p < 0.05` and `d >= 0.3`.
+1. Run the baseline and variant eval folders through the same benchmark set.
+2. Generate and ingest judge packages when semantic Category B evidence is needed.
+3. Run the diff tool with baseline as `--baseline-run` and the experiment as `--variant-run`.
+4. Attach `diff-report.md`, `diff-summary.json`, and focused notes to the PM/SM ship/revert decision.
 
-Binary metrics:
-
-- Fisher exact test.
-- Used for `schema_valid` and similar pass/fail outcomes.
-
-Inconclusive Category B:
-
-- If `p > 0.05`, recommend rerun at n=15 before declaring a final verdict.
-
----
-
-## How Story 6.4.4 Uses This
-
-For H1/H2/H4 and combined variants:
-
-1. Run baseline and variant generations through the eval harness.
-2. Generate judge packages and ingest scores where semantic metrics are required.
-3. Run this diff tool baseline vs variant.
-4. Review blockers first.
-5. Review statistical/advisory evidence.
-6. PM/SM decide ship, revert, or rerun.
-
----
+The tool recommends; it does not make product decisions. PM/SM should treat blockers as hard stops and advisory deltas as evidence for review.
 
 ## Out Of Scope
 
-- Running prompt sweeps.
-- Choosing H1/H2/H4 winners.
-- PR comment automation.
-- Changing judge rubric.
-- Live model API calls.
+CI PR-comment automation is intentionally deferred until the report format stabilizes. The tool also does not run prompt sweeps, mutate prompt content, call live judge APIs, or change the judge rubric.

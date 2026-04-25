@@ -1,0 +1,178 @@
+{
+  "advisory_metric_deltas": {
+    "attempt_count": {
+      "baseline_mean": 1.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 1.0
+    },
+    "collision_count": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "component_count": {
+      "baseline_mean": 5.0,
+      "decision": "advisory",
+      "delta": 0.33333333333333304,
+      "effect_size": -0.40824829046386263,
+      "p_value": 0.6494501780128348,
+      "variant_mean": 5.333333333333333
+    },
+    "duration_ms": {
+      "baseline_mean": 120.0,
+      "decision": "advisory",
+      "delta": 10.0,
+      "effect_size": -0.5,
+      "p_value": 0.5733922538246252,
+      "variant_mean": 130.0
+    },
+    "input_tokens": {
+      "baseline_mean": 11.0,
+      "decision": "advisory",
+      "delta": -1.0,
+      "effect_size": 1.0,
+      "p_value": 0.2878641347257681,
+      "variant_mean": 10.0
+    },
+    "output_tokens": {
+      "baseline_mean": 21.0,
+      "decision": "advisory",
+      "delta": -2.0,
+      "effect_size": 2.0,
+      "p_value": 0.07048399691076224,
+      "variant_mean": 19.0
+    },
+    "total_cost_usd": {
+      "baseline_mean": 0.01,
+      "decision": "advisory",
+      "delta": -0.0010000000000000009,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.009
+    }
+  },
+  "baseline": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.3c-sample-baseline",
+    "run_id": "story-6.4.3c-sample-baseline",
+    "variant_label": "sample-baseline"
+  },
+  "decision": {
+    "blocked": false,
+    "blocking_reasons": [],
+    "blocking_rows": [],
+    "recommendation": "human-review"
+  },
+  "judge_bias_deltas": {
+    "field_coverage_recall": {
+      "baseline_mean": 0.2,
+      "delta": 0.0,
+      "variant_mean": 0.2
+    }
+  },
+  "judge_metric_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 4.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "metric_kind": "continuous",
+      "metric_name": "copy_quality_score",
+      "note": "",
+      "p_value": 1.0,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.0
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 4.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "metric_kind": "continuous",
+      "metric_name": "field_coverage_recall",
+      "note": "",
+      "p_value": 1.0,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.0
+    },
+    "field_label_f1": {
+      "baseline_mean": 4.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "metric_kind": "continuous",
+      "metric_name": "field_label_f1",
+      "note": "",
+      "p_value": 1.0,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.0
+    },
+    "locale_fidelity": {
+      "baseline_mean": 4.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "metric_kind": "continuous",
+      "metric_name": "locale_fidelity",
+      "note": "",
+      "p_value": 1.0,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.0
+    },
+    "row_group_agreement": {
+      "baseline_mean": 4.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "metric_kind": "continuous",
+      "metric_name": "row_group_agreement",
+      "note": "",
+      "p_value": 1.0,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.0
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 4.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "metric_kind": "continuous",
+      "metric_name": "validation_intent_accuracy",
+      "note": "",
+      "p_value": 1.0,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.0
+    }
+  },
+  "limitations": [
+    "Only schema_valid regressions and boundary violations are blocking.",
+    "Other deltas are advisory for PM/SM decision.",
+    "Inconclusive Category B results should rerun at n=15."
+  ],
+  "output_files": {
+    "csv": "_bmad-output\\eval-runs\\story-6.4.3c-sample-diff\\diff-details.csv",
+    "json": "_bmad-output\\eval-runs\\story-6.4.3c-sample-diff\\diff-summary.json",
+    "markdown": "_bmad-output\\eval-runs\\story-6.4.3c-sample-diff\\diff-report.md"
+  },
+  "row_alignment": {
+    "extra_in_variant": [],
+    "matched_count": 3,
+    "missing_in_variant": []
+  },
+  "variant": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.3c-sample-variant",
+    "run_id": "story-6.4.3c-sample-variant",
+    "variant_label": "sample-variant"
+  }
+}

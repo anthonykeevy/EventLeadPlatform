@@ -3,7 +3,7 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.3c  
 **Title:** Eval Diff + Statistics Tooling  
-**Status:** Draft — ready for Dev  
+**Status:** Review  
 **Branch:** `story/epic6-6.4.3c-eval-diff-statistics`  
 **PR:** [#71](https://github.com/anthonykeevy/EventLeadPlatform/pull/71) — Draft  
 **Created:** 2026-04-25  
@@ -154,3 +154,55 @@ Test coverage must include:
 - Backend gate is run unless a clear CI-backed exception is recorded.
 - Docs explain exactly how 6.4.4 uses the diff/statistics tool.
 - Stale-field audit passes before merge.
+
+---
+
+## Dev Agent Record
+
+### Implementation Notes
+
+- Implemented dependency-free `stats.py` with Welch t-test, Cohen's `d`, Fisher exact, and verdict helper including Category B `rerun-at-n15`.
+- Implemented `diff.py` CLI/report generator with `metrics.jsonl` / `summary.csv` loading, metadata loading, judge ingest summary loading, deterministic row alignment, blocking gates, advisory deltas, Markdown/CSV/JSON outputs.
+- Added Story 6.4.4 public handoff docs and closeout report.
+- Created local sample eval fixtures because committed eval artifacts were absent from this worktree.
+
+### Debug Log
+
+- Red stats test failed on missing `form_ai_eval.stats`; green after adding `stats.py`.
+- Red diff test failed on missing `form_ai_eval.diff`; green after adding `diff.py`.
+- Sample CLI initially failed under `python -m backend.tests.form_ai_eval.diff` due import path; fixed to match existing eval harness path setup.
+
+### Test Results
+
+- Preflight: PASS; `docs/stories/STORY-6.4.3c-PREFLIGHT.md`.
+- Focused gate: PASS; `python -m pytest tests/test_eval_stats.py tests/test_eval_diff.py --tb=short` => `8 passed, 116 warnings`.
+- Backend gate: PASS; `python -m pytest --tb=short` => `781 passed, 26 skipped, 5711 warnings`.
+- Evidence: `docs/stories/STORY-6.4.3c-GATE-EVIDENCE.md`.
+
+### File List
+
+- `_bmad-output/eval-runs/story-6.4.3c-sample-baseline/judge-package/judge-ingest-summary.json`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-baseline/metrics.jsonl`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-baseline/run-metadata.json`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-diff/diff-details.csv`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-diff/diff-report.md`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-diff/diff-summary.json`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-variant/judge-package/judge-ingest-summary.json`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-variant/metrics.jsonl`
+- `_bmad-output/eval-runs/story-6.4.3c-sample-variant/run-metadata.json`
+- `backend/tests/form_ai_eval/diff.py`
+- `backend/tests/form_ai_eval/stats.py`
+- `backend/tests/test_eval_diff.py`
+- `backend/tests/test_eval_stats.py`
+- `docs/FORM-AI-EVAL-DIFF-STATS.md`
+- `docs/stories/EPIC-6-STATUS.md`
+- `docs/stories/EPIC-6-WORKFLOW-GUIDE.md`
+- `docs/stories/STORY-6.4.3c-CLOSEOUT-REPORT.md`
+- `docs/stories/STORY-6.4.3c-GATE-EVIDENCE.md`
+- `docs/stories/STORY-6.4.3c-PREFLIGHT.md`
+- `docs/stories/STORY-6.4.3c-UAT-TEST-GUIDE.md`
+- `docs/stories/story-6.4.3c.md`
+
+### Change Log
+
+- 2026-04-25: Added eval diff/statistics tooling, focused tests, documentation, sample evidence, and closeout artifacts.

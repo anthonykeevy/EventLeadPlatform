@@ -2,12 +2,14 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.5 — **Image-to-Form** (next; SM to draft after PR #66 merges; feasibility already complete — see `STORY-6.5-FEASIBILITY-NOTES.md`). *AI Iteration on Existing Designs is deferred post-MVP per 2026-04-23 PM scope review (see changelog).*  
+**Current Focus:** Story 6.4.3b — **Eval Judge Package + Rubric ADR** (next after Story 6.4.2 cleanup closeout). *Image-to-Form has moved later in the AI track after measured prompt-engineering work per the 2026-04-25 PM/Architect/SM ideation brief.*  
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
 **Story 6.3.1 Status:** ✅ **Complete** (merged 2026-04-15, PR #64) — deterministic compiler + governance foundation; UAT rounds 1–11 PASS. See `STORY-6.3.1-CLOSEOUT-REPORT.md`.  
 **Story 6.4 Status:** ✅ **Complete** (PR #66, UAT Rounds 1–3 PASS 2026-04-24; merge date to land via parity-check post-merge) — User Preferences architecture foundation + AI Agent panel polish; 19 ACs, 4 migrations. See `STORY-6.4-CLOSEOUT-REPORT.md`.  
+**Story 6.4.3a Status:** ✅ **Complete** (merged 2026-04-25, PR #68) — eval harness bones, `log.FormAiEvalRun`, and full 10-row live baseline. See `STORY-6.4.3a-CLOSEOUT-REPORT.md`.  
+**Story 6.4.2 Status:** ✅ **Complete** (2026-04-25, PR #69) — capability snapshot prompt cleanup, parity audit, `FormSemanticPlan` ADR, active prompt tests, and post-cleanup baseline. See `STORY-6.4.2-CLOSEOUT-REPORT.md`.  
 
 ---
 
@@ -23,7 +25,7 @@ This is the streamlined workflow established at the end of Epic 5.
 | 3 | **@bmad-agent-bmm-sm** | **Runs `./scripts/git/new-story.ps1`** via the **Shell** tool (`-CreateWorktree`, `-DraftPR`, `-Epic`, `-Story`, `-Slug`, `-WorktreeRoot` per machine, e.g. `$env:ELP_WORKTREE_ROOT = "C:\wt\elp"`). Confirms worktree path + branch + PR URL in chat and updates the dev prompt with **exact** paths. |
 | 4 | **Human** | **Open the SM-created worktree** in Cursor (e.g. **File → Open Folder** → `C:\wt\elp\story-epic6-...`). Point **@bmad-agent-bmm-dev** at that window so all edits land on the story branch. |
 | 5 | **@bmad-agent-bmm-dev** | Implements in the **worktree** only. Runs `pytest` & `npm test`. Pushes to the story branch (Draft PR already exists). |
-| 6 | **Human** | Manual UAT per `STORY-6.x-UAT-TEST-GUIDE.md`; **merge story PR via GitHub** (preferred) or `gh pr merge`; then run **Story closeout checklist** below |
+| 6 | **Human + SM** | Manual UAT per `STORY-6.x-UAT-TEST-GUIDE.md`; SM performs the **pre-merge stale-field audit** below; **merge story PR via GitHub** only after sign-off; then SM performs the **post-merge reset** before opening the next story. |
 
 **Artifacts:** `story-6.x.md`, `story-context-6.x.xml`, `STORY-6.x-UAT-TEST-GUIDE.md`, `STORY-6.x-SINGLE-SESSION-DEV-PROMPT.md`
 
@@ -47,6 +49,26 @@ Use this to avoid stale roadmap/workflow docs and wrong PR numbers (common gap p
 | 8 | **Worktree retired** — After PR merge confirmed and any local artefacts harvested, prune the merged worktree: `git worktree remove "<path>"`. Keeps `git worktree list` clean and avoids stale-DB-pointing IDE windows from previous stories. | Dev / Human |
 
 **Merge discipline:** Prefer **merge via GitHub** (or `gh pr merge`) so the PR shows **merged** and history matches `master`. Local fast-forward-only merges without updating the PR confuse “is PR #N closed?” checks.
+
+### SM stale-field audit (mandatory before merge)
+
+Before merge sign-off, SM must run an explicit stale-field pass against the story branch and fix any misses in a final housekeeping commit:
+
+1. `gh pr view <N> --json state,isDraft,mergedAt,headRefName,baseRefName,url` — verify the PR number and target branch.
+2. `rg -n "Draft|Ready for UAT|Ready for UAT/SM review|Keep PR .* open|Current Focus" docs/stories/story-6.x.md docs/stories/STORY-6.x-CLOSEOUT-REPORT.md docs/stories/EPIC-6-STATUS.md docs/stories/EPIC-6-WORKFLOW-GUIDE.md` — every hit must be intentional for the current phase.
+3. Confirm `story-6.x.md`, `STORY-6.x-CLOSEOUT-REPORT.md`, `EPIC-6-STATUS.md`, and this guide agree on: status, PR number, next focus, and carry-forward items.
+4. Confirm mandatory evidence artifacts exist for the story type (baseline, capability audit, rubric ADR, hypothesis evidence, canvas contract, etc.).
+5. Only after the stale-field pass is clean should SM say "ready to merge".
+
+### SM post-merge reset (mandatory before next story)
+
+After the PR is merged and before running `new-story.ps1` for the next story:
+
+1. Pull `master` in the main checkout.
+2. Re-run `gh pr view <N> --json state,mergedAt,mergeCommit,url` and stamp the UTC merge date into story/status docs if the merge date differs from dev-complete date.
+3. Re-run the stale-field scan above on `master`. If stale fields remain, fix them on the next story branch before Dev starts implementation.
+4. Attempt `git worktree remove "<merged-story-path>"`. If Windows denies deletion, record the path and retry after any IDE/terminal handles are closed.
+5. Only then prepare the next story pack and open the next Draft PR.
 
 ---
 
@@ -306,3 +328,4 @@ This preserves your learning objective (multi-agent experience) without weakenin
 | 2026-04-23 | **Epic 6 scope pivot (PM/SM joint review)**. Story 6.4 originally framed as "AI Iteration on Existing Designs" was **deferred post-MVP** after PM analysis: iteration is a high-risk novel capability whose value-vs-effort doesn't justify shipping in MVP. Replacement: **Story 6.4 = AI Agent Panel Production Polish** (XS-S, ships clean) and **new Story 6.5 = Image-to-Form** (M, key differentiator: snap a screenshot of an existing form, get a working form). Image-to-form leverages the 6.3.1 deterministic-compiler architecture unchanged — only the input transport (multimodal LLM) is new. Billing stories renumbered to 6.6–6.10. See `EPIC-6-STATUS.md` for the updated roadmap. | After 6.3 + 6.3.1 cost ~3 weeks of architecture discovery, the team needs a fast clean shipment to rebuild momentum. Iteration would have repeated the discovery pattern; image-to-form is well-trodden multimodal territory with a much sharper user value proposition (one-screenshot conversion from competing tools). Aligns with Tonyk's *"AI gets you 80%, builder tools get the last 20%"* differentiator. |
 | 2026-04-23 | **Story 6.4 in-flight scope expansion (Tonyk decision)**. Polish work needed a place to store "don't show again" preferences. Discussion evolved from `localStorage` → `User` JSON column → **net-new `UserPreference` architecture** mirroring `config.AppSetting`. Story 6.4 expanded from XS-S to M-L (4 migrations, 19 ACs, 3 new tables, new `/api/me/preferences` surface, dynamic Notifications UI). Tonyk explicitly chose the foundational path over the tactical shortcut so all future per-user toggles can ship via DB seed alone. | Doing the foundation work once at the right moment (when the first real consumer needed it) is far cheaper than retrofitting a `User` JSON column under three downstream consumers. The pattern is now established for billing email prefs, theme keys, image-handling defaults (6.5), etc. |
 | 2026-04-24 | **Story 6.4 closed Complete (PR #66 ready to merge).** Closeout audit by SM caught 3 housekeeping gaps (story status field, `EPIC-6-STATUS.md` row, workflow guide Current Focus) and one outstanding PR-#65 commitment (`EPIC-6-CARRY-FORWARD-BACKLOG.md` had never been created). All 4 fixed in a final SM housekeeping commit before the merge gate. **Lesson:** the closeout-checklist housekeeping rows (1–3) are owned by Dev but consistently get missed because Dev's focus is on UAT pass + closeout report. **New rule:** the SM closeout audit (this exact pass) is now an explicit gate before the human merges any story PR — added as workflow step in §⚡ Epic 6 Story Workflow. | Trust the process: a 5-minute audit catches what a tired Dev forgets at end-of-story. Better to surface the gap pre-merge than to chase reconciliation drift later (cf. 2026-04-23 row 1 about date-stamp parity, which exists for the same reason). |
+| 2026-04-25 | **Story 6.4.3a merged (PR #68), but stale closeout fields survived the merge.** `story-6.4.3a.md` still said "Ready for UAT/SM review" and PR "Draft"; closeout still said "Keep PR #68 open"; `EPIC-6-STATUS.md` and this guide still pointed to the older 6.5 flow. Added explicit SM stale-field audit and post-merge reset sections with exact `gh pr view` + `rg` checks before the next story opens. | Convert a repeated human-memory step into a checklist with observable commands. The next round should fail visibly before merge if story/status/current-focus fields drift. |

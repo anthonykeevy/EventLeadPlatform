@@ -5,7 +5,7 @@
 **Branch:** `story/epic6-6.4.3a-ai-eval-harness-bones`  
 **PR:** [#68](https://github.com/anthonykeevy/EventLeadPlatform/pull/68)  
 **Date:** 2026-04-25
-**Disposition:** Ready for UAT/SM review; full 10-row live provider baseline confirmed after Anthony applied migration
+**Disposition:** ✅ **Complete** — merged via PR #68; full 10-row live provider baseline confirmed after Anthony applied migration
 **Author:** `@bmad-agent-bmm-dev`  
 **Audience:** `@bmad-agent-bmm-sm`
 
@@ -113,7 +113,7 @@ Expected carry-forward boundaries:
 
 ## 8) Closeout Decision
 
-Story 6.4.3a is Ready for UAT/SM review because:
+Story 6.4.3a is Complete because:
 
 - Harness code, migration, docs, mocked smoke baseline, and focused tests are in place.
 - Anthony applied the migration; DB-backed mocked persistence, one-prompt live provider persistence, and full 10-row live provider baseline are verified.
@@ -122,5 +122,5 @@ Story 6.4.3a is Ready for UAT/SM review because:
 SM next actions:
 
 1. Confirm 6.4.2 can use the baseline.
-2. Keep PR #68 open until UAT and migration-backed persistence are confirmed.
-3. After merge, update Epic 6 workflow/status docs per checklist.
+2. Prepare Story 6.4.2 from the approved prompt-engineering brief.
+3. Retire the 6.4.3a worktree once Windows releases any remaining file handles.

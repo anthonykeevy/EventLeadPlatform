@@ -921,8 +921,8 @@ def _build_capability_prompt_block(
             lines.append(f"  - {component_type}")
     lines.append(
         "If the user asks for a feature that isn't in this list "
-        "(e.g. star rating, file upload), use the closest registered type "
-        "(e.g. radio for rating, text for file links) and put a brief explanation in helpText."
+        "(e.g. signature capture, payment collection), use the closest registered type "
+        "and put a brief explanation in helpText."
     )
     return "\n".join(lines)
 

@@ -26,7 +26,7 @@
 | 1.1 | Open `STORY-6.4.2-PREFLIGHT.md` | PASS for expected worktree, branch, backend path, Python DB preflight, runtime DB, and env/runtime parity. |
 | 1.2 | Open `STORY-6.4.2-GATE-EVIDENCE.md` | Focused command shows `30 passed`; backend gate shows `766 passed, 26 skipped`. |
 | 1.3 | Open `STORY-6.4.2-CLOSEOUT-REPORT.md` §7 | Gates table matches evidence file and includes baseline recapture. |
-| 1.4 | Review stale-field audit result in closeout | PR #69 is intentionally still Draft and story/status fields intentionally show Ready for UAT / SM review. |
+| 1.4 | Review stale-field audit result in closeout | PR #69 is merged; story/status/workflow fields are stamped Complete and point to Story 6.4.3b as next focus. |
 
 ---
 

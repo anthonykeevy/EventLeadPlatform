@@ -1,0 +1,156 @@
+{
+  "judge_model": "gpt5mini",
+  "rows": [
+    {
+      "prompt_id": "p-01-event-registration-conference",
+      "rationale": "Includes required contact fields (Given name, Surname, Email, Mobile), organisation, role, session interests, T-shirt size, dietary requirements, accessibility textarea, required payment-acknowledgement checkbox, terms and optional marketing consent; validations (required, email, phone, maxLength) present and grouping is coherent.",
+      "repetition_index": 1,
+      "row_id": "p-01-event-registration-conference__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-02-lead-gen-saas-demo",
+      "rationale": "Contains business contact fields, organisation, business email required, phone optional, team size dropdown, primary use case, preferred meeting date and time-of-day — clear labels and required validations; layout is single-page and concise.",
+      "repetition_index": 1,
+      "row_id": "p-02-lead-gen-saas-demo__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-03-survey-nps",
+      "rationale": "Implements 0–10 rating with min/max validation, required free-text main-reason with minLength, optional improvement textarea, optional contact consent and optional contact fields (helpText ties contact to consent); labels, validations and flow match the prompt.",
+      "repetition_index": 1,
+      "row_id": "p-03-survey-nps__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-04-waiver-gym-membership",
+      "rationale": "Includes member contact, DOB, emergency contact, health textarea, optional medical clearance upload, membership type, explicit legal acknowledgement of risk (required) and a terms checkbox that opens in a popup — validations and wording appropriate for a waiver.",
+      "repetition_index": 1,
+      "row_id": "p-04-waiver-gym-membership__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-05-rsvp-wedding",
+      "rationale": "Provides guest contact fields, required attendance radio, plus-one conditional prompt and plus-one name field, meal choice dropdown, dietary checkbox plus details textarea, song request and short message — labels and grouping match RSVP expectations.",
+      "repetition_index": 1,
+      "row_id": "p-05-rsvp-wedding__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-06-feedback-post-event",
+      "rationale": "Contains textareas for likes and improvements, required overall satisfaction rating, optional email opt-in for next-year updates with clear helpText — concise copy and appropriate validations present.",
+      "repetition_index": 1,
+      "row_id": "p-06-feedback-post-event__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-07-booking-consultation",
+      "rationale": "Includes contact details, dropdown for consultation type, required preferred date, time-window fields with HH:MM pattern validation, urgency radio, topic summary textarea, and a required consent for confirmations/reminders — validations and flow align with the prompt.",
+      "repetition_index": 1,
+      "row_id": "p-07-booking-consultation__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-08-onboarding-new-employee",
+      "rationale": "Comprehensive onboarding fields: personal details, start date, department, equipment checklist and details textarea, payroll notes with guidance, emergency contact, optional accessibility support checkbox + details, and required policy acknowledgement — clear structure and appropriate validations.",
+      "repetition_index": 1,
+      "row_id": "p-08-onboarding-new-employee__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-09-application-scholarship",
+      "rationale": "Includes applicant contact, study programme selection, required eligibility confirmations (checkboxes), two required essay textareas with min/max lengths, optional supporting-docs note and file-upload field, required referee contact and required terms checkbox — coverage and validations are present.",
+      "repetition_index": 1,
+      "row_id": "p-09-application-scholarship__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-10-donation-charity",
+      "rationale": "Provides donor contact, radio amount presets with Other plus numeric amount field (min/max), one-off vs recurring radio with frequency options, tax receipt question, message textarea, and optional consent for campaign updates; helpText and numeric/date constraints present.",
+      "repetition_index": 1,
+      "row_id": "p-10-donation-charity__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "locale_fidelity": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "variant_label": "post-642-capability-cleanup"
+    }
+  ],
+  "rubric_version": "rubric_v1"
+}

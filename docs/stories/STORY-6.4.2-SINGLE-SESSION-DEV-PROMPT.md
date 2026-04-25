@@ -4,7 +4,7 @@
 **Agent:** `@bmad-agent-bmm-dev`  
 **Worktree:** `C:\wt\elp\story-epic6-6.4.2-capability-snapshot-prompt-cleanup`  
 **Branch:** `story/epic6-6.4.2-capability-snapshot-prompt-cleanup`  
-**PR:** [#69](https://github.com/anthonykeevy/EventLeadPlatform/pull/69) — Draft PR to `master`  
+**PR:** [#69](https://github.com/anthonykeevy/EventLeadPlatform/pull/69) — merged to `master`  
 **Sizing:** S-M, expected single focused session plus live baseline recapture.
 
 ---

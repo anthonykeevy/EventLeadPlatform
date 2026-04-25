@@ -1,0 +1,11 @@
+row_id,eval_run_id,generation_run_id,prompt_id,repetition_index,variant_label,judge_agreement_score,mean_field_coverage_recall,mean_field_label_f1,mean_validation_intent_accuracy,mean_row_group_agreement,mean_locale_fidelity,mean_copy_quality_score,gpt5mini_delta_field_coverage_recall,gpt5mini_delta_field_label_f1,gpt5mini_delta_validation_intent_accuracy,gpt5mini_delta_row_group_agreement,gpt5mini_delta_locale_fidelity,gpt5mini_delta_copy_quality_score
+p-01-event-registration-conference__r01,13,107,p-01-event-registration-conference,1,post-642-capability-cleanup,0.967,5.0,5.0,5.0,4.5,5.0,5.0,0.0,0.0,0.0,0.5,0.0,0.0
+p-02-lead-gen-saas-demo__r01,14,108,p-02-lead-gen-saas-demo,1,post-642-capability-cleanup,0.933,5.0,5.0,4.5,4.5,5.0,5.0,0.0,0.0,0.5,0.5,0.0,0.0
+p-03-survey-nps__r01,15,109,p-03-survey-nps,1,post-642-capability-cleanup,1.0,5.0,5.0,5.0,5.0,5.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0
+p-04-waiver-gym-membership__r01,16,110,p-04-waiver-gym-membership,1,post-642-capability-cleanup,1.0,5.0,5.0,5.0,5.0,5.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0
+p-05-rsvp-wedding__r01,17,111,p-05-rsvp-wedding,1,post-642-capability-cleanup,0.967,5.0,5.0,4.5,5.0,5.0,5.0,0.0,0.0,0.5,0.0,0.0,0.0
+p-06-feedback-post-event__r01,18,112,p-06-feedback-post-event,1,post-642-capability-cleanup,0.967,5.0,5.0,5.0,4.5,5.0,5.0,0.0,0.0,0.0,0.5,0.0,0.0
+p-07-booking-consultation__r01,19,113,p-07-booking-consultation,1,post-642-capability-cleanup,0.933,5.0,5.0,4.5,4.5,5.0,5.0,0.0,0.0,0.5,0.5,0.0,0.0
+p-08-onboarding-new-employee__r01,20,114,p-08-onboarding-new-employee,1,post-642-capability-cleanup,1.0,5.0,5.0,5.0,5.0,5.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0
+p-09-application-scholarship__r01,21,115,p-09-application-scholarship,1,post-642-capability-cleanup,0.967,5.0,5.0,5.0,4.5,5.0,5.0,0.0,0.0,0.0,0.5,0.0,0.0
+p-10-donation-charity__r01,22,116,p-10-donation-charity,1,post-642-capability-cleanup,0.933,5.0,5.0,5.0,4.5,5.0,4.5,0.0,0.0,0.0,0.5,0.0,0.5

@@ -1,0 +1,156 @@
+{
+  "judge_model": "claude",
+  "rows": [
+    {
+      "prompt_id": "p-01-event-registration-conference",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-01-event-registration-conference__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-02-lead-gen-saas-demo",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-02-lead-gen-saas-demo__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-03-survey-nps",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-03-survey-nps__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-04-waiver-gym-membership",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-04-waiver-gym-membership__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-05-rsvp-wedding",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-05-rsvp-wedding__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-06-feedback-post-event",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-06-feedback-post-event__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-07-booking-consultation",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-07-booking-consultation__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-08-onboarding-new-employee",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-08-onboarding-new-employee__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-09-application-scholarship",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-09-application-scholarship__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "prompt_id": "p-10-donation-charity",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p-10-donation-charity__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "locale_fidelity": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "post-642-capability-cleanup"
+    }
+  ],
+  "rubric_version": "rubric_v1"
+}

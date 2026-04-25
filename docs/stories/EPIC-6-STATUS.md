@@ -73,7 +73,17 @@ This fundamentally changes the payment architecture. We must implement two diffe
 | **6.3.1** | Simplified AI Output + Deterministic Layout Foundation | Bridge story: AI emits coordinate-free `FormSemanticPlan`, deterministic Python compiler owns geometry; render-then-measure round-trip; governance (capability snapshot, validation contracts, prompt versioning, generation runs); UAT rounds 1–11 PASS. See `STORY-6.3.1-CLOSEOUT-REPORT.md`. | ✅ **Complete** (2026-04-15, PR #64) |
 | **6.4** | **AI Agent Panel Production Polish + User Preferences Architecture Foundation** *(rescoped 2026-04-23; expanded same day to include foundational user-preferences architecture per Tonyk's request for "aligned database architecture to support this level of managing User preferences")* | Tactical polish (last prompt persistence, replace-form warning with "don't show again", hide transport selector, retry default in `config.AppSetting`, silent soft-validation autoload) **plus** foundational `dbo.UserPreference` + `ref.UserPreferenceCategory` + `ref.UserPreferenceKey` architecture mirroring the `config.AppSetting` pattern, dynamic Notifications UI, and `GET/PATCH/DELETE /api/me/preferences`. Final size: M-L (4 migrations, 19 ACs, 41 new backend tests). See `STORY-6.4-CLOSEOUT-REPORT.md`. | ✅ **Complete** (2026-04-24, PR #66) |
 | **6.4.1** | *(Optional micro-story — only if surfaced during 6.4)* Submit-button validation parity (design pill ↔ preview summary) — `g-frontend-submit-parity` from 6.3.1 carry-forward backlog. | Did not surface during 6.4 polish work; remains tracked in `EPIC-6-CARRY-FORWARD-BACKLOG.md` (P2). Suggested home: Story 6.5 frontend pass. | ⏳ Carry-forward (not promoted) |
-| **6.5** | **Image-to-Form** *(new, 2026-04-23)* | Differentiator feature: user uploads a screenshot/photo of an existing form; multimodal LLM produces a `FormSemanticPlan`; deterministic compiler converts to `DefinitionJSON`; result loads onto canvas for refinement. Reuses 6.3.1 architecture wholesale — only new piece is the vision-prompt path. Gated on a 1-day feasibility check (see `STORY-6.5-FEASIBILITY-NOTES.md`). | ⏳ Pending (feasibility check first; SM to draft after Tonyk reviews findings) |
+| **6.4.3a** | **AI Eval Harness Bones** | Frozen `prompts-v1.0` benchmark set, CLI runner, `log.FormAiEvalRun` migration, Category A structural metrics, and full 10-row live baseline for later zero-behavioural-change checks. | ✅ **Complete** (2026-04-25, PR #68) |
+| **6.4.2** | **Capability Snapshot Prompt Cleanup** | Delete orphan prompt-section bundle, complete Capability Parity Audit, lock/verify always-pass capability snapshot prompt behavior, document `FormSemanticPlan` backward compatibility, and re-capture post-flip baseline. | 🔄 **In Progress** (Draft PR #69) |
+| **6.4.3b** | **Eval Judge Package + Rubric ADR** | Generate Cursor judge packages, ingest judge JSON, lock rubric v1, and document the manual cross-model judge workflow. | ⏳ Pending |
+| **6.4.3c** | **Eval Diff + Statistics Tooling** | Add Welch/Fisher statistics, diff reports, and public harness docs for prompt-change decisions. | ⏳ Pending |
+| **6.4.4** | **Prompt Shrink Sweeps H1/H2/H4** | Run H1/H2/H4 plus combined sweeps through the harness, ship winners, and document hypothesis evidence. | ⏳ Pending |
+| **6.4.5** | **Component Property Cheat Sheet H3** | Add component property cheat sheet under measurement and ship only if the harness evidence wins. | ⏳ Pending |
+| **6.5a** | **Clarification Questions** | Text-only clarification flow with schema additions and AI Agent panel UX for low-confidence cases. | ⏳ Pending |
+| **6.5b-vision** | **Image-to-Form Vision Path** | Screenshot/photo input to `FormSemanticPlan`, reusing deterministic compiler architecture. | ⏳ Pending |
+| **6.5b-style** | **Style Intent Resolver** | Add semantic `themeIntent`/`styleIntent`, resolver boundary, canvas-preservation contract, and H5 sweep. | ⏳ Pending |
+| **6.5c** | **PII Detection Layers** | PII detection, user-assertion clarification hook, and PII-heavy benchmark subset. | ⏳ Pending |
+| **6.5d** | **Google Fonts Directive** *(conditional)* | Add "Use only Google Fonts" directive and font-nomination validity check if H6 wins. | ⏳ Conditional |
 
 ### Phase B: Platform Billing & Monetization (deferred — renumbered 2026-04-23)
 
@@ -94,4 +104,4 @@ This fundamentally changes the payment architecture. We must implement two diffe
 ---
 
 *Epic 6 Status Document*  
-*Last Updated: 2026-04-23 (Post-6.3.1 PM/SM scope pivot: 6.4 rescoped to UI polish, new 6.5 = Image-to-Form, billing renumbered 6.6–6.10, AI iteration deferred post-MVP)*
+*Last Updated: 2026-04-25 (Prompt-engineering ideation brief v2: AI track reordered to 6.4.3a → 6.4.2 → 6.4.3b/c → measured prompt sweeps before Image-to-Form/style additions.)*

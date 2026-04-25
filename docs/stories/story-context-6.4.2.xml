@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.4.2 — Capability Snapshot Prompt Cleanup
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-04-25
+-->
+<story-context story="6.4.2" title="Capability Snapshot Prompt Cleanup">
+
+  <overview>
+    Remove the orphaned Form AI prompt-section bundle, complete the capability
+    parity audit that gates all future capability-snapshot mutation, lock the
+    active capability snapshot prompt behavior with tests, document current
+    FormSemanticPlan backward compatibility, and re-run the 6.4.3a baseline.
+  </overview>
+
+  <critical-objectives>
+    <item>Delete system_prompt_sections_1_6.py and move tests to the active prompt assembly path.</item>
+    <item>Complete the capability parity audit before changing capability prompt behavior.</item>
+    <item>Make active generation prompt assembly include ALLOWED COMPONENT TYPES whenever a snapshot exists.</item>
+    <item>Preserve missing-snapshot legacy fallback for replay/dev, but do not treat it as normal configured operation.</item>
+    <item>Document FormSemanticPlan compatibility decisions in an ADR before later schema/style work.</item>
+    <item>Re-run the prompts-v1.0 baseline and compare against Story 6.4.3a structural metrics.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.3a">Complete; provides prompts-v1.0 harness and baseline artifact.</story>
+    <doc path="docs/stories/story-6.4.2.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/stories/STORY-6.4.3a-BENCHMARK-BASELINE.md">Before baseline for structural comparison.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Harness usage docs.</doc>
+    <doc path="docs/stories/EPIC-6-WORKFLOW-GUIDE.md">Workflow and closeout rules.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic commands. If audit requires a snapshot repair migration, Anthony applies it.</item>
+    <item>Do NOT change H1/H2/H4 prompt content in this story.</item>
+    <item>Do NOT modify prompts.yaml except to read it through the harness.</item>
+    <item>Do NOT implement judge package, rubric, ingest, stats, or CI comment tooling.</item>
+    <item>Do NOT add new active component capabilities unless the parity audit proves a currently active snapshot is invalid and SM approves the repair.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/system_prompt_sections_1_6.py"
+          note="Delete. Orphaned bundle referenced by tests only; not active prompt path."/>
+    <path file="backend/tests/test_form_ai_prompt_capabilities.py"
+          note="Update or replace to assert active prompt helpers and capability block behavior."/>
+    <path file="backend/modules/form_ai/service.py"
+          note="_build_initial_messages, _build_capability_prompt_block, _filter_runtime_context_to_capability, _resolve_runtime_governance_versions, generate_form_definition."/>
+    <path file="backend/modules/form_ai/semantic_validator.py"
+          note="Snapshot-aware type validation; ensure legacy missing-snapshot fallback remains intentional."/>
+    <path file="backend/modules/form_ai/schemas.py"
+          note="FormSemanticPlan normalization and extra-key behavior for ADR/tests."/>
+    <path file="frontend/src/features/builder/registry/ComponentRegistry.tsx"
+          note="Frontend registered/toolbox component source for parity audit."/>
+    <path file="frontend/src/features/builder/components/ai/buildAiRuntimeFootprints.ts"
+          note="Runtime footprint component coverage; includes Story 6.2.1 force-included types."/>
+    <path file="frontend/src/features/builder/utils/componentCapabilities.ts"
+          note="Properties/data capability reference for frontend component behavior."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="Use to re-run the prompts-v1.0 baseline after cleanup."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/STORY-6.4.2-SINGLE-SESSION-DEV-PROMPT.md"
+          purpose="Dev execution contract, preflight, source order, gates, and baseline recapture command."/>
+    <file path="docs/stories/STORY-6.4.2-UAT-TEST-GUIDE.md"
+          purpose="Human UAT for audit, prompt cleanup, ADR, baseline comparison, and stale-field workflow guardrails."/>
+    <file path="docs/stories/STORY-6.4.2-CAPABILITY-PARITY-AUDIT.md"
+          purpose="Mandatory parity audit before capability prompt behavior is considered safe."/>
+    <file path="docs/stories/STORY-6.4.2-FORMSEMANTICPLAN-BACKWARD-COMPAT-ADR.md"
+          purpose="ADR documenting current compatibility behavior and retirement triggers."/>
+    <file path="docs/stories/STORY-6.4.2-CLOSEOUT-REPORT.md"
+          purpose="Mandatory closeout report with AC matrix and post-cleanup baseline comparison."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">Delete orphan prompt file and remove SYSTEM_PROMPT_SECTIONS_1_TO_6 references.</ac>
+    <ac id="2">Tests assert active prompt path rather than orphan bundle.</ac>
+    <ac id="3">Capability parity audit complete.</ac>
+    <ac id="4">No active snapshot capability lacks renderer/toolbox/runtime coverage without SM-approved blocker.</ac>
+    <ac id="5">Capability block appears when snapshot exists.</ac>
+    <ac id="6">Missing snapshot legacy fallback remains safe and documented.</ac>
+    <ac id="7">Runtime footprints filtered to active snapshot.</ac>
+    <ac id="8">FormSemanticPlan ADR exists.</ac>
+    <ac id="9">Backward compatibility behavior covered by tests.</ac>
+    <ac id="10">Post-cleanup harness baseline captured.</ac>
+    <ac id="11">Structural baseline does not regress.</ac>
+    <ac id="12">Closeout report complete.</ac>
+  </acceptance-mapping>
+
+</story-context>

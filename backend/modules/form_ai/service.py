@@ -1417,49 +1417,7 @@ def _merge_visual_collisions(
 #   - The block is opt-out via ``locale_code=None`` so we can always disable
 #     for tests / specific tenants.
 _LOCALE_PROMPT_BLOCKS: Dict[str, str] = {
-    "AU": (
-        "## REGION / LOCALE — Australia & New Zealand (default for the EventLead "
-        "early-access launch)\n"
-        "Treat the form as if it will be filled in by Australian or New Zealand "
-        "end-users unless the user prompt clearly states otherwise (e.g. \"US "
-        "customers\", \"international audience\"). Apply these conventions to all "
-        "labels, placeholders, helpText and option text:\n"
-        "  - Use Australian/British spelling: ``organisation`` (not organization), "
-        "    ``customise``, ``colour``, ``favourite``, ``licence`` (noun) / "
-        "    ``license`` (verb), ``programme`` (event/series) vs ``program`` (software).\n"
-        "  - Address fields:\n"
-        "      * Use ``Postcode`` (single word, no space) — never ``ZIP``, "
-        "        ``Zip Code``, or ``Postal Code``.\n"
-        "      * Use ``Suburb`` for the city/town field — not ``City`` or ``Town``.\n"
-        "      * Use ``State`` and accept Australian states (NSW, VIC, QLD, WA, SA, "
-        "        TAS, ACT, NT) or New Zealand regions; never use US state lists.\n"
-        "      * Country defaults to Australia or New Zealand if a country field "
-        "        is needed.\n"
-        "      * Address placeholders should look like \"123 George Street, Sydney "
-        "        NSW 2000\" — never US-style \"123 Main St, Springfield IL 62704\".\n"
-        "  - Phone fields:\n"
-        "      * Use ``Mobile`` for personal mobile numbers, not ``Cell`` / "
-        "        ``Cell phone``.\n"
-        "      * Placeholders use AU/NZ formats: \"04xx xxx xxx\" (AU mobile), "
-        "        \"(02) xxxx xxxx\" (AU landline), \"021 xxx xxxx\" (NZ mobile). "
-        "        Never \"+1 (555) 555-0123\" or \"(555) 555-5555\".\n"
-        "      * helpText should reference \"+61\" / \"+64\" if it mentions "
-        "        country codes — never \"+1\".\n"
-        "  - Names: ``Surname`` is acceptable as a last-name label alongside "
-        "    ``Last name``. ``Given name`` / ``First name`` both fine.\n"
-        "  - Money / GST: prices are in AUD or NZD by default; if the form "
-        "    discusses tax, use ``GST`` not ``Sales tax`` / ``VAT``.\n"
-        "  - Dates: prefer DD/MM/YYYY ordering in placeholders and helpText "
-        "    (e.g. \"31/12/2026\"). Never use US-style MM/DD/YYYY.\n"
-        "  - Education / professional: use ``Year 12``/``School certificate`` "
-        "    style descriptors over US ``Grade 12``/``High school diploma`` "
-        "    when the form is education-related.\n"
-        "  - Generally: avoid Americanisms in copy — e.g. ``rubbish`` over "
-        "    ``trash``, ``car park`` over ``parking lot``, ``mobile`` over "
-        "    ``cellphone``.\n"
-        "If the user prompt explicitly names a different region (\"US customers\", "
-        "\"UK launch\", etc.), follow the user's stated region instead.\n"
-    ),
+    "AU": "Form audience: Australia/New Zealand. Use AU/NZ spelling, address, phone, date conventions.",
 }
 
 
@@ -1495,39 +1453,12 @@ _LOCALE_PROMPT_BLOCKS: Dict[str, str] = {
 #     ("company terms exist, here's the link text"); this block adds
 #     *semantic* guidance ("which component type to pick").
 _CONSENT_GUIDANCE_BLOCK = (
-    "## CONSENT & LEGAL ACKNOWLEDGEMENTS — component selection\n"
-    "When the form needs the end-user to acknowledge or agree to a legal / "
-    "policy / marketing statement, prefer the ``terms`` component over a "
-    "plain ``checkbox``. ``terms`` is purpose-built for consent: it carries "
-    "a clickable link to the full document so the user can actually read it "
-    "before agreeing (an enforceability requirement under GDPR, CCPA and the "
-    "AU Privacy Act), and integrates with company-managed terms when the "
-    "runtime context provides them.\n"
-    "Use ``terms`` for any of these intents (and any close variants in the "
-    "user prompt):\n"
-    "  - Marketing consent / opt-in to receive marketing communications, "
-    "    newsletters, promotional emails or SMS.\n"
-    "  - Acceptance of Terms of Service, Terms & Conditions, T&Cs, EULA, "
-    "    user agreement, vendor agreement.\n"
-    "  - Acknowledgement of a Privacy Policy, Privacy Notice, Privacy "
-    "    Collection Statement, or data-handling notice.\n"
-    "  - GDPR / CCPA / AU Privacy Act consent or opt-in (data processing, "
-    "    profiling, automated decision-making, lawful basis acknowledgement).\n"
-    "  - Cookies / tracking consent, when collected on a form rather than a "
-    "    banner.\n"
-    "  - Liability waivers, photo / media release, code-of-conduct "
-    "    acknowledgement, indemnity declarations.\n"
-    "Set ``componentType: \"terms\"`` for these. Keep the consent sentence "
-    "in ``label`` (or in ``props.termsContent`` if the runtime context does "
-    "not provide company terms), set ``validationIntent.required = true`` "
-    "unless the prompt clearly says the consent is optional, and let the "
-    "compiler / runtime fill in ``props.termsLinkText`` / ``props.termsUrl``.\n"
-    "Reserve plain ``checkbox`` for non-legal multi-select intent — "
-    "interests, preferences, dietary requirements, available time slots, "
-    "feature toggles. If you're unsure whether something is consent vs. a "
-    "preference, the deciding question is: \"Would a regulator expect the "
-    "end-user to be able to read a document before ticking this?\" If yes, "
-    "use ``terms``.\n"
+    "## CONSENT & LEGAL ACKNOWLEDGEMENTS\n"
+    "| User intent | Component | Required guidance |\n"
+    "|---|---|---|\n"
+    "| Marketing consent, terms acceptance, privacy acknowledgement, data/cookie consent, waiver, release, code-of-conduct or indemnity acknowledgement | ``terms`` | Set ``validationIntent.required = true`` unless explicitly optional. Use company-managed terms when runtime context provides them. |\n"
+    "| Consent text but no company-managed terms | ``terms`` | Keep the acknowledgement sentence in ``label`` or ``props.termsContent``. Do not invent legal URLs or policy content. |\n"
+    "| Interests, preferences, dietary choices, availability, feature toggles or other non-legal multi-select | ``checkbox`` | Treat as ordinary choices, not legal acknowledgement. |\n"
 )
 
 
@@ -1591,6 +1522,15 @@ def _build_locale_prompt_block(locale_code: Optional[str] = "AU") -> str:
     return _LOCALE_PROMPT_BLOCKS.get(locale_code.upper(), "")
 
 
+def _trim_context_pack_for_prompt(context_pack: str) -> str:
+    """Remove non-generation operational notes before sending context to the LLM."""
+    marker = "\n## Operational Notes"
+    index = context_pack.find(marker)
+    if index == -1:
+        return context_pack
+    return context_pack[:index].rstrip()
+
+
 def _build_initial_messages(
     prompt: str,
     context_pack: str,
@@ -1603,6 +1543,7 @@ def _build_initial_messages(
     runtime_context_block = _build_runtime_context_block(runtime_context)
     capability_block = _build_capability_prompt_block(capability_snapshot_json)
     locale_block = _build_locale_prompt_block(locale_code)
+    prompt_context_pack = _trim_context_pack_for_prompt(context_pack)
 
     # Story 6.3.1 (UAT round 6) — Phase 2 LLM nudge for horizontal-stacked
     # layout. ``resolve_layout_mode`` returns the legacy
@@ -1650,7 +1591,7 @@ def _build_initial_messages(
         "\n"
         "Use only Story 6.2/6.3.1 supported component catalog and single-page constraints.\n\n"
         + (capability_block + "\n\n" if capability_block else "")
-        + f"{context_pack}"
+        + f"{prompt_context_pack}"
         + ("\n\n" + runtime_context_block if runtime_context_block else "")
     )
     if system_prompt_addendum and system_prompt_addendum.strip():

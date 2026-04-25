@@ -1,222 +1,78 @@
 # Story 6.4.4 Hypothesis Evidence
 
-**Story:** 6.4.4 — Prompt Shrink Sweeps H1/H2/H4  
-**Branch:** `story/epic6-6.4.4-prompt-shrink-sweeps`  
-**PR:** [#72](https://github.com/anthonykeevy/EventLeadPlatform/pull/72)  
-**Status:** Template — Dev to complete  
+## Summary
 
----
+Story 6.4.4 measured prompt-shrink candidates H1, H2, H4, and combined H1+H2+H4 against the frozen `prompts-v1.0` benchmark set.
 
-## 1) Evidence Summary
+Evidence now includes:
 
-| Hypothesis | Variant Label | Run IDs | Prompt Size Delta | Structural Verdict | Semantic Verdict | Final Decision |
-|------------|---------------|---------|-------------------|--------------------|------------------|----------------|
-| H1 locale shrink | TBD | TBD | TBD | TBD | TBD | TBD |
-| H2 consent/legal shrink | TBD | TBD | TBD | TBD | TBD | TBD |
-| H4 operational notes trim | TBD | TBD | TBD | TBD | TBD | TBD |
-| Combined H1+H2+H4 | TBD | TBD | TBD | TBD | TBD | TBD |
+- deterministic mock structural sweeps,
+- live provider runs for baseline/H1/H2/H4/combined,
+- 15 Cursor judge outputs,
+- judge ingest summaries,
+- live diff/statistics reports.
 
-Decision values:
+## Prompt Size Deltas
 
-- `ship`
-- `revert`
-- `inconclusive-follow-up`
+| Hypothesis | Before chars | After chars | Delta |
+|---|---:|---:|---:|
+| H1 locale block | 2395 | 91 | -2304 |
+| H2 consent block | 1960 | 748 | -1212 |
+| H4 context pack trim | 6595 | 6355 | -240 |
+| Combined subtotal | 10950 | 7194 | -3756 |
 
----
+## Live Runs And Judge Packages
 
-## 2) Baseline
+| Variant | Eval run | Judge package | Judge ingest | Diff output |
+|---|---|---|---|---|
+| Baseline | `story-6.4.2-post-cleanup-baseline` | `.../story-6.4.2-post-cleanup-baseline/judge-package/` | 10 rows, 3 judges | baseline side |
+| H1 | `story-6.4.4-live-h1-locale-one-line` | `.../story-6.4.4-live-h1-locale-one-line/judge-package/` | 10 rows, 3 judges | `_bmad-output/eval-runs/story-6.4.4-live-baseline-vs-h1/` |
+| H2 | `story-6.4.4-live-h2-consent-decision-table` | `.../story-6.4.4-live-h2-consent-decision-table/judge-package/` | 10 rows, 3 judges | `_bmad-output/eval-runs/story-6.4.4-live-baseline-vs-h2/` |
+| H4 | `story-6.4.4-live-h4-operational-trim` | `.../story-6.4.4-live-h4-operational-trim/judge-package/` | 10 rows, 3 judges | `_bmad-output/eval-runs/story-6.4.4-live-baseline-vs-h4/` |
+| Combined | `story-6.4.4-live-h1-h2-h4-combined` | `.../story-6.4.4-live-h1-h2-h4-combined/judge-package/` | 10 rows, 3 judges | `_bmad-output/eval-runs/story-6.4.4-live-baseline-vs-combined/` |
 
-| Field | Value |
-|-------|-------|
-| Baseline run ID | TBD |
-| Baseline artifact path | TBD |
-| Benchmark version | `prompts-v1.0` |
-| Model/provider | TBD |
-| Repetitions | TBD |
-| Judge package path | TBD |
-| Judge ingest summary | TBD |
-| Notes | TBD |
+All live variant runs completed with:
 
----
+- matched rows: 10/10,
+- schema blockers: none,
+- boundary blockers: none,
+- collision blockers: none.
 
-## 3) H1 — AU/NZ Locale One-Line Directive
+## Category B Results
 
-### Variant
+| Hypothesis | Structural result | Category B result | Tool recommendation | Story decision |
+|---|---|---|---|---|
+| H1 locale one-line | No blockers | All semantic metrics inconclusive at n=10. Locale fidelity dropped from 5.0 to 4.85 (`p=0.0811`). | `rerun-at-n15` | Not evidence-backed for merge; PM/SM decision required. |
+| H2 consent decision table | No blockers | All semantic metrics inconclusive at n=10. Validation intent dropped from 4.85 to 4.6 (`p=0.1081`); no significant regression. | `rerun-at-n15` | Not evidence-backed for auto-merge; plausible candidate for PM/SM acceptance or n=15 rerun. |
+| H4 operational trim | No blockers | All semantic metrics inconclusive at n=10. Locale/coverage/label metrics unchanged at 5.0; row grouping dropped 4.7 to 4.55 (`p=0.1381`). | `rerun-at-n15` | Not evidence-backed for auto-merge; plausible candidate for PM/SM acceptance or n=15 rerun. |
+| Combined H1+H2+H4 | No structural blockers | `locale_fidelity` significant regression: 5.0 to 4.6, `p=0.000202`, effect size 2.68. | `human-review` | Do not ship combined as-is. |
 
-```text
-Form audience: Australia/New Zealand. Use AU/NZ spelling, address, phone, date conventions.
-```
+## Notable Advisory Deltas
 
-### Commands
+| Hypothesis | Advisory note |
+|---|---|
+| H1 | Duration roughly unchanged; component count unchanged; no schema/collision/boundary regression. |
+| H2 | Duration increased from 65.9s to 89.3s average (`p=0.0295`), advisory only. |
+| H4 | Duration decreased from 65.9s to 54.5s average; component count slightly lower; no blockers. |
+| Combined | Duration decreased from 65.9s to 45.4s average (`p=0.0258`), but locale fidelity regression blocks shipping combined. |
 
-```powershell
-# Dev records exact commands here.
-```
+## Final Evidence Verdict
 
-### Outputs
+The evidence does not support merging the current combined prompt shrink state as-is.
 
-| Artifact | Path |
-|----------|------|
-| Eval run | TBD |
-| Judge package | TBD |
-| Judge ingest summary | TBD |
-| Diff report | TBD |
-| Diff summary JSON | TBD |
-| Diff details CSV | TBD |
+Recommended PM/SM discussion points:
 
-### Results
+- Reject combined H1+H2+H4 due significant `locale_fidelity` regression.
+- Treat H1 as suspect because the failing combined metric is locale-specific and H1 directly shrinks locale guidance.
+- Decide whether H2 and/or H4 can be accepted on current n=10 evidence despite `rerun-at-n15` recommendations, or whether to rerun those candidates at n=15.
+- If strict story criteria are applied, revert all inconclusive/failed prompt changes before merge and carry the candidates forward for n=15.
 
-| Metric | Baseline | Variant | Delta | Verdict |
-|--------|----------|---------|-------|---------|
-| schema_valid rate | TBD | TBD | TBD | TBD |
-| boundary_violation_count | TBD | TBD | TBD | TBD |
-| component_count | TBD | TBD | TBD | TBD |
-| collision_count | TBD | TBD | TBD | TBD |
-| field_coverage_recall | TBD | TBD | TBD | TBD |
-| copy_quality_score | TBD | TBD | TBD | TBD |
-| AU/NZ locale correctness | TBD | TBD | TBD | TBD |
+## Code State At Evidence Close
 
-### Decision
+Current branch code still contains H1+H2+H4 so PM/SM can inspect the implemented candidates and associated tests. This is not a merge-ready ship decision until PM/SM explicitly choose one of:
 
-**Decision:** TBD  
-**Rationale:** TBD  
-**Code retained/reverted:** TBD  
+1. accept a subset and revert the rest,
+2. rerun selected variants at n=15,
+3. close the story as measured-only with no prompt shrink shipped.
 
----
-
-## 4) H2 — Consent/Legal Compact Decision Table
-
-### Variant
-
-Summarize the compact decision table here.
-
-### Commands
-
-```powershell
-# Dev records exact commands here.
-```
-
-### Outputs
-
-| Artifact | Path |
-|----------|------|
-| Eval run | TBD |
-| Judge package | TBD |
-| Judge ingest summary | TBD |
-| Diff report | TBD |
-| Diff summary JSON | TBD |
-| Diff details CSV | TBD |
-
-### Results
-
-| Metric | Baseline | Variant | Delta | Verdict |
-|--------|----------|---------|-------|---------|
-| schema_valid rate | TBD | TBD | TBD | TBD |
-| boundary_violation_count | TBD | TBD | TBD | TBD |
-| terms component accuracy | TBD | TBD | TBD | TBD |
-| checkbox fallback accuracy | TBD | TBD | TBD | TBD |
-| company-managed terms behavior | TBD | TBD | TBD | TBD |
-| copy_quality_score | TBD | TBD | TBD | TBD |
-
-### Decision
-
-**Decision:** TBD  
-**Rationale:** TBD  
-**Code retained/reverted:** TBD  
-
----
-
-## 5) H4 — Operational Notes Trim
-
-### Variant
-
-Summarize removed/trimmed duplicated operational guidance here.
-
-### Commands
-
-```powershell
-# Dev records exact commands here.
-```
-
-### Outputs
-
-| Artifact | Path |
-|----------|------|
-| Eval run | TBD |
-| Judge package | TBD |
-| Judge ingest summary | TBD |
-| Diff report | TBD |
-| Diff summary JSON | TBD |
-| Diff details CSV | TBD |
-
-### Results
-
-| Metric | Baseline | Variant | Delta | Verdict |
-|--------|----------|---------|-------|---------|
-| schema_valid rate | TBD | TBD | TBD | TBD |
-| boundary_violation_count | TBD | TBD | TBD | TBD |
-| collision_count | TBD | TBD | TBD | TBD |
-| row grouping quality | TBD | TBD | TBD | TBD |
-| tab order/layout behavior | TBD | TBD | TBD | TBD |
-| supported catalog compliance | TBD | TBD | TBD | TBD |
-
-### Decision
-
-**Decision:** TBD  
-**Rationale:** TBD  
-**Code retained/reverted:** TBD  
-
----
-
-## 6) Combined H1+H2+H4
-
-### Commands
-
-```powershell
-# Dev records exact commands here.
-```
-
-### Outputs
-
-| Artifact | Path |
-|----------|------|
-| Eval run | TBD |
-| Judge package | TBD |
-| Judge ingest summary | TBD |
-| Diff report | TBD |
-| Diff summary JSON | TBD |
-| Diff details CSV | TBD |
-
-### Results
-
-| Metric | Baseline | Variant | Delta | Verdict |
-|--------|----------|---------|-------|---------|
-| schema_valid rate | TBD | TBD | TBD | TBD |
-| boundary_violation_count | TBD | TBD | TBD | TBD |
-| Category B aggregate | TBD | TBD | TBD | TBD |
-| GPT-5 mini bias delta | TBD | TBD | TBD | TBD |
-| rerun recommendation | TBD | TBD | TBD | TBD |
-
-### Decision
-
-**Decision:** TBD  
-**Rationale:** TBD  
-**Code retained/reverted:** TBD  
-
----
-
-## 7) Final Shipped Prompt Changes
-
-| Prompt Area | Final State | Evidence Link | Notes |
-|-------------|-------------|---------------|-------|
-| Locale block | TBD | TBD | TBD |
-| Consent/legal block | TBD | TBD | TBD |
-| Operational notes | TBD | TBD | TBD |
-
----
-
-## 8) Carry-Forward
-
-| Item | Owner | Target Story | Reason |
-|------|-------|--------------|--------|
-| TBD | TBD | TBD | TBD |
+No changes were made to `prompts.yaml` or `rubric_v1.md`. No H3/H5/H6/Image-to-Form work was implemented.

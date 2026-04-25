@@ -3,7 +3,7 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.4  
 **Title:** Prompt Shrink Sweeps H1/H2/H4  
-**Status:** Draft — ready for Dev  
+**Status:** Evidence complete — PM/SM ship decision required
 **Branch:** `story/epic6-6.4.4-prompt-shrink-sweeps`  
 **PR:** [#72](https://github.com/anthonykeevy/EventLeadPlatform/pull/72) — Draft  
 **Created:** 2026-04-25  
@@ -152,3 +152,85 @@ Evidence must include:
 - Backend gate is run unless a clear CI-backed exception is recorded.
 - Human/SM accepts final ship/revert verdicts.
 - Stale-field audit passes before merge.
+
+---
+
+## Tasks / Subtasks
+
+- [x] Step 0 - Preflight
+  - [x] Attempt documented preflight command.
+  - [x] Record missing `scripts/agent/preflight.py` result in `STORY-6.4.4-PREFLIGHT.md`.
+- [x] Step 1 - Establish baseline
+  - [x] Run deterministic mock baseline over frozen `prompts-v1.0` set.
+  - [x] Record run ID and artifact path in hypothesis evidence.
+- [x] Step 2 - H1 locale shrink
+  - [x] Replace AU/NZ locale block with one-line directive.
+  - [x] Add prompt contract tests and mock diff evidence.
+- [x] Step 3 - H2 consent/legal shrink
+  - [x] Replace `_CONSENT_GUIDANCE_BLOCK` with compact decision table.
+  - [x] Add prompt contract tests and mock diff evidence.
+- [x] Step 4 - H4 operational notes trim
+  - [x] Trim context-pack operational notes from `_build_initial_messages()` prompt assembly.
+  - [x] Add prompt contract tests and mock diff evidence.
+- [x] Step 5 - Combined variant
+  - [x] Retain H1+H2+H4 together.
+  - [x] Run combined mock sweep and diff.
+- [x] Step 6 - Judge evidence
+  - [x] Generate live judge packages for baseline, H1, H2, H4, and combined.
+  - [x] Ingest GPT-5 mini, Claude, and Gemini judge outputs for all five packages.
+  - [x] Generate live diff/statistical reports for all variants.
+- [x] Step 7 - Gates
+  - [x] Run focused prompt/eval tests.
+  - [x] Run full backend gate.
+  - [x] Check lints for touched files.
+- [x] Step 8 - Closeout
+  - [x] Complete hypothesis evidence, gate evidence, and closeout report with final findings.
+  - [x] Update Dev Agent Record and File List.
+
+---
+
+## Dev Agent Record
+
+### Debug Log
+
+- Preflight command failed with exit code 2 because `scripts/agent/preflight.py` is absent from the worktree; recorded in `STORY-6.4.4-PREFLIGHT.md`.
+- Red phase added prompt shrink and variant parsing tests; expected failures observed before implementation.
+- Full backend gate initially failed because older locale tests asserted detailed `Postcode`/`Mobile` prompt content. Tests were updated to the Story 6.4.4 one-line locale contract.
+
+### Completion Notes
+
+- Implemented H1 locale one-line directive in `backend/modules/form_ai/service.py`.
+- Implemented H2 compact consent/legal decision table while preserving `terms` vs `checkbox`, company-managed terms, required acknowledgement, and no invented legal URLs/content.
+- Implemented H4 context-pack operational notes trim during prompt assembly without mutating the source context pack.
+- Updated eval harness CLI validation to support Story 6.4.4 non-baseline variant labels.
+- Generated deterministic mock baseline, H1, H2, H4, combined runs and diff reports with no Category A structural blockers.
+- Live Category B judging completed across GPT-5 mini, Claude, and Gemini for baseline/H1/H2/H4/combined.
+- Individual H1/H2/H4 results were inconclusive at n=10; each received `rerun-at-n15` recommendations.
+- Combined H1+H2+H4 produced a significant `locale_fidelity` regression and should not ship as-is.
+
+### File List
+
+- `backend/modules/form_ai/service.py`
+- `backend/tests/form_ai_eval/run.py`
+- `backend/tests/test_form_ai_eval_harness.py`
+- `backend/tests/test_form_ai_prompt_capabilities.py`
+- `backend/tests/test_story_631_content_widths.py`
+- `docs/stories/story-6.4.4.md`
+- `docs/stories/STORY-6.4.4-PREFLIGHT.md`
+- `docs/stories/STORY-6.4.4-HYPOTHESIS-EVIDENCE.md`
+- `docs/stories/STORY-6.4.4-GATE-EVIDENCE.md`
+- `docs/stories/STORY-6.4.4-CLOSEOUT-REPORT.md`
+- `docs/stories/STORY-6.4.4-JUDGE-PROMPTS.md`
+- `_bmad-output/eval-runs/story-6.4.4-mock-baseline/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-h1-locale-one-line/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-h2-consent-decision-table/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-h4-operational-trim/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-h1-h2-h4-combined/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-baseline-vs-h1/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-baseline-vs-h2/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-baseline-vs-h4/`
+- `_bmad-output/eval-runs/story-6.4.4-mock-baseline-vs-combined/`
+
+### Change Log
+
+- 2026-04-25: Implemented prompt shrink candidates H1/H2/H4, added variant-capable eval harness parsing, generated mock/live structural and semantic evidence, and documented PM/SM ship decision required before merge.

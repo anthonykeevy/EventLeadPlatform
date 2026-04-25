@@ -114,17 +114,18 @@ def test_story_6_2_retry_loop_converges_within_cap(monkeypatch):
 
 def test_story_6_2_retry_cap_exhausted_after_three_corrections(monkeypatch):
     """When every attempt returns un-parseable JSON the service must exit on
-    ``json-parse-failed`` after the cap is hit. Default cap = 3 corrections,
-    so attemptCount == 4 (initial + 3 corrections)."""
+    ``json-parse-failed`` after the cap is hit. Story 6.4 moved the default
+    cap to the form_ai.default_retries AppSetting seed (2 corrections), so
+    attemptCount == 3 (initial + 2 corrections)."""
     _set_provider(monkeypatch, ["not json"] * 6)
 
     result = service.generate_form_definition("Generate a form that keeps failing")
 
     assert result.status == "failed", result.trace.terminalReason
     assert result.draftHasValidationIssues is False  # never produced a draft
-    assert result.trace.attemptCount == 4
-    assert result.trace.maxSystemCorrectionAttempts == 3
-    assert result.trace.systemCorrectionAttemptsUsed == 3
+    assert result.trace.attemptCount == 3
+    assert result.trace.maxSystemCorrectionAttempts == 2
+    assert result.trace.systemCorrectionAttemptsUsed == 2
     assert result.trace.terminalReason == "json-parse-failed"
 
 

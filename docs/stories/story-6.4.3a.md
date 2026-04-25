@@ -3,7 +3,7 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.3a  
 **Title:** AI Eval Harness Bones  
-**Status:** Draft — ready for Dev  
+**Status:** Ready for UAT/SM review — full 10-row live provider baseline verified
 **Branch:** `story/epic6-6.4.3a-ai-eval-harness-bones`  
 **PR:** [#68](https://github.com/anthonykeevy/EventLeadPlatform/pull/68) — Draft  
 **Created:** 2026-04-25  
@@ -191,3 +191,57 @@ Add focused backend tests, expected home `backend/tests/test_form_ai_eval_harnes
 - Migration file is prepared but not applied by the agent; Anthony runs migration before DB-backed UAT.
 - Draft PR remains scoped to harness bones.
 - `STORY-6.4.3a-CLOSEOUT-REPORT.md` is completed before merge because this story ships a schema migration and defers judge/statistics scope.
+
+---
+
+## 6) Dev Agent Record
+
+### Implementation Notes
+
+- Added frozen `prompts-v1.0` benchmark set with exactly 10 canonical prompt rows and dependency-free loader validation.
+- Added `backend/tests/form_ai_eval/run.py` baseline-only CLI harness using the existing `modules.form_ai.service.generate_form_definition(...)` call path, with deterministic `--mock` support for tests/smoke runs.
+- Added Category A metrics extraction, JSONL/CSV/metadata outputs, checkpoint-on-halt, resume support, retry-with-jitter for retryable provider exceptions, cost-cap handling, and optional DB persistence mapping.
+- Updated the runner to flush JSONL/CSV/metadata and commit DB persistence after each completed prompt/repetition so late-run failures do not lose earlier results.
+- Prepared reversible migration `062_story_643a_form_ai_eval_run.py` for `log.FormAiEvalRun`; not applied by the agent.
+- Fixed the mocked `--persist-db` path so DB persistence UAT can verify one row without a live LLM call.
+- Completed harness docs, mocked baseline artifact, closeout report, and gate evidence.
+- Aligned two stale backend tests with the current Story 6.4 AppSetting-owned retry policy so the full backend gate is green.
+
+### Tests And Gates
+
+- `python -m pytest tests/test_form_ai_eval_harness.py --tb=short` from `backend`: `11 passed`.
+- `python -m backend.tests.form_ai_eval.run --variant baseline --hypothesis-code baseline --repetitions 1 --max-cost-usd 1 --mock --run-id story-6.4.3a-smoke-mock` from worktree root: pass; 10 mocked rows emitted.
+- `python -m backend.tests.form_ai_eval.run --variant baseline --hypothesis-code baseline --prompt-id p-03-survey-nps --repetitions 1 --max-cost-usd 1 --persist-db --mock --run-id story-6.4.3a-db-smoke-2` from worktree root: pass; `EvalRunID=1` verified in `log.FormAiEvalRun`.
+- `python -m backend.tests.form_ai_eval.run --variant baseline --hypothesis-code baseline --prompt-id p-03-survey-nps --repetitions 1 --max-cost-usd 1 --persist-db --run-id story-6.4.3a-live-provider-smoke` from worktree root: pass; `EvalRunID=2`, `GenerationRunID=96`, `schema_valid=true`, zero collisions/boundary violations verified.
+- `python -m backend.tests.form_ai_eval.run --variant baseline --hypothesis-code baseline --repetitions 1 --max-cost-usd 1 --persist-db --run-id story-6.4.3a-live-full-10row-baseline` from worktree root: pass; `EvalRunID=3..12`, `GenerationRunID=97..106`, 10/10 `schema_valid=true`, zero collisions/boundary violations verified.
+- `.\scripts\workflow\run-green-gate.ps1 -StoryId "6.4.3a" -FocusedTestCommand "python -m pytest tests/test_form_ai_eval_harness.py --tb=short" -BackendGateCommand "python -m pytest --tb=short" -EvidenceFile "docs/stories/STORY-6.4.3a-GATE-EVIDENCE.md"`: focused `11 passed`; backend `757 passed, 26 skipped`.
+
+### File List
+
+- `_bmad-output/eval-runs/story-6.4.3a-smoke-mock/metrics.jsonl`
+- `_bmad-output/eval-runs/story-6.4.3a-smoke-mock/run-metadata.json`
+- `_bmad-output/eval-runs/story-6.4.3a-smoke-mock/summary.csv`
+- `_bmad-output/eval-runs/story-6.4.3a-db-smoke/metrics.jsonl`
+- `_bmad-output/eval-runs/story-6.4.3a-db-smoke/run-metadata.json`
+- `_bmad-output/eval-runs/story-6.4.3a-db-smoke/summary.csv`
+- `_bmad-output/eval-runs/story-6.4.3a-db-smoke-2/metrics.jsonl`
+- `_bmad-output/eval-runs/story-6.4.3a-db-smoke-2/run-metadata.json`
+- `_bmad-output/eval-runs/story-6.4.3a-db-smoke-2/summary.csv`
+- `_bmad-output/eval-runs/story-6.4.3a-live-provider-smoke/metrics.jsonl`
+- `_bmad-output/eval-runs/story-6.4.3a-live-provider-smoke/run-metadata.json`
+- `_bmad-output/eval-runs/story-6.4.3a-live-provider-smoke/summary.csv`
+- `_bmad-output/eval-runs/story-6.4.3a-live-full-10row-baseline/metrics.jsonl`
+- `_bmad-output/eval-runs/story-6.4.3a-live-full-10row-baseline/run-metadata.json`
+- `_bmad-output/eval-runs/story-6.4.3a-live-full-10row-baseline/summary.csv`
+- `backend/migrations/versions/062_story_643a_form_ai_eval_run.py`
+- `backend/tests/form_ai_eval/__init__.py`
+- `backend/tests/form_ai_eval/prompts.yaml`
+- `backend/tests/form_ai_eval/run.py`
+- `backend/tests/test_form_ai_eval_harness.py`
+- `backend/tests/test_story_631_form_ai_governance_api.py`
+- `backend/tests/test_story_6_2_ai_generation_loop.py`
+- `docs/FORM-AI-EVAL-HARNESS.md`
+- `docs/stories/STORY-6.4.3a-BENCHMARK-BASELINE.md`
+- `docs/stories/STORY-6.4.3a-CLOSEOUT-REPORT.md`
+- `docs/stories/STORY-6.4.3a-GATE-EVIDENCE.md`
+- `docs/stories/STORY-6.4.3a-PREFLIGHT.md`

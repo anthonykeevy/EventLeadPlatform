@@ -1,0 +1,2 @@
+benchmark_set_version,hypothesis_code,variant_label,prompt_id,repetition_index,schema_valid,component_count,collision_count,boundary_violation_count,attempt_count,terminal_reason,failure_class,duration_ms,input_tokens,output_tokens,total_cost_usd,retry_count
+prompts-v1.0,baseline,current-master-baseline,p-03-survey-nps,1,True,11,0,0,2,validated-success,none,103280,0,0,0.0,0

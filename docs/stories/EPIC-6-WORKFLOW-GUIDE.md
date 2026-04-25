@@ -11,6 +11,7 @@
 **Story 6.4.3a Status:** ✅ **Complete** (merged 2026-04-25, PR #68) — eval harness bones, `log.FormAiEvalRun`, and full 10-row live baseline. See `STORY-6.4.3a-CLOSEOUT-REPORT.md`.  
 **Story 6.4.2 Status:** ✅ **Complete** (2026-04-25, PR #69) — capability snapshot prompt cleanup, parity audit, `FormSemanticPlan` ADR, active prompt tests, and post-cleanup baseline. See `STORY-6.4.2-CLOSEOUT-REPORT.md`.  
 **Story 6.4.3b Status:** ✅ **Complete** (2026-04-25, PR #70) — eval judge package generator, rubric v1, DB-backed judge ingest, and Cursor judge workflow.  
+**Story 6.4.3c Status:** 🔄 **In Progress** (Draft PR #71) — eval diff reports, Welch/Fisher statistics, and 6.4.4 handoff docs.  
 
 ---
 

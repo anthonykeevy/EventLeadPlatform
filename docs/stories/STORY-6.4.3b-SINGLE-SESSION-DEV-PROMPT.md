@@ -4,7 +4,7 @@
 **Agent:** `@bmad-agent-bmm-dev`  
 **Worktree:** `C:\wt\elp\story-epic6-6.4.3b-eval-judge-package-rubric`  
 **Branch:** `story/epic6-6.4.3b-eval-judge-package-rubric`  
-**PR:** [#70](https://github.com/anthonykeevy/EventLeadPlatform/pull/70) — Draft PR to `master`  
+**PR:** [#70](https://github.com/anthonykeevy/EventLeadPlatform/pull/70) — merged to `master`  
 **Sizing:** S-M, expected single focused session.
 
 ---

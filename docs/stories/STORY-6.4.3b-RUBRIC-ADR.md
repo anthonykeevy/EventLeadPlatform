@@ -1,6 +1,6 @@
 # Story 6.4.3b ADR — Rubric v1 Governance
 
-**Status:** Template ready; Dev finalises with `rubric_v1.md`  
+**Status:** Accepted for `rubric_v1`  
 **Story:** 6.4.3b — Eval Judge Package + Rubric ADR  
 **Decision Owner:** SM + Dev; Architect review required for rubric version changes  
 **Date:** 2026-04-25
@@ -65,16 +65,60 @@ Negative:
 
 ---
 
-## Required Implementation Evidence
+## Implementation Evidence
 
-Dev must complete this ADR with:
+Final rubric: `backend/tests/form_ai_eval/rubric_v1.md`.
 
-- final metric list from `rubric_v1.md`,
-- final JSON schema summary,
-- judge package folder shape,
-- ingest behavior,
-- rubric v2 trigger examples,
-- baseline re-snapshot policy.
+Final Category B metric list:
+
+- `field_coverage_recall`
+- `field_label_f1`
+- `validation_intent_accuracy`
+- `row_group_agreement`
+- `locale_fidelity`
+- `copy_quality_score`
+
+Required judge JSON shape:
+
+- top-level `rubric_version = "rubric_v1"`,
+- top-level `judge_model` matching `gpt5mini`, `claude`, or `gemini`,
+- `rows[]` containing `row_id`, `prompt_id`, `repetition_index`, `variant_label`, `scores`, and `rationale`,
+- `scores` must contain exactly the six Category B metric keys with numeric values from `0` to `5`.
+
+Judge package folder shape:
+
+```text
+_bmad-output/eval-runs/<run-id>/judge-package/
+├── rubric_v1.md
+├── judge-input-batch.md
+├── judge-output-template.json
+├── judge-package-metadata.json
+└── results/
+```
+
+Ingest behavior:
+
+- validates required result files when present under `results/`,
+- rejects missing rows, duplicate rows, unknown row IDs, malformed metric keys, and out-of-range scores,
+- computes Claude + Gemini per-metric means as the primary judge score,
+- computes GPT-5 mini self-bias deltas as `gpt5mini_score - cross_model_mean`,
+- computes row-level judge agreement from Claude/Gemini score distance,
+- writes local summary artifacts even when DB persistence is unavailable,
+- updates nullable `log.FormAiEvalRun` judge fields when DB persistence is enabled and rows can be mapped.
+
+Rubric v2 is required when any of these change:
+
+- metric key names,
+- score ranges or anchors,
+- required JSON shape,
+- active scoring categories,
+- judge role semantics, including which model is excluded from the primary mean.
+
+Baseline re-snapshot policy:
+
+- Existing `rubric_v1` judge outputs remain valid only for `rubric_v1` comparisons.
+- If `rubric_v2.md` is introduced, baseline judge packages must be regenerated from the same eval run artifacts and re-scored with the new rubric.
+- Diff/statistical reports must not compare `rubric_v1` and `rubric_v2` scores as if they were the same measurement.
 
 ---
 

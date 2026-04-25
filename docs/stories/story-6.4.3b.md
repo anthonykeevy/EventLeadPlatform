@@ -3,7 +3,7 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.3b  
 **Title:** Eval Judge Package + Rubric ADR  
-**Status:** Draft — ready for Dev  
+**Status:** ✅ **Complete** — UAT passed and DB-backed judge ingest verified
 **Branch:** `story/epic6-6.4.3b-eval-judge-package-rubric`  
 **PR:** [#70](https://github.com/anthonykeevy/EventLeadPlatform/pull/70) — Draft  
 **Created:** 2026-04-25  
@@ -180,3 +180,48 @@ Coverage must include:
 - Backend gate is run unless a clear CI-backed exception is recorded.
 - No live model judge execution is required for Dev completion.
 - Stale-field audit passes before merge.
+
+---
+
+## 6) Dev Agent Record
+
+### Implementation Notes
+
+- Added locked `rubric_v1.md` with Category B metrics, score anchors, required JSON shape, judge instructions, and future Category C placeholders only.
+- Completed `STORY-6.4.3b-RUBRIC-ADR.md` with rubric versioning, Cursor manual judge rationale, GPT-5 mini control behavior, `rubric_v2.md` triggers, and baseline re-score policy.
+- Added `judge_pack.py` to generate deterministic `judge-package/` folders from eval run artifacts, with optional DB enrichment from `dbo.GenerationArtifact` and `log.FormAiEvalRun`.
+- Added `judge_ingest.py` to validate Cursor-saved judge JSON, compute Claude+Gemini primary means, GPT-5 mini bias deltas, judge agreement scores, local summary artifacts, and optional DB judge-field updates.
+- Added `docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md` for Anthony's manual three-model Cursor workflow.
+- Generated a real judge package for `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/` using `--use-db`; all 10 rows have generated definitions and `EvalRunID` mappings.
+- Anthony completed the optional GPT-5 mini, Claude, and Gemini judge chats and ran DB-backed ingest; 10/10 rows updated with agreement scores from `0.933` to `1.0`.
+
+### Tests And Gates
+
+- `python -m pytest backend/tests/test_judge_pack.py backend/tests/test_judge_ingest.py --tb=short` from worktree root: `7 passed`.
+- `.\scripts\workflow\run-green-gate.ps1 -StoryId "6.4.3b" -FocusedTestCommand "python -m pytest tests/test_judge_pack.py tests/test_judge_ingest.py --tb=short" -BackendGateCommand "python -m pytest --tb=short" -EvidenceFile "docs/stories/STORY-6.4.3b-GATE-EVIDENCE.md"`: focused `7 passed`; backend `773 passed, 26 skipped`.
+- `python -m backend.tests.form_ai_eval.judge_ingest _bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package --persist-db`: pass; wrote `judge-ingest-summary.json` and `judge-ingest-summary.csv`, `db_update_status = updated`, `db_update_count = 10`.
+
+### File List
+
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/judge-input-batch.md`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/judge-output-template.json`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/judge-package-metadata.json`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/judge-ingest-summary.csv`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/judge-ingest-summary.json`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/rubric_v1.md`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/results/judge-output-claude.json`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/results/judge-output-gemini.json`
+- `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/results/judge-output-gpt5mini.json`
+- `backend/tests/form_ai_eval/judge_ingest.py`
+- `backend/tests/form_ai_eval/judge_pack.py`
+- `backend/tests/form_ai_eval/rubric_v1.md`
+- `backend/tests/test_judge_ingest.py`
+- `backend/tests/test_judge_pack.py`
+- `docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md`
+- `docs/stories/EPIC-6-STATUS.md`
+- `docs/stories/EPIC-6-WORKFLOW-GUIDE.md`
+- `docs/stories/STORY-6.4.3b-CLOSEOUT-REPORT.md`
+- `docs/stories/STORY-6.4.3b-GATE-EVIDENCE.md`
+- `docs/stories/STORY-6.4.3b-PREFLIGHT.md`
+- `docs/stories/STORY-6.4.3b-RUBRIC-ADR.md`
+- `docs/stories/STORY-6.4.3b-UAT-TEST-GUIDE.md`

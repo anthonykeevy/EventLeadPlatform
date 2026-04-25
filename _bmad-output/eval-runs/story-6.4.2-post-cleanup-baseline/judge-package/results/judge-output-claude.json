@@ -1,0 +1,156 @@
+{
+  "rubric_version": "rubric_v1",
+  "judge_model": "claude",
+  "rows": [
+    {
+      "row_id": "p-01-event-registration-conference__r01",
+      "prompt_id": "p-01-event-registration-conference",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "All requested fields present: name, mobile, email, organisation, role, session interests checkbox (8 options), t-shirt size dropdown, dietary needs with 'Other' specify, accessibility textarea, payment acknowledgement (required, no processing), required terms and optional marketing terms. Multi-consent split is correct. Ordering is logical though no dividers separate sections. AU phone (+61) and 'Surname/Mobile' wording fit the locale. Copy is concise and production-ready."
+    },
+    {
+      "row_id": "p-02-lead-gen-saas-demo__r01",
+      "prompt_id": "p-02-lead-gen-saas-demo",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Covers business contact (name, organisation, business email, optional mobile), team size, primary use case dropdown with Other free-text, and preferred meeting time split into date + time-of-day window. Required/optional split is sensible; minor gap is no explicit marketing opt-in beyond the bundled Privacy Policy terms. Logical contact-then-booking flow without explicit dividers. AU wording (Pty Ltd, +61) is appropriate. Copy is short and clear."
+    },
+    {
+      "row_id": "p-03-survey-nps__r01",
+      "prompt_id": "p-03-survey-nps",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "All NPS elements present: 0-10 rating (min/max validated, required), required main-reason textarea (minLength 10), optional improvement textarea, optional contact-consent terms, and optional name/email/mobile. Dividers cleanly separate rating section from contact section. Labels mirror the prompt phrasing. AU/NZ phone hint and neutral wording fit locale. Copy is polished."
+    },
+    {
+      "row_id": "p-04-waiver-gym-membership__r01",
+      "prompt_id": "p-04-waiver-gym-membership",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Member contact (name, DOB, email, mobile, address), full emergency-contact block (name, relationship, mobile), health-notes textarea plus optional medical clearance upload, membership-type dropdown with start date, and two required terms: explicit physical-activity risk acknowledgement and gym waiver terms (helpText calls out the popup). Dividers segment each section cleanly. AU/NZ phone codes and address example are locale-correct. Copy is professional and unambiguous."
+    },
+    {
+      "row_id": "p-05-rsvp-wedding__r01",
+      "prompt_id": "p-05-rsvp-wedding",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Guest contact, attendance radio, plus-one radio with conditional plus-one name, meal choice dropdown (incl. dietary alternatives and child meal), dietary checkbox with 'Other' plus details textarea, song request, and message textarea. Attendance and Privacy dividers create a clear flow. Meal choice is optional rather than conditionally required, which is a minor validation softness given the prompt; otherwise validation aligns. Tone is warm and appropriate for an RSVP."
+    },
+    {
+      "row_id": "p-06-feedback-post-event__r01",
+      "prompt_id": "p-06-feedback-post-event",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Concise form covering all four prompt asks: liked textarea, improve textarea, required overall satisfaction rating, optional email tied to optional next-year-updates terms. Required/optional choices match a low-friction feedback intent. Ordering is logical and simple but with only a single divider before the submit; minor grouping opportunity. Wording is clean and locale-neutral. Copy is concise and production-ready."
+    },
+    {
+      "row_id": "p-07-booking-consultation__r01",
+      "prompt_id": "p-07-booking-consultation",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "All requested elements present: contact (name, optional org, email, mobile), consultation-type dropdown (phone/video/in-person/written), preferred date, available-from/to time window enforced via HH:MM regex, required topic summary (min 20 chars), urgency radio (routine/priority/urgent), and required reminder-consent terms. Time window via two regex'd text fields works but a native time control would be cleaner—small validation/UX softness. No explicit dividers between contact and booking sections. AU wording is fitting; copy is professional."
+    },
+    {
+      "row_id": "p-08-onboarding-new-employee__r01",
+      "prompt_id": "p-08-onboarding-new-employee",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Personal details (name, work email, mobile, residential address), start date, department dropdown, equipment checkbox (9 options) + extras textarea, payroll-notes textarea that explicitly defers TFN/banking to a secure portal (good restraint on inventing sensitive fields), full emergency-contact block, optional accessibility checkbox + details textarea, and required policy acknowledgement terms. Multiple dividers create clear sections. AU/NZ phone codes and TFN reference are locale-accurate. Copy is professional and consistent."
+    },
+    {
+      "row_id": "p-09-application-scholarship__r01",
+      "prompt_id": "p-09-application-scholarship",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Applicant contact + postal address, study programme dropdown plus intended-course free text, four-statement eligibility checkbox (required), two required short-essay textareas with sensible min/max lengths, optional supporting-documents note plus optional file-upload, full referee block (name, organisation, required phone & email), and required application terms. AU/NZ residency wording fits the locale. Sections flow logically though dividers between applicant/essays/referee would have improved grouping further. Copy is polished and unambiguous."
+    },
+    {
+      "row_id": "p-10-donation-charity__r01",
+      "prompt_id": "p-10-donation-charity",
+      "repetition_index": 1,
+      "variant_label": "post-642-capability-cleanup",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Donor contact (name, email, mobile, optional address), suggested-amount radio with custom Other amount (number input bounded 1-100000 AUD), one-off/recurring radio with conditional frequency dropdown, tax-receipt yes/no plus optional receipt name, optional message textarea, and optional campaign-update consent terms. Wisely substitutes the UK 'gift-aid' concept with AU 'tax receipt' wording rather than inventing incompatible locale terms; correctly avoids inventing payment processing per the donation-interest scope. Sections are logical but lack dividers between donation and consent. The campaign-update terms label is slightly long; otherwise copy is clean."
+    }
+  ]
+}

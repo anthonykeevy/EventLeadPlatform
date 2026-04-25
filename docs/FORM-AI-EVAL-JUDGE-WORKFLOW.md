@@ -1,98 +1,114 @@
 # Form AI Eval Judge Workflow
 
-**Status:** Template ready; Dev completes during Story 6.4.3b  
-**Audience:** Anthony running Cursor judge chats  
-**Scope:** Manual cross-model judging for Form AI eval runs. No model API clients.
+Story 6.4.3b adds the manual judge layer on top of the 6.4.3a eval harness. It does not call judge model APIs. Anthony runs the judge chats in Cursor, saves JSON files, and the ingest tool validates and aggregates them.
 
----
+## Inputs
 
-## 1) Generate Judge Package
+- Eval run folder: `_bmad-output/eval-runs/<run-id>/`
+- Preferred current input: `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/`
+- Rubric: `backend/tests/form_ai_eval/rubric_v1.md`
+- Package generator: `backend/tests/form_ai_eval/judge_pack.py`
+- Ingest tool: `backend/tests/form_ai_eval/judge_ingest.py`
 
-Dev fills the exact command after implementation.
+The 6.4.3a local metrics artifact stores `GenerationRunID` but not full generated definitions. For real live runs, use `--use-db` so the package can load `final-definition` artifacts from `dbo.GenerationArtifact`.
+
+## Generate A Judge Package
+
+From the worktree root:
 
 ```powershell
-python -m backend.tests.form_ai_eval.judge_pack `
-  --run-dir "_bmad-output/eval-runs/<run-id>"
+python -m backend.tests.form_ai_eval.judge_pack _bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline --use-db
 ```
 
 Expected output:
 
 ```text
-_bmad-output/eval-runs/<run-id>/judge-package/
+_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/
 ├── rubric_v1.md
 ├── judge-input-batch.md
 ├── judge-output-template.json
+├── judge-package-metadata.json
 └── results/
 ```
 
----
+If DB access is unavailable, the generator still creates the package and marks generated definitions as unavailable. That path is useful for plumbing tests, but semantic judging needs generated definition content.
 
-## 2) Run Cursor Judge Chats
+## Run The Three Cursor Judge Chats
 
-Run three separate Cursor chats using the same package:
+Create three separate Cursor chats. In each chat, provide:
 
-| Output File | Cursor Model | Role |
-|-------------|--------------|------|
-| `results/judge-output-gpt5mini.json` | GPT-5 mini | Control |
-| `results/judge-output-claude.json` | Claude | Cross-model judge #1 |
-| `results/judge-output-gemini.json` | Gemini | Cross-model judge #2 |
+1. `rubric_v1.md`
+2. `judge-input-batch.md`
+3. `judge-output-template.json`
 
-For each chat:
+Use these model roles:
 
-1. Paste or attach `rubric_v1.md`.
-2. Paste or attach `judge-input-batch.md`.
-3. Paste or attach `judge-output-template.json`.
-4. Ask the model to fill the JSON only, with no prose.
-5. Save the returned JSON to the matching `results/` file.
+- GPT-5 mini: control judge, saved as `results/judge-output-gpt5mini.json`
+- Claude: primary judge, saved as `results/judge-output-claude.json`
+- Gemini: primary judge, saved as `results/judge-output-gemini.json`
 
-Do not paste secrets. Treat generated names/emails/dates as PII-adjacent.
+Ask each judge to return only valid JSON matching the template. Do not ask judges to compare against each other.
 
----
+## Ingest Judge Results
 
-## 3) Ingest Judge Outputs
-
-Dev fills the exact command after implementation.
+After saving the three JSON files:
 
 ```powershell
-python -m backend.tests.form_ai_eval.judge_ingest `
-  --package-dir "_bmad-output/eval-runs/<run-id>/judge-package"
+python -m backend.tests.form_ai_eval.judge_ingest _bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package
 ```
 
-Expected behavior:
+This writes:
 
-- validate all judge files,
-- reject missing/duplicate/unknown rows,
-- reject out-of-range scores,
-- compute Claude+Gemini primary means,
-- compute GPT-5 mini bias deltas,
-- emit ingest summary artifacts,
-- update `log.FormAiEvalRun` judge fields when DB is available.
+- `judge-ingest-summary.json`
+- `judge-ingest-summary.csv`
 
----
+To update nullable judge fields on `log.FormAiEvalRun`:
 
-## 4) Disagreement Handling
+```powershell
+python -m backend.tests.form_ai_eval.judge_ingest _bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package --persist-db
+```
 
-If one judge clearly returns malformed JSON:
+The ingest updates:
 
-1. Re-run that same judge chat once with the same package and a "JSON only" correction instruction.
-2. Save the corrected file over the malformed result.
-3. Re-run ingest.
+- `JudgeRubricVersion`
+- `JudgeAgreementScore`
+- `BiasDeltaJSON`
 
-If judges disagree semantically but JSON is valid:
+## Validation Rules
 
-- Do not hand-edit scores.
-- Keep all outputs.
-- Let 6.4.3c diff/statistics surface the disagreement.
+Ingest fails before writing DB updates when any judge file has:
 
----
+- missing rows,
+- duplicate rows,
+- unknown row IDs,
+- malformed metric keys,
+- non-numeric scores,
+- scores outside `0..5`,
+- a wrong `rubric_version`,
+- a `judge_model` that does not match the result filename.
 
-## 5) What 6.4.3b Does Not Decide
+Claude and Gemini are required because their mean is the primary score. GPT-5 mini is a control; its bias deltas are recorded when present.
 
-This workflow does not declare prompt winners. It only prepares and ingests judge scores.
+## Disagreement Handling
 
-Story 6.4.3c adds:
+The ingest computes `JudgeAgreementScore` per row from Claude/Gemini distance. Low agreement does not choose a winner in 6.4.3b. It flags rows for Anthony/SM review and for the 6.4.3c statistics/diff layer.
 
-- diff reports,
-- Welch/Fisher statistics,
-- hypothesis verdict helpers,
-- future PR-comment output.
+Recommended handling:
+
+- Agreement near `1.0`: judges are aligned.
+- Agreement around `0.6`: inspect rationales before using the row as decisive evidence.
+- Agreement below `0.5`: treat the row as ambiguous and carry it into 6.4.3c review notes.
+
+## PII-Adjacent Handling
+
+Generated definitions can contain realistic synthetic contact values. The package generator scrubs obvious emails, phone numbers, date-like values, and common synthetic full names. Field labels such as "First name" are preserved so semantic judging remains possible.
+
+Do not paste raw DB artifacts into chat. Use `judge-input-batch.md`, which is the scrubbed judge input surface.
+
+## Out Of Scope Until 6.4.3c
+
+- Welch/Fisher statistical tests.
+- Diff reports.
+- PR comment automation.
+- Declaring a prompt variant winner.
+- Live judge API clients or new model secrets.

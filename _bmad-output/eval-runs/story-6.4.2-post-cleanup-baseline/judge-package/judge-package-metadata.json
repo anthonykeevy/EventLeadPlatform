@@ -1,0 +1,139 @@
+{
+  "benchmark_set_version": "prompts-v1.0",
+  "category_b_metrics": [
+    "field_coverage_recall",
+    "field_label_f1",
+    "validation_intent_accuracy",
+    "row_group_agreement",
+    "locale_fidelity",
+    "copy_quality_score"
+  ],
+  "judge_models": [
+    "gpt5mini",
+    "claude",
+    "gemini"
+  ],
+  "notes": [
+    "Obvious email, phone, ISO/date-like, and common synthetic full-name values are scrubbed.",
+    "Name-like field labels are preserved so semantic judging remains possible.",
+    "If generated definitions are unavailable, rerun with --use-db against a DB that has dbo.GenerationArtifact final-definition rows."
+  ],
+  "package_schema_version": "judge-package-v1",
+  "row_count": 10,
+  "rows": [
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 13,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 107,
+      "prompt_id": "p-01-event-registration-conference",
+      "repetition_index": 1,
+      "row_id": "p-01-event-registration-conference__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 14,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 108,
+      "prompt_id": "p-02-lead-gen-saas-demo",
+      "repetition_index": 1,
+      "row_id": "p-02-lead-gen-saas-demo__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 15,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 109,
+      "prompt_id": "p-03-survey-nps",
+      "repetition_index": 1,
+      "row_id": "p-03-survey-nps__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 16,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 110,
+      "prompt_id": "p-04-waiver-gym-membership",
+      "repetition_index": 1,
+      "row_id": "p-04-waiver-gym-membership__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 17,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 111,
+      "prompt_id": "p-05-rsvp-wedding",
+      "repetition_index": 1,
+      "row_id": "p-05-rsvp-wedding__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 18,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 112,
+      "prompt_id": "p-06-feedback-post-event",
+      "repetition_index": 1,
+      "row_id": "p-06-feedback-post-event__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 19,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 113,
+      "prompt_id": "p-07-booking-consultation",
+      "repetition_index": 1,
+      "row_id": "p-07-booking-consultation__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 20,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 114,
+      "prompt_id": "p-08-onboarding-new-employee",
+      "repetition_index": 1,
+      "row_id": "p-08-onboarding-new-employee__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 21,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 115,
+      "prompt_id": "p-09-application-scholarship",
+      "repetition_index": 1,
+      "row_id": "p-09-application-scholarship__r01",
+      "variant_label": "post-642-capability-cleanup"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.0",
+      "eval_run_id": 22,
+      "generated_definition_available": true,
+      "generated_definition_source": "dbo.GenerationArtifact",
+      "generation_run_id": 116,
+      "prompt_id": "p-10-donation-charity",
+      "repetition_index": 1,
+      "row_id": "p-10-donation-charity__r01",
+      "variant_label": "post-642-capability-cleanup"
+    }
+  ],
+  "rubric_version": "rubric_v1",
+  "run_id": "story-6.4.2-post-cleanup-baseline",
+  "source_eval_run_dir": "C:\\wt\\elp\\story-epic6-6.4.3b-eval-judge-package-rubric\\_bmad-output\\eval-runs\\story-6.4.2-post-cleanup-baseline",
+  "variant_label": "post-642-capability-cleanup"
+}

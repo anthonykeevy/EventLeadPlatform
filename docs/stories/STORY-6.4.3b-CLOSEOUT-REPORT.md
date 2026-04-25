@@ -4,8 +4,8 @@
 **Title:** Eval Judge Package + Rubric ADR  
 **Branch:** `story/epic6-6.4.3b-eval-judge-package-rubric`  
 **PR:** [#70](https://github.com/anthonykeevy/EventLeadPlatform/pull/70)  
-**Date:** `<fill at closeout>`  
-**Disposition:** `<Draft / Ready for UAT / Complete>`  
+**Date:** 2026-04-25  
+**Disposition:** Complete  
 **Author:** `@bmad-agent-bmm-dev`  
 **Audience:** `@bmad-agent-bmm-sm`
 
@@ -13,13 +13,11 @@
 
 ## 1) TL;DR For SM
 
-Summarize:
-
-1. Rubric v1 status.
-2. Judge package generator status.
-3. Judge ingest status.
-4. Cursor judge workflow readiness.
-5. Carry-forward to 6.4.3c.
+1. `rubric_v1.md` is locked with six Category B metrics, score anchors, required JSON shape, and judge instructions.
+2. Judge package generation works from eval run folders and enriches live runs from `dbo.GenerationArtifact` when `--use-db` is supplied.
+3. Judge ingest validates Cursor-saved JSON, computes Claude+Gemini primary means, GPT-5 mini bias deltas, and row agreement scores.
+4. Anthony completed the optional three-model Cursor judge run and DB-backed ingest; 10/10 rows updated with agreement scores from `0.933` to `1.0`.
+5. Welch/Fisher statistics, diff reports, and winner decisions remain carry-forward to 6.4.3c.
 
 ---
 
@@ -27,18 +25,18 @@ Summarize:
 
 | AC | Statement | Status | Evidence |
 |----|-----------|--------|----------|
-| AC-1 | Rubric exists | `<status>` | `<evidence>` |
-| AC-2 | Rubric ADR complete | `<status>` | `<evidence>` |
-| AC-3 | Judge package generator works | `<status>` | `<evidence>` |
-| AC-4 | Judge package deterministic | `<status>` | `<evidence>` |
-| AC-5 | PII-adjacent scrubbing | `<status>` | `<evidence>` |
-| AC-6 | Cursor workflow documented | `<status>` | `<evidence>` |
-| AC-7 | Ingest validates JSON | `<status>` | `<evidence>` |
-| AC-8 | Ingest computes judge aggregates | `<status>` | `<evidence>` |
-| AC-9 | DB update path works or degrades cleanly | `<status>` | `<evidence>` |
-| AC-10 | Tests cover pack and ingest | `<status>` | `<evidence>` |
-| AC-11 | No statistics scope leak | `<status>` | `<evidence>` |
-| AC-12 | Closeout complete | `<status>` | `<evidence>` |
+| AC-1 | Rubric exists | PASS | `backend/tests/form_ai_eval/rubric_v1.md` |
+| AC-2 | Rubric ADR complete | PASS | `docs/stories/STORY-6.4.3b-RUBRIC-ADR.md` |
+| AC-3 | Judge package generator works | PASS | `python -m backend.tests.form_ai_eval.judge_pack _bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline --use-db` |
+| AC-4 | Judge package deterministic | PASS | `backend/tests/test_judge_pack.py`; row IDs/order verified |
+| AC-5 | PII-adjacent scrubbing | PASS | `backend/tests/test_judge_pack.py`; docs note limitations |
+| AC-6 | Cursor workflow documented | PASS | `docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md` |
+| AC-7 | Ingest validates JSON | PASS | `backend/tests/test_judge_ingest.py` |
+| AC-8 | Ingest computes judge aggregates | PASS | `backend/tests/test_judge_ingest.py` |
+| AC-9 | DB update path works or degrades cleanly | PASS | Fake-session DB mapping test; local summary path always writes artifacts |
+| AC-10 | Tests cover pack and ingest | PASS | Focused gate: `7 passed` |
+| AC-11 | No statistics scope leak | PASS | No Welch/Fisher/diff tool implemented |
+| AC-12 | Closeout complete | PASS | This report |
 
 ---
 
@@ -51,11 +49,18 @@ Link:
 
 Decision summary:
 
-- `<decision>`
+- `rubric_v1.md` is the locked semantic judge rubric for Category B scoring.
+- Claude + Gemini form the primary mean.
+- GPT-5 mini is retained as control only and excluded from the primary mean.
+- Rubric changes require `rubric_v2.md` and baseline re-snapshot/re-score.
 
 Rubric v2 triggers:
 
-- `<triggers>`
+- metric key changes,
+- score anchor changes,
+- required JSON shape changes,
+- active scoring category changes,
+- primary/control judge role changes.
 
 ---
 
@@ -63,12 +68,12 @@ Rubric v2 triggers:
 
 | Check | Result |
 |-------|--------|
-| Package command | `<exact command>` |
-| Input run folder | `<path>` |
-| Output package folder | `<path>` |
-| Row count | `<n>` |
-| Deterministic rerun verified | `<yes/no>` |
-| Scrub behavior verified | `<yes/no + notes>` |
+| Package command | `python -m backend.tests.form_ai_eval.judge_pack _bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline --use-db` |
+| Input run folder | `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/` |
+| Output package folder | `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/` |
+| Row count | 10 |
+| Deterministic rerun verified | Yes; focused tests verify stable row ordering/IDs |
+| Scrub behavior verified | Yes; focused tests cover email, phone, date-like, and common synthetic full-name values |
 
 ---
 
@@ -76,13 +81,14 @@ Rubric v2 triggers:
 
 | Check | Result |
 |-------|--------|
-| Valid fixture ingest | `<result>` |
-| Missing row rejection | `<result>` |
-| Duplicate row rejection | `<result>` |
-| Out-of-range score rejection | `<result>` |
-| Cross-model mean calculation | `<result>` |
-| GPT-5 mini bias delta | `<result>` |
-| DB update or DB-disabled fallback | `<result>` |
+| Valid fixture ingest | PASS |
+| Missing row rejection | PASS |
+| Duplicate row rejection | PASS |
+| Out-of-range score rejection | PASS |
+| Cross-model mean calculation | PASS |
+| GPT-5 mini bias delta | PASS |
+| DB update or DB-disabled fallback | PASS |
+| Anthony three-judge DB-backed ingest | PASS; `judge-ingest-summary.json` and `.csv` written for 10 rows; `db_update_status = updated`, `db_update_count = 10` |
 
 ---
 
@@ -90,11 +96,12 @@ Rubric v2 triggers:
 
 | Gate | Result |
 |------|--------|
-| Preflight | `<result>` |
-| Focused judge package tests | `<result>` |
-| Focused judge ingest tests | `<result>` |
-| Backend gate | `<result>` |
-| Stale-field audit | `<result>` |
+| Preflight | PASS; `STORY-6.4.3b-PREFLIGHT.md` |
+| Focused judge package tests | PASS; included in `STORY-6.4.3b-GATE-EVIDENCE.md` |
+| Focused judge ingest tests | PASS; included in `STORY-6.4.3b-GATE-EVIDENCE.md` |
+| Backend gate | PASS; `773 passed, 26 skipped` |
+| Stale-field audit | PASS; final hits are intentional for Complete / Draft PR phase |
+| Anthony optional judge UAT | PASS; GPT-5 mini, Claude, and Gemini outputs ingested with DB persistence; `db_update_count = 10` |
 
 Full evidence: `STORY-6.4.3b-GATE-EVIDENCE.md`.
 
@@ -111,11 +118,11 @@ Full evidence: `STORY-6.4.3b-GATE-EVIDENCE.md`.
 
 ## 8) Closeout Decision
 
-Story 6.4.3b is `<decision>` because:
+Story 6.4.3b is `Complete` because:
 
-- `<reason>`
-- `<reason>`
-- `<reason>`
+- Rubric, package generation, ingest, and workflow docs are implemented.
+- Focused and full backend gates pass.
+- Anthony passed UAT and verified DB-backed judge ingest for 10 eval rows.
 
 SM next actions:
 

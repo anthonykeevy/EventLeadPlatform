@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.4.3b — Eval Judge Package + Rubric ADR
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-04-25
+-->
+<story-context story="6.4.3b" title="Eval Judge Package + Rubric ADR">
+
+  <overview>
+    Add the judge-package and judge-ingest layer to the Form AI eval harness.
+    This story keeps judging manual via Cursor multi-model chats and avoids new
+    model API clients. It locks rubric_v1, creates the judge package generator,
+    validates/ingests judge JSON outputs, and documents the workflow for Anthony.
+  </overview>
+
+  <critical-objectives>
+    <item>Keep all judge execution manual via Cursor chats; no new API keys, HTTP clients, or secrets.</item>
+    <item>File-version rubric_v1.md and govern future rubric changes through the rubric ADR.</item>
+    <item>Generate deterministic, anonymised judge packages from existing eval run artifacts.</item>
+    <item>Validate judge JSON strictly before ingest; fail loud on missing, duplicate, unknown, or out-of-range rows.</item>
+    <item>Compute Claude+Gemini primary means and GPT-5 mini self-bias deltas, leaving statistical verdicts to 6.4.3c.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.3a">Complete; provides eval harness, prompts-v1.0, and log.FormAiEvalRun judge columns.</story>
+    <story id="6.4.2">Complete; provides cleaned prompt path and post-cleanup baseline.</story>
+    <doc path="docs/stories/story-6.4.3b.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Harness architecture and run artifact conventions.</doc>
+    <doc path="_bmad-output/planning-artifacts/EPIC-6-PROMPT-ENGINEERING-IDEATION-BRIEF.md">Source brief for judge architecture and decision rules.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT implement live judge model API calls.</item>
+    <item>Do NOT add Welch/Fisher statistics or diff reports; 6.4.3c owns that.</item>
+    <item>Do NOT mutate prompts.yaml or benchmark set version.</item>
+    <item>Do NOT run Alembic. No migration expected unless Dev discovers 6.4.3a schema is insufficient.</item>
+    <item>Eval package data is PII-adjacent; scrub obvious generated sensitive values and keep raw package artifacts local/in-repo only as appropriate.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/tests/form_ai_eval/rubric_v1.md"
+          note="New locked rubric defining Category B judge metrics and JSON output requirements."/>
+    <path file="backend/tests/form_ai_eval/judge_pack.py"
+          note="New package generator. Input eval run folder; output rubric copy, judge-input-batch.md, judge-output-template.json, results folder."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py"
+          note="New ingest tool. Validates judge JSON, computes cross-model means/bias/agreement, updates DB when available."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="Reference artifact shapes from 6.4.3a runner outputs."/>
+    <path file="backend/tests/form_ai_eval/prompts.yaml"
+          note="Prompt IDs and metadata; read only."/>
+    <path file="backend/tests/test_judge_pack.py"
+          note="New focused tests for package generation, ordering, scrubbing, template shape."/>
+    <path file="backend/tests/test_judge_ingest.py"
+          note="New focused tests for JSON validation, aggregation, bias delta, DB mapping."/>
+    <path file="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md"
+          note="New human workflow for Cursor judge chats and ingest."/>
+    <path file="docs/stories/STORY-6.4.3b-RUBRIC-ADR.md"
+          note="Rubric governance ADR."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/STORY-6.4.3b-SINGLE-SESSION-DEV-PROMPT.md"
+          purpose="Dev execution contract and run order."/>
+    <file path="docs/stories/STORY-6.4.3b-UAT-TEST-GUIDE.md"
+          purpose="Human UAT for package generation, Cursor workflow dry-run, ingest validation, and scope boundaries."/>
+    <file path="docs/stories/STORY-6.4.3b-RUBRIC-ADR.md"
+          purpose="Mandatory rubric governance ADR."/>
+    <file path="docs/stories/STORY-6.4.3b-CLOSEOUT-REPORT.md"
+          purpose="Mandatory closeout report because Cursor manual judge execution and stats are deferred."/>
+    <file path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md"
+          purpose="Judge workflow documentation produced by Dev."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">rubric_v1.md exists with Category B metric definitions.</ac>
+    <ac id="2">Rubric ADR complete.</ac>
+    <ac id="3">Judge package generator works.</ac>
+    <ac id="4">Judge package generation is deterministic.</ac>
+    <ac id="5">PII-adjacent scrubbing implemented/documented.</ac>
+    <ac id="6">Cursor workflow documented.</ac>
+    <ac id="7">Ingest validates JSON strictly.</ac>
+    <ac id="8">Ingest computes judge aggregates and bias deltas.</ac>
+    <ac id="9">DB update path works or degrades cleanly.</ac>
+    <ac id="10">Focused tests cover pack and ingest.</ac>
+    <ac id="11">No 6.4.3c statistics scope leaks.</ac>
+    <ac id="12">Closeout report complete.</ac>
+  </acceptance-mapping>
+
+</story-context>

@@ -347,6 +347,74 @@ def test_story_631_validator_does_not_flag_unset_component_ids():
     assert result.valid is True
 
 
+# --- FormSemanticPlan compatibility -----------------------------------------
+
+
+def test_form_semantic_plan_normalizes_non_10_version():
+    plan = FormSemanticPlan.model_validate(
+        {
+            "semanticPlanVersion": "6.3.1",
+            "components": [{"componentType": "text"}],
+        }
+    )
+
+    assert plan.semanticPlanVersion == "1.0"
+
+
+def test_form_semantic_plan_normalizes_missing_version():
+    plan = FormSemanticPlan.model_validate({"components": [{"componentType": "text"}]})
+
+    assert plan.semanticPlanVersion == "1.0"
+
+
+def test_form_semantic_plan_accepts_fields_alias():
+    plan = FormSemanticPlan.model_validate({"fields": [{"componentType": "text"}]})
+
+    assert [component.componentType for component in plan.components] == ["text"]
+
+
+def test_form_semantic_plan_accepts_items_alias():
+    plan = FormSemanticPlan.model_validate({"items": [{"componentType": "email"}]})
+
+    assert [component.componentType for component in plan.components] == ["email"]
+
+
+def test_form_semantic_plan_accepts_elements_alias():
+    plan = FormSemanticPlan.model_validate({"elements": [{"componentType": "phone"}]})
+
+    assert [component.componentType for component in plan.components] == ["phone"]
+
+
+def test_form_semantic_plan_ignores_extra_root_keys():
+    plan = FormSemanticPlan.model_validate(
+        {
+            "semanticPlanVersion": "1.0",
+            "components": [{"componentType": "text"}],
+            "layout": {"unexpected": True},
+        }
+    )
+
+    assert plan.model_extra is None
+    assert [component.componentType for component in plan.components] == ["text"]
+
+
+def test_form_semantic_plan_alias_does_not_bypass_active_capability_snapshot():
+    plan = FormSemanticPlan.model_validate(
+        {"fields": [{"componentType": "alien-widget", "label": "Whatever"}]}
+    )
+
+    result = validate_semantic_plan(
+        plan,
+        capability_snapshot_json=_capability_snapshot(),
+        validation_contracts=_validation_contracts(),
+    )
+
+    assert result.valid is False
+    assert [violation.code for violation in result.violations] == [
+        "unknown-component-type"
+    ]
+
+
 # --- multiple violations across components ----------------------------------
 
 

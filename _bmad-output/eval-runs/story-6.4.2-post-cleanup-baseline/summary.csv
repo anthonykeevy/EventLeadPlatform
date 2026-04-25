@@ -1,0 +1,11 @@
+benchmark_set_version,hypothesis_code,variant_label,prompt_id,repetition_index,schema_valid,component_count,collision_count,boundary_violation_count,attempt_count,terminal_reason,failure_class,duration_ms,input_tokens,output_tokens,total_cost_usd,retry_count
+prompts-v1.0,baseline,post-642-capability-cleanup,p-01-event-registration-conference,1,True,16,0,0,1,validated-success,none,65572,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-02-lead-gen-saas-demo,1,True,14,0,0,1,validated-success,none,51922,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-03-survey-nps,1,True,12,0,0,2,validated-success,none,98913,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-04-waiver-gym-membership,1,True,21,0,0,1,validated-success,none,65840,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-05-rsvp-wedding,1,True,17,0,0,1,validated-success,none,47835,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-06-feedback-post-event,1,True,8,0,0,1,validated-success,none,34938,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-07-booking-consultation,1,True,14,0,0,2,validated-success,none,100986,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-08-onboarding-new-employee,1,True,23,0,0,1,validated-success,none,80864,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-09-application-scholarship,1,True,20,0,0,1,validated-success,none,59973,0,0,0.0,0
+prompts-v1.0,baseline,post-642-capability-cleanup,p-10-donation-charity,1,True,15,0,0,1,validated-success,none,51973,0,0,0.0,0

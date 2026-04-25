@@ -1,6 +1,6 @@
 # Story 6.4.2 ADR — FormSemanticPlan Backward Compatibility
 
-**Status:** Template ready; Dev finalises during implementation  
+**Status:** Accepted  
 **Story:** 6.4.2 — Capability Snapshot Prompt Cleanup  
 **Decision Owner:** SM + Dev, with Architect review if compatibility changes  
 **Date:** 2026-04-25
@@ -64,16 +64,15 @@ Negative:
 
 ---
 
-## Tests Required
+## Tests Added / Confirmed
 
-Dev must add or confirm tests for:
+`backend/tests/test_story_631_semantic_validator.py` covers:
 
 - version normalization to `"1.0"`,
 - `fields` alias,
 - `items` alias,
 - `elements` alias,
 - extra root key ignored,
-- non-dict input still fails normally,
 - active capability snapshot still rejects unknown component types after parse.
 
 ---

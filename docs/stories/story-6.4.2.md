@@ -3,9 +3,9 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.2  
 **Title:** Capability Snapshot Prompt Cleanup  
-**Status:** Draft — ready for Dev  
+**Status:** Complete  
 **Branch:** `story/epic6-6.4.2-capability-snapshot-prompt-cleanup`  
-**PR:** [#69](https://github.com/anthonykeevy/EventLeadPlatform/pull/69) — Draft  
+**PR:** [#69](https://github.com/anthonykeevy/EventLeadPlatform/pull/69)  
 **Created:** 2026-04-25  
 **Depends On:** Story 6.4.3a ✅ Complete (PR #68) — eval harness + full 10-row live baseline  
 **Unblocks:** Story 6.4.3b, Story 6.4.3c, Story 6.4.4 prompt shrink sweeps
@@ -152,3 +152,45 @@ Blocking rule for this story:
 - Harness re-run evidence is captured.
 - No Alembic command is run by the agent.
 - PR remains scoped to cleanup, audit, compatibility docs/tests, and baseline recapture.
+
+---
+
+## Dev Agent Record
+
+### Debug Log
+
+- 2026-04-25: Preflight passed for worktree `C:\wt\elp\story-epic6-6.4.2-capability-snapshot-prompt-cleanup`, branch `story/epic6-6.4.2-capability-snapshot-prompt-cleanup`, and DB runtime parity.
+- 2026-04-25: Active snapshot audit queried `config.ComponentCapabilitySnapshot`; latest active row is `ComponentCapabilitySnapshotID=4`, `SnapshotVersion=cf-6.3.1-v4`, `GeneratedDate=2026-04-21 11:19:39.740000`.
+- 2026-04-25: Focused tests passed: `30 passed, 116 warnings`.
+- 2026-04-25: Full backend gate passed: `766 passed, 26 skipped, 5711 warnings`.
+- 2026-04-25: Live baseline recapture completed with 10/10 rows, 0 schema failures, 0 boundary violations, 0 collisions.
+- 2026-04-25: Anthony approved UAT and requested story closeout + merge to `master`.
+
+### Completion Notes
+
+- Deleted the orphan static prompt bundle and removed production/test dependency on `SYSTEM_PROMPT_SECTIONS_1_TO_6`.
+- Locked active prompt assembly behavior with tests for two-message contract, capability block rendering, missing-snapshot fallback, and runtime footprint filtering.
+- Confirmed active production generation already passes `componentCapabilitySnapshotJson` into `_build_initial_messages()`.
+- Completed capability parity audit with no active `missing-renderer`, `backend-only`, or `requires-follow-up` capability.
+- Finalized the `FormSemanticPlan` ADR and added tests for version normalization, aliases, extra root keys, and snapshot-enforced unknown-type rejection.
+- Re-ran the 6.4.3a harness baseline as `story-6.4.2-post-cleanup-baseline`; DB rows `EvalRunID=13..22`, `GenerationRunID=107..116`.
+
+## File List
+
+- Deleted: `backend/modules/form_ai/system_prompt_sections_1_6.py`
+- Modified: `backend/modules/form_ai/service.py`
+- Modified: `backend/tests/test_form_ai_prompt_capabilities.py`
+- Modified: `backend/tests/test_story_631_semantic_validator.py`
+- Modified: `docs/stories/STORY-6.4.2-CAPABILITY-PARITY-AUDIT.md`
+- Modified: `docs/stories/STORY-6.4.2-FORMSEMANTICPLAN-BACKWARD-COMPAT-ADR.md`
+- Modified: `docs/stories/STORY-6.4.2-UAT-TEST-GUIDE.md`
+- Modified: `docs/stories/STORY-6.4.2-CLOSEOUT-REPORT.md`
+- Modified: `docs/stories/STORY-6.4.2-GATE-EVIDENCE.md`
+- Modified: `docs/stories/STORY-6.4.2-PREFLIGHT.md`
+- Modified: `docs/stories/story-6.4.2.md`
+- Generated artifacts: `_bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/`
+
+## Change Log
+
+- 2026-04-25: Implemented Story 6.4.2 cleanup, audit, active prompt regression tests, `FormSemanticPlan` compatibility tests/ADR, baseline recapture, and green-gate evidence.
+- 2026-04-25: Closed story after Anthony UAT approval and prepared PR #69 for merge.

@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.4.3c — **Eval Diff + Statistics Tooling** (next after Story 6.4.3b closeout). *Image-to-Form has moved later in the AI track after measured prompt-engineering work per the 2026-04-25 PM/Architect/SM ideation brief.*  
+**Current Focus:** Story 6.4.3c — **Eval Diff + Statistics Tooling** is ready for UAT/SM review on Draft PR #71. *Image-to-Form has moved later in the AI track after measured prompt-engineering work per the 2026-04-25 PM/Architect/SM ideation brief.*  
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -11,6 +11,7 @@
 **Story 6.4.3a Status:** ✅ **Complete** (merged 2026-04-25, PR #68) — eval harness bones, `log.FormAiEvalRun`, and full 10-row live baseline. See `STORY-6.4.3a-CLOSEOUT-REPORT.md`.  
 **Story 6.4.2 Status:** ✅ **Complete** (2026-04-25, PR #69) — capability snapshot prompt cleanup, parity audit, `FormSemanticPlan` ADR, active prompt tests, and post-cleanup baseline. See `STORY-6.4.2-CLOSEOUT-REPORT.md`.  
 **Story 6.4.3b Status:** ✅ **Complete** (2026-04-25, PR #70) — eval judge package generator, rubric v1, DB-backed judge ingest, and Cursor judge workflow.  
+**Story 6.4.3c Status:** 🟡 **Ready for UAT/SM review** (Draft PR #71) — eval diff reports, Welch/Fisher statistics, and 6.4.4 handoff docs.  
 
 ---
 

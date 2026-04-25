@@ -5,7 +5,8 @@
 **Title:** Eval Judge Package + Rubric ADR  
 **Status:** ✅ **Complete** — UAT passed and DB-backed judge ingest verified
 **Branch:** `story/epic6-6.4.3b-eval-judge-package-rubric`  
-**PR:** [#70](https://github.com/anthonykeevy/EventLeadPlatform/pull/70) — Draft  
+**PR:** [#70](https://github.com/anthonykeevy/EventLeadPlatform/pull/70)  
+**Completed:** 2026-04-25  
 **Created:** 2026-04-25  
 **Depends On:** Story 6.4.3a ✅ Complete (harness + `log.FormAiEvalRun`), Story 6.4.2 ✅ Complete (capability prompt cleanup + post-cleanup baseline)  
 **Unblocks:** Story 6.4.3c, Story 6.4.4 prompt shrink sweeps

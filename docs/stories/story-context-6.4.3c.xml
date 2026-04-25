@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.4.3c — Eval Diff + Statistics Tooling
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-04-25
+-->
+<story-context story="6.4.3c" title="Eval Diff + Statistics Tooling">
+
+  <overview>
+    Add the comparison and statistical decision layer to the Form AI eval
+    harness. Story 6.4.3c consumes run artifacts from 6.4.3a/6.4.2 and judge
+    summaries from 6.4.3b, then emits Markdown/CSV/JSON diff reports with
+    structural blockers, advisory deltas, Welch/Fisher statistics, effect
+    sizes, and rerun recommendations.
+  </overview>
+
+  <critical-objectives>
+    <item>Do not mutate prompts or run hypothesis sweeps in this story.</item>
+    <item>Keep schema_valid regressions and boundary violations as blocking outcomes.</item>
+    <item>Keep all other deltas advisory unless future policy changes.</item>
+    <item>Make outputs useful for Story 6.4.4 prompt shrink decisions.</item>
+    <item>Avoid new heavyweight dependencies unless justified before implementation.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.3a">Complete; provides eval run artifact shape and log.FormAiEvalRun.</story>
+    <story id="6.4.2">Complete; provides post-cleanup baseline run.</story>
+    <story id="6.4.3b">Complete; provides rubric_v1, judge packages, and judge ingest summaries.</story>
+    <doc path="docs/stories/story-6.4.3c.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Harness architecture and run artifact conventions.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Judge package and ingest workflow.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT change backend/modules/form_ai prompt content.</item>
+    <item>Do NOT change backend/tests/form_ai_eval/prompts.yaml.</item>
+    <item>Do NOT implement CI PR-comment automation; document it as future work.</item>
+    <item>Do NOT call live LLMs or judges in tests.</item>
+    <item>Do NOT add SciPy or other dependencies without pausing for approval.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/tests/form_ai_eval/stats.py"
+          note="New Welch t-test, Cohen d, Fisher exact, verdict helper."/>
+    <path file="backend/tests/form_ai_eval/diff.py"
+          note="New run comparison CLI and report generator."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="Reference metrics.jsonl, summary.csv, run-metadata.json structure."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py"
+          note="Reference judge ingest summary structure and bias/agreement fields."/>
+    <path file="backend/tests/test_eval_stats.py"
+          note="New focused tests for statistics functions."/>
+    <path file="backend/tests/test_eval_diff.py"
+          note="New focused tests for diff report behavior."/>
+    <path file="docs/FORM-AI-EVAL-DIFF-STATS.md"
+          note="New usage and interpretation docs for 6.4.4."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/STORY-6.4.3c-SINGLE-SESSION-DEV-PROMPT.md"
+          purpose="Dev execution contract and run order."/>
+    <file path="docs/stories/STORY-6.4.3c-UAT-TEST-GUIDE.md"
+          purpose="Human UAT for stats, diff reports, docs, and scope boundaries."/>
+    <file path="docs/stories/STORY-6.4.3c-CLOSEOUT-REPORT.md"
+          purpose="Mandatory closeout report because CI integration is deferred."/>
+    <file path="docs/FORM-AI-EVAL-DIFF-STATS.md"
+          purpose="Public harness diff/statistics docs produced by Dev."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">Stats module exists.</ac>
+    <ac id="2">Stats tests pass.</ac>
+    <ac id="3">Diff tool exists.</ac>
+    <ac id="4">Row alignment deterministic and missing rows reported.</ac>
+    <ac id="5">Blocking gates implemented.</ac>
+    <ac id="6">Advisory metrics reported.</ac>
+    <ac id="7">Judge metrics included when summaries exist.</ac>
+    <ac id="8">Auto-rerun recommendation exists.</ac>
+    <ac id="9">Public docs complete.</ac>
+    <ac id="10">Diff tests pass.</ac>
+    <ac id="11">No scope leak.</ac>
+    <ac id="12">Closeout complete.</ac>
+  </acceptance-mapping>
+
+</story-context>

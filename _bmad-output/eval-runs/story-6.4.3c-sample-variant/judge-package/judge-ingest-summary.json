@@ -1,0 +1,60 @@
+{
+  "row_count": 3,
+  "rubric_version": "rubric_v1",
+  "rows": [
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.1,
+        "field_coverage_recall": 4.1,
+        "field_label_f1": 4.1,
+        "locale_fidelity": 4.1,
+        "row_group_agreement": 4.1,
+        "validation_intent_accuracy": 4.1
+      },
+      "gpt5mini_bias_delta": {
+        "field_coverage_recall": 0.2
+      },
+      "judge_agreement_score": 0.9,
+      "prompt_id": "p-01",
+      "repetition_index": 1,
+      "row_id": "p-01__r01",
+      "variant_label": "sample-variant"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "locale_fidelity": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "gpt5mini_bias_delta": {
+        "field_coverage_recall": 0.2
+      },
+      "judge_agreement_score": 0.9,
+      "prompt_id": "p-02",
+      "repetition_index": 1,
+      "row_id": "p-02__r01",
+      "variant_label": "sample-variant"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.9,
+        "field_coverage_recall": 3.9,
+        "field_label_f1": 3.9,
+        "locale_fidelity": 3.9,
+        "row_group_agreement": 3.9,
+        "validation_intent_accuracy": 3.9
+      },
+      "gpt5mini_bias_delta": {
+        "field_coverage_recall": 0.2
+      },
+      "judge_agreement_score": 0.9,
+      "prompt_id": "p-03",
+      "repetition_index": 1,
+      "row_id": "p-03__r01",
+      "variant_label": "sample-variant"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "benchmark_set_version": "prompts-v1.0",
+  "completed_at_utc": "2026-04-25T02:34:44.066993+00:00",
+  "concurrency_cap": 4,
+  "hypothesis_code": "baseline",
+  "max_cost_usd": 1.0,
+  "max_provider_retries": 3,
+  "mock": true,
+  "output_folder": "_bmad-output\\eval-runs\\story-6.4.3a-smoke-mock",
+  "persist_db": false,
+  "prompt_ids": [
+    "p-01-event-registration-conference",
+    "p-02-lead-gen-saas-demo",
+    "p-03-survey-nps",
+    "p-04-waiver-gym-membership",
+    "p-05-rsvp-wedding",
+    "p-06-feedback-post-event",
+    "p-07-booking-consultation",
+    "p-08-onboarding-new-employee",
+    "p-09-application-scholarship",
+    "p-10-donation-charity"
+  ],
+  "repetitions": 1,
+  "run_id": "story-6.4.3a-smoke-mock",
+  "started_at_utc": "2026-04-25T02:34:44.066666+00:00",
+  "total_cost_usd": 0.0,
+  "variant": "baseline",
+  "variant_label": "current-master-baseline"
+}

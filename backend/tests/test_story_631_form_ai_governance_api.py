@@ -166,7 +166,9 @@ def test_story_631_generate_endpoint_returns_governance_trace_fields(client, aut
     assert captured["actor_user_id"] > 0
     assert captured["actor_company_id"] is None
     assert captured["openai_transport"] == "sync"
-    assert captured["max_system_correction_attempts"] == 1
+    # Story 6.4 moved retry budget ownership to config.AppSetting; the request
+    # field is kept for compatibility but is intentionally ignored by router.py.
+    assert captured["max_system_correction_attempts"] is None
     assert captured["system_prompt_addendum"] == "extra guardrails"
 
 

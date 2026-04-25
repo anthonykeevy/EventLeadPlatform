@@ -1,0 +1,384 @@
+{
+  "benchmark_set_version": "prompts-v1.0",
+  "mutation_rule": "Changes require an ADR or explicit future-story artifact.",
+  "prompts": [
+    {
+      "prompt_id": "p-01-event-registration-conference",
+      "category": "event-registration",
+      "richness": "paragraph",
+      "prompt": "Create a conference event registration form for a technology summit. Collect attendee contact details, organisation, role, session interests, t-shirt size, dietary needs, accessibility requests, and consent to event terms and marketing updates. Include a placeholder for payment acknowledgement but do not process payments.",
+      "metadata": {
+        "source_type": "conference event registration",
+        "tricky_edges": ["multi-consent", "payment-placeholder", "t-shirt-size"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p01",
+        "canvas": {"width": 960, "height": 1400, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640301,
+          "hasCompanyTerms": true,
+          "defaultTermsAssetId": 64030101,
+          "source": "company-default",
+          "termsLinkText": "technology summit terms",
+          "termsUrl": "https://example.test/terms/summit",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "phone", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "terms", "width": 640, "height": 96, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-02-lead-gen-saas-demo",
+      "category": "lead-gen",
+      "richness": "one-liner",
+      "prompt": "Create a short SaaS demo request lead form for an AI form builder, collecting business contact details, team size, use case, and preferred meeting time.",
+      "metadata": {
+        "source_type": "SaaS demo lead-gen",
+        "tricky_edges": ["minimal-context"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p02",
+        "canvas": {"width": 960, "height": 1100, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640302,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsDisplayMode": "new_tab",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-03-survey-nps",
+      "category": "survey",
+      "richness": "detailed",
+      "prompt": "Create a customer NPS survey. Ask for a 0 to 10 recommendation rating, the main reason for the score, what could improve, whether the customer agrees to be contacted about feedback, and optional contact details.",
+      "metadata": {
+        "source_type": "NPS survey",
+        "tricky_edges": ["rating-component", "long-textarea"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p03",
+        "canvas": {"width": 960, "height": 1200, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640303,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsDisplayMode": "new_tab",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "number", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "radio", "width": 640, "height": 120, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-04-waiver-gym-membership",
+      "category": "waiver",
+      "richness": "paragraph",
+      "prompt": "Create a gym membership waiver form. Collect member contact details, emergency contact, relevant health notes, membership type, acknowledgement of physical activity risks, and agreement to gym terms in a popup.",
+      "metadata": {
+        "source_type": "gym waiver",
+        "tricky_edges": ["mandatory-acknowledgement", "terms-popup"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p04",
+        "canvas": {"width": 960, "height": 1500, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640304,
+          "hasCompanyTerms": true,
+          "defaultTermsAssetId": 64030401,
+          "source": "company-default",
+          "termsLinkText": "gym waiver terms",
+          "termsUrl": "https://example.test/terms/gym",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "phone", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "terms", "width": 640, "height": 96, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-05-rsvp-wedding",
+      "category": "rsvp",
+      "richness": "paragraph",
+      "prompt": "Create a wedding RSVP form. Collect guest contact details, attendance, plus-one name if applicable, meal choice, dietary requirements, song request, and a short message for the couple.",
+      "metadata": {
+        "source_type": "wedding RSVP",
+        "tricky_edges": ["plus-one", "meal-choice", "dietary-notes"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p05",
+        "canvas": {"width": 960, "height": 1300, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640305,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsDisplayMode": "new_tab",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "radio", "width": 640, "height": 120, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-06-feedback-post-event",
+      "category": "feedback",
+      "richness": "one-liner",
+      "prompt": "Create a simple post-event feedback form asking what attendees liked, what should improve, overall satisfaction, and whether they want updates about next year's event.",
+      "metadata": {
+        "source_type": "post-event feedback",
+        "tricky_edges": ["minimal-context", "emergent-structure"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p06",
+        "canvas": {"width": 960, "height": 1100, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640306,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsDisplayMode": "new_tab",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-07-booking-consultation",
+      "category": "booking",
+      "richness": "detailed",
+      "prompt": "Create a consultation booking form for a professional services firm. Collect contact details, preferred consultation type, preferred date, available time window, topic summary, urgency, and consent to receive appointment reminders.",
+      "metadata": {
+        "source_type": "consultation booking",
+        "tricky_edges": ["calendar-slots", "conditional-reminder"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p07",
+        "canvas": {"width": 960, "height": 1400, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640307,
+          "hasCompanyTerms": true,
+          "defaultTermsAssetId": 64030701,
+          "source": "company-default",
+          "termsLinkText": "consultation booking terms",
+          "termsUrl": "https://example.test/terms/consultation",
+          "termsDisplayMode": "new_tab",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "phone", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "date", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-08-onboarding-new-employee",
+      "category": "onboarding",
+      "richness": "detailed",
+      "prompt": "Create a new employee onboarding form. Collect synthetic employee personal details, emergency contact, start date, department, equipment needs, payroll setup notes, policy acknowledgements, and optional accessibility support requirements.",
+      "metadata": {
+        "source_type": "employee onboarding",
+        "tricky_edges": ["multi-section", "pii-heavy-synthetic"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p08",
+        "canvas": {"width": 960, "height": 1700, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640308,
+          "hasCompanyTerms": true,
+          "defaultTermsAssetId": 64030801,
+          "source": "company-default",
+          "termsLinkText": "employee policy acknowledgement",
+          "termsUrl": "https://example.test/terms/onboarding",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "phone", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "date", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "terms", "width": 640, "height": 96, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-09-application-scholarship",
+      "category": "application",
+      "richness": "paragraph",
+      "prompt": "Create a scholarship application form. Collect applicant contact details, study program, eligibility confirmations, two short essay responses, optional supporting document note, referee contact, and agreement to application terms.",
+      "metadata": {
+        "source_type": "scholarship application",
+        "tricky_edges": ["long-form-essays", "file-upload-intent", "terms"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p09",
+        "canvas": {"width": 960, "height": 1600, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640309,
+          "hasCompanyTerms": true,
+          "defaultTermsAssetId": 64030901,
+          "source": "company-default",
+          "termsLinkText": "scholarship application terms",
+          "termsUrl": "https://example.test/terms/scholarship",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "phone", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "select", "width": 320, "height": 82, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 156, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "terms", "width": 640, "height": 96, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    },
+    {
+      "prompt_id": "p-10-donation-charity",
+      "category": "donation",
+      "richness": "paragraph",
+      "prompt": "Create a charity donation interest form. Collect donor contact details, donation amount preference, whether the gift is one-off or recurring, gift-aid or tax receipt details, message of support, and consent to receive campaign updates.",
+      "metadata": {
+        "source_type": "charity donation",
+        "tricky_edges": ["amount-selection", "gift-aid", "recurring-toggle"],
+        "pii_adjacent": true
+      },
+      "runtimeContext": {
+        "formId": "eval-p10",
+        "canvas": {"width": 960, "height": 1400, "gridSize": 8},
+        "termsDefaults": {
+          "companyId": 640310,
+          "hasCompanyTerms": true,
+          "defaultTermsAssetId": 64031001,
+          "source": "company-default",
+          "termsLinkText": "donation terms",
+          "termsUrl": "https://example.test/terms/donation",
+          "termsDisplayMode": "new_tab",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-default"
+        },
+        "componentFootprints": [
+          {"componentType": "text", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "email", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "number", "width": 320, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "radio", "width": 640, "height": 120, "recommendedGapAfter": 16},
+          {"componentType": "textarea", "width": 640, "height": 132, "recommendedGapAfter": 16},
+          {"componentType": "checkbox", "width": 640, "height": 72, "recommendedGapAfter": 16},
+          {"componentType": "terms", "width": 640, "height": 96, "recommendedGapAfter": 16},
+          {"componentType": "submit", "width": 220, "height": 56, "recommendedGapAfter": 0}
+        ]
+      },
+      "expectedStructuralChecks": ["schema_valid", "component_count", "collision_count", "boundary_violation_count"]
+    }
+  ]
+}

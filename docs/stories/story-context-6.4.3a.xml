@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.4.3a — AI Eval Harness Bones
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-04-25
+-->
+<story-context story="6.4.3a" title="AI Eval Harness Bones">
+
+  <overview>
+    Build the first repeatable Form AI evaluation harness before any prompt mutation.
+    This story freezes the 10-row benchmark prompt set, adds a CLI baseline runner,
+    prepares the log.FormAiEvalRun migration, captures Category A structural metrics,
+    and records a baseline snapshot artifact. Judge packages, semantic scoring, and
+    statistical diffing are intentionally deferred to 6.4.3b/6.4.3c.
+  </overview>
+
+  <critical-objectives>
+    <item>Freeze benchmark version prompts-v1.0 with exactly 10 canonical prompt rows and frozen runtimeContext per row.</item>
+    <item>Store eval evidence in log.FormAiEvalRun, not log.ApiRequest.</item>
+    <item>Keep the harness production-safe: concurrency 4, retry-with-jitter, max-cost cap, checkpoint-on-halt, resume support.</item>
+    <item>Capture Category A structural metrics only in this story; leave Category B/C judge fields nullable/placeholders.</item>
+    <item>Create a baseline artifact that 6.4.2 can use to prove zero behavioural change.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <doc path="docs/stories/story-6.4.3a.md">Authoritative story spec and acceptance criteria.</doc>
+    <doc path="docs/stories/EPIC-6-WORKFLOW-GUIDE.md">BMAD workflow, migration safety, green gate, closeout rules.</doc>
+    <doc path="_bmad-output/planning-artifacts/EPIC-6-PROMPT-ENGINEERING-IDEATION-BRIEF.md">Source brief for benchmark prompts, metrics, storage schema, and story slicing.</doc>
+    <story id="6.4">Complete; current Form AI panel and User Preferences foundation baseline.</story>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic commands from agent shell. Anthony applies migrations.</item>
+    <item>Do NOT alter production prompt text, capability snapshot passing, or orphan prompt files in this story.</item>
+    <item>Do NOT implement judge package generation, rubric files, judge ingest, cross-model scoring, Welch/Fisher stats, or PR-comment CI output.</item>
+    <item>Unit tests must not require live LLM calls. Use mocks/fixtures for runner and persistence behavior.</item>
+    <item>Eval data is PII-adjacent. Do not print generated synthetic names/emails in chat; keep outputs in the run artifact folder.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/tests/form_ai_eval/prompts.yaml"
+          note="New frozen benchmark set. Exactly 10 rows, BenchmarkSetVersion prompts-v1.0, frozen runtimeContext per row."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="New CLI harness runner. Supports baseline variant, repetitions, prompt subset, cost cap, concurrency, checkpoint/resume, metrics output, optional DB persistence."/>
+    <path file="backend/tests/form_ai_eval/__init__.py"
+          note="Add package marker if needed for python -m execution and tests."/>
+    <path file="backend/tests/test_form_ai_eval_harness.py"
+          note="Focused tests for prompt loading, CLI parsing, checkpoint/resume, metrics shape, DB mapping. No live LLM calls."/>
+    <path file="backend/migrations/versions/"
+          note="Add reversible migration for log.FormAiEvalRun. Do not run migration from agent shell."/>
+    <path file="backend/modules/form_ai/"
+          note="Existing generation/service path. Runner should reuse current service/API behavior without duplicating production generation logic."/>
+    <path file="backend/schemas/form_definition.py"
+          note="Existing DefinitionJSON/FormSemanticPlan schema validation surface used by structural metrics."/>
+    <path file="docs/FORM-AI-EVAL-HARNESS.md"
+          note="New operator/dev documentation for smoke/formal runs, checkpoint/resume, costs, PII-adjacent handling, and extension points."/>
+    <path file="docs/stories/STORY-6.4.3a-BENCHMARK-BASELINE.md"
+          note="Required baseline capture artifact. Dev completes after running the harness."/>
+    <path file="docs/stories/STORY-6.4.3a-CLOSEOUT-REPORT.md"
+          note="Mandatory closeout report because this story ships a migration and explicitly defers judge/statistics scope."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/STORY-6.4.3a-SINGLE-SESSION-DEV-PROMPT.md"
+          purpose="Dev execution contract: preflight, source order, implementation plan, gates, UAT handoff."/>
+    <file path="docs/stories/STORY-6.4.3a-UAT-TEST-GUIDE.md"
+          purpose="Human UAT for harness smoke run, migration-applied DB persistence, baseline artifact, and scope boundaries."/>
+    <file path="docs/stories/STORY-6.4.3a-BENCHMARK-BASELINE.md"
+          purpose="Mandatory baseline snapshot template to complete during Dev/UAT."/>
+    <file path="docs/stories/STORY-6.4.3a-CLOSEOUT-REPORT.md"
+          purpose="Mandatory closeout report template."/>
+    <file path="docs/FORM-AI-EVAL-HARNESS.md"
+          purpose="Harness usage and architecture documentation produced by Dev."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">Benchmark YAML exists with exactly 10 canonical prompt rows and frozen runtimeContext.</ac>
+    <ac id="2">BenchmarkSetVersion prompts-v1.0 is explicit in harness outputs and docs.</ac>
+    <ac id="3">CLI runner has a documented smoke baseline path.</ac>
+    <ac id="4">Production-safety controls: concurrency 4, jitter retries, max-cost cap, checkpoint/resume.</ac>
+    <ac id="5">Category A metrics shape emitted to JSONL/CSV outputs.</ac>
+    <ac id="6">Reversible log.FormAiEvalRun migration prepared with required columns and index.</ac>
+    <ac id="7">Optional DB persistence inserts one row per prompt x repetition after Anthony applies migration.</ac>
+    <ac id="8">Benchmark baseline artifact completed.</ac>
+    <ac id="9">Harness documentation completed.</ac>
+    <ac id="10">Focused automated tests cover harness bones without live LLM calls.</ac>
+    <ac id="11">Judge/statistics scope does not leak into this story.</ac>
+    <ac id="12">Required story pack artifacts exist.</ac>
+  </acceptance-mapping>
+
+</story-context>

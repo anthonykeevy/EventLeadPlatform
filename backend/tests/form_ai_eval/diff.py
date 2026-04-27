@@ -280,8 +280,8 @@ def _blocking_reasons(
         if baseline_a.get("schema_valid") is True and variant_a.get("schema_valid") is False:
             reasons.add("schema_valid_regression")
             rows.append({"row_id": key, "reason": "schema_valid_regression"})
-    for key, row in variant_rows.items():
-        variant_a = _category_a(row)
+    for key in matched_keys:
+        variant_a = _category_a(variant_rows[key])
         if int(_coerce_value(variant_a.get("boundary_violation_count")) or 0) > 0:
             reasons.add("boundary_violation")
             rows.append({"row_id": key, "reason": "boundary_violation"})

@@ -101,6 +101,32 @@ def test_compare_runs_flags_blocking_schema_and_boundary_regressions(tmp_path):
     assert "boundary_violation" in summary["decision"]["blocking_reasons"]
 
 
+def test_compare_runs_ignores_boundary_violations_on_extra_variant_rows(tmp_path):
+    baseline = tmp_path / "baseline"
+    variant = tmp_path / "variant"
+    _write_run(
+        baseline,
+        [_metric_row("p-01", 1, "baseline", boundary_violation_count=0)],
+        run_id="baseline",
+    )
+    _write_run(
+        variant,
+        [
+            _metric_row("p-01", 1, "variant", boundary_violation_count=0),
+            _metric_row("p-extra", 1, "variant", boundary_violation_count=1),
+        ],
+        run_id="variant",
+    )
+
+    summary = diff.compare_runs(baseline, variant, tmp_path / "out")
+
+    assert summary["row_alignment"]["matched_count"] == 1
+    assert summary["row_alignment"]["extra_in_variant"] == ["p-extra__r01"]
+    assert summary["decision"]["blocked"] is False
+    assert summary["decision"]["blocking_reasons"] == []
+    assert summary["decision"]["blocking_rows"] == []
+
+
 def test_compare_runs_reports_advisory_deltas_missing_extra_rows_and_outputs(tmp_path):
     baseline = tmp_path / "baseline"
     variant = tmp_path / "variant"

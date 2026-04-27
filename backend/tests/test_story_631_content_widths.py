@@ -1055,28 +1055,16 @@ def test_visual_boundary_check_still_catches_implausible_zero_width():
 # --- UAT round 5 (run 42 follow-up) — locale-aware system prompt ----------
 
 
-def test_locale_block_au_includes_postcode_and_mobile_terminology():
-    """The AU/NZ block must call out the high-traffic Americanism swaps so
-    the LLM consistently produces region-appropriate copy for the
-    Australian early-access launch."""
+def test_locale_block_au_uses_story_644_one_line_directive():
+    """Story 6.4.4 shrinks the AU/NZ locale prompt to one directive while
+    keeping the same address, phone, date, and spelling intent."""
     from modules.form_ai.service import _build_locale_prompt_block
 
     block = _build_locale_prompt_block("AU")
-    # Address terminology
-    assert "Postcode" in block, "AU block must mandate Postcode (not ZIP)."
-    assert "Suburb" in block, "AU block must use Suburb for the city/town field."
-    # Phone terminology + format
-    assert "Mobile" in block and "Cell" in block, (
-        "AU block must call out Mobile vs Cell so the LLM stops emitting "
-        "Cell phone."
+    assert block == (
+        "Form audience: Australia/New Zealand. Use AU/NZ spelling, address, "
+        "phone, date conventions."
     )
-    assert "+61" in block or "04xx" in block, (
-        "AU block must reference an AU phone format hint."
-    )
-    # Spelling
-    assert "organisation" in block.lower(), "AU block must reference AU/UK spelling."
-    # Australian states list
-    assert "NSW" in block and "VIC" in block
 
 
 def test_locale_block_opt_out_returns_empty_string():
@@ -1091,10 +1079,8 @@ def test_locale_block_opt_out_returns_empty_string():
 
 
 def test_initial_messages_default_to_au_locale():
-    """Until country plumbing lands, every request is treated as AU/NZ.
-    The default arg on ``_build_initial_messages`` must keep the AU block
-    in the system message so the existing call sites pick it up without
-    code changes."""
+    """Until country plumbing lands, every request gets the compact AU/NZ
+    directive by default."""
     from modules.form_ai.service import _build_initial_messages
 
     messages = _build_initial_messages(
@@ -1103,8 +1089,8 @@ def test_initial_messages_default_to_au_locale():
         runtime_context={"canvas": {"width": 1280, "height": 720}, "device": "desktop"},
     )
     system_msg = messages[0]["content"]
-    assert "Postcode" in system_msg
-    assert "Mobile" in system_msg
+    assert "Form audience: Australia/New Zealand" in system_msg
+    assert "AU/NZ spelling, address, phone, date conventions" in system_msg
     # Sanity: still includes the structural rules (locale block was injected,
     # not substituted).
     assert "REQUIRED ROOT KEYS" in system_msg

@@ -5,7 +5,7 @@
 **Branch:** `story/epic6-6.4.3c-eval-diff-statistics`  
 **PR:** [#71](https://github.com/anthonykeevy/EventLeadPlatform/pull/71)  
 **Date:** 2026-04-25  
-**Disposition:** Ready for UAT/SM review  
+**Disposition:** Complete  
 **Author:** `@bmad-agent-bmm-dev`
 
 ---
@@ -45,7 +45,7 @@ No prompt content, prompt benchmark rows, judge rubric, live model calls, sweeps
 | Focused stats/diff tests | PASS; `8 passed, 116 warnings` |
 | Backend regression | PASS; `781 passed, 26 skipped, 5711 warnings` |
 | Evidence file | `docs/stories/STORY-6.4.3c-GATE-EVIDENCE.md` |
-| Stale-field audit | PASS; hits are intentional for Draft PR #71 and Ready for UAT/SM review phase |
+| Stale-field audit | PASS; story/status/workflow fields are stamped complete after PR #71 merge |
 
 ---
 

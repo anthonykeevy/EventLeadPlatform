@@ -1,0 +1,203 @@
+{
+  "advisory_metric_deltas": {
+    "attempt_count": {
+      "baseline_mean": 1.2,
+      "decision": "advisory",
+      "delta": 0.30000000000000004,
+      "effect_size": -0.6285872661926205,
+      "p_value": 0.17768801655959587,
+      "variant_mean": 1.5
+    },
+    "collision_count": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "component_count": {
+      "baseline_mean": 16.0,
+      "decision": "advisory",
+      "delta": -1.0999999999999996,
+      "effect_size": 0.23308316656141814,
+      "p_value": 0.6086532674321272,
+      "variant_mean": 14.9
+    },
+    "duration_ms": {
+      "baseline_mean": 65881.6,
+      "decision": "advisory",
+      "delta": -11350.400000000009,
+      "effect_size": 0.5280544813248516,
+      "p_value": 0.2530718427910933,
+      "variant_mean": 54531.2
+    },
+    "input_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "output_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "total_cost_usd": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    }
+  },
+  "baseline": {
+    "path": "C:\\Users\\tonyk\\OneDrive - Signal Platforms Pty Ltd\\Projects\\EventLeadPlatform\\_bmad-output\\eval-runs\\story-6.4.2-post-cleanup-baseline",
+    "run_id": "story-6.4.2-post-cleanup-baseline",
+    "variant_label": "post-642-capability-cleanup"
+  },
+  "decision": {
+    "blocked": false,
+    "blocking_reasons": [],
+    "blocking_rows": [],
+    "recommendation": "human-review"
+  },
+  "judge_bias_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 0.05,
+      "delta": -0.05,
+      "variant_mean": 0.0
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 0.0,
+      "delta": 0.0,
+      "variant_mean": 0.0
+    },
+    "field_label_f1": {
+      "baseline_mean": 0.0,
+      "delta": 0.0,
+      "variant_mean": 0.0
+    },
+    "locale_fidelity": {
+      "baseline_mean": 0.0,
+      "delta": 0.0,
+      "variant_mean": 0.0
+    },
+    "row_group_agreement": {
+      "baseline_mean": 0.3,
+      "delta": 0.15000000000000002,
+      "variant_mean": 0.45
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 0.15,
+      "delta": 0.05000000000000002,
+      "variant_mean": 0.2
+    }
+  },
+  "judge_metric_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 4.95,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.04999999999999982,
+      "effect_size": -0.4472135954999564,
+      "metric_kind": "continuous",
+      "metric_name": "copy_quality_score",
+      "note": "",
+      "p_value": 0.3434363961348613,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 5.0
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 5.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": null,
+      "metric_kind": "continuous",
+      "metric_name": "field_coverage_recall",
+      "note": "Welch t-test undefined for zero combined variance.",
+      "p_value": null,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 5.0
+    },
+    "field_label_f1": {
+      "baseline_mean": 5.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": null,
+      "metric_kind": "continuous",
+      "metric_name": "field_label_f1",
+      "note": "Welch t-test undefined for zero combined variance.",
+      "p_value": null,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 5.0
+    },
+    "locale_fidelity": {
+      "baseline_mean": 5.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": null,
+      "metric_kind": "continuous",
+      "metric_name": "locale_fidelity",
+      "note": "Welch t-test undefined for zero combined variance.",
+      "p_value": null,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 5.0
+    },
+    "row_group_agreement": {
+      "baseline_mean": 4.7,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": -0.15000000000000036,
+      "effect_size": 0.7006490497453725,
+      "metric_kind": "continuous",
+      "metric_name": "row_group_agreement",
+      "note": "",
+      "p_value": 0.13814824935597148,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.55
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 4.85,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": -0.04999999999999982,
+      "effect_size": 0.16641005886756816,
+      "metric_kind": "continuous",
+      "metric_name": "validation_intent_accuracy",
+      "note": "",
+      "p_value": 0.7146985496690503,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.8
+    }
+  },
+  "limitations": [
+    "Only schema_valid regressions and boundary violations are blocking.",
+    "Other deltas are advisory for PM/SM decision.",
+    "Inconclusive Category B results should rerun at n=15."
+  ],
+  "output_files": {
+    "csv": "_bmad-output\\eval-runs\\story-6.4.4-live-baseline-vs-h4\\diff-details.csv",
+    "json": "_bmad-output\\eval-runs\\story-6.4.4-live-baseline-vs-h4\\diff-summary.json",
+    "markdown": "_bmad-output\\eval-runs\\story-6.4.4-live-baseline-vs-h4\\diff-report.md"
+  },
+  "row_alignment": {
+    "extra_in_variant": [],
+    "matched_count": 10,
+    "missing_in_variant": []
+  },
+  "variant": {
+    "path": "C:\\Users\\tonyk\\OneDrive - Signal Platforms Pty Ltd\\Projects\\EventLeadPlatform\\_bmad-output\\eval-runs\\story-6.4.4-live-h4-operational-trim",
+    "run_id": "story-6.4.4-live-h4-operational-trim",
+    "variant_label": "h4-operational-trim"
+  }
+}

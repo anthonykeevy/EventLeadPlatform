@@ -108,7 +108,7 @@
     },
     {
       "prompt_id": "p-08-onboarding-new-employee",
-      "rationale": "Excellent onboarding form. Complete coverage of all requested fields with a logical structure, appropriate Australian locale references (TFN), and sensitive handling of accessibility.",
+      "rationale": "Excellent onboarding form. Complete coverage of all requested fields with a logical structure, appropriate Australian locale references, and sensitive handling of accessibility.",
       "repetition_index": 1,
       "row_id": "p-08-onboarding-new-employee__r01",
       "scores": {

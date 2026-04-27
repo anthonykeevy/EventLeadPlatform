@@ -4,7 +4,7 @@
 **Agent:** `@bmad-agent-bmm-dev`  
 **Worktree:** `C:\wt\elp\story-epic6-6.4.3c-eval-diff-statistics`  
 **Branch:** `story/epic6-6.4.3c-eval-diff-statistics`  
-**PR:** [#71](https://github.com/anthonykeevy/EventLeadPlatform/pull/71) — Draft PR to `master`  
+**PR:** [#71](https://github.com/anthonykeevy/EventLeadPlatform/pull/71) — merged to `master`  
 **Sizing:** S, expected single focused session.
 
 ---

@@ -33,6 +33,17 @@ _bmad-output/eval-runs/story-6.4.2-post-cleanup-baseline/judge-package/
 
 If DB access is unavailable, the generator still creates the package and marks generated definitions as unavailable. That path is useful for plumbing tests, but semantic judging needs generated definition content.
 
+For Story 6.4.4.1 AC-10, six locale-sliced runs are combined into one judge package with `--inputs`:
+
+```powershell
+python -m backend.tests.form_ai_eval.judge_pack `
+  _bmad-output/eval-runs/story-6.4.4.1-ac10-baseline `
+  --inputs story-6.4.4.1-ac10-baseline-AU,story-6.4.4.1-ac10-baseline-NZ,story-6.4.4.1-ac10-baseline-UK,story-6.4.4.1-ac10-baseline-US,story-6.4.4.1-ac10-baseline-INTL_ONLINE,story-6.4.4.1-ac10-baseline-EU `
+  --use-db
+```
+
+The package includes `judge-prompt-claude.md`, `judge-prompt-grok.md`, and `judge-prompt-gpt5mini.md`. Each prompt embeds the exact `results/judge-output-*.json` path the Cursor judge must write.
+
 ## Run The Three Cursor Judge Chats
 
 Create three separate Cursor chats. In each chat, provide:

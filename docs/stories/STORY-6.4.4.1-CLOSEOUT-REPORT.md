@@ -4,7 +4,7 @@
 
 Story 6.4.4.1 wires Form AI locale architecture to a registry-backed prompt block system, adds `audienceLocale` and `brandPosture` API handling, and bumps the eval/judge harness to `prompts-v1.1` / `rubric_v2`.
 
-Closeout decision: ready to merge via PR #75. Remaining non-blocking work is documented as carry-forward/manual follow-up.
+Closeout decision: merged via PR #75 on 2026-04-27. Remaining non-blocking work is documented as carry-forward/manual follow-up.
 
 ## Implemented
 

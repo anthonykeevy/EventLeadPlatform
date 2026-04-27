@@ -1,0 +1,692 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "GPT-5 mini",
+  "rows": [
+    {
+      "prompt_id": "p01-au-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no generated definition present to assess fields, labels, validation, or locale fidelity. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-au-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no generated definition present to assess Sydney-specific handling. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-au-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify handling of adversarial ZIP/+1 phone wording vs AU locale. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-nz-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no generated definition present to assess NZ-specific handling. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-nz-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-nz-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify Auckland association or locale adjustments. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-nz-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-nz-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify adversarial ZIP/+1 phone wording for NZ locale. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-nz-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-uk-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no UK-specific labels or formatting visible. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-uk-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-uk-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot assess London-specific copy or GDPR references. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-uk-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-uk-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot confirm cross-locale leakage or forbidden fields. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-uk-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-us-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no US-specific formatting or opt-in language visible. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-us-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; ambiguous US-location handling cannot be evaluated. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-us-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify misuse of US-specific fields or labels. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-intl-online-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot assess international format patterns (E.164/ISO). Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-intl-online-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-intl-online-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; ambiguous international handling cannot be evaluated. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-intl-online-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-intl-online-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot confirm adherence to or violation of international constraints. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-intl-online-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-eu-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no EU/GDPR-specific copy to evaluate. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-eu-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-eu-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; ambiguous EU context cannot be assessed. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-eu-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-eu-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify adversarial instructions vs EU norms. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p01-eu-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-au-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no generated definition present to assess fields, labels, validation, or locale fidelity. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-au-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no generated definition present to assess Sydney-specific handling. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-au-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify handling of adversarial ZIP/+1 phone wording vs AU locale. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-nz-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no generated definition present to assess NZ-specific handling. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-nz-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-nz-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify Auckland association or locale adjustments. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-nz-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-nz-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify adversarial ZIP/+1 phone wording for NZ locale. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-nz-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-uk-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no UK-specific labels or formatting visible. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-uk-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-uk-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot assess London-specific copy or GDPR references. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-uk-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-uk-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot confirm cross-locale leakage or forbidden fields. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-uk-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-us-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no US-specific formatting or opt-in language visible. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-us-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; ambiguous US-location handling cannot be evaluated. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-us-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify misuse of US-specific fields or labels. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-intl-online-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot assess international format patterns (E.164/ISO). Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-intl-online-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-intl-online-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; ambiguous international handling cannot be evaluated. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-intl-online-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-intl-online-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot confirm adherence to or violation of international constraints. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-intl-online-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-eu-neutral-r1",
+      "rationale": "Weakness: generated definition unavailable in package; no EU/GDPR-specific copy to evaluate. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-eu-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-eu-ambiguous-r1",
+      "rationale": "Weakness: generated definition unavailable in package; ambiguous EU context cannot be assessed. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-eu-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-eu-adversarial-r1",
+      "rationale": "Weakness: generated definition unavailable in package; cannot verify adversarial instructions vs EU norms. Scored conservatively.",
+      "repetition_index": 1,
+      "row_id": "p02-eu-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 0,
+        "cross_locale_leakage": 0,
+        "cultural_register": 0,
+        "field_coverage_recall": 0,
+        "field_label_f1": 0,
+        "format_pattern_accuracy": 0,
+        "locale_fidelity": 0,
+        "policy_compliance": 0,
+        "row_group_agreement": 0,
+        "validation_intent_accuracy": 0
+      },
+      "variant_label": "current-master-baseline"
+    },
+<?NEXT_BATCH?>
+  ]
+}

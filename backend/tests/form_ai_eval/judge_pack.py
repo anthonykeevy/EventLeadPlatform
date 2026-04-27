@@ -32,7 +32,17 @@ from form_ai_eval import run as eval_run  # noqa: E402
 RUBRIC_VERSION = "rubric_v2"
 DEFAULT_RUBRIC_PATH = Path(__file__).with_name("rubric_v2.md")
 PACKAGE_SCHEMA_VERSION = "judge-package-v2"
-JUDGE_MODELS = ["gpt5mini", "claude", "grok"]
+JUDGE_MODELS = ["claude", "grok", "gpt5mini"]
+JUDGE_MODEL_LABELS = {
+    "claude": "Claude 4.7 primary judge",
+    "grok": "Grok 4 primary judge",
+    "gpt5mini": "GPT-5 mini control judge",
+}
+JUDGE_OUTPUT_FILES = {
+    "claude": "judge-output-claude.json",
+    "grok": "judge-output-grok.json",
+    "gpt5mini": "judge-output-gpt5mini.json",
+}
 CATEGORY_B_METRICS = [
     "field_coverage_recall",
     "field_label_f1",
@@ -78,6 +88,11 @@ class JudgePackageRow:
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate a Form AI judge package.")
     parser.add_argument("eval_run_dir", type=Path)
+    parser.add_argument(
+        "--inputs",
+        default=None,
+        help="Comma-separated eval run dirs or run IDs to combine into one judge package.",
+    )
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--prompts-path", type=Path, default=eval_run.DEFAULT_PROMPTS_PATH)
     parser.add_argument("--rubric-path", type=Path, default=DEFAULT_RUBRIC_PATH)
@@ -87,6 +102,23 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         help="Load final-definition artifacts and EvalRunID mappings from the configured DB.",
     )
     return parser.parse_args(argv)
+
+
+def _resolve_input_dirs(raw_inputs: Optional[str]) -> Optional[List[Path]]:
+    if raw_inputs is None:
+        return None
+    input_dirs: List[Path] = []
+    for raw_value in raw_inputs.split(","):
+        value = raw_value.strip()
+        if not value:
+            continue
+        path = Path(value)
+        if not path.is_absolute() and not path.exists():
+            path = eval_run.DEFAULT_OUTPUT_ROOT / value
+        input_dirs.append(path)
+    if not input_dirs:
+        raise JudgePackageError("--inputs did not contain any eval run dirs")
+    return input_dirs
 
 
 def row_id_for(prompt_id: str, repetition_index: int) -> str:
@@ -112,6 +144,24 @@ def load_run_metadata(eval_run_dir: Path) -> Dict[str, Any]:
     if not metadata_path.exists():
         return {}
     return json.loads(metadata_path.read_text(encoding="utf-8"))
+
+
+def load_combined_run_metadata(eval_run_dir: Path, input_dirs: Sequence[Path]) -> Dict[str, Any]:
+    run_metadata = load_run_metadata(eval_run_dir)
+    if run_metadata:
+        return run_metadata
+    input_metadata = [load_run_metadata(input_dir) for input_dir in input_dirs]
+    benchmark_versions = {
+        metadata.get("benchmark_set_version") for metadata in input_metadata if metadata
+    }
+    variant_labels = [metadata.get("variant_label") for metadata in input_metadata if metadata]
+    return {
+        "run_id": eval_run_dir.name,
+        "benchmark_set_version": next(iter(benchmark_versions), eval_run.BENCHMARK_SET_VERSION),
+        "variant_label": "combined",
+        "input_variant_labels": variant_labels,
+        "source_eval_run_dirs": [str(input_dir) for input_dir in input_dirs],
+    }
 
 
 def scrub_pii_adjacent(value: Any) -> Any:
@@ -207,10 +257,14 @@ def fetch_eval_run_ids_from_db(
 def build_package_rows(
     eval_run_dir: Path,
     *,
+    input_dirs: Optional[Sequence[Path]] = None,
     prompts_path: Path = eval_run.DEFAULT_PROMPTS_PATH,
     db_session: Any = None,
 ) -> List[JudgePackageRow]:
-    metric_rows = load_metric_rows(eval_run_dir)
+    source_dirs = list(input_dirs or [eval_run_dir])
+    metric_rows: List[Dict[str, Any]] = []
+    for source_dir in source_dirs:
+        metric_rows.extend(load_metric_rows(source_dir))
     prompt_set = eval_run.load_prompt_set(prompts_path)
     prompts_by_id = {prompt.prompt_id: prompt for prompt in prompt_set.prompts}
     prompt_order = {prompt.prompt_id: index for index, prompt in enumerate(prompt_set.prompts)}
@@ -367,18 +421,57 @@ def render_judge_input(rows: Sequence[JudgePackageRow], metadata: Dict[str, Any]
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _display_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return str(resolved)
+
+
+def render_judge_prompt(judge_model: str, package_dir: Path) -> str:
+    if judge_model not in JUDGE_MODELS:
+        raise JudgePackageError(f"Unknown judge model: {judge_model}")
+    output_path = _display_path(package_dir / "results" / JUDGE_OUTPUT_FILES[judge_model])
+    label = JUDGE_MODEL_LABELS[judge_model]
+    return (
+        f"You are the {label} for Story 6.4.4.1.\n\n"
+        "Use the attached judge package files:\n"
+        "- rubric_v2.md\n"
+        "- judge-input-batch.md\n"
+        "- judge-output-template.json\n\n"
+        "Score each row against rubric_v2 only. Identify at least one weakness per row "
+        "before scoring. Return only valid JSON matching judge-output-template.json.\n"
+        f'Set judge_model to "{judge_model}" and judge_model_version to the exact '
+        "model/version shown in this Cursor session.\n\n"
+        f"Save your output JSON to: `{output_path}`. Do not write anywhere else. "
+        "Create the file if it does not exist.\n"
+    )
+
+
 def write_judge_package(
     eval_run_dir: Path,
     *,
+    input_dirs: Optional[Sequence[Path]] = None,
     output_dir: Optional[Path] = None,
     prompts_path: Path = eval_run.DEFAULT_PROMPTS_PATH,
     rubric_path: Path = DEFAULT_RUBRIC_PATH,
     db_session: Any = None,
 ) -> Path:
     eval_run_dir = eval_run_dir.resolve()
+    source_dirs = [input_dir.resolve() for input_dir in (input_dirs or [eval_run_dir])]
     package_dir = (output_dir or (eval_run_dir / "judge-package")).resolve()
-    rows = build_package_rows(eval_run_dir, prompts_path=prompts_path, db_session=db_session)
-    run_metadata = load_run_metadata(eval_run_dir)
+    rows = build_package_rows(
+        eval_run_dir,
+        input_dirs=source_dirs,
+        prompts_path=prompts_path,
+        db_session=db_session,
+    )
+    run_metadata = (
+        load_run_metadata(eval_run_dir)
+        if input_dirs is None
+        else load_combined_run_metadata(eval_run_dir, source_dirs)
+    )
     package_metadata = {
         "package_schema_version": PACKAGE_SCHEMA_VERSION,
         "rubric_version": RUBRIC_VERSION,
@@ -386,6 +479,7 @@ def write_judge_package(
         "benchmark_set_version": run_metadata.get("benchmark_set_version", "prompts-v1.0"),
         "variant_label": run_metadata.get("variant_label"),
         "source_eval_run_dir": str(eval_run_dir),
+        "source_eval_run_dirs": [str(source_dir) for source_dir in source_dirs],
         "row_count": len(rows),
         "judge_models": JUDGE_MODELS,
         "category_b_metrics": CATEGORY_B_METRICS,
@@ -407,6 +501,11 @@ def write_judge_package(
         json.dumps(build_output_template(rows), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    for judge_model in JUDGE_MODELS:
+        (package_dir / f"judge-prompt-{judge_model}.md").write_text(
+            render_judge_prompt(judge_model, package_dir),
+            encoding="utf-8",
+        )
     (package_dir / "judge-package-metadata.json").write_text(
         json.dumps(package_metadata, indent=2, sort_keys=True, default=_json_default) + "\n",
         encoding="utf-8",
@@ -424,6 +523,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             db_session = SessionLocal()
         package_dir = write_judge_package(
             args.eval_run_dir,
+            input_dirs=_resolve_input_dirs(args.inputs),
             output_dir=args.output_dir,
             prompts_path=args.prompts_path,
             rubric_path=args.rubric_path,

@@ -7,16 +7,16 @@ TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
-from form_ai_eval import judge_pack  # noqa: E402
+from form_ai_eval import judge_pack  # type: ignore[import-not-found]  # noqa: E402
 
 
-def _write_fixture_eval_run(tmp_path: Path) -> Path:
-    run_dir = tmp_path / "fixture-run"
+def _write_fixture_eval_run(tmp_path: Path, run_name: str = "fixture-run") -> Path:
+    run_dir = tmp_path / run_name
     run_dir.mkdir(parents=True)
     (run_dir / "run-metadata.json").write_text(
         json.dumps(
             {
-                "run_id": "fixture-run",
+                "run_id": run_name,
                 "benchmark_set_version": "prompts-v1.1",
                 "variant_label": "fixture-variant",
             }
@@ -69,6 +69,9 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
     assert (package_dir / "rubric_v2.md").exists()
     assert (package_dir / "judge-input-batch.md").exists()
     assert (package_dir / "judge-output-template.json").exists()
+    assert (package_dir / "judge-prompt-claude.md").exists()
+    assert (package_dir / "judge-prompt-grok.md").exists()
+    assert (package_dir / "judge-prompt-gpt5mini.md").exists()
     assert (package_dir / "results").is_dir()
 
     metadata = json.loads((package_dir / "judge-package-metadata.json").read_text(encoding="utf-8"))
@@ -88,6 +91,47 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
     assert "alex@example.test" not in judge_input
     assert "identify at least one weakness per row before scoring" in judge_input
     assert "judge_model_version" in judge_input
+
+
+def test_judge_prompts_include_exact_output_paths(tmp_path):
+    run_dir = _write_fixture_eval_run(tmp_path)
+    package_dir = judge_pack.write_judge_package(run_dir)
+
+    for judge_model, filename in judge_pack.JUDGE_OUTPUT_FILES.items():
+        prompt = (package_dir / f"judge-prompt-{judge_model}.md").read_text(encoding="utf-8")
+        expected_path = judge_pack._display_path(package_dir / "results" / filename)
+
+        assert f"Save your output JSON to: `{expected_path}`" in prompt
+        assert "Do not write anywhere else" in prompt
+        assert f'Set judge_model to "{judge_model}"' in prompt
+
+
+def test_judge_package_can_combine_multiple_input_runs(tmp_path):
+    run_dir_a = _write_fixture_eval_run(tmp_path, "fixture-run-a")
+    run_dir_b = _write_fixture_eval_run(tmp_path, "fixture-run-b")
+    run_b_rows = [
+        json.loads(line)
+        for line in (run_dir_b / "metrics.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    run_b_rows[0]["prompt_id"] = "p02-nz-neutral-r1"
+    run_b_rows[1]["prompt_id"] = "p01-nz-neutral-r1"
+    (run_dir_b / "metrics.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in run_b_rows),
+        encoding="utf-8",
+    )
+    aggregate_dir = tmp_path / "fixture-aggregate"
+
+    package_dir = judge_pack.write_judge_package(
+        aggregate_dir,
+        input_dirs=[run_dir_a, run_dir_b],
+    )
+
+    metadata = json.loads((package_dir / "judge-package-metadata.json").read_text(encoding="utf-8"))
+    template = json.loads((package_dir / "judge-output-template.json").read_text(encoding="utf-8"))
+    assert metadata["run_id"] == "fixture-aggregate"
+    assert metadata["row_count"] == 4
+    assert len(metadata["source_eval_run_dirs"]) == 2
+    assert len(template["rows"]) == 4
 
 
 def test_judge_output_template_shape(tmp_path):

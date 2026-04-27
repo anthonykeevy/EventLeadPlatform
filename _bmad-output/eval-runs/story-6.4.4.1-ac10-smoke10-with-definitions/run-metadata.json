@@ -1,0 +1,32 @@
+{
+  "benchmark_set_version": "prompts-v1.1",
+  "completed_at_utc": "2026-04-27T12:04:04.647822+00:00",
+  "completed_count": 10,
+  "concurrency_cap": 4,
+  "hypothesis_code": "baseline",
+  "locale_filter": null,
+  "max_cost_usd": null,
+  "max_provider_retries": 3,
+  "mock": false,
+  "output_folder": "_bmad-output\\eval-runs\\story-6.4.4.1-ac10-smoke10-with-definitions",
+  "persist_db": false,
+  "prompt_ids": [
+    "p01-au-neutral-r1",
+    "p01-au-ambiguous-r1",
+    "p01-au-adversarial-r1",
+    "p01-nz-neutral-r1",
+    "p01-nz-ambiguous-r1",
+    "p01-nz-adversarial-r1",
+    "p01-uk-neutral-r1",
+    "p01-uk-ambiguous-r1",
+    "p01-uk-adversarial-r1",
+    "p01-us-neutral-r1"
+  ],
+  "repetitions": 1,
+  "run_id": "story-6.4.4.1-ac10-smoke10-with-definitions",
+  "started_at_utc": "2026-04-27T11:57:32.961221+00:00",
+  "status": "completed",
+  "total_cost_usd": 0.0,
+  "variant": "rubric-v2-baseline-smoke10",
+  "variant_label": "current-master-baseline"
+}

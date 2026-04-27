@@ -134,6 +134,8 @@ def test_runner_writes_jsonl_csv_metadata_without_live_llm(tmp_path):
     assert metadata["benchmark_set_version"] == "prompts-v1.1"
     assert metadata["concurrency_cap"] == 4
     assert len(jsonl_rows) == 2
+    assert jsonl_rows[0]["generated_definition"]["schemaVersion"] == "1.0"
+    assert jsonl_rows[0]["generated_definition"]["pages"]
     assert (run_dir / "summary.csv").exists()
     assert (run_dir / "run-metadata.json").exists()
 

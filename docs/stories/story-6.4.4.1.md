@@ -3,7 +3,7 @@
 **Epic:** 6 — AI Generation & Monetization Engine
 **Story ID:** 6.4.4.1
 **Title:** Locale Architecture: Wire the Registry (+ rubric v2 + prompts v1.1 + judge swap)
-**Status:** Complete / ready to merge (2026-04-27)
+**Status:** Complete (merged 2026-04-27, PR #75)
 **Branch:** `story/epic6-6.4.4.1-locale-architecture-wire-registry`
 **PR:** [#75](https://github.com/anthonykeevy/EventLeadPlatform/pull/75)
 **Completed:** 2026-04-27

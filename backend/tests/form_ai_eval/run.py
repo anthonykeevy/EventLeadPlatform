@@ -184,6 +184,12 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--hypothesis-code", default="baseline")
     parser.add_argument("--variant-label", default="current-master-baseline")
     parser.add_argument("--prompt-id", action="append", default=[])
+    parser.add_argument(
+        "--locale-filter",
+        type=str,
+        default=None,
+        help="Run only rows whose audience_locale matches the given ISO/locale (e.g. AU). Defaults to all rows.",
+    )
     parser.add_argument("--repetitions", type=int, default=1)
     parser.add_argument("--concurrency", type=int, default=MAX_CONCURRENCY)
     parser.add_argument("--max-cost-usd", type=float, default=None)
@@ -201,6 +207,13 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         parser.error("--variant must not be empty")
     if not args.hypothesis_code.strip():
         parser.error("--hypothesis-code must not be empty")
+    if args.locale_filter is not None:
+        args.locale_filter = args.locale_filter.strip().upper()
+        if not args.locale_filter:
+            parser.error("--locale-filter must not be empty")
+        suffix = f"-{args.locale_filter}"
+        if not args.variant.upper().endswith(suffix):
+            args.variant = f"{args.variant}{suffix}"
     if args.repetitions < 1:
         parser.error("--repetitions must be >= 1")
     if args.concurrency < 1 or args.concurrency > MAX_CONCURRENCY:
@@ -219,6 +232,26 @@ def _select_prompts(prompt_set: PromptSet, prompt_ids: Iterable[str]) -> List[Be
     if missing:
         raise EvalHarnessError(f"Unknown prompt_id(s): {missing}")
     return [by_id[prompt_id] for prompt_id in requested]
+
+
+def _filter_prompts_by_locale(
+    prompts: Iterable[BenchmarkPrompt],
+    locale_filter: Optional[str],
+) -> List[BenchmarkPrompt]:
+    selected = list(prompts)
+    if locale_filter is None:
+        return selected
+    expected = locale_filter.upper()
+    filtered = [prompt for prompt in selected if prompt.audience_locale.upper() == expected]
+    if not filtered:
+        raise SystemExit(f"No prompts matched --locale-filter={locale_filter}")
+    return filtered
+
+
+def _default_run_id(args: argparse.Namespace) -> str:
+    if args.locale_filter:
+        return args.variant
+    return _utc_now().strftime("%Y%m%dT%H%M%SZ-baseline")
 
 
 def _read_checkpoint(path: Optional[Path]) -> Dict[str, Any]:
@@ -519,6 +552,7 @@ def _build_run_metadata(
         "hypothesis_code": args.hypothesis_code,
         "variant": args.variant,
         "variant_label": args.variant_label,
+        "locale_filter": args.locale_filter,
         "prompt_ids": [prompt.prompt_id for prompt in prompts],
         "repetitions": args.repetitions,
         "concurrency_cap": min(args.concurrency, MAX_CONCURRENCY),
@@ -541,12 +575,15 @@ def run_harness(
     call_generation: Optional[Callable[[BenchmarkPrompt], FormAiGenerateResponse]] = None,
 ) -> Dict[str, Any]:
     prompt_set = load_prompt_set(args.prompts_path)
-    prompts = _select_prompts(prompt_set, args.prompt_id)
+    prompts = _filter_prompts_by_locale(
+        _select_prompts(prompt_set, args.prompt_id),
+        args.locale_filter,
+    )
     checkpoint_payload = _read_checkpoint(args.resume)
     run_id = (
         args.run_id
         or checkpoint_payload.get("run_id")
-        or _utc_now().strftime("%Y%m%dT%H%M%SZ-baseline")
+        or _default_run_id(args)
     )
     run_dir = args.output_root / run_id
     checkpoint_path = run_dir / "checkpoint.json"
@@ -620,6 +657,7 @@ def run_harness(
                     "prompt_id": prompt.prompt_id,
                     "repetition_index": repetition_index,
                     "generation_run_id": response.generationRunId,
+                    "generated_definition": response.definitionJSON,
                     "metrics": metrics,
                 }
                 rows.append(row)

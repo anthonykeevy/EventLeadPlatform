@@ -214,7 +214,7 @@ def verdict_for_metric(
         "effect_size": effect,
         "decision": decision,
         "recommended_action": "rerun-at-n15"
-        if category == "B" and decision == "inconclusive" and (result.p_value is None or result.p_value > alpha)
+        if category == "B" and decision == "inconclusive" and (result.p_value is None or result.p_value >= alpha)
         else "human-review",
         "note": result.note,
     }

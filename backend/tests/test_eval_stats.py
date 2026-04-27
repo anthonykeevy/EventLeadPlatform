@@ -61,3 +61,39 @@ def test_verdict_helper_recommends_auto_rerun_for_inconclusive_category_b():
 
     assert verdict["decision"] == "inconclusive"
     assert verdict["recommended_action"] == "rerun-at-n15"
+
+
+def test_verdict_helper_recommends_auto_rerun_when_p_value_equals_alpha(monkeypatch):
+    monkeypatch.setattr(
+        stats,
+        "welch_t_test",
+        lambda baseline_values, variant_values: stats.StatResult(
+            status="ok",
+            statistic=1.0,
+            p_value=0.05,
+            degrees_of_freedom=10.0,
+            note="forced alpha boundary",
+        ),
+    )
+    monkeypatch.setattr(
+        stats,
+        "cohens_d",
+        lambda baseline_values, variant_values: stats.StatResult(
+            status="ok",
+            effect_size=0.0,
+            note="forced alpha boundary",
+        ),
+    )
+
+    verdict = stats.verdict_for_metric(
+        metric_name="field_coverage_recall",
+        baseline_values=[4.0, 4.0],
+        variant_values=[4.0, 4.0],
+        metric_kind="continuous",
+        category="B",
+        alpha=0.05,
+    )
+
+    assert verdict["decision"] == "inconclusive"
+    assert verdict["p_value"] == 0.05
+    assert verdict["recommended_action"] == "rerun-at-n15"

@@ -15,10 +15,10 @@ from form_ai_eval import run as eval_run  # type: ignore[import-not-found]  # no
 def test_prompt_yaml_loads_exact_frozen_set():
     prompt_set = eval_run.load_prompt_set()
 
-    assert prompt_set.benchmark_set_version == "prompts-v1.0"
-    assert len(prompt_set.prompts) == 10
-    assert prompt_set.prompts[0].prompt_id == "p-01-event-registration-conference"
-    assert prompt_set.prompts[-1].prompt_id == "p-10-donation-charity"
+    assert prompt_set.benchmark_set_version == "prompts-v1.1"
+    assert len(prompt_set.prompts) == 270
+    assert prompt_set.prompts[0].prompt_id == "p01-au-neutral-r1"
+    assert prompt_set.prompts[-1].prompt_id == "p15-eu-adversarial-r1"
 
 
 def test_prompt_loader_rejects_missing_required_field(tmp_path):
@@ -39,6 +39,7 @@ def test_runtime_context_has_frozen_eval_shape():
         assert runtime["canvas"]["width"] > 0
         assert runtime["canvas"]["height"] > 0
         assert "termsDefaults" in runtime
+        assert runtime["audienceLocale"] == prompt.audience_locale
         assert runtime["capabilitySnapshot"]["version"] == "FORM_AI_CAPABILITY_POLICY:v1"
         assert isinstance(runtime["componentFootprints"], list)
         assert runtime["componentFootprints"]
@@ -54,7 +55,7 @@ def test_cli_parsing_accepts_story_644_hypothesis_variants(tmp_path):
             "--variant-label",
             "h1-locale-one-line",
             "--prompt-id",
-            "p-03-survey-nps",
+            "p03-au-neutral-r1",
             "--repetitions",
             "2",
             "--concurrency",
@@ -69,7 +70,7 @@ def test_cli_parsing_accepts_story_644_hypothesis_variants(tmp_path):
     assert args.variant == "candidate"
     assert args.hypothesis_code == "H1"
     assert args.variant_label == "h1-locale-one-line"
-    assert args.prompt_id == ["p-03-survey-nps"]
+    assert args.prompt_id == ["p03-au-neutral-r1"]
     assert args.repetitions == 2
 
     with pytest.raises(SystemExit):
@@ -88,7 +89,7 @@ def test_checkpoint_write_and_resume(tmp_path):
     )
 
     payload = json.loads(checkpoint.read_text(encoding="utf-8"))
-    assert payload["benchmark_set_version"] == "prompts-v1.0"
+    assert payload["benchmark_set_version"] == "prompts-v1.1"
     assert payload["halt_reason"] == "max-cost-usd"
     assert eval_run._checkpoint_completed(checkpoint) == {"p-01#1", "p-02#1"}
 
@@ -113,7 +114,7 @@ def test_runner_writes_jsonl_csv_metadata_without_live_llm(tmp_path):
         [
             "--mock",
             "--prompt-id",
-            "p-02-lead-gen-saas-demo",
+            "p02-au-neutral-r1",
             "--repetitions",
             "2",
             "--run-id",
@@ -130,7 +131,7 @@ def test_runner_writes_jsonl_csv_metadata_without_live_llm(tmp_path):
         json.loads(line)
         for line in (run_dir / "metrics.jsonl").read_text(encoding="utf-8").splitlines()
     ]
-    assert metadata["benchmark_set_version"] == "prompts-v1.0"
+    assert metadata["benchmark_set_version"] == "prompts-v1.1"
     assert metadata["concurrency_cap"] == 4
     assert len(jsonl_rows) == 2
     assert (run_dir / "summary.csv").exists()
@@ -142,7 +143,7 @@ def test_resume_keeps_existing_rows_and_skips_completed_work(tmp_path):
         [
             "--mock",
             "--prompt-id",
-            "p-02-lead-gen-saas-demo",
+            "p02-au-neutral-r1",
             "--repetitions",
             "1",
             "--run-id",
@@ -156,7 +157,7 @@ def test_resume_keeps_existing_rows_and_skips_completed_work(tmp_path):
     eval_run.write_checkpoint(
         checkpoint,
         run_id="resume-run",
-        completed_keys=["p-02-lead-gen-saas-demo#1"],
+        completed_keys=["p02-au-neutral-r1#1"],
         halt_reason="test-resume",
         total_cost_usd=0,
     )
@@ -165,7 +166,7 @@ def test_resume_keeps_existing_rows_and_skips_completed_work(tmp_path):
         [
             "--mock",
             "--prompt-id",
-            "p-02-lead-gen-saas-demo",
+            "p02-au-neutral-r1",
             "--repetitions",
             "2",
             "--resume",
@@ -213,7 +214,7 @@ def test_mock_runner_persists_eval_row_when_enabled(tmp_path, monkeypatch):
             "--mock",
             "--persist-db",
             "--prompt-id",
-            "p-03-survey-nps",
+            "p03-au-neutral-r1",
             "--repetitions",
             "1",
             "--run-id",
@@ -226,8 +227,8 @@ def test_mock_runner_persists_eval_row_when_enabled(tmp_path, monkeypatch):
     eval_run.run_harness(args)
 
     assert len(fake_session.inserted) == 1
-    assert fake_session.inserted[0]["prompt_id"] == "p-03-survey-nps"
-    assert fake_session.inserted[0]["benchmark_set_version"] == "prompts-v1.0"
+    assert fake_session.inserted[0]["prompt_id"] == "p03-au-neutral-r1"
+    assert fake_session.inserted[0]["benchmark_set_version"] == "prompts-v1.1"
     assert fake_session.committed is True
     assert fake_session.closed is True
 
@@ -283,7 +284,7 @@ def test_db_row_mapping_and_insert_without_live_llm():
     created = datetime(2026, 4, 25, tzinfo=timezone.utc)
 
     row = eval_run.build_eval_db_row(
-        benchmark_set_version="prompts-v1.0",
+        benchmark_set_version="prompts-v1.1",
         hypothesis_code="baseline",
         variant_label="current-master-baseline",
         prompt_id=prompt.prompt_id,
@@ -308,4 +309,4 @@ def test_db_row_mapping_and_insert_without_live_llm():
 
     fake = FakeSession()
     eval_run.insert_eval_db_row(fake, row)
-    assert fake.params["benchmark_set_version"] == "prompts-v1.0"
+    assert fake.params["benchmark_set_version"] == "prompts-v1.1"

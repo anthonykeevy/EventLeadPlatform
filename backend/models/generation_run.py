@@ -50,6 +50,8 @@ class GenerationRun(Base):
     TerminalReason = Column(String(80), nullable=True)
     AttemptCount = Column(Integer, nullable=False, default=0)
     FirstShotValid = Column(Boolean, nullable=True)
+    BrandPosture = Column(String(40), nullable=True)
+    BrandHeritageOrigin = Column(String(5), nullable=True)
     IsReplayable = Column(Boolean, nullable=False, default=True)
 
     CreatedDate = Column(DateTime, nullable=False, server_default=func.getutcdate(), index=True)

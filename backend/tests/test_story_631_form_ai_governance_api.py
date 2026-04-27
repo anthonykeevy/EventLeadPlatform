@@ -78,12 +78,18 @@ def test_story_631_generate_endpoint_returns_governance_trace_fields(client, aut
         db_session=None,
         actor_user_id=None,
         actor_company_id=None,
+        audience_locale=None,
+        brand_posture=None,
+        brand_heritage_origin=None,
     ):
         captured["prompt"] = prompt
         captured["runtime_context"] = runtime_context
         captured["db_session"] = db_session
         captured["actor_user_id"] = actor_user_id
         captured["actor_company_id"] = actor_company_id
+        captured["audience_locale"] = audience_locale
+        captured["brand_posture"] = brand_posture
+        captured["brand_heritage_origin"] = brand_heritage_origin
         captured["openai_transport"] = openai_transport
         captured["max_system_correction_attempts"] = max_system_correction_attempts
         captured["system_prompt_addendum"] = system_prompt_addendum
@@ -141,6 +147,8 @@ def test_story_631_generate_endpoint_returns_governance_trace_fields(client, aut
         json={
             "prompt": "Generate a lead capture form",
             "runtimeContext": {"formId": "42"},
+            "audienceLocale": "AU",
+            "brandPosture": "local",
             "openaiTransport": "sync",
             "maxSystemCorrectionAttempts": 1,
             "systemPromptAddendum": "extra guardrails",
@@ -160,11 +168,23 @@ def test_story_631_generate_endpoint_returns_governance_trace_fields(client, aut
     assert trace["validationContractVersion"] == "contracts-abc123-16"
 
     assert captured["prompt"] == "Generate a lead capture form"
-    assert captured["runtime_context"] == {"formId": "42", "canvas": None, "lockedGlobals": None, "termsDefaults": None, "componentFootprints": []}
+    assert captured["runtime_context"] == {
+        "formId": "42",
+        "audienceLocale": None,
+        "brandPosture": None,
+        "brandHeritageOrigin": None,
+        "canvas": None,
+        "lockedGlobals": None,
+        "termsDefaults": None,
+        "componentFootprints": [],
+    }
     assert captured["db_session"] is not None
     assert isinstance(captured["actor_user_id"], int)
     assert captured["actor_user_id"] > 0
     assert captured["actor_company_id"] is None
+    assert captured["audience_locale"] == "AU"
+    assert captured["brand_posture"] == "local"
+    assert captured["brand_heritage_origin"] is None
     assert captured["openai_transport"] == "sync"
     # Story 6.4 moved retry budget ownership to config.AppSetting; the request
     # field is kept for compatibility but is intentionally ignored by router.py.

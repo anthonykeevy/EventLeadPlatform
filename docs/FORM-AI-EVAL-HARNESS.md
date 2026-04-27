@@ -1,6 +1,6 @@
 # Form AI Eval Harness
 
-Story 6.4.3a adds the harness bones for repeatable Form AI prompt experiments. It freezes the benchmark set, runs baseline generations through the existing Form AI service path, captures Category A structural metrics, writes local artifacts, and can optionally persist rows to `log.FormAiEvalRun` after Anthony applies the migration.
+Story 6.4.4.1 bumps the harness to `prompts-v1.1` for locale-registry validation. It freezes 270 cells (15 prompt scenarios x 6 audience locales x 3 prompt variants), runs baseline generations through the existing Form AI service path, captures Category A structural metrics, writes local artifacts, and can optionally persist rows to `log.FormAiEvalRun` after Anthony applies the migration.
 
 ## Architecture And Data Flow
 
@@ -15,7 +15,7 @@ backend/tests/form_ai_eval/prompts.yaml
 
 The runner calls `modules.form_ai.service.generate_form_definition(...)` directly. That preserves the current generation stack, including prompt assembly, capability filtering, deterministic compiler validation, and `dbo.GenerationRun` persistence when a DB session is supplied. No new production API or duplicated generation logic is introduced.
 
-`prompts.yaml` is intentionally JSON-shaped YAML so it remains dependency-free in the backend test environment. The loader validates the benchmark version, exactly 10 prompt rows, stable IDs, required metadata, frozen `runtimeContext.canvas`, `runtimeContext.termsDefaults`, and `runtimeContext.capabilitySnapshot.version`.
+`prompts.yaml` is intentionally JSON-shaped YAML so it remains dependency-free in the backend test environment. The loader validates `prompts-v1.1`, exactly 270 prompt rows, stable IDs, `audience_locale`, prompt variant metadata, frozen `runtimeContext.canvas`, `runtimeContext.termsDefaults`, `runtimeContext.audienceLocale`, `runtimeContext.capabilitySnapshot.version`, `expected_signals`, and `llm_judge_focus`.
 
 ## Smoke Baseline
 
@@ -35,7 +35,7 @@ After environment access and cost approval are confirmed, run the live service p
 python -m backend.tests.form_ai_eval.run --variant baseline --hypothesis-code baseline --variant-label current-master-baseline --repetitions 5 --max-cost-usd 1
 ```
 
-Story 6.4.3a supports only `--variant baseline` and `--hypothesis-code baseline`. Later stories add hypothesis variants, judge packages, and statistics.
+`prompts-v1.1` rows carry locale and prompt variant dimensions inside the prompt file. Use `--prompt-id` to run a narrow cell, or omit it for the full 270-cell pass.
 
 ## Prompt Selection
 
@@ -87,7 +87,7 @@ The prompt rows use synthetic contexts and example URLs only, but generated defi
 
 ## Future Extension Points
 
-Story 6.4.3b adds judge packages, rubric governance, Cursor-based cross-model judging, and judge JSON ingest.
+Judge packages use `rubric_v2.md` and require Claude + Grok primary outputs plus optional GPT-5 mini control output. Each judge JSON must include `judge_model_version`; ingest computes the primary mean from Claude + Grok and records GPT-5 mini bias deltas when present.
 
 Story 6.4.3c adds diff/statistics tooling, including Welch/Fisher tests and comparison reports.
 

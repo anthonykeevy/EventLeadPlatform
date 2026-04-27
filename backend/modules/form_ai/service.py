@@ -57,6 +57,35 @@ _DEFAULT_RETRIES_FALLBACK = 2
 # Module-level cache for form_ai.default_retries AppSetting value.
 # Set to None to force a reload on next call to _get_default_retries().
 _cached_default_retries: Optional[int] = None
+_LOCALE_BLOCK_CACHE_TTL_SECONDS = 300
+_LOCALE_BLOCK_CACHE: Dict[Tuple[Optional[int], Optional[int]], Tuple[float, str]] = {}
+_AUDIENCE_LOCALES = {
+    "AU",
+    "NZ",
+    "UK",
+    "US",
+    "CA",
+    "IE",
+    "DE",
+    "INTL_ONLINE",
+    "APAC",
+    "EU",
+    "NEUTRAL",
+}
+_BRAND_POSTURES = {"local", "heritage", "neutral", "transcreate"}
+_LOCALE_TO_COUNTRY_CODE = {
+    "AU": "AU",
+    "NZ": "NZ",
+    "UK": "GB",
+    "US": "US",
+    "CA": "CA",
+    "IE": "IE",
+    "DE": "DE",
+}
+_COUNTRY_CODE_TO_LOCALE = {
+    "GB": "UK",
+    "UK": "UK",
+}
 
 MAX_SYSTEM_CORRECTION_ATTEMPTS = _DEFAULT_RETRIES_FALLBACK  # kept for backward compat
 _ROOT_PATH = Path(__file__).resolve().parents[3]
@@ -127,6 +156,79 @@ def _invalidate_default_retries_cache() -> None:
     """Reset the module-level cache so the next call re-reads from AppSetting."""
     global _cached_default_retries
     _cached_default_retries = None
+
+
+def _invalidate_locale_block_cache() -> None:
+    """Reset registry-rendered locale prompt block cache."""
+    _LOCALE_BLOCK_CACHE.clear()
+
+
+def _normalise_audience_locale(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    candidate = str(value).strip().upper()
+    if not candidate:
+        return None
+    if candidate == "GB":
+        candidate = "UK"
+    if candidate not in _AUDIENCE_LOCALES:
+        raise ValueError(f"Unsupported audience locale: {value}")
+    return candidate
+
+
+def _country_code_to_audience_locale(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    candidate = str(value).strip().upper()
+    if not candidate:
+        return None
+    candidate = _COUNTRY_CODE_TO_LOCALE.get(candidate, candidate)
+    return candidate if candidate in _AUDIENCE_LOCALES else None
+
+
+def _normalise_brand_posture(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    candidate = str(value).strip().lower()
+    if not candidate:
+        return None
+    if candidate not in _BRAND_POSTURES:
+        raise ValueError(f"Unsupported brand posture: {value}")
+    return candidate
+
+
+def _normalise_heritage_origin(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    candidate = str(value).strip().upper()
+    if not candidate:
+        return None
+    if not re.fullmatch(r"[A-Z]{2}", candidate):
+        raise ValueError("brandHeritageOrigin must be an ISO-3166-1 alpha-2 code")
+    return candidate
+
+
+def _get_app_setting_value(db_session: Optional[Session], key: str) -> Optional[str]:
+    if db_session is None:
+        return None
+    try:
+        row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 [SettingValue]
+                FROM [config].[AppSetting]
+                WHERE [SettingKey] = :key
+                  AND [IsActive] = 1
+                  AND [IsDeleted] = 0
+                """
+            ),
+            {"key": key},
+        ).fetchone()
+        if row and row[0] is not None:
+            return str(row[0])
+    except Exception as exc:
+        LOGGER.warning("AppSetting read failed for %s: %s", key, exc)
+    return None
 
 
 def _summarise_semantic_plan_error(exc: BaseException) -> str:
@@ -1396,31 +1498,6 @@ def _merge_visual_collisions(
     )
 
 
-# Story 6.3.1 UAT round 5 (run 42 follow-up) — locale-aware terminology block.
-#
-# EventLead is launching in Australia first, with most early users authoring
-# forms for the Australian / New Zealand market. The default LLM voice is
-# American English (zip code, organization, cell phone, color), which produces
-# forms that read awkwardly to AU/NZ end-users and require manual relabelling.
-#
-# This map is a small, deliberately narrow set of high-traffic terminology
-# swaps that materially affect form labels, placeholders, and helpText. We
-# intentionally do NOT try to do full en-AU/en-NZ spelling normalisation —
-# that's the LLM's job once it knows the convention; trying to enforce it via
-# explicit lists would be brittle and miss edge cases.
-#
-# Wiring guidance for future extension:
-#   - Today this is a hard-coded "AU/NZ" default applied to every request.
-#   - When the user/event country is plumbed into ``run_form_ai_generation``,
-#     replace the hard-coded ``"AU"`` in ``_build_locale_prompt_block`` with
-#     the resolved ISO code and add new entries here keyed by region.
-#   - The block is opt-out via ``locale_code=None`` so we can always disable
-#     for tests / specific tenants.
-_LOCALE_PROMPT_BLOCKS: Dict[str, str] = {
-    "AU": "Form audience: Australia/New Zealand. Use AU/NZ spelling, address, phone, date conventions.",
-}
-
-
 # Story 6.3.1 UAT round 5 (Prompts 9/10 follow-up) — consent / legal-
 # acknowledgement guidance.
 #
@@ -1505,21 +1582,186 @@ _HORIZONTAL_STACKED_LAYOUT_NUDGE = (
 )
 
 
-def _build_locale_prompt_block(locale_code: Optional[str] = "AU") -> str:
-    """Return the locale-specific terminology block for ``locale_code``.
+def _log_locale_fallback(
+    db_session: Optional[Session],
+    *,
+    requested_locale: str,
+    resolved_country_id: Optional[int],
+) -> None:
+    if db_session is None:
+        return
+    try:
+        context = get_current_request_context()
+        request_id = context.request_id if context else None
+        db_session.execute(
+            text(
+                """
+                INSERT INTO [log].[ApplicationError]
+                (
+                    [ErrorType], [ErrorMessage], [Severity],
+                    [RequestID], [Path], [Method], [UserID], [CompanyID],
+                    [AdditionalData]
+                )
+                VALUES
+                (
+                    N'FormAiLocaleFallback',
+                    N'Form AI locale block fell back to NEUTRAL registry rows.',
+                    N'INFO',
+                    :request_id,
+                    N'/api/form-ai/generate',
+                    N'POST',
+                    :user_id,
+                    :company_id,
+                    :additional_data
+                )
+                """
+            ),
+            {
+                "request_id": request_id,
+                "user_id": context.user_id if context else None,
+                "company_id": context.company_id if context else None,
+                "additional_data": _safe_json_dumps(
+                    {
+                        "requestedLocale": requested_locale,
+                        "resolvedCountryId": resolved_country_id,
+                    }
+                ),
+            },
+        )
+    except Exception as exc:
+        LOGGER.info("Unable to log FormAiLocaleFallback: %s", exc)
 
-    Currently only ``"AU"`` is wired (covers AU + NZ — the early-access
-    market). Returns an empty string when ``locale_code`` is None or unknown
-    so test fixtures can opt out cleanly.
 
-    Wiring note (future): when company / event country is plumbed through
-    ``run_form_ai_generation``, pass the ISO-3166 code here. Map e.g.
-    ``"AU"`` and ``"NZ"`` → the ``"AU"`` block (shared AU/NZ market), and
-    add fresh blocks for ``"US"`` / ``"GB"`` / etc. as we expand.
-    """
-    if not locale_code:
-        return ""
-    return _LOCALE_PROMPT_BLOCKS.get(locale_code.upper(), "")
+def _render_brand_posture_block(
+    brand_posture: Optional[str],
+    brand_heritage_origin: Optional[str],
+) -> str:
+    posture = _normalise_brand_posture(brand_posture) or "local"
+    origin = _normalise_heritage_origin(brand_heritage_origin)
+    if posture == "heritage" and origin:
+        return (
+            "Brand posture: heritage. Audience locale still controls field shape "
+            f"and compliance; copy voice may lightly reflect {origin} brand heritage."
+        )
+    if posture == "neutral":
+        return "Brand posture: neutral. Use market-neutral voice; audience locale still controls field shape and compliance."
+    if posture == "transcreate":
+        return "Brand posture: transcreate. Adapt copy idiomatically for the audience locale while preserving the user's intent."
+    return "Brand posture: local. Match copy voice to the resolved audience locale."
+
+
+def _assemble_locale_block(
+    audience_locale: str,
+    brand_posture: Optional[str],
+    db_session: Optional[Session],
+) -> str:
+    """Render format/policy/tone blocks from config.PromptTemplateLocaleBlock."""
+    locale = _normalise_audience_locale(audience_locale) or "AU"
+    fallback_block = (
+        "Audience locale NEUTRAL. Use clear international English, ISO-friendly "
+        "formats where useful, avoid country-specific law citations unless the "
+        "user requests them, and keep field labels globally understandable."
+    )
+    if db_session is None:
+        return fallback_block
+
+    country_code = _LOCALE_TO_COUNTRY_CODE.get(locale)
+    try:
+        country_id = None
+        if country_code:
+            country_id = db_session.execute(
+                text(
+                    """
+                    SELECT TOP 1 [CountryID]
+                    FROM [ref].[Country]
+                    WHERE [CountryCode] = :country_code
+                      AND [IsDeleted] = 0
+                    """
+                ),
+                {"country_code": country_code},
+            ).scalar_one_or_none()
+
+        template_row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1
+                    pt.[PromptTemplateID],
+                    ptv.[PromptTemplateVersionID]
+                FROM [config].[PromptTemplateVersion] ptv
+                INNER JOIN [config].[PromptTemplate] pt
+                    ON pt.[PromptTemplateID] = ptv.[PromptTemplateID]
+                WHERE pt.[TemplateKey] = N'FORM_AI_STEP1_BASE'
+                  AND pt.[IsDeleted] = 0
+                  AND ptv.[IsActive] = 1
+                  AND ptv.[IsDeleted] = 0
+                ORDER BY ptv.[ActivatedDate] DESC, ptv.[CreatedDate] DESC, ptv.[PromptTemplateVersionID] DESC
+                """
+            )
+        ).mappings().first()
+        if template_row is None:
+            return fallback_block
+
+        cache_key = (template_row["PromptTemplateVersionID"], country_id)
+        cached = _LOCALE_BLOCK_CACHE.get(cache_key)
+        now = time.monotonic()
+        if cached and now - cached[0] <= _LOCALE_BLOCK_CACHE_TTL_SECONDS:
+            return cached[1]
+
+        rows = db_session.execute(
+            text(
+                """
+                SELECT [BlockType], [BlockBody]
+                FROM [config].[PromptTemplateLocaleBlock]
+                WHERE [PromptTemplateID] = :prompt_template_id
+                  AND (
+                    (:country_id IS NULL AND [CountryID] IS NULL)
+                    OR [CountryID] = :country_id
+                  )
+                  AND [IsActive] = 1
+                  AND [IsDeleted] = 0
+                """
+            ),
+            {
+                "prompt_template_id": template_row["PromptTemplateID"],
+                "country_id": country_id,
+            },
+        ).mappings().all()
+        by_type = {str(row["BlockType"]).lower(): str(row["BlockBody"]) for row in rows}
+        if not all(block_type in by_type for block_type in ("format", "policy", "tone")):
+            _log_locale_fallback(
+                db_session,
+                requested_locale=locale,
+                resolved_country_id=country_id,
+            )
+            rows = db_session.execute(
+                text(
+                    """
+                    SELECT [BlockType], [BlockBody]
+                    FROM [config].[PromptTemplateLocaleBlock]
+                    WHERE [PromptTemplateID] = :prompt_template_id
+                      AND [CountryID] IS NULL
+                      AND [IsActive] = 1
+                      AND [IsDeleted] = 0
+                    """
+                ),
+                {"prompt_template_id": template_row["PromptTemplateID"]},
+            ).mappings().all()
+            by_type = {str(row["BlockType"]).lower(): str(row["BlockBody"]) for row in rows}
+
+        rendered = "\n".join(
+            body
+            for body in (
+                by_type.get("format"),
+                by_type.get("policy"),
+                by_type.get("tone"),
+            )
+            if body
+        ).strip() or fallback_block
+        _LOCALE_BLOCK_CACHE[cache_key] = (now, rendered)
+        return rendered
+    except Exception:
+        LOGGER.exception("form-ai locale block assembly failed")
+        return fallback_block
 
 
 def _trim_context_pack_for_prompt(context_pack: str) -> str:
@@ -1538,11 +1780,15 @@ def _build_initial_messages(
     *,
     system_prompt_addendum: str | None = None,
     capability_snapshot_json: Optional[Dict[str, Any]] = None,
-    locale_code: Optional[str] = "AU",
+    audience_locale: Optional[str] = "AU",
+    brand_posture: Optional[str] = None,
+    brand_heritage_origin: Optional[str] = None,
+    db_session: Optional[Session] = None,
 ) -> List[Dict[str, str]]:
     runtime_context_block = _build_runtime_context_block(runtime_context)
     capability_block = _build_capability_prompt_block(capability_snapshot_json)
-    locale_block = _build_locale_prompt_block(locale_code)
+    locale_block = _assemble_locale_block(audience_locale or "AU", brand_posture, db_session)
+    brand_posture_block = _render_brand_posture_block(brand_posture, brand_heritage_origin)
     prompt_context_pack = _trim_context_pack_for_prompt(context_pack)
 
     # Story 6.3.1 (UAT round 6) — Phase 2 LLM nudge for horizontal-stacked
@@ -1561,7 +1807,6 @@ def _build_initial_messages(
         "Output a single JSON object only. No markdown or prose.\n"
         "Return FormSemanticPlan only; do not output any coordinates, pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"
         "\n"
-        + (locale_block + "\n" if locale_block else "")
         + _CONSENT_GUIDANCE_BLOCK
         + (layout_mode_block + "\n" if layout_mode_block else "")
         + "\n"
@@ -1592,6 +1837,10 @@ def _build_initial_messages(
         "Use only Story 6.2/6.3.1 supported component catalog and single-page constraints.\n\n"
         + (capability_block + "\n\n" if capability_block else "")
         + f"{prompt_context_pack}"
+        + "\n\n## LOCALE AND BRAND POSTURE\n"
+        + locale_block
+        + "\n"
+        + brand_posture_block
         + ("\n\n" + runtime_context_block if runtime_context_block else "")
     )
     if system_prompt_addendum and system_prompt_addendum.strip():
@@ -2485,6 +2734,138 @@ def _resolve_runtime_governance_versions(
         return payload
 
 
+def _resolve_audience_locale(
+    requested_locale: Optional[str],
+    actor_user_id: Optional[int],
+    actor_company_id: Optional[int],
+    runtime_context: Optional[Dict[str, Any]],
+    db_session: Optional[Session],
+) -> Dict[str, Optional[str]]:
+    explicit = _normalise_audience_locale(requested_locale)
+    if explicit:
+        return {"resolved": explicit, "source": "request.audienceLocale"}
+
+    if db_session is not None:
+        form_id = _coerce_form_id(runtime_context)
+        if form_id is not None:
+            event_locale = db_session.execute(
+                text(
+                    """
+                    SELECT TOP 1 country.[CountryCode]
+                    FROM [dbo].[Form] form_row
+                    INNER JOIN [dbo].[Event] event_row
+                        ON event_row.[EventID] = form_row.[EventID]
+                       AND event_row.[IsDeleted] = 0
+                    INNER JOIN [ref].[Country] country
+                        ON country.[CountryID] = event_row.[CountryID]
+                       AND country.[IsDeleted] = 0
+                    WHERE form_row.[FormID] = :form_id
+                      AND form_row.[IsDeleted] = 0
+                    """
+                ),
+                {"form_id": form_id},
+            ).fetchone()
+            resolved = _country_code_to_audience_locale(event_locale[0] if event_locale else None)
+            if resolved:
+                return {"resolved": resolved, "source": "Event.CountryID"}
+
+        if actor_company_id is not None:
+            company_locale = db_session.execute(
+                text(
+                    """
+                    SELECT TOP 1 country.[CountryCode]
+                    FROM [dbo].[Company] company
+                    INNER JOIN [ref].[Country] country
+                        ON country.[CountryID] = company.[CountryID]
+                       AND country.[IsDeleted] = 0
+                    WHERE company.[CompanyID] = :company_id
+                      AND company.[IsDeleted] = 0
+                    """
+                ),
+                {"company_id": actor_company_id},
+            ).fetchone()
+            resolved = _country_code_to_audience_locale(company_locale[0] if company_locale else None)
+            if resolved:
+                return {"resolved": resolved, "source": "Company.CountryID"}
+
+        if actor_user_id is not None:
+            user_locale = db_session.execute(
+                text(
+                    """
+                    SELECT TOP 1 country.[CountryCode]
+                    FROM [dbo].[User] user_row
+                    INNER JOIN [ref].[Country] country
+                        ON country.[CountryID] = user_row.[CountryID]
+                       AND country.[IsDeleted] = 0
+                    WHERE user_row.[UserID] = :user_id
+                      AND user_row.[IsDeleted] = 0
+                    """
+                ),
+                {"user_id": actor_user_id},
+            ).fetchone()
+            resolved = _country_code_to_audience_locale(user_locale[0] if user_locale else None)
+            if resolved:
+                return {"resolved": resolved, "source": "User.CountryID"}
+
+        setting_locale = _normalise_audience_locale(
+            _get_app_setting_value(db_session, "form_ai.default_audience_locale")
+        )
+        if setting_locale:
+            return {"resolved": setting_locale, "source": "config.AppSetting"}
+
+    return {"resolved": "AU", "source": "fallback"}
+
+
+def _resolve_brand_posture(
+    requested_posture: Optional[str],
+    requested_heritage_origin: Optional[str],
+    actor_company_id: Optional[int],
+    db_session: Optional[Session],
+) -> Dict[str, Optional[str]]:
+    explicit_posture = _normalise_brand_posture(requested_posture)
+    explicit_origin = _normalise_heritage_origin(requested_heritage_origin)
+    if explicit_posture:
+        return {
+            "resolved": explicit_posture,
+            "heritageOrigin": explicit_origin,
+            "source": "request.brandPosture",
+        }
+
+    if db_session is not None:
+        if actor_company_id is not None:
+            row = db_session.execute(
+                text(
+                    """
+                    SELECT TOP 1 [BrandPosture], [BrandHeritageOrigin]
+                    FROM [dbo].[Company]
+                    WHERE [CompanyID] = :company_id
+                      AND [IsDeleted] = 0
+                    """
+                ),
+                {"company_id": actor_company_id},
+            ).fetchone()
+            if row:
+                company_posture = _normalise_brand_posture(row[0])
+                company_origin = _normalise_heritage_origin(row[1])
+                if company_posture:
+                    return {
+                        "resolved": company_posture,
+                        "heritageOrigin": explicit_origin or company_origin,
+                        "source": "Company.BrandPosture",
+                    }
+        setting_posture = _normalise_brand_posture(
+            _get_app_setting_value(db_session, "form_ai.default_brand_posture")
+        )
+        if setting_posture:
+            return {
+                "resolved": setting_posture,
+                "heritageOrigin": explicit_origin,
+                "source": "config.AppSetting",
+            }
+
+    return {"resolved": "local", "heritageOrigin": explicit_origin, "source": "fallback"}
+
+
 def _persist_generation_run_and_artifacts(
     *,
     db_session: Optional[Session],
@@ -2498,6 +2879,8 @@ def _persist_generation_run_and_artifacts(
     compiled_attempt_payloads: List[Dict[str, Any]],
     governance_versions: Dict[str, Any],
     compile_input_plans: Optional[List[Dict[str, Any]]] = None,
+    brand_posture: Optional[str] = None,
+    brand_heritage_origin: Optional[str] = None,
 ) -> Optional[int]:
     """Persist a GenerationRun + its artifacts. Returns the GenerationRunID
     on success (or None if no DB session was available, or persistence
@@ -2559,6 +2942,8 @@ def _persist_generation_run_and_artifacts(
                     TerminalReason,
                     AttemptCount,
                     FirstShotValid,
+                    BrandPosture,
+                    BrandHeritageOrigin,
                     IsReplayable,
                     CreatedBy
                 )
@@ -2580,6 +2965,8 @@ def _persist_generation_run_and_artifacts(
                     :terminal_reason,
                     :attempt_count,
                     :first_shot_valid,
+                    :brand_posture,
+                    :brand_heritage_origin,
                     :is_replayable,
                     :created_by
                 )
@@ -2609,6 +2996,8 @@ def _persist_generation_run_and_artifacts(
                     if response.trace.attempts
                     else None
                 ),
+                "brand_posture": brand_posture,
+                "brand_heritage_origin": brand_heritage_origin,
                 "is_replayable": True,
                 "created_by": actor_user_id,
             },
@@ -3036,6 +3425,9 @@ def generate_form_definition(
     db_session: Optional[Session] = None,
     actor_user_id: Optional[int] = None,
     actor_company_id: Optional[int] = None,
+    audience_locale: Optional[str] = None,
+    brand_posture: Optional[str] = None,
+    brand_heritage_origin: Optional[str] = None,
 ) -> FormAiGenerateResponse:
     trace_entries: List[AttemptTraceEntry] = []
     raw_attempt_payloads: List[Dict[str, Any]] = []
@@ -3044,6 +3436,19 @@ def generate_form_definition(
     # Story 6.3.1 UAT round 5 — captured per-attempt for /remeasure replay.
     compile_input_plans: List[Dict[str, Any]] = []
     governance_versions = _resolve_runtime_governance_versions(db_session)
+    locale_resolution = _resolve_audience_locale(
+        audience_locale,
+        actor_user_id,
+        actor_company_id,
+        runtime_context,
+        db_session,
+    )
+    brand_resolution = _resolve_brand_posture(
+        brand_posture,
+        brand_heritage_origin,
+        actor_company_id,
+        db_session,
+    )
     resolved_transport = _resolve_openai_transport(openai_transport)
     correction_cap = (
         max_system_correction_attempts
@@ -3065,6 +3470,8 @@ def generate_form_definition(
             compiled_attempt_payloads=compiled_attempt_payloads,
             governance_versions=governance_versions,
             compile_input_plans=compile_input_plans,
+            brand_posture=brand_resolution.get("resolved"),
+            brand_heritage_origin=brand_resolution.get("heritageOrigin"),
         )
         # Story 6.3.1 UAT round 5 — surface the persisted run id so the
         # frontend can call ``/remeasure`` with DOM heights for a refined
@@ -3072,6 +3479,11 @@ def generate_form_definition(
         # the insert failed (caught and logged inside the persist helper).
         if run_id is not None:
             response.generationRunId = run_id
+        response.meta = {
+            **(response.meta or {}),
+            "locale": locale_resolution,
+            "brand": brand_resolution,
+        }
         return response
 
     try:
@@ -3117,6 +3529,10 @@ def generate_form_definition(
         runtime_context=runtime_context_for_prompt,
         system_prompt_addendum=system_prompt_addendum,
         capability_snapshot_json=capability_snapshot_for_prompt,
+        audience_locale=locale_resolution.get("resolved") or "AU",
+        brand_posture=brand_resolution.get("resolved"),
+        brand_heritage_origin=brand_resolution.get("heritageOrigin"),
+        db_session=db_session,
     )
     last_validation: AttemptValidationSummary | None = None
     last_valid_definition: Dict[str, Any] | None = None

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story 6.4.4.1 — Locale Architecture: Wire the Registry
+  Implementation context for Dev Agent (SM: Bob)
+  Created: 2026-04-27
+-->
+<story-context story="6.4.4.1" title="Locale Architecture: Wire the Registry">
+
+  <overview>
+    Wire the existing ref.Country + config.ValidationRule + config.PromptTemplate(Version)
+    + config.PromptAssemblyProfile registry into the form-AI service so that locale-aware
+    prompt blocks render at request time from data, not from Python string constants.
+    Add audienceLocale and brandPosture API parameters with a default-resolution chain
+    (request -> Event.CountryID -> Company.CountryID -> User.CountryID -> app_setting).
+    Replace rubric_v1 with rubric_v2 (9-element scoring; 6 deterministic + 3 LLM-judged).
+    Replace prompts-v1.0 with prompts-v1.1 (15 x 6 x 3 = 270 cells). Swap Gemini judge
+    for Grok 4; pin Claude 4.7. Re-judge baseline as the gate to proceed.
+
+    This story is wiring an existing registry, not building greenfield. ~70% of the
+    data layer is already built and seeded.
+  </overview>
+
+  <critical-objectives>
+    <item>Render-at-request-time from existing registry; preserve forward-compatibility to tool-use Option C.</item>
+    <item>Format/policy/tone sub-block split is the architectural axis — keep it strict.</item>
+    <item>Brand posture is a separate parameter from audience locale (Memo 4) — do not collapse.</item>
+    <item>Resolution chain must be deterministic and tested at every fallback step.</item>
+    <item>Tonyk's lived-AU calibration anchors are embedded in rubric_v2 — they are ground truth, not advisory.</item>
+    <item>AC-10 escape clause exists if all three judges still ceiling-lock under v2 + nudge — story is not blocked indefinitely.</item>
+    <item>NEUTRAL fallback is by design (info-level log, not error) when audience_locale is unknown.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.4">Closeout amendment (PR #74) merged; PR #72 merged with 12 live judge JSONs committed.</story>
+    <story id="6.4.3b">Complete; rubric_v1 ADR has supersession footer added in PR #74.</story>
+    <story id="6.4.3c">Complete; provides eval diff/statistics tooling used by AC-10 baseline re-judge.</story>
+    <story id="6.4.3a">Complete; provides eval harness bones and log.FormAiEvalRun.</story>
+    <story id="6.4.2">Complete; provides post-cleanup baseline run and FormSemanticPlan ADR.</story>
+    <story id="6.3.1">Complete; provides config.PromptTemplate*, CapabilityPolicyVersion, WidthClassPolicyVersion, PromptAssemblyProfile schema (migration 053).</story>
+    <doc path="docs/stories/story-6.4.4.1.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-LOCALE-ARCHITECTURE-ADR.md">Architecture ADR with decision rationale.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-RUBRIC-V2-ADR.md">Rubric v2 ADR with calibration anchors.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-PROMPTS-V1.1-SPEC.md">Benchmark v1.1 spec with 15 prompts and 6 locales.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-SINGLE-SESSION-DEV-PROMPT.md">Dev execution contract and run order.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-UAT-TEST-GUIDE.md">Human UAT for migrations, service, API, rubric, judge ingest, AC-10 gate.</doc>
+    <doc path="_bmad-output/planning-artifacts/STORY-6.4.4.1-SM-HANDOFF-BRIEF.md">Authoritative PM handoff brief — D1-D12 source.</doc>
+    <doc path="_bmad-output/research/locale-strategy/00-CONSOLIDATED-RECOMMENDATION.md">Consolidated PM recommendation across 4 research memos.</doc>
+    <doc path="docs/stories/EPIC-6-WORKFLOW-GUIDE.md">Multi-Round UAT, Capability Snapshot Rule, Green CI/CD Rule, RequestID lineage.</doc>
+    <doc path="docs/AGENT-LOGGING-GUIDE.md">log.ApiRequest outbound payloads diagnostic pattern.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Manual Cursor judge flow.</doc>
+    <doc path="docs/FORM-AI-EVAL-DIFF-STATS.md">Diff/statistics tooling for AC-10 baseline comparison.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT modify the closeout amendment after PR #74 merges; any further amendment goes in a new commit on master.</item>
+    <item>Do NOT cross-compare rubric_v1 and rubric_v2 scores anywhere (per v1 ADR baseline-re-snapshot policy).</item>
+    <item>Do NOT add Gemini back to the judge panel — Grok 4 replaces it; the panel is Claude 4.7 + Grok 4 + GPT-5 mini.</item>
+    <item>Do NOT introduce a new dependency for caching (process-local dict + monotonic clock is sufficient for the 5-minute cache).</item>
+    <item>Do NOT redesign UI for audienceLocale/brandPosture in this story — defaults-only pass-through; per-form override is a future story.</item>
+    <item>Do NOT skip pre-review of NZ/UK/US/CA/IE/INTL_ONLINE locale blocks — Tonyk Q5: pre-reviewed quality is required for all 7 MVP markets.</item>
+    <item>Do NOT block the architecture work on AC-10 ceiling-lock — escape clause is a real path; register the carry-forward and proceed.</item>
+    <item>Do NOT bump capability snapshot version unless renderer manifests change (none should in this story).</item>
+    <item>Do NOT touch frontend AI panel beyond pass-through plumbing for the new params.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/migrations/versions/063_story_6441_prompt_template_locale_block.py" note="New: config.PromptTemplateLocaleBlock join table (D11(b))."/>
+    <path file="backend/migrations/versions/064_story_6441_country_cultural_dimensions.py" note="New: ref.CountryCulturalDimensions sidecar (D12(b))."/>
+    <path file="backend/migrations/versions/065_story_6441_seed_locale_blocks_au.py" note="Seed AU format/policy/tone blocks."/>
+    <path file="backend/migrations/versions/066_story_6441_seed_locale_blocks_nz_uk_us_ca_ie.py" note="Seed NZ/UK/US/CA/IE format/policy/tone blocks (pre-reviewed)."/>
+    <path file="backend/migrations/versions/067_story_6441_seed_locale_blocks_intl_online.py" note="Seed INTL_ONLINE format/policy/tone blocks."/>
+    <path file="backend/migrations/versions/068_story_6441_seed_country_cultural_dimensions.py" note="Seed Hofstede 6D for 7 MVP markets + DE/JP/FR stubs."/>
+    <path file="backend/migrations/versions/069_story_6441_generation_run_brand_posture.py" note="Add BrandPosture + BrandHeritageOrigin to dbo.GenerationRun."/>
+    <path file="backend/migrations/versions/070_story_6441_company_brand_posture.py" note="Add BrandPosture + BrandHeritageOrigin to dbo.Company (Tonyk Q7)."/>
+    <path file="backend/migrations/versions/071_story_6441_app_settings_locale_defaults.py" note="Seed default_audience_locale, default_brand_posture, locale_block_render_strategy."/>
+    <path file="backend/modules/form_ai/service.py" note="Replace _LOCALE_PROMPT_BLOCKS with _assemble_locale_block; add _resolve_audience_locale, _resolve_brand_posture; update _build_initial_messages (~line 1545)."/>
+    <path file="backend/modules/form_ai/router.py" note="Add audienceLocale/brandPosture/brandHeritageOrigin to request schema."/>
+    <path file="backend/models/generation_run.py" note="Add BrandPosture + BrandHeritageOrigin attributes mirroring migration 069."/>
+    <path file="backend/models/company.py" note="Add BrandPosture + BrandHeritageOrigin attributes mirroring migration 070."/>
+    <path file="backend/tests/form_ai_eval/rubric_v2.md" note="New: 9-element scoring rubric with anchors and Tonyk's calibration anchors."/>
+    <path file="backend/tests/form_ai_eval/prompts.yaml" note="Replace v1.0 (10 prompts) with v1.1 (15 prompts x 6 locales x 3 reps = 270 cells)."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py" note="Schema bump: rubric_v2 + judge_model_version; v1 backwards-compat path."/>
+    <path file="backend/tests/form_ai_eval/judge_pack.py" note="Update package generator to emit rubric_v2 anchors and judge prompt with calibration nudge."/>
+    <path file="backend/tests/test_form_ai_locale_assembly.py" note="New: unit tests for _assemble_locale_block and resolution helpers."/>
+    <path file="backend/tests/test_eval_judge_ingest_v2.py" note="New: rubric_v2 ingest schema-bump tests."/>
+    <path file="frontend/src/.../FormAiPanel.tsx" note="Pass-through plumbing only: forward audienceLocale + brandPosture from app context to /api/form-ai/* request body."/>
+    <path file="docs/FORM-AI-EVAL-HARNESS.md" note="Document benchmark v1.0 -> v1.1 migration."/>
+    <path file="docs/stories/STORY-6.4.4.1-JUDGE-PROMPTS.md" note="New: Claude 4.7 + Grok 4 + GPT-5 mini judge prompts with calibration nudge."/>
+    <path file="docs/stories/STORY-6.4.4.1-CLOSEOUT-REPORT.md" note="Mandatory at closeout (migrations + new public API surface)."/>
+    <path file="docs/stories/STORY-6.4.4.1-GATE-EVIDENCE.md" note="AC-by-AC mapping; Green CI/CD evidence."/>
+    <path file="docs/stories/STORY-6.4.4.1-UAT-RESULTS.md" note="Multi-round UAT log if AC-10 calibration round needed."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.4.4.1.md" purpose="Story spec + AC-1..16 + DoD."/>
+    <file path="docs/stories/story-context-6.4.4.1.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.4.4.1-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev execution contract, step-by-step run order."/>
+    <file path="docs/stories/STORY-6.4.4.1-UAT-TEST-GUIDE.md" purpose="Human UAT; section-by-section pass/fail."/>
+    <file path="docs/stories/STORY-6.4.4.1-PREFLIGHT.md" purpose="Preflight template; Dev fills."/>
+    <file path="docs/stories/STORY-6.4.4.1-LOCALE-ARCHITECTURE-ADR.md" purpose="Architecture ADR — registry, format/policy/tone split, brand posture, resolution chain."/>
+    <file path="docs/stories/STORY-6.4.4.1-RUBRIC-V2-ADR.md" purpose="Rubric v2 ADR — 9 elements, methodology split, calibration anchors, judge swap, AC-10 escape clause."/>
+    <file path="docs/stories/STORY-6.4.4.1-PROMPTS-V1.1-SPEC.md" purpose="Benchmark v1.1 spec — 15 prompts x 6 locales x 3 reps; cost; coverage matrix."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">PromptTemplateLocaleBlock migrated and seeded for 7 MVP countries x 3 block types.</ac>
+    <ac id="2">CountryCulturalDimensions migrated and seeded with Hofstede 6D for 7 MVP + DE/JP/FR stubs.</ac>
+    <ac id="3">GenerationRun BrandPosture + BrandHeritageOrigin columns migrated; existing rows backfilled null.</ac>
+    <ac id="4">service.py uses registry; _LOCALE_PROMPT_BLOCKS deleted; _assemble_locale_block tested.</ac>
+    <ac id="5">audienceLocale/brandPosture API parameters; defaults via resolution chain.</ac>
+    <ac id="6">prompts-v1.1 checked in; 15 x 6 x 3 = 270 cells.</ac>
+    <ac id="7">rubric_v2.md with calibration anchors checked in.</ac>
+    <ac id="8">judge_ingest.py accepts rubric_v2 + judge_model_version; rejects malformed; v1 backwards-compat preserved.</ac>
+    <ac id="9">STORY-6.4.4.1-JUDGE-PROMPTS.md committed (Claude 4.7 + Grok 4 + GPT-5 mini + calibration nudge).</ac>
+    <ac id="10">Re-judge baseline under rubric_v2 — gate to complete (with escape clause).</ac>
+    <ac id="11">Eval harness regression: 6.4.3a/c tests still pass; v1.0 -> v1.1 migration documented.</ac>
+    <ac id="12">Backend regression: pytest backend/tests passes (excluding skipped).</ac>
+    <ac id="13">Frontend pass-through: audienceLocale + brandPosture in network tab; no UI redesign.</ac>
+    <ac id="14">Story 6.4.4 closeout amendment + PR #72 (with judge JSONs) merged before this story merges.</ac>
+    <ac id="15">Rubric v2 ADR committed.</ac>
+    <ac id="16">Locale architecture ADR committed.</ac>
+  </acceptance-mapping>
+
+  <invariants>
+    <item>Capability Snapshot Rule: no renderer manifest changes in this story, so no capability snapshot bump.</item>
+    <item>Multi-Round UAT Protocol: AC-10 calibration round is multi-round-eligible; one variable per round (rubric anchor sharpening); RequestID lineage required.</item>
+    <item>Green CI/CD Rule: full backend pytest + frontend lint/unit gates must demonstrably pass before closeout.</item>
+    <item>Database Connection Consistency Rule: all migrations applied via standard alembic flow; preflight captures both DATABASE_URL and resolved URL.</item>
+  </invariants>
+
+</story-context>

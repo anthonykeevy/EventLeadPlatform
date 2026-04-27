@@ -1052,35 +1052,32 @@ def test_visual_boundary_check_still_catches_implausible_zero_width():
     )
 
 
-# --- UAT round 5 (run 42 follow-up) — locale-aware system prompt ----------
+# --- Story 6.4.4.1 — registry-backed locale system prompt ----------------
 
 
-def test_locale_block_au_uses_story_644_one_line_directive():
-    """Story 6.4.4 shrinks the AU/NZ locale prompt to one directive while
-    keeping the same address, phone, date, and spelling intent."""
-    from modules.form_ai.service import _build_locale_prompt_block
+def test_locale_block_python_constant_removed():
+    """Story 6.4.4.1 moves locale copy out of Python constants and into
+    config.PromptTemplateLocaleBlock registry rows."""
+    import modules.form_ai.service as service
 
-    block = _build_locale_prompt_block("AU")
-    assert block == (
-        "Form audience: Australia/New Zealand. Use AU/NZ spelling, address, "
-        "phone, date conventions."
-    )
+    assert not hasattr(service, "_LOCALE_PROMPT_BLOCKS")
+    assert not hasattr(service, "_build_locale_prompt_block")
 
 
-def test_locale_block_opt_out_returns_empty_string():
-    """``locale_code=None`` and unknown codes return the empty string so
-    test fixtures and special tenants can disable locale guidance cleanly
-    without bleeding US defaults back in by accident."""
-    from modules.form_ai.service import _build_locale_prompt_block
+def test_locale_block_no_db_uses_neutral_fallback():
+    """Without a DB session, prompt assembly uses the neutral runtime fallback
+    instead of the deleted Story 6.4.4 AU/NZ Python constant."""
+    from modules.form_ai.service import _assemble_locale_block
 
-    assert _build_locale_prompt_block(None) == ""
-    assert _build_locale_prompt_block("ZZ") == ""
-    assert _build_locale_prompt_block("") == ""
+    block = _assemble_locale_block("AU", "local", db_session=None)
+
+    assert "Audience locale NEUTRAL" in block
+    assert "Form audience: Australia/New Zealand" not in block
 
 
-def test_initial_messages_default_to_au_locale():
-    """Until country plumbing lands, every request gets the compact AU/NZ
-    directive by default."""
+def test_initial_messages_default_to_registry_locale_section():
+    """Initial messages now include the registry-rendered locale/brand section.
+    With no DB session in unit tests, that section is the neutral fallback."""
     from modules.form_ai.service import _build_initial_messages
 
     messages = _build_initial_messages(
@@ -1089,28 +1086,30 @@ def test_initial_messages_default_to_au_locale():
         runtime_context={"canvas": {"width": 1280, "height": 720}, "device": "desktop"},
     )
     system_msg = messages[0]["content"]
-    assert "Form audience: Australia/New Zealand" in system_msg
-    assert "AU/NZ spelling, address, phone, date conventions" in system_msg
+    assert "## LOCALE AND BRAND POSTURE" in system_msg
+    assert "Audience locale NEUTRAL" in system_msg
+    assert "Brand posture: local" in system_msg
     # Sanity: still includes the structural rules (locale block was injected,
     # not substituted).
     assert "REQUIRED ROOT KEYS" in system_msg
     assert "FormSemanticPlan" in system_msg
 
 
-def test_initial_messages_locale_can_be_disabled_per_call():
-    """Pass ``locale_code=None`` to opt out for a specific request (e.g. a
-    test fixture that wants to assert a regression independent of locale
-    copy)."""
+def test_initial_messages_accepts_explicit_audience_locale_without_legacy_keyword():
+    """The legacy ``locale_code`` argument is gone; callers pass
+    ``audience_locale`` and registry assembly decides the rendered block."""
     from modules.form_ai.service import _build_initial_messages
 
     messages = _build_initial_messages(
         prompt="Build a contact form",
         context_pack="(context pack stub)",
         runtime_context=None,
-        locale_code=None,
+        audience_locale="INTL_ONLINE",
+        brand_posture="neutral",
     )
     system_msg = messages[0]["content"]
-    assert "Postcode" not in system_msg
+    assert "Audience locale NEUTRAL" in system_msg
+    assert "Brand posture: neutral" in system_msg
     assert "AU/NZ" not in system_msg
     # Structural rules must still be present.
     assert "REQUIRED ROOT KEYS" in system_msg

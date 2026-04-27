@@ -2,7 +2,6 @@ from modules.form_ai.service import (
     _CONSENT_GUIDANCE_BLOCK,
     _build_capability_prompt_block,
     _build_initial_messages,
-    _build_locale_prompt_block,
     _filter_runtime_context_to_capability,
 )
 
@@ -91,13 +90,19 @@ def test_build_initial_messages_includes_capability_block_when_snapshot_exists()
     assert "submit-button (allowed widthIntent hints: compact, half)" in system_prompt
 
 
-def test_story_644_h1_locale_prompt_is_one_line_directive():
-    locale_block = _build_locale_prompt_block("AU")
-
-    assert locale_block == (
-        "Form audience: Australia/New Zealand. Use AU/NZ spelling, address, "
-        "phone, date conventions."
+def test_story_6441_locale_prompt_is_registry_rendered_section():
+    messages = _build_initial_messages(
+        prompt="Create a contact form.",
+        context_pack="<<context-pack>>",
+        runtime_context=None,
+        audience_locale="AU",
+        db_session=None,
     )
+
+    system_prompt = messages[0]["content"]
+    assert "## LOCALE AND BRAND POSTURE" in system_prompt
+    assert "Audience locale NEUTRAL" in system_prompt
+    assert "Brand posture: local" in system_prompt
 
 
 def test_story_644_h2_consent_guidance_is_compact_decision_table():

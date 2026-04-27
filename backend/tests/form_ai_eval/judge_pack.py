@@ -29,16 +29,20 @@ if str(TESTS_DIR) not in sys.path:
 from form_ai_eval import run as eval_run  # noqa: E402
 
 
-RUBRIC_VERSION = "rubric_v1"
-DEFAULT_RUBRIC_PATH = Path(__file__).with_name("rubric_v1.md")
-PACKAGE_SCHEMA_VERSION = "judge-package-v1"
-JUDGE_MODELS = ["gpt5mini", "claude", "gemini"]
+RUBRIC_VERSION = "rubric_v2"
+DEFAULT_RUBRIC_PATH = Path(__file__).with_name("rubric_v2.md")
+PACKAGE_SCHEMA_VERSION = "judge-package-v2"
+JUDGE_MODELS = ["gpt5mini", "claude", "grok"]
 CATEGORY_B_METRICS = [
     "field_coverage_recall",
     "field_label_f1",
     "validation_intent_accuracy",
     "row_group_agreement",
     "locale_fidelity",
+    "policy_compliance",
+    "cultural_register",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
     "copy_quality_score",
 ]
 
@@ -288,6 +292,7 @@ def build_output_template(rows: Sequence[JudgePackageRow], judge_model: str = "c
     return {
         "rubric_version": RUBRIC_VERSION,
         "judge_model": judge_model,
+        "judge_model_version": "",
         "rows": [
             {
                 "row_id": row.row_id,
@@ -310,7 +315,9 @@ def render_judge_input(rows: Sequence[JudgePackageRow], metadata: Dict[str, Any]
         f"Benchmark set: `{metadata.get('benchmark_set_version', 'prompts-v1.0')}`",
         f"Rubric version: `{RUBRIC_VERSION}`",
         "",
-        "Use `rubric_v1.md` and return JSON matching `judge-output-template.json`.",
+        "Use `rubric_v2.md` and return JSON matching `judge-output-template.json`.",
+        "Set `judge_model_version` to the exact model/version shown in your Cursor session.",
+        "Before assigning scores for each row, identify at least one weakness per row before scoring.",
         "Judge only the anonymised package content below.",
         "",
     ]
@@ -392,7 +399,7 @@ def write_judge_package(
 
     package_dir.mkdir(parents=True, exist_ok=True)
     (package_dir / "results").mkdir(exist_ok=True)
-    shutil.copyfile(rubric_path, package_dir / "rubric_v1.md")
+    shutil.copyfile(rubric_path, package_dir / "rubric_v2.md")
     (package_dir / "judge-input-batch.md").write_text(
         render_judge_input(rows, run_metadata), encoding="utf-8"
     )

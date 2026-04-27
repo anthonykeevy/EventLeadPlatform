@@ -430,6 +430,9 @@ export const AIAgentPanel: React.FC = () => {
 
     return {
       formId: formDefinition.formId,
+      audienceLocale: null,
+      brandPosture: null,
+      brandHeritageOrigin: null,
       canvas: {
         width: canvasWidth,
         height: canvasHeight,

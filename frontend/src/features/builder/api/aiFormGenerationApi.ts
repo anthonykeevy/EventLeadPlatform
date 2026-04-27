@@ -27,11 +27,27 @@ export interface AttemptTraceEntry {
 
 /** Request + env resolution: sync = one response body; stream = SSE. Auto uses FORM_AI_OPENAI_TRANSPORT on the server (default sync). */
 export type OpenAiTransportMode = "auto" | "sync" | "stream";
+export type AudienceLocale =
+  | "AU"
+  | "NZ"
+  | "UK"
+  | "US"
+  | "CA"
+  | "IE"
+  | "DE"
+  | "INTL_ONLINE"
+  | "APAC"
+  | "EU"
+  | "NEUTRAL";
+export type BrandPosture = "local" | "heritage" | "neutral" | "transcreate";
 
 export interface AiGenerationOptions {
   openaiTransport?: OpenAiTransportMode;
   maxSystemCorrectionAttempts?: number;
   systemPromptAddendum?: string;
+  audienceLocale?: AudienceLocale | null;
+  brandPosture?: BrandPosture | null;
+  brandHeritageOrigin?: string | null;
 }
 
 export interface AiGenerationTrace {
@@ -64,6 +80,18 @@ export interface AiFormGenerationResponse {
   definitionJSON?: Record<string, unknown> | null;
   trace: AiGenerationTrace;
   userMessage: string;
+  meta?: {
+    locale?: {
+      resolved?: AudienceLocale | null;
+      source?: string | null;
+    };
+    brand?: {
+      resolved?: BrandPosture | null;
+      heritageOrigin?: string | null;
+      source?: string | null;
+    };
+    [key: string]: unknown;
+  } | null;
   /** True when status is failed but definitionJSON is the last invalid draft for canvas inspection */
   draftHasValidationIssues?: boolean;
   /**
@@ -133,6 +161,9 @@ export interface RuntimeTermsDefaults {
 
 export interface AiRuntimeContext {
   formId?: string;
+  audienceLocale?: AudienceLocale | null;
+  brandPosture?: BrandPosture | null;
+  brandHeritageOrigin?: string | null;
   canvas?: RuntimeCanvasContext;
   lockedGlobals?: RuntimeLockedGlobals;
   termsDefaults?: RuntimeTermsDefaults;
@@ -158,12 +189,18 @@ export async function generateAiDefinition(
       openaiTransport = "auto",
       maxSystemCorrectionAttempts,
       systemPromptAddendum,
+      audienceLocale = runtimeContext?.audienceLocale ?? null,
+      brandPosture = runtimeContext?.brandPosture ?? null,
+      brandHeritageOrigin = runtimeContext?.brandHeritageOrigin ?? null,
     } = options;
     const response = await apiClient.post<AiFormGenerationResponse>(
       "/api/form-ai/generate",
       {
         prompt,
         runtimeContext,
+        audienceLocale,
+        brandPosture,
+        brandHeritageOrigin,
         openaiTransport,
         maxSystemCorrectionAttempts,
         systemPromptAddendum,

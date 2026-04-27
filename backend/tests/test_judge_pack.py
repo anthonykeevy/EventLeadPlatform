@@ -17,7 +17,7 @@ def _write_fixture_eval_run(tmp_path: Path) -> Path:
         json.dumps(
             {
                 "run_id": "fixture-run",
-                "benchmark_set_version": "prompts-v1.0",
+                "benchmark_set_version": "prompts-v1.1",
                 "variant_label": "fixture-variant",
             }
         ),
@@ -25,22 +25,22 @@ def _write_fixture_eval_run(tmp_path: Path) -> Path:
     )
     rows = [
         {
-            "benchmark_set_version": "prompts-v1.0",
+            "benchmark_set_version": "prompts-v1.1",
             "generation_run_id": 202,
             "hypothesis_code": "baseline",
             "metrics": {"category_a": {"schema_valid": True, "component_count": 3}},
-            "prompt_id": "p-02-lead-gen-saas-demo",
+            "prompt_id": "p02-au-neutral-r1",
             "repetition_index": 1,
             "variant_label": "fixture-variant",
             "generated_definition": {"fields": [{"label": "Email", "example": "alex@example.test"}]},
         },
         {
-            "benchmark_set_version": "prompts-v1.0",
+            "benchmark_set_version": "prompts-v1.1",
             "eval_run_id": 101,
             "generation_run_id": 201,
             "hypothesis_code": "baseline",
             "metrics": {"category_a": {"schema_valid": True, "component_count": 4}},
-            "prompt_id": "p-01-event-registration-conference",
+            "prompt_id": "p01-au-neutral-r1",
             "repetition_index": 1,
             "variant_label": "fixture-variant",
             "generated_definition": {
@@ -66,7 +66,7 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
 
     package_dir = judge_pack.write_judge_package(run_dir)
 
-    assert (package_dir / "rubric_v1.md").exists()
+    assert (package_dir / "rubric_v2.md").exists()
     assert (package_dir / "judge-input-batch.md").exists()
     assert (package_dir / "judge-output-template.json").exists()
     assert (package_dir / "results").is_dir()
@@ -74,8 +74,8 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
     metadata = json.loads((package_dir / "judge-package-metadata.json").read_text(encoding="utf-8"))
     row_ids = [row["row_id"] for row in metadata["rows"]]
     assert row_ids == [
-        "p-01-event-registration-conference__r01",
-        "p-02-lead-gen-saas-demo__r01",
+        "p01-au-neutral-r1__r01",
+        "p02-au-neutral-r1__r01",
     ]
     assert metadata["rows"][0]["eval_run_id"] == 101
 
@@ -86,6 +86,8 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
     assert "[SCRUBBED_NAME]" in judge_input
     assert "Attendee name" in judge_input
     assert "alex@example.test" not in judge_input
+    assert "identify at least one weakness per row before scoring" in judge_input
+    assert "judge_model_version" in judge_input
 
 
 def test_judge_output_template_shape(tmp_path):
@@ -94,8 +96,9 @@ def test_judge_output_template_shape(tmp_path):
 
     template = json.loads((package_dir / "judge-output-template.json").read_text(encoding="utf-8"))
 
-    assert template["rubric_version"] == "rubric_v1"
+    assert template["rubric_version"] == "rubric_v2"
     assert template["judge_model"] == "claude"
+    assert "judge_model_version" in template
     assert len(template["rows"]) == 2
     assert set(template["rows"][0]["scores"]) == set(judge_pack.CATEGORY_B_METRICS)
     assert all(value is None for value in template["rows"][0]["scores"].values())
@@ -123,7 +126,7 @@ def test_package_can_enrich_eval_run_id_from_fake_db(tmp_path):
     package_rows = judge_pack.build_package_rows(run_dir, db_session=FakeSession())
     by_prompt = {row.prompt_id: row for row in package_rows}
 
-    assert by_prompt["p-02-lead-gen-saas-demo"].eval_run_id == 302
-    assert by_prompt["p-02-lead-gen-saas-demo"].generated_definition == {
+    assert by_prompt["p02-au-neutral-r1"].eval_run_id == 302
+    assert by_prompt["p02-au-neutral-r1"].generated_definition == {
         "fields": [{"label": "Email", "example": "[SCRUBBED_EMAIL]"}]
     }

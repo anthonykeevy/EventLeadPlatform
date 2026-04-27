@@ -1,6 +1,6 @@
 """Story 6.4.3b judge output ingest.
 
-Validates manually saved Cursor judge JSON files and computes rubric_v1
+Validates manually saved Cursor judge JSON files and computes rubric_v2
 aggregates. DB persistence is optional; local summary artifacts are always
 written when validation succeeds.
 """
@@ -34,10 +34,21 @@ from form_ai_eval.judge_pack import (  # type: ignore[import-not-found]  # noqa:
 EXPECTED_RESULT_FILES = {
     "gpt5mini": "judge-output-gpt5mini.json",
     "claude": "judge-output-claude.json",
+    "grok": "judge-output-grok.json",
+}
+LEGACY_RESULT_FILES = {
     "gemini": "judge-output-gemini.json",
 }
-PRIMARY_JUDGES = ("claude", "gemini")
+PRIMARY_JUDGES = ("claude", "grok")
 CONTROL_JUDGE = "gpt5mini"
+LEGACY_RUBRIC_V1_METRICS = [
+    "field_coverage_recall",
+    "field_label_f1",
+    "validation_intent_accuracy",
+    "row_group_agreement",
+    "locale_fidelity",
+    "copy_quality_score",
+]
 
 
 class JudgeIngestError(RuntimeError):
@@ -110,6 +121,10 @@ def load_judge_outputs(judge_package_dir: Path) -> Dict[str, Dict[str, Any]]:
         path = results_dir / filename
         if path.exists():
             outputs[judge_model] = _load_json(path)
+    for judge_model, filename in LEGACY_RESULT_FILES.items():
+        path = results_dir / filename
+        if path.exists():
+            outputs[judge_model] = _load_json(path)
     if not outputs:
         raise JudgeIngestError(f"No judge result files found under {results_dir}")
     return outputs
@@ -120,10 +135,13 @@ def validate_judge_output(
     payload: Dict[str, Any],
     expected_rows: Sequence[PackageRow],
 ) -> Dict[str, Dict[str, Any]]:
-    if payload.get("rubric_version") != RUBRIC_VERSION:
+    rubric_version = payload.get("rubric_version")
+    if rubric_version not in {RUBRIC_VERSION, "rubric_v1"}:
         raise JudgeIngestError(
-            f"{judge_model}: rubric_version must be {RUBRIC_VERSION!r}; got {payload.get('rubric_version')!r}"
+            f"{judge_model}: rubric_version must be {RUBRIC_VERSION!r}; got {rubric_version!r}"
         )
+    if rubric_version == RUBRIC_VERSION and not str(payload.get("judge_model_version", "")).strip():
+        raise JudgeIngestError(f"{judge_model}: judge_model_version is required for {RUBRIC_VERSION}")
     if payload.get("judge_model") != judge_model:
         raise JudgeIngestError(
             f"{judge_model}: judge_model must match result filename; got {payload.get('judge_model')!r}"
@@ -160,7 +178,8 @@ def validate_judge_output(
         if not isinstance(scores, dict):
             raise JudgeIngestError(f"{judge_model}: {row_id} scores must be an object")
         score_keys = set(scores)
-        expected_keys = set(CATEGORY_B_METRICS)
+        metric_names = CATEGORY_B_METRICS if rubric_version == RUBRIC_VERSION else LEGACY_RUBRIC_V1_METRICS
+        expected_keys = set(metric_names)
         if score_keys != expected_keys:
             raise JudgeIngestError(
                 f"{judge_model}: {row_id} scores must contain exactly {sorted(expected_keys)}"
@@ -187,10 +206,12 @@ def validate_judge_output(
 def validate_all_outputs(
     outputs: Dict[str, Dict[str, Any]], expected_rows: Sequence[PackageRow]
 ) -> Dict[str, Dict[str, Dict[str, Any]]]:
-    missing_primary = [judge for judge in PRIMARY_JUDGES if judge not in outputs]
+    rubric_versions = {payload.get("rubric_version") for payload in outputs.values()}
+    primary_judges = ("claude", "gemini") if rubric_versions == {"rubric_v1"} else PRIMARY_JUDGES
+    missing_primary = [judge for judge in primary_judges if judge not in outputs]
     if missing_primary:
         raise JudgeIngestError(
-            f"Missing primary judge output(s): {missing_primary}; Claude and Gemini are required"
+            f"Missing primary judge output(s): {missing_primary}; required primary judges are {primary_judges}"
         )
     return {
         judge_model: validate_judge_output(judge_model, payload, expected_rows)
@@ -198,10 +219,14 @@ def validate_all_outputs(
     }
 
 
-def _agreement_score(claude_scores: Dict[str, Any], gemini_scores: Dict[str, Any]) -> float:
+def _agreement_score(
+    claude_scores: Dict[str, Any],
+    grok_scores: Dict[str, Any],
+    metric_names: Sequence[str],
+) -> float:
     distances = [
-        abs(float(claude_scores[metric]) - float(gemini_scores[metric])) / 5.0
-        for metric in CATEGORY_B_METRICS
+        abs(float(claude_scores[metric]) - float(grok_scores[metric])) / 5.0
+        for metric in metric_names
     ]
     return round(max(0.0, 1.0 - mean(distances)), 3)
 
@@ -210,14 +235,21 @@ def compute_summary(
     package_rows: Sequence[PackageRow],
     validated_outputs: Dict[str, Dict[str, Dict[str, Any]]],
 ) -> Dict[str, Any]:
+    first_payload = next(iter(validated_outputs.values()))
+    first_row = next(iter(first_payload.values()))
+    metric_names = [
+        metric for metric in CATEGORY_B_METRICS if metric in first_row.get("scores", {})
+    ]
+    rubric_version = RUBRIC_VERSION if set(metric_names) == set(CATEGORY_B_METRICS) else "rubric_v1"
     summaries: List[Dict[str, Any]] = []
     for package_row in package_rows:
         row_id = package_row.row_id
         claude_scores = validated_outputs["claude"][row_id]["scores"]
-        gemini_scores = validated_outputs["gemini"][row_id]["scores"]
+        second_primary = "grok" if "grok" in validated_outputs else "gemini"
+        grok_scores = validated_outputs[second_primary][row_id]["scores"]
         cross_model_mean = {
-            metric: round(mean([float(claude_scores[metric]), float(gemini_scores[metric])]), 3)
-            for metric in CATEGORY_B_METRICS
+            metric: round(mean([float(claude_scores[metric]), float(grok_scores[metric])]), 3)
+            for metric in metric_names
         }
         control_scores = (
             validated_outputs.get(CONTROL_JUDGE, {}).get(row_id, {}).get("scores")
@@ -228,7 +260,7 @@ def compute_summary(
         if isinstance(control_scores, dict):
             bias_delta = {
                 metric: round(float(control_scores[metric]) - cross_model_mean[metric], 3)
-                for metric in CATEGORY_B_METRICS
+                for metric in metric_names
             }
         summaries.append(
             {
@@ -240,13 +272,14 @@ def compute_summary(
                 "variant_label": package_row.variant_label,
                 "cross_model_mean": cross_model_mean,
                 "gpt5mini_bias_delta": bias_delta,
-                "judge_agreement_score": _agreement_score(claude_scores, gemini_scores),
+                "judge_agreement_score": _agreement_score(claude_scores, grok_scores, metric_names),
                 "judge_models_present": sorted(validated_outputs),
             }
         )
     return {
-        "rubric_version": RUBRIC_VERSION,
-        "primary_judges": list(PRIMARY_JUDGES),
+        "rubric_version": rubric_version,
+        "category_b_metrics": metric_names,
+        "primary_judges": ["claude", "grok" if "grok" in validated_outputs else "gemini"],
         "control_judge": CONTROL_JUDGE if CONTROL_JUDGE in validated_outputs else None,
         "row_count": len(summaries),
         "rows": summaries,
@@ -256,6 +289,7 @@ def compute_summary(
 def write_summary_artifacts(judge_package_dir: Path, summary: Dict[str, Any]) -> None:
     summary_path = judge_package_dir / "judge-ingest-summary.json"
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    metric_names = summary.get("category_b_metrics", CATEGORY_B_METRICS)
 
     csv_path = judge_package_dir / "judge-ingest-summary.csv"
     fieldnames = [
@@ -266,8 +300,8 @@ def write_summary_artifacts(judge_package_dir: Path, summary: Dict[str, Any]) ->
         "repetition_index",
         "variant_label",
         "judge_agreement_score",
-        *[f"mean_{metric}" for metric in CATEGORY_B_METRICS],
-        *[f"gpt5mini_delta_{metric}" for metric in CATEGORY_B_METRICS],
+        *[f"mean_{metric}" for metric in metric_names],
+        *[f"gpt5mini_delta_{metric}" for metric in metric_names],
     ]
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -283,13 +317,13 @@ def write_summary_artifacts(judge_package_dir: Path, summary: Dict[str, Any]) ->
                 "judge_agreement_score": row["judge_agreement_score"],
             }
             flat.update(
-                {f"mean_{metric}": row["cross_model_mean"][metric] for metric in CATEGORY_B_METRICS}
+                {f"mean_{metric}": row["cross_model_mean"][metric] for metric in metric_names}
             )
             bias_delta = row.get("gpt5mini_bias_delta") or {}
             flat.update(
                 {
                     f"gpt5mini_delta_{metric}": bias_delta.get(metric)
-                    for metric in CATEGORY_B_METRICS
+                    for metric in metric_names
                 }
             )
             writer.writerow(flat)

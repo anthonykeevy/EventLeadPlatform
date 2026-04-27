@@ -31,10 +31,11 @@ def _write_outputs(package_dir: Path):
             }
         )
     results_dir = package_dir / "results"
-    for judge_model, value in [("gpt5mini", 5), ("claude", 4), ("gemini", 2)]:
+    for judge_model, value in [("gpt5mini", 5), ("claude", 4), ("grok", 2)]:
         payload = {
-            "rubric_version": "rubric_v1",
+            "rubric_version": "rubric_v2",
             "judge_model": judge_model,
+            "judge_model_version": f"{judge_model}-fixture",
             "rows": [{**row, "scores": _make_score(value)} for row in result_rows],
         }
         (results_dir / f"judge-output-{judge_model}.json").write_text(
@@ -55,7 +56,7 @@ def test_ingest_valid_outputs_writes_summary_and_aggregates(tmp_path):
 
     summary = judge_ingest.ingest_judge_package(package_dir)
 
-    assert summary["rubric_version"] == "rubric_v1"
+    assert summary["rubric_version"] == "rubric_v2"
     assert summary["row_count"] == 2
     first = summary["rows"][0]
     assert first["cross_model_mean"]["field_coverage_recall"] == 3
@@ -126,7 +127,7 @@ def test_ingest_updates_db_with_fake_session(tmp_path):
     assert summary["db_update_status"] == "updated"
     assert summary["db_update_count"] == 2
     assert len(fake.params) == 2
-    assert fake.params[0]["judge_rubric_version"] == "rubric_v1"
+    assert fake.params[0]["judge_rubric_version"] == "rubric_v2"
     assert fake.params[0]["judge_agreement_score"] == 0.6
     assert "cross_model_mean" in json.loads(fake.params[0]["bias_delta_json"])
     assert fake.committed is True

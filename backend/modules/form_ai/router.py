@@ -45,6 +45,9 @@ async def generate_form_with_ai(
         db_session=db,
         actor_user_id=current_user.user_id,
         actor_company_id=current_user.company_id,
+        audience_locale=body.audienceLocale,
+        brand_posture=body.brandPosture,
+        brand_heritage_origin=body.brandHeritageOrigin,
     )
 
 

@@ -33,11 +33,11 @@ python -m alembic current
 **Setup:** SQL Server via standard connection.
 
 ```sql
-SELECT c.ISO2Code, plb.BlockType, LEN(plb.BlockBody) AS body_len, plb.IsActive
+SELECT c.CountryCode, plb.BlockType, LEN(plb.BlockBody) AS body_len, plb.IsActive
 FROM config.PromptTemplateLocaleBlock plb
 LEFT JOIN ref.Country c ON c.CountryID = plb.CountryID
 WHERE plb.IsActive = 1
-ORDER BY c.ISO2Code, plb.BlockType;
+ORDER BY c.CountryCode, plb.BlockType;
 ```
 
 **Pass criteria:**
@@ -55,12 +55,12 @@ ORDER BY c.ISO2Code, plb.BlockType;
 ## §3 Cultural dimensions seeded (AC-2)
 
 ```sql
-SELECT c.ISO2Code, ccd.PowerDistanceIndex, ccd.UncertaintyAvoidanceIndex,
+SELECT c.CountryCode, ccd.PowerDistanceIndex, ccd.UncertaintyAvoidanceIndex,
        ccd.IndividualismIndex, ccd.MasculinityIndex, ccd.LongTermOrientation,
        ccd.IndulgenceIndex, ccd.Source
 FROM ref.CountryCulturalDimensions ccd
 JOIN ref.Country c ON c.CountryID = ccd.CountryID
-ORDER BY c.ISO2Code;
+ORDER BY c.CountryCode;
 ```
 
 **Pass criteria:**
@@ -143,8 +143,10 @@ rg -n "_LOCALE_PROMPT_BLOCKS" backend/modules/form_ai/
 **Test 5 — Final fallback to app_setting:**
 
 - All four sources null.
-- `app_setting.form_ai.default_audience_locale = 'AU'`.
+- `config.AppSetting` key `form_ai.default_audience_locale = 'AU'`.
 - Outbound prompt shows the **AU** block.
+
+Note: "registry" in this story means the SQL Server configuration/reference registry (`config.*` and `ref.*` tables), not Windows Registry. It does not require a Windows application host.
 
 **Test 6 — `brandPosture`:**
 
@@ -293,11 +295,12 @@ cd frontend; npm run lint; npm run test:unit -- --watch=false; cd ..
 
 | Round | Date | Focus | Single variable changed | RequestID(s) | Outcome | Follow-up |
 |---|---|---|---|---|---|---|
-| 1 | TBD | Migrations + service refactor | n/a (initial pass) | TBD | TBD | TBD |
-| 2 | TBD | API + frontend pass-through | TBD | TBD | TBD | TBD |
-| 3 | TBD | Rubric v2 + benchmark v1.1 | TBD | TBD | TBD | TBD |
-| 4 | TBD | AC-10 first re-judge | n/a (gate) | TBD | TBD | TBD |
-| 5 | TBD (conditional) | AC-10 calibration tweak | rubric anchor `item-7-tone-register` | TBD | TBD | TBD |
+| 1 | 2026-04-27 | Manual UAT tests 1-5 | Local DB after migrations 063-071 | n/a | Tests 1-5 pass/clarified; §2/§3 passed after `CountryCode` correction. | Continue §6/§7 browser UAT. |
+| 2 | 2026-04-27 | Automated UAT follow-up | Corrected docs/tests only | n/a | Backend focused/full green; frontend lint/unit green; judge prompts gap closed. | Browser/network UAT and AC-10 judge run remain. |
+| 3 | 2026-04-27 | §6 Test 6 brand posture fallback | Temporary dev DB company | n/a | Pass: company `heritage` / `US` resolved and persisted to `GenerationRun`; temp rows cleaned up. | Complete §6 Test 7 and §7 browser/network UAT. |
+| 4 | TBD | API + frontend pass-through | Manual browser/network validation | TBD | TBD | Confirm request payload and response `meta`. |
+| 5 | TBD | AC-10 first re-judge | n/a (gate) | TBD | TBD | Run 270-cell baseline and three judge sessions. |
+| 6 | TBD (conditional) | AC-10 calibration tweak | rubric anchor `item-7-tone-register` | TBD | TBD | Only if Round 5 ceiling-locks. |
 
 ---
 
@@ -305,17 +308,17 @@ cd frontend; npm run lint; npm run test:unit -- --watch=false; cd ..
 
 | Section | Outcome |
 |---|---|
-| §1 Migrations applied cleanly | TBD |
-| §2 Registry seeded for 7 MVP markets | TBD |
-| §3 Cultural dimensions seeded | TBD |
-| §4 GenerationRun + Company brand columns | TBD |
-| §5 Service uses registry; legacy constant deleted | TBD |
-| §6 API accepts new params; resolution chain | TBD |
-| §7 Frontend pass-through visible | TBD |
-| §8 Rubric v2 + benchmark v1.1 + judge prompts | TBD |
-| §9 Ingest schema bump | TBD |
-| §10 AC-10 baseline re-judge | TBD |
-| §11 Eval harness regression + backend gate | TBD |
-| §12 ADRs + status docs | TBD |
+| §1 Migrations applied cleanly | Pass |
+| §2 Registry seeded for 7 MVP markets | Pass |
+| §3 Cultural dimensions seeded | Pass |
+| §4 GenerationRun + Company brand columns | Pass |
+| §5 Service uses registry; legacy constant deleted | Pass |
+| §6 API accepts new params; resolution chain | Pass with manual follow-up |
+| §7 Frontend pass-through visible | Pass with carry-forward |
+| §8 Rubric v2 + benchmark v1.1 + judge prompts | Pass |
+| §9 Ingest schema bump | Automated pass |
+| §10 AC-10 baseline re-judge | Ready for manual execution |
+| §11 Eval harness regression + backend gate | Pass |
+| §12 ADRs + status docs | Pass |
 
-**Overall outcome:** TBD (Pass / Pass-with-escape / Fail / Partial).
+**Overall outcome:** Closed for PR #75 merge with documented follow-up. Automated gates are green; §1-§5 and §6 Test 6 are verified. §6 Test 7, §7 browser/network UAT, and AC-10 live judge execution remain manual follow-up.

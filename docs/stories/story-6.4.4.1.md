@@ -3,9 +3,10 @@
 **Epic:** 6 — AI Generation & Monetization Engine
 **Story ID:** 6.4.4.1
 **Title:** Locale Architecture: Wire the Registry (+ rubric v2 + prompts v1.1 + judge swap)
-**Status:** Draft (SM pack)
-**Branch:** `story/epic6-6.4.4.1-locale-architecture-wire-registry` (to be created)
-**PR:** TBD on `new-story.ps1` execution
+**Status:** Complete / ready to merge (2026-04-27)
+**Branch:** `story/epic6-6.4.4.1-locale-architecture-wire-registry`
+**PR:** [#75](https://github.com/anthonykeevy/EventLeadPlatform/pull/75)
+**Completed:** 2026-04-27
 **Created:** 2026-04-27
 **Depends On:** Story 6.4.4 closeout amendment ([PR #74](https://github.com/anthonykeevy/EventLeadPlatform/pull/74)) merged + Story 6.4.4 ([PR #72](https://github.com/anthonykeevy/EventLeadPlatform/pull/72)) merged with judge JSONs.
 **Successor To:** Story 6.4.4 (measured-only learning under rubric_v1).
@@ -229,20 +230,38 @@ Risk: AC-10 calibration round (escape clause) could add 0.5 days if all three ju
 
 ### Implementation Notes
 
-_(filled by Dev during implementation)_
+- Implemented migrations `063`-`071` for prompt locale registry, country cultural dimensions, brand posture persistence, and locale default app settings.
+- Replaced hard-coded locale prompt constants with registry-backed locale assembly, neutral fallback, and resolution metadata.
+- Added `audienceLocale`, `brandPosture`, and `brandHeritageOrigin` API/schema pass-through and generation-run persistence.
+- Updated Form AI eval harness to `prompts-v1.1`, `rubric_v2`, Claude + Grok primary judging, GPT-5 mini control, and required `judge_model_version`.
+- Added Story 6.4.4.1 UAT, gate evidence, judge prompts, and closeout artifacts.
+- Company Settings / Form Branding UI for `BrandPosture` and `BrandHeritageOrigin` is explicitly deferred to carry-forward item `g-6441-company-brand-settings-ui`.
 
 ### Debug Log
 
-_(filled by Dev)_
+- Initial full backend run failed before migrations were applied; resolved after Tonyk applied migrations `063`-`071`.
+- Four stale Story 6.4.4 locale tests still referenced `_build_locale_prompt_block`; updated to the Story 6.4.4.1 registry-backed contract.
+- Frontend lint initially failed because new worktree dependencies were missing; passed after `npm install`.
+- UAT SQL initially referenced `ref.Country.ISO2Code`; corrected to existing `CountryCode` column.
 
 ### Test Results
 
-_(filled by Dev — preflight, focused gate, backend gate, frontend gate, AC-10 re-judge result)_
+- Targeted backend gate: `44 passed`.
+- Full backend gate: `793 passed, 26 skipped`.
+- Frontend lint: pass.
+- Frontend unit gate: `283 passed`.
+- Focused locale/eval/judge UAT checks: `25 passed`.
+- Judge pack/ingest focused check after prompt nudge fix: `7 passed`.
+- AC-10 live judge execution remains documented as pending human/Cursor judge work; architecture implementation is complete and carry-forward status is recorded in closeout/UAT docs.
 
 ### File List
 
-_(filled by Dev at closeout — all files added/modified)_
+- Backend migrations: `063`-`071`.
+- Backend Form AI service/API/model/schema changes.
+- Backend Form AI eval harness, rubric, judge pack/ingest, prompts, and tests.
+- Frontend AI generation API pass-through and unit tests.
+- Story docs, UAT docs, gate evidence, closeout report, Epic 6 status/workflow/backlog docs.
 
 ### Change Log
 
-_(filled by Dev — date-stamped)_
+- 2026-04-27: Implemented locale registry wiring, brand posture resolution/persistence, eval rubric/benchmark/judge updates, frontend pass-through, UAT evidence, and closeout docs for PR #75.

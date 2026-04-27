@@ -34,7 +34,7 @@ from modules.form_ai.schemas import (  # noqa: E402
 from modules.form_ai.service import generate_form_definition  # noqa: E402
 
 
-BENCHMARK_SET_VERSION = "prompts-v1.0"
+BENCHMARK_SET_VERSION = "prompts-v1.1"
 DEFAULT_PROMPTS_PATH = Path(__file__).with_name("prompts.yaml")
 DEFAULT_OUTPUT_ROOT = Path("_bmad-output") / "eval-runs"
 MAX_CONCURRENCY = 4
@@ -59,10 +59,14 @@ CATEGORY_A_FIELDS = [
 class BenchmarkPrompt:
     prompt_id: str
     category: str
-    richness: str
+    variant: str
+    audience_locale: str
+    repetition_index: int
     prompt: str
     metadata: Dict[str, Any]
     runtime_context: Dict[str, Any]
+    expected_signals: Dict[str, Any]
+    llm_judge_focus: Dict[str, Any]
     expected_structural_checks: List[str]
 
 
@@ -109,18 +113,22 @@ def load_prompt_set(path: Path = DEFAULT_PROMPTS_PATH) -> PromptSet:
         raise EvalHarnessError(
             f"Expected benchmark_set_version={BENCHMARK_SET_VERSION!r}; got {version!r}"
         )
-    if not isinstance(prompts_raw, list) or len(prompts_raw) != 10:
-        raise EvalHarnessError("prompts.yaml must contain exactly 10 prompt rows")
+    if not isinstance(prompts_raw, list) or len(prompts_raw) != 270:
+        raise EvalHarnessError("prompts.yaml must contain exactly 270 prompt rows")
 
     prompts: List[BenchmarkPrompt] = []
     seen_ids: set[str] = set()
     required = {
         "prompt_id",
         "category",
-        "richness",
+        "variant",
+        "audience_locale",
+        "repetition_index",
         "prompt",
         "metadata",
         "runtimeContext",
+        "expected_signals",
+        "llm_judge_focus",
         "expectedStructuralChecks",
     }
     for index, row in enumerate(prompts_raw, start=1):
@@ -139,6 +147,8 @@ def load_prompt_set(path: Path = DEFAULT_PROMPTS_PATH) -> PromptSet:
         runtime_context = row["runtimeContext"]
         if not isinstance(runtime_context, dict):
             raise EvalHarnessError(f"{prompt_id} runtimeContext must be an object")
+        if runtime_context.get("audienceLocale") != row["audience_locale"]:
+            raise EvalHarnessError(f"{prompt_id} runtimeContext.audienceLocale must match row audience_locale")
         if not isinstance(runtime_context.get("canvas"), dict):
             raise EvalHarnessError(f"{prompt_id} runtimeContext.canvas is required")
         if not isinstance(runtime_context.get("termsDefaults"), dict):
@@ -153,10 +163,14 @@ def load_prompt_set(path: Path = DEFAULT_PROMPTS_PATH) -> PromptSet:
             BenchmarkPrompt(
                 prompt_id=prompt_id,
                 category=row["category"],
-                richness=row["richness"],
+                variant=row["variant"],
+                audience_locale=row["audience_locale"],
+                repetition_index=int(row["repetition_index"]),
                 prompt=row["prompt"],
                 metadata=dict(row["metadata"]),
                 runtime_context=runtime_context,
+                expected_signals=dict(row["expected_signals"]),
+                llm_judge_focus=dict(row["llm_judge_focus"]),
                 expected_structural_checks=list(row["expectedStructuralChecks"]),
             )
         )
@@ -363,6 +377,7 @@ def _service_generate(
             model_override=model,
             runtime_context=prompt.runtime_context,
             openai_transport=openai_transport,
+            audience_locale=prompt.audience_locale,
             db_session=db_session,
         )
 

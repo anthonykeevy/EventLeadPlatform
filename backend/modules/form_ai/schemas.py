@@ -3,9 +3,39 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
+AudienceLocaleEnum = Literal[
+    "AU",
+    "NZ",
+    "UK",
+    "US",
+    "CA",
+    "IE",
+    "DE",
+    "INTL_ONLINE",
+    "APAC",
+    "EU",
+    "NEUTRAL",
+]
+BrandPostureEnum = Literal["local", "heritage", "neutral", "transcreate"]
+
+
 class FormAiGenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=3, max_length=4000)
     runtimeContext: Optional["FormAiRuntimeContext"] = None
+    audienceLocale: Optional[AudienceLocaleEnum] = Field(
+        default=None,
+        description="Audience locale controlling field shape, validation, compliance, and format guidance.",
+    )
+    brandPosture: Optional[BrandPostureEnum] = Field(
+        default=None,
+        description="Brand voice posture. Audience locale still controls field shape and compliance.",
+    )
+    brandHeritageOrigin: Optional[str] = Field(
+        default=None,
+        min_length=2,
+        max_length=2,
+        description="ISO-3166-1 alpha-2 origin when brandPosture is heritage.",
+    )
     openaiTransport: Literal["auto", "sync", "stream"] = Field(
         default="auto",
         description=(
@@ -30,6 +60,18 @@ class FormAiGenerateRequest(BaseModel):
             "Does not change the user message. For first-shot tuning experiments."
         ),
     )
+
+    @field_validator("brandHeritageOrigin")
+    @classmethod
+    def _normalise_brand_heritage_origin(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        candidate = value.strip().upper()
+        if not candidate:
+            return None
+        if len(candidate) != 2 or not candidate.isalpha():
+            raise ValueError("brandHeritageOrigin must be an ISO-3166-1 alpha-2 code")
+        return candidate
 
 
 class FormAiRuntimeComponentFootprint(BaseModel):
@@ -64,6 +106,9 @@ class FormAiRuntimeTermsDefaults(BaseModel):
 
 class FormAiRuntimeContext(BaseModel):
     formId: Optional[str] = None
+    audienceLocale: Optional[AudienceLocaleEnum] = None
+    brandPosture: Optional[BrandPostureEnum] = None
+    brandHeritageOrigin: Optional[str] = Field(default=None, min_length=2, max_length=2)
     canvas: Optional[FormAiRuntimeCanvasContext] = None
     lockedGlobals: Optional[FormAiRuntimeLockedGlobals] = None
     termsDefaults: Optional[FormAiRuntimeTermsDefaults] = None
@@ -202,6 +247,7 @@ class FormAiGenerateResponse(BaseModel):
     definitionJSON: Optional[Dict[str, Any]] = None
     trace: GenerationTraceMetadata
     userMessage: str
+    meta: Optional[Dict[str, Any]] = None
     draftHasValidationIssues: bool = False
     # Story 6.3.1 UAT round 5 — render-then-measure handle. Frontends that
     # support the second pass POST to ``/remeasure`` with this run id + DOM

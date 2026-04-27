@@ -33,6 +33,10 @@ CATEGORY_B_METRICS = [
     "validation_intent_accuracy",
     "row_group_agreement",
     "locale_fidelity",
+    "policy_compliance",
+    "cultural_register",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
     "copy_quality_score",
 ]
 ADVISORY_FIELDS = [

@@ -184,6 +184,8 @@ def test_story_631_persists_generation_artifacts_with_fk_fallbacks(monkeypatch):
         semantic_attempt_payloads=[{"attemptNumber": 1, "semanticPlan": {"ok": True}}],
         compiled_attempt_payloads=[{"attemptNumber": 1, "definition": {"ok": True}}],
         governance_versions=governance_versions,
+        brand_posture="local",
+        brand_heritage_origin=None,
     )
 
     assert fake_session.run_insert_params is not None
@@ -193,6 +195,8 @@ def test_story_631_persists_generation_artifacts_with_fk_fallbacks(monkeypatch):
     assert fake_session.run_insert_params["prompt_template_version_id"] == 7
     assert fake_session.run_insert_params["attempt_count"] == 1
     assert fake_session.run_insert_params["first_shot_valid"] is True
+    assert fake_session.run_insert_params["brand_posture"] == "local"
+    assert fake_session.run_insert_params["brand_heritage_origin"] is None
 
     assert fake_session.committed is True
     assert fake_session.rolled_back is False

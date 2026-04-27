@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.4.4 — **Prompt Shrink Sweeps H1/H2/H4** has evidence complete on Draft PR #72 and needs PM/SM ship/revert decision before merge. *Image-to-Form has moved later in the AI track after measured prompt-engineering work per the 2026-04-25 PM/Architect/SM ideation brief.*
+**Current Focus:** Story 6.4.5 — **Component Property Cheat Sheet H3** (or Story 6.4.4.2 only if SM/PM explicitly activates the conditional rubric_v2 re-run).
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -12,7 +12,8 @@
 **Story 6.4.2 Status:** ✅ **Complete** (2026-04-25, PR #69) — capability snapshot prompt cleanup, parity audit, `FormSemanticPlan` ADR, active prompt tests, and post-cleanup baseline. See `STORY-6.4.2-CLOSEOUT-REPORT.md`.  
 **Story 6.4.3b Status:** ✅ **Complete** (2026-04-25, PR #70) — eval judge package generator, rubric v1, DB-backed judge ingest, and Cursor judge workflow.  
 **Story 6.4.3c Status:** ✅ **Complete** (2026-04-25, PR #71) — eval diff reports, Welch/Fisher statistics, and 6.4.4 handoff docs.  
-**Story 6.4.4 Status:** 🟡 **Evidence complete; PM/SM ship decision required** (Draft PR #72) — H1/H2/H4 prompt shrink sweeps; combined H1+H2+H4 has a significant locale regression and should not ship as-is.
+**Story 6.4.4 Status:** ✅ **Complete** (merged 2026-04-27, PR #72) — H1/H2/H4 prompt shrink sweeps; combined H1+H2+H4 evidence fed Story 6.4.4.1 locale registry work.
+**Story 6.4.4.1 Status:** ✅ **Complete / ready to merge** (2026-04-27, PR #75) — locale registry wiring, audience locale/brand posture API pass-through, prompts-v1.1/rubric_v2 judge bump. Company Settings brand posture UI deferred to `g-6441-company-brand-settings-ui`.
 
 ---
 

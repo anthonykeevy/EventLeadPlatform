@@ -1,0 +1,203 @@
+{
+  "advisory_metric_deltas": {
+    "attempt_count": {
+      "baseline_mean": 1.2,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "p_value": 1.0,
+      "variant_mean": 1.2
+    },
+    "collision_count": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "component_count": {
+      "baseline_mean": 16.0,
+      "decision": "advisory",
+      "delta": -1.0,
+      "effect_size": 0.19738550848793068,
+      "p_value": 0.6644569003927503,
+      "variant_mean": 15.0
+    },
+    "duration_ms": {
+      "baseline_mean": 65881.6,
+      "decision": "advisory",
+      "delta": -20455.100000000006,
+      "effect_size": 1.0998600056370837,
+      "p_value": 0.02579483310663655,
+      "variant_mean": 45426.5
+    },
+    "input_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "output_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "total_cost_usd": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    }
+  },
+  "baseline": {
+    "path": "C:\\Users\\tonyk\\OneDrive - Signal Platforms Pty Ltd\\Projects\\EventLeadPlatform\\_bmad-output\\eval-runs\\story-6.4.2-post-cleanup-baseline",
+    "run_id": "story-6.4.2-post-cleanup-baseline",
+    "variant_label": "post-642-capability-cleanup"
+  },
+  "decision": {
+    "blocked": false,
+    "blocking_reasons": [],
+    "blocking_rows": [],
+    "recommendation": "human-review"
+  },
+  "judge_bias_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 0.05,
+      "delta": -0.05,
+      "variant_mean": 0.0
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 0.0,
+      "delta": 0.05,
+      "variant_mean": 0.05
+    },
+    "field_label_f1": {
+      "baseline_mean": 0.0,
+      "delta": 0.05,
+      "variant_mean": 0.05
+    },
+    "locale_fidelity": {
+      "baseline_mean": 0.0,
+      "delta": 0.4,
+      "variant_mean": 0.4
+    },
+    "row_group_agreement": {
+      "baseline_mean": 0.3,
+      "delta": 0.04999999999999999,
+      "variant_mean": 0.35
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 0.15,
+      "delta": 0.05000000000000002,
+      "variant_mean": 0.2
+    }
+  },
+  "judge_metric_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 4.95,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.04999999999999982,
+      "effect_size": -0.4472135954999564,
+      "metric_kind": "continuous",
+      "metric_name": "copy_quality_score",
+      "note": "",
+      "p_value": 0.3434363961348613,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 5.0
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 5.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": -0.04999999999999982,
+      "effect_size": 0.4472135954999564,
+      "metric_kind": "continuous",
+      "metric_name": "field_coverage_recall",
+      "note": "",
+      "p_value": 0.3434363961348613,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.95
+    },
+    "field_label_f1": {
+      "baseline_mean": 5.0,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": -0.04999999999999982,
+      "effect_size": 0.4472135954999564,
+      "metric_kind": "continuous",
+      "metric_name": "field_label_f1",
+      "note": "",
+      "p_value": 0.3434363961348613,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.95
+    },
+    "locale_fidelity": {
+      "baseline_mean": 5.0,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.40000000000000036,
+      "effect_size": 2.68328157299975,
+      "metric_kind": "continuous",
+      "metric_name": "locale_fidelity",
+      "note": "",
+      "p_value": 0.00020249932207194732,
+      "recommended_action": "human-review",
+      "variant_mean": 4.6
+    },
+    "row_group_agreement": {
+      "baseline_mean": 4.7,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": -0.04999999999999982,
+      "effect_size": 0.1999999999999993,
+      "metric_kind": "continuous",
+      "metric_name": "row_group_agreement",
+      "note": "",
+      "p_value": 0.6600791471797829,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.65
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 4.85,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": -0.04999999999999982,
+      "effect_size": 0.16641005886756816,
+      "metric_kind": "continuous",
+      "metric_name": "validation_intent_accuracy",
+      "note": "",
+      "p_value": 0.7146985496690503,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.8
+    }
+  },
+  "limitations": [
+    "Only schema_valid regressions and boundary violations are blocking.",
+    "Other deltas are advisory for PM/SM decision.",
+    "Inconclusive Category B results should rerun at n=15."
+  ],
+  "output_files": {
+    "csv": "_bmad-output\\eval-runs\\story-6.4.4-live-baseline-vs-combined\\diff-details.csv",
+    "json": "_bmad-output\\eval-runs\\story-6.4.4-live-baseline-vs-combined\\diff-summary.json",
+    "markdown": "_bmad-output\\eval-runs\\story-6.4.4-live-baseline-vs-combined\\diff-report.md"
+  },
+  "row_alignment": {
+    "extra_in_variant": [],
+    "matched_count": 10,
+    "missing_in_variant": []
+  },
+  "variant": {
+    "path": "C:\\Users\\tonyk\\OneDrive - Signal Platforms Pty Ltd\\Projects\\EventLeadPlatform\\_bmad-output\\eval-runs\\story-6.4.4-live-h1-h2-h4-combined",
+    "run_id": "story-6.4.4-live-h1-h2-h4-combined",
+    "variant_label": "h1-h2-h4-combined"
+  }
+}

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.4.4" title="Prompt Shrink Sweeps H1/H2/H4">
+
+  <overview>
+    Run the first measured prompt shrink experiments using the completed
+    harness, judge, ingest, diff, and statistics stack. Dev tests H1 locale
+    shrink, H2 consent/legal shrink, H4 operational-notes trim, and the
+    combined H1+H2+H4 interaction variant. Only evidence-backed winners ship.
+  </overview>
+
+  <critical-objectives>
+    <item>Preserve prompts-v1.0 benchmark and rubric_v1; do not mutate them.</item>
+    <item>Run single-variable variants plus combined variant with distinct run IDs.</item>
+    <item>Use diff/statistics reports for verdicts, not subjective inspection alone.</item>
+    <item>Revert losers before merge.</item>
+    <item>Record final evidence in STORY-6.4.4-HYPOTHESIS-EVIDENCE.md.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.3a">Eval harness and baseline.</story>
+    <story id="6.4.2">Capability snapshot cleanup and post-cleanup baseline.</story>
+    <story id="6.4.3b">Judge package, rubric, and ingest.</story>
+    <story id="6.4.3c">Diff/statistics tooling.</story>
+    <doc path="docs/stories/story-6.4.4.md">Authoritative story spec.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Harness run docs.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Judge workflow docs.</doc>
+    <doc path="docs/FORM-AI-EVAL-DIFF-STATS.md">Diff/statistics docs.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT change prompts.yaml or rubric_v1.md.</item>
+    <item>Do NOT implement H3/H5/H6 or Image-to-Form.</item>
+    <item>Do NOT keep prompt changes that fail structural blockers.</item>
+    <item>Do NOT run Alembic. No migration expected.</item>
+    <item>Use PowerShell-safe commands; no && chaining.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/service.py"
+          note="Primary prompt block source: _LOCALE_PROMPT_BLOCKS, _CONSENT_GUIDANCE_BLOCK, _build_initial_messages."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="Run baseline/variant sweeps."/>
+    <path file="backend/tests/form_ai_eval/judge_pack.py"
+          note="Generate judge packages for variants needing semantic scoring."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py"
+          note="Ingest Cursor judge outputs."/>
+    <path file="backend/tests/form_ai_eval/diff.py"
+          note="Compare variants against baseline and emit reports."/>
+    <path file="backend/tests/form_ai_eval/stats.py"
+          note="Statistical evidence helpers."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/STORY-6.4.4-SINGLE-SESSION-DEV-PROMPT.md"
+          purpose="Dev execution contract."/>
+    <file path="docs/stories/STORY-6.4.4-UAT-TEST-GUIDE.md"
+          purpose="Human UAT for evidence review and final verdicts."/>
+    <file path="docs/stories/STORY-6.4.4-HYPOTHESIS-EVIDENCE.md"
+          purpose="Mandatory hypothesis evidence for H1/H2/H4/combined."/>
+    <file path="docs/stories/STORY-6.4.4-CLOSEOUT-REPORT.md"
+          purpose="Mandatory closeout report."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">H1 implemented and measured.</ac>
+    <ac id="2">H2 implemented and measured.</ac>
+    <ac id="3">H4 implemented and measured.</ac>
+    <ac id="4">Combined variant measured.</ac>
+    <ac id="5">Structural gates pass for shipped changes.</ac>
+    <ac id="6">Semantic evidence recorded.</ac>
+    <ac id="7">Statistical outputs recorded.</ac>
+    <ac id="8">Losers reverted.</ac>
+    <ac id="9">Prompt size delta documented.</ac>
+    <ac id="10">Hypothesis evidence complete.</ac>
+    <ac id="11">No unrelated capability work.</ac>
+    <ac id="12">Closeout complete.</ac>
+  </acceptance-mapping>
+
+</story-context>

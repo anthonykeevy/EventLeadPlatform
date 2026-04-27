@@ -165,7 +165,7 @@ def load_prompt_set(path: Path = DEFAULT_PROMPTS_PATH) -> PromptSet:
 
 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the Form AI eval harness baseline.")
+    parser = argparse.ArgumentParser(description="Run the Form AI eval harness.")
     parser.add_argument("--variant", default="baseline")
     parser.add_argument("--hypothesis-code", default="baseline")
     parser.add_argument("--variant-label", default="current-master-baseline")
@@ -183,10 +183,10 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--openai-transport", choices=["auto", "sync", "stream"], default="auto")
     args = parser.parse_args(argv)
 
-    if args.variant != "baseline":
-        parser.error("Story 6.4.3a only supports --variant baseline")
-    if args.hypothesis_code != "baseline":
-        parser.error("Story 6.4.3a only supports --hypothesis-code baseline")
+    if not args.variant.strip():
+        parser.error("--variant must not be empty")
+    if not args.hypothesis_code.strip():
+        parser.error("--hypothesis-code must not be empty")
     if args.repetitions < 1:
         parser.error("--repetitions must be >= 1")
     if args.concurrency < 1 or args.concurrency > MAX_CONCURRENCY:

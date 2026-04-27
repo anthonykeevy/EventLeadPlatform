@@ -1,6 +1,8 @@
 from modules.form_ai.service import (
+    _CONSENT_GUIDANCE_BLOCK,
     _build_capability_prompt_block,
     _build_initial_messages,
+    _build_locale_prompt_block,
     _filter_runtime_context_to_capability,
 )
 
@@ -87,6 +89,45 @@ def test_build_initial_messages_includes_capability_block_when_snapshot_exists()
     assert "ALLOWED COMPONENT TYPES" in system_prompt
     assert "text (allowed widthIntent hints: compact, half, full)" in system_prompt
     assert "submit-button (allowed widthIntent hints: compact, half)" in system_prompt
+
+
+def test_story_644_h1_locale_prompt_is_one_line_directive():
+    locale_block = _build_locale_prompt_block("AU")
+
+    assert locale_block == (
+        "Form audience: Australia/New Zealand. Use AU/NZ spelling, address, "
+        "phone, date conventions."
+    )
+
+
+def test_story_644_h2_consent_guidance_is_compact_decision_table():
+    assert len(_CONSENT_GUIDANCE_BLOCK) < 1200
+    assert "| User intent | Component | Required guidance |" in _CONSENT_GUIDANCE_BLOCK
+    assert "Marketing consent" in _CONSENT_GUIDANCE_BLOCK
+    assert "company-managed terms" in _CONSENT_GUIDANCE_BLOCK
+    assert "Do not invent legal URLs" in _CONSENT_GUIDANCE_BLOCK
+    assert "GDPR, CCPA and the AU Privacy Act" not in _CONSENT_GUIDANCE_BLOCK
+
+
+def test_story_644_h4_trims_context_pack_operational_notes_from_prompt():
+    context_pack = (
+        "# Context Pack\n\n"
+        "## Component Catalog\nAllowed types stay here.\n\n"
+        "## Operational Notes\n"
+        "Provider credentials are loaded from local environment only.\n"
+        "Never log or return provider secrets.\n"
+    )
+
+    messages = _build_initial_messages(
+        prompt="Create a contact form.",
+        context_pack=context_pack,
+        runtime_context=None,
+    )
+
+    system_prompt = messages[0]["content"]
+    assert "Allowed types stay here." in system_prompt
+    assert "## Operational Notes" not in system_prompt
+    assert "Provider credentials" not in system_prompt
 
 
 def test_build_capability_prompt_block_missing_snapshot_is_empty_legacy_fallback():

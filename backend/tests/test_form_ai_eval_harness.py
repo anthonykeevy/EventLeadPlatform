@@ -9,7 +9,7 @@ TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
-from form_ai_eval import run as eval_run  # noqa: E402
+from form_ai_eval import run as eval_run  # type: ignore[import-not-found]  # noqa: E402
 
 
 def test_prompt_yaml_loads_exact_frozen_set():
@@ -44,13 +44,15 @@ def test_runtime_context_has_frozen_eval_shape():
         assert runtime["componentFootprints"]
 
 
-def test_cli_parsing_enforces_story_baseline_scope(tmp_path):
+def test_cli_parsing_accepts_story_644_hypothesis_variants(tmp_path):
     args = eval_run.parse_args(
         [
             "--variant",
-            "baseline",
+            "candidate",
             "--hypothesis-code",
-            "baseline",
+            "H1",
+            "--variant-label",
+            "h1-locale-one-line",
             "--prompt-id",
             "p-03-survey-nps",
             "--repetitions",
@@ -64,13 +66,12 @@ def test_cli_parsing_enforces_story_baseline_scope(tmp_path):
         ]
     )
 
-    assert args.variant == "baseline"
-    assert args.hypothesis_code == "baseline"
+    assert args.variant == "candidate"
+    assert args.hypothesis_code == "H1"
+    assert args.variant_label == "h1-locale-one-line"
     assert args.prompt_id == ["p-03-survey-nps"]
     assert args.repetitions == 2
 
-    with pytest.raises(SystemExit):
-        eval_run.parse_args(["--variant", "candidate"])
     with pytest.raises(SystemExit):
         eval_run.parse_args(["--concurrency", "5"])
 

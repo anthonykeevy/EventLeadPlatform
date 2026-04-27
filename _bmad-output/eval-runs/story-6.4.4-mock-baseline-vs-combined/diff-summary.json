@@ -1,0 +1,93 @@
+{
+  "advisory_metric_deltas": {
+    "attempt_count": {
+      "baseline_mean": 1.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 1.0
+    },
+    "collision_count": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "component_count": {
+      "baseline_mean": 4.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 4.0
+    },
+    "duration_ms": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "input_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "output_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "total_cost_usd": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    }
+  },
+  "baseline": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.4-mock-baseline",
+    "run_id": "story-6.4.4-mock-baseline",
+    "variant_label": "current-control"
+  },
+  "decision": {
+    "blocked": false,
+    "blocking_reasons": [],
+    "blocking_rows": [],
+    "recommendation": "human-review"
+  },
+  "judge_bias_deltas": {},
+  "judge_metric_deltas": {},
+  "limitations": [
+    "Only schema_valid regressions and boundary violations are blocking.",
+    "Other deltas are advisory for PM/SM decision.",
+    "Inconclusive Category B results should rerun at n=15."
+  ],
+  "output_files": {
+    "csv": "_bmad-output\\eval-runs\\story-6.4.4-mock-baseline-vs-combined\\diff-details.csv",
+    "json": "_bmad-output\\eval-runs\\story-6.4.4-mock-baseline-vs-combined\\diff-summary.json",
+    "markdown": "_bmad-output\\eval-runs\\story-6.4.4-mock-baseline-vs-combined\\diff-report.md"
+  },
+  "row_alignment": {
+    "extra_in_variant": [],
+    "matched_count": 50,
+    "missing_in_variant": []
+  },
+  "variant": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.4-mock-h1-h2-h4-combined",
+    "run_id": "story-6.4.4-mock-h1-h2-h4-combined",
+    "variant_label": "h1-h2-h4-combined"
+  }
+}

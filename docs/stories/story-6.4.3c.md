@@ -3,9 +3,10 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.3c  
 **Title:** Eval Diff + Statistics Tooling  
-**Status:** Review  
+**Status:** ✅ **Complete** — UAT passed and merged
 **Branch:** `story/epic6-6.4.3c-eval-diff-statistics`  
-**PR:** [#71](https://github.com/anthonykeevy/EventLeadPlatform/pull/71) — Draft  
+**PR:** [#71](https://github.com/anthonykeevy/EventLeadPlatform/pull/71)  
+**Completed:** 2026-04-25  
 **Created:** 2026-04-25  
 **Depends On:** Story 6.4.3a ✅ Complete, Story 6.4.2 ✅ Complete, Story 6.4.3b ✅ Complete  
 **Unblocks:** Story 6.4.4 prompt shrink sweeps

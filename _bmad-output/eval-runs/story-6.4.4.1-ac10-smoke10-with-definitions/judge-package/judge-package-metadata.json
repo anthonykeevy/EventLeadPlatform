@@ -1,0 +1,146 @@
+{
+  "benchmark_set_version": "prompts-v1.1",
+  "category_b_metrics": [
+    "field_coverage_recall",
+    "field_label_f1",
+    "validation_intent_accuracy",
+    "row_group_agreement",
+    "locale_fidelity",
+    "policy_compliance",
+    "cultural_register",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
+    "copy_quality_score"
+  ],
+  "judge_models": [
+    "claude",
+    "grok",
+    "gpt5mini"
+  ],
+  "notes": [
+    "Obvious email, phone, ISO/date-like, and common synthetic full-name values are scrubbed.",
+    "Name-like field labels are preserved so semantic judging remains possible.",
+    "If generated definitions are unavailable, rerun with --use-db against a DB that has dbo.GenerationArtifact final-definition rows."
+  ],
+  "package_schema_version": "judge-package-v2",
+  "row_count": 10,
+  "rows": [
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-neutral-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-adversarial-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-nz-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p01-nz-neutral-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p01-nz-ambiguous-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-nz-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p01-nz-adversarial-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-uk-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p01-uk-neutral-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p01-uk-ambiguous-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-uk-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p01-uk-adversarial-r1__r01",
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "benchmark_set_version": "prompts-v1.1",
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_id": "p01-us-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p01-us-neutral-r1__r01",
+      "variant_label": "current-master-baseline"
+    }
+  ],
+  "rubric_version": "rubric_v2",
+  "run_id": "story-6.4.4.1-ac10-smoke10-with-definitions",
+  "source_eval_run_dir": "C:\\wt\\elp\\story-epic6-6.4.4.1-ac10-baseline-rejudge\\_bmad-output\\eval-runs\\story-6.4.4.1-ac10-smoke10-with-definitions",
+  "source_eval_run_dirs": [
+    "C:\\wt\\elp\\story-epic6-6.4.4.1-ac10-baseline-rejudge\\_bmad-output\\eval-runs\\story-6.4.4.1-ac10-smoke10-with-definitions"
+  ],
+  "variant_label": "current-master-baseline"
+}

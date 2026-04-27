@@ -47,6 +47,17 @@ python -m backend.tests.form_ai_eval.run --variant baseline --hypothesis-code ba
 
 Unknown prompt IDs fail fast.
 
+Run a locale slice with `--locale-filter`. This is the AC-10 path for parallel baseline execution; each locale writes a non-overlapping run folder:
+
+```powershell
+python -m backend.tests.form_ai_eval.run `
+  --locale-filter AU `
+  --variant rubric-v2-baseline-AU `
+  --run-id story-6.4.4.1-ac10-baseline-AU
+```
+
+When `--locale-filter` is set and `--run-id` is omitted, the runner uses the locale-suffixed variant as the run id.
+
 ## Checkpoint And Resume
 
 The runner writes `_bmad-output/eval-runs/<run-id>/checkpoint.json` when it halts because of a cost cap or error. Resume by pointing at that checkpoint:

@@ -1,0 +1,862 @@
+{
+  "judge_model": "claude",
+  "judge_model_version": "",
+  "rows": [
+    {
+      "prompt_id": "p01-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p01-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p01-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p01-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p01-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p02-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p02-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p02-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p02-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p03-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p03-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p03-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p03-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p03-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p03-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p04-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p04-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p04-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p04-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p04-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p04-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p05-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p05-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p05-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p05-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p05-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p05-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p06-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p06-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p06-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p06-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p06-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p06-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p07-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p07-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p07-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p07-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p07-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p07-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p08-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p08-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p08-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p08-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p08-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p08-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p09-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p09-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p09-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p09-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p09-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p09-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p10-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p10-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p10-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p10-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p10-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p10-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p11-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p11-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p11-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p11-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p11-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p11-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p12-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p12-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p12-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p12-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p12-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p12-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p13-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p13-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p13-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p13-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p13-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p13-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p14-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p14-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p14-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p14-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p14-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p14-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p15-us-neutral-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p15-us-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p15-us-ambiguous-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p15-us-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    },
+    {
+      "prompt_id": "p15-us-adversarial-r1",
+      "rationale": "",
+      "repetition_index": 1,
+      "row_id": "p15-us-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": null,
+        "cross_locale_leakage": null,
+        "cultural_register": null,
+        "field_coverage_recall": null,
+        "field_label_f1": null,
+        "format_pattern_accuracy": null,
+        "locale_fidelity": null,
+        "policy_compliance": null,
+        "row_group_agreement": null,
+        "validation_intent_accuracy": null
+      },
+      "variant_label": "current-master-baseline"
+    }
+  ],
+  "rubric_version": "rubric_v2"
+}

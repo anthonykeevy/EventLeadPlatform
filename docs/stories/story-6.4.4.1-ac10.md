@@ -3,9 +3,9 @@
 **Epic:** 6 — AI Generation & Monetization Engine
 **Story ID:** 6.4.4.1-ac10
 **Title:** AC-10 Baseline Re-Judge Execution + Parallel-Batch Harness Extension + Stale-Field Housekeeping
-**Status:** Draft (SM pack)
-**Branch:** `story/epic6-6.4.4.1-ac10-baseline-rejudge` (to be created)
-**PR:** TBD on `new-story.ps1` execution
+**Status:** Complete
+**Branch:** `story/epic6-6.4.4.1-ac10-baseline-rejudge`
+**PR:** #77
 **Created:** 2026-04-27
 **Depends On:** Story 6.4.4.1 ([PR #75](https://github.com/anthonykeevy/EventLeadPlatform/pull/75)) merged at `6d6bf13`.
 **Successor To:** Story 6.4.4.1 (deferred AC-10 manual gate to here).
@@ -165,16 +165,48 @@ Risk: if round-1 ceiling-locks, +0.5 day for one calibration tweak round (rubric
 
 ### Implementation Notes
 
-_(filled by Dev)_
+- Preflight passed for worktree `C:\wt\elp\story-epic6-6.4.4.1-ac10-baseline-rejudge` on branch `story/epic6-6.4.4.1-ac10-baseline-rejudge`; report written to `STORY-6.4.4.1-AC10-PREFLIGHT.md`.
+- Added `--locale-filter` to the eval runner. The filter is case-normalised, exits on empty matches, slices `prompts-v1.1` to 45 rows per locale, records `locale_filter` in metadata, and uses a locale-suffixed variant as the default run id for sliced runs.
+- Added per-judge prompt files to judge packages: `judge-prompt-claude.md`, `judge-prompt-grok.md`, and `judge-prompt-gpt5mini.md`. Each prompt embeds the exact output path under `judge-package/results/`.
+- Added `judge_pack.py --inputs` so six locale run dirs can be aggregated into one judge package for three total Cursor judge sessions.
+- Applied stale-field housekeeping for Story 6.4.4.1 PR #75 merge status; `ready to merge` scan is clean across the four specified docs.
+- v1 ingest backwards-compat smoke passed against an alternate historical Story 6.4.2 v1 judge package. The first external copy failed because its GPT-5 mini file contains extra data after the JSON object; this is a data artifact issue, not a v1 ingest path failure.
+- Six AC-10 locale batches completed, producing 270 total rows, but the first aggregate judge package had `generated_definition_available = 0 / 270`; the resulting judge outputs are invalid for AC-10.
+- Root cause: `run.py` did not persist `response.definitionJSON` into `metrics.jsonl`, and `--use-db` could not recover definitions because `generation_run_id` was `null` for all rows.
+- Fixed harness artifact contract: `run.py` now writes `generated_definition` into each metrics row, and focused tests cover the field.
+- Regenerated full baseline `story-6.4.4.1-ac10-baseline-v2` produced 270/270 generated definitions and 0 unavailable-definition warnings.
+- Final judge ingest includes Claude, Grok, and GPT-5 mini. AC-10 passed: Grok mean `4.2667` and every judge scored baseline cells below 4.
+- Recommended next story: Story 6.4.4.2 to re-evaluate H2/H4 under `rubric_v2`.
 
 ### Test Results
 
-_(filled by Dev — focused gate, backend regression, AC-10 ingest summary)_
+- Preflight: PASS.
+- `python -m pytest backend/tests/test_form_ai_eval_harness.py backend/tests/test_form_ai_eval_locale_filter.py --tb=short` -> `14 passed`.
+- `python -m pytest backend/tests/test_judge_pack.py --tb=short` -> `5 passed`.
+- `python -m pytest backend/tests/test_form_ai_eval_harness.py backend/tests/test_form_ai_eval_locale_filter.py backend/tests/test_judge_pack.py --tb=short` -> `19 passed`.
+- `ReadLints` on touched eval/test files: no linter errors.
+- Judge ingest against first package: invalid for AC-10 because the package lacked generated definitions.
+- Judge ingest against regenerated v2 package: PASS; 270 rows, primary judges Claude + Grok, control judge GPT-5 mini, cross-model mean `4.2637`.
+- Backend regression: `python -m pytest backend/tests --tb=short` -> `800 passed, 26 skipped`.
 
 ### File List
 
-_(filled by Dev)_
+- `backend/tests/form_ai_eval/run.py`
+- `backend/tests/form_ai_eval/judge_pack.py`
+- `backend/tests/test_form_ai_eval_locale_filter.py`
+- `backend/tests/test_judge_pack.py`
+- `docs/FORM-AI-EVAL-HARNESS.md`
+- `docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md`
+- `docs/stories/STORY-6.4.4.1-AC10-PREFLIGHT.md`
+- `docs/stories/STORY-6.4.4.1-AC10-GATE-EVIDENCE.md`
+- `docs/stories/STORY-6.4.4.1-AC10-CLOSEOUT-REPORT.md`
+- `docs/stories/STORY-6.4.4.1-AC10-UAT-RESULTS.md`
+- `docs/stories/STORY-6.4.4.1-CLOSEOUT-REPORT.md`
+- `docs/stories/EPIC-6-STATUS.md`
+- `docs/stories/EPIC-6-WORKFLOW-GUIDE.md`
+- `docs/stories/story-6.4.4.1.md`
+- `docs/stories/story-6.4.4.1-ac10.md`
 
 ### Change Log
 
-_(filled by Dev)_
+- 2026-04-27: Added locale-filtered eval execution, explicit judge prompt output paths, multi-input judge package aggregation, AC10 evidence skeletons, and stale-field housekeeping.

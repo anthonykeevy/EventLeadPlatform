@@ -129,3 +129,29 @@ Baseline re-snapshot policy:
 3. Does the JSON schema make invalid/missing rows obvious before ingest?
 4. Does the workflow clearly tell Anthony which Cursor model to use for each file?
 5. Is the rubric narrow enough to avoid judging style before H5/H6 stories?
+
+---
+
+## Supersession status (added 2026-04-27 by Story 6.4.4 closeout amendment)
+
+**Status:** rubric_v1 is being superseded by rubric_v2 under Story 6.4.4.1 — Locale Architecture: Wire the Registry.
+
+**Trigger:** Story 6.4.4 measured a `locale_fidelity` regression (`p=0.000202`, effect 2.68) on the combined H1+H2+H4 variant under rubric_v1, but PM analysis surfaced that (a) two of the three judges (Gemini 2.5 Flash, GPT-5 mini) gave 60/60 perfect 5/5 across all 5 runs — structurally zero variance — and (b) `prompts-v1.0` contained no locale anchor per prompt, so `locale_fidelity` had no ground truth. Tonyk's lived AU experience confirmed several of Claude's locale downscores were AU-pedantry false positives. See [`STORY-6.4.4-CLOSEOUT-AMENDMENT.md`](./STORY-6.4.4-CLOSEOUT-AMENDMENT.md) and [`_bmad-output/planning-artifacts/STORY-6.4.4.1-SM-HANDOFF-BRIEF.md`](../../_bmad-output/planning-artifacts/STORY-6.4.4.1-SM-HANDOFF-BRIEF.md) for the full reasoning chain.
+
+**What rubric_v2 changes (drafted in Story 6.4.4.1):**
+
+- Replaces the single-anchor `locale_fidelity` metric with a 9-element scoring rubric (Memo 2's 8 + Memo 3's cross-locale leakage element).
+- Splits scoring methodology: 6 elements deterministic (regex / field presence / convention check) + 3 elements LLM-judged (consent citation, tone register, mandatory-field strictness).
+- Adds Tonyk's lived-AU calibration anchors (e.g. "First name / Last name" → full marks; mandatory `+61` prefix on AU domestic form → score 0).
+- Bumps the required JSON shape (`rubric_version: rubric_v2`; new `judge_model_version` field; new metric keys).
+- Pinned model versions for all three judges (Claude 4.7 + Grok 4 + GPT-5 mini control); Gemini 2.5 Flash retired from the panel.
+
+**Validity boundary:**
+
+- rubric_v1 judge outputs (including all Story 6.4.4 results) **remain valid only for rubric_v1 comparisons**.
+- Cross-comparison of rubric_v1 and rubric_v2 scores is explicitly disallowed by the "Baseline re-snapshot policy" section above.
+- When rubric_v2 lands, baseline judge packages will be regenerated from the same eval run artifacts and re-scored under v2 (per the existing policy).
+
+**ADR successor:** `docs/stories/STORY-6.4.4.1-RUBRIC-V2-ADR.md` (drafted concurrently with the closeout amendment as part of the Story 6.4.4.1 SM pack).
+
+This ADR remains the authoritative governance document for `rubric_v1` for as long as rubric_v1 outputs are referenced in the historical record.

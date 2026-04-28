@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -72,9 +73,29 @@ def test_cli_parsing_accepts_story_644_hypothesis_variants(tmp_path):
     assert args.variant_label == "h1-locale-one-line"
     assert args.prompt_id == ["p03-au-neutral-r1"]
     assert args.repetitions == 2
+    assert args.prompt_shrink_mode == "h2-h4"
 
     with pytest.raises(SystemExit):
         eval_run.parse_args(["--concurrency", "5"])
+
+
+def test_cli_infers_story_6442_prompt_shrink_modes():
+    h2_args = eval_run.parse_args(["--variant", "story-6.4.4.2-h2-consent-v2"])
+    h4_args = eval_run.parse_args(["--variant", "story-6.4.4.2-h4-operational-trim-v2"])
+    subset_args = eval_run.parse_args(["--variant", "story-6.4.4.2-h2-h4-accepted-v2"])
+    explicit_args = eval_run.parse_args(
+        [
+            "--variant",
+            "manual-control",
+            "--prompt-shrink-mode",
+            "baseline",
+        ]
+    )
+
+    assert h2_args.prompt_shrink_mode == "h2"
+    assert h4_args.prompt_shrink_mode == "h4"
+    assert subset_args.prompt_shrink_mode == "h2-h4"
+    assert explicit_args.prompt_shrink_mode == "baseline"
 
 
 def test_checkpoint_write_and_resume(tmp_path):
@@ -138,6 +159,35 @@ def test_runner_writes_jsonl_csv_metadata_without_live_llm(tmp_path):
     assert jsonl_rows[0]["generated_definition"]["pages"]
     assert (run_dir / "summary.csv").exists()
     assert (run_dir / "run-metadata.json").exists()
+
+
+def test_runner_sets_prompt_shrink_env_and_restores(tmp_path, monkeypatch):
+    monkeypatch.setenv(eval_run.PROMPT_SHRINK_MODE_ENV, "baseline")
+    seen_modes = []
+
+    def fake_generate(prompt):
+        seen_modes.append(os.environ.get(eval_run.PROMPT_SHRINK_MODE_ENV))
+        return eval_run._mock_generate(prompt)
+
+    args = eval_run.parse_args(
+        [
+            "--variant",
+            "story-6.4.4.2-h2-consent-v2",
+            "--mock",
+            "--prompt-id",
+            "p02-au-neutral-r1",
+            "--run-id",
+            "h2-env-run",
+            "--output-root",
+            str(tmp_path),
+        ]
+    )
+
+    metadata = eval_run.run_harness(args, call_generation=fake_generate)
+
+    assert seen_modes == ["h2"]
+    assert metadata["prompt_shrink_mode"] == "h2"
+    assert os.environ[eval_run.PROMPT_SHRINK_MODE_ENV] == "baseline"
 
 
 def test_resume_keeps_existing_rows_and_skips_completed_work(tmp_path):

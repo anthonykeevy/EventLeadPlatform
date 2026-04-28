@@ -1537,6 +1537,67 @@ _CONSENT_GUIDANCE_BLOCK = (
     "| Consent text but no company-managed terms | ``terms`` | Keep the acknowledgement sentence in ``label`` or ``props.termsContent``. Do not invent legal URLs or policy content. |\n"
     "| Interests, preferences, dietary choices, availability, feature toggles or other non-legal multi-select | ``checkbox`` | Treat as ordinary choices, not legal acknowledgement. |\n"
 )
+_LEGACY_CONSENT_GUIDANCE_BLOCK = (
+    "## CONSENT & LEGAL ACKNOWLEDGEMENTS — component selection\n"
+    "When the form needs the end-user to acknowledge or agree to a legal / "
+    "policy / marketing statement, prefer the ``terms`` component over a "
+    "plain ``checkbox``. ``terms`` is purpose-built for consent: it carries "
+    "a clickable link to the full document so the user can actually read it "
+    "before agreeing (an enforceability requirement under GDPR, CCPA and the "
+    "AU Privacy Act), and integrates with company-managed terms when the "
+    "runtime context provides them.\n"
+    "Use ``terms`` for any of these intents (and any close variants in the "
+    "user prompt):\n"
+    "  - Marketing consent / opt-in to receive marketing communications, "
+    "    newsletters, promotional emails or SMS.\n"
+    "  - Acceptance of Terms of Service, Terms & Conditions, T&Cs, EULA, "
+    "    user agreement, vendor agreement.\n"
+    "  - Acknowledgement of a Privacy Policy, Privacy Notice, Privacy "
+    "    Collection Statement, or data-handling notice.\n"
+    "  - GDPR / CCPA / AU Privacy Act consent or opt-in (data processing, "
+    "    profiling, automated decision-making, lawful basis acknowledgement).\n"
+    "  - Cookies / tracking consent, when collected on a form rather than a "
+    "    banner.\n"
+    "  - Liability waivers, photo / media release, code-of-conduct "
+    "    acknowledgement, indemnity declarations.\n"
+    "Set ``componentType: \"terms\"`` for these. Keep the consent sentence "
+    "in ``label`` (or in ``props.termsContent`` if the runtime context does "
+    "not provide company terms), set ``validationIntent.required = true`` "
+    "unless the prompt clearly says the consent is optional, and let the "
+    "compiler / runtime fill in ``props.termsLinkText`` / ``props.termsUrl``.\n"
+    "Reserve plain ``checkbox`` for non-legal multi-select intent — "
+    "interests, preferences, dietary requirements, available time slots, "
+    "feature toggles. If you're unsure whether something is consent vs. a "
+    "preference, the deciding question is: \"Would a regulator expect the "
+    "end-user to be able to read a document before ticking this?\" If yes, "
+    "use ``terms``.\n"
+)
+_PROMPT_SHRINK_MODE_ENV = "FORM_AI_EVAL_PROMPT_SHRINK_MODE"
+_PROMPT_SHRINK_MODES = {"baseline", "h2", "h4", "h2-h4"}
+
+
+def _resolve_prompt_shrink_mode() -> str:
+    """Resolve prompt-shrink candidate state for eval-only harness runs."""
+    raw_mode = os.getenv(_PROMPT_SHRINK_MODE_ENV, "").strip().lower()
+    if raw_mode in _PROMPT_SHRINK_MODES:
+        return raw_mode
+    # Preserve the currently shipped prompt state outside explicit eval runs.
+    return "h2-h4"
+
+
+def _prompt_shrink_candidate_enabled(candidate: str) -> bool:
+    mode = _resolve_prompt_shrink_mode()
+    if candidate == "h2":
+        return mode in {"h2", "h2-h4"}
+    if candidate == "h4":
+        return mode in {"h4", "h2-h4"}
+    return False
+
+
+def _active_consent_guidance_block() -> str:
+    if _prompt_shrink_candidate_enabled("h2"):
+        return _CONSENT_GUIDANCE_BLOCK
+    return _LEGACY_CONSENT_GUIDANCE_BLOCK
 
 
 # Story 6.3.1 (UAT round 6) — Phase 2 LLM nudge for horizontal-stacked
@@ -1766,6 +1827,8 @@ def _assemble_locale_block(
 
 def _trim_context_pack_for_prompt(context_pack: str) -> str:
     """Remove non-generation operational notes before sending context to the LLM."""
+    if not _prompt_shrink_candidate_enabled("h4"):
+        return context_pack
     marker = "\n## Operational Notes"
     index = context_pack.find(marker)
     if index == -1:
@@ -1807,7 +1870,7 @@ def _build_initial_messages(
         "Output a single JSON object only. No markdown or prose.\n"
         "Return FormSemanticPlan only; do not output any coordinates, pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"
         "\n"
-        + _CONSENT_GUIDANCE_BLOCK
+        + _active_consent_guidance_block()
         + (layout_mode_block + "\n" if layout_mode_block else "")
         + "\n"
         + "REQUIRED ROOT KEYS (exact, case-sensitive):\n"

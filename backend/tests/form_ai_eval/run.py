@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import random
 import sys
 import time
@@ -39,6 +40,8 @@ DEFAULT_PROMPTS_PATH = Path(__file__).with_name("prompts.yaml")
 DEFAULT_OUTPUT_ROOT = Path("_bmad-output") / "eval-runs"
 MAX_CONCURRENCY = 4
 MAX_PROVIDER_RETRIES = 3
+PROMPT_SHRINK_MODE_ENV = "FORM_AI_EVAL_PROMPT_SHRINK_MODE"
+PROMPT_SHRINK_MODES = ("baseline", "h2", "h4", "h2-h4")
 CATEGORY_A_FIELDS = [
     "schema_valid",
     "component_count",
@@ -78,6 +81,21 @@ class PromptSet:
 
 class EvalHarnessError(RuntimeError):
     """Raised for harness configuration or validation failures."""
+
+
+def _infer_prompt_shrink_mode(variant: str) -> str:
+    """Map Story 6.4.4.2 run labels to explicit prompt candidate state."""
+    normalised = variant.strip().lower()
+    if "h2-h4" in normalised:
+        return "h2-h4"
+    if "h2" in normalised and "consent" in normalised:
+        return "h2"
+    if "h4" in normalised and ("operational" in normalised or "trim" in normalised):
+        return "h4"
+    if "baseline-no-shrink" in normalised:
+        return "baseline"
+    # Current master includes both carried-forward candidates unless overridden.
+    return "h2-h4"
 
 
 def _utc_now() -> datetime:
@@ -201,6 +219,16 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--mock", action="store_true", help="Use deterministic local responses")
     parser.add_argument("--model", default=None)
     parser.add_argument("--openai-transport", choices=["auto", "sync", "stream"], default="auto")
+    parser.add_argument(
+        "--prompt-shrink-mode",
+        choices=PROMPT_SHRINK_MODES,
+        default=None,
+        help=(
+            "Eval-only prompt state: baseline disables H2/H4, h2 enables only "
+            "the compact consent table, h4 enables only the operational-notes trim, "
+            "h2-h4 enables both."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not args.variant.strip():
@@ -220,6 +248,8 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         parser.error(f"--concurrency must be between 1 and {MAX_CONCURRENCY}")
     if args.max_cost_usd is not None and args.max_cost_usd < 0:
         parser.error("--max-cost-usd must be >= 0")
+    if args.prompt_shrink_mode is None:
+        args.prompt_shrink_mode = _infer_prompt_shrink_mode(args.variant)
     return args
 
 
@@ -552,6 +582,8 @@ def _build_run_metadata(
         "hypothesis_code": args.hypothesis_code,
         "variant": args.variant,
         "variant_label": args.variant_label,
+        "prompt_shrink_mode": args.prompt_shrink_mode,
+        "prompt_shrink_env": PROMPT_SHRINK_MODE_ENV,
         "locale_filter": args.locale_filter,
         "prompt_ids": [prompt.prompt_id for prompt in prompts],
         "repetitions": args.repetitions,
@@ -591,6 +623,8 @@ def run_harness(
     rows: List[Dict[str, Any]] = _load_existing_metric_rows(run_dir) if args.resume else []
     total_cost_usd = 0.0
     started_at = _utc_now()
+    previous_prompt_shrink_mode = os.environ.get(PROMPT_SHRINK_MODE_ENV)
+    os.environ[PROMPT_SHRINK_MODE_ENV] = args.prompt_shrink_mode
 
     if call_generation is None:
         if args.mock:
@@ -726,6 +760,10 @@ def run_harness(
     finally:
         if db_session is not None:
             db_session.close()
+        if previous_prompt_shrink_mode is None:
+            os.environ.pop(PROMPT_SHRINK_MODE_ENV, None)
+        else:
+            os.environ[PROMPT_SHRINK_MODE_ENV] = previous_prompt_shrink_mode
 
     completed_at = _utc_now()
     metadata = _build_run_metadata(

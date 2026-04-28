@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.4.4.2" title="Re-evaluate H2/H4 under rubric_v2">
+
+  <overview>
+    AC10 passed under rubric_v2 with real judge variance. Re-run only the two
+    plausible prompt-shrink candidates from Story 6.4.4: H2 consent/legal
+    decision table and H4 operational-notes trim. Use the regenerated AC10
+    baseline as control. Ship only evidence-backed winners.
+  </overview>
+
+  <critical-objectives>
+    <item>Use story-6.4.4.1-ac10-baseline-v2 as the control; do not re-baseline unless artifacts are missing or invalid.</item>
+    <item>Test H2 and H4 as separate single-variable variants before any accepted-subset combination.</item>
+    <item>Exclude H1 and combined H1+H2+H4 from implementation and judging.</item>
+    <item>Use rubric_v2 and the Claude 4.7 + Grok 4 primary panel, with GPT-5 mini as control.</item>
+    <item>Revert losers before merge; a measured/no-change closeout is valid.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.4.1-ac10">Complete; regenerated v2 baseline has 270/270 generated definitions and AC10 passed.</story>
+    <story id="6.4.4.1">Complete; prompts-v1.1 and rubric_v2 are on master.</story>
+    <story id="6.4.4">Complete; provides original H2/H4 candidates and hypothesis evidence.</story>
+    <story id="6.4.3c">Complete; provides diff/statistics tooling.</story>
+    <story id="6.4.3b">Complete; provides judge package and ingest tooling.</story>
+    <story id="6.4.3a">Complete; provides eval harness and log.FormAiEvalRun.</story>
+    <doc path="docs/stories/story-6.4.4.2.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/stories/STORY-6.4.4.2-SINGLE-SESSION-DEV-PROMPT.md">Dev execution contract.</doc>
+    <doc path="docs/stories/STORY-6.4.4.2-UAT-TEST-GUIDE.md">Human/SM UAT guide.</doc>
+    <doc path="docs/stories/STORY-6.4.4-HYPOTHESIS-EVIDENCE.md">Original v1/rubric_v1 hypothesis evidence.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-AC10-CLOSEOUT-REPORT.md">AC10 verdict and next-story recommendation.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-AC10-GATE-EVIDENCE.md">Regenerated v2 baseline and judge ingest evidence.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-RUBRIC-V2-ADR.md">rubric_v2 methodology and judge panel governance.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Eval harness usage.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Manual Cursor judge workflow.</doc>
+    <doc path="docs/FORM-AI-EVAL-DIFF-STATS.md">Diff/statistics workflow.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic; no migration is expected.</item>
+    <item>Do NOT compare rubric_v1 and rubric_v2 score values as equivalent.</item>
+    <item>Do NOT add or change frontend behavior unless an unexpected prompt path requires it.</item>
+    <item>Do NOT modify capability snapshots or renderer manifests.</item>
+    <item>Do NOT weaken the Green CI/CD evidence contract; record exact final summaries.</item>
+    <item>Use PowerShell-safe commands; no ampersand chaining.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/service.py"
+          note="Prompt assembly source for consent guidance and operational notes."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="Run H2/H4 variants over prompts-v1.1; locale-filter support exists from AC10."/>
+    <path file="backend/tests/form_ai_eval/judge_pack.py"
+          note="Generate rubric_v2 judge packages with explicit output paths."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py"
+          note="Ingest Claude/Grok/GPT-5 mini judge JSONs."/>
+    <path file="backend/tests/form_ai_eval/diff.py"
+          note="Compare variants against AC10 baseline."/>
+    <path file="backend/tests/form_ai_eval/stats.py"
+          note="Welch/Fisher/effect-size evidence helpers."/>
+    <path file="backend/tests/form_ai_eval/prompts.yaml"
+          note="prompts-v1.1 benchmark; do not mutate except if correcting a documented bug."/>
+    <path file="backend/tests/form_ai_eval/rubric_v2.md"
+          note="Authoritative judge rubric for this story; do not redesign."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.4.4.2.md" purpose="Story spec and ACs."/>
+    <file path="docs/stories/story-context-6.4.4.2.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.4.4.2-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev execution contract."/>
+    <file path="docs/stories/STORY-6.4.4.2-UAT-TEST-GUIDE.md" purpose="Human/SM UAT guide."/>
+    <file path="docs/stories/STORY-6.4.4.2-HYPOTHESIS-EVIDENCE.md" purpose="Hypothesis evidence and verdicts."/>
+    <file path="docs/stories/STORY-6.4.4.2-GATE-EVIDENCE.md" purpose="Automated gate evidence; Dev fills."/>
+    <file path="docs/stories/STORY-6.4.4.2-UAT-RESULTS.md" purpose="UAT results; Dev/Human fills."/>
+    <file path="docs/stories/STORY-6.4.4.2-CLOSEOUT-REPORT.md" purpose="Closeout report and next-story decision."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">AC10 regenerated v2 baseline is pinned as control.</ac>
+    <ac id="2">H2 single-variable variant measured.</ac>
+    <ac id="3">H4 single-variable variant measured.</ac>
+    <ac id="4">rubric_v2 judge packages generated.</ac>
+    <ac id="5">Judge outputs ingested.</ac>
+    <ac id="6">Diff/stat outputs recorded.</ac>
+    <ac id="7">H2/H4 verdicts recorded.</ac>
+    <ac id="8">Losers reverted.</ac>
+    <ac id="9">Accepted H2+H4 subset checked if both pass.</ac>
+    <ac id="10">No unrelated AI capability work.</ac>
+    <ac id="11">Green gate evidence recorded.</ac>
+    <ac id="12">Closeout complete.</ac>
+  </acceptance-mapping>
+
+</story-context>

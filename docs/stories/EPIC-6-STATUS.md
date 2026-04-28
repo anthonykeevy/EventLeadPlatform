@@ -81,7 +81,7 @@ This fundamentally changes the payment architecture. We must implement two diffe
 | **6.4.4.1** | **Locale Architecture: Wire the Registry** | Replace hard-coded locale prompt constants with registry-backed locale blocks, add audience locale/brand posture resolution, and bump eval/judge to prompts-v1.1/rubric_v2. Company Settings brand posture UI deferred to `g-6441-company-brand-settings-ui`. | ✅ **Complete** (merged 2026-04-27, PR #75) |
 | **6.4.4.1-ac10** | **AC-10 Baseline Re-Judge Execution** | Re-judged the `prompts-v1.1` baseline under `rubric_v2`; AC-10 passed and recommends Story 6.4.4.2 next. | ✅ **Complete** (merged 2026-04-27, PR #77) |
 | **6.4.4.2** | **Re-evaluate H2/H4 under rubric_v2** | Ablation study: H2-only and H4-only re-run against the AC10 `rubric_v2` baseline; both failed the ship bar, so current `master` behavior remains unchanged. | ✅ **Complete** (merged 2026-04-28, PR #79) |
-| **6.4.5** | **Component Property Cheat Sheet H3** | Add component property cheat sheet under measurement and ship only if the harness evidence wins. | ⏳ Pending |
+| **6.4.5** | **Component Property Cheat Sheet H3** | Add a bounded component-property cheat sheet under measurement and ship only if the harness evidence wins. | 🔄 **Draft PR open** (PR #81) |
 | **6.5a** | **Clarification Questions** | Text-only clarification flow with schema additions and AI Agent panel UX for low-confidence cases. | ⏳ Pending |
 | **6.5b-vision** | **Image-to-Form Vision Path** | Screenshot/photo input to `FormSemanticPlan`, reusing deterministic compiler architecture. | ⏳ Pending |
 | **6.5b-style** | **Style Intent Resolver** | Add semantic `themeIntent`/`styleIntent`, resolver boundary, canvas-preservation contract, and H5 sweep. | ⏳ Pending |

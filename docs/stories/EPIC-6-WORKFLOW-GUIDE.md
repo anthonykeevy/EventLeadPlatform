@@ -16,6 +16,7 @@
 **Story 6.4.4.1 Status:** ✅ **Complete** (merged 2026-04-27, PR #75) — locale registry wiring, audience locale/brand posture API pass-through, prompts-v1.1/rubric_v2 judge bump. Company Settings brand posture UI deferred to `g-6441-company-brand-settings-ui`.
 **Story 6.4.4.1-ac10 Status:** ✅ **Complete** (merged 2026-04-27, PR #77) — AC-10 baseline re-judge passed; next recommended story is 6.4.4.2.
 **Story 6.4.4.2 Status:** ✅ **Complete** (merged 2026-04-28, PR #79) — H2-only and H4-only ablations completed under `rubric_v2`; both failed the ship bar, so current `master` behavior remains unchanged.
+**Story 6.4.5 Status:** 🔄 **Draft PR open** (PR #81) — Component Property Cheat Sheet H3 measured against AC10 `rubric_v2` baseline.
 
 ---
 

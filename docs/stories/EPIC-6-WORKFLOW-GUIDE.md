@@ -15,6 +15,7 @@
 **Story 6.4.4 Status:** ✅ **Complete** (merged 2026-04-27, PR #72) — H1/H2/H4 prompt shrink sweeps; combined H1+H2+H4 evidence fed Story 6.4.4.1 locale registry work.
 **Story 6.4.4.1 Status:** ✅ **Complete** (merged 2026-04-27, PR #75) — locale registry wiring, audience locale/brand posture API pass-through, prompts-v1.1/rubric_v2 judge bump. Company Settings brand posture UI deferred to `g-6441-company-brand-settings-ui`.
 **Story 6.4.4.1-ac10 Status:** ✅ **Complete** (merged 2026-04-27, PR #77) — AC-10 baseline re-judge passed; next recommended story is 6.4.4.2.
+**Story 6.4.4.2 Status:** 🔄 **Draft PR open** (PR #79) — re-evaluate H2/H4 under `rubric_v2`; H1 and combined H1+H2+H4 excluded.
 
 ---
 

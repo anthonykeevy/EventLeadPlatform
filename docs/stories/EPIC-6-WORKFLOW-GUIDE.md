@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.4.4.2 — **Re-evaluate H2/H4 under rubric_v2** (AC-10 passed).
+**Current Focus:** Story 6.4.5 — **Component Property Cheat Sheet H3** (after Story 6.4.4.2 measured/no-change ablation).
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -15,7 +15,7 @@
 **Story 6.4.4 Status:** ✅ **Complete** (merged 2026-04-27, PR #72) — H1/H2/H4 prompt shrink sweeps; combined H1+H2+H4 evidence fed Story 6.4.4.1 locale registry work.
 **Story 6.4.4.1 Status:** ✅ **Complete** (merged 2026-04-27, PR #75) — locale registry wiring, audience locale/brand posture API pass-through, prompts-v1.1/rubric_v2 judge bump. Company Settings brand posture UI deferred to `g-6441-company-brand-settings-ui`.
 **Story 6.4.4.1-ac10 Status:** ✅ **Complete** (merged 2026-04-27, PR #77) — AC-10 baseline re-judge passed; next recommended story is 6.4.4.2.
-**Story 6.4.4.2 Status:** 🔄 **Draft PR open** (PR #79) — re-evaluate H2/H4 under `rubric_v2`; H1 and combined H1+H2+H4 excluded.
+**Story 6.4.4.2 Status:** ✅ **Review / measured no-change** (PR #79) — H2-only and H4-only ablations completed under `rubric_v2`; both failed the ship bar, so current `master` behavior remains unchanged.
 
 ---
 

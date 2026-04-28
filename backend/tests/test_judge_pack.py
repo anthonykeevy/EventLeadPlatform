@@ -106,6 +106,20 @@ def test_judge_prompts_include_exact_output_paths(tmp_path):
         assert f'Set judge_model to "{judge_model}"' in prompt
 
 
+def test_story_6442_judge_prompt_names_h2_scope(tmp_path):
+    package_dir = (
+        tmp_path
+        / "_bmad-output"
+        / "eval-runs"
+        / "story-6.4.4.2-h2-consent-v2"
+        / "judge-package"
+    )
+
+    prompt = judge_pack.render_judge_prompt("claude", package_dir)
+
+    assert "Story 6.4.4.2 H2 consent/legal rubric_v2 re-evaluation" in prompt
+
+
 def test_judge_package_can_combine_multiple_input_runs(tmp_path):
     run_dir_a = _write_fixture_eval_run(tmp_path, "fixture-run-a")
     run_dir_b = _write_fixture_eval_run(tmp_path, "fixture-run-b")

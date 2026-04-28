@@ -1,0 +1,275 @@
+{
+  "advisory_metric_deltas": {
+    "attempt_count": {
+      "baseline_mean": 1.0407407407407407,
+      "decision": "advisory",
+      "delta": 0.007407407407407307,
+      "effect_size": -0.03588342814232752,
+      "p_value": 0.6768986022334846,
+      "variant_mean": 1.048148148148148
+    },
+    "collision_count": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "component_count": {
+      "baseline_mean": 11.877777777777778,
+      "decision": "advisory",
+      "delta": 0.09999999999999964,
+      "effect_size": -0.03503593079601234,
+      "p_value": 0.6841106220920516,
+      "variant_mean": 11.977777777777778
+    },
+    "duration_ms": {
+      "baseline_mean": 42376.433333333334,
+      "decision": "advisory",
+      "delta": -6867.596296296295,
+      "effect_size": 0.6474196746608724,
+      "p_value": 4.3431924723336124e-13,
+      "variant_mean": 35508.83703703704
+    },
+    "input_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "output_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "total_cost_usd": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    }
+  },
+  "baseline": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.4.1-ac10-baseline-v2",
+    "run_id": "story-6.4.4.1-ac10-baseline-v2",
+    "variant_label": "current-master-baseline"
+  },
+  "decision": {
+    "blocked": false,
+    "blocking_reasons": [],
+    "blocking_rows": [],
+    "recommendation": "human-review"
+  },
+  "judge_bias_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 0.6425925925925926,
+      "delta": -1.3333333333333335,
+      "variant_mean": -0.6907407407407408
+    },
+    "cross_locale_leakage": {
+      "baseline_mean": -1.2685185185185186,
+      "delta": 2.3240740740740744,
+      "variant_mean": 1.0555555555555556
+    },
+    "cultural_register": {
+      "baseline_mean": 0.9111111111111111,
+      "delta": -0.9703703703703703,
+      "variant_mean": -0.05925925925925926
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 0.05,
+      "delta": -0.7351851851851853,
+      "variant_mean": -0.6851851851851852
+    },
+    "field_label_f1": {
+      "baseline_mean": -0.5111111111111111,
+      "delta": 0.41481481481481475,
+      "variant_mean": -0.0962962962962963
+    },
+    "format_pattern_accuracy": {
+      "baseline_mean": -0.19814814814814816,
+      "delta": 0.05740740740740741,
+      "variant_mean": -0.14074074074074075
+    },
+    "locale_fidelity": {
+      "baseline_mean": 1.211111111111111,
+      "delta": -1.9277777777777776,
+      "variant_mean": -0.7166666666666667
+    },
+    "policy_compliance": {
+      "baseline_mean": 0.7148148148148148,
+      "delta": -2.4333333333333336,
+      "variant_mean": -1.7185185185185186
+    },
+    "row_group_agreement": {
+      "baseline_mean": 0.19814814814814816,
+      "delta": -0.8518518518518519,
+      "variant_mean": -0.6537037037037037
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": -1.4092592592592592,
+      "delta": 0.16296296296296298,
+      "variant_mean": -1.2462962962962962
+    }
+  },
+  "judge_metric_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 4.357407407407408,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "metric_kind": "continuous",
+      "metric_name": "copy_quality_score",
+      "note": "",
+      "p_value": 1.0,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.357407407407408
+    },
+    "cross_locale_leakage": {
+      "baseline_mean": 3.935185185185185,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.009259259259259522,
+      "effect_size": -0.007301102497742057,
+      "metric_kind": "continuous",
+      "metric_name": "cross_locale_leakage",
+      "note": "",
+      "p_value": 0.9324350519101304,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 3.9444444444444446
+    },
+    "cultural_register": {
+      "baseline_mean": 4.088888888888889,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.3629629629629627,
+      "effect_size": 0.9292253693259875,
+      "metric_kind": "continuous",
+      "metric_name": "cultural_register",
+      "note": "",
+      "p_value": 8.570921750106208e-14,
+      "recommended_action": "human-review",
+      "variant_mean": 3.725925925925926
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 4.409259259259259,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.05740740740740691,
+      "effect_size": 0.22971187633461607,
+      "metric_kind": "continuous",
+      "metric_name": "field_coverage_recall",
+      "note": "",
+      "p_value": 0.007841262651682168,
+      "recommended_action": "human-review",
+      "variant_mean": 4.351851851851852
+    },
+    "field_label_f1": {
+      "baseline_mean": 4.985185185185185,
+      "category": "B",
+      "decision": "regression",
+      "delta": -1.2222222222222219,
+      "effect_size": 3.456443038263002,
+      "metric_kind": "continuous",
+      "metric_name": "field_label_f1",
+      "note": "",
+      "p_value": 0.0,
+      "recommended_action": "human-review",
+      "variant_mean": 3.762962962962963
+    },
+    "format_pattern_accuracy": {
+      "baseline_mean": 3.9092592592592594,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.2685185185185186,
+      "effect_size": 0.29652281207406195,
+      "metric_kind": "continuous",
+      "metric_name": "format_pattern_accuracy",
+      "note": "",
+      "p_value": 0.0006201954855824532,
+      "recommended_action": "human-review",
+      "variant_mean": 3.640740740740741
+    },
+    "locale_fidelity": {
+      "baseline_mean": 3.7888888888888888,
+      "category": "B",
+      "decision": "advisory",
+      "delta": 0.26111111111111107,
+      "effect_size": -0.28725014326087583,
+      "metric_kind": "continuous",
+      "metric_name": "locale_fidelity",
+      "note": "",
+      "p_value": 0.0009140681187326249,
+      "recommended_action": "human-review",
+      "variant_mean": 4.05
+    },
+    "policy_compliance": {
+      "baseline_mean": 3.9518518518518517,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.43333333333333357,
+      "effect_size": -1.1250491095236281,
+      "metric_kind": "continuous",
+      "metric_name": "policy_compliance",
+      "note": "",
+      "p_value": 3.049782648645305e-13,
+      "recommended_action": "human-review",
+      "variant_mean": 4.385185185185185
+    },
+    "row_group_agreement": {
+      "baseline_mean": 4.801851851851852,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.48148148148148184,
+      "effect_size": 1.9385923114679295,
+      "metric_kind": "continuous",
+      "metric_name": "row_group_agreement",
+      "note": "",
+      "p_value": 2.1049828546892968e-13,
+      "recommended_action": "human-review",
+      "variant_mean": 4.32037037037037
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 4.409259259259259,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.496296296296296,
+      "effect_size": 1.9257799486799525,
+      "metric_kind": "continuous",
+      "metric_name": "validation_intent_accuracy",
+      "note": "",
+      "p_value": 0.0,
+      "recommended_action": "human-review",
+      "variant_mean": 3.912962962962963
+    }
+  },
+  "limitations": [
+    "Only schema_valid regressions and boundary violations are blocking.",
+    "Other deltas are advisory for PM/SM decision.",
+    "Inconclusive Category B results should rerun at n=15."
+  ],
+  "output_files": {
+    "csv": "_bmad-output\\eval-runs\\story-6.4.4.2-baseline-vs-h4-operational-trim-v2\\diff-details.csv",
+    "json": "_bmad-output\\eval-runs\\story-6.4.4.2-baseline-vs-h4-operational-trim-v2\\diff-summary.json",
+    "markdown": "_bmad-output\\eval-runs\\story-6.4.4.2-baseline-vs-h4-operational-trim-v2\\diff-report.md"
+  },
+  "row_alignment": {
+    "extra_in_variant": [],
+    "matched_count": 270,
+    "missing_in_variant": []
+  },
+  "variant": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.4.2-h4-operational-trim-v2",
+    "run_id": "story-6.4.4.2-h4-operational-trim-v2",
+    "variant_label": "h4-operational-trim-rubric-v2"
+  }
+}

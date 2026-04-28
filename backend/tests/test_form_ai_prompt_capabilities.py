@@ -135,6 +135,50 @@ def test_story_644_h4_trims_context_pack_operational_notes_from_prompt():
     assert "Provider credentials" not in system_prompt
 
 
+def test_story_6442_h2_mode_keeps_compact_consent_and_disables_h4(monkeypatch):
+    monkeypatch.setenv("FORM_AI_EVAL_PROMPT_SHRINK_MODE", "h2")
+    context_pack = (
+        "# Context Pack\n\n"
+        "## Component Catalog\nAllowed types stay here.\n\n"
+        "## Operational Notes\n"
+        "Operational notes stay visible when H4 is disabled.\n"
+    )
+
+    messages = _build_initial_messages(
+        prompt="Create a contact form.",
+        context_pack=context_pack,
+        runtime_context=None,
+    )
+
+    system_prompt = messages[0]["content"]
+    assert "| User intent | Component | Required guidance |" in system_prompt
+    assert "GDPR, CCPA and the AU Privacy Act" not in system_prompt
+    assert "## Operational Notes" in system_prompt
+    assert "Operational notes stay visible" in system_prompt
+
+
+def test_story_6442_h4_mode_restores_legacy_consent_and_trims_operational_notes(monkeypatch):
+    monkeypatch.setenv("FORM_AI_EVAL_PROMPT_SHRINK_MODE", "h4")
+    context_pack = (
+        "# Context Pack\n\n"
+        "## Component Catalog\nAllowed types stay here.\n\n"
+        "## Operational Notes\n"
+        "Operational notes are trimmed when H4 is enabled.\n"
+    )
+
+    messages = _build_initial_messages(
+        prompt="Create a contact form.",
+        context_pack=context_pack,
+        runtime_context=None,
+    )
+
+    system_prompt = messages[0]["content"]
+    assert "GDPR, CCPA and the AU Privacy Act" in system_prompt
+    assert "| User intent | Component | Required guidance |" not in system_prompt
+    assert "## Operational Notes" not in system_prompt
+    assert "Operational notes are trimmed" not in system_prompt
+
+
 def test_build_capability_prompt_block_missing_snapshot_is_empty_legacy_fallback():
     assert _build_capability_prompt_block(None) == ""
     messages = _build_initial_messages(

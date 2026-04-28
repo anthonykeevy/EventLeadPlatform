@@ -1,0 +1,5141 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "gpt-5-mini",
+  "rows": [
+    {
+      "row_id": "p01-au-neutral-r1__r01",
+      "prompt_id": "p01-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated form captures requested fields (First name, Last name, Email address, Phone number, Dietary requirements, T-shirt size) and uses locale-aware hints (e.g. 'include country code' for AU). Weakness: no explicit privacy/consent or marketing opt-in text visible in the generated definition."
+    },
+    {
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "prompt_id": "p01-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Form includes the requested fields for the Sydney event (seen in Generated Definition). Weakness: lacks explicit privacy statement or consent language for marketing; consent handling ambiguous."
+    },
+    {
+      "row_id": "p01-au-adversarial-r1__r01",
+      "prompt_id": "p01-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Prompt explicitly attempted cross-locale instructions (ZIP / +1). Weakness: adversarial instruction risks cross-locale leakage; generated definition shows potential format mismatch risk and limited policy text."
+    },
+    {
+      "row_id": "p01-nz-neutral-r1__r01",
+      "prompt_id": "p01-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated form captures requested fields for NZ prompt. Weakness: no visible privacy/consent copy or regional legal reference in the generated definition."
+    },
+    {
+      "row_id": "p01-nz-ambiguous-r1__r01",
+      "prompt_id": "p01-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Form for Auckland includes the expected fields. Weakness: lacks explicit consent/privacy language or clear opt-in phrasing for marketing where relevant."
+    },
+    {
+      "row_id": "p01-nz-adversarial-r1__r01",
+      "prompt_id": "p01-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instruction requests ZIP/+1 wording. Weakness: generated artifacts risk including US-centric formats; policy compliance is low without explicit privacy or locale-safe patterns."
+    },
+    {
+      "row_id": "p01-uk-neutral-r1__r01",
+      "prompt_id": "p01-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK-neutral generated form includes requested fields and UK-tailored labels. Weakness: no GDPR/UK-GDPR mention or explicit data-handling/consent text visible in definition."
+    },
+    {
+      "row_id": "p01-uk-ambiguous-r1__r01",
+      "prompt_id": "p01-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "London-specific variant includes expected fields. Weakness: absent explicit legal references (GDPR) or privacy note in generated definition."
+    },
+    {
+      "row_id": "p01-uk-adversarial-r1__r01",
+      "prompt_id": "p01-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt could introduce ZIP/+1 phrasing; weakness: potential cross-locale leakage and no privacy/legal copy to mitigate risk."
+    },
+    {
+      "row_id": "p01-us-neutral-r1__r01",
+      "prompt_id": "p01-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US-neutral generated definition captures fields and US-friendly labels. Weakness: privacy/consent language is not prominent; CCPA/CPRA references absent (appropriate only if California implied)."
+    },
+    {
+      "row_id": "p01-us-ambiguous-r1__r01",
+      "prompt_id": "p01-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Chicago-specific variant includes requested fields; weakness: lacks explicit privacy/consent copy for marketing opt-in clarity."
+    },
+    {
+      "row_id": "p01-us-adversarial-r1__r01",
+      "prompt_id": "p01-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial row requests ZIP/+1 even if conflicting; weakness: generated output may include US-centric fields that conflict with audience_locale; privacy/legal copy still missing."
+    },
+    {
+      "row_id": "p01-intl-online-neutral-r1__r01",
+      "prompt_id": "p01-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "International/online variant uses neutral patterns and captures fields; weakness: privacy/consent details not explicit in generated definition (no data-handling statement)."
+    },
+    {
+      "row_id": "p01-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p01-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Online ambiguous prompt produced neutral form with required fields. Weakness: absent explicit privacy/opt-in copy to clarify data use across jurisdictions."
+    },
+    {
+      "row_id": "p01-intl-online-adversarial-r1__r01",
+      "prompt_id": "p01-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instruction asks for ZIP/+1; weakness: may introduce country-specific formats that conflict with INTL audience and no privacy/legal mitigation text present."
+    },
+    {
+      "row_id": "p01-eu-neutral-r1__r01",
+      "prompt_id": "p01-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU-neutral form includes fields; weakness: no explicit GDPR/consent/legal copy visible in generated definition to demonstrate lawful basis or data handling instructions."
+    },
+    {
+      "row_id": "p01-eu-ambiguous-r1__r01",
+      "prompt_id": "p01-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Berlin-variant captures requested fields. Weakness: missing explicit GDPR/UK-GDPR mention or clear consent mechanism in the visible generated definition."
+    },
+    {
+      "row_id": "p01-eu-adversarial-r1__r01",
+      "prompt_id": "p01-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt asks for ZIP/+1; weakness: generated output risks including non-EU formats and lacks GDPR-specific consent text to show lawful handling."
+    },
+    {
+      "row_id": "p02-au-neutral-r1__r01",
+      "prompt_id": "p02-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Prompt explicitly requested consent to receive event updates and generated definition appears to include consent-related components (formId and component_count indicate a consent element). Weakness: consent phrasing may be generic and lacks visible granular privacy detail."
+    },
+    {
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "prompt_id": "p02-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Sydney variant includes consent-to-updates intent per prompt and generated definition component counts. Weakness: consent wording may not specify marketing vs transactional separation."
+    },
+    {
+      "row_id": "p02-au-adversarial-r1__r01",
+      "prompt_id": "p02-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt attempts ZIP/+1; weakness: potential inclusion of non-local formats and insufficiently specific consent language to show lawful marketing opt-in."
+    },
+    {
+      "row_id": "p02-nz-neutral-r1__r01",
+      "prompt_id": "p02-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated NZ form includes attendee details and consent intent. Weakness: privacy/legal handling text not detailed enough for explicit compliance evidence."
+    },
+    {
+      "row_id": "p02-nz-ambiguous-r1__r01",
+      "prompt_id": "p02-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Auckland variant captures necessary fields and consent element indicated by component_count. Weakness: consent copy may be generic and lacks explicit opt-in granularity."
+    },
+    {
+      "row_id": "p02-nz-adversarial-r1__r01",
+      "prompt_id": "p02-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial variant risks cross-locale format leakage; weakness: consent and privacy details are insufficiently explicit for regulatory assurance."
+    },
+    {
+      "row_id": "p02-uk-neutral-r1__r01",
+      "prompt_id": "p02-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK-neutral generated RSVP includes consent intent and required fields. Weakness: GDPR-specific phrasing or clear lawful basis not visible in the generated snippet."
+    },
+    {
+      "row_id": "p02-uk-ambiguous-r1__r01",
+      "prompt_id": "p02-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "London variant contains requested fields and consent components. Weakness: consent wording may not differentiate marketing vs service communications clearly."
+    },
+    {
+      "row_id": "p02-uk-adversarial-r1__r01",
+      "prompt_id": "p02-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt could force non-local formats; weakness: format and legal compliance details are weak given EU/UK requirements."
+    },
+    {
+      "row_id": "p02-us-neutral-r1__r01",
+      "prompt_id": "p02-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US-neutral RSVP includes consent opt-in intent and fields; weakness: lacks California-specific notice language (only needed if CA implied)."
+    },
+    {
+      "row_id": "p02-us-ambiguous-r1__r01",
+      "prompt_id": "p02-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Chicago variant captures fields and consent; weakness: consent copy could be more explicit about marketing vs transactional messages."
+    },
+    {
+      "row_id": "p02-us-adversarial-r1__r01",
+      "prompt_id": "p02-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instructions risk US-centric fields; weakness: potential cross-locale leakage and insufficient privacy/legal text to support opt-in."
+    },
+    {
+      "row_id": "p02-intl-online-neutral-r1__r01",
+      "prompt_id": "p02-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "International online form includes attendee details and consent intent; weakness: lacks granular privacy/legal text to show cross-border data handling clarity."
+    },
+    {
+      "row_id": "p02-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p02-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Online ambiguous variant captures request and consent intent. Weakness: consent separation (marketing vs essential) not explicit in visible generated definition."
+    },
+    {
+      "row_id": "p02-intl-online-adversarial-r1__r01",
+      "prompt_id": "p02-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instruction increases cross-locale leakage risk; weakness: format and legal clarity insufficient for international audiences."
+    },
+    {
+      "row_id": "p02-eu-neutral-r1__r01",
+      "prompt_id": "p02-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU-neutral RSVP captures fields and consent intent; weakness: GDPR-specific lawful basis or explicit data-use details not visible in generated snippet."
+    },
+    {
+      "row_id": "p02-eu-ambiguous-r1__r01",
+      "prompt_id": "p02-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Berlin variant contains required fields and consent intent. Weakness: consent text lacks explicit legal detail for EU data protection standards."
+    },
+    {
+      "row_id": "p02-eu-adversarial-r1__r01",
+      "prompt_id": "p02-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instructions risk including non-EU formats; weakness: inadequate GDPR-specific consent/legal detail and format mismatch risk."
+    },
+    {
+      "row_id": "p03-au-neutral-r1__r01",
+      "prompt_id": "p03-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Workshop signup captures participant details, skill level and accessibility; weakness: code of conduct acknowledgement or data-use language not always clearly surfaced in generated snippet."
+    },
+    {
+      "row_id": "p03-au-ambiguous-r1__r01",
+      "prompt_id": "p03-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Sydney workshop variant contains required fields; weakness: accessibility or code-of-conduct acknowledgement wording may be present but not detailed enough for enforcement or legal clarity."
+    },
+    {
+      "row_id": "p03-au-adversarial-r1__r01",
+      "prompt_id": "p03-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt may introduce non-local formats; weakness: emergency/contact and legal acknowledgement fields may lack appropriate validation or locale-specific phrasing."
+    },
+    {
+      "row_id": "p03-nz-neutral-r1__r01",
+      "prompt_id": "p03-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "NZ workshop signup includes fields and accessibility prompts; weakness: code-of-conduct acknowledgement phrasing not visible or lacks enforcement guidance."
+    },
+    {
+      "row_id": "p03-nz-ambiguous-r1__r01",
+      "prompt_id": "p03-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Auckland variant contains expected components; weakness: accessibility and acknowledgement language could be more explicit about data handling and contact protocols."
+    },
+    {
+      "row_id": "p03-nz-adversarial-r1__r01",
+      "prompt_id": "p03-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt risks including US-centric ZIP/+1 text; weakness: locale mismatch and lack of GDPR/Privacy clarity where applicable."
+    },
+    {
+      "row_id": "p03-uk-neutral-r1__r01",
+      "prompt_id": "p03-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK workshop form retains field coverage and UK-friendly language. Weakness: code-of-conduct and data handling language not explicit for legal traceability."
+    },
+    {
+      "row_id": "p03-uk-ambiguous-r1__r01",
+      "prompt_id": "p03-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "London variant captures required fields and accessibility prompts. Weakness: lacks clear legal/consent wording to show how user data will be used."
+    },
+    {
+      "row_id": "p03-uk-adversarial-r1__r01",
+      "prompt_id": "p03-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial variant may introduce non-local formats; weakness: risk of cross-locale leakage and insufficient consent/legal text."
+    },
+    {
+      "row_id": "p03-us-neutral-r1__r01",
+      "prompt_id": "p03-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US workshop signup captures fields and participant details. Weakness: code-of-conduct acknowledgement and emergency contact validations could be more explicit."
+    },
+    {
+      "row_id": "p03-us-ambiguous-r1__r01",
+      "prompt_id": "p03-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Chicago variant includes expected fields; weakness: emergency contact/data handling text not explicitly visible."
+    },
+    {
+      "row_id": "p03-us-adversarial-r1__r01",
+      "prompt_id": "p03-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt may force ZIP/+1 format; weakness: risk of cross-locale leakage and missing explicit legal/consent copy."
+    },
+    {
+      "row_id": "p03-intl-online-neutral-r1__r01",
+      "prompt_id": "p03-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Intl-online workshop captures required fields; weakness: cross-border data handling and consent specifics are not explicit."
+    },
+    {
+      "row_id": "p03-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p03-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Online ambiguous variant includes fields and accessibility items. Weakness: lacks clear consent/legal copy for international participants."
+    },
+    {
+      "row_id": "p03-intl-online-adversarial-r1__r01",
+      "prompt_id": "p03-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt increases risk of cross-locale leakage (ZIP/+1). Weakness: insufficient international privacy guidance and potential format mismatch."
+    },
+    {
+      "row_id": "p03-eu-neutral-r1__r01",
+      "prompt_id": "p03-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU workshop signup captures necessary fields. Weakness: GDPR-specific lawful basis and data retention/handling details not visible in the generated snippet."
+    },
+    {
+      "row_id": "p03-eu-ambiguous-r1__r01",
+      "prompt_id": "p03-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Berlin variant includes required fields; weakness: privacy/legal copy to demonstrate GDPR compliance is not explicitly shown."
+    },
+    {
+      "row_id": "p03-eu-adversarial-r1__r01",
+      "prompt_id": "p03-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instruction risks non-local formatting; weakness: missing GDPR-specific consent and possible inclusion of disallowed formats."
+    },
+    {
+      "row_id": "p04-au-neutral-r1__r01",
+      "prompt_id": "p04-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Webinar registration captures contact, organisation, role, timezone and marketing opt-in intent. Weakness: marketing opt-in wording may be generic and lacks explicit privacy/legal detail."
+    },
+    {
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "prompt_id": "p04-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Sydney webinar variant includes expected fields and marketing opt-in. Weakness: opt-in separation and explicit privacy notice not clearly visible."
+    },
+    {
+      "row_id": "p04-au-adversarial-r1__r01",
+      "prompt_id": "p04-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial variant may introduce non-local ZIP/+1 format; weakness: potential format mismatch and weak marketing consent specificity."
+    },
+    {
+      "row_id": "p04-nz-neutral-r1__r01",
+      "prompt_id": "p04-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "NZ webinar includes marketing opt-in and contact fields. Weakness: opt-in copy may be broad without granular consent choices."
+    },
+    {
+      "row_id": "p04-nz-ambiguous-r1__r01",
+      "prompt_id": "p04-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Auckland variant shows required fields and opt-in. Weakness: lacks explicit privacy/retention statements in the visible definition."
+    },
+    {
+      "row_id": "p04-nz-adversarial-r1__r01",
+      "prompt_id": "p04-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial variant risks US-centric formats and includes marketing opt-in intent. Weakness: insufficiently precise consent language and potential format mismatch."
+    },
+    {
+      "row_id": "p04-uk-neutral-r1__r01",
+      "prompt_id": "p04-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK webinar registration includes marketing opt-in and contact details. Weakness: lacks visible GDPR/UK-GDPR-specific phrasing or privacy link in the snippet."
+    },
+    {
+      "row_id": "p04-uk-ambiguous-r1__r01",
+      "prompt_id": "p04-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "London variant captures requested fields and opt-in. Weakness: opt-in language not granular and lacks explicit privacy/legal detail in the visible definition."
+    },
+    {
+      "row_id": "p04-uk-adversarial-r1__r01",
+      "prompt_id": "p04-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial prompt risks non-local formats; weakness: inadequate privacy/consent specificity and format consistency for UK audience."
+    },
+    {
+      "row_id": "p04-us-neutral-r1__r01",
+      "prompt_id": "p04-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US webinar form includes contact, org, role, timezone and marketing opt-in. Weakness: privacy/consent text may be present but not specific to state-level requirements (e.g., CA) where applicable."
+    },
+    {
+      "row_id": "p04-us-ambiguous-r1__r01",
+      "prompt_id": "p04-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Chicago variant captures required fields and marketing opt-in intent. Weakness: lack of explicit granular opt-in choices in visible generated snippet."
+    },
+    {
+      "row_id": "p04-us-adversarial-r1__r01",
+      "prompt_id": "p04-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instructions risk ZIP/+1 inclusion; weakness: potential cross-locale leakage and weak consent/legal specificity."
+    },
+    {
+      "row_id": "p04-intl-online-neutral-r1__r01",
+      "prompt_id": "p04-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Online-neutral webinar form includes expected fields and opt-in intent. Weakness: cross-border data handling and consent details not explicit."
+    },
+    {
+      "row_id": "p04-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p04-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Online ambiguous variant captures fields and opt-in. Weakness: lacks granular privacy/consent details for international audiences."
+    },
+    {
+      "row_id": "p04-intl-online-adversarial-r1__r01",
+      "prompt_id": "p04-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial variant may introduce non-local formats; weakness: insufficiently explicit consent/privacy copy for international compliance."
+    },
+    {
+      "row_id": "p04-eu-neutral-r1__r01",
+      "prompt_id": "p04-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU webinar registration includes marketing opt-in intent and fields. Weakness: GDPR-specific legal text or privacy link not clearly visible in generated definition."
+    },
+    {
+      "row_id": "p04-eu-ambiguous-r1__r01",
+      "prompt_id": "p04-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Berlin variant includes required fields and opt-in elements. Weakness: explicit GDPR/legal phrasing missing in visible generated snippet."
+    },
+    {
+      "row_id": "p04-eu-adversarial-r1__r01",
+      "prompt_id": "p04-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial instruction risks inclusion of non-local formats; weakness: GDPR-related consent text not explicitly present to mitigate risk."
+    },
+    {
+      "row_id": "p05-au-neutral-r1__r01",
+      "prompt_id": "p05-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Wedding RSVP captures guest details, attendance and meal choice. Weakness: privacy/consent and handling of guest data (plus-one) not explicitly detailed in visible definition."
+    },
+    {
+      "row_id": "p05-au-ambiguous-r1__r01",
+      "prompt_id": "p05-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Sydney wedding variant includes requested fields. Weakness: handling of guest data and consent for plus-one not explicitly shown in generated snippet."
+    },
+    {
+      "row_id": "p05-au-adversarial-r1__r01",
+      "prompt_id": "p05-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial wedding variant risks non-local ZIP/+1 formatting; weakness: potential cross-locale leakage and missing explicit privacy guidance for guest data."
+    },
+    {
+      "row_id": "p05-nz-neutral-r1__r01",
+      "prompt_id": "p05-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "NZ wedding RSVP contains guest details and meal choices. Weakness: privacy/consent wording and third-party sharing info not visible."
+    },
+    {
+      "row_id": "p05-nz-ambiguous-r1__r01",
+      "prompt_id": "p05-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Auckland wedding variant includes expected fields. Weakness: lacks explicit privacy and data-retention language for guests."
+    },
+    {
+      "row_id": "p05-nz-adversarial-r1__r01",
+      "prompt_id": "p05-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial wedding prompt may force ZIP/+1 inclusion; weakness: potential cross-locale format leakage and privacy statements missing."
+    },
+    {
+      "row_id": "p05-uk-neutral-r1__r01",
+      "prompt_id": "p05-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK wedding RSVP captures guest details and meal choices. Weakness: privacy/legal copy (e.g., data retention, lawful basis) not explicitly surfaced."
+    },
+    {
+      "row_id": "p05-uk-ambiguous-r1__r01",
+      "prompt_id": "p05-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "London variant contains expected wedding RSVP fields. Weakness: missing explicit privacy/consent details for guest and plus-one handling."
+    },
+    {
+      "row_id": "p05-uk-adversarial-r1__r01",
+      "prompt_id": "p05-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial wedding prompt may include non-local formats; weakness: privacy/legal copy and format fidelity for UK audience are weak."
+    },
+    {
+      "row_id": "p05-us-neutral-r1__r01",
+      "prompt_id": "p05-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US wedding RSVP includes guest details and meal choices. Weakness: lacks explicit privacy statements and state-level notices (if needed) in the visible definition."
+    },
+    {
+      "row_id": "p05-us-ambiguous-r1__r01",
+      "prompt_id": "p05-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Chicago wedding variant captures requested fields. Weakness: missing explicit privacy/consent detail for guest data sharing or third-party vendors."
+    },
+    {
+      "row_id": "p05-us-adversarial-r1__r01",
+      "prompt_id": "p05-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial wedding variant risks non-local ZIP/+1 formats; weakness: privacy/legal copy and format fidelity are weak for US audience."
+    },
+    {
+      "row_id": "p05-intl-online-neutral-r1__r01",
+      "prompt_id": "p05-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Intl wedding RSVP captures the requested fields for online events. Weakness: cross-border data handling and explicit consent/retention details are not shown."
+    },
+    {
+      "row_id": "p05-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p05-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Online ambiguous wedding variant contains required fields. Weakness: lacks explicit privacy and third-party sharing notices for international attendees."
+    },
+    {
+      "row_id": "p05-intl-online-adversarial-r1__r01",
+      "prompt_id": "p05-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial wedding variant risks format leakage; weakness: privacy/consent language insufficient for international legal expectations."
+    },
+    {
+      "row_id": "p05-eu-neutral-r1__r01",
+      "prompt_id": "p05-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU wedding RSVP captures necessary guest fields. Weakness: GDPR-specific legal/consent details and retention policies not visible in generated snippet."
+    },
+    {
+      "row_id": "p05-eu-ambiguous-r1__r01",
+      "prompt_id": "p05-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Berlin wedding variant includes requested fields. Weakness: privacy/consent and GDPR-specific text not explicitly shown in the generated definition."
+    },
+    {
+      "row_id": "p05-eu-adversarial-r1__r01",
+      "prompt_id": "p05-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant may include non-EU formats; weakness: GDPR-focused consent/legal text absent and format fidelity questionable."
+    },
+    {
+      "row_id": "p06-au-neutral-r1__r01",
+      "prompt_id": "p06-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Volunteer signup captures contact, availability and emergency contact fields. Weakness: emergency contact handling and code-of-conduct acknowledgement wording may be present but lacks explicit enforcement guidance."
+    },
+    {
+      "row_id": "p06-au-ambiguous-r1__r01",
+      "prompt_id": "p06-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Sydney volunteer variant includes required fields and code-of-conduct acknowledgement intent. Weakness: code-of-conduct wording and legal implications not fully explicit in visible snippet."
+    },
+    {
+      "row_id": "p06-au-adversarial-r1__r01",
+      "prompt_id": "p06-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial volunteer prompt could introduce non-local formatting; weakness: emergency contact and legal acknowledgement validation may be inadequate and privacy/legal copy absent."
+    },
+    {
+      "row_id": "p06-nz-neutral-r1__r01",
+      "prompt_id": "p06-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "NZ volunteer signup includes emergency contact and code-of-conduct acknowledgement intent. Weakness: legal/consent text and emergency data handling guidance not explicit."
+    },
+    {
+      "row_id": "p06-nz-ambiguous-r1__r01",
+      "prompt_id": "p06-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Auckland volunteer variant contains thorough fields and acknowledgement components. Weakness: code-of-conduct and emergency contact validation rules not fully specified."
+    },
+    {
+      "row_id": "p06-nz-adversarial-r1__r01",
+      "prompt_id": "p06-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ volunteer prompt risks non-local formats; weakness: emergency contact and code-of-conduct copy not clearly enforced and privacy text lacking."
+    },
+    {
+      "row_id": "p06-uk-neutral-r1__r01",
+      "prompt_id": "p06-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK-neutral volunteer signup includes required contact and acknowledgement fields. Weakness: code-of-conduct/legal phrasing not explicitly shown."
+    },
+    {
+      "row_id": "p06-uk-ambiguous-r1__r01",
+      "prompt_id": "p06-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant contains expected fields. Weakness: lacks explicit legal/consent copy for volunteer data handling."
+    },
+    {
+      "row_id": "p06-uk-adversarial-r1__r01",
+      "prompt_id": "p06-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant risks non-local ZIP/+1 formats; weakness: cross-locale leakage risk and missing explicit legal copy."
+    },
+    {
+      "row_id": "p06-us-neutral-r1__r01",
+      "prompt_id": "p06-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US-neutral volunteer signup includes the expected fields. Weakness: emergency contact handling and code-of-conduct legal text not fully explicit."
+    },
+    {
+      "row_id": "p06-us-ambiguous-r1__r01",
+      "prompt_id": "p06-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Chicago variant contains requested fields. Weakness: lacks explicit privacy/legal notes for volunteer data shared across organisers."
+    },
+    {
+      "row_id": "p06-us-adversarial-r1__r01",
+      "prompt_id": "p06-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 wording; weakness: format mismatch risk and weak privacy/consent clarity."
+    },
+    {
+      "row_id": "p06-intl-online-neutral-r1__r01",
+      "prompt_id": "p06-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Intl-online volunteer signup uses neutral patterns and captures emergency contact and skills. Weakness: cross-border data handling and consent specifics are not explicit."
+    },
+    {
+      "row_id": "p06-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p06-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous online variant includes required fields. Weakness: lacks precise international consent/legal copy."
+    },
+    {
+      "row_id": "p06-intl-online-adversarial-r1__r01",
+      "prompt_id": "p06-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial online variant risks format leakage; weakness: lacks international privacy guidance and may include non-local formats."
+    },
+    {
+      "row_id": "p06-eu-neutral-r1__r01",
+      "prompt_id": "p06-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU-neutral volunteer signup captures expected fields. Weakness: GDPR-specific lawful basis and retention details not explicitly surfaced."
+    },
+    {
+      "row_id": "p06-eu-ambiguous-r1__r01",
+      "prompt_id": "p06-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant includes required fields. Weakness: lacks visible GDPR-focused consent/legal copy."
+    },
+    {
+      "row_id": "p06-eu-adversarial-r1__r01",
+      "prompt_id": "p06-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant may introduce non-local formats; weakness: GDPR-specific consent/legal text absent and format fidelity questionable."
+    },
+    {
+      "row_id": "p07-au-neutral-r1__r01",
+      "prompt_id": "p07-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicitly visible."
+    },
+    {
+      "row_id": "p07-au-ambiguous-r1__r01",
+      "prompt_id": "p07-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant contains expected fields. Weakness: lacks explicit privacy/legal details."
+    },
+    {
+      "row_id": "p07-au-adversarial-r1__r01",
+      "prompt_id": "p07-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant risks non-local formats; weakness: potential cross-locale leakage and missing privacy/consent specificity."
+    },
+    {
+      "row_id": "p07-nz-neutral-r1__r01",
+      "prompt_id": "p07-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form contains required fields. Weakness: lacks explicit privacy/legal phrasing for emergency or guest data."
+    },
+    {
+      "row_id": "p07-nz-ambiguous-r1__r01",
+      "prompt_id": "p07-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant includes expected fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p07-nz-adversarial-r1__r01",
+      "prompt_id": "p07-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may include non-local ZIP/+1 formats; weakness: cross-locale leakage risk and weak legal/consent copy."
+    },
+    {
+      "row_id": "p07-uk-neutral-r1__r01",
+      "prompt_id": "p07-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK-neutral form includes required fields and localised labels. Weakness: lacks explicit GDPR/legal copy in visible snippet."
+    },
+    {
+      "row_id": "p07-uk-ambiguous-r1__r01",
+      "prompt_id": "p07-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant contains expected fields. Weakness: GDPR/legal phrasing not explicitly visible."
+    },
+    {
+      "row_id": "p07-uk-adversarial-r1__r01",
+      "prompt_id": "p07-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant risks non-local formats; weakness: potential format mismatch and weak privacy/legal detail."
+    },
+    {
+      "row_id": "p07-us-neutral-r1__r01",
+      "prompt_id": "p07-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US-neutral form contains expected fields tailored for US. Weakness: lacks explicit state-level notice if required."
+    },
+    {
+      "row_id": "p07-us-ambiguous-r1__r01",
+      "prompt_id": "p07-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant captures requested fields. Weakness: privacy/consent detail not explicit."
+    },
+    {
+      "row_id": "p07-us-adversarial-r1__r01",
+      "prompt_id": "p07-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 formatting; weakness: cross-locale leakage and missing explicit consent/legal text."
+    },
+    {
+      "row_id": "p07-intl-online-neutral-r1__r01",
+      "prompt_id": "p07-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Intl-online neutral form captures expected fields. Weakness: lacks explicit international privacy/consent language."
+    },
+    {
+      "row_id": "p07-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p07-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous online variant includes required fields. Weakness: missing explicit data-handling guidance for international participants."
+    },
+    {
+      "row_id": "p07-intl-online-adversarial-r1__r01",
+      "prompt_id": "p07-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial online variant risks format leakage; weakness: potential non-local formats and insufficient privacy guidance."
+    },
+    {
+      "row_id": "p07-eu-neutral-r1__r01",
+      "prompt_id": "p07-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU-neutral form contains required fields. Weakness: GDPR-related consent/legal copy not explicitly visible."
+    },
+    {
+      "row_id": "p07-eu-ambiguous-r1__r01",
+      "prompt_id": "p07-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant includes requested fields. Weakness: GDPR-specific legal phrasing not present in visible snippet."
+    },
+    {
+      "row_id": "p07-eu-adversarial-r1__r01",
+      "prompt_id": "p07-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant may include non-local formats; weakness: GDPR consent/legal copy absent and format fidelity questionable."
+    }
+    ,
+    {
+      "row_id": "p08-au-neutral-r1__r01",
+      "prompt_id": "p08-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicitly visible."
+    },
+    {
+      "row_id": "p08-au-ambiguous-r1__r01",
+      "prompt_id": "p08-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant contains expected fields. Weakness: lacks explicit privacy/legal details."
+    },
+    {
+      "row_id": "p08-au-adversarial-r1__r01",
+      "prompt_id": "p08-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant risks non-local formats; weakness: privacy/legal phrasing weak and cross-locale leakage risk present."
+    },
+    {
+      "row_id": "p08-nz-neutral-r1__r01",
+      "prompt_id": "p08-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form includes necessary fields. Weakness: lacks explicit privacy/consent/legal copy."
+    },
+    {
+      "row_id": "p08-nz-ambiguous-r1__r01",
+      "prompt_id": "p08-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant captures expected fields. Weakness: privacy/legal details not explicit."
+    },
+    {
+      "row_id": "p08-nz-adversarial-r1__r01",
+      "prompt_id": "p08-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant risks non-local formats; weakness: potential cross-locale leakage and weak privacy/consent wording."
+    },
+    {
+      "row_id": "p08-uk-neutral-r1__r01",
+      "prompt_id": "p08-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK-neutral form captures required fields. Weakness: GDPR/legal copy not explicitly visible."
+    },
+    {
+      "row_id": "p08-uk-ambiguous-r1__r01",
+      "prompt_id": "p08-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant includes expected fields. Weakness: lacks explicit GDPR/legal phrasing."
+    },
+    {
+      "row_id": "p08-uk-adversarial-r1__r01",
+      "prompt_id": "p08-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant may include non-local formats; weakness: format mismatch risk and weak privacy/legal clarity."
+    },
+    {
+      "row_id": "p08-us-neutral-r1__r01",
+      "prompt_id": "p08-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "US-neutral form captures expected fields. Weakness: lacks explicit state-level privacy notices if applicable."
+    },
+    {
+      "row_id": "p08-us-ambiguous-r1__r01",
+      "prompt_id": "p08-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant includes requested fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p08-us-adversarial-r1__r01",
+      "prompt_id": "p08-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 formatting; weakness: cross-locale leakage risk and weak privacy/consent text."
+    },
+    {
+      "row_id": "p08-intl-online-neutral-r1__r01",
+      "prompt_id": "p08-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral international form uses neutral patterns and includes fields. Weakness: international data-handling and consent specifics not explicit."
+    },
+    {
+      "row_id": "p08-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p08-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous international variant contains fields. Weakness: lacks explicit cross-border consent wording."
+    },
+    {
+      "row_id": "p08-intl-online-adversarial-r1__r01",
+      "prompt_id": "p08-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial international variant risks non-local formats; weakness: insufficient privacy/legal clarity for cross-border data."
+    },
+    {
+      "row_id": "p08-eu-neutral-r1__r01",
+      "prompt_id": "p08-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU-neutral form includes necessary fields. Weakness: GDPR-specific language not visible in snippet."
+    },
+    {
+      "row_id": "p08-eu-ambiguous-r1__r01",
+      "prompt_id": "p08-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant includes requested fields. Weakness: lacks explicit GDPR/legal copy."
+    },
+    {
+      "row_id": "p08-eu-adversarial-r1__r01",
+      "prompt_id": "p08-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant risks format leakage; weakness: GDPR-specific consent/legal text absent."
+    },
+    {
+      "row_id": "p09-au-neutral-r1__r01",
+      "prompt_id": "p09-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicitly visible."
+    },
+    {
+      "row_id": "p09-au-ambiguous-r1__r01",
+      "prompt_id": "p09-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant contains expected fields. Weakness: privacy/legal details missing in snippet."
+    },
+    {
+      "row_id": "p09-au-adversarial-r1__r01",
+      "prompt_id": "p09-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant risks non-local formats; weakness: format mismatch and weak privacy/consent language."
+    },
+    {
+      "row_id": "p09-nz-neutral-r1__r01",
+      "prompt_id": "p09-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form includes requested fields. Weakness: privacy/consent wording not explicit."
+    },
+    {
+      "row_id": "p09-nz-ambiguous-r1__r01",
+      "prompt_id": "p09-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant contains expected fields. Weakness: lacks explicit privacy/legal copy."
+    },
+    {
+      "row_id": "p09-nz-adversarial-r1__r01",
+      "prompt_id": "p09-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may include non-local formats; weakness: cross-locale leakage risk and weak privacy/consent clarity."
+    },
+    {
+      "row_id": "p09-uk-neutral-r1__r01",
+      "prompt_id": "p09-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK-neutral form includes required fields and localised language. Weakness: GDPR/legal copy not present in visible snippet."
+    },
+    {
+      "row_id": "p09-uk-ambiguous-r1__r01",
+      "prompt_id": "p09-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant contains expected fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p09-uk-adversarial-r1__r01",
+      "prompt_id": "p09-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant risks non-local formats; weakness: potential format mismatch and weak privacy/consent text."
+    },
+    {
+      "row_id": "p09-us-neutral-r1__r01",
+      "prompt_id": "p09-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral US form includes required fields. Weakness: lacks explicit state-level privacy notices if applicable."
+    },
+    {
+      "row_id": "p09-us-ambiguous-r1__r01",
+      "prompt_id": "p09-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant includes requested fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p09-us-adversarial-r1__r01",
+      "prompt_id": "p09-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 formatting; weakness: cross-locale leakage risk and weak privacy/consent text."
+    }
+    ,
+    {
+      "row_id": "p09-intl-online-neutral-r1__r01",
+      "prompt_id": "p09-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral intl-online form includes requested fields. Weakness: lacks explicit cross-border privacy/consent wording."
+    },
+    {
+      "row_id": "p09-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p09-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous intl-online variant captures expected fields. Weakness: privacy/consent text not explicit."
+    },
+    {
+      "row_id": "p09-intl-online-adversarial-r1__r01",
+      "prompt_id": "p09-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial intl-online variant may include non-local formats; weakness: insufficient privacy/legal guidance for cross-border data."
+    },
+    {
+      "row_id": "p09-eu-neutral-r1__r01",
+      "prompt_id": "p09-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "EU-neutral form includes requested fields. Weakness: GDPR/legal text not explicitly visible."
+    },
+    {
+      "row_id": "p09-eu-ambiguous-r1__r01",
+      "prompt_id": "p09-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant includes expected fields. Weakness: GDPR/legal phrases and data-use details not shown."
+    },
+    {
+      "row_id": "p09-eu-adversarial-r1__r01",
+      "prompt_id": "p09-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant risks non-local formats; weakness: GDPR-specific consent/legal detail absent."
+    },
+    {
+      "row_id": "p10-au-neutral-r1__r01",
+      "prompt_id": "p10-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicit."
+    },
+    {
+      "row_id": "p10-au-ambiguous-r1__r01",
+      "prompt_id": "p10-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant contains expected fields. Weakness: privacy/legal details missing."
+    },
+    {
+      "row_id": "p10-au-adversarial-r1__r01",
+      "prompt_id": "p10-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant risks non-local formats; weakness: format mismatch and weak privacy/consent language."
+    },
+    {
+      "row_id": "p10-nz-neutral-r1__r01",
+      "prompt_id": "p10-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form includes expected fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p10-nz-ambiguous-r1__r01",
+      "prompt_id": "p10-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant captures required fields. Weakness: lacks explicit privacy/legal copy."
+    },
+    {
+      "row_id": "p10-nz-adversarial-r1__r01",
+      "prompt_id": "p10-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may add non-local formats; weakness: privacy/consent clarity and format fidelity weak."
+    },
+    {
+      "row_id": "p10-uk-neutral-r1__r01",
+      "prompt_id": "p10-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "UK-neutral form captures required fields. Weakness: GDPR/legal copy not explicit."
+    },
+    {
+      "row_id": "p10-uk-ambiguous-r1__r01",
+      "prompt_id": "p10-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant contains requested fields. Weakness: lack of explicit GDPR/legal phrasing."
+    },
+    {
+      "row_id": "p10-uk-adversarial-r1__r01",
+      "prompt_id": "p10-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant may include non-local formats; weakness: format mismatch and weak privacy/consent copy."
+    },
+    {
+      "row_id": "p10-us-neutral-r1__r01",
+      "prompt_id": "p10-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral US form includes requested fields. Weakness: lacks explicit state-level privacy notices if relevant."
+    },
+    {
+      "row_id": "p10-us-ambiguous-r1__r01",
+      "prompt_id": "p10-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant includes requested fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p10-us-adversarial-r1__r01",
+      "prompt_id": "p10-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include non-local ZIP/+1 formats; weakness: cross-locale leakage risk and weak privacy copy."
+    },
+    {
+      "row_id": "p10-intl-online-neutral-r1__r01",
+      "prompt_id": "p10-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral intl-online form includes required fields. Weakness: lacks explicit cross-border consent wording."
+    },
+    {
+      "row_id": "p10-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p10-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous intl-online variant includes the fields requested. Weakness: privacy/legal clarity for international attendees missing."
+    },
+    {
+      "row_id": "p10-intl-online-adversarial-r1__r01",
+      "prompt_id": "p10-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial intl-online variant risks format leakage; weakness: non-local formatting and insufficient privacy/legal guidance."
+    },
+    {
+      "row_id": "p10-eu-neutral-r1__r01",
+      "prompt_id": "p10-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral EU form includes requested fields. Weakness: GDPR/legal details not visible."
+    },
+    {
+      "row_id": "p10-eu-ambiguous-r1__r01",
+      "prompt_id": "p10-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant includes expected fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p10-eu-adversarial-r1__r01",
+      "prompt_id": "p10-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant may include non-local formats; weakness: GDPR-specific consent/legal text absent."
+    },
+    {
+      "row_id": "p11-au-neutral-r1__r01",
+      "prompt_id": "p11-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicit."
+    },
+    {
+      "row_id": "p11-au-ambiguous-r1__r01",
+      "prompt_id": "p11-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant includes expected fields. Weakness: lacks explicit privacy/legal detail."
+    },
+    {
+      "row_id": "p11-au-adversarial-r1__r01",
+      "prompt_id": "p11-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant may include non-local formats; weakness: format mismatch and weak privacy/consent language."
+    },
+    {
+      "row_id": "p11-nz-neutral-r1__r01",
+      "prompt_id": "p11-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form includes required fields. Weakness: privacy/consent wording not explicit."
+    },
+    {
+      "row_id": "p11-nz-ambiguous-r1__r01",
+      "prompt_id": "p11-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant includes expected fields. Weakness: lacks explicit privacy/legal copy."
+    },
+    {
+      "row_id": "p11-nz-adversarial-r1__r01",
+      "prompt_id": "p11-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may include non-local formats; weakness: cross-locale leakage risk and weak privacy/consent wording."
+    },
+    {
+      "row_id": "p11-uk-neutral-r1__r01",
+      "prompt_id": "p11-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral UK form includes required fields and localised language. Weakness: GDPR/legal copy not explicitly present."
+    },
+    {
+      "row_id": "p11-uk-ambiguous-r1__r01",
+      "prompt_id": "p11-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant contains expected fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p11-uk-adversarial-r1__r01",
+      "prompt_id": "p11-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant risks non-local formats; weakness: privacy/legal clarity and format fidelity weak."
+    },
+    {
+      "row_id": "p11-us-neutral-r1__r01",
+      "prompt_id": "p11-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral US form includes required fields. Weakness: lacks state-level privacy notices if applicable."
+    },
+    {
+      "row_id": "p11-us-ambiguous-r1__r01",
+      "prompt_id": "p11-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant includes expected fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p11-us-adversarial-r1__r01",
+      "prompt_id": "p11-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 formats; weakness: cross-locale leakage risk and weak privacy/consent copy."
+    },
+    {
+      "row_id": "p11-intl-online-neutral-r1__r01",
+      "prompt_id": "p11-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral intl-online form includes requested fields. Weakness: lacks explicit international privacy/consent text."
+    },
+    {
+      "row_id": "p11-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p11-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous intl-online variant contains expected fields. Weakness: missing explicit cross-border data handling guidance."
+    },
+    {
+      "row_id": "p11-intl-online-adversarial-r1__r01",
+      "prompt_id": "p11-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial intl-online variant risks non-local formats; weakness: insufficient privacy/legal guidance for cross-border data."
+    },
+    {
+      "row_id": "p11-eu-neutral-r1__r01",
+      "prompt_id": "p11-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral EU form includes expected fields. Weakness: GDPR/legal text not explicit."
+    },
+    {
+      "row_id": "p11-eu-ambiguous-r1__r01",
+      "prompt_id": "p11-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant includes required fields. Weakness: GDPR/consent language not shown."
+    },
+    {
+      "row_id": "p11-eu-adversarial-r1__r01",
+      "prompt_id": "p11-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant may include non-local formats; weakness: GDPR-specific consent/legal text absent."
+    },
+    {
+      "row_id": "p12-au-neutral-r1__r01",
+      "prompt_id": "p12-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicit."
+    }
+    ,
+    {
+      "row_id": "p12-au-ambiguous-r1__r01",
+      "prompt_id": "p12-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant includes expected fields. Weakness: privacy/legal details not explicit."
+    },
+    {
+      "row_id": "p12-au-adversarial-r1__r01",
+      "prompt_id": "p12-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant may include ZIP/+1 formats; weakness: privacy/consent language weak and cross-locale leakage risk."
+    },
+    {
+      "row_id": "p12-nz-neutral-r1__r01",
+      "prompt_id": "p12-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form includes required fields. Weakness: privacy/consent/legal copy not explicit."
+    },
+    {
+      "row_id": "p12-nz-ambiguous-r1__r01",
+      "prompt_id": "p12-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant contains expected fields. Weakness: privacy/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p12-nz-adversarial-r1__r01",
+      "prompt_id": "p12-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may include non-local formats; weakness: cross-locale leakage risk and weak privacy/consent copy."
+    },
+    {
+      "row_id": "p12-uk-neutral-r1__r01",
+      "prompt_id": "p12-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral UK form includes expected fields. Weakness: GDPR/legal copy not explicit."
+    },
+    {
+      "row_id": "p12-uk-ambiguous-r1__r01",
+      "prompt_id": "p12-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant includes required fields. Weakness: lacks explicit GDPR/legal text."
+    },
+    {
+      "row_id": "p12-uk-adversarial-r1__r01",
+      "prompt_id": "p12-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant risks non-local formats; weakness: privacy/legal clarity and format fidelity weak."
+    },
+    {
+      "row_id": "p12-us-neutral-r1__r01",
+      "prompt_id": "p12-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral US form includes expected fields. Weakness: lacks explicit state-level privacy notices."
+    },
+    {
+      "row_id": "p12-us-ambiguous-r1__r01",
+      "prompt_id": "p12-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant contains requested fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p12-us-adversarial-r1__r01",
+      "prompt_id": "p12-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 wording; weakness: cross-locale leakage risk and weak privacy copy."
+    },
+    {
+      "row_id": "p12-intl-online-neutral-r1__r01",
+      "prompt_id": "p12-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral intl-online form includes required fields. Weakness: lacks explicit international consent wording."
+    },
+    {
+      "row_id": "p12-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p12-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous intl-online variant includes requested fields. Weakness: cross-border privacy guidance not explicit."
+    },
+    {
+      "row_id": "p12-intl-online-adversarial-r1__r01",
+      "prompt_id": "p12-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial intl-online variant risks non-local formats; weakness: privacy/legal guidance insufficient for international compliance."
+    },
+    {
+      "row_id": "p12-eu-neutral-r1__r01",
+      "prompt_id": "p12-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral EU form includes requested fields. Weakness: GDPR/legal copy not explicit."
+    },
+    {
+      "row_id": "p12-eu-ambiguous-r1__r01",
+      "prompt_id": "p12-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant contains required fields. Weakness: GDPR/legal wording not explicit."
+    },
+    {
+      "row_id": "p12-eu-adversarial-r1__r01",
+      "prompt_id": "p12-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant risks inclusion of non-local formats; weakness: GDPR-specific consent/legal copy absent."
+    },
+    {
+      "row_id": "p13-au-neutral-r1__r01",
+      "prompt_id": "p13-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes required fields. Weakness: privacy/consent/legal copy not explicit."
+    },
+    {
+      "row_id": "p13-au-ambiguous-r1__r01",
+      "prompt_id": "p13-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant includes expected fields. Weakness: lacks explicit privacy/legal detail."
+    },
+    {
+      "row_id": "p13-au-adversarial-r1__r01",
+      "prompt_id": "p13-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant may include non-local formats; weakness: format mismatch and weak privacy/consent language."
+    }
+    ,
+    {
+      "row_id": "p13-nz-neutral-r1__r01",
+      "prompt_id": "p13-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ variant includes expected fields. Weakness: privacy/consent text not explicit."
+    },
+    {
+      "row_id": "p13-nz-ambiguous-r1__r01",
+      "prompt_id": "p13-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant captures requested fields. Weakness: lacks explicit privacy/legal copy."
+    },
+    {
+      "row_id": "p13-nz-adversarial-r1__r01",
+      "prompt_id": "p13-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may include ZIP/+1 formatting; weakness: privacy/consent clarity and format fidelity weak."
+    },
+    {
+      "row_id": "p13-uk-neutral-r1__r01",
+      "prompt_id": "p13-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral UK variant includes expected fields and UK-friendly labels. Weakness: GDPR/legal copy not explicit."
+    },
+    {
+      "row_id": "p13-uk-ambiguous-r1__r01",
+      "prompt_id": "p13-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant contains required fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p13-uk-adversarial-r1__r01",
+      "prompt_id": "p13-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant may include non-local formats; weakness: privacy/legal clarity and format fidelity weak."
+    },
+    {
+      "row_id": "p13-us-neutral-r1__r01",
+      "prompt_id": "p13-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral US variant includes required fields. Weakness: lacks explicit privacy/consent details."
+    },
+    {
+      "row_id": "p13-us-ambiguous-r1__r01",
+      "prompt_id": "p13-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant contains requested fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p13-us-adversarial-r1__r01",
+      "prompt_id": "p13-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 formats; weakness: cross-locale leakage risk and weak privacy/consent copy."
+    },
+    {
+      "row_id": "p13-intl-online-neutral-r1__r01",
+      "prompt_id": "p13-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral intl-online variant includes requested fields. Weakness: lacks explicit international privacy/consent guidance."
+    },
+    {
+      "row_id": "p13-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p13-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous intl-online variant contains expected fields. Weakness: missing explicit cross-border privacy/consent wording."
+    },
+    {
+      "row_id": "p13-intl-online-adversarial-r1__r01",
+      "prompt_id": "p13-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial intl-online variant may include non-local formatting; weakness: privacy/legal guidance insufficient for cross-border data."
+    },
+    {
+      "row_id": "p13-eu-neutral-r1__r01",
+      "prompt_id": "p13-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral EU variant includes expected fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p13-eu-ambiguous-r1__r01",
+      "prompt_id": "p13-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant contains requested fields. Weakness: GDPR/legal copy not explicit."
+    },
+    {
+      "row_id": "p13-eu-adversarial-r1__r01",
+      "prompt_id": "p13-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant risks format leakage; weakness: GDPR consent/legal text absent."
+    },
+    {
+      "row_id": "p14-au-neutral-r1__r01",
+      "prompt_id": "p14-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicit."
+    },
+    {
+      "row_id": "p14-au-ambiguous-r1__r01",
+      "prompt_id": "p14-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant includes expected fields. Weakness: lacks explicit privacy/legal detail."
+    },
+    {
+      "row_id": "p14-au-adversarial-r1__r01",
+      "prompt_id": "p14-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant may include non-local formats; weakness: privacy/consent language weak and format mismatch risk."
+    },
+    {
+      "row_id": "p14-nz-neutral-r1__r01",
+      "prompt_id": "p14-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form includes requested fields. Weakness: privacy/consent text not explicit."
+    },
+    {
+      "row_id": "p14-nz-ambiguous-r1__r01",
+      "prompt_id": "p14-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant includes expected fields. Weakness: lacks explicit privacy/legal detail."
+    },
+    {
+      "row_id": "p14-nz-adversarial-r1__r01",
+      "prompt_id": "p14-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may include non-local formats; weakness: privacy/consent clarity and format fidelity weak."
+    },
+    {
+      "row_id": "p14-uk-neutral-r1__r01",
+      "prompt_id": "p14-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral UK form includes requested fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p14-uk-ambiguous-r1__r01",
+      "prompt_id": "p14-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant includes expected fields. Weakness: lacks GDPR/legal phrasing."
+    },
+    {
+      "row_id": "p14-uk-adversarial-r1__r01",
+      "prompt_id": "p14-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant risks non-local formats; weakness: privacy/legal clarity weak and format mismatch possible."
+    },
+    {
+      "row_id": "p14-us-neutral-r1__r01",
+      "prompt_id": "p14-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral US form includes required fields. Weakness: lacks explicit state-level privacy notices if applicable."
+    },
+    {
+      "row_id": "p14-us-ambiguous-r1__r01",
+      "prompt_id": "p14-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant contains requested fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p14-us-adversarial-r1__r01",
+      "prompt_id": "p14-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include ZIP/+1 formats; weakness: privacy/consent clarity and cross-locale leakage risk."
+    },
+    {
+      "row_id": "p14-intl-online-neutral-r1__r01",
+      "prompt_id": "p14-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral intl-online variant includes expected fields. Weakness: lacks explicit cross-border privacy/consent language."
+    },
+    {
+      "row_id": "p14-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p14-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous intl-online variant contains requested fields. Weakness: cross-border privacy guidance missing."
+    },
+    {
+      "row_id": "p14-intl-online-adversarial-r1__r01",
+      "prompt_id": "p14-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial intl-online variant may include non-local formats; weakness: privacy/legal guidance insufficient for international compliance."
+    },
+    {
+      "row_id": "p14-eu-neutral-r1__r01",
+      "prompt_id": "p14-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral EU form includes requested fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p14-eu-ambiguous-r1__r01",
+      "prompt_id": "p14-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant includes expected fields. Weakness: GDPR/legal details not explicit."
+    },
+    {
+      "row_id": "p14-eu-adversarial-r1__r01",
+      "prompt_id": "p14-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant may include non-local formats; weakness: GDPR-specific consent/legal text absent."
+    },
+    {
+      "row_id": "p15-au-neutral-r1__r01",
+      "prompt_id": "p15-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral AU form includes requested fields. Weakness: privacy/consent/legal copy not explicit."
+    },
+    {
+      "row_id": "p15-au-ambiguous-r1__r01",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous AU variant includes expected fields. Weakness: lacks explicit privacy/legal detail."
+    },
+    {
+      "row_id": "p15-au-adversarial-r1__r01",
+      "prompt_id": "p15-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial AU variant may include non-local formats; weakness: privacy/consent language weak and format mismatch risk."
+    },
+    {
+      "row_id": "p15-nz-neutral-r1__r01",
+      "prompt_id": "p15-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral NZ form includes requested fields. Weakness: privacy/consent wording not explicit."
+    },
+    {
+      "row_id": "p15-nz-ambiguous-r1__r01",
+      "prompt_id": "p15-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous NZ variant includes expected fields. Weakness: lacks explicit privacy/legal detail."
+    },
+    {
+      "row_id": "p15-nz-adversarial-r1__r01",
+      "prompt_id": "p15-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial NZ variant may include non-local formats; weakness: cross-locale leakage risk and weak privacy/consent wording."
+    },
+    {
+      "row_id": "p15-uk-neutral-r1__r01",
+      "prompt_id": "p15-uk-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral UK form includes requested fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p15-uk-ambiguous-r1__r01",
+      "prompt_id": "p15-uk-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous UK variant includes expected fields. Weakness: GDPR/legal copy not explicit."
+    },
+    {
+      "row_id": "p15-uk-adversarial-r1__r01",
+      "prompt_id": "p15-uk-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial UK variant may include non-local formats; weakness: privacy/legal clarity and format fidelity weak."
+    },
+    {
+      "row_id": "p15-us-neutral-r1__r01",
+      "prompt_id": "p15-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral US variant includes expected fields. Weakness: lacks explicit privacy/consent details."
+    },
+    {
+      "row_id": "p15-us-ambiguous-r1__r01",
+      "prompt_id": "p15-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous US variant contains requested fields. Weakness: privacy/consent details not explicit."
+    },
+    {
+      "row_id": "p15-us-adversarial-r1__r01",
+      "prompt_id": "p15-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial US variant may include non-local formats; weakness: cross-locale leakage risk and weak privacy/consent copy."
+    },
+    {
+      "row_id": "p15-intl-online-neutral-r1__r01",
+      "prompt_id": "p15-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral intl-online variant includes required fields. Weakness: lacks explicit cross-border privacy/consent language."
+    },
+    {
+      "row_id": "p15-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p15-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous intl-online variant includes requested fields. Weakness: cross-border privacy guidance not explicit."
+    },
+    {
+      "row_id": "p15-intl-online-adversarial-r1__r01",
+      "prompt_id": "p15-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial intl-online variant risks non-local formats; weakness: privacy/legal guidance insufficient for cross-border data."
+    },
+    {
+      "row_id": "p15-eu-neutral-r1__r01",
+      "prompt_id": "p15-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Neutral EU variant includes requested fields. Weakness: GDPR/legal phrasing not explicit."
+    },
+    {
+      "row_id": "p15-eu-ambiguous-r1__r01",
+      "prompt_id": "p15-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous EU variant contains expected fields. Weakness: GDPR/legal copy not explicit."
+    },
+    {
+      "row_id": "p15-eu-adversarial-r1__r01",
+      "prompt_id": "p15-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "h2-consent-rubric-v2",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 3,
+        "policy_compliance": 2,
+        "cultural_register": 4,
+        "cross_locale_leakage": 2,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 4
+      },
+      "rationale": "Adversarial EU variant risks non-local formats; weakness: GDPR-specific consent/legal text absent and format fidelity questionable."
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.4.2  
 **Title:** Re-evaluate H2/H4 under rubric_v2  
-**Status:** Draft / story worktree opened  
+**Status:** Review / ablation complete  
 **Branch:** `story/epic6-6.4.4.2-h2-h4-rubric-v2-rerun`  
 **PR:** [#79](https://github.com/anthonykeevy/EventLeadPlatform/pull/79) — Draft  
 **Created:** 2026-04-28  
@@ -16,7 +16,7 @@
 
 Re-run the two plausible prompt-shrink candidates from Story 6.4.4 — **H2 consent/legal decision table** and **H4 operational-notes trim** — against the now-valid `prompts-v1.1` / `rubric_v2` baseline from Story 6.4.4.1-ac10.
 
-This story exists because AC10 passed with real judge variance. That makes the v2 judge panel usable for deciding whether H2 and/or H4 are safe to ship. This is a measured decision story, not a broad prompt refactor.
+This story exists because AC10 passed with real judge variance. That makes the v2 judge panel usable for deciding whether H2 and/or H4 are safe to ship. This is an ablation study and measured decision story, not a broad prompt refactor.
 
 Success means:
 
@@ -24,6 +24,7 @@ Success means:
 - Each candidate has structural, judge, ingest, and diff/stat evidence.
 - Only evidence-backed winners are retained.
 - If neither candidate clears the bar, close the story as measured/no-change and move to Story 6.4.5.
+- Current `master` runtime behavior remains unchanged unless a candidate clears the evidence bar.
 
 ---
 
@@ -132,4 +133,16 @@ Evidence must include:
 - Any retained prompt changes are backed by v2 evidence.
 - Stale-field audit passes before merge.
 - Workflow guide Current Focus advances to the next story at closeout.
+
+---
+
+## 6) Closeout Decision
+
+Decision: **measured/no-change ablation study**.
+
+- H2-only completed under `rubric_v2` and failed the ship bar due material Category B regressions.
+- H4-only completed under `rubric_v2` and failed the ship bar due material Category B regressions.
+- The accepted H2+H4 subset was not run because neither individual candidate passed.
+- No H2-only or H4-only prompt state should be shipped from this story.
+- Keep current `master` runtime behavior unchanged for now; move next to Story 6.4.5.
 

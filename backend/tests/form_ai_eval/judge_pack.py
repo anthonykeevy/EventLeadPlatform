@@ -26,7 +26,7 @@ TESTS_DIR = Path(__file__).resolve().parents[1]
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
-from form_ai_eval import run as eval_run  # noqa: E402
+from form_ai_eval import run as eval_run  # type: ignore[import-not-found]  # noqa: E402
 
 
 RUBRIC_VERSION = "rubric_v2"
@@ -283,7 +283,7 @@ def build_package_rows(
     package_rows: List[JudgePackageRow] = []
     for row in metric_rows:
         prompt_id = row.get("prompt_id")
-        if prompt_id not in prompts_by_id:
+        if not isinstance(prompt_id, str) or prompt_id not in prompts_by_id:
             raise JudgePackageError(f"Metric row references unknown prompt_id: {prompt_id!r}")
         repetition_index = int(row.get("repetition_index", 1))
         generation_run_id = _coerce_int(row.get("generation_run_id"))
@@ -429,13 +429,27 @@ def _display_path(path: Path) -> str:
         return str(resolved)
 
 
+def _judge_scope_for_package(package_dir: Path) -> str:
+    package_path = str(package_dir).lower()
+    if "6.4.4.2" not in package_path:
+        return "Story 6.4.4.1"
+    if "h2-consent" in package_path:
+        return "Story 6.4.4.2 H2 consent/legal rubric_v2 re-evaluation"
+    if "h4-operational" in package_path:
+        return "Story 6.4.4.2 H4 operational-notes rubric_v2 re-evaluation"
+    if "h2-h4" in package_path:
+        return "Story 6.4.4.2 accepted H2+H4 subset interaction check"
+    return "Story 6.4.4.2 rubric_v2 re-evaluation"
+
+
 def render_judge_prompt(judge_model: str, package_dir: Path) -> str:
     if judge_model not in JUDGE_MODELS:
         raise JudgePackageError(f"Unknown judge model: {judge_model}")
     output_path = _display_path(package_dir / "results" / JUDGE_OUTPUT_FILES[judge_model])
     label = JUDGE_MODEL_LABELS[judge_model]
+    scope = _judge_scope_for_package(package_dir)
     return (
-        f"You are the {label} for Story 6.4.4.1.\n\n"
+        f"You are the {label} for {scope}.\n\n"
         "Use the attached judge package files:\n"
         "- rubric_v2.md\n"
         "- judge-input-batch.md\n"

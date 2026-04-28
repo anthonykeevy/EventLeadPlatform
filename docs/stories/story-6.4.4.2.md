@@ -3,10 +3,11 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.4.2  
 **Title:** Re-evaluate H2/H4 under rubric_v2  
-**Status:** Review / ablation complete  
+**Status:** Complete — measured/no-change ablation  
 **Branch:** `story/epic6-6.4.4.2-h2-h4-rubric-v2-rerun`  
-**PR:** [#79](https://github.com/anthonykeevy/EventLeadPlatform/pull/79) — Draft  
+**PR:** [#79](https://github.com/anthonykeevy/EventLeadPlatform/pull/79) — merged 2026-04-28  
 **Created:** 2026-04-28  
+**Completed:** 2026-04-28  
 **Depends On:** Story 6.4.4.1-ac10 ([PR #77](https://github.com/anthonykeevy/EventLeadPlatform/pull/77)) and AC10 post-merge stamp ([PR #78](https://github.com/anthonykeevy/EventLeadPlatform/pull/78)) merged.  
 **Unblocks:** Story 6.4.5 and later additive AI capability stories.
 

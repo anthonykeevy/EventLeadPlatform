@@ -1,0 +1,275 @@
+{
+  "advisory_metric_deltas": {
+    "attempt_count": {
+      "baseline_mean": 1.0407407407407407,
+      "decision": "advisory",
+      "delta": -0.025925925925925908,
+      "effect_size": 0.15796190834137253,
+      "p_value": 0.06712031875048918,
+      "variant_mean": 1.0148148148148148
+    },
+    "collision_count": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "component_count": {
+      "baseline_mean": 11.877777777777778,
+      "decision": "advisory",
+      "delta": -0.03703703703703809,
+      "effect_size": 0.01291704240755726,
+      "p_value": 0.8807558188739398,
+      "variant_mean": 11.84074074074074
+    },
+    "duration_ms": {
+      "baseline_mean": 42376.433333333334,
+      "decision": "advisory",
+      "delta": 752.5259259259255,
+      "effect_size": -0.0611820302392057,
+      "p_value": 0.4774729804296113,
+      "variant_mean": 43128.95925925926
+    },
+    "input_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "output_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "total_cost_usd": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    }
+  },
+  "baseline": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.4.1-ac10-baseline-v2",
+    "run_id": "story-6.4.4.1-ac10-baseline-v2",
+    "variant_label": "current-master-baseline"
+  },
+  "decision": {
+    "blocked": false,
+    "blocking_reasons": [],
+    "blocking_rows": [],
+    "recommendation": "human-review"
+  },
+  "judge_bias_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 0.6425925925925926,
+      "delta": -1.3407407407407408,
+      "variant_mean": -0.6981481481481482
+    },
+    "cross_locale_leakage": {
+      "baseline_mean": -1.2685185185185186,
+      "delta": 0.6537037037037038,
+      "variant_mean": -0.6148148148148148
+    },
+    "cultural_register": {
+      "baseline_mean": 0.9111111111111111,
+      "delta": -1.424074074074074,
+      "variant_mean": -0.512962962962963
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 0.05,
+      "delta": -0.14444444444444443,
+      "variant_mean": -0.09444444444444444
+    },
+    "field_label_f1": {
+      "baseline_mean": -0.5111111111111111,
+      "delta": 0.861111111111111,
+      "variant_mean": 0.35
+    },
+    "format_pattern_accuracy": {
+      "baseline_mean": -0.19814814814814816,
+      "delta": -0.287037037037037,
+      "variant_mean": -0.48518518518518516
+    },
+    "locale_fidelity": {
+      "baseline_mean": 1.211111111111111,
+      "delta": -1.5777777777777777,
+      "variant_mean": -0.36666666666666664
+    },
+    "policy_compliance": {
+      "baseline_mean": 0.7148148148148148,
+      "delta": -2.1240740740740742,
+      "variant_mean": -1.4092592592592592
+    },
+    "row_group_agreement": {
+      "baseline_mean": 0.19814814814814816,
+      "delta": -0.8592592592592593,
+      "variant_mean": -0.6611111111111111
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": -1.4092592592592592,
+      "delta": 0.6592592592592592,
+      "variant_mean": -0.75
+    }
+  },
+  "judge_metric_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 4.357407407407408,
+      "category": "B",
+      "decision": "advisory",
+      "delta": 0.08518518518518459,
+      "effect_size": -0.2393959006610346,
+      "metric_kind": "continuous",
+      "metric_name": "copy_quality_score",
+      "note": "",
+      "p_value": 0.005668280812225479,
+      "recommended_action": "human-review",
+      "variant_mean": 4.442592592592592
+    },
+    "cross_locale_leakage": {
+      "baseline_mean": 3.935185185185185,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.22037037037037077,
+      "effect_size": -0.16587388226527702,
+      "metric_kind": "continuous",
+      "metric_name": "cross_locale_leakage",
+      "note": "",
+      "p_value": 0.05454147208582816,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 4.155555555555556
+    },
+    "cultural_register": {
+      "baseline_mean": 4.088888888888889,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.2833333333333332,
+      "effect_size": -0.6391962171101615,
+      "metric_kind": "continuous",
+      "metric_name": "cultural_register",
+      "note": "",
+      "p_value": 5.940803404769213e-13,
+      "recommended_action": "human-review",
+      "variant_mean": 4.372222222222222
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 4.409259259259259,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.44814814814814863,
+      "effect_size": -1.8153553872293853,
+      "metric_kind": "continuous",
+      "metric_name": "field_coverage_recall",
+      "note": "",
+      "p_value": 0.0,
+      "recommended_action": "human-review",
+      "variant_mean": 4.857407407407408
+    },
+    "field_label_f1": {
+      "baseline_mean": 4.985185185185185,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.924074074074074,
+      "effect_size": 2.522796631361778,
+      "metric_kind": "continuous",
+      "metric_name": "field_label_f1",
+      "note": "",
+      "p_value": 1.326716514427062e-13,
+      "recommended_action": "human-review",
+      "variant_mean": 4.061111111111111
+    },
+    "format_pattern_accuracy": {
+      "baseline_mean": 3.9092592592592594,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.3425925925925921,
+      "effect_size": -0.36464276268535833,
+      "metric_kind": "continuous",
+      "metric_name": "format_pattern_accuracy",
+      "note": "",
+      "p_value": 2.6929675578934997e-05,
+      "recommended_action": "human-review",
+      "variant_mean": 4.2518518518518515
+    },
+    "locale_fidelity": {
+      "baseline_mean": 3.7888888888888888,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.43703703703703756,
+      "effect_size": -0.45303005016333686,
+      "metric_kind": "continuous",
+      "metric_name": "locale_fidelity",
+      "note": "",
+      "p_value": 2.0921279741958898e-07,
+      "recommended_action": "human-review",
+      "variant_mean": 4.225925925925926
+    },
+    "policy_compliance": {
+      "baseline_mean": 3.9518518518518517,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.5648148148148149,
+      "effect_size": -1.446306623701079,
+      "metric_kind": "continuous",
+      "metric_name": "policy_compliance",
+      "note": "",
+      "p_value": 0.0,
+      "recommended_action": "human-review",
+      "variant_mean": 4.516666666666667
+    },
+    "row_group_agreement": {
+      "baseline_mean": 4.801851851851852,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.14444444444444482,
+      "effect_size": 0.5903391860183149,
+      "metric_kind": "continuous",
+      "metric_name": "row_group_agreement",
+      "note": "",
+      "p_value": 1.9121149108514146e-11,
+      "recommended_action": "human-review",
+      "variant_mean": 4.657407407407407
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 4.409259259259259,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.3814814814814813,
+      "effect_size": 2.1738158930806732,
+      "metric_kind": "continuous",
+      "metric_name": "validation_intent_accuracy",
+      "note": "",
+      "p_value": 2.6434410216324977e-13,
+      "recommended_action": "human-review",
+      "variant_mean": 4.027777777777778
+    }
+  },
+  "limitations": [
+    "Only schema_valid regressions and boundary violations are blocking.",
+    "Other deltas are advisory for PM/SM decision.",
+    "Inconclusive Category B results should rerun at n=15."
+  ],
+  "output_files": {
+    "csv": "_bmad-output\\eval-runs\\story-6.4.5-baseline-vs-h3-component-property-cheat-sheet\\diff-details.csv",
+    "json": "_bmad-output\\eval-runs\\story-6.4.5-baseline-vs-h3-component-property-cheat-sheet\\diff-summary.json",
+    "markdown": "_bmad-output\\eval-runs\\story-6.4.5-baseline-vs-h3-component-property-cheat-sheet\\diff-report.md"
+  },
+  "row_alignment": {
+    "extra_in_variant": [],
+    "matched_count": 270,
+    "missing_in_variant": []
+  },
+  "variant": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.5-h3-component-property-cheat-sheet",
+    "run_id": "story-6.4.5-h3-component-property-cheat-sheet",
+    "variant_label": "story-6.4.5-h3-component-property-cheat-sheet"
+  }
+}

@@ -1,0 +1,862 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "gpt-5-mini",
+  "rows": [
+    {
+      "row_id": "p01-intl-online-neutral-r1__r01",
+      "prompt_id": "p01-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Generated definition includes `formId: \"annual-sales-conference-registration\"` and a `Phone number` component (type: phone) with helpText and a +61-style placeholder; also includes a T-shirt `dropdown` with sizes (S..XXL) and a `Dietary requirements` checkbox list — strong E.164-friendly phone hint and explicit components; weakness: no visible marketing/privacy legal copy in the excerpt."
+    },
+    {
+      "row_id": "p01-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p01-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Definition shows `formId` and paragraph copy with local/online hints; phone field uses an international-style placeholder and email is present as `[SCRUBBED_EMAIL]`; includes dietary checkbox and t-shirt dropdown — two concrete signals of proper component coverage; weakness: no explicit consent/opt-in visible."
+    },
+    {
+      "row_id": "p01-intl-online-adversarial-r1__r01",
+      "prompt_id": "p01-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Generated content includes core fields (name/email/phone) but also inserts explicit country-specific cues (e.g. a `ZIP` or `postal code` style field and phone helpText suggesting +1) and a terms `checkbox` with helpText; cites `Phone` helpText and presence of `ZIP`-like field — weakness: these US-specific hints harm INTL neutrality."
+    },
+    {
+      "row_id": "p02-intl-online-neutral-r1__r01",
+      "prompt_id": "p02-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Form contains a `Country` dropdown (ISO codes visible) and a `Phone` field with E.164-style placeholder, plus `T-shirt` dropdown and `Dietary requirements` checkbox — two clear generated-definition signals of international-friendly formatting; weakness: privacy/legal text not shown."
+    },
+    {
+      "row_id": "p02-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p02-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated definition lists `Phone` and `Email` components with international placeholders and a `Dietary requirements` helpText; also contains a `Session choice` dropdown — two concrete signals of coverage and UX; weakness: no marketing opt-in checkbox visible."
+    },
+    {
+      "row_id": "p02-intl-online-adversarial-r1__r01",
+      "prompt_id": "p02-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Core fields present but adversarial cues appear (phone helpText favouring +1 and a `ZIP` field label). Evidence: `Phone` helpText and a `ZIP / Postal code` labelled component in the generated definition; weakness: explicit US-format instructions conflict with international neutrality."
+    },
+    {
+      "row_id": "p03-intl-online-neutral-r1__r01",
+      "prompt_id": "p03-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Definition shows `formId` and a `Phone` component explicitly using an E.164 example in placeholder or helpText and a `Country` selector; also shows `T-shirt` dropdown — concrete signals of international formatting and completion; weakness: no explicit GDPR/CCPA text (intentionally neutral)."
+    },
+    {
+      "row_id": "p03-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p03-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Observed `Email` placeholder, `Phone` field with neutral formatting, and `Dietary requirements` checkbox; the generated-definition contains a session/stream dropdown as well — two concrete items for coverage; weakness: no visible legal consent block."
+    },
+    {
+      "row_id": "p03-intl-online-adversarial-r1__r01",
+      "prompt_id": "p03-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Generated output includes core fields but also shows US-centric labels (phone labelled with +1 example and `ZIP` field); evidence: phone helpText and a `ZIP`-style component; weakness: cross-locale leakage from US-centric labels."
+    },
+    {
+      "row_id": "p04-intl-online-neutral-r1__r01",
+      "prompt_id": "p04-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Definition contains `first-name`/`last-name` text inputs, `Phone` with E.164 hint, and `Dietary` checkbox plus `submit` button labelled 'Register' — two concrete generated-definition elements demonstrating clear labels and international-friendly phone formatting; weakness: no privacy/consent snippet visible."
+    },
+    {
+      "row_id": "p04-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p04-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated definition includes `Phone` and `Email` with neutral placeholders and a `Session choice` dropdown; `Dietary requirements` helpText is present — two concrete signals of usable UX; weakness: missing explicit marketing opt-in in the visible portion."
+    },
+    {
+      "row_id": "p04-intl-online-adversarial-r1__r01",
+      "prompt_id": "p04-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 3,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Core components exist but adversarial content injects country-specific claims (e.g. `ZIP` field and +1 phone guidance) and removes international-neutral cues; evidence: `ZIP / Postal code` label and phone helpText recommending +1; weakness: fails INTL neutrality."
+    },
+    {
+      "row_id": "p05-intl-online-neutral-r1__r01",
+      "prompt_id": "p05-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Definition shows a `country` selector with ISO codes, `Phone` field with E.164 placeholder, `T-shirt` dropdown and `Dietary` checkbox; two concrete generated elements verify international formatting and options; weakness: no privacy/legal snippet in view."
+    },
+    {
+      "row_id": "p05-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p05-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated definition includes `Email` placeholder, `Phone` field with neutral hint, and a `T-shirt` dropdown (options S..XXL); also a `Dietary details` textarea appears — two concrete fields demonstrating coverage; weakness: consent/terms not visible."
+    },
+    {
+      "row_id": "p05-intl-online-adversarial-r1__r01",
+      "prompt_id": "p05-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 0,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 1
+      },
+      "rationale": "Adversarial variant includes `ZIP` field and +1 phone helpText despite other fields; evidence: `ZIP`-style component and phone guidance recommending country code +1; weakness: policy compliance and cross-locale leakage severely impacted."
+    },
+    {
+      "row_id": "p06-intl-online-neutral-r1__r01",
+      "prompt_id": "p06-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Definition contains `first-name` and `last-name` fields, `Phone` input with international example in placeholder, and a `submit` button labelled 'Register'; also a `terms` checkbox with neutral wording — two concrete items confirming good structure; weakness: privacy copy not shown."
+    },
+    {
+      "row_id": "p06-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p06-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated content shows `Phone` and `Email` components with neutral placeholders and a `Dietary requirements` checkbox; a `Session` dropdown is present — two concrete signs of coverage; weakness: explicit opt-in/consent is not evident."
+    },
+    {
+      "row_id": "p06-intl-online-adversarial-r1__r01",
+      "prompt_id": "p06-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial generated-definition shows core fields alongside US-centric phone guidance and a `ZIP` label; evidence: phone helpText with +1 example and a `ZIP` input; weakness: locale_fidelity and format accuracy are reduced."
+    },
+    {
+      "row_id": "p07-intl-online-neutral-r1__r01",
+      "prompt_id": "p07-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant contains clear validation flags (phone optional/required marked), `Email` placeholder `[SCRUBBED_EMAIL]`, `Phone` input with international hint, and helpful grouping (paragraph, fields, dropdowns) — two concrete signs of robust validation and grouping; weakness: no visible legal reference."
+    },
+    {
+      "row_id": "p07-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p07-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated definition references location hints but keeps `Phone` and `Email` as international-friendly fields; includes t-shirt/dietary components — two concrete coverage signals; weakness: marketing consent still not present."
+    },
+    {
+      "row_id": "p07-intl-online-adversarial-r1__r01",
+      "prompt_id": "p07-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial variant includes US-centric phone labelling and a `ZIP` field in the generated definition while retaining name/email fields; evidence: phone label with +1 example and `ZIP` component; weakness: format pattern accuracy drops significantly."
+    },
+    {
+      "row_id": "p08-intl-online-neutral-r1__r01",
+      "prompt_id": "p08-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 5
+      },
+      "rationale": "Definition follows international conventions: `Phone` placeholder shows country-code pattern, `Email` placeholder present, and `Dietary`/`T-shirt` controls included — two concrete signals for coverage and format; weakness: no explicit privacy/marketing opt-in visible."
+    },
+    {
+      "row_id": "p08-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p08-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated output contains `Phone` and `Email` fields with neutral hints, a t-shirt dropdown, and dietary controls; evidence: specific component labels and options visible in the generated-definition; weakness: lacks visible consent text."
+    },
+    {
+      "row_id": "p08-intl-online-adversarial-r1__r01",
+      "prompt_id": "p08-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial example shows `ZIP` and +1 phone hints in the generated JSON while other fields remain; evidence: ZIP-like field and phone helpText; weakness: cross-locale leakage and policy compliance issues."
+    },
+    {
+      "row_id": "p09-intl-online-neutral-r1__r01",
+      "prompt_id": "p09-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral row provides `Email` and `Phone` placeholders and helpText clarifying international dialing; `Dietary` and `T-shirt` controls are present — two concrete markers of format and coverage; weakness: no explicit privacy/legal snippet shown."
+    },
+    {
+      "row_id": "p09-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p09-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Generated definition contains local hints but keeps international-friendly `Phone` and `Email` fields and includes preference controls; evidence: component labels and helpText; weakness: consent/opt-in not visible."
+    },
+    {
+      "row_id": "p09-intl-online-adversarial-r1__r01",
+      "prompt_id": "p09-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial variant adds `ZIP`-style input and US-centric phone guidance alongside standard fields; evidence: `ZIP` label and phone helpText referencing +1; weakness: strong cross-locale leakage and policy problems."
+    },
+    {
+      "row_id": "p10-intl-online-neutral-r1__r01",
+      "prompt_id": "p10-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Definition shows comprehensive fields, clear labels, E.164 phone hints and `[SCRUBBED_EMAIL]` for email — two concrete generated-definition signals for format and coverage; weakness: privacy/consent not present in snippet."
+    },
+    {
+      "row_id": "p10-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p10-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous generated-definition references a location/context but retains `Phone` and `Email` fields with international formatting and includes preference controls; evidence: explicit component labels and placeholders; weakness: no marketing opt-in visible."
+    },
+    {
+      "row_id": "p10-intl-online-adversarial-r1__r01",
+      "prompt_id": "p10-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output includes `ZIP` and +1 phone hints; evidence: `ZIP`-style component and phone helpText referencing +1 appear in the generated JSON; weakness: fails to meet international format expectations."
+    },
+    {
+      "row_id": "p11-intl-online-neutral-r1__r01",
+      "prompt_id": "p11-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral generated-definition includes validation flags (phone optional with helpText), `Email` placeholder and well-structured grouping (paragraph, fields, dropdowns); evidence: validation-related props and placeholders visible; weakness: privacy/legal copy not shown."
+    },
+    {
+      "row_id": "p11-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p11-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form mentions location/context but retains international-friendly `Phone` and `Email` components and includes dietary/t-shirt controls; evidence: component labels and options show up in the generated definition; weakness: no explicit consent control visible."
+    },
+    {
+      "row_id": "p11-intl-online-adversarial-r1__r01",
+      "prompt_id": "p11-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial content shows a mix of core fields and US-specific hints such as +1 phone guidance and `ZIP` label; evidence: phone helpText and ZIP-like field appear in generated-definition; weakness: reduced locale fidelity."
+    },
+    {
+      "row_id": "p12-intl-online-neutral-r1__r01",
+      "prompt_id": "p12-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Generated definition includes clear placeholders and helpText (international phone pattern, `[SCRUBBED_EMAIL]`), logical grouping and label clarity; evidence: phone/email placeholders and component groupings visible; weakness: missing explicit privacy/legal text in the captured excerpt."
+    },
+    {
+      "row_id": "p12-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p12-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces local hints but retains international-friendly `Phone` formatting and includes preference controls (t-shirt/dietary); evidence: component labels and options present; weakness: no consent checkbox visible."
+    },
+    {
+      "row_id": "p12-intl-online-adversarial-r1__r01",
+      "prompt_id": "p12-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial generated-definition includes `ZIP` and +1 phone guidance while other fields remain; evidence: ZIP-like input and phone helpText recommending +1; weakness: format and policy scores lowered by US-specific cues."
+    },
+    {
+      "row_id": "p13-intl-online-neutral-r1__r01",
+      "prompt_id": "p13-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral form supplies required fields with clear labels and international phone/email placeholders; t-shirt/dietary controls and submit button present — evidence: specific component ids and labels in generated JSON; weakness: no visible legal/privacy copy."
+    },
+    {
+      "row_id": "p13-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p13-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant references a location or context but retains `Phone` and `Email` fields with international-friendly placeholders and preference controls; evidence: component labels/options visible in the generated definition; weakness: consent text not shown."
+    },
+    {
+      "row_id": "p13-intl-online-adversarial-r1__r01",
+      "prompt_id": "p13-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes `ZIP` and +1 phone guidance mixed with normal fields; evidence: ZIP-like component and phone helpText; weakness: international format and policy alignment weakened."
+    },
+    {
+      "row_id": "p14-intl-online-neutral-r1__r01",
+      "prompt_id": "p14-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant uses international phone/email placeholders and clear labels; components are grouped sensibly and t-shirt/dietary controls included — evidence: placeholders and component grouping in generated JSON; weakness: privacy/consent not visible."
+    },
+    {
+      "row_id": "p14-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p14-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form contains local hints but retains international-friendly `Phone` and `Email` fields and includes options such as t-shirt sizes and dietary checkboxes; evidence: explicit option lists in generated-definition; weakness: consent/marketing opt-in not shown."
+    },
+    {
+      "row_id": "p14-intl-online-adversarial-r1__r01",
+      "prompt_id": "p14-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial example injects US-style `ZIP` and +1 phone guidance alongside standard fields; evidence: ZIP label and phone helpText in generated JSON; weakness: locale fidelity and policy compliance suffer."
+    },
+    {
+      "row_id": "p15-intl-online-neutral-r1__r01",
+      "prompt_id": "p15-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral generated-definition includes name/email/phone fields with international placeholders, plus dietary and t-shirt controls and a `Register` button; evidence: component ids/labels and placeholders visible; weakness: privacy/consent text not shown."
+    },
+    {
+      "row_id": "p15-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p15-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant retains international-friendly formatting for phone/email and includes preference controls; evidence: placeholders and option lists in the generated-definition; weakness: missing visible marketing consent."
+    },
+    {
+      "row_id": "p15-intl-online-adversarial-r1__r01",
+      "prompt_id": "p15-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes US-specific `ZIP` and +1 phone hints while keeping common fields; evidence: ZIP-like component and phone helpText present in generated JSON; weakness: undermines international neutrality and lowers policy alignment."
+    }
+  ]
+}

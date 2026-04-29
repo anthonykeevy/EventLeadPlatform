@@ -81,12 +81,14 @@ This fundamentally changes the payment architecture. We must implement two diffe
 | **6.4.4.1** | **Locale Architecture: Wire the Registry** | Replace hard-coded locale prompt constants with registry-backed locale blocks, add audience locale/brand posture resolution, and bump eval/judge to prompts-v1.1/rubric_v2. Company Settings brand posture UI deferred to `g-6441-company-brand-settings-ui`. | ✅ **Complete** (merged 2026-04-27, PR #75) |
 | **6.4.4.1-ac10** | **AC-10 Baseline Re-Judge Execution** | Re-judged the `prompts-v1.1` baseline under `rubric_v2`; AC-10 passed and recommends Story 6.4.4.2 next. | ✅ **Complete** (merged 2026-04-27, PR #77) |
 | **6.4.4.2** | **Re-evaluate H2/H4 under rubric_v2** | Ablation study: H2-only and H4-only re-run against the AC10 `rubric_v2` baseline; both failed the ship bar, so current `master` behavior remains unchanged. | ✅ **Complete** (merged 2026-04-28, PR #79) |
-| **6.4.5** | **Component Property Cheat Sheet H3** | Add component property cheat sheet under measurement and ship only if the harness evidence wins. | ⏳ Pending |
-| **6.5a** | **Clarification Questions** | Text-only clarification flow with schema additions and AI Agent panel UX for low-confidence cases. | ⏳ Pending |
+| **6.4.5** | **Component Property Cheat Sheet H3** | H3 was implemented and measured under `prompts-v1.1` / `rubric_v2`; useful signal but material `field_label_f1` regression and locale/context-conflict noise mean no-go as-is. Prompt changes reverted; artifacts preserved. | ✅ **Measured/no-change** (PR #81; awaiting merge) |
+| **6.4.6** | **AU-Only Diagnostic Evaluation Framework + Baseline** | Build the AU-only diagnostic framework, rewrite/tag benchmark prompts for AU launch context, add prompt-context linter/shared context bundles/judge diagnostics/deterministic AU checks, and produce the first current-state AU baseline. | ⏳ **Next planned** |
+| **6.4.7** | **AU Baseline Analysis And Iterative Prompt Improvement Loop** | BMAD Analyst loop over version-managed prompt/context artifacts only: review AU results, present top 5 improvement candidates to Tony, get approval, apply one controlled change set, rerun eval/judges, update tracking, then stop for Tony continue/stop. | ⏳ Planned after 6.4.6 |
+| **6.5a** | **Clarification Questions** | Text-only clarification flow with schema additions and AI Agent panel UX for low-confidence cases. | ⏸️ Deferred until AU diagnostic reset is complete unless PM explicitly pulls forward |
 | **6.5b-vision** | **Image-to-Form Vision Path** | Screenshot/photo input to `FormSemanticPlan`, reusing deterministic compiler architecture. | ⏳ Pending |
-| **6.5b-style** | **Style Intent Resolver** | Add semantic `themeIntent`/`styleIntent`, resolver boundary, canvas-preservation contract, and H5 sweep. | ⏳ Pending |
+| **6.5b-style** | **Style Intent Resolver** | Add semantic `themeIntent`/`styleIntent`, resolver boundary, canvas-preservation contract, and H5 sweep. | ⏸️ Prompt-candidate sweep deferred pending AU-only diagnostic framework |
 | **6.5c** | **PII Detection Layers** | PII detection, user-assertion clarification hook, and PII-heavy benchmark subset. | ⏳ Pending |
-| **6.5d** | **Google Fonts Directive** *(conditional)* | Add "Use only Google Fonts" directive and font-nomination validity check if H6 wins. | ⏳ Conditional |
+| **6.5d** | **Google Fonts Directive** *(conditional)* | Add "Use only Google Fonts" directive and font-nomination validity check if H6 wins. | ⏸️ Prompt-candidate sweep deferred pending AU-only diagnostic framework |
 
 ### Phase B: Platform Billing & Monetization (deferred — renumbered 2026-04-23)
 
@@ -107,4 +109,4 @@ This fundamentally changes the payment architecture. We must implement two diffe
 ---
 
 *Epic 6 Status Document*  
-*Last Updated: 2026-04-28 (Story 6.4.4.2 ablation study closed measured/no-change; next focus Story 6.4.5.)*
+*Last Updated: 2026-04-29 (Prompt-evaluation reset approved: pause six-locale prompt-candidate sweeps, focus AU launch diagnostics first, and sequence 6.4.6 framework/baseline then 6.4.7 Analyst loop.)*

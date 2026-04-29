@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.4.5" title="Component Property Cheat Sheet H3">
+
+  <overview>
+    Measure H3: add a concise component-property cheat sheet to the Form AI
+    system prompt, filtered to the active capability snapshot. The goal is to
+    improve semantic property selection without expanding the component surface
+    or inventing unsupported props. Ship only if prompts-v1.1/rubric_v2 evidence
+    clears the bar.
+  </overview>
+
+  <critical-objectives>
+    <item>Keep H3 additive and bounded; no broad prompt rewrite.</item>
+    <item>Filter cheat-sheet entries to active capability snapshot component types.</item>
+    <item>Do not introduce unsupported properties, renderer changes, or capability migrations unless unavoidable.</item>
+    <item>Use AC10 regenerated v2 baseline as the control.</item>
+    <item>Measured/no-change closeout is valid if H3 regresses.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.4.2">Complete; H2/H4 failed ship bar, current master behavior unchanged.</story>
+    <story id="6.4.4.1-ac10">Complete; AC10 baseline v2 passed and supplies control run.</story>
+    <story id="6.4.4.1">Complete; prompts-v1.1/rubric_v2 on master.</story>
+    <story id="6.4.3c">Complete; diff/statistics tooling.</story>
+    <story id="6.4.3b">Complete; judge package and ingest tooling.</story>
+    <story id="6.4.3a">Complete; eval harness.</story>
+    <doc path="docs/stories/story-6.4.5.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/stories/STORY-6.4.5-SINGLE-SESSION-DEV-PROMPT.md">Dev execution contract.</doc>
+    <doc path="docs/stories/STORY-6.4.5-UAT-TEST-GUIDE.md">Human/SM UAT guide.</doc>
+    <doc path="docs/stories/STORY-6.4.4.2-CLOSEOUT-REPORT.md">Previous ablation closeout.</doc>
+    <doc path="docs/stories/STORY-6.4.4.1-AC10-GATE-EVIDENCE.md">Baseline v2 evidence.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Eval harness docs.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Cursor judge workflow.</doc>
+    <doc path="docs/FORM-AI-EVAL-DIFF-STATS.md">Diff/statistics docs.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic; no migration is expected.</item>
+    <item>Do NOT mutate prompts-v1.1 or rubric_v2 except for a documented bug.</item>
+    <item>Do NOT compare rubric_v1 and rubric_v2 scores as equivalent.</item>
+    <item>Do NOT add frontend UI unless implementation unexpectedly requires it.</item>
+    <item>Do NOT add unsupported component types or properties.</item>
+    <item>Use PowerShell-safe commands; no ampersand chaining.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/service.py"
+          note="Add H3 property cheat-sheet helper near _build_capability_prompt_block and include in _build_initial_messages."/>
+    <path file="backend/tests/test_form_ai_prompt_capabilities.py"
+          note="Add H3 prompt contract tests."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="Run story-6.4.5-h3-component-property-cheat-sheet variant."/>
+    <path file="backend/tests/form_ai_eval/judge_pack.py"
+          note="Generate rubric_v2 judge package."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py"
+          note="Ingest judge outputs."/>
+    <path file="backend/tests/form_ai_eval/diff.py"
+          note="Compare against AC10 baseline."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.4.5.md" purpose="Story spec and ACs."/>
+    <file path="docs/stories/story-context-6.4.5.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.4.5-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev execution contract."/>
+    <file path="docs/stories/STORY-6.4.5-UAT-TEST-GUIDE.md" purpose="Human/SM UAT guide."/>
+    <file path="docs/stories/STORY-6.4.5-HYPOTHESIS-EVIDENCE.md" purpose="H3 evidence and verdict."/>
+    <file path="docs/stories/STORY-6.4.5-GATE-EVIDENCE.md" purpose="Automated gate evidence."/>
+    <file path="docs/stories/STORY-6.4.5-UAT-RESULTS.md" purpose="UAT results."/>
+    <file path="docs/stories/STORY-6.4.5-CLOSEOUT-REPORT.md" purpose="Closeout report."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">H3 block implemented.</ac>
+    <ac id="2">Snapshot filtering.</ac>
+    <ac id="3">No unsupported props.</ac>
+    <ac id="4">Prompt contract tests.</ac>
+    <ac id="5">H3 eval run complete.</ac>
+    <ac id="6">Judge packages generated.</ac>
+    <ac id="7">Judge outputs ingested.</ac>
+    <ac id="8">Diff/statistics recorded.</ac>
+    <ac id="9">Ship/no-change verdict recorded.</ac>
+    <ac id="10">No unrelated AI capability work.</ac>
+    <ac id="11">Green gate evidence recorded.</ac>
+    <ac id="12">Closeout complete.</ac>
+  </acceptance-mapping>
+
+</story-context>

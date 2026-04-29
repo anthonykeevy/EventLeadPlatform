@@ -1,0 +1,102 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "gpt-5-mini",
+  "rows": [
+    {
+      "row_id": "p01-au-neutral-r1__r01",
+      "prompt_id": "p01-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 4,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 4
+      },
+      "rationale": "Cites AU-specific formatting and clear fields: phone helpText 'Include country code if you are calling from outside Australia' and phone placeholder '+61 4xx xxx xxx', plus an email field with placeholder '[SCRUBBED_EMAIL]' and full T-shirt options (XS..XXL). Weakness: no explicit consent/terms or validation patterns for required fields, so validation intent scored lower."
+    },
+    {
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "prompt_id": "p01-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 3
+      },
+      "rationale": "Includes Sydney-specific copy and structure: page title 'Annual Sales Conference — Sydney Registration' and paragraph text referencing Sydney, phone placeholder '+61 4XX XXX XXX', and checkbox dietary options including 'Other (please specify at check-in)'. Weakness: lacks explicit consent/marketing terms and uses an offline 'specify at check-in' option that weakens online validation and copy quality."
+    },
+    {
+      "row_id": "p01-au-adversarial-r1__r01",
+      "prompt_id": "p01-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 2,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Contains clear US-centric artifacts despite AU audience: a phone helpText explicitly instructs 'start with +1' and there is a 'ZIP code' field with placeholder 'ZIP / postal code'. Strength: all requested fields present (phone, email, ZIP, t-shirt, dietary, terms). Weakness: severe cross-locale leakage (ZIP and +1) that reduces locale fidelity, validation accuracy, and cultural register."
+    },
+    {
+      "row_id": "p02-au-neutral-r1__r01",
+      "prompt_id": "p02-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Well-aligned AU RSVP: phone placeholder '+61 4xx xxx xxx', session-choice radio ('Keynote & Plenary', 'Data Science Workshop' etc.), and an explicit consent terms label 'I agree to receive event updates and marketing communications...'. Weakness: consent text bundles marketing and updates without a separate opt-out granularly explained, so policy compliance isn't perfect."
+    },
+    {
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "prompt_id": "p02-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Sydney-specific RSVP with clear elements: paragraph label 'Location: Sydney', session dropdown options and 'Consent to receive event updates' terms component. Weakness: one small copy gap — phone and email placeholders are generic ('[SCRUBBED_PHONE]','[SCRUBBED_EMAIL]') which lowers copy polish slightly compared to more explicit local formatting."
+    }
+  ]
+}

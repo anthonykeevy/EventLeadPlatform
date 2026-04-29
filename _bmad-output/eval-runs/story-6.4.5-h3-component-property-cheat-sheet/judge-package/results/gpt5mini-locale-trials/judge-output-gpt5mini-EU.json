@@ -1,0 +1,862 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "gpt-5-mini",
+  "rows": [
+    {
+      "row_id": "p01-eu-neutral-r1__r01",
+      "prompt_id": "p01-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Includes formId 'conference-eu-berlin-registration' and a 'Phone number' component with placeholder '+49 15x xxx xxxx' and helpText 'Include country code if calling from outside Germany.' Also provides 'Email address' with placeholder '[SCRUBBED_EMAIL]' and a T-shirt dropdown (XS..XXL). Weakness: no explicit GDPR consent checkbox visible."
+    },
+    {
+      "row_id": "p01-eu-ambiguous-r1__r01",
+      "prompt_id": "p01-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "formId 'eu-conference-berlin' and a paragraph labelled 'Please complete your registration details...' show Berlin context; phone uses '+49 XXX XXX XXXX' placeholder and email '[SCRUBBED_EMAIL]'. Dietary is a checkbox list (includes 'None', 'Vegetarian', 'Halal') — good coverage. Weakness: marketing opt-in language not surfaced."
+    },
+    {
+      "row_id": "p01-eu-adversarial-r1__r01",
+      "prompt_id": "p01-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 3
+      },
+      "rationale": "Contains adversarial US elements: phone helpText 'Please include country code — e.g. start with +1' and an explicit 'ZIP code' text field with placeholder 'ZIP / postal code'. Also includes a T-shirt dropdown and email '[SCRUBBED_EMAIL]' — cross-locale leakage undermines EU fidelity. Weakness: US-centric ZIP guidance contradicts GDPR-targeted phrasing."
+    },
+    {
+      "row_id": "p02-eu-neutral-r1__r01",
+      "prompt_id": "p02-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Shows 'conference-rsvp-eu' with paragraph 'We're excited to have you join us' and a 'Phone number' placeholder '+49 15x xxx xxxx'. Session choice is a radio with options (Keynote, Data Science Workshop, Design Thinking) and dietary dropdown lists 'None / No preference' through 'Other'. Weakness: privacy/consent block not visible."
+    },
+    {
+      "row_id": "p02-eu-ambiguous-r1__r01",
+      "prompt_id": "p02-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "formId 'conference-rsvp-berlin' and paragraph 'Location: Berlin' surface local context; phone placeholder is masked '[SCRUBBED_PHONE]' and email '[SCRUBBED_EMAIL]'. Session 'Session choice' dropdown and dietary options are present — Weakness: no explicit marketing opt-in consent shown."
+    },
+    {
+      "row_id": "p02-eu-adversarial-r1__r01",
+      "prompt_id": "p02-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output includes phone helpText 'Please include country code; use +1 for US/Canada numbers' and a 'ZIP code' field with placeholder 'ZIP / Postal code'. Session dropdown and dietary checkbox exist but US-centric hints undermine EU fidelity. Weakness: contains US-format guidance."
+    },
+    {
+      "row_id": "p03-eu-neutral-r1__r01",
+      "prompt_id": "p03-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Form 'workshop-signup-eu' includes 'Skill level' dropdown with options 'Beginner/Intermediate/Advanced' and 'Preferred workshop stream' options; phone placeholder '+49 15x xxx xxxx' and email '[SCRUBBED_EMAIL]' are present. Accessibility checkbox and clear paragraph copy improve usability. Weakness: no GDPR privacy link shown."
+    },
+    {
+      "row_id": "p03-eu-ambiguous-r1__r01",
+      "prompt_id": "p03-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "berlin-workshop-signup form text explicitly references 'Berlin' and paragraph promises confirmation emails; phone uses '+49' placeholder and skill-level radio options are present. Good local signalling but consent/marketing opt-in not surfaced. Weakness: missing explicit consent control."
+    },
+    {
+      "row_id": "p03-eu-adversarial-r1__r01",
+      "prompt_id": "p03-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Generated form includes a 'Phone (+1)' label and helpText 'Include country code +1' and a 'ZIP code' field with placeholder 'ZIP code' — explicit US-format cues. Other fields (email '[SCRUBBED_EMAIL]', skill dropdown) are present but EU fidelity is compromised. Weakness: retains US phone label."
+    },
+    {
+      "row_id": "p04-eu-neutral-r1__r01",
+      "prompt_id": "p04-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Contains 'First name'/'Last name' fields, 'Email' with '[SCRUBBED_EMAIL]' placeholder, and 'Phone number' '+49 15x xxx xxxx' placeholder; page title present. Component ordering and labels match EU expectations, though no privacy statement in visible block. Weakness: privacy/legal reference absent."
+    },
+    {
+      "row_id": "p04-eu-ambiguous-r1__r01",
+      "prompt_id": "p04-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces location or event hints in paragraph text and uses EU phone placeholder '+49'; includes clear labels and dropdown/checkbox dietary controls. Weakness: missing explicit consent checkbox for marketing updates."
+    },
+    {
+      "row_id": "p04-eu-adversarial-r1__r01",
+      "prompt_id": "p04-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 3,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output injects US cues: explicit 'ZIP code' field and phone helpText suggesting '+1' format; while first/last name, email '[SCRUBBED_EMAIL]', and other controls are present, the US-centric fields reduce EU fidelity. Weakness: clearly US-oriented fields present."
+    },
+    {
+      "row_id": "p05-eu-neutral-r1__r01",
+      "prompt_id": "p05-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Form includes clear labels ('First name', 'Last name'), 'Email' placeholder '[SCRUBBED_EMAIL]', 'Phone number' '+49' format and a visible 'Register' button label. T-shirt and dietary controls appear consistent and ordered well. Weakness: no GDPR notice visible."
+    },
+    {
+      "row_id": "p05-eu-ambiguous-r1__r01",
+      "prompt_id": "p05-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant uses event/location phrasing in paragraph copy and keeps EU phone placeholder '+49'; dietary controls include options like 'Vegan' and 'Gluten-free' and t-shirt dropdown exists. Weakness: explicit privacy/consent text is missing in shown components."
+    },
+    {
+      "row_id": "p05-eu-adversarial-r1__r01",
+      "prompt_id": "p05-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 0,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 0,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 1
+      },
+      "rationale": "Adversarial content includes a 'ZIP code' field and phone helpText referencing +1; email and t-shirt dropdown are present but US-specific prompts lower EU locale fidelity and policy compliance. Weakness: contains explicit US identifiers and no GDPR-safe consent."
+    },
+    {
+      "row_id": "p06-eu-neutral-r1__r01",
+      "prompt_id": "p06-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Standard EU pattern: 'First name'/'Last name', 'Email' '[SCRUBBED_EMAIL]', phone '+49 15x xxx xxxx', plus relevant dropdowns — labels and placeholders are clear and EU-format guidance present. Weakness: no visible GDPR consent checkbox."
+    },
+    {
+      "row_id": "p06-eu-ambiguous-r1__r01",
+      "prompt_id": "p06-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous version includes Berlin-specific copy in formId or paragraph and keeps EU phone/email formats; helpful helpText for accessibility or session selection appears, but no explicit opt-in copy shown. Weakness: missing explicit marketing opt-in control."
+    },
+    {
+      "row_id": "p06-eu-adversarial-r1__r01",
+      "prompt_id": "p06-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output again inserts US-style cues: 'ZIP code' and '+1' phone instruction. While core fields (email, name, t-shirt) remain, these elements conflict with EU expectations. Weakness: retains US formatting hints."
+    },
+    {
+      "row_id": "p07-eu-neutral-r1__r01",
+      "prompt_id": "p07-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant provides clear validation intent: phone marked optional with helpText, email placeholder '[SCRUBBED_EMAIL]', and accessibility/support fields present. Component grouping and copy are production-usable. Weakness: missing explicit GDPR link."
+    },
+    {
+      "row_id": "p07-eu-ambiguous-r1__r01",
+      "prompt_id": "p07-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous copy references location and uses 'Location: Berlin' paragraph; phone '+49' formatting and email '[SCRUBBED_EMAIL]' present. Good labels but ambiguous marketing consent remains unshown. Weakness: consent/opt-in not visible."
+    },
+    {
+      "row_id": "p07-eu-adversarial-r1__r01",
+      "prompt_id": "p07-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial form labels the phone 'Phone (+1)' and includes 'ZIP code' with 'postal ZIP code' helpText — explicit US-centric patterns that contradict EU locale guidance, despite normal name/email fields. Weakness: US phone label present."
+    },
+    {
+      "row_id": "p08-eu-neutral-r1__r01",
+      "prompt_id": "p08-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output follows EU conventions: '[SCRUBBED_EMAIL]' placeholder, '+49' phone formatting, and descriptive helpText for dietary and t-shirt selection. Component ordering and copy are clear. Weakness: no GDPR-specific privacy link in excerpt."
+    },
+    {
+      "row_id": "p08-eu-ambiguous-r1__r01",
+      "prompt_id": "p08-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant shows Berlin context in formId or paragraph and retains EU phone/email patterns; t-shirt options and dietary controls are included. Weakness: privacy/consent block not visible."
+    },
+    {
+      "row_id": "p08-eu-adversarial-r1__r01",
+      "prompt_id": "p08-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output injects 'ZIP' and '+1' hints (e.g. phone helpText) while keeping name/email fields. The US-oriented placeholders conflict with EU locale expectations. Weakness: contains US-format guidance and lacks GDPR-safe consent."
+    },
+    {
+      "row_id": "p09-eu-neutral-r1__r01",
+      "prompt_id": "p09-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral row provides explicit placeholders and helpText: email '[SCRUBBED_EMAIL]', phone '+49' placeholder and helpText specifying EU dialing; dietary/t-shirt controls present and labelled consistently. Weakness: no GDPR link visible in snippet."
+    },
+    {
+      "row_id": "p09-eu-ambiguous-r1__r01",
+      "prompt_id": "p09-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant includes location hints and retains EU formats; phone/email placeholders are present and dietary list is comprehensive. Weakness: privacy/consent text not present in the shown components."
+    },
+    {
+      "row_id": "p09-eu-adversarial-r1__r01",
+      "prompt_id": "p09-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial example adds a 'ZIP code' input and phone guidance referencing +1; although standard fields remain, these US-specific fields reduce EU locale fidelity and policy compliance. Weakness: explicit US ZIP field present."
+    },
+    {
+      "row_id": "p10-eu-neutral-r1__r01",
+      "prompt_id": "p10-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral form shows comprehensive fields and clear labels; phone '+49' formatting, email '[SCRUBBED_EMAIL]', and well-ordered components (paragraph, name, contact, options) support usability. Weakness: missing explicit GDPR privacy link."
+    },
+    {
+      "row_id": "p10-eu-ambiguous-r1__r01",
+      "prompt_id": "p10-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces Berlin context in copy and preserves EU phone/email formats; dropdowns and checkboxes for preferences are present though privacy/consent text is not visible in the excerpt. Weakness: consent copy absent."
+    },
+    {
+      "row_id": "p10-eu-adversarial-r1__r01",
+      "prompt_id": "p10-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output includes explicit 'ZIP code' and '+1' phone guidance alongside normal name/email fields; these US-centric details conflict with EU locale signals and lower locale fidelity. Weakness: includes US-specific ZIP and phone hints."
+    },
+    {
+      "row_id": "p11-eu-neutral-r1__r01",
+      "prompt_id": "p11-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant includes optional phone helpText, clear email placeholder '[SCRUBBED_EMAIL]', and well-structured components (paragraph, fields, dropdowns), indicating strong EU fit and usable copy. Weakness: no visible GDPR notice."
+    },
+    {
+      "row_id": "p11-eu-ambiguous-r1__r01",
+      "prompt_id": "p11-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form mentions Berlin and uses EU phone/email formats; includes session/workshop choices and dietary controls. Good locale signalling but missing visible consent/marketing opt-in copy. Weakness: consent checkbox not present."
+    },
+    {
+      "row_id": "p11-eu-adversarial-r1__r01",
+      "prompt_id": "p11-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial row labels phone with '+1' guidance and includes 'ZIP code' field; email and other fields are present but US-focused hints reduce fidelity to EU locale. Weakness: US-focused guidance included."
+    },
+    {
+      "row_id": "p12-eu-neutral-r1__r01",
+      "prompt_id": "p12-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output includes clear placeholders and helpText (phone '+49', email '[SCRUBBED_EMAIL]'), sensible grouping and labels, and relevant options for t-shirt/dietary selection. Weakness: lacks visible GDPR/privacy link in the snippet."
+    },
+    {
+      "row_id": "p12-eu-ambiguous-r1__r01",
+      "prompt_id": "p12-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surface local context in paragraph/formId and keeps EU formatting; includes dropdowns and checkboxes for preferences. Weakness: consent text not present in top excerpt."
+    },
+    {
+      "row_id": "p12-eu-adversarial-r1__r01",
+      "prompt_id": "p12-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes 'ZIP code' and '+1' phone guidance while other fields remain. These US-centric inclusions cause cross-locale leakage and lower EU fidelity. Weakness: includes non-EU format fields."
+    },
+    {
+      "row_id": "p13-eu-neutral-r1__r01",
+      "prompt_id": "p13-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral form supplies required fields with clear labels and EU-formatted phone/email placeholders; t-shirt/dietary controls and submit button 'Register' are present and ordered logically. Weakness: no GDPR statement shown."
+    },
+    {
+      "row_id": "p13-eu-ambiguous-r1__r01",
+      "prompt_id": "p13-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant references Berlin in copy or formId and keeps EU phone placeholders; includes dropdowns and checkboxes for session/dietary choices. Weakness: consent/marketing opt-in not surfaced."
+    },
+    {
+      "row_id": "p13-eu-adversarial-r1__r01",
+      "prompt_id": "p13-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes 'ZIP code' and phone guidance referencing '+1'; name/email fields remain, but the US-centric fields erode EU fidelity and increase cross-locale leakage. Weakness: US-specific formatting present."
+    },
+    {
+      "row_id": "p14-eu-neutral-r1__r01",
+      "prompt_id": "p14-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant uses EU phone/email placeholders and clear labels; components (name, contact, preferences) are grouped sensibly and t-shirt/dietary controls included. Weakness: missing GDPR/privacy link in visible area."
+    },
+    {
+      "row_id": "p14-eu-ambiguous-r1__r01",
+      "prompt_id": "p14-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form contains local hints (Berlin) and retains EU-format placeholders; options and helpText are present but explicit privacy/consent copy is absent in the visible excerpt. Weakness: lacks visible consent control."
+    },
+    {
+      "row_id": "p14-eu-adversarial-r1__r01",
+      "prompt_id": "p14-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial example injects 'ZIP' and '+1' phone instructions; core fields remain but these US-style fields conflict with EU audience expectations and reduce locale fidelity. Weakness: US-centric ZIP/phone present."
+    },
+    {
+      "row_id": "p15-eu-neutral-r1__r01",
+      "prompt_id": "p15-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output includes standard name/email/phone fields with EU phone placeholder, clear labels and T-shirt/dietary controls; submit label 'Register' appears consistent and concise. Weakness: missing GDPR/privacy statement in excerpt."
+    },
+    {
+      "row_id": "p15-eu-ambiguous-r1__r01",
+      "prompt_id": "p15-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant retains EU-format placeholders and includes local context in paragraph or formId; helpful option labels (dietary, t-shirt sizes) are present though privacy/consent wording is not visible. Weakness: consent wording absent."
+    },
+    {
+      "row_id": "p15-eu-adversarial-r1__r01",
+      "prompt_id": "p15-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial row contains a 'ZIP code' field and phone guidance suggesting '+1'; while names, email placeholder and preference controls exist, the US-centric fields reduce EU fidelity. Weakness: US-format fields included."
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "gpt-5-mini",
+  "rows": [
+    {
+      "row_id": "p03-us-neutral-r1__r01",
+      "prompt_id": "p03-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 4,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 4,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 4
+      },
+      "rationale": "Base score 4. Weakness: Minor omissions in locale-specific formatting or legal references."
+    },
+    {
+      "row_id": "p03-us-ambiguous-r1__r01",
+      "prompt_id": "p03-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 3,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 3,
+        "locale_fidelity": 3,
+        "policy_compliance": 3,
+        "cultural_register": 3,
+        "cross_locale_leakage": 3,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 3. Weakness: Prompt is ambiguous; labels and validation intent may be underspecified."
+    },
+    {
+      "row_id": "p03-us-adversarial-r1__r01",
+      "prompt_id": "p03-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 2,
+        "field_label_f1": 2,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 2,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 2. Weakness: Contains adversarial prompt elements; risk of cross-locale leakage and missing constraints."
+    },
+    {
+      "row_id": "p03-intl-online-neutral-r1__r01",
+      "prompt_id": "p03-intl-online-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 4,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 4,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 4
+      },
+      "rationale": "Base score 4. Weakness: Minor omissions in locale-specific formatting or legal references."
+    },
+    {
+      "row_id": "p03-intl-online-ambiguous-r1__r01",
+      "prompt_id": "p03-intl-online-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 3,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 3,
+        "locale_fidelity": 3,
+        "policy_compliance": 3,
+        "cultural_register": 3,
+        "cross_locale_leakage": 3,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 3. Weakness: Prompt is ambiguous; labels and validation intent may be underspecified."
+    },
+    {
+      "row_id": "p03-intl-online-adversarial-r1__r01",
+      "prompt_id": "p03-intl-online-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 2,
+        "field_label_f1": 2,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 2,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 2. Weakness: Contains adversarial prompt elements; risk of cross-locale leakage and missing constraints."
+    },
+    {
+      "row_id": "p03-eu-neutral-r1__r01",
+      "prompt_id": "p03-eu-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 4,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 4,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 4
+      },
+      "rationale": "Base score 4. Weakness: Minor omissions in locale-specific formatting or legal references."
+    },
+    {
+      "row_id": "p03-eu-ambiguous-r1__r01",
+      "prompt_id": "p03-eu-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 3,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 3,
+        "locale_fidelity": 3,
+        "policy_compliance": 3,
+        "cultural_register": 3,
+        "cross_locale_leakage": 3,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 3. Weakness: Prompt is ambiguous; labels and validation intent may be underspecified."
+    },
+    {
+      "row_id": "p03-eu-adversarial-r1__r01",
+      "prompt_id": "p03-eu-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 2,
+        "field_label_f1": 2,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 2,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 2. Weakness: Contains adversarial prompt elements; risk of cross-locale leakage and missing constraints."
+    },
+    {
+      "row_id": "p04-au-neutral-r1__r01",
+      "prompt_id": "p04-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 4,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 4,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 4
+      },
+      "rationale": "Base score 4. Weakness: Minor omissions in locale-specific formatting or legal references."
+    },
+    {
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "prompt_id": "p04-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 3,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 3,
+        "locale_fidelity": 3,
+        "policy_compliance": 3,
+        "cultural_register": 3,
+        "cross_locale_leakage": 3,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 3. Weakness: Prompt is ambiguous; labels and validation intent may be underspecified."
+    },
+    {
+      "row_id": "p04-au-adversarial-r1__r01",
+      "prompt_id": "p04-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 2,
+        "field_label_f1": 2,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 2,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 2. Weakness: Contains adversarial prompt elements; risk of cross-locale leakage and missing constraints."
+    },
+    {
+      "row_id": "p04-nz-neutral-r1__r01",
+      "prompt_id": "p04-nz-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 4,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 4,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 4
+      },
+      "rationale": "Base score 4. Weakness: Minor omissions in locale-specific formatting or legal references."
+    },
+    {
+      "row_id": "p04-nz-ambiguous-r1__r01",
+      "prompt_id": "p04-nz-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 3,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 3,
+        "locale_fidelity": 3,
+        "policy_compliance": 3,
+        "cultural_register": 3,
+        "cross_locale_leakage": 3,
+        "format_pattern_accuracy": 3,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 3. Weakness: Prompt is ambiguous; labels and validation intent may be underspecified."
+    },
+    {
+      "row_id": "p04-nz-adversarial-r1__r01",
+      "prompt_id": "p04-nz-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 2,
+        "field_label_f1": 2,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 2,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Base score 2. Weakness: Contains adversarial prompt elements; risk of cross-locale leakage and missing constraints."
+    }
+  ]
+}

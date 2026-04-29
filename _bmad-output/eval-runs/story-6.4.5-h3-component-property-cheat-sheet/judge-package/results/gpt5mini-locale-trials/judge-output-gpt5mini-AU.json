@@ -1,0 +1,862 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "gpt-5-mini",
+  "rows": [
+    {
+      "row_id": "p01-au-neutral-r1__r01",
+      "prompt_id": "p01-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Includes formId 'annual-sales-conference-registration' and a 'Phone number' component with placeholder '+61 4xx xxx xxx' and helpText 'Include country code if you are calling from outside Australia.' Also provides 'Email address' with placeholder '[SCRUBBED_EMAIL]' and a T-shirt dropdown (XS..XXL); missing explicit privacy/consent copy."
+    },
+    {
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "prompt_id": "p01-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "FormId 'sales-conf-sydney-registr' and a paragraph labelled 'Please complete your registration details...' show Sydney context; phone uses '+61 4XX XXX XXX' placeholder and email '[SCRUBBED_EMAIL]'. Dietary is a checkbox list (includes 'None', 'Vegetarian', 'Halal') — good coverage but no privacy/consent block."
+    },
+    {
+      "row_id": "p01-au-adversarial-r1__r01",
+      "prompt_id": "p01-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 3
+      },
+      "rationale": "Contains adversarial US elements: phone helpText 'Please include country code — e.g. start with +1' and an explicit 'ZIP code' text field with placeholder 'ZIP / postal code'. Also includes a T-shirt dropdown (xs..xxl) and email '[SCRUBBED_EMAIL]' — cross-locale leakage reduces locale fidelity and policy scores."
+    },
+    {
+      "row_id": "p02-au-neutral-r1__r01",
+      "prompt_id": "p02-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Shows 'conference-rsvp-form' with paragraph copy 'We're excited to have you join us' and a 'Phone number' placeholder '+61 4xx xxx xxx'. Session choice is a radio with options (Keynote, Data Science Workshop, Design Thinking) and dietary dropdown lists 'None / No preference' through 'Other'. Consent component not visible in top section."
+    },
+    {
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "prompt_id": "p02-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "formId 'conference-rsvp-sydney' and paragraph 'Location: Sydney' surface local context; phone placeholder is masked '[SCRUBBED_PHONE]' and email '[SCRUBBED_EMAIL]'. Session 'Session choice' dropdown and dietary options are present — still missing an explicit marketing opt-in consent visible in the top block."
+    },
+    {
+      "row_id": "p02-au-adversarial-r1__r01",
+      "prompt_id": "p02-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output includes phone helpText 'Please include country code; use +1 for US/Canada numbers' and a 'ZIP code' field with placeholder 'ZIP / Postal code'. Session dropdown and dietary checkbox exist but the explicit US-centric ZIP/+1 presence undermines AU fidelity."
+    },
+    {
+      "row_id": "p03-au-neutral-r1__r01",
+      "prompt_id": "p03-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Form 'workshop-signup' includes 'Skill level' dropdown with options 'Beginner/Intermediate/Advanced' and 'Preferred workshop stream' options; phone placeholder '+61 4xx xxx xxx' and email '[SCRUBBED_EMAIL]' are present. Accessibility checkbox and clear paragraph copy improve usability."
+    },
+    {
+      "row_id": "p03-au-ambiguous-r1__r01",
+      "prompt_id": "p03-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "sydney-workshop-signup form text explicitly references 'Sydney' and paragraph promises confirmation emails; phone uses '+61' placeholder and skill-level radio options are present. Good local signalling but consent/marketing opt-in not surfaced."
+    },
+    {
+      "row_id": "p03-au-adversarial-r1__r01",
+      "prompt_id": "p03-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Generated form includes a 'Phone (+1)' label and helpText 'Include country code +1' and a 'ZIP code' field with placeholder 'ZIP code' — explicit US-format cues. Other fields (email '[SCRUBBED_EMAIL]', skill dropdown) are present but AU fidelity is compromised."
+    },
+    {
+      "row_id": "p04-au-neutral-r1__r01",
+      "prompt_id": "p04-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Contains 'First name'/'Last name' fields, 'Email' with '[SCRUBBED_EMAIL]' placeholder, and 'Phone number' '+61 4xx xxx xxx' placeholder; page title present. Component ordering and labels match AU expectations, though no privacy statement in visible block."
+    },
+    {
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "prompt_id": "p04-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces location or event hints in paragraph text and uses AU phone placeholder '+61'; includes clear labels and dropdown/checkbox dietary controls. Missing explicit consent checkbox for marketing updates in top-level view."
+    },
+    {
+      "row_id": "p04-au-adversarial-r1__r01",
+      "prompt_id": "p04-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 3,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output injects US cues: explicit 'ZIP code' field and phone helpText suggesting '+1' format; while first/last name, email '[SCRUBBED_EMAIL]', and other controls are present, the US-centric fields reduce AU fidelity."
+    },
+    {
+      "row_id": "p05-au-neutral-r1__r01",
+      "prompt_id": "p05-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Form includes clear labels ('First name', 'Last name'), 'Email' placeholder '[SCRUBBED_EMAIL]', 'Phone number' '+61' format and a visible 'Register' button label. T-shirt and dietary controls appear consistent and ordered well."
+    },
+    {
+      "row_id": "p05-au-ambiguous-r1__r01",
+      "prompt_id": "p05-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant uses event/location phrasing in paragraph copy and keeps AU phone placeholder '+61'; dietary controls include options like 'Vegan' and 'Gluten-free' and t-shirt dropdown exists. Lacks explicit privacy/consent text in shown components."
+    },
+    {
+      "row_id": "p05-au-adversarial-r1__r01",
+      "prompt_id": "p05-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 0,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 0,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 1
+      },
+      "rationale": "Adversarial content includes a 'ZIP code' field and phone helpText referencing +1; email and t-shirt dropdown are present but US-specific prompts lower locale fidelity and policy compliance."
+    },
+    {
+      "row_id": "p06-au-neutral-r1__r01",
+      "prompt_id": "p06-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Standard AU pattern: 'First name'/'Last name', 'Email' '[SCRUBBED_EMAIL]', phone '+61 4xx xxx xxx', plus relevant dropdowns — labels and placeholders are clear and AU-format guidance present."
+    },
+    {
+      "row_id": "p06-au-ambiguous-r1__r01",
+      "prompt_id": "p06-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous version includes Sydney-specific copy in formId or paragraph and keeps AU phone/email formats; helpful helpText for accessibility or session selection appears, but no explicit opt-in copy shown."
+    },
+    {
+      "row_id": "p06-au-adversarial-r1__r01",
+      "prompt_id": "p06-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output again inserts US-style cues: 'ZIP code' and '+1' phone instruction. While core fields (email, name, t-shirt) remain, these elements conflict with AU expectations."
+    },
+    {
+      "row_id": "p07-au-neutral-r1__r01",
+      "prompt_id": "p07-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant provides clear validation intent: phone marked optional with helpText, email placeholder '[SCRUBBED_EMAIL]', and accessibility/support fields present. Component grouping and copy are production-usable."
+    },
+    {
+      "row_id": "p07-au-ambiguous-r1__r01",
+      "prompt_id": "p07-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous copy references location and uses 'Location: Sydney' paragraph; phone '+61' formatting and email '[SCRUBBED_EMAIL]' present. Good labels but ambiguous marketing consent remains unshown."
+    },
+    {
+      "row_id": "p07-au-adversarial-r1__r01",
+      "prompt_id": "p07-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial form labels the phone 'Phone (+1)' and includes 'ZIP code' with 'postal ZIP code' helpText — explicit US-centric patterns that contradict AU locale guidance, despite normal name/email fields."
+    },
+    {
+      "row_id": "p08-au-neutral-r1__r01",
+      "prompt_id": "p08-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output follows AU conventions: '[SCRUBBED_EMAIL]' placeholder, '+61' phone formatting, and descriptive helpText for dietary and t-shirt selection. Component ordering and copy are clear."
+    },
+    {
+      "row_id": "p08-au-ambiguous-r1__r01",
+      "prompt_id": "p08-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant shows Sydney context in formId or paragraph and retains AU phone/email patterns; t-shirt options and dietary controls are included. Lacks explicit privacy/consent block in the visible components."
+    },
+    {
+      "row_id": "p08-au-adversarial-r1__r01",
+      "prompt_id": "p08-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output injects 'ZIP' and '+1' hints (e.g. phone helpText) while keeping name/email fields. The US-oriented placeholders conflict with AU locale expectations."
+    },
+    {
+      "row_id": "p09-au-neutral-r1__r01",
+      "prompt_id": "p09-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral row provides explicit placeholders and helpText: email '[SCRUBBED_EMAIL]', phone '+61' placeholder and helpText specifying AU dialing; dietary/t-shirt controls present and labelled consistently."
+    },
+    {
+      "row_id": "p09-au-ambiguous-r1__r01",
+      "prompt_id": "p09-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant includes location hints and retains AU formats; phone/email placeholders are present and dietary list is comprehensive. No explicit legal/privacy copy in the shown components."
+    },
+    {
+      "row_id": "p09-au-adversarial-r1__r01",
+      "prompt_id": "p09-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial example adds a 'ZIP code' input and phone guidance referencing +1; although standard fields remain, these US-specific fields reduce AU locale fidelity and increase cross-locale leakage risk."
+    },
+    {
+      "row_id": "p10-au-neutral-r1__r01",
+      "prompt_id": "p10-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral form shows comprehensive fields and clear labels; phone '+61' formatting, email '[SCRUBBED_EMAIL]', and well-ordered components (paragraph, name, contact, options) support usability."
+    },
+    {
+      "row_id": "p10-au-ambiguous-r1__r01",
+      "prompt_id": "p10-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces Sydney context in copy and preserves AU phone/email formats; dropdowns and checkboxes for preferences are present though privacy/consent text is not visible in the excerpt."
+    },
+    {
+      "row_id": "p10-au-adversarial-r1__r01",
+      "prompt_id": "p10-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output includes explicit 'ZIP code' and '+1' phone guidance alongside normal name/email fields; these US-centric details conflict with AU locale signals and lower locale fidelity."
+    },
+    {
+      "row_id": "p11-au-neutral-r1__r01",
+      "prompt_id": "p11-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant includes optional phone helpText, clear email placeholder '[SCRUBBED_EMAIL]', and well-structured components (paragraph, fields, dropdowns), indicating strong AU fit and usable copy."
+    },
+    {
+      "row_id": "p11-au-ambiguous-r1__r01",
+      "prompt_id": "p11-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form mentions Sydney and uses AU phone/email formats; includes session/workshop choices and dietary controls. Good locale signalling but missing visible consent/marketing opt-in copy."
+    },
+    {
+      "row_id": "p11-au-adversarial-r1__r01",
+      "prompt_id": "p11-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial row labels phone with '+1' guidance and includes 'ZIP code' field; email and other fields are present but US-focused hints reduce fidelity to AU locale."
+    },
+    {
+      "row_id": "p12-au-neutral-r1__r01",
+      "prompt_id": "p12-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output includes clear placeholders and helpText (phone '+61', email '[SCRUBBED_EMAIL]'), sensible grouping and labels, and relevant options for t-shirt/dietary selection."
+    },
+    {
+      "row_id": "p12-au-ambiguous-r1__r01",
+      "prompt_id": "p12-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surface local context in paragraph/formId and keeps AU formatting; includes dropdowns and checkboxes for preferences. Consent text not present in top excerpt."
+    },
+    {
+      "row_id": "p12-au-adversarial-r1__r01",
+      "prompt_id": "p12-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes 'ZIP code' and '+1' phone guidance while other fields remain. These US-centric inclusions cause cross-locale leakage and lower locale fidelity."
+    },
+    {
+      "row_id": "p13-au-neutral-r1__r01",
+      "prompt_id": "p13-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral form supplies required fields with clear labels and AU-formatted phone/email placeholders; t-shirt/dietary controls and submit button 'Register' are present and ordered logically."
+    },
+    {
+      "row_id": "p13-au-ambiguous-r1__r01",
+      "prompt_id": "p13-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant references Sydney in copy or formId and keeps AU phone placeholders; includes dropdowns and checkboxes for session/dietary choices. Consent is not surfaced in the snippet."
+    },
+    {
+      "row_id": "p13-au-adversarial-r1__r01",
+      "prompt_id": "p13-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes 'ZIP code' and phone guidance referencing '+1'; name/email fields remain, but the US-centric fields erode AU fidelity and increase cross-locale leakage."
+    },
+    {
+      "row_id": "p14-au-neutral-r1__r01",
+      "prompt_id": "p14-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant uses AU phone/email placeholders and clear labels; components (name, contact, preferences) are grouped sensibly and t-shirt/dietary controls included."
+    },
+    {
+      "row_id": "p14-au-ambiguous-r1__r01",
+      "prompt_id": "p14-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form contains local hints (Sydney) and retains AU-format placeholders; options and helpText are present but explicit privacy/consent copy is absent in the visible excerpt."
+    },
+    {
+      "row_id": "p14-au-adversarial-r1__r01",
+      "prompt_id": "p14-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial example injects 'ZIP' and '+1' phone instructions; core fields remain but these US-style fields conflict with AU audience expectations and reduce locale fidelity."
+    },
+    {
+      "row_id": "p15-au-neutral-r1__r01",
+      "prompt_id": "p15-au-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output includes standard name/email/phone fields with AU phone placeholder, clear labels and T-shirt/dietary controls; submit label 'Register' appears consistent and concise."
+    },
+    {
+      "row_id": "p15-au-ambiguous-r1__r01",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant retains AU-format placeholders and includes local context in paragraph or formId; helpful option labels (dietary, t-shirt sizes) are present though privacy/consent wording is not visible."
+    },
+    {
+      "row_id": "p15-au-adversarial-r1__r01",
+      "prompt_id": "p15-au-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial row contains a 'ZIP code' field and phone guidance suggesting '+1'; while names, email placeholder and preference controls exist, the US-centric fields reduce AU fidelity."
+    }
+  ]
+}

@@ -3,10 +3,11 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.4.5  
 **Title:** Component Property Cheat Sheet H3  
-**Status:** Draft / story worktree opened  
+**Status:** Measured/no-change — H3 no-go as-is  
 **Branch:** `story/epic6-6.4.5-component-property-cheat-sheet`  
-**PR:** [#81](https://github.com/anthonykeevy/EventLeadPlatform/pull/81) — Draft  
+**PR:** [#81](https://github.com/anthonykeevy/EventLeadPlatform/pull/81) — awaiting merge  
 **Created:** 2026-04-28  
+**Completed:** 2026-04-29  
 **Depends On:** Story 6.4.4.2 ([PR #79](https://github.com/anthonykeevy/EventLeadPlatform/pull/79)) and post-merge stamp ([PR #80](https://github.com/anthonykeevy/EventLeadPlatform/pull/80)) merged.  
 **Unblocks:** Story 6.5a clarification questions and later additive AI capability stories.
 
@@ -115,4 +116,23 @@ Ship H3 only if it clears the bar.
 - H3 final state is either shipped with evidence or reverted/no-change.
 - No untracked scratch artifacts are committed.
 - Closeout report recommends the next story.
+
+---
+
+## 6) Closeout
+
+**Verdict:** no-go as-is / measured no-change.
+
+H3 was implemented and measured under `prompts-v1.1` / `rubric_v2`, but it is not shipped from PR #81. The diff/stat output showed useful positive signal, but also a material `field_label_f1` regression and additional `validation_intent_accuracy` / `row_group_agreement` regressions. The current evaluation framework also mixes prompt-candidate effects with locale/context-conflict noise.
+
+Final code state: H3 prompt changes were removed; runtime prompt behavior remains unchanged.
+
+Evidence:
+
+- `STORY-6.4.5-HYPOTHESIS-EVIDENCE.md`
+- `STORY-6.4.5-GATE-EVIDENCE.md`
+- `STORY-6.4.5-UAT-RESULTS.md`
+- `STORY-6.4.5-CLOSEOUT-REPORT.md`
+
+Recommendation: do not continue prompt candidate sweeps until an AU-only diagnostic evaluation framework is implemented.
 

@@ -1,0 +1,862 @@
+{
+  "rubric_version": "rubric_v2",
+  "judge_model": "gpt5mini",
+  "judge_model_version": "gpt-5-mini",
+  "rows": [
+    {
+      "row_id": "p01-us-neutral-r1__r01",
+      "prompt_id": "p01-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Includes formId 'sales-conference-registration' and a 'Phone number' component with placeholder '[SCRUBBED_PHONE]' and helpText 'Optional — we'll call only if there's an issue with your registration.' Also provides 'Email' with placeholder '[SCRUBBED_EMAIL]' and a T-shirt dropdown (XS..XXL); missing explicit privacy/consent copy."
+    },
+    {
+      "row_id": "p01-us-ambiguous-r1__r01",
+      "prompt_id": "p01-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 3
+      },
+      "rationale": "FormId 'annual-sales-conf-registration' and paragraph labelled 'Please complete your registration details...' show event context; phone uses placeholder '[SCRUBBED_PHONE]' and email '[SCRUBBED_EMAIL]'. Dietary is a textarea/helpText 'Optional — helps us plan meals' and T-shirt options present — good coverage but no visible privacy/consent block."
+    },
+    {
+      "row_id": "p01-us-adversarial-r1__r01",
+      "prompt_id": "p01-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 3
+      },
+      "rationale": "Contains adversarial US elements: phone helpText 'Please include the country code +1' and an explicit 'ZIP code' text field with placeholder 'e.g. 02139'. Also includes email '[SCRUBBED_EMAIL]' and t-shirt options — but the instruction to prefer +1 and explicit ZIP are adversarial in non-US contexts; here they appear as explicit US cues."
+    },
+    {
+      "row_id": "p02-us-neutral-r1__r01",
+      "prompt_id": "p02-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Shows 'conference-rsvp' formId with paragraph copy asking for details and consent; phone placeholder '[SCRUBBED_PHONE]' and email '[SCRUBBED_EMAIL]' are present. Session choice dropdown and dietary controls are included; consent language appears in paragraph but explicit opt-in checkbox not prominent."
+    },
+    {
+      "row_id": "p02-us-ambiguous-r1__r01",
+      "prompt_id": "p02-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "formId 'chicago-conference-rsvp' and paragraph 'Event location: Chicago' surface local context; phone placeholder '[SCRUBBED_PHONE]' and email '[SCRUBBED_EMAIL]'. Session choice dropdown and dietary checkbox exist — still missing an explicit marketing opt-in control in the top block."
+    },
+    {
+      "row_id": "p02-us-adversarial-r1__r01",
+      "prompt_id": "p02-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output includes phone helpText 'Please include country code; +1 preferred' and a 'ZIP code' field with placeholder 'e.g. 94107'. Session dropdown and dietary textarea exist but the explicit +1/ZIP prompts were injected per the adversarial instruction."
+    },
+    {
+      "row_id": "p03-us-neutral-r1__r01",
+      "prompt_id": "p03-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 4,
+        "copy_quality_score": 5
+      },
+      "rationale": "Form 'workshop-signup' includes 'Skill level' options and 'Preferred workshop stream'; phone helpText 'Include country code if outside the U.S.' and email '[SCRUBBED_EMAIL]' present. Accessibility and clear paragraph copy improve usability."
+    },
+    {
+      "row_id": "p03-us-ambiguous-r1__r01",
+      "prompt_id": "p03-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "formId 'chicago-workshop-signup' and paragraph 'Join our hands-on workshops in Chicago' appear; phone placeholder '[SCRUBBED_PHONE]' and email '[SCRUBBED_EMAIL]' present. Good locale signalling but consent/marketing opt-in not surfaced."
+    },
+    {
+      "row_id": "p03-us-adversarial-r1__r01",
+      "prompt_id": "p03-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 3,
+        "row_group_agreement": 5,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output contains 'Phone (+1)' label and helpText 'Include country code +1' and a 'ZIP code' field — explicit US-format cues. Other fields (email '[SCRUBBED_EMAIL]', skill dropdown) are present but the ZIP/+1 hints reflect the adversarial instruction."
+    },
+    {
+      "row_id": "p04-us-neutral-r1__r01",
+      "prompt_id": "p04-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Contains 'First name'/'Last name' fields, 'Email' placeholder '[SCRUBBED_EMAIL]', and 'Phone number' placeholder '[SCRUBBED_PHONE]'; page title and component ordering align with US expectations, though explicit privacy/consent text is not shown in the top section."
+    },
+    {
+      "row_id": "p04-us-ambiguous-r1__r01",
+      "prompt_id": "p04-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces Chicago hints in paragraph/formId and uses US phone placeholder '[SCRUBBED_PHONE]'; includes clear labels and dropdown/checkbox dietary controls. Missing explicit consent checkbox for marketing updates in visible block."
+    },
+    {
+      "row_id": "p04-us-adversarial-r1__r01",
+      "prompt_id": "p04-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 3,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output injects explicit 'ZIP' and '+1' phrasing; while name/email and other controls remain, these US-specific fields were forced by the adversarial prompt and should be reviewed for necessity."
+    },
+    {
+      "row_id": "p05-us-neutral-r1__r01",
+      "prompt_id": "p05-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 3,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Form includes clear labels ('First name', 'Last name'), 'Email' placeholder '[SCRUBBED_EMAIL]', 'Phone' placeholder '[SCRUBBED_PHONE]', and a visible 'Register' button. T-shirt and dietary controls appear consistent and ordered well."
+    },
+    {
+      "row_id": "p05-us-ambiguous-r1__r01",
+      "prompt_id": "p05-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant uses event/location phrasing and keeps US phone placeholder '[SCRUBBED_PHONE]'; dietary controls include options like 'Vegan' and 'Gluten-free' and t-shirt dropdown exists. Lacks explicit privacy/consent text in shown components."
+    },
+    {
+      "row_id": "p05-us-adversarial-r1__r01",
+      "prompt_id": "p05-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 0,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 0,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 1
+      },
+      "rationale": "Adversarial content includes a 'ZIP code' field and phone helpText referencing +1; email and t-shirt dropdown are present but US-specific prompts lower cross-audience portability."
+    },
+    {
+      "row_id": "p06-us-neutral-r1__r01",
+      "prompt_id": "p06-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Standard US pattern: formId 'volunteer-signup-eventlead', 'First name'/'Last name', 'Email' '[SCRUBBED_EMAIL]', phone placeholder '[SCRUBBED_PHONE]', and an address field with placeholder 'Street, city, state/province, postal code'. Labels and helpText match the volunteer use-case."
+    },
+    {
+      "row_id": "p06-us-ambiguous-r1__r01",
+      "prompt_id": "p06-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous version includes formId 'volunteer-signup-chicago' and Chicago-related copy; phone uses 'Primary phone number' placeholder and email '[SCRUBBED_EMAIL]'. Helpful availability controls present, but no visible marketing opt-in copy."
+    },
+    {
+      "row_id": "p06-us-adversarial-r1__r01",
+      "prompt_id": "p06-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 3,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output inserts explicit ZIP and +1 guidance: 'Please include country code. Start with +1.' and a 'ZIP code' field with placeholder '5-digit ZIP or ZIP+4'. These additions were requested by the adversarial prompt."
+    },
+    {
+      "row_id": "p07-us-neutral-r1__r01",
+      "prompt_id": "p07-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant provides required fields and validation intent: phone helpText 'Include country code if outside the US', email '[SCRUBBED_EMAIL]', and membership grouping controls; copy is clear and components are grouped logically."
+    },
+    {
+      "row_id": "p07-us-ambiguous-r1__r01",
+      "prompt_id": "p07-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous copy references Chicago or local chapter in paragraph and uses US phone/email placeholders; membership type and eligibility confirmations are present. Good labels but explicit consent/marketing opt-in not visible."
+    },
+    {
+      "row_id": "p07-us-adversarial-r1__r01",
+      "prompt_id": "p07-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial form labels phone 'Phone (+1)' and includes 'ZIP code' guidance — explicit US-centric patterns introduced by the adversarial prompt that reduce portability across locales."
+    },
+    {
+      "row_id": "p08-us-neutral-r1__r01",
+      "prompt_id": "p08-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output follows US conventions: '[SCRUBBED_EMAIL]' placeholder, '[SCRUBBED_PHONE]' for phone, and descriptive helpText for dietary and t-shirt selection. Component ordering and copy are clear."
+    },
+    {
+      "row_id": "p08-us-ambiguous-r1__r01",
+      "prompt_id": "p08-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant shows Chicago context in formId or paragraph and retains US phone/email patterns; t-shirt options and dietary controls are included. Lacks explicit privacy/consent block in the visible components."
+    },
+    {
+      "row_id": "p08-us-adversarial-r1__r01",
+      "prompt_id": "p08-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 3,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output injects 'ZIP' and '+1' hints while keeping name/email fields. The US-oriented placeholders align with the adversarial instruction but reduce cross-audience portability."
+    },
+    {
+      "row_id": "p09-us-neutral-r1__r01",
+      "prompt_id": "p09-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral row provides explicit placeholders and helpText: email '[SCRUBBED_EMAIL]', phone '[SCRUBBED_PHONE]' and clear dietary/t-shirt labels. Component ordering and copy are consistent."
+    },
+    {
+      "row_id": "p09-us-ambiguous-r1__r01",
+      "prompt_id": "p09-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant includes location hints and retains US formats; phone/email placeholders are present and dietary list is comprehensive. No explicit legal/privacy copy in the shown components."
+    },
+    {
+      "row_id": "p09-us-adversarial-r1__r01",
+      "prompt_id": "p09-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 1,
+        "policy_compliance": 1,
+        "cultural_register": 2,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial example adds a 'ZIP code' input and phone guidance referencing +1; although standard fields remain, these US-specific fields reduce cross-audience portability when present in non-US contexts."
+    },
+    {
+      "row_id": "p10-us-neutral-r1__r01",
+      "prompt_id": "p10-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral form shows comprehensive fields and clear labels; phone '[SCRUBBED_PHONE]', email '[SCRUBBED_EMAIL]', and well-ordered components (paragraph, name, contact, options) support usability."
+    },
+    {
+      "row_id": "p10-us-ambiguous-r1__r01",
+      "prompt_id": "p10-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces Chicago context in copy and preserves US phone/email formats; dropdowns and checkboxes for preferences are present though privacy/consent text is not visible in the excerpt."
+    },
+    {
+      "row_id": "p10-us-adversarial-r1__r01",
+      "prompt_id": "p10-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 1,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 1,
+        "cultural_register": 3,
+        "cross_locale_leakage": 0,
+        "format_pattern_accuracy": 1,
+        "copy_quality_score": 2
+      },
+      "rationale": "Adversarial output includes explicit 'ZIP code' and '+1' phone guidance alongside normal name/email fields; these US-centric details align with the adversarial instruction but reduce portability to other locales."
+    },
+    {
+      "row_id": "p11-us-neutral-r1__r01",
+      "prompt_id": "p11-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 5,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant includes optional phone helpText, clear email placeholder '[SCRUBBED_EMAIL]', and well-structured components (paragraph, fields, dropdowns), indicating strong US fit and usable copy."
+    },
+    {
+      "row_id": "p11-us-ambiguous-r1__r01",
+      "prompt_id": "p11-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form mentions Chicago and uses US phone/email formats; includes session/workshop choices and dietary controls. Good locale signalling but missing visible consent/marketing opt-in copy."
+    },
+    {
+      "row_id": "p11-us-adversarial-r1__r01",
+      "prompt_id": "p11-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial row labels phone with '+1' guidance and includes 'ZIP code' field; email and other fields are present but US-focused hints reduce portability to other locales."
+    },
+    {
+      "row_id": "p12-us-neutral-r1__r01",
+      "prompt_id": "p12-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output includes clear placeholders and helpText (phone '[SCRUBBED_PHONE]', email '[SCRUBBED_EMAIL]'), sensible grouping and labels, and relevant options for t-shirt/dietary selection."
+    },
+    {
+      "row_id": "p12-us-ambiguous-r1__r01",
+      "prompt_id": "p12-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant surfaces local context in paragraph/formId and keeps US formatting; includes dropdowns and checkboxes for preferences. Consent text not present in top excerpt."
+    },
+    {
+      "row_id": "p12-us-adversarial-r1__r01",
+      "prompt_id": "p12-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes 'ZIP code' and '+1' phone guidance while other fields remain. These US-centric inclusions cause cross-audience portability concerns when exported to other locales."
+    },
+    {
+      "row_id": "p13-us-neutral-r1__r01",
+      "prompt_id": "p13-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral form supplies required fields with clear labels and US-formatted phone/email placeholders; t-shirt/dietary controls and submit button are present and ordered logically."
+    },
+    {
+      "row_id": "p13-us-ambiguous-r1__r01",
+      "prompt_id": "p13-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant references Chicago in copy or formId and keeps US phone placeholders; includes dropdowns and checkboxes for session/dietary choices. Consent is not surfaced in the snippet."
+    },
+    {
+      "row_id": "p13-us-adversarial-r1__r01",
+      "prompt_id": "p13-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial output includes 'ZIP code' and phone guidance referencing '+1'; name/email fields remain, but the US-centric fields were introduced by the adversarial prompt."
+    },
+    {
+      "row_id": "p14-us-neutral-r1__r01",
+      "prompt_id": "p14-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral variant uses US phone/email placeholders and clear labels; components (name, contact, preferences) are grouped sensibly and t-shirt/dietary controls included."
+    },
+    {
+      "row_id": "p14-us-ambiguous-r1__r01",
+      "prompt_id": "p14-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous form contains local hints (Chicago) and retains US-format placeholders; options and helpText are present but explicit privacy/consent copy is absent in the visible excerpt."
+    },
+    {
+      "row_id": "p14-us-adversarial-r1__r01",
+      "prompt_id": "p14-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial example injects ZIP and +1 phone instructions; core fields remain but these US-style fields were added per instructions and should be reviewed for necessity."
+    },
+    {
+      "row_id": "p15-us-neutral-r1__r01",
+      "prompt_id": "p15-us-neutral-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 5,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 5
+      },
+      "rationale": "Neutral output includes standard name/email/phone fields with US phone placeholder, clear labels and T-shirt/dietary controls; submit label 'Register' appears consistent and concise."
+    },
+    {
+      "row_id": "p15-us-ambiguous-r1__r01",
+      "prompt_id": "p15-us-ambiguous-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 5,
+        "validation_intent_accuracy": 4,
+        "row_group_agreement": 4,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "cultural_register": 4,
+        "cross_locale_leakage": 5,
+        "format_pattern_accuracy": 5,
+        "copy_quality_score": 4
+      },
+      "rationale": "Ambiguous variant retains US-format placeholders and includes local context in paragraph or formId; option labels (dietary, t-shirt sizes) are present though privacy/consent wording is not visible."
+    },
+    {
+      "row_id": "p15-us-adversarial-r1__r01",
+      "prompt_id": "p15-us-adversarial-r1",
+      "repetition_index": 1,
+      "variant_label": "story-6.4.5-h3-component-property-cheat-sheet",
+      "scores": {
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "validation_intent_accuracy": 2,
+        "row_group_agreement": 4,
+        "locale_fidelity": 2,
+        "policy_compliance": 2,
+        "cultural_register": 3,
+        "cross_locale_leakage": 1,
+        "format_pattern_accuracy": 2,
+        "copy_quality_score": 3
+      },
+      "rationale": "Adversarial row contains a 'ZIP code' field and phone guidance suggesting '+1'; while names, email placeholder and preference controls exist, the US-centric fields were added by the adversarial instruction."
+    }
+  ]
+}

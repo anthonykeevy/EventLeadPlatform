@@ -117,11 +117,11 @@ Pass criteria:
 
 | Section | Result | Notes |
 |---|---|---|
-| §1 Prompt contract | TBD | |
-| §2 Focused tests | TBD | |
-| §3 H3 eval evidence | TBD | |
-| §4 Cursor judge sessions | TBD | |
-| §5 Diff/stats decision | TBD | |
-| §6 Green gate | TBD | |
-| §7 Final decision | TBD | |
+| §1 Prompt contract | Pass for measurement | H3 was bounded/snapshot-filtered during evaluation, then reverted for no-change closeout. |
+| §2 Focused tests | Pass | Focused tests passed before evaluation and after no-change revert. |
+| §3 H3 eval evidence | Pass | H3 generated 270/270 definitions. |
+| §4 Cursor judge sessions | Pass | Claude, Grok, and repaired GPT-5 mini outputs ingested. |
+| §5 Diff/stats decision | Fail to ship | Material `field_label_f1` regression plus locale/context-conflict noise. |
+| §6 Green gate | Pass | Focused and backend regression gates passed. |
+| §7 Final decision | Measured/no-change | H3 no-go as-is; prompt changes reverted. |
 

@@ -30,5 +30,10 @@ See:
 
 ## Recommended Next Story
 
-Smallest next story: AU-only diagnostic evaluation framework for prompt candidates. Defer Story 6.5a clarification questions until the prompt-candidate measurement frame is no longer confounded by locale/context conflicts, unless PM explicitly chooses to proceed with 6.5a before more prompt sweeps.
+Approved reset sequence:
+
+1. Story 6.4.6 — AU-Only Diagnostic Evaluation Framework + Baseline.
+2. Story 6.4.7 — AU Baseline Analysis And Iterative Prompt Improvement Loop.
+
+Defer six-locale prompt-candidate sweeps until the AU diagnostic framework exists. Defer Story 6.5a clarification questions until the reset sequence is complete unless PM explicitly chooses to pull it forward.
 

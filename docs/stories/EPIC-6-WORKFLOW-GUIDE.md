@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Awaiting Tonyk next-story instruction after Story 6.4.5 closeout (recommended follow-up: AU-only diagnostic evaluation framework before more prompt candidate sweeps).
+**Current Focus:** Story 6.4.6 — **AU-Only Diagnostic Evaluation Framework + Baseline** (prompt-evaluation reset approved; no more six-locale prompt-candidate sweeps until AU diagnostic framework exists).
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -17,6 +17,8 @@
 **Story 6.4.4.1-ac10 Status:** ✅ **Complete** (merged 2026-04-27, PR #77) — AC-10 baseline re-judge passed; next recommended story is 6.4.4.2.
 **Story 6.4.4.2 Status:** ✅ **Complete** (merged 2026-04-28, PR #79) — H2-only and H4-only ablations completed under `rubric_v2`; both failed the ship bar, so current `master` behavior remains unchanged.
 **Story 6.4.5 Status:** ✅ **Measured/no-change** (PR #81; awaiting merge) — H3 measured against AC10 `rubric_v2` baseline; no-go as-is due material `field_label_f1` regression and locale/context-conflict noise. Prompt changes reverted; evidence preserved.
+**Story 6.4.6 Status:** ⏳ **Next planned** — Dev-owned AU-only diagnostic eval framework + current-state AU baseline; no candidate prompt improvements in this story.
+**Story 6.4.7 Status:** ⏳ **Planned** — BMAD Analyst-owned AU baseline analysis and iterative prompt improvement loop over version-managed prompt/context artifacts only.
 
 ---
 
@@ -118,6 +120,30 @@ This workflow follows the platform-wide Git rules in:
 - **One Draft PR per Story** (opened immediately) → `master`
 - **Implementation on Story branch** — no task branches
 - **Push daily:** no multi-day local-only changes
+
+## 🇦🇺 AU-First Prompt Evaluation Reset (Mandatory after Story 6.4.5)
+
+Story 6.4.5 showed that the six-locale prompt-candidate sweep creates too much context noise for the launch goal. From this point, prompt-candidate work is AU-first until the diagnostic framework proves changes are clean.
+
+Rules:
+
+- Do not continue prompt-candidate stories using the existing six-locale sweep approach.
+- Defer H5/style and H6/font prompt-candidate sweeps until the AU diagnostic framework exists.
+- Story 6.4.6 is Dev-owned and may change framework/harness code. It must produce the first current-state AU baseline and must not test prompt improvements.
+- Story 6.4.7 is BMAD Analyst-owned and may update version-managed prompt/context artifacts and tracking documents only. It must not modify application, harness, judge-ingest, frontend, or backend code.
+- If the Analyst loop discovers a needed code change, stop and raise a Dev-owned framework fix story.
+- Tony approves continue/stop after every Analyst loop.
+- The Analyst must present the top 5 candidate prompt/context improvements after each result review, advise which can safely be bundled without distorting causality, then wait for Tony approval before applying changes.
+- Only one controlled change set is tested per iteration.
+- Judge conflict findings must be reviewed before changing prompt text.
+
+Persistent process document:
+
+- `docs/stories/STORY-6-AU-EVAL-ANALYST-LOOP.md`
+
+Tracking sheet:
+
+- `docs/stories/STORY-6-AU-EVAL-ITERATION-TRACKING.md`
 
 ## 🛑 The "Green CI/CD" Rule (Mandatory for Epic 6+)
 To prevent technical debt accumulation and AI Hallucinations regarding test status, the Dev agent is strictly bound by the Green CI/CD Rule:
@@ -336,3 +362,4 @@ This preserves your learning objective (multi-agent experience) without weakenin
 | 2026-04-23 | **Story 6.4 in-flight scope expansion (Tonyk decision)**. Polish work needed a place to store "don't show again" preferences. Discussion evolved from `localStorage` → `User` JSON column → **net-new `UserPreference` architecture** mirroring `config.AppSetting`. Story 6.4 expanded from XS-S to M-L (4 migrations, 19 ACs, 3 new tables, new `/api/me/preferences` surface, dynamic Notifications UI). Tonyk explicitly chose the foundational path over the tactical shortcut so all future per-user toggles can ship via DB seed alone. | Doing the foundation work once at the right moment (when the first real consumer needed it) is far cheaper than retrofitting a `User` JSON column under three downstream consumers. The pattern is now established for billing email prefs, theme keys, image-handling defaults (6.5), etc. |
 | 2026-04-24 | **Story 6.4 closed Complete (PR #66 merge-ready).** Closeout audit by SM caught 3 housekeeping gaps (story status field, `EPIC-6-STATUS.md` row, workflow guide Current Focus) and one outstanding PR-#65 commitment (`EPIC-6-CARRY-FORWARD-BACKLOG.md` had never been created). All 4 fixed in a final SM housekeeping commit before the merge gate. **Lesson:** the closeout-checklist housekeeping rows (1–3) are owned by Dev but consistently get missed because Dev's focus is on UAT pass + closeout report. **New rule:** the SM closeout audit (this exact pass) is now an explicit gate before the human merges any story PR — added as workflow step in §⚡ Epic 6 Story Workflow. | Trust the process: a 5-minute audit catches what a tired Dev forgets at end-of-story. Better to surface the gap pre-merge than to chase reconciliation drift later (cf. 2026-04-23 row 1 about date-stamp parity, which exists for the same reason). |
 | 2026-04-25 | **Story 6.4.3a merged (PR #68), but stale closeout fields survived the merge.** `story-6.4.3a.md` still said "Ready for UAT/SM review" and PR "Draft"; closeout still said "Keep PR #68 open"; `EPIC-6-STATUS.md` and this guide still pointed to the older 6.5 flow. Added explicit SM stale-field audit and post-merge reset sections with exact `gh pr view` + `rg` checks before the next story opens. | Convert a repeated human-memory step into a checklist with observable commands. The next round should fail visibly before merge if story/status/current-focus fields drift. |
+| 2026-04-29 | **Prompt-evaluation reset approved after Story 6.4.5.** Pause remaining prompt-candidate stories that continue the six-locale sweep approach. New sequence: Story 6.4.6 Dev-owned AU-only diagnostic framework + current-state AU baseline, then Story 6.4.7 BMAD Analyst-owned iterative loop over version-managed prompt/context artifacts. Analyst must present top 5 candidate improvements, advise safe bundleability, get Tony approval, apply one controlled change set, rerun eval/judges, update tracking, and stop for Tony continue/stop. | 6.4.4.2 and 6.4.5 showed the six-locale benchmark is too noisy for launch prompt decisions. AU is the launch market, so measurement must isolate AU prompt/context weaknesses before more prompt candidate sweeps. |

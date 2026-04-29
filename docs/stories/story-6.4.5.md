@@ -5,7 +5,7 @@
 **Title:** Component Property Cheat Sheet H3  
 **Status:** Measured/no-change — H3 no-go as-is  
 **Branch:** `story/epic6-6.4.5-component-property-cheat-sheet`  
-**PR:** [#81](https://github.com/anthonykeevy/EventLeadPlatform/pull/81) — awaiting merge  
+**PR:** [#81](https://github.com/anthonykeevy/EventLeadPlatform/pull/81) — merged 2026-04-29
 **Created:** 2026-04-28  
 **Completed:** 2026-04-29  
 **Depends On:** Story 6.4.4.2 ([PR #79](https://github.com/anthonykeevy/EventLeadPlatform/pull/79)) and post-merge stamp ([PR #80](https://github.com/anthonykeevy/EventLeadPlatform/pull/80)) merged.  

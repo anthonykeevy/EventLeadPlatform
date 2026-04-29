@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.4.6" title="AU-Only Diagnostic Evaluation Framework + Baseline">
+
+  <overview>
+    Build the AU-only diagnostic evaluation framework and produce the first
+    current-state AU baseline. This story creates framework capability,
+    diagnostic artifacts, judge package extensions, deterministic AU checks,
+    and baseline evidence. It must not apply prompt improvements.
+  </overview>
+
+  <critical-objectives>
+    <item>Create an AU launch benchmark prompt set with stable row IDs and explicit adversarial tags for intentional source-market adaptation rows.</item>
+    <item>Create a version-managed AU locale contract and deterministic AU failure checks.</item>
+    <item>Package the complete LLM prompt context by stable shared sections with content hashes.</item>
+    <item>Extend judge prompts/templates/ingest with conflict diagnostics and likely responsible prompt/context section fields.</item>
+    <item>Run and record the current-state AU baseline, including judge ingest and AU-000 tracking-sheet update.</item>
+    <item>Do not test candidate prompt/context improvements in this story.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.5">Merged; H3 closed measured/no-change and prompt code was not shipped.</story>
+    <story id="6.4.4.1-ac10">Complete; prior rubric_v2 baseline evidence exists but is noisy because it spans six locales.</story>
+    <story id="6.4.4.1">Complete; locale registry and brand posture wiring exist.</story>
+    <story id="6.4.3c">Complete; diff/statistics tooling exists.</story>
+    <story id="6.4.3b">Complete; judge package and ingest tooling exists.</story>
+    <story id="6.4.3a">Complete; eval harness exists.</story>
+    <doc path="docs/stories/story-6.4.6.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/stories/STORY-6.4.6-SINGLE-SESSION-DEV-PROMPT.md">Dev execution contract.</doc>
+    <doc path="docs/stories/STORY-6.4.6-UAT-TEST-GUIDE.md">Human/SM UAT guide.</doc>
+    <doc path="docs/stories/STORY-6-AU-EVAL-ANALYST-LOOP.md">Persistent Analyst process document that Story 6.4.7 will use.</doc>
+    <doc path="docs/stories/STORY-6-AU-EVAL-ITERATION-TRACKING.md">Tracking sheet; Story 6.4.6 fills AU-000.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Eval harness docs.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Cursor judge workflow.</doc>
+    <doc path="docs/FORM-AI-EVAL-DIFF-STATS.md">Diff/statistics docs.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic; no migration is expected.</item>
+    <item>Do NOT apply prompt improvements or candidate prompt blocks.</item>
+    <item>Do NOT continue the previous six-locale prompt-candidate sweep.</item>
+    <item>Do NOT modify frontend unless implementation proves it is required.</item>
+    <item>Do NOT add a production API surface for eval-only diagnostics.</item>
+    <item>Use PowerShell-safe commands; no ampersand chaining.</item>
+    <item>Tony must run/save manual Cursor judge outputs if model sessions are required.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/tests/form_ai_eval/prompts.yaml"
+          note="Existing prompts-v1.1 reference; audit/reuse/rewrite into the new AU-only prompt set."/>
+    <path file="backend/tests/form_ai_eval/run.py"
+          note="Support AU prompt set loading, context preflight, deterministic AU checks, and baseline artifact output."/>
+    <path file="backend/tests/form_ai_eval/judge_pack.py"
+          note="Package shared context bundle, per-case section refs, deterministic findings, and diagnostic judge instructions."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py"
+          note="Validate and summarize new diagnostic judge fields."/>
+    <path file="backend/modules/form_ai/service.py"
+          note="Use existing prompt assembly helpers as the source of truth for complete context; avoid production API expansion unless unavoidable."/>
+    <path file="backend/tests/test_form_ai_eval_harness.py"
+          note="Update/add tests for AU prompt set and run artifacts."/>
+    <path file="backend/tests/test_judge_pack.py"
+          note="Update/add tests for shared context bundle and diagnostic judge package shape."/>
+    <path file="backend/tests/test_judge_ingest.py"
+          note="Update/add tests for diagnostic judge field validation and summaries."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.4.6.md" purpose="Story spec and ACs."/>
+    <file path="docs/stories/story-context-6.4.6.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.4.6-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev execution contract."/>
+    <file path="docs/stories/STORY-6.4.6-UAT-TEST-GUIDE.md" purpose="Human/SM UAT guide."/>
+    <file path="docs/stories/STORY-6.4.6-AU-BASELINE-EVIDENCE.md" purpose="Framework and baseline evidence."/>
+    <file path="docs/stories/STORY-6.4.6-GATE-EVIDENCE.md" purpose="Automated gate evidence."/>
+    <file path="docs/stories/STORY-6.4.6-UAT-RESULTS.md" purpose="UAT results."/>
+    <file path="docs/stories/STORY-6.4.6-CLOSEOUT-REPORT.md" purpose="Closeout report and 6.4.7 handoff."/>
+    <file path="docs/stories/STORY-6-AU-EVAL-ITERATION-TRACKING.md" purpose="AU-000 baseline row updated by this story."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">AU prompt set exists.</ac>
+    <ac id="2">Foreign noise reviewed.</ac>
+    <ac id="3">AU contract exists.</ac>
+    <ac id="4">Context preflight exists.</ac>
+    <ac id="5">Shared context bundle packaged.</ac>
+    <ac id="6">Judge diagnostics extended.</ac>
+    <ac id="7">Deterministic AU checks implemented.</ac>
+    <ac id="8">Current-state AU baseline complete.</ac>
+    <ac id="9">Judge outputs ingested.</ac>
+    <ac id="10">Tracking sheet updated.</ac>
+    <ac id="11">Evidence docs complete.</ac>
+    <ac id="12">Green gates recorded.</ac>
+    <ac id="13">No prompt improvement leakage.</ac>
+  </acceptance-mapping>
+
+</story-context>

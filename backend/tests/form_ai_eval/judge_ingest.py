@@ -41,6 +41,13 @@ LEGACY_RESULT_FILES = {
 }
 PRIMARY_JUDGES = ("claude", "grok")
 CONTROL_JUDGE = "gpt5mini"
+DIAGNOSTIC_FIELDS = [
+    "conflicting_data_exists",
+    "conflict_description",
+    "likely_responsible_section_ids",
+    "suggested_correction",
+    "confidence",
+]
 LEGACY_RUBRIC_V1_METRICS = [
     "field_coverage_recall",
     "field_label_f1",
@@ -191,6 +198,31 @@ def validate_judge_output(
                 raise JudgeIngestError(f"{judge_model}: {row_id} {metric} out of range 0..5")
         if not isinstance(row.get("rationale"), str):
             raise JudgeIngestError(f"{judge_model}: {row_id} rationale must be a string")
+        if rubric_version == RUBRIC_VERSION:
+            if not isinstance(row.get("conflicting_data_exists"), bool):
+                raise JudgeIngestError(
+                    f"{judge_model}: {row_id} conflicting_data_exists must be boolean"
+                )
+            if not isinstance(row.get("conflict_description"), str):
+                raise JudgeIngestError(
+                    f"{judge_model}: {row_id} conflict_description must be a string"
+                )
+            section_ids = row.get("likely_responsible_section_ids")
+            if not isinstance(section_ids, list) or not all(
+                isinstance(section_id, str) for section_id in section_ids
+            ):
+                raise JudgeIngestError(
+                    f"{judge_model}: {row_id} likely_responsible_section_ids must be a string list"
+                )
+            if not isinstance(row.get("suggested_correction"), str):
+                raise JudgeIngestError(
+                    f"{judge_model}: {row_id} suggested_correction must be a string"
+                )
+            confidence = row.get("confidence")
+            if not isinstance(confidence, (int, float)) or isinstance(confidence, bool):
+                raise JudgeIngestError(f"{judge_model}: {row_id} confidence must be numeric")
+            if float(confidence) < 0 or float(confidence) > 1:
+                raise JudgeIngestError(f"{judge_model}: {row_id} confidence out of range 0..1")
         seen[row_id] = row
 
     if duplicates:
@@ -274,6 +306,14 @@ def compute_summary(
                 "gpt5mini_bias_delta": bias_delta,
                 "judge_agreement_score": _agreement_score(claude_scores, grok_scores, metric_names),
                 "judge_models_present": sorted(validated_outputs),
+                "judge_diagnostics": {
+                    judge_model: {
+                        field: validated_outputs[judge_model][row_id].get(field)
+                        for field in DIAGNOSTIC_FIELDS
+                    }
+                    for judge_model in sorted(validated_outputs)
+                    if set(DIAGNOSTIC_FIELDS).issubset(validated_outputs[judge_model][row_id])
+                },
             }
         )
     return {
@@ -300,6 +340,9 @@ def write_summary_artifacts(judge_package_dir: Path, summary: Dict[str, Any]) ->
         "repetition_index",
         "variant_label",
         "judge_agreement_score",
+        "conflicting_data_exists",
+        "likely_responsible_section_ids",
+        "suggested_correction",
         *[f"mean_{metric}" for metric in metric_names],
         *[f"gpt5mini_delta_{metric}" for metric in metric_names],
     ]
@@ -315,6 +358,24 @@ def write_summary_artifacts(judge_package_dir: Path, summary: Dict[str, Any]) ->
                 "repetition_index": row["repetition_index"],
                 "variant_label": row["variant_label"],
                 "judge_agreement_score": row["judge_agreement_score"],
+                "conflicting_data_exists": any(
+                    diagnostic.get("conflicting_data_exists")
+                    for diagnostic in row.get("judge_diagnostics", {}).values()
+                ),
+                "likely_responsible_section_ids": ";".join(
+                    sorted(
+                        {
+                            section_id
+                            for diagnostic in row.get("judge_diagnostics", {}).values()
+                            for section_id in diagnostic.get("likely_responsible_section_ids", [])
+                        }
+                    )
+                ),
+                "suggested_correction": " | ".join(
+                    diagnostic.get("suggested_correction", "")
+                    for diagnostic in row.get("judge_diagnostics", {}).values()
+                    if diagnostic.get("suggested_correction")
+                ),
             }
             flat.update(
                 {f"mean_{metric}": row["cross_model_mean"][metric] for metric in metric_names}
@@ -344,6 +405,7 @@ def build_eval_update_params(row_summary: Dict[str, Any]) -> Dict[str, Any]:
                 "gpt5mini_bias_delta": row_summary.get("gpt5mini_bias_delta"),
                 "primary_judges": list(PRIMARY_JUDGES),
                 "control_judge": CONTROL_JUDGE,
+                "judge_diagnostics": row_summary.get("judge_diagnostics", {}),
             },
             sort_keys=True,
         ),

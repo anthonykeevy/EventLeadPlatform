@@ -1,0 +1,5992 @@
+{
+  "benchmark_set_version": "prompts-au-v1",
+  "mutation_rule": "AU-only diagnostic benchmark for Story 6.4.6. Do not add prompt improvements in this story.",
+  "prompt_count": 45,
+  "prompts": [
+    {
+      "prompt_id": "p01-au-neutral-r1",
+      "category": "event-registration",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "I need a registration form for our annual sales conference. Capture name, email, phone, dietary requirements, t-shirt size.",
+      "metadata": {
+        "prompt_category": "event-registration",
+        "base_prompt_id": "p01",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p01-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p01-au-ambiguous-r1",
+      "category": "event-registration",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "I need a registration form for our annual sales conference. Capture name, email, phone, dietary requirements, t-shirt size. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "event-registration",
+        "base_prompt_id": "p01",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p01-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p01-au-adversarial-r1",
+      "category": "event-registration",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "I need a registration form for our annual sales conference. Capture name, email, phone, dietary requirements, t-shirt size. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "event-registration",
+        "base_prompt_id": "p01",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p01-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p02-au-neutral-r1",
+      "category": "conference-rsvp",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a conference RSVP form with attendee details, session choice, dietary needs, and consent to receive event updates.",
+      "metadata": {
+        "prompt_category": "conference-rsvp",
+        "base_prompt_id": "p02",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p02-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p02-au-ambiguous-r1",
+      "category": "conference-rsvp",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a conference RSVP form with attendee details, session choice, dietary needs, and consent to receive event updates. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "conference-rsvp",
+        "base_prompt_id": "p02",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p02-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p02-au-adversarial-r1",
+      "category": "conference-rsvp",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a conference RSVP form with attendee details, session choice, dietary needs, and consent to receive event updates. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "conference-rsvp",
+        "base_prompt_id": "p02",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p02-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p03-au-neutral-r1",
+      "category": "workshop-signup",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a workshop signup form capturing participant details, skill level, accessibility needs, and preferred workshop stream.",
+      "metadata": {
+        "prompt_category": "workshop-signup",
+        "base_prompt_id": "p03",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p03-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p03-au-ambiguous-r1",
+      "category": "workshop-signup",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a workshop signup form capturing participant details, skill level, accessibility needs, and preferred workshop stream. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "workshop-signup",
+        "base_prompt_id": "p03",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p03-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p03-au-adversarial-r1",
+      "category": "workshop-signup",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a workshop signup form capturing participant details, skill level, accessibility needs, and preferred workshop stream. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "workshop-signup",
+        "base_prompt_id": "p03",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p03-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p04-au-neutral-r1",
+      "category": "webinar-registration",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a webinar registration form with contact details, organisation, role, timezone, questions for the speaker, and marketing opt-in.",
+      "metadata": {
+        "prompt_category": "webinar-registration",
+        "base_prompt_id": "p04",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p04-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p04-au-ambiguous-r1",
+      "category": "webinar-registration",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a webinar registration form with contact details, organisation, role, timezone, questions for the speaker, and marketing opt-in. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "webinar-registration",
+        "base_prompt_id": "p04",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p04-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p04-au-adversarial-r1",
+      "category": "webinar-registration",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a webinar registration form with contact details, organisation, role, timezone, questions for the speaker, and marketing opt-in. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "webinar-registration",
+        "base_prompt_id": "p04",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p04-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p05-au-neutral-r1",
+      "category": "wedding-rsvp",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a wedding RSVP form with guest details, attendance, plus-one, meal choice, dietary needs, song request, and message.",
+      "metadata": {
+        "prompt_category": "wedding-rsvp",
+        "base_prompt_id": "p05",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p05-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p05-au-ambiguous-r1",
+      "category": "wedding-rsvp",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a wedding RSVP form with guest details, attendance, plus-one, meal choice, dietary needs, song request, and message. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "wedding-rsvp",
+        "base_prompt_id": "p05",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p05-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p05-au-adversarial-r1",
+      "category": "wedding-rsvp",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a wedding RSVP form with guest details, attendance, plus-one, meal choice, dietary needs, song request, and message. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "wedding-rsvp",
+        "base_prompt_id": "p05",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p05-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p06-au-neutral-r1",
+      "category": "volunteer-signup",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a volunteer signup form with contact details, availability, skills, emergency contact, and code of conduct acknowledgement.",
+      "metadata": {
+        "prompt_category": "volunteer-signup",
+        "base_prompt_id": "p06",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p06-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p06-au-ambiguous-r1",
+      "category": "volunteer-signup",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a volunteer signup form with contact details, availability, skills, emergency contact, and code of conduct acknowledgement. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "volunteer-signup",
+        "base_prompt_id": "p06",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p06-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p06-au-adversarial-r1",
+      "category": "volunteer-signup",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a volunteer signup form with contact details, availability, skills, emergency contact, and code of conduct acknowledgement. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "volunteer-signup",
+        "base_prompt_id": "p06",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p06-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p07-au-neutral-r1",
+      "category": "membership-application",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a membership application form with applicant details, membership type, eligibility confirmations, referral source, and terms acknowledgement.",
+      "metadata": {
+        "prompt_category": "membership-application",
+        "base_prompt_id": "p07",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p07-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p07-au-ambiguous-r1",
+      "category": "membership-application",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a membership application form with applicant details, membership type, eligibility confirmations, referral source, and terms acknowledgement. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "membership-application",
+        "base_prompt_id": "p07",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p07-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p07-au-adversarial-r1",
+      "category": "membership-application",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a membership application form with applicant details, membership type, eligibility confirmations, referral source, and terms acknowledgement. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "membership-application",
+        "base_prompt_id": "p07",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p07-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p08-au-neutral-r1",
+      "category": "trade-show-lead-log",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a trade show booth visit log for collecting lead contact details, company, interest area, buying timeframe, notes, and follow-up consent.",
+      "metadata": {
+        "prompt_category": "trade-show-lead-log",
+        "base_prompt_id": "p08",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p08-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p08-au-ambiguous-r1",
+      "category": "trade-show-lead-log",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a trade show booth visit log for collecting lead contact details, company, interest area, buying timeframe, notes, and follow-up consent. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "trade-show-lead-log",
+        "base_prompt_id": "p08",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p08-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p08-au-adversarial-r1",
+      "category": "trade-show-lead-log",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a trade show booth visit log for collecting lead contact details, company, interest area, buying timeframe, notes, and follow-up consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "trade-show-lead-log",
+        "base_prompt_id": "p08",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p08-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p09-au-neutral-r1",
+      "category": "newsletter-subscription",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a newsletter subscription form with name, email, content interests, frequency preference, and marketing consent.",
+      "metadata": {
+        "prompt_category": "newsletter-subscription",
+        "base_prompt_id": "p09",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p09-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p09-au-ambiguous-r1",
+      "category": "newsletter-subscription",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a newsletter subscription form with name, email, content interests, frequency preference, and marketing consent. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "newsletter-subscription",
+        "base_prompt_id": "p09",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p09-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p09-au-adversarial-r1",
+      "category": "newsletter-subscription",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a newsletter subscription form with name, email, content interests, frequency preference, and marketing consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "newsletter-subscription",
+        "base_prompt_id": "p09",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p09-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p10-au-neutral-r1",
+      "category": "charity-donation-pledge",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a charity donation pledge form with donor details, amount preference, one-off or recurring intent, receipt details, and campaign updates consent.",
+      "metadata": {
+        "prompt_category": "charity-donation-pledge",
+        "base_prompt_id": "p10",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p10-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p10-au-ambiguous-r1",
+      "category": "charity-donation-pledge",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a charity donation pledge form with donor details, amount preference, one-off or recurring intent, receipt details, and campaign updates consent. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "charity-donation-pledge",
+        "base_prompt_id": "p10",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p10-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p10-au-adversarial-r1",
+      "category": "charity-donation-pledge",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a charity donation pledge form with donor details, amount preference, one-off or recurring intent, receipt details, and campaign updates consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "charity-donation-pledge",
+        "base_prompt_id": "p10",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p10-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p11-au-neutral-r1",
+      "category": "intl-online-event",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create an international online event registration form with attendee details, country, timezone, session interest, phone, and consent.",
+      "metadata": {
+        "prompt_category": "intl-online-event",
+        "base_prompt_id": "p11",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p11-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p11-au-ambiguous-r1",
+      "category": "intl-online-event",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create an international online event registration form with attendee details, country, timezone, session interest, phone, and consent. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "intl-online-event",
+        "base_prompt_id": "p11",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p11-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p11-au-adversarial-r1",
+      "category": "intl-online-event",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create an international online event registration form with attendee details, country, timezone, session interest, phone, and consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "intl-online-event",
+        "base_prompt_id": "p11",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p11-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p12-au-neutral-r1",
+      "category": "eu-gdpr-event",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create an EU event registration form that needs clear GDPR consent, lawful-basis acknowledgement, data handling notice, and contact details.",
+      "metadata": {
+        "prompt_category": "eu-gdpr-event",
+        "base_prompt_id": "p12",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p12-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p12-au-ambiguous-r1",
+      "category": "eu-gdpr-event",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create an EU event registration form that needs clear GDPR consent, lawful-basis acknowledgement, data handling notice, and contact details. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "eu-gdpr-event",
+        "base_prompt_id": "p12",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p12-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p12-au-adversarial-r1",
+      "category": "eu-gdpr-event",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create an EU event registration form that needs clear GDPR consent, lawful-basis acknowledgement, data handling notice, and contact details. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "eu-gdpr-event",
+        "base_prompt_id": "p12",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p12-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p13-au-neutral-r1",
+      "category": "us-pii-onboarding",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a US onboarding interest form. Capture contact details and role, but do not invent SSN or TIN fields unless explicitly required.",
+      "metadata": {
+        "prompt_category": "us-pii-onboarding",
+        "base_prompt_id": "p13",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p13-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p13-au-ambiguous-r1",
+      "category": "us-pii-onboarding",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a US onboarding interest form. Capture contact details and role, but do not invent SSN or TIN fields unless explicitly required. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "us-pii-onboarding",
+        "base_prompt_id": "p13",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p13-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p13-au-adversarial-r1",
+      "category": "us-pii-onboarding",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a US onboarding interest form. Capture contact details and role, but do not invent SSN or TIN fields unless explicitly required. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "us-pii-onboarding",
+        "base_prompt_id": "p13",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p13-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p14-au-neutral-r1",
+      "category": "uk-nhs-waiver",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a UK NHS-adjacent waiver form with participant details, relevant health notes, consent acknowledgement, and emergency contact.",
+      "metadata": {
+        "prompt_category": "uk-nhs-waiver",
+        "base_prompt_id": "p14",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p14-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p14-au-ambiguous-r1",
+      "category": "uk-nhs-waiver",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a UK NHS-adjacent waiver form with participant details, relevant health notes, consent acknowledgement, and emergency contact. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "uk-nhs-waiver",
+        "base_prompt_id": "p14",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p14-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p14-au-adversarial-r1",
+      "category": "uk-nhs-waiver",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a UK NHS-adjacent waiver form with participant details, relevant health notes, consent acknowledgement, and emergency contact. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "uk-nhs-waiver",
+        "base_prompt_id": "p14",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p14-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p15-au-neutral-r1",
+      "category": "nz-rsvp",
+      "variant": "neutral",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a New Zealand RSVP form with attendee details, NZ phone, region, dietary requirements, accessibility needs, and event updates consent.",
+      "metadata": {
+        "prompt_category": "nz-rsvp",
+        "base_prompt_id": "p15",
+        "locale_axis": "AU",
+        "variant": "neutral",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p15-au-neutral",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": false,
+          "source": "none",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": false
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p15-au-ambiguous-r1",
+      "category": "nz-rsvp",
+      "variant": "ambiguous",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a New Zealand RSVP form with attendee details, NZ phone, region, dietary requirements, accessibility needs, and event updates consent. The event is associated with Sydney.",
+      "metadata": {
+        "prompt_category": "nz-rsvp",
+        "base_prompt_id": "p15",
+        "locale_axis": "AU",
+        "variant": "ambiguous",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p15-au-ambiguous",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    },
+    {
+      "prompt_id": "p15-au-adversarial-r1",
+      "category": "nz-rsvp",
+      "variant": "adversarial",
+      "audience_locale": "AU",
+      "repetition_index": 1,
+      "prompt": "Create a New Zealand RSVP form with attendee details, NZ phone, region, dietary requirements, accessibility needs, and event updates consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.",
+      "metadata": {
+        "prompt_category": "nz-rsvp",
+        "base_prompt_id": "p15",
+        "locale_axis": "AU",
+        "variant": "adversarial",
+        "schema": "prompts-au-v1",
+        "source_market_adaptation": false,
+        "foreign_market_cues_reviewed": [
+          "NHS",
+          "UK GDPR",
+          "NZ regions",
+          "ZIP/+1",
+          "+44/+64",
+          "EU lawful basis",
+          "CCPA-only"
+        ],
+        "benchmark_market": "AU",
+        "benchmark_version": "prompts-au-v1"
+      },
+      "runtimeContext": {
+        "formId": "eval-p15-au-adversarial",
+        "audienceLocale": "AU",
+        "brandPosture": null,
+        "brandHeritageOrigin": null,
+        "canvas": {
+          "width": 960,
+          "height": 1400,
+          "gridSize": 8
+        },
+        "termsDefaults": {
+          "companyId": 644100,
+          "hasCompanyTerms": true,
+          "source": "company-default",
+          "termsLinkText": "event terms",
+          "termsUrl": "https://example.test/terms",
+          "termsDisplayMode": "popup",
+          "preserveCompanyTermsLink": true
+        },
+        "capabilitySnapshot": {
+          "version": "FORM_AI_CAPABILITY_POLICY:v1",
+          "input": "synthetic-eval-v1.1"
+        },
+        "componentFootprints": [
+          {
+            "componentType": "text",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "email",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "phone",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "date",
+            "width": 320,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "select",
+            "width": 320,
+            "height": 82,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "textarea",
+            "width": 640,
+            "height": 132,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "checkbox",
+            "width": 640,
+            "height": 72,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "terms",
+            "width": 640,
+            "height": 96,
+            "recommendedGapAfter": 16
+          },
+          {
+            "componentType": "submit-button",
+            "width": 220,
+            "height": 56,
+            "recommendedGapAfter": 0
+          }
+        ]
+      },
+      "expected_signals": {
+        "date_format": "DD/MM/YYYY",
+        "phone_country_code": "+61",
+        "address_field_pattern": "Suburb/State/Postcode",
+        "currency": "AUD",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ]
+      },
+      "llm_judge_focus": {
+        "consent_anchor": "Privacy Act 1988",
+        "tone_register": "low PDI casual",
+        "mandatory_strictness": "low UAI relaxed"
+      },
+      "expectedStructuralChecks": [
+        "schema_valid",
+        "component_count",
+        "collision_count",
+        "boundary_violation_count"
+      ]
+    }
+  ]
+}

@@ -80,6 +80,9 @@ class JudgePackageRow:
     benchmark_set_version: str
     prompt_text: str
     prompt_metadata: Dict[str, Any]
+    expected_au_signals: Dict[str, Any]
+    prompt_context_section_refs: List[Dict[str, Any]]
+    deterministic_au_findings: List[Dict[str, Any]]
     metrics: Dict[str, Any]
     generated_definition: Optional[Dict[str, Any]]
     generated_definition_source: str
@@ -310,8 +313,13 @@ def build_package_rows(
                 benchmark_set_version=str(
                     row.get("benchmark_set_version", prompt_set.benchmark_set_version)
                 ),
-                prompt_text=prompt.prompt,
+                prompt_text=str(row.get("user_prompt") or prompt.prompt),
                 prompt_metadata=dict(prompt.metadata),
+                expected_au_signals=dict(
+                    row.get("expected_au_signals") or prompt.expected_signals
+                ),
+                prompt_context_section_refs=list(row.get("prompt_context_section_refs") or []),
+                deterministic_au_findings=list(row.get("deterministic_au_findings") or []),
                 metrics=dict(row.get("metrics") or {}),
                 generated_definition=scrub_pii_adjacent(definition) if definition is not None else None,
                 generated_definition_source=source,
@@ -339,6 +347,8 @@ def _row_to_metadata(row: JudgePackageRow) -> Dict[str, Any]:
         "benchmark_set_version": row.benchmark_set_version,
         "generated_definition_source": row.generated_definition_source,
         "generated_definition_available": row.generated_definition is not None,
+        "prompt_context_section_refs": row.prompt_context_section_refs,
+        "deterministic_au_findings": row.deterministic_au_findings,
     }
 
 
@@ -355,6 +365,11 @@ def build_output_template(rows: Sequence[JudgePackageRow], judge_model: str = "c
                 "variant_label": row.variant_label,
                 "scores": {metric: None for metric in CATEGORY_B_METRICS},
                 "rationale": "",
+                "conflicting_data_exists": None,
+                "conflict_description": "",
+                "likely_responsible_section_ids": [],
+                "suggested_correction": "",
+                "confidence": None,
             }
             for row in rows
         ],
@@ -362,6 +377,7 @@ def build_output_template(rows: Sequence[JudgePackageRow], judge_model: str = "c
 
 
 def render_judge_input(rows: Sequence[JudgePackageRow], metadata: Dict[str, Any]) -> str:
+    experiment = metadata.get("experiment")
     lines = [
         "# Form AI Judge Input Batch",
         "",
@@ -369,12 +385,30 @@ def render_judge_input(rows: Sequence[JudgePackageRow], metadata: Dict[str, Any]
         f"Benchmark set: `{metadata.get('benchmark_set_version', 'prompts-v1.0')}`",
         f"Rubric version: `{RUBRIC_VERSION}`",
         "",
-        "Use `rubric_v2.md` and return JSON matching `judge-output-template.json`.",
-        "Set `judge_model_version` to the exact model/version shown in your Cursor session.",
-        "Before assigning scores for each row, identify at least one weakness per row before scoring.",
-        "Judge only the anonymised package content below.",
-        "",
     ]
+    if isinstance(experiment, dict):
+        lines.extend(
+            [
+                "## Experiment Context",
+                "",
+                "This judge package is for one candidate arm of an Analyst prompt experiment.",
+                "",
+                "```json",
+                json.dumps(experiment, indent=2, sort_keys=True, default=_json_default),
+                "```",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "Use `rubric_v2.md` and return JSON matching `judge-output-template.json`.",
+            "Set `judge_model_version` to the exact model/version shown in your Cursor session.",
+            "Before assigning scores for each row, identify at least one weakness per row before scoring.",
+            "Use `shared-context-bundle.json` to inspect prompt/context sections. Fill the diagnostic fields for conflicts, likely responsible section IDs, suggested correction, and confidence.",
+            "Judge only the anonymised package content below.",
+            "",
+        ]
+    )
     for index, row in enumerate(rows, start=1):
         lines.extend(
             [
@@ -395,6 +429,24 @@ def render_judge_input(rows: Sequence[JudgePackageRow], metadata: Dict[str, Any]
                 "",
                 "```json",
                 json.dumps(row.prompt_metadata, indent=2, sort_keys=True),
+                "```",
+                "",
+                "### Expected AU Signals",
+                "",
+                "```json",
+                json.dumps(row.expected_au_signals, indent=2, sort_keys=True),
+                "```",
+                "",
+                "### Prompt Context Section References",
+                "",
+                "```json",
+                json.dumps(row.prompt_context_section_refs, indent=2, sort_keys=True),
+                "```",
+                "",
+                "### Deterministic AU Findings",
+                "",
+                "```json",
+                json.dumps(row.deterministic_au_findings, indent=2, sort_keys=True),
                 "```",
                 "",
                 "### Category A Metrics",
@@ -431,6 +483,10 @@ def _display_path(path: Path) -> str:
 
 def _judge_scope_for_package(package_dir: Path) -> str:
     package_path = str(package_dir).lower()
+    if "6.4.7" in package_path or "candidate-" in package_path:
+        return "Analyst Form AI prompt experiment"
+    if "6.4.6" in package_path:
+        return "Story 6.4.6 AU-only diagnostic baseline"
     if "6.4.4.2" not in package_path:
         return "Story 6.4.4.1"
     if "h2-consent" in package_path:
@@ -452,10 +508,12 @@ def render_judge_prompt(judge_model: str, package_dir: Path) -> str:
         f"You are the {label} for {scope}.\n\n"
         "Use the attached judge package files:\n"
         "- rubric_v2.md\n"
+        "- shared-context-bundle.json\n"
         "- judge-input-batch.md\n"
         "- judge-output-template.json\n\n"
         "Score each row against rubric_v2 only. Identify at least one weakness per row "
-        "before scoring. Return only valid JSON matching judge-output-template.json.\n"
+        "before scoring. Inspect shared-context-bundle.json before filling diagnostic "
+        "conflict fields. Return only valid JSON matching judge-output-template.json.\n"
         f'Set judge_model to "{judge_model}" and judge_model_version to the exact '
         "model/version shown in this Cursor session.\n\n"
         f"Save your output JSON to: `{output_path}`. Do not write anywhere else. "
@@ -486,14 +544,17 @@ def write_judge_package(
         if input_dirs is None
         else load_combined_run_metadata(eval_run_dir, source_dirs)
     )
+    shared_context_source = eval_run_dir / "shared-context-bundle.json"
     package_metadata = {
         "package_schema_version": PACKAGE_SCHEMA_VERSION,
         "rubric_version": RUBRIC_VERSION,
         "run_id": run_metadata.get("run_id", eval_run_dir.name),
         "benchmark_set_version": run_metadata.get("benchmark_set_version", "prompts-v1.0"),
         "variant_label": run_metadata.get("variant_label"),
+        "experiment": run_metadata.get("experiment"),
         "source_eval_run_dir": str(eval_run_dir),
         "source_eval_run_dirs": [str(source_dir) for source_dir in source_dirs],
+        "shared_context_bundle": "shared-context-bundle.json" if shared_context_source.exists() else None,
         "row_count": len(rows),
         "judge_models": JUDGE_MODELS,
         "category_b_metrics": CATEGORY_B_METRICS,
@@ -508,6 +569,8 @@ def write_judge_package(
     package_dir.mkdir(parents=True, exist_ok=True)
     (package_dir / "results").mkdir(exist_ok=True)
     shutil.copyfile(rubric_path, package_dir / "rubric_v2.md")
+    if shared_context_source.exists():
+        shutil.copyfile(shared_context_source, package_dir / "shared-context-bundle.json")
     (package_dir / "judge-input-batch.md").write_text(
         render_judge_input(rows, run_metadata), encoding="utf-8"
     )

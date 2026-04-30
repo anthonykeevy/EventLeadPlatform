@@ -1,0 +1,19 @@
+{
+  "benchmark_market": "AU",
+  "facts": {
+    "address_shape": "Suburb, State, Postcode",
+    "currency": "AUD",
+    "date_format": "DD/MM/YYYY",
+    "language": "Australian English",
+    "phone_country_code": "+61",
+    "privacy_law": "Privacy Act 1988",
+    "spam_law": "Spam Act 2003",
+    "tone": "Practical/plain-English tone"
+  },
+  "sources": [
+    "docs/stories/story-6.4.6.md AC-3",
+    "docs/stories/STORY-6.4.6-SINGLE-SESSION-DEV-PROMPT.md Step 2",
+    "Existing Form AI locale/prompt assembly reads config.PromptTemplateLocaleBlock when DB context is available."
+  ],
+  "version": "au-locale-contract-v1"
+}

@@ -6,6 +6,7 @@ import re
 import time
 import uuid
 import hashlib
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple
 
@@ -91,6 +92,15 @@ MAX_SYSTEM_CORRECTION_ATTEMPTS = _DEFAULT_RETRIES_FALLBACK  # kept for backward 
 _ROOT_PATH = Path(__file__).resolve().parents[3]
 CONTEXT_PACK_PATH = _ROOT_PATH / "docs" / "stories" / "STORY-6.2-AI-CONTEXT-PACK.md"
 LOGGER = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class ProviderCompletion:
+    content: str
+    usage: Optional[Dict[str, Any]]
+    model: str
+    endpoint: str
+    transport: str
 
 
 def _load_context_pack() -> str:
@@ -2162,8 +2172,51 @@ def _resolve_openai_transport(explicit: str) -> Literal["sync", "stream"]:
     return "sync"
 
 
-def _consume_openai_responses_sse_to_text(line_iter: Iterable[Any]) -> str:
+def _normalise_openai_usage(
+    raw_usage: Any,
+    *,
+    model: str,
+    endpoint: str,
+    transport: str,
+) -> Optional[Dict[str, Any]]:
+    if not isinstance(raw_usage, dict):
+        return None
+
+    def as_int(value: Any) -> Optional[int]:
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            return None
+        return parsed if parsed >= 0 else None
+
+    input_tokens = as_int(raw_usage.get("input_tokens", raw_usage.get("prompt_tokens")))
+    output_tokens = as_int(raw_usage.get("output_tokens", raw_usage.get("completion_tokens")))
+    total_tokens = as_int(raw_usage.get("total_tokens"))
+    if total_tokens is None and (input_tokens is not None or output_tokens is not None):
+        total_tokens = (input_tokens or 0) + (output_tokens or 0)
+    if input_tokens is None and output_tokens is None and total_tokens is None:
+        return None
+    return {
+        "provider": "openai",
+        "model": model,
+        "endpoint": endpoint,
+        "transport": transport,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": total_tokens,
+        "total_cost_usd": None,
+    }
+
+
+def _consume_openai_responses_sse_to_text(
+    line_iter: Iterable[Any],
+    *,
+    model: str,
+    endpoint: str,
+    transport: str,
+) -> Tuple[str, Optional[Dict[str, Any]]]:
     parts: List[str] = []
+    usage: Optional[Dict[str, Any]] = None
     for raw in line_iter:
         if raw is None:
             continue
@@ -2196,14 +2249,32 @@ def _consume_openai_responses_sse_to_text(line_iter: Iterable[Any]) -> str:
             delta = obj.get("delta")
             if isinstance(delta, str):
                 parts.append(delta)
+        raw_usage = obj.get("usage")
+        if raw_usage is None and isinstance(obj.get("response"), dict):
+            raw_usage = obj["response"].get("usage")
+        normalised = _normalise_openai_usage(
+            raw_usage,
+            model=model,
+            endpoint=endpoint,
+            transport=transport,
+        )
+        if normalised is not None:
+            usage = normalised
     text = "".join(parts)
     if not text.strip():
         raise RuntimeError("empty-provider-response-stream")
-    return text
+    return text, usage
 
 
-def _consume_chat_completions_sse_to_text(line_iter: Iterable[Any]) -> str:
+def _consume_chat_completions_sse_to_text(
+    line_iter: Iterable[Any],
+    *,
+    model: str,
+    endpoint: str,
+    transport: str,
+) -> Tuple[str, Optional[Dict[str, Any]]]:
     parts: List[str] = []
+    usage: Optional[Dict[str, Any]] = None
     for raw in line_iter:
         if raw is None:
             continue
@@ -2225,6 +2296,14 @@ def _consume_chat_completions_sse_to_text(line_iter: Iterable[Any]) -> str:
         err = chunk.get("error")
         if isinstance(err, dict) and err.get("message"):
             raise RuntimeError(f"openai-chat-stream-error:{err.get('message')}")
+        normalised = _normalise_openai_usage(
+            chunk.get("usage"),
+            model=model,
+            endpoint=endpoint,
+            transport=transport,
+        )
+        if normalised is not None:
+            usage = normalised
         for choice in chunk.get("choices") or []:
             if not isinstance(choice, dict):
                 continue
@@ -2237,7 +2316,7 @@ def _consume_chat_completions_sse_to_text(line_iter: Iterable[Any]) -> str:
     text = "".join(parts)
     if not text.strip():
         raise RuntimeError("empty-provider-response-stream")
-    return text
+    return text, usage
 
 
 def _request_chatgpt_completion(
@@ -2245,7 +2324,7 @@ def _request_chatgpt_completion(
     model_override: str | None = None,
     *,
     openai_transport: Literal["sync", "stream"] = "sync",
-) -> str:
+) -> ProviderCompletion:
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("missing-openai-api-key")
@@ -2327,7 +2406,7 @@ def _request_chatgpt_completion(
             payload["stream"] = True
         return payload
 
-    def call_responses_api(client: httpx.Client) -> str:
+    def call_responses_api(client: httpx.Client) -> ProviderCompletion:
         responses_payload = build_responses_payload(stream=False)
         started_at = time.monotonic()
         endpoint_url = "https://api.openai.com/v1/responses"
@@ -2367,10 +2446,22 @@ def _request_chatgpt_completion(
             _log_provider_http_error(exc, "responses")
             raise
         responses_body = responses.json()
+        usage = _normalise_openai_usage(
+            responses_body.get("usage"),
+            model=model,
+            endpoint="responses",
+            transport=openai_transport,
+        )
 
         output_text = responses_body.get("output_text")
         if isinstance(output_text, str) and output_text.strip():
-            return output_text
+            return ProviderCompletion(
+                content=output_text,
+                usage=usage,
+                model=model,
+                endpoint="responses",
+                transport=openai_transport,
+            )
 
         output = responses_body.get("output") or []
         for item in output:
@@ -2380,11 +2471,17 @@ def _request_chatgpt_completion(
                 if content_item.get("type") == "output_text":
                     text = content_item.get("text", "")
                     if isinstance(text, str) and text.strip():
-                        return text
+                        return ProviderCompletion(
+                            content=text,
+                            usage=usage,
+                            model=model,
+                            endpoint="responses",
+                            transport=openai_transport,
+                        )
 
         raise RuntimeError("empty-provider-response")
 
-    def call_responses_api_stream(client: httpx.Client) -> str:
+    def call_responses_api_stream(client: httpx.Client) -> ProviderCompletion:
         responses_payload = build_responses_payload(stream=True)
         started_at = time.monotonic()
         endpoint_url = "https://api.openai.com/v1/responses"
@@ -2396,7 +2493,12 @@ def _request_chatgpt_completion(
                 json=responses_payload,
             ) as responses:
                 responses.raise_for_status()
-                text = _consume_openai_responses_sse_to_text(responses.iter_lines())
+                text, usage = _consume_openai_responses_sse_to_text(
+                    responses.iter_lines(),
+                    model=model,
+                    endpoint="responses",
+                    transport=openai_transport,
+                )
             timed_log_outbound_http_request(
                 provider="openai",
                 method="POST",
@@ -2410,7 +2512,13 @@ def _request_chatgpt_completion(
                     "chars": len(text),
                 },
             )
-            return text
+            return ProviderCompletion(
+                content=text,
+                usage=usage,
+                model=model,
+                endpoint="responses",
+                transport=openai_transport,
+            )
         except httpx.HTTPError as exc:
             response = getattr(exc, "response", None)
             body_snippet: Optional[str] = None
@@ -2440,9 +2548,10 @@ def _request_chatgpt_completion(
         }
         if stream:
             payload["stream"] = True
+            payload["stream_options"] = {"include_usage": True}
         return payload
 
-    def call_chat_completions_stream(client: httpx.Client) -> str:
+    def call_chat_completions_stream(client: httpx.Client) -> ProviderCompletion:
         payload = build_chat_payload(stream=True)
         chat_endpoint_url = "https://api.openai.com/v1/chat/completions"
         started_at = time.monotonic()
@@ -2454,7 +2563,12 @@ def _request_chatgpt_completion(
                 json=payload,
             ) as response:
                 response.raise_for_status()
-                text = _consume_chat_completions_sse_to_text(response.iter_lines())
+                text, usage = _consume_chat_completions_sse_to_text(
+                    response.iter_lines(),
+                    model=model,
+                    endpoint="chat.completions",
+                    transport=openai_transport,
+                )
             timed_log_outbound_http_request(
                 provider="openai",
                 method="POST",
@@ -2468,7 +2582,13 @@ def _request_chatgpt_completion(
                     "chars": len(text),
                 },
             )
-            return text
+            return ProviderCompletion(
+                content=text,
+                usage=usage,
+                model=model,
+                endpoint="chat.completions",
+                transport=openai_transport,
+            )
         except httpx.HTTPError as exc:
             error_response = getattr(exc, "response", None)
             body_snippet: Optional[str] = None
@@ -2531,7 +2651,18 @@ def _request_chatgpt_completion(
             message = choices[0].get("message", {}) if choices else {}
             content = message.get("content", "")
             if isinstance(content, str) and content.strip():
-                return content
+                return ProviderCompletion(
+                    content=content,
+                    usage=_normalise_openai_usage(
+                        body.get("usage"),
+                        model=model,
+                        endpoint="chat.completions",
+                        transport=openai_transport,
+                    ),
+                    model=model,
+                    endpoint="chat.completions",
+                    transport=openai_transport,
+                )
         except httpx.HTTPError as exc:
             error_response = getattr(exc, "response", None)
             body_snippet: Optional[str] = None
@@ -2578,6 +2709,24 @@ def _coerce_form_id(runtime_context: Optional[Dict[str, Any]]) -> Optional[int]:
         if raw.isdigit():
             return int(raw)
     return None
+
+
+def _summarise_provider_usage(attempts: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def sum_field(field: str) -> Optional[int]:
+        values = [item.get(field) for item in attempts if item.get(field) is not None]
+        if not values:
+            return None
+        return sum(int(value) for value in values)
+
+    return {
+        "available": bool(attempts),
+        "provider": "openai",
+        "input_tokens": sum_field("input_tokens"),
+        "output_tokens": sum_field("output_tokens"),
+        "total_tokens": sum_field("total_tokens"),
+        "total_cost_usd": None,
+        "attempts": attempts,
+    }
 
 
 def _build_request_id_fallback() -> str:
@@ -3496,6 +3645,7 @@ def generate_form_definition(
     raw_attempt_payloads: List[Dict[str, Any]] = []
     semantic_attempt_payloads: List[Dict[str, Any]] = []
     compiled_attempt_payloads: List[Dict[str, Any]] = []
+    provider_usage_attempts: List[Dict[str, Any]] = []
     # Story 6.3.1 UAT round 5 — captured per-attempt for /remeasure replay.
     compile_input_plans: List[Dict[str, Any]] = []
     governance_versions = _resolve_runtime_governance_versions(db_session)
@@ -3546,6 +3696,7 @@ def generate_form_definition(
             **(response.meta or {}),
             "locale": locale_resolution,
             "brand": brand_resolution,
+            "provider_usage": _summarise_provider_usage(provider_usage_attempts),
         }
         return response
 
@@ -3706,16 +3857,26 @@ def generate_form_definition(
         # PROVIDER CALL. True provider failures exit immediately.
         # ============================================================
         try:
-            provider_content = _request_chatgpt_completion(
+            provider_completion = _request_chatgpt_completion(
                 messages,
                 model_override=model_override,
                 openai_transport=resolved_transport,
             )
+            provider_content = provider_completion.content
+            if provider_completion.usage is not None:
+                provider_usage_attempts.append(
+                    {
+                        "attemptNumber": attempt_number,
+                        "phase": phase,
+                        **provider_completion.usage,
+                    }
+                )
             raw_attempt_payloads.append(
                 {
                     "attemptNumber": attempt_number,
                     "phase": phase,
                     "providerContent": provider_content,
+                    "providerUsage": provider_completion.usage,
                 }
             )
         except (httpx.HTTPError, RuntimeError) as exc:

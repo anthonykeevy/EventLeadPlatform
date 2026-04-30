@@ -1,0 +1,35 @@
+{
+  "allow_au_context_conflicts": false,
+  "au_locale_contract_version": "au-locale-contract-v1",
+  "benchmark_set_version": "prompts-au-v1",
+  "completed_at_utc": "2026-04-30T06:09:01.297381+00:00",
+  "completed_count": 1,
+  "concurrency_cap": 4,
+  "diagnostic_artifacts": [
+    "shared-context-bundle.json",
+    "prompt-context-lint.json",
+    "prompt-context-lint.md",
+    "au-deterministic-checks.json",
+    "au-deterministic-checks.md"
+  ],
+  "hypothesis_code": "baseline",
+  "locale_filter": null,
+  "max_cost_usd": null,
+  "max_provider_retries": 3,
+  "mock": false,
+  "output_folder": "_bmad-output\\eval-runs\\story-6.4.6-au-baseline-current-p07-au-ambiguous-r1",
+  "persist_db": false,
+  "prompt_ids": [
+    "p07-au-ambiguous-r1"
+  ],
+  "prompt_shrink_env": "FORM_AI_EVAL_PROMPT_SHRINK_MODE",
+  "prompt_shrink_mode": "h2-h4",
+  "prompts_path": "backend\\tests\\form_ai_eval\\prompts_au_v1.yaml",
+  "repetitions": 1,
+  "run_id": "story-6.4.6-au-baseline-current-p07-au-ambiguous-r1",
+  "started_at_utc": "2026-04-30T06:07:58.751012+00:00",
+  "status": "completed",
+  "total_cost_usd": 0.0,
+  "variant": "baseline",
+  "variant_label": "story-6.4.6-au-baseline-current-p07-au-ambiguous-r1"
+}

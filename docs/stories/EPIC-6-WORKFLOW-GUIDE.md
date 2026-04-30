@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.4.6 — **AU-Only Diagnostic Evaluation Framework + Baseline** (prompt-evaluation reset approved; no more six-locale prompt-candidate sweeps until AU diagnostic framework exists).
+**Current Focus:** Story 6.4.6 final Tony/SM acceptance and merge; Story 6.4.7 planned next for Analyst-led AU baseline improvement experiments.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -17,7 +17,7 @@
 **Story 6.4.4.1-ac10 Status:** ✅ **Complete** (merged 2026-04-27, PR #77) — AC-10 baseline re-judge passed; next recommended story is 6.4.4.2.
 **Story 6.4.4.2 Status:** ✅ **Complete** (merged 2026-04-28, PR #79) — H2-only and H4-only ablations completed under `rubric_v2`; both failed the ship bar, so current `master` behavior remains unchanged.
 **Story 6.4.5 Status:** ✅ **Measured/no-change** (merged 2026-04-29, PR #81) — H3 measured against AC10 `rubric_v2` baseline; no-go as-is due material `field_label_f1` regression and locale/context-conflict noise. Prompt changes reverted; evidence preserved.
-**Story 6.4.6 Status:** 🚧 **In progress** (Draft PR #82) — Dev-owned AU-only diagnostic eval framework + current-state AU baseline; no candidate prompt improvements in this story.
+**Story 6.4.6 Status:** ✅ **Ready for Tony/SM final acceptance** (Draft PR #82) — AU-only diagnostic eval framework, current-state AU baseline, judge ingest, and `AU-000` handoff complete; no candidate prompt improvements in this story.
 **Story 6.4.7 Status:** ⏳ **Planned** — BMAD Analyst-owned AU baseline analysis and iterative prompt improvement loop over version-managed prompt/context artifacts only.
 
 ---

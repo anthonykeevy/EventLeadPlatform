@@ -28,6 +28,11 @@ def _write_outputs(package_dir: Path):
                 "variant_label": row["variant_label"],
                 "scores": _make_score(4),
                 "rationale": "Fixture rationale.",
+                "conflicting_data_exists": False,
+                "conflict_description": "",
+                "likely_responsible_section_ids": [],
+                "suggested_correction": "",
+                "confidence": 0.9,
             }
         )
     results_dir = package_dir / "results"
@@ -106,6 +111,17 @@ def test_ingest_rejects_out_of_range_score(tmp_path):
         judge_ingest.ingest_judge_package(package_dir)
 
 
+def test_ingest_rejects_missing_diagnostic_fields(tmp_path):
+    package_dir = _package_with_outputs(tmp_path)
+    claude_path = package_dir / "results" / "judge-output-claude.json"
+    payload = json.loads(claude_path.read_text(encoding="utf-8"))
+    del payload["rows"][0]["conflicting_data_exists"]
+    claude_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(judge_ingest.JudgeIngestError, match="conflicting_data_exists"):
+        judge_ingest.ingest_judge_package(package_dir)
+
+
 def test_ingest_updates_db_with_fake_session(tmp_path):
     package_dir = _package_with_outputs(tmp_path)
 
@@ -130,4 +146,5 @@ def test_ingest_updates_db_with_fake_session(tmp_path):
     assert fake.params[0]["judge_rubric_version"] == "rubric_v2"
     assert fake.params[0]["judge_agreement_score"] == 0.6
     assert "cross_model_mean" in json.loads(fake.params[0]["bias_delta_json"])
+    assert "judge_diagnostics" in json.loads(fake.params[0]["bias_delta_json"])
     assert fake.committed is True

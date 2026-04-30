@@ -1,0 +1,150 @@
+{
+  "au_locale_contract": {
+    "benchmark_market": "AU",
+    "facts": {
+      "address_shape": "Suburb, State, Postcode",
+      "currency": "AUD",
+      "date_format": "DD/MM/YYYY",
+      "language": "Australian English",
+      "phone_country_code": "+61",
+      "privacy_law": "Privacy Act 1988",
+      "spam_law": "Spam Act 2003",
+      "tone": "Practical/plain-English tone"
+    },
+    "sources": [
+      "docs/stories/story-6.4.6.md AC-3",
+      "docs/stories/STORY-6.4.6-SINGLE-SESSION-DEV-PROMPT.md Step 2",
+      "Existing Form AI locale/prompt assembly reads config.PromptTemplateLocaleBlock when DB context is available."
+    ],
+    "version": "au-locale-contract-v1"
+  },
+  "benchmark_set_version": "prompts-au-v1",
+  "cases": {
+    "p14-au-ambiguous-r1": {
+      "audience_locale": "AU",
+      "expected_au_signals": {
+        "address_field_pattern": "Suburb/State/Postcode",
+        "cross_locale_leakage_forbidden": [
+          "ZIP",
+          "MM/DD/YYYY",
+          "+1 (555)"
+        ],
+        "currency": "AUD",
+        "date_format": "DD/MM/YYYY",
+        "name_convention": [
+          "First name|Given name",
+          "Last name|Surname"
+        ],
+        "phone_country_code": "+61"
+      },
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "afc7646351792867b4dfbc4ef7d5ff621bb5f7cead189b80faf528b1a658499c",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p14-au-ambiguous-r1",
+      "user_prompt": "Create a UK NHS-adjacent waiver form with participant details, relevant health notes, consent acknowledgement, and emergency contact. The event is associated with Sydney."
+    }
+  },
+  "generated_at_utc": "2026-04-30T06:13:54.678564+00:00",
+  "run_id": "story-6.4.6-au-baseline-current-p14-au-ambiguous-r1",
+  "schema_version": "shared-context-bundle-v1",
+  "sections": [
+    {
+      "active": true,
+      "content": "You generate an EventLead semantic form plan for Story 6.3.1.\nOutput a single JSON object only. No markdown or prose.\nReturn FormSemanticPlan only; do not output coordinates, pixel widths, x/y positions, style blocks, or final DefinitionJSON.\nRequired root keys: semanticPlanVersion, formId, title, components. Do not add other root keys. Each component uses componentType, label, placeholder, helpText, section, rowGroup, widthIntent, options, and validationIntent where applicable.",
+      "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+      "label": "System Prompt / Output Contract",
+      "section_id": "system_prompt_output_contract"
+    },
+    {
+      "active": true,
+      "content": "Service-rendered locale block for audience_locale=AU:\nAudience locale NEUTRAL. Use clear international English, ISO-friendly formats where useful, avoid country-specific law citations unless the user requests them, and keep field labels globally understandable.\n\nVersion-managed AU contract:\nAU locale contract version: au-locale-contract-v1\n- Phone: +61\n- Dates: DD/MM/YYYY\n- Address: Suburb, State, Postcode\n- Currency: AUD\n- Privacy: Privacy Act 1988\n- Marketing/electronic messages: Spam Act 2003\n- Language: Australian English\n- Tone: Practical/plain-English tone",
+      "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+      "label": "AU Locale Block",
+      "section_id": "au_locale_block"
+    },
+    {
+      "active": true,
+      "content": "Brand posture: local. Match copy voice to the resolved audience locale.",
+      "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+      "label": "Brand Posture Block",
+      "section_id": "brand_posture_block"
+    },
+    {
+      "active": false,
+      "content": "No DB-backed component capability prompt block was active.",
+      "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+      "label": "Component Capability Block",
+      "section_id": "component_capability_block"
+    },
+    {
+      "active": false,
+      "content": "No component property cheat sheet is active in the current prompt state for this baseline.",
+      "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+      "label": "Component Property Cheat Sheet",
+      "section_id": "component_property_cheat_sheet"
+    },
+    {
+      "active": true,
+      "content": "## CONSENT & LEGAL ACKNOWLEDGEMENTS\n| User intent | Component | Required guidance |\n|---|---|---|\n| Marketing consent, terms acceptance, privacy acknowledgement, data/cookie consent, waiver, release, code-of-conduct or indemnity acknowledgement | ``terms`` | Set ``validationIntent.required = true`` unless explicitly optional. Use company-managed terms when runtime context provides them. |\n| Consent text but no company-managed terms | ``terms`` | Keep the acknowledgement sentence in ``label`` or ``props.termsContent``. Do not invent legal URLs or policy content. |\n| Interests, preferences, dietary choices, availability, feature toggles or other non-legal multi-select | ``checkbox`` | Treat as ordinary choices, not legal acknowledgement. |\n",
+      "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+      "label": "Consent / Legal Guidance",
+      "section_id": "consent_legal_guidance"
+    },
+    {
+      "active": true,
+      "content": "# STORY-6.2 AI Context Pack\n\n**Context Pack Version:** 1.3  \n**Last Updated:** 2026-04-02  \n**Owner:** SM Agent\n\n---\n\n## Purpose\n\nProvide a consistent instruction bundle for the LLM so generated `DefinitionJSON` matches EventLead product behavior, component rules, and validation constraints.\n\n---\n\n## Product Usage Context\n\n1. Users describe a form in natural language.\n2. AI generates an initial single-page form definition draft.\n3. System validates draft via Story 6.1 validator.\n4. If invalid, system sends structured correction instructions and retries.\n5. If valid, draft loads into Builder canvas for human refinement.\n6. Final save/publish remains in existing manual workflows.\n\n---\n\n## Component Catalog (MVP Set)\n\nAllowed component types for Story 6.2 MVP generation:\n- `text`\n- `first-name`\n- `email`\n- `phone`\n- `url`\n- `number`\n- `date`\n- `dropdown`\n- `checkbox`\n- `radio`\n- `textarea`\n- `address`\n- `rating`\n- `file-upload`\n- `terms`\n- `header`\n- `paragraph`\n- `divider`\n- `submit-button`\n\nComponent-specific notes for expanded set:\n- `url`: use `validation.url: true`; optional `urlPrefix` and `urlPattern` can be included.\n- `rating`: include `ratingMax` (typically 5 or 10) and `ratingStyle` (`stars` | `numbers` | `emoji`).\n- `paragraph`: display-only content block (prefer `text`, fallback `label` for legacy compatibility).\n- `file-upload`: **available** (Story 6.2.2). Use `allowMultiple` / `maxFiles` only when multiple files in one control are required; answers store **public attachment UUIDs** only (never paths). Generation must respect max size and `accept` / `acceptedFileTypes` hints.\n\nFor each component:\n- Must include stable `id`.\n- Must include `type`.\n- Must include `position` (`x`, `y`) for render placement.\n- Should include width/height style hints where relevant.\n\nDisallowed in this story:\n- Payment component logic (Story 6.7).\n- Multi-page generation orchestration.\n\n---\n\n## Layout and Canvas Rules\n\n1. Single-page only.\n2. Components must stay within canvas boundaries.\n3. Components must not overlap.\n4. Prefer top-to-bottom **reading order** with reasonable spacing (rows still read top \u2192 bottom).\n5. Keep layout simple and editable by humans after load.\n6. **Multi-column rows (encouraged on wide canvases):** You **may and should** place **two related short inputs on the same horizontal row** when the user lists them as separate fields \u2014 same `position.y`, different `position.x`, each with roughly **half** the main form width (minus a **gap** of about **56\u201396px** between fields). Typical pairs: **First name | Last name**, **Phone | Email**. Keep **full-width rows** for `textarea`, `address`, and other tall/wide controls. This uses horizontal space, **saves vertical space**, and helps keep **`submit-button` clearly below** `textarea` so collision validation passes. On narrow canvases or when the user asks for one column, a single stack is fine.\n7. **`textarea` + `submit-button` (bottom of form):** The builder reserves a **validation / error message band** under controls. Do **not** rely on a minimal `style.height` (~140px) for comments when a submit sits below \u2014 use **`style.height` \u2265 180\u2013240px** (prefer **200+**). Place **`submit-button` last** with **`position.y` \u2265 `textarea.y + textarea.style.height + 48\u201372px`**. If corrections still report collisions between submit and textarea, **increase that gap** and/or **textarea height** before changing column layout.\n\n---\n\n## Strict Output Contract (JSON Only)\n\nLLM output requirements:\n1. Return valid JSON object only.\n2. Do not include markdown, prose, comments, or code fences.\n3. Root must be a DefinitionJSON-compatible object.\n4. Maintain deterministic key/value structure where practical.\n\n---\n\n## Validator Feedback to Correction Mapping\n\nWhen validator returns errors:\n1. `schemaErrors`:\n   - fix missing/incorrect required fields and types.\n2. `boundaryViolations`:\n   - reposition or resize affected components inside canvas.\n3. `collisions`:\n   - re-space components to remove overlap while preserving intent.\n4. Re-submit corrected JSON for validation until:\n   - `valid=true`, or\n   - max retries reached.\n\nCorrection priorities:\n1. Schema correctness\n2. Boundary correctness\n3. Collision removal\n4. Visual readability improvements\n\n---\n\n## Example A (Valid Generation)\n\n```json\n{\n  \"schemaVersion\": \"1.0\",\n  \"formId\": \"gen-contact-form\",\n  \"canvasSettings\": { \"width\": 500, \"height\": 700, \"gridSize\": 8 },\n  \"pages\": [\n    {\n      \"id\": \"page-1\",\n      \"title\": \"Contact Form\",\n      \"components\": [\n        { \"id\": \"h1\", \"type\": \"header\", \"props\": { \"text\": \"Contact Us\" }, \"position\": { \"x\": 20, \"y\": 20 }, \"style\": { \"width\": 460, \"height\": 48 } },\n        { \"id\": \"name\", \"type\": \"text\", \"props\": { \"label\": \"Full Name\" }, \"position\": { \"x\": 20, \"y\": 90 }, \"style\": { \"width\": 460, \"height\": 72 } },\n        { \"id\": \"email\", \"type\": \"email\", \"props\": { \"label\": \"Email\" }, \"position\": { \"x\": 20, \"y\": 180 }, \"style\": { \"width\": 460, \"height\": 72 } },\n        { \"id\": \"submit\", \"type\": \"submit-button\", \"props\": { \"label\": \"Submit\" }, \"position\": { \"x\": 20, \"y\": 280 }, \"style\": { \"width\": 180, \"height\": 56 } }\n      ]\n    }\n  ]\n}\n```\n\n---\n\n## Example B (Invalid -> Corrected)\n\n### Invalid Candidate (collision + boundary)\n\n```json\n{\n  \"schemaVersion\": \"1.0\",\n  \"formId\": \"gen-invalid\",\n  \"canvasSettings\": { \"width\": 500, \"height\": 400, \"gridSize\": 8 },\n  \"pages\": [\n    {\n      \"id\": \"page-1\",\n      \"title\": \"Broken Layout\",\n      \"components\": [\n        { \"id\": \"a\", \"type\": \"text\", \"props\": { \"label\": \"A\" }, \"position\": { \"x\": -10, \"y\": 20 }, \"style\": { \"width\": 300, \"height\": 72 } },\n        { \"id\": \"b\", \"type\": \"email\", \"props\": { \"label\": \"B\" }, \"position\": { \"x\": 100, \"y\": 40 }, \"style\": { \"width\": 320, \"height\": 72 } }\n      ]\n    }\n  ]\n}\n```\n\n### Corrected Candidate\n\n```json\n{\n  \"schemaVersion\": \"1.0\",\n  \"formId\": \"gen-invalid\",\n  \"canvasSettings\": { \"width\": 500, \"height\": 400, \"gridSize\": 8 },\n  \"pages\": [\n    {\n      \"id\": \"page-1\",\n      \"title\": \"Broken Layout\",\n      \"components\": [\n        { \"id\": \"a\", \"type\": \"text\", \"props\": { \"label\": \"A\" }, \"position\": { \"x\": 20, \"y\": 20 }, \"style\": { \"width\": 460, \"height\": 72 } },\n        { \"id\": \"b\", \"type\": \"email\", \"props\": { \"label\": \"B\" }, \"position\": { \"x\": 20, \"y\": 110 }, \"style\": { \"width\": 460, \"height\": 72 } }\n      ]\n    }\n  ]\n}\n```\n\n---",
+      "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+      "label": "Context Pack Excerpt",
+      "section_id": "context_pack_excerpt"
+    },
+    {
+      "active": true,
+      "content": "Runtime layout context (authoritative, measured from toolbox/canvas):\n{\"formId\": \"eval-p14-au-ambiguous\", \"audienceLocale\": \"AU\", \"brandPosture\": null, \"brandHeritageOrigin\": null, \"canvas\": {\"width\": 960, \"height\": 1400, \"gridSize\": 8}, \"termsDefaults\": {\"companyId\": 644100, \"hasCompanyTerms\": true, \"source\": \"company-default\", \"termsLinkText\": \"event terms\", \"termsUrl\": \"https://example.test/terms\", \"termsDisplayMode\": \"popup\", \"preserveCompanyTermsLink\": true}, \"capabilitySnapshot\": {\"version\": \"FORM_AI_CAPABILITY_POLICY:v1\", \"input\": \"synthetic-eval-v1.1\"}, \"componentFootprints\": [{\"componentType\": \"text\", \"width\": 320, \"height\": 72, \"recommendedGapAfter\": 16}, {\"componentType\": \"email\", \"width\": 320, \"height\": 72, \"recommendedGapAfter\": 16}, {\"componentType\": \"phone\", \"width\": 320, \"height\": 72, \"recommendedGapAfter\": 16}, {\"componentType\": \"date\", \"width\": 320, \"height\": 72, \"recommendedGapAfter\": 16}, {\"componentType\": \"select\", \"width\": 320, \"height\": 82, \"recommendedGapAfter\": 16}, {\"componentType\": \"textarea\", \"width\": 640, \"height\": 132, \"recommendedGapAfter\": 16}, {\"componentType\": \"checkbox\", \"width\": 640, \"height\": 72, \"recommendedGapAfter\": 16}, {\"componentType\": \"terms\", \"width\": 640, \"height\": 96, \"recommendedGapAfter\": 16}, {\"componentType\": \"submit-button\", \"width\": 220, \"height\": 56, \"recommendedGapAfter\": 0}]}\n\nUse runtime context as hard constraints. Do not change lockedGlobals values. Generate pages/components placement that stays fully within canvas.\nTerms defaults rule: company-managed terms are available. Use a `terms` component for consent, keep `props.termsUrl` and `props.termsContent` empty unless user explicitly asks to replace legal source, and preserve company link behavior. Prefer `props.termsLinkText` = \"event terms\".",
+      "content_hash": "afc7646351792867b4dfbc4ef7d5ff621bb5f7cead189b80faf528b1a658499c",
+      "label": "Runtime Layout Context",
+      "section_id": "runtime_layout_context"
+    },
+    {
+      "active": false,
+      "content": "",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "label": "Candidate Prompt Block",
+      "section_id": "candidate_prompt_block"
+    }
+  ]
+}

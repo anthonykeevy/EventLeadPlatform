@@ -1,0 +1,93 @@
+{
+  "first_12_by_start": [
+    {
+      "completed_at_utc": "2026-04-30T05:03:54.518371+00:00",
+      "duration_seconds": 42.974,
+      "prompt_id": "p01-au-neutral-r1",
+      "run_id": "story-6.4.6-au-baseline-current-single",
+      "started_at_utc": "2026-04-30T05:03:11.544154+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T05:05:12.081346+00:00",
+      "duration_seconds": 51.564,
+      "prompt_id": "p02-au-neutral-r1",
+      "run_id": "story-6.4.6-au-baseline-current-parallel-p02",
+      "started_at_utc": "2026-04-30T05:04:20.516969+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T05:05:17.574458+00:00",
+      "duration_seconds": 56.863,
+      "prompt_id": "p03-au-neutral-r1",
+      "run_id": "story-6.4.6-au-baseline-current-parallel-p03",
+      "started_at_utc": "2026-04-30T05:04:20.711548+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T05:05:09.529451+00:00",
+      "duration_seconds": 48.764,
+      "prompt_id": "p04-au-neutral-r1",
+      "run_id": "story-6.4.6-au-baseline-current-parallel-p04",
+      "started_at_utc": "2026-04-30T05:04:20.765879+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:04:37.792812+00:00",
+      "duration_seconds": 79.741,
+      "prompt_id": "p02-au-ambiguous-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p02-au-ambiguous-r1",
+      "started_at_utc": "2026-04-30T06:03:18.052049+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:04:10.277939+00:00",
+      "duration_seconds": 52.225,
+      "prompt_id": "p01-au-ambiguous-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p01-au-ambiguous-r1",
+      "started_at_utc": "2026-04-30T06:03:18.053104+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:04:38.315796+00:00",
+      "duration_seconds": 80.252,
+      "prompt_id": "p01-au-adversarial-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p01-au-adversarial-r1",
+      "started_at_utc": "2026-04-30T06:03:18.063726+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:04:47.768482+00:00",
+      "duration_seconds": 89.698,
+      "prompt_id": "p02-au-adversarial-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p02-au-adversarial-r1",
+      "started_at_utc": "2026-04-30T06:03:18.070087+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:05:20.539026+00:00",
+      "duration_seconds": 68.285,
+      "prompt_id": "p03-au-ambiguous-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p03-au-ambiguous-r1",
+      "started_at_utc": "2026-04-30T06:04:12.253661+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:05:54.878266+00:00",
+      "duration_seconds": 75.365,
+      "prompt_id": "p03-au-adversarial-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p03-au-adversarial-r1",
+      "started_at_utc": "2026-04-30T06:04:39.513708+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:05:52.844933+00:00",
+      "duration_seconds": 72.638,
+      "prompt_id": "p04-au-ambiguous-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p04-au-ambiguous-r1",
+      "started_at_utc": "2026-04-30T06:04:40.207079+00:00"
+    },
+    {
+      "completed_at_utc": "2026-04-30T06:05:58.457516+00:00",
+      "duration_seconds": 69.006,
+      "prompt_id": "p04-au-adversarial-r1",
+      "run_id": "story-6.4.6-au-baseline-current-p04-au-adversarial-r1",
+      "started_at_utc": "2026-04-30T06:04:49.451157+00:00"
+    }
+  ],
+  "first_started_at_utc": "2026-04-30T05:03:11.544154+00:00",
+  "last_completed_at_utc": "2026-04-30T06:16:26.063118+00:00",
+  "max_observed_concurrent_runs": 4,
+  "note": "Aggregate CSV is prompt-sorted; per-row source metadata shows overlap.",
+  "row_count": 45
+}

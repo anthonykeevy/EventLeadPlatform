@@ -44,6 +44,52 @@ python -m backend.tests.form_ai_eval.judge_pack `
 
 The package includes `judge-prompt-claude.md`, `judge-prompt-grok.md`, and `judge-prompt-gpt5mini.md`. Each prompt embeds the exact `results/judge-output-*.json` path the Cursor judge must write.
 
+For Story 6.4.6 AU diagnostic runs, generate the package with the AU prompt set:
+
+```powershell
+python -m backend.tests.form_ai_eval.judge_pack `
+  _bmad-output/eval-runs/story-6.4.6-au-baseline-current `
+  --prompts-path backend/tests/form_ai_eval/prompts_au_v1.yaml `
+  --use-db
+```
+
+The AU package includes `shared-context-bundle.json` and row-level references to prompt/context section IDs, deterministic AU findings, expected AU signals, and generated definitions.
+
+For Story 6.4.6, the judge input/output surface is:
+
+- Model input prompt: `_bmad-output/eval-runs/<run-id>/metrics.jsonl` field `user_prompt`
+- Model assembled context references: `_bmad-output/eval-runs/<run-id>/shared-context-bundle.json`, with per-row section refs in `metrics.jsonl` field `prompt_context_section_refs`
+- Model output: `_bmad-output/eval-runs/<run-id>/metrics.jsonl` field `generated_definition`
+- Scrubbed judge-facing bundle: `_bmad-output/eval-runs/<run-id>/judge-package/judge-input-batch.md`
+- Judge shared context copy: `_bmad-output/eval-runs/<run-id>/judge-package/shared-context-bundle.json`
+- Judge JSON destination: `_bmad-output/eval-runs/<run-id>/judge-package/results/judge-output-<model>.json`
+
+## Experiment-Aware Judge Context
+
+For Story 6.4.7 Analyst iterations, judge packages should include experiment metadata in addition to the generated form output:
+
+- `experiment_id`
+- `baseline_run_id`
+- candidate `variant_label`
+- `improvement_goal`
+- `target_metrics`
+- changed prompt/context section name
+- changed prompt/context text or a scrubbed excerpt
+- Analyst hypothesis and expected metric movement
+
+Judges must score each row absolutely against `rubric_v2` before using the experiment goal for feedback. The score should be based on the visible user prompt, expected signals, generated definition, and rubric anchors only. Do not inflate or deflate any metric because a candidate was intended to improve it.
+
+When experiment metadata is present, ask judges to:
+
+- score every Category B metric normally before writing targeted feedback,
+- keep the primary rationale evidence-based and tied to the rubric,
+- use the listed `target_metrics` only to make the post-score feedback more useful,
+- identify whether the generated definition shows the intended improvement after scoring,
+- call out regressions in non-target metrics,
+- use `suggested_correction` to recommend a prompt/context adjustment tied to the changed section where possible.
+
+If a package contains multiple candidate arms, the row scores remain absolute per row. Candidate selection should be made by ingest/diff tooling and Tony/SM review, not by asking a judge to choose a winner informally.
+
 ## Run The Three Cursor Judge Chats
 
 Create three separate Cursor chats. In each chat, provide:
@@ -59,6 +105,14 @@ Use these model roles:
 - Gemini: primary judge, saved as `results/judge-output-gemini.json`
 
 Ask each judge to return only valid JSON matching the template. Do not ask judges to compare against each other.
+
+For `rubric_v2`, each row must also include diagnostic fields:
+
+- `conflicting_data_exists`
+- `conflict_description`
+- `likely_responsible_section_ids`
+- `suggested_correction`
+- `confidence`
 
 ## Ingest Judge Results
 

@@ -1,0 +1,2967 @@
+{
+  "category_b_metrics": [
+    "field_coverage_recall",
+    "field_label_f1",
+    "validation_intent_accuracy",
+    "row_group_agreement",
+    "locale_fidelity",
+    "policy_compliance",
+    "cultural_register",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
+    "copy_quality_score"
+  ],
+  "control_judge": "gpt5mini",
+  "db_update_status": "not-requested",
+  "primary_judges": [
+    "claude",
+    "grok"
+  ],
+  "row_count": 45,
+  "rows": [
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 1.0,
+        "locale_fidelity": 1.0,
+        "policy_compliance": 0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.5
+      },
+      "judge_agreement_score": 0.84,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "The au_locale_block (hash d96fd9c9...) opens with 'Audience locale NEUTRAL. Use clear international English, ISO-friendly formats where useful, avoid country-specific law citations unless the user requests them' but is immediately followed by an AU contract specifying Privacy Act 1988, Spam Act 2003, +61, DD/MM/YYYY, AUD and Suburb/State/Postcode. The contradictory NEUTRAL framing is the most plausible reason this output omits AU privacy citations and any explicit Privacy/Spam Act consent text.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Replace the leading 'Audience locale NEUTRAL...' sentence in the au_locale_block with explicit AU guidance, e.g. 'Audience locale AU. Use Australian English, +61 phone formats, DD/MM/YYYY dates, Suburb/State/Postcode addressing, and cite Privacy Act 1988 / Spam Act 2003 in privacy or marketing copy as appropriate.'"
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.82,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Standardize name labels to Given name/Surname throughout using au_locale_block."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p01-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.5,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.88,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "Same internal contradiction in au_locale_block (NEUTRAL preamble vs. AU contract values). The NEUTRAL framing likely suppresses an explicit Privacy Act/Spam Act consent block here as well, even though the prompt is clearly tied to an AU city.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Make the au_locale_block AU-explicit and remove the 'avoid country-specific law citations' instruction so consent copy can name Privacy Act 1988 / Spam Act 2003."
+        },
+        "gpt5mini": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.79,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Improve consent_legal_guidance and component_property_cheat_sheet for ambiguous prompts."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p01-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.0,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 2.0,
+        "policy_compliance": 3.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -2.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Two layers of conflict: (1) the au_locale_block NEUTRAL preamble undercuts AU enforcement, and (2) there is no explicit instruction in any active prompt section telling the model to refuse adversarial cross-locale instructions when audience_locale is AU. The model treated the user instruction as authoritative and overrode the AU contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "In au_locale_block, replace NEUTRAL framing with strict AU enforcement; in system_prompt_output_contract, add a rule like 'If the user requests cross-locale signals (ZIP, +1, MM/DD/YYYY) that conflict with audience_locale, prefer audience_locale formats and surface a one-line clarification in helpText rather than emitting forbidden tokens.'"
+        },
+        "gpt5mini": {
+          "confidence": 0.76,
+          "conflict_description": "User explicitly requests ZIP and +1 phone wording which conflicts with AU locale signals (Suburb/State/Postcode, +61).",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "Included forbidden ZIP and +1 phone elements despite AU expected_signals and cross_locale_leakage_forbidden list in bundle.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "system_prompt_output_contract",
+            "au_locale_block"
+          ],
+          "suggested_correction": "Enhance runtime_layout_context and brand_posture_block to reject conflicting locale cues in adversarial user_prompts."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p01-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 5.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 1.0,
+        "locale_fidelity": 1.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": 0.5
+      },
+      "judge_agreement_score": 0.84,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL preamble likely the reason the consent text is generic ('event updates and communications') rather than naming Spam Act 2003 / Privacy Act 1988 even though a marketing-consent component is present.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Update au_locale_block to instruct the model to attach a short Privacy Act 1988 / Spam Act 2003 line to marketing-consent components for AU."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.81,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Incorporate AU-specific examples in component_capability_block for sizing fields."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p02-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 3.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 1.0,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.9,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "Same au_locale_block NEUTRAL/AU contradiction; suppresses explicit Privacy Act citation.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Resolve au_locale_block contradiction so the consent block can cite AU privacy/spam law for Sydney-tied events."
+        },
+        "gpt5mini": {
+          "confidence": 0.84,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Strengthen consent_legal_guidance integration for ambiguous event registration flows."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p02-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 2.0,
+        "locale_fidelity": 2.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.82,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "No active prompt section instructs the model to refuse adversarial cross-locale cues; au_locale_block NEUTRAL preamble further dilutes AU enforcement.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add a 'audience_locale wins over user-requested cross-locale tokens' rule to system_prompt_output_contract and tighten au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.75,
+          "conflict_description": "Adversarial content requests cross-locale fields violating AU contract (e.g. ZIP).",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.74,
+          "conflict_description": "Partial leakage of US phone/currency patterns in response to adversarial prompt.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "context_pack_excerpt",
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": "Update system_prompt_output_contract to enforce strict AU-only for all variants."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p02-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 4.5,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 0.5,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.5,
+        "locale_fidelity": 1.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.78,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "au_locale_block NEUTRAL preamble plus inactive component_capability_block / component_property_cheat_sheet (both 'No ... block was active') give the model no AU-specific accessibility vocabulary (e.g., Auslan), which is why ASL/LSQ wording slipped in.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "component_capability_block"
+          ],
+          "suggested_correction": "Activate component_capability_block with AU accessibility vocabulary (Auslan, NDIS-friendly options) and rewrite au_locale_block preamble for AU."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.83,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Align address component ordering to runtime_layout_context AU spec."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p03-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -0.5,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL preamble continues to suppress Privacy Act citation even though Sydney + Auslan show the model can be locale-aware when prompted.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Remove the NEUTRAL preamble from au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.83,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.81,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Enhance component_property_cheat_sheet for optional field cues."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p03-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.84,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Lack of an explicit anti-adversarial rule lets user instructions override audience_locale.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add explicit refusal rule for cross-locale cues conflicting with audience_locale."
+        },
+        "gpt5mini": {
+          "confidence": 0.74,
+          "conflict_description": "Adversarial prompt asks for US-style fields that conflict with AU locale expectations.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.77,
+          "conflict_description": "Adversarial ZIP and MM/DD elements detected conflicting with expected AU signals.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "system_prompt_output_contract",
+            "au_locale_block"
+          ],
+          "suggested_correction": "Prioritize au_locale_contract facts over user adversarial instructions in prompt assembly."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p03-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 1.0,
+        "locale_fidelity": 1.0,
+        "policy_compliance": 0.5,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.78,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL framing is the likely reason there is no Spam Act 2003 anchor on the marketing-consent block; consent_legal_guidance covers component selection but not jurisdiction-specific copy.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add an AU-specific marketing-consent template to consent_legal_guidance, plus AU-explicit framing in au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.84,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Audit all labels against AU name/address conventions in context_pack_excerpt."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p04-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 5.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 5.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.88,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "The deterministic foreign_phone_code regex matches the substring '+1' inside legitimate UTC offset labels (e.g., 'UTC+1/0'). Combined with the au_locale_block NEUTRAL preamble suppressing AU privacy text, this row's diagnostic signal is a mix of genuine gap (no Privacy Act citation) and false-positive leakage flag.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Tighten the foreign_phone_code regex to require a phone-context boundary (e.g., follow with digits or a non-digit phone token), and resolve the au_locale_block contradiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.82,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Refine runtime_layout_context for better AU form flow in ambiguous cases."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p04-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 1.0,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "No anti-adversarial guard; au_locale_block NEUTRAL preamble removes any backstop.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial rule in system_prompt_output_contract; tighten au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.73,
+          "conflict_description": "Adversarial instructions introduce forbidden US patterns (ZIP/+1), conflicting with AU locale.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.73,
+          "conflict_description": "US format leakage (ZIP, +1) present in generated components against AU-only contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "brand_posture_block",
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": "Add explicit rejection logic for conflicting cues in consent_legal_guidance and system_prompt."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p04-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 5.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 5.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 5.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": 0.5,
+        "locale_fidelity": 1.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.88,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL preamble; no impact visible here because wedding context naturally avoids legal citations.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Resolve au_locale_block contradiction (no row-specific change needed)."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Tune row_group_agreement using component_capability_block guidelines."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p05-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 5.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": -0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.84,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL preamble continues to suppress AU privacy/Spam Act citations on the terms block.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Resolve au_locale_block contradiction so terms blocks can carry AU jurisdictional anchors when relevant."
+        },
+        "gpt5mini": {
+          "confidence": 0.81,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.82,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Align validation_intent with AU phone/date patterns more explicitly."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p05-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 2.0,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 2.0,
+        "locale_fidelity": 2.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.88,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Partial compliance suggests the model attempted to serve both audience_locale and user instruction without clear arbitration; root cause is the missing anti-adversarial rule plus au_locale_block NEUTRAL preamble.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add explicit precedence: audience_locale wins; record any user cross-locale request in helpText only."
+        },
+        "gpt5mini": {
+          "confidence": 0.72,
+          "conflict_description": "Adversarial content requests non-AU fields (ZIP/+1), contradicting locale contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.75,
+          "conflict_description": "Detected conflicting US-style address and date in adversarial output.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "runtime_layout_context",
+            "context_pack_excerpt"
+          ],
+          "suggested_correction": "Fortify au_locale_block precedence for all prompt variants including adversarial."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p05-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 5.0,
+        "validation_intent_accuracy": 4.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.9,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "au_locale_block NEUTRAL preamble suppresses AU privacy citation even though the form is otherwise textbook AU.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Resolve au_locale_block contradiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.83,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Update placeholders in first-name/text components per AU facts."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p06-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 5.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 5.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -0.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.9,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "au_locale_block NEUTRAL preamble suppresses AU privacy citation.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Resolve au_locale_block contradiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.79,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Calibrate tone in brand_posture_block for ambiguous prompts."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p06-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.0,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.9,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Same anti-adversarial gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.71,
+          "conflict_description": "Adversarial prompt requests forbidden cross-locale patterns that conflict with AU contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.71,
+          "conflict_description": "US +1 and ZIP introduced per adversarial instruction, conflicting with AU phone_country_code and address_shape.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "system_prompt_output_contract",
+            "component_capability_block"
+          ],
+          "suggested_correction": "Implement stricter filtering in candidate_prompt_block against locale-conflicting user requests."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p06-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 4.5,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 5.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 0.5,
+        "cultural_register": 0.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.5,
+        "policy_compliance": -0.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.9,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL preamble; lack of an active component_property_cheat_sheet leaves address-field labelling under-specified.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "component_property_cheat_sheet"
+          ],
+          "suggested_correction": "Activate component_property_cheat_sheet with AU address sub-field labels (Suburb, State, Postcode); resolve au_locale_block contradiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.84,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Expand dietary options using context_pack_excerpt for AU relevance."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p07-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 5.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.92,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "au_locale_block NEUTRAL preamble suppresses AU privacy citation.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Resolve au_locale_block contradiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.79,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.82,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Enhance policy_compliance copy per consent_legal_guidance section."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p07-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.0,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Same anti-adversarial gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.7,
+          "conflict_description": "Adversarial instruction requests non-AU patterns (ZIP/+1), conflicting with au_locale_contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.78,
+          "conflict_description": "Adversarial leakage of US formats and naming detected.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "runtime_layout_context"
+          ],
+          "suggested_correction": "Update all prompt_context_section_refs to enforce AU-only boundary more robustly."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p07-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.5,
+        "locale_fidelity": 0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.82,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL preamble suppresses Spam Act anchor on the follow-up consent block.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add AU marketing-consent template to consent_legal_guidance; fix au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Streamline copy_quality_score by reviewing against brand_posture_block."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p08-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": -0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "Same au_locale_block + consent_legal_guidance gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add AU marketing-consent template; fix au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.78,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.81,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Better disambiguate in context_pack_excerpt for validation rules."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p08-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 2.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.5,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.8,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Same anti-adversarial gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.69,
+          "conflict_description": "Adversarial prompt injects forbidden US-style fields (ZIP, +1) conflicting with AU expectations.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "Conflicting data: ZIP code and non-AU phone format included.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add dedicated adversarial handling in component_capability_block."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p08-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 1.0,
+        "locale_fidelity": 1.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.78,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "au_locale_block NEUTRAL preamble likely suppresses Spam Act anchor on the marketing-consent component.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add AU marketing-consent / Spam Act anchor template; fix au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.83,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Incorporate locale-specific examples from au_locale_contract."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p09-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 3.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.8,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "Same au_locale_block + consent_legal_guidance gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add AU marketing-consent template; fix au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.77,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Optimize grouping logic in runtime_layout_context for AU."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p09-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Same anti-adversarial gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.68,
+          "conflict_description": "Adversarial prompt contains forbidden cross-locale signals conflicting with AU locale contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.74,
+          "conflict_description": "US phone and address formats leaked in adversarial baseline output.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Reinforce Privacy Act and Spam Act references with strict locale guardrails."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p09-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.84,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "au_locale_block NEUTRAL preamble suppresses AUD/Privacy Act/Spam Act anchors.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add AU currency (AUD) and consent-anchor templates; fix au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.86,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Use AU-specific placeholder examples from context_pack_excerpt."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p10-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.92,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "Same au_locale_block + consent_legal_guidance gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add AUD currency cue and AU consent anchors; fix au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.76,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.81,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Align tone more closely to au_locale_contract 'Practical/plain-English tone'."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p10-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 2.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Same anti-adversarial gap; partial compliance suggests competing instruction-following rather than principled refusal.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.67,
+          "conflict_description": "Adversarial instructions request forbidden US formatting and labels conflicting with AU locale.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.72,
+          "conflict_description": "Multiple conflicting US locale signals (ZIP, MM/DD/YYYY, +1) present.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "system_prompt_output_contract",
+            "candidate_prompt_block",
+            "runtime_layout_context"
+          ],
+          "suggested_correction": "Implement dedicated AU diagnostic guard in all referenced sections to prevent leakage."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p10-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.5,
+        "locale_fidelity": 0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.8,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Two issues: (1) au_locale_block NEUTRAL preamble suppresses AU privacy/Spam anchor, (2) the foreign_phone_code regex misfires on legitimate timezone offset substrings like 'UTC+1' or '(+10:00)'.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Tighten foreign_phone_code regex to require phone-context boundaries; resolve au_locale_block contradiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.84,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Polish all labels for semantic accuracy per field_label_f1 rubric."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p11-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.84,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "Same au_locale_block contradiction.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Resolve au_locale_block contradiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.75,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.82,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Expand validation_intent_accuracy coverage using consent_legal_guidance."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p11-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 2.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.82,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Same anti-adversarial gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.66,
+          "conflict_description": "Adversarial prompt contains requests for forbidden cross-locale signals conflicting with AU contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.75,
+          "conflict_description": "Adversarial prompt resulted in US phone and ZIP leakage conflicting with AU expected_signals.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "context_pack_excerpt",
+            "brand_posture_block"
+          ],
+          "suggested_correction": "Add explicit AU boundary enforcement across all prompt_context_section_refs."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p11-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 3.5,
+        "locale_fidelity": 3.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 0.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 0.5,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.62,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "User prompt requests EU GDPR semantics while audience_locale is AU. The au_locale_block NEUTRAL preamble offers no precedence rule, and consent_legal_guidance is jurisdiction-agnostic, so the model defaulted to user wording. Calibration anchor in rubric_v2 says 'penalise CCPA-only / GDPR-only language for AU' \u2014 applied here.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add precedence rule: when user requests jurisdiction X but audience_locale is Y, default to Y's privacy law and offer X-specific clauses only as supplementary text. Add AU privacy/Spam anchor to consent_legal_guidance."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Deduplicate consent copy per copy_quality_score guidance."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p12-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 4.0,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 1.0,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.72,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "User prompt mixes EU GDPR ask with AU Sydney context. au_locale_block NEUTRAL preamble removes any default AU anchor.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Make consent_legal_guidance jurisdiction-aware; require Privacy Act 1988 anchor when audience_locale is AU even alongside GDPR copy."
+        },
+        "gpt5mini": {
+          "confidence": 0.74,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Refine labels for conciseness using component_property_cheat_sheet."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p12-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.0,
+        "row_group_agreement": -2.5,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.82,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Compounding conflicts: user EU prompt + adversarial US tokens + au_locale_block NEUTRAL preamble + no anti-adversarial rule + no jurisdiction-precedence rule.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add jurisdiction-precedence and anti-adversarial rules; fix au_locale_block; jurisdiction-aware consent_legal_guidance."
+        },
+        "gpt5mini": {
+          "confidence": 0.65,
+          "conflict_description": "Adversarial user prompt requests cross-locale fields that contradict AU locale rules.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.77,
+          "conflict_description": "ZIP code field and +1 phone wording present despite AU audience_locale.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "system_prompt_output_contract",
+            "au_locale_block"
+          ],
+          "suggested_correction": "Improve override priority of au_locale_contract in all generation paths."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p12-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 3.5,
+        "locale_fidelity": 3.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 0.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.64,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "User prompt frames the form as 'US onboarding interest', conflicting with audience_locale=AU. au_locale_block NEUTRAL preamble offers no precedence rule.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Add jurisdiction-precedence rule that audience_locale dictates date/phone/address formats even when prompt theme references another jurisdiction."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.84,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Add AU state options to address component per expected_signals."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p13-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 3.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.5,
+        "policy_compliance": 0.5,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.7,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Same US/AU prompt-vs-locale conflict.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Add jurisdiction-precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.73,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.83,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Tighten policy_compliance per Spam Act and consent_legal_guidance."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p13-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.5,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.86,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Same anti-adversarial + jurisdiction-precedence gap.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial + jurisdiction-precedence rules."
+        },
+        "gpt5mini": {
+          "confidence": 0.64,
+          "conflict_description": "Adversarial prompt includes forbidden cross-locale signals (ZIP/+1) clashing with AU locale contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "US-centric formats and fields introduced in response to adversarial user prompt.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "context_pack_excerpt"
+          ],
+          "suggested_correction": "Add AU diagnostic filters referencing all prompt_context_section_refs."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p13-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 3.0,
+        "cultural_register": 3.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 3.5,
+        "locale_fidelity": 3.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 2.0,
+        "cultural_register": 1.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 2.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.6,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "User prompt requests UK NHS-adjacent semantics while audience_locale=AU. au_locale_block NEUTRAL preamble offers no precedence rule.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "consent_legal_guidance"
+          ],
+          "suggested_correction": "Add jurisdiction-precedence rule; offer AU healthcare equivalents (Medicare reference, RACGP-style language) when audience_locale=AU and prompt mentions a foreign health system."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Localize option lists using au_locale_contract facts."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p14-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 3.5,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 3.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": -0.5,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.68,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Same UK/AU jurisdiction conflict.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Add jurisdiction-precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.72,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.81,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Refine tone to match 'Practical/plain-English' exactly."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p14-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 3.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -2.5,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.82,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Compounding conflicts: UK theme + adversarial US tokens vs AU audience.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial + jurisdiction-precedence rules."
+        },
+        "gpt5mini": {
+          "confidence": 0.63,
+          "conflict_description": "Adversarial instructions introduce forbidden US-centric fields, conflicting with AU locale rules.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.74,
+          "conflict_description": "Leakage of forbidden cross-locale items (ZIP code, US phone format) in generated form.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "system_prompt_output_contract",
+            "au_locale_block",
+            "runtime_layout_context"
+          ],
+          "suggested_correction": "Make locale fidelity the highest priority in all generation and override logic."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p14-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 3.5,
+        "locale_fidelity": 3.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": 0.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": 0.5,
+        "format_pattern_accuracy": 1.5,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.64,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "User prompt explicitly asks for an NZ RSVP while audience_locale=AU. au_locale_block NEUTRAL preamble + no precedence rule => model produced a full NZ form.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Add jurisdiction-precedence rule that frames foreign-themed events as AU forms about that destination (e.g., AU phone +61, AU privacy text, plus optional NZ-specific helper text)."
+        },
+        "gpt5mini": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.86,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Add AU-relevant context to sizing field using component_capability_block."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p15-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.5,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 3.0,
+        "locale_fidelity": 3.5,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.5,
+        "cross_locale_leakage": 1.5,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": 1.0,
+        "locale_fidelity": 0.5,
+        "policy_compliance": 0.0,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.66,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Same NZ/AU jurisdiction conflict, even with Sydney mention.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block"
+          ],
+          "suggested_correction": "Add jurisdiction-precedence rule."
+        },
+        "gpt5mini": {
+          "confidence": 0.71,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.82,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": "Standardize phone validation to +61 AU pattern strictly."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p15-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 1.0,
+        "cultural_register": 3.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 1.0,
+        "locale_fidelity": 1.5,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -2.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.88,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Compounding conflicts: NZ user theme + adversarial US tokens + au_locale_block NEUTRAL preamble + no anti-adversarial / jurisdiction-precedence rules.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "au_locale_block",
+            "system_prompt_output_contract"
+          ],
+          "suggested_correction": "Add anti-adversarial + jurisdiction-precedence rules; fix au_locale_block."
+        },
+        "gpt5mini": {
+          "confidence": 0.62,
+          "conflict_description": "Adversarial prompt requests forbidden cross-locale artifacts (ZIP, +1) that conflict with AU locale contract.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.73,
+          "conflict_description": "Multiple instances of US ZIP, date, and phone formats leaked into AU form.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "system_prompt_output_contract",
+            "context_pack_excerpt"
+          ],
+          "suggested_correction": "Implement comprehensive AU boundary guardian across the entire prompt assembly and component generation pipeline."
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p15-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    }
+  ],
+  "rubric_version": "rubric_v2"
+}

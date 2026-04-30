@@ -1,6 +1,8 @@
 import json
 import os
 import sys
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -20,6 +22,16 @@ def test_prompt_yaml_loads_exact_frozen_set():
     assert len(prompt_set.prompts) == 270
     assert prompt_set.prompts[0].prompt_id == "p01-au-neutral-r1"
     assert prompt_set.prompts[-1].prompt_id == "p15-eu-adversarial-r1"
+
+
+def test_au_prompt_yaml_loads_au_only_diagnostic_set():
+    prompt_set = eval_run.load_prompt_set(eval_run.DEFAULT_AU_PROMPTS_PATH)
+
+    assert prompt_set.benchmark_set_version == "prompts-au-v1"
+    assert len(prompt_set.prompts) == 45
+    assert {prompt.audience_locale for prompt in prompt_set.prompts} == {"AU"}
+    assert all(prompt.metadata["schema"] == "prompts-au-v1" for prompt in prompt_set.prompts)
+    assert all("source_market_adaptation" in prompt.metadata for prompt in prompt_set.prompts)
 
 
 def test_prompt_loader_rejects_missing_required_field(tmp_path):
@@ -130,6 +142,25 @@ def test_category_a_metrics_shape_from_mock_response():
     assert metrics["category_c"] is None
 
 
+def test_category_a_metrics_reads_provider_token_usage():
+    prompt = eval_run.load_prompt_set().prompts[0]
+    response = eval_run._mock_generate(prompt)
+    response.meta = {
+        "provider_usage": {
+            "input_tokens": 123,
+            "output_tokens": 45,
+            "total_tokens": 168,
+            "total_cost_usd": None,
+        }
+    }
+
+    metrics = eval_run._metrics_from_response(response, duration_ms=123, retry_count=0)
+
+    assert metrics["input_tokens"] == 123
+    assert metrics["output_tokens"] == 45
+    assert metrics["provider_usage"]["total_tokens"] == 168
+
+
 def test_runner_writes_jsonl_csv_metadata_without_live_llm(tmp_path):
     args = eval_run.parse_args(
         [
@@ -156,9 +187,83 @@ def test_runner_writes_jsonl_csv_metadata_without_live_llm(tmp_path):
     assert metadata["concurrency_cap"] == 4
     assert len(jsonl_rows) == 2
     assert jsonl_rows[0]["generated_definition"]["schemaVersion"] == "1.0"
+    assert jsonl_rows[0]["prompt_context_section_refs"]
+    assert jsonl_rows[0]["expected_au_signals"]["date_format"] == "DD/MM/YYYY"
+    assert jsonl_rows[0]["deterministic_au_findings"] == []
     assert jsonl_rows[0]["generated_definition"]["pages"]
     assert (run_dir / "summary.csv").exists()
     assert (run_dir / "run-metadata.json").exists()
+    assert (run_dir / "shared-context-bundle.json").exists()
+    assert (run_dir / "prompt-context-lint.json").exists()
+    assert (run_dir / "au-deterministic-checks.json").exists()
+
+
+def test_runner_uses_native_concurrency_for_pending_rows(tmp_path):
+    prompt_set = eval_run.load_prompt_set()
+    active = 0
+    max_active = 0
+    lock = threading.Lock()
+
+    def slow_generate(prompt):
+        nonlocal active, max_active
+        with lock:
+            active += 1
+            max_active = max(max_active, active)
+        try:
+            time.sleep(0.05)
+            return eval_run._mock_generate(prompt)
+        finally:
+            with lock:
+                active -= 1
+
+    args = eval_run.parse_args(
+        [
+            "--prompt-id",
+            prompt_set.prompts[0].prompt_id,
+            "--prompt-id",
+            prompt_set.prompts[1].prompt_id,
+            "--concurrency",
+            "2",
+            "--run-id",
+            "concurrent-run",
+            "--output-root",
+            str(tmp_path),
+        ]
+    )
+
+    metadata = eval_run.run_harness(args, call_generation=slow_generate)
+
+    assert max_active == 2
+    assert metadata["concurrency_effective"] == 2
+    assert json.loads((tmp_path / "concurrent-run" / "run-metadata.json").read_text())[
+        "execution_model"
+    ] == "thread-pool"
+
+
+def test_au_runner_writes_prompt_context_diagnostics(tmp_path):
+    args = eval_run.parse_args(
+        [
+            "--mock",
+            "--prompts-path",
+            str(eval_run.DEFAULT_AU_PROMPTS_PATH),
+            "--prompt-id",
+            "p01-au-neutral-r1",
+            "--run-id",
+            "au-unit-run",
+            "--output-root",
+            str(tmp_path),
+        ]
+    )
+
+    metadata = eval_run.run_harness(args)
+
+    run_dir = tmp_path / "au-unit-run"
+    shared_context = json.loads((run_dir / "shared-context-bundle.json").read_text(encoding="utf-8"))
+    deterministic = json.loads((run_dir / "au-deterministic-checks.json").read_text(encoding="utf-8"))
+    assert metadata["benchmark_set_version"] == "prompts-au-v1"
+    assert shared_context["au_locale_contract"]["version"] == "au-locale-contract-v1"
+    assert "au_locale_block" in {section["section_id"] for section in shared_context["sections"]}
+    assert deterministic["au_locale_contract_version"] == "au-locale-contract-v1"
 
 
 def test_runner_sets_prompt_shrink_env_and_restores(tmp_path, monkeypatch):
@@ -236,6 +341,24 @@ def test_resume_keeps_existing_rows_and_skips_completed_work(tmp_path):
     assert [row["repetition_index"] for row in jsonl_rows] == [1, 2]
 
 
+def test_runner_refuses_to_overwrite_existing_run_without_resume(tmp_path):
+    args = eval_run.parse_args(
+        [
+            "--mock",
+            "--prompt-id",
+            "p02-au-neutral-r1",
+            "--run-id",
+            "existing-run",
+            "--output-root",
+            str(tmp_path),
+        ]
+    )
+    eval_run.run_harness(args)
+
+    with pytest.raises(eval_run.EvalHarnessError, match="Refusing to overwrite"):
+        eval_run.run_harness(args)
+
+
 def test_mock_runner_persists_eval_row_when_enabled(tmp_path, monkeypatch):
     class FakeSession:
         def __init__(self):
@@ -301,6 +424,8 @@ def test_runner_flushes_partial_outputs_when_later_prompt_fails(tmp_path):
             "--prompt-id",
             prompt_set.prompts[1].prompt_id,
             "--repetitions",
+            "1",
+            "--concurrency",
             "1",
             "--run-id",
             "partial-flush-run",

@@ -1,0 +1,28 @@
+{
+  "experiment_id": "story-6.4.7-validation-intent-r1",
+  "baseline_run_id": "story-6.4.6-au-baseline-current",
+  "improvement_goal": "improve-validation-intent",
+  "target_metrics": [
+    "validation_intent_accuracy",
+    "field_coverage_recall"
+  ],
+  "prompts_path": "backend/tests/form_ai_eval/prompts_au_v1.yaml",
+  "scenario_slice": "au-neutral",
+  "concurrency": 4,
+  "mock": true,
+  "allow_au_context_conflicts": true,
+  "candidates": [
+    {
+      "label": "candidate-a",
+      "hypothesis": "Make validation intent explicit without adding unnecessary fields.",
+      "changed_section_id": "candidate_prompt_block",
+      "system_prompt_addendum": "Eval-only candidate A: prefer explicit validation intent for email, phone, date, consent, and required contact fields when the user asks for those fields."
+    },
+    {
+      "label": "candidate-b",
+      "hypothesis": "Improve field coverage by clarifying required event registration defaults.",
+      "changed_section_id": "candidate_prompt_block",
+      "system_prompt_addendum": "Eval-only candidate B: when the requested form is an event registration or RSVP, include clear contact, attendance, consent, and accessibility/dietary fields when relevant."
+    }
+  ]
+}

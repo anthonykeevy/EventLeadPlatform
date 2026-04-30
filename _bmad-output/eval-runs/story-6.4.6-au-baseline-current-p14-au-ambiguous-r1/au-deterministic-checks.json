@@ -1,0 +1,45 @@
+{
+  "au_locale_contract_version": "au-locale-contract-v1",
+  "findings": [
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "nhs",
+      "prompt_id": "p14-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": "p14-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": "p14-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": "p14-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    }
+  ],
+  "generated_output_finding_count": 4,
+  "prompt_context_finding_count": 0,
+  "run_id": "story-6.4.6-au-baseline-current-p14-au-ambiguous-r1",
+  "schema_version": "au-deterministic-checks-v1"
+}

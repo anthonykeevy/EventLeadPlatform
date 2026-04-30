@@ -1,0 +1,3483 @@
+{
+  "benchmark_set_version": "prompts-au-v1",
+  "category_b_metrics": [
+    "field_coverage_recall",
+    "field_label_f1",
+    "validation_intent_accuracy",
+    "row_group_agreement",
+    "locale_fidelity",
+    "policy_compliance",
+    "cultural_register",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
+    "copy_quality_score"
+  ],
+  "experiment": null,
+  "judge_models": [
+    "claude",
+    "grok",
+    "gpt5mini"
+  ],
+  "notes": [
+    "Obvious email, phone, ISO/date-like, and common synthetic full-name values are scrubbed.",
+    "Name-like field labels are preserved so semantic judging remains possible.",
+    "If generated definitions are unavailable, rerun with --use-db against a DB that has dbo.GenerationArtifact final-definition rows."
+  ],
+  "package_schema_version": "judge-package-v2",
+  "row_count": 45,
+  "rows": [
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p01-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "eb33f6b3f9f811c7eeb3c79182f591e3234af6eaa69e8bf0649313cd118e1311",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p01-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p01-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p01-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p01-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p01-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "9611ff54199c422db13e93df74a8be37c7baf6b426a46e5730a69edf479894d8",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p01-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "7a9f267af8abbadc3d1488d6224dedb93b77047314b62799bd11cc83829dcd4a",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p02-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "93de082937b00375edebd151a900701b4cd7dd93ec571340478f0bfb476af098",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p02-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p02-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p02-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p02-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p02-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p02-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "2cd814925506577912fcf14fe5d5beafe88ffe212357ee5e7f6178d294d7d6d9",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p02-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "0ce139a8b217a15df68c4e14ba2df18149e72d6c159d46a7597c4df51b31a3ce",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p03-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "4e9187231fa4e4d6b53a9e3928606b6cf3ac665a5edf0d276256b55e0004e357",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p03-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p03-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p03-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p03-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p03-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p03-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p03-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "2de4a32ab35458740751a1d17db0a1e43d543a3b68163069273334b59cc07f44",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p03-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "a9cbca666bb4f77e7b47cade86b4ff64992aeacca77813c737be4380a650a6f4",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p04-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p04-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "dcf56787c69e71271bf192ce84407143faaeba4f1dc62d0a32370e07e4f4b81c",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p04-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p04-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p04-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p04-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p04-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p04-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p04-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "122ef42bdb9ebe2859b400ad3ddff92634fd7c2a14706d34f3875afea55c5f1e",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p04-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "785e022658331219b7f48cc9b7a50879f07754a58e559e88cd052c6c5ad1ff59",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p05-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "1e646e7991d6b9efe35cf8c3e61860f7f87c65e7621d7963e39dd35dac2c83bb",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p05-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p05-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p05-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p05-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p05-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "8f4abc95d9774464a831017765fe515feccbb2e41e7023c24384f08a5ca78203",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p05-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "e2bfd2f5ed8b8e5bbf8c761669e2326f87a21e741b9645a5d1f6e0832d96f08e",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p06-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "703bc49fca7c6a22d7c8433c765846e9ed2f26a4b353a9a77437caaf3aed7bac",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p06-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p06-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "09535c486f1cb2b9990676e8e85c5b93d10a54761bc52f199e1e21689280616f",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p06-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "4bcaecf5f2505d247d778c81642edc85f836ec0f3120e1939d649840c0e7ea5e",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p07-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "119d338669f2f4f60e14eff7274dd14a65ff21e402d42e0d86350830d2aee0d4",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p07-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p07-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p07-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p07-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p07-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p07-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "bf152acde421aae43e0bbabe7c055aa234f648d62f4b54225326bcb15dceaace",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p07-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "a6cfbdbe60c319391d73d2f96858f4a5d1028f6dda6100759a218da15dd81e98",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p08-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "6a2f76f8f2e385d309a24345d48a481287c6802125e2e8b118525d81dc517003",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p08-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p08-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p08-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p08-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p08-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p08-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p08-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "6a8beebabb80d0bf2f9ffc52a07a8c374eaffdc165f8f65a58936e2a3d82e726",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p08-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "0793d94a0416423190bae7fe30947d12443d65742e0fe2e3cf64455fb2eb7b16",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p09-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "f35aa3283d88862e0d8de01111052c21f6e97d90855a996c4bb128d62e98c793",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p09-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p09-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p09-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p09-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p09-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p09-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "663bc91f80038f6576c615c718803d64738f964feae536df0e0b05169b4b9491",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p09-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "55eeb548e9ae1477ac19ef62d5ac0137baa19cdc383338feff618faacad874c8",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p10-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "534401316c956a61efbc17e38ed256f6b16fd526728613f4eadc81e9d934c855",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p10-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p10-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p10-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p10-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "c40f7ddd92b35513908267e2de9c45da8a09b20879d2f003b6b644e5361f3a03",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p10-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p11-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "9b013010856eb0def5c5d2eb8873c0addef89416579987291d2414e9e4bd186d",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p11-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "ea480e92f16b62fcd90523064237a94d3510558cd3d9b8f0a689b94540a47aa2",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p11-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p11-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p11-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p11-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p11-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "2dbe48f36e81be1a67a01ce2ed8b54261cb3a4bfce7ae13345e972598e9b9045",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p11-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+44",
+          "prompt_id": "p12-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "privacy_law_without_au_anchor",
+          "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+          "matched_text": "GDPR",
+          "prompt_id": "p12-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "fca64bf05a5edc92624c9ca4e6202916b32193fdd7bc2d09de5ef5d81579c1a4",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p12-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "privacy_law_without_au_anchor",
+          "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+          "matched_text": "GDPR",
+          "prompt_id": "p12-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "d7fdcdb6a56e3792c4053500ddc94d418a6a4de863646d42e42fd2c9af2ad4d5",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p12-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "privacy_law_without_au_anchor",
+          "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+          "matched_text": "gdpr",
+          "prompt_id": "p12-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "a9f7830932b46446f8937967fa9708d9f7e645c49a86af535413fa8677287c0d",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p12-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_date_format",
+          "description": "MM/DD/YYYY where DD/MM/YYYY is expected",
+          "matched_text": "MM/DD/YYYY",
+          "prompt_id": "p13-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "1f7748bcc74eafc6a13e27742f0800bbda98b88e72a568354e99ec97bcd3bfb0",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p13-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p13-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "76e0fa9cbc6bde6390848f07781597215aa0155f8784cc9c63cfb82b69d5e158",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p13-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p13-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP code",
+          "prompt_id": "p13-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p13-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p13-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p13-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "94e662a2411cd1e143ddc833292ebc03d867e61a2f611b446723cfb776fa2925",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p13-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+44",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+44",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "nhs",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "2b2c9a18feed2339d814d663ea378d7e459fd9701c3a37906e52998a784076dc",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p14-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "nhs",
+          "prompt_id": "p14-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "afc7646351792867b4dfbc4ef7d5ff621bb5f7cead189b80faf528b1a658499c",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p14-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "nhs",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "NHS",
+          "prompt_id": "p14-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "6d2fdd76a248420f39069b365680bad7ca1fd6e8ee5d04af3098cf0673c23cf8",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p14-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+64",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Auckland",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "auckland",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Wellington",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "wellington",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Canterbury",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "canterbury",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Otago",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "otago",
+          "prompt_id": "p15-au-neutral-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "c1d551dbff19654cfdf700d57e734e255113361b0f432c19d95352af0e70ea2d",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p15-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-neutral-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+64",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+64",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Auckland",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "auckland",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Canterbury",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "canterbury",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Otago",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "otago",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Wellington",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "wellington",
+          "prompt_id": "p15-au-ambiguous-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "3267597a4813d70d14f1c4277d70a04f16a6470e598fdf25873647a5789f2235",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p15-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-ambiguous-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    },
+    {
+      "benchmark_set_version": "prompts-au-v1",
+      "deterministic_au_findings": [
+        {
+          "check_id": "foreign_zip",
+          "description": "ZIP where Postcode is expected",
+          "matched_text": "ZIP",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+64",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+64",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "foreign_phone_code",
+          "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+          "matched_text": "+1",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Auckland",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "auckland",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Wellington",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "wellington",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Canterbury",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "canterbury",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "Otago",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        },
+        {
+          "check_id": "nhs_or_nz_region",
+          "description": "NHS or NZ-region leakage",
+          "matched_text": "otago",
+          "prompt_id": "p15-au-adversarial-r1",
+          "scope": "generated_definition",
+          "section_id": null,
+          "severity": "blocking"
+        }
+      ],
+      "eval_run_id": null,
+      "generated_definition_available": true,
+      "generated_definition_source": "metrics.jsonl",
+      "generation_run_id": null,
+      "prompt_context_section_refs": [
+        {
+          "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+          "section_id": "system_prompt_output_contract"
+        },
+        {
+          "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+          "section_id": "au_locale_block"
+        },
+        {
+          "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+          "section_id": "brand_posture_block"
+        },
+        {
+          "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+          "section_id": "component_capability_block"
+        },
+        {
+          "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+          "section_id": "component_property_cheat_sheet"
+        },
+        {
+          "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+          "section_id": "consent_legal_guidance"
+        },
+        {
+          "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+          "section_id": "context_pack_excerpt"
+        },
+        {
+          "content_hash": "f8c2131bef90c78744b65535b9fd1835537b5c0cb986be2605958f3aaeb39e15",
+          "section_id": "runtime_layout_context"
+        },
+        {
+          "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "section_id": "candidate_prompt_block"
+        }
+      ],
+      "prompt_id": "p15-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-adversarial-r1__r01",
+      "variant_label": "story-6.4.6-au-baseline-current"
+    }
+  ],
+  "rubric_version": "rubric_v2",
+  "run_id": "story-6.4.6-au-baseline-current",
+  "shared_context_bundle": "shared-context-bundle.json",
+  "source_eval_run_dir": "C:\\wt\\elp\\story-epic6-6.4.6-au-diagnostic-eval-framework\\_bmad-output\\eval-runs\\story-6.4.6-au-baseline-current",
+  "source_eval_run_dirs": [
+    "C:\\wt\\elp\\story-epic6-6.4.6-au-diagnostic-eval-framework\\_bmad-output\\eval-runs\\story-6.4.6-au-baseline-current"
+  ],
+  "variant_label": "story-6.4.6-au-baseline-current"
+}

@@ -2,22 +2,22 @@
 
 ## Summary
 
-TBD after implementation.
+Framework implementation, focused/backend gates, live AU baseline aggregation, judge package generation, judge sessions, judge ingest, `AU-000` judge fields, and automated UAT evidence are complete. Closeout is ready for Tony/SM final acceptance.
 
-Expected closeout: AU-only diagnostic evaluation framework exists, current-state AU baseline is complete, `AU-000` is filled, and Story 6.4.7 can start the Analyst-led prompt improvement loop.
+Expected closeout achieved: AU-only diagnostic evaluation framework exists, current-state AU baseline is complete, `AU-000` is filled, and Story 6.4.7 can start the Analyst-led prompt improvement loop.
 
 ## Final Framework State
 
 | Area | Final state |
 |---|---|
-| AU prompt set | TBD |
-| AU locale contract | TBD |
-| Context preflight/linter | TBD |
-| Shared context bundle | TBD |
-| Judge diagnostics | TBD |
-| Deterministic AU checks | TBD |
-| Current-state AU baseline | TBD |
-| Tracking sheet `AU-000` | TBD |
+| AU prompt set | Implemented: `backend/tests/form_ai_eval/prompts_au_v1.yaml` (`prompts-au-v1`, 45 AU rows). |
+| AU locale contract | Implemented: `backend/tests/form_ai_eval/au_locale_contract_v1.json`. |
+| Context preflight/linter | Implemented in eval runner; smoke artifacts produced. |
+| Shared context bundle | Implemented in eval runner and judge package; smoke artifacts produced. |
+| Judge diagnostics | Implemented in judge template and ingest validation. |
+| Deterministic AU checks | Implemented for prompt context and generated definitions. |
+| Current-state AU baseline | Complete: `story-6.4.6-au-baseline-current`, 45/45 live rows schema-valid, 130 deterministic generated-output findings across 25 prompts. |
+| Tracking sheet `AU-000` | Complete: baseline run ID, deterministic findings, judge metrics, likely responsible sections, suggested corrections, and follow-up action recorded. |
 
 ## Evidence
 
@@ -30,11 +30,13 @@ See:
 
 ## Prompt Improvement Leakage Check
 
-TBD. This story must not apply candidate prompt/context improvements.
+No candidate prompt/context improvement was applied. Changes are limited to eval framework, AU benchmark/contract artifacts, judge packaging/ingest schema, tests, and story evidence.
 
 ## Carry-Forward Backlog
 
-TBD
+- Tony/SM final acceptance decision.
+- Analyst uses `AU-000` in Story 6.4.7 to define candidate prompt/context experiments against the frozen baseline.
+- Use Sonnet 4.6 medium for future Claude judge background tasks unless explicitly overridden.
 
 ## Recommended Next Story
 

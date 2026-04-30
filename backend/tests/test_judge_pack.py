@@ -23,6 +23,21 @@ def _write_fixture_eval_run(tmp_path: Path, run_name: str = "fixture-run") -> Pa
         ),
         encoding="utf-8",
     )
+    (run_dir / "shared-context-bundle.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "shared-context-bundle-v1",
+                "sections": [
+                    {
+                        "section_id": "au_locale_block",
+                        "content_hash": "fixture-hash",
+                        "content": "AU contract",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
     rows = [
         {
             "benchmark_set_version": "prompts-v1.1",
@@ -69,6 +84,7 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
     assert (package_dir / "rubric_v2.md").exists()
     assert (package_dir / "judge-input-batch.md").exists()
     assert (package_dir / "judge-output-template.json").exists()
+    assert (package_dir / "shared-context-bundle.json").exists()
     assert (package_dir / "judge-prompt-claude.md").exists()
     assert (package_dir / "judge-prompt-grok.md").exists()
     assert (package_dir / "judge-prompt-gpt5mini.md").exists()
@@ -81,6 +97,7 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
         "p02-au-neutral-r1__r01",
     ]
     assert metadata["rows"][0]["eval_run_id"] == 101
+    assert metadata["shared_context_bundle"] == "shared-context-bundle.json"
 
     judge_input = (package_dir / "judge-input-batch.md").read_text(encoding="utf-8")
     assert "[SCRUBBED_EMAIL]" in judge_input
@@ -91,6 +108,8 @@ def test_judge_package_generation_is_deterministic_and_scrubs_values(tmp_path):
     assert "alex@example.test" not in judge_input
     assert "identify at least one weakness per row before scoring" in judge_input
     assert "judge_model_version" in judge_input
+    assert "Expected AU Signals" in judge_input
+    assert "Prompt Context Section References" in judge_input
 
 
 def test_judge_prompts_include_exact_output_paths(tmp_path):
@@ -118,6 +137,20 @@ def test_story_6442_judge_prompt_names_h2_scope(tmp_path):
     prompt = judge_pack.render_judge_prompt("claude", package_dir)
 
     assert "Story 6.4.4.2 H2 consent/legal rubric_v2 re-evaluation" in prompt
+
+
+def test_story_646_judge_prompt_names_au_diagnostic_scope(tmp_path):
+    package_dir = (
+        tmp_path
+        / "_bmad-output"
+        / "eval-runs"
+        / "story-6.4.6-au-baseline-current"
+        / "judge-package"
+    )
+
+    prompt = judge_pack.render_judge_prompt("claude", package_dir)
+
+    assert "Story 6.4.6 AU-only diagnostic baseline" in prompt
 
 
 def test_judge_package_can_combine_multiple_input_runs(tmp_path):
@@ -160,6 +193,9 @@ def test_judge_output_template_shape(tmp_path):
     assert len(template["rows"]) == 2
     assert set(template["rows"][0]["scores"]) == set(judge_pack.CATEGORY_B_METRICS)
     assert all(value is None for value in template["rows"][0]["scores"].values())
+    assert template["rows"][0]["conflicting_data_exists"] is None
+    assert template["rows"][0]["likely_responsible_section_ids"] == []
+    assert template["rows"][0]["confidence"] is None
 
 
 def test_package_can_enrich_eval_run_id_from_fake_db(tmp_path):

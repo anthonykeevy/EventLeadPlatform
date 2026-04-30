@@ -1,0 +1,2 @@
+benchmark_set_version,hypothesis_code,variant_label,prompt_id,repetition_index,schema_valid,component_count,collision_count,boundary_violation_count,attempt_count,terminal_reason,failure_class,duration_ms,input_tokens,output_tokens,total_cost_usd,retry_count
+prompts-au-v1,baseline,story-6.4.6-au-baseline-current-p10-au-neutral-r1,p10-au-neutral-r1,1,True,15,0,0,1,validated-success,none,75383,0,0,0.0,0

@@ -3,7 +3,7 @@
 **Epic:** 6 - AI Generation & Monetization Engine  
 **Story ID:** 6.4.6  
 **Title:** AU-Only Diagnostic Evaluation Framework + Baseline  
-**Status:** Ready for Dev  
+**Status:** Ready for Tony/SM final acceptance  
 **Branch:** `story/epic6-6.4.6-au-diagnostic-eval-framework`  
 **PR:** [#82](https://github.com/anthonykeevy/EventLeadPlatform/pull/82) - Draft  
 **Created:** 2026-04-29  
@@ -131,16 +131,18 @@ The baseline must:
 
 ## 3) Out of Scope
 
-| Item | Reason / future home |
-|---|---|
-| Prompt/context improvements | Story 6.4.7 Analyst loop after Tony approval. |
+
+| Item                                                | Reason / future home                                                    |
+| --------------------------------------------------- | ----------------------------------------------------------------------- |
+| Prompt/context improvements                         | Story 6.4.7 Analyst loop after Tony approval.                           |
 | H5/style, H6/font, or other prompt-candidate sweeps | Deferred until AU diagnostic framework exists and baseline is reviewed. |
-| Six-locale benchmark continuation | Explicitly paused by the AU-first reset. |
-| Application API changes | This story is eval framework/test tooling, not product API. |
-| Frontend UI changes | No UI surface expected. |
-| Alembic migrations | Not expected; agents must not run Alembic commands. |
-| Judge model API automation | Cursor/manual judge flow remains in place. |
-| Declaring a prompt winner | Baseline only; Story 6.4.7 decides candidate changes. |
+| Six-locale benchmark continuation                   | Explicitly paused by the AU-first reset.                                |
+| Application API changes                             | This story is eval framework/test tooling, not product API.             |
+| Frontend UI changes                                 | No UI surface expected.                                                 |
+| Alembic migrations                                  | Not expected; agents must not run Alembic commands.                     |
+| Judge model API automation                          | Cursor/manual judge flow remains in place.                              |
+| Declaring a prompt winner                           | Baseline only; Story 6.4.7 decides candidate changes.                   |
+
 
 ---
 

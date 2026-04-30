@@ -31,4 +31,4 @@ Build the AU-only diagnostic evaluation framework and produce the current-state 
 
 ## Final Code State
 
-Framework implementation is test-green from the focused and backend regression gates. Live AU baseline aggregate, judge package, judge ingest, `AU-000`, UAT evidence, closeout report, and stale-field audit are complete. Parallel timing evidence is recorded in `_bmad-output/eval-runs/story-6.4.6-au-baseline-current/parallel-execution-summary.json` with max observed concurrency = 4. Story is ready for Tony/SM final acceptance.
+Framework implementation is test-green from the focused and backend regression gates. Live AU baseline aggregate, judge package, judge ingest, `AU-000`, UAT evidence, closeout report, stale-field audit, Tony acceptance, and merge to `master` are complete. Parallel timing evidence is recorded in `_bmad-output/eval-runs/story-6.4.6-au-baseline-current/parallel-execution-summary.json` with max observed concurrency = 4.

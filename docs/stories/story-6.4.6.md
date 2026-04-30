@@ -3,9 +3,9 @@
 **Epic:** 6 - AI Generation & Monetization Engine  
 **Story ID:** 6.4.6  
 **Title:** AU-Only Diagnostic Evaluation Framework + Baseline  
-**Status:** Ready for Tony/SM final acceptance  
+**Status:** Complete  
 **Branch:** `story/epic6-6.4.6-au-diagnostic-eval-framework`  
-**PR:** [#82](https://github.com/anthonykeevy/EventLeadPlatform/pull/82) - Draft  
+**PR:** [#82](https://github.com/anthonykeevy/EventLeadPlatform/pull/82) - Merged 2026-04-30  
 **Created:** 2026-04-29  
 **Depends On:** Story 6.4.5 ([PR #81](https://github.com/anthonykeevy/EventLeadPlatform/pull/81)) merged.  
 **Unblocks:** Story 6.4.7 - AU Baseline Analysis And Iterative Prompt Improvement Loop.

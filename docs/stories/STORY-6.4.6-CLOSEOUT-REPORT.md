@@ -2,7 +2,7 @@
 
 ## Summary
 
-Framework implementation, focused/backend gates, live AU baseline aggregation, judge package generation, judge sessions, judge ingest, `AU-000` judge fields, and automated UAT evidence are complete. Closeout is ready for Tony/SM final acceptance.
+Framework implementation, focused/backend gates, live AU baseline aggregation, judge package generation, judge sessions, judge ingest, `AU-000` judge fields, automated UAT evidence, Tony acceptance, and merge to `master` are complete.
 
 Expected closeout achieved: AU-only diagnostic evaluation framework exists, current-state AU baseline is complete, `AU-000` is filled, and Story 6.4.7 can start the Analyst-led prompt improvement loop.
 
@@ -34,7 +34,6 @@ No candidate prompt/context improvement was applied. Changes are limited to eval
 
 ## Carry-Forward Backlog
 
-- Tony/SM final acceptance decision.
 - Analyst uses `AU-000` in Story 6.4.7 to define candidate prompt/context experiments against the frozen baseline.
 - Use Sonnet 4.6 medium for future Claude judge background tasks unless explicitly overridden.
 

@@ -108,5 +108,38 @@ This fundamentally changes the payment architecture. We must implement two diffe
 
 ---
 
+### Phase D: MVP Hardening — Discovery-Surfaced Fix Candidates (added 2026-05-03)
+
+**Origin:** Customer discovery preparation (May 2026) included a deep verification pass against the codebase to confirm which features are shipped vs. partial vs. designed-only. The pass surfaced gaps between *design intent* and *shipped code*. These are tracked here so they can be promoted to formal stories within Epic 6 (or split out into a hardening epic) as triage decides.
+
+**Source doc:** `docs/customer-discovery/mvp-scope-fix-candidates.md` — full context, risk-if-shipped-as-is, effort hints, and discovery dependencies for each item.
+
+**Triage proposal (suggested order):**
+
+| # | Candidate | Status proposal | Discovery dependency | Suggested promotion path |
+|---|-----------|----------------|----------------------|--------------------------|
+| **D1** | **Test & Production environment setup** | Build pre-MVP — non-negotiable | None for the work itself; light input on AU region & cert priorities | Likely a sibling epic or a dedicated Phase D anchor story; unblocks any pilot |
+| **D2** | **Production email infrastructure** (replace MailHog with SendGrid / SES / similar; DKIM/SPF/DMARC) | Build pre-MVP — couples to D1 | None | Sibling story to D1 |
+| **D3** | **Email-share onboarding for non-tenant emails** | Build pre-MVP | Light — validates that user-initiated request-to-join is acceptable to enterprise IT (or whether enterprise mode disables it) | Story under Epic 6 (or a sharing-hardening sub-section); medium effort |
+| **D4** | **Company-wide form access — UI/API alignment** | Build pre-MVP OR hide the UI radio button | Light if hiding; light-to-medium if implementing | Trivial story (hide UI) or medium story (implement). Hide UI immediately to remove customer-visible failure |
+| **D5** | **Cost-gated approval — backend enforcement OR pivot to alternative governance** | Decide after discovery (lean Replace) | **Strong** — scorecard Q4 (multiple-choice) + Persona B procurement probe + Persona C visibility probe will determine right shape | Can't story this until discovery surfaces governance-shape preference; track here as blocked-on-discovery |
+| **D6** | **Kiosk auto-reset — form-builder UI surface** | Defer unless discovery shows switching-signal | Strong — track scorecard #7 reactions and unprompted mentions | Promote only if ≥10–15% of Persona A/C interviewees rate ≥4 |
+| **D7** | **"Shared by [Company / User]" tag — configurable / suppressible** | Decide after discovery | Strong — Persona C white-label appetite; check scorecard #30 + AG2 | Small story if promoted (admin setting + conditional render) |
+| **D8** | **Group admin role + consolidated dashboard** | Out of MVP scope; collect signal | Strong — likely Persona B switching-signal | Post-MVP story or a separate epic if signal is strong |
+| **D9** | **Self-signup → existing company → admin-approval flow** | Validate via discovery | Strong — security/IT-team posture varies by enterprise; may require "enterprise mode" toggle | Promote with D3 if security signal supports user-initiated; otherwise add IT-provisioned variant |
+
+**Decision points & gates:**
+- **D1 + D2** are launch-readiness blockers regardless of discovery outcomes — start when developer capacity allows; ~2–4 focused weeks expected.
+- **D3 + D4** are pre-launch trust blockers — claiming features in interviews / collateral that fail in product is the worst customer experience. Hide-UI on D4 can ship today.
+- **D5–D9** are deliberately discovery-blocked. Don't build governance, kiosk UI, or white-label features speculatively; the customer-discovery program is designed to surface preference before commitment.
+
+**Cross-references:**
+- Full context per candidate: `docs/customer-discovery/mvp-scope-fix-candidates.md`
+- Open design questions feeding these: `docs/customer-discovery/tenancy-sharing-and-dashboards.md` (Open Design Questions section)
+- Discovery scorecard items that will inform D5–D9: `docs/customer-discovery/feature-resonance-scorecard.md`
+- Triage-feeder rationale: customer-discovery README `docs/customer-discovery/README.md`
+
+---
+
 *Epic 6 Status Document*  
-*Last Updated: 2026-04-29 (Prompt-evaluation reset approved: pause six-locale prompt-candidate sweeps, focus AU launch diagnostics first, and sequence 6.4.6 framework/baseline then 6.4.7 Analyst loop.)*
+*Last Updated: 2026-05-03 (Added Phase D — MVP Hardening / Discovery-Surfaced Fix Candidates after customer-discovery code-verification pass.)*

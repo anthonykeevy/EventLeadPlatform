@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.4.7" title="AU Baseline Analysis And Iterative Prompt Improvement Loop">
+
+  <overview>
+    Run the BMAD Analyst-owned AU prompt improvement loop against the frozen
+    Story 6.4.6 AU baseline. The Analyst reviews baseline evidence, proposes
+    the top five prompt/context improvements, waits for Tony approval, executes
+    one controlled experiment, ingests judges, updates AU-001, and stops for the
+    keep/reject/revise/continue decision.
+  </overview>
+
+  <critical-objectives>
+    <item>Review AU-000 baseline evidence before proposing prompt/context changes.</item>
+    <item>Present top five candidate improvements with target section, expected movement, risk, and bundleability.</item>
+    <item>Wait for Tony approval before editing prompt/context artifacts or running a candidate experiment.</item>
+    <item>Execute exactly one controlled change set through the Analyst experiment harness.</item>
+    <item>Ingest Claude, Grok, and GPT-5 mini judge outputs and compare against the frozen baseline.</item>
+    <item>Update STORY-6-AU-EVAL-ITERATION-TRACKING.md with AU-001 and stop for Tony decision.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.6">Complete; AU-only diagnostic framework and baseline captured in AU-000.</story>
+    <story id="6.4.5">Complete measured/no-change; six-locale candidate sweep paused after noisy H3 results.</story>
+    <story id="6.4.4.2">Complete measured/no-change; H2/H4 rubric_v2 ablations failed ship bar.</story>
+    <story id="6.4.4.1">Complete; locale registry and rubric_v2 foundation exists.</story>
+    <doc path="docs/stories/story-6.4.7.md">Authoritative story spec and ACs.</doc>
+    <doc path="docs/stories/STORY-6.4.7-SINGLE-SESSION-DEV-PROMPT.md">Analyst execution contract; file name retained for Epic 6 workflow compatibility.</doc>
+    <doc path="docs/stories/STORY-6.4.7-UAT-TEST-GUIDE.md">Human/SM UAT guide.</doc>
+    <doc path="docs/stories/STORY-6-AU-EVAL-ANALYST-LOOP.md">Persistent Analyst loop process.</doc>
+    <doc path="docs/stories/STORY-6-AU-EVAL-ITERATION-TRACKING.md">Tracking sheet with AU-000 baseline and future AU-001 row.</doc>
+    <doc path="docs/stories/STORY-6.4.6-AU-BASELINE-EVIDENCE.md">Baseline evidence and diagnostic summary.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Experiment runner and harness instructions.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Manual Cursor judge workflow and ingest instructions.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT modify application, backend, frontend, harness, judge-ingest, or migration code.</item>
+    <item>Do NOT run Alembic commands.</item>
+    <item>Do NOT overwrite the frozen baseline folder: _bmad-output/eval-runs/story-6.4.6-au-baseline-current/.</item>
+    <item>Do NOT run a candidate experiment before Tony approves the selected controlled change set.</item>
+    <item>Do NOT bundle unrelated changes for speed.</item>
+    <item>Do NOT proceed to a second loop without Tony approval.</item>
+    <item>Use PowerShell-safe commands; no ampersand command chaining.</item>
+    <item>Tony must run/save manual Cursor judge outputs when model sessions are required.</item>
+  </constraints>
+
+  <primary-artifact-paths>
+    <path file="docs/stories/STORY-6-AU-EVAL-ANALYST-LOOP.md"
+          note="Persistent loop rules and hard constraints."/>
+    <path file="docs/stories/STORY-6-AU-EVAL-ITERATION-TRACKING.md"
+          note="AU-000 baseline row exists; Analyst adds AU-001."/>
+    <path file="docs/stories/STORY-6.4.6-AU-BASELINE-EVIDENCE.md"
+          note="Baseline diagnostic summary, judge findings, deterministic failures."/>
+    <path file="_bmad-output/eval-runs/story-6.4.6-au-baseline-current/"
+          note="Frozen baseline control; never overwrite."/>
+    <path file="backend/tests/form_ai_eval/prompts_au_v1.yaml"
+          note="AU benchmark prompt set for candidate runs."/>
+    <path file="backend/tests/form_ai_eval/au_locale_contract_v1.json"
+          note="AU locale contract facts."/>
+    <path file="backend/tests/form_ai_eval/experiment.py"
+          note="Analyst experiment runner; use as-is unless a Dev fix story is raised."/>
+    <path file="backend/tests/form_ai_eval/judge_ingest.py"
+          note="Judge output ingest; use as-is unless a Dev fix story is raised."/>
+  </primary-artifact-paths>
+
+  <allowed-change-paths>
+    <path file="docs/stories/STORY-6-AU-EVAL-ITERATION-TRACKING.md"/>
+    <path file="docs/stories/STORY-6.4.7-*.md"/>
+    <path file="docs/stories/story-6.4.7.md"/>
+    <path file="docs/stories/story-context-6.4.7.xml"/>
+    <path file="docs/stories/experiments/"/>
+    <path file="_bmad-output/eval-runs/story-6.4.7-*/"/>
+  </allowed-change-paths>
+
+  <acceptance-mapping>
+    <ac id="1">Baseline evidence reviewed.</ac>
+    <ac id="2">Top five candidates presented.</ac>
+    <ac id="3">Tony approval recorded.</ac>
+    <ac id="4">Scope boundary preserved.</ac>
+    <ac id="5">Experiment config created.</ac>
+    <ac id="6">Candidate eval run complete.</ac>
+    <ac id="7">Judge packages complete.</ac>
+    <ac id="8">Judge outputs ingested.</ac>
+    <ac id="9">Diff/evidence reviewed.</ac>
+    <ac id="10">Tracking row updated.</ac>
+    <ac id="11">Stop/continue gate honored.</ac>
+    <ac id="12">Green gates recorded.</ac>
+  </acceptance-mapping>
+
+</story-context>

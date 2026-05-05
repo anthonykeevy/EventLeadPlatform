@@ -18,7 +18,7 @@
 **Story 6.4.4.2 Status:** ✅ **Complete** (merged 2026-04-28, PR #79) — H2-only and H4-only ablations completed under `rubric_v2`; both failed the ship bar, so current `master` behavior remains unchanged.
 **Story 6.4.5 Status:** ✅ **Measured/no-change** (merged 2026-04-29, PR #81) — H3 measured against AC10 `rubric_v2` baseline; no-go as-is due material `field_label_f1` regression and locale/context-conflict noise. Prompt changes reverted; evidence preserved.
 **Story 6.4.6 Status:** ✅ **Complete** (merged 2026-04-30, PR #82) — AU-only diagnostic eval framework, current-state AU baseline, judge ingest, and `AU-000` handoff complete; no candidate prompt improvements in this story.
-**Story 6.4.7 Status:** ⏳ **Planned** — BMAD Analyst-owned AU baseline analysis and iterative prompt improvement loop over version-managed prompt/context artifacts only.
+**Story 6.4.7 Status:** 🔄 **Draft PR #84 open** — BMAD Analyst-owned AU baseline analysis and iterative prompt improvement loop over version-managed prompt/context artifacts only.
 
 ---
 

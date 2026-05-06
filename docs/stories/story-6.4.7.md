@@ -5,7 +5,7 @@
 **Title:** AU Baseline Analysis And Iterative Prompt Improvement Loop  
 **Status:** Complete / Closed  
 **Branch:** `story/epic6-6.4.7-au-baseline-analyst-loop`  
-**PR:** [#84](https://github.com/anthonykeevy/EventLeadPlatform/pull/84) - Draft PR to `master`  
+**PR:** [#84](https://github.com/anthonykeevy/EventLeadPlatform/pull/84) - Merged 2026-05-06  
 **Created:** 2026-05-05  
 **Depends On:** Story 6.4.6 ([PR #82](https://github.com/anthonykeevy/EventLeadPlatform/pull/82)) merged and `AU-000` baseline captured.  
 **Unblocks:** First AU prompt/context improvement decision against the frozen Story 6.4.6 baseline.

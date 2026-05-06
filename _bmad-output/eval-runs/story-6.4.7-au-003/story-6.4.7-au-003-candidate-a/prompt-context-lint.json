@@ -1,0 +1,79 @@
+{
+  "finding_count": 8,
+  "findings": [
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+44",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_date_format",
+      "description": "MM/DD/YYYY where DD/MM/YYYY is expected",
+      "matched_text": "MM/DD/YYYY",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    }
+  ],
+  "run_id": "story-6.4.7-au-003-candidate-a",
+  "schema_version": "prompt-context-lint-v1"
+}

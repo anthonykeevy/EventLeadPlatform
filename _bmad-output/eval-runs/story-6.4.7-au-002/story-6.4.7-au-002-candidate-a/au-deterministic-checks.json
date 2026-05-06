@@ -1,0 +1,1107 @@
+{
+  "au_locale_contract_version": "au-locale-contract-v1",
+  "findings": [
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p01-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p01-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p01-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p01-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p01-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p02-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p02-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p02-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p02-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p02-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p03-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p03-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p03-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p03-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p04-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p04-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p04-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p04-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p04-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p04-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p04-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p05-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p06-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p06-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p06-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p06-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p06-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p06-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p06-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p07-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p07-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p07-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p07-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p07-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p07-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p08-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p08-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p08-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p08-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p08-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p09-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p09-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p09-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p09-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p10-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p10-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p10-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p10-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p10-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p11-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Auckland",
+      "prompt_id": "p11-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Auckland",
+      "prompt_id": "p11-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "privacy_law_without_au_anchor",
+      "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+      "matched_text": "gdpr",
+      "prompt_id": "p12-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "privacy_law_without_au_anchor",
+      "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+      "matched_text": "gdpr",
+      "prompt_id": "p12-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p12-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p12-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p12-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p12-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p12-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p12-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "privacy_law_without_au_anchor",
+      "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+      "matched_text": "gdpr",
+      "prompt_id": "p12-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p13-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p13-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p13-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p13-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p13-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "nhs",
+      "prompt_id": "p14-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "nhs",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Auckland",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "auckland",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Canterbury",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "canterbury",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Otago",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "otago",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Wellington",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "wellington",
+      "prompt_id": "p15-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Auckland",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "auckland",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Wellington",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "wellington",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Canterbury",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "canterbury",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Otago",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "otago",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP code",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Auckland",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "auckland",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Canterbury",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "canterbury",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Otago",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "otago",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Wellington",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "wellington",
+      "prompt_id": "p15-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    }
+  ],
+  "generated_output_finding_count": 122,
+  "prompt_context_finding_count": 0,
+  "run_id": "story-6.4.7-au-002-candidate-a",
+  "schema_version": "au-deterministic-checks-v1"
+}

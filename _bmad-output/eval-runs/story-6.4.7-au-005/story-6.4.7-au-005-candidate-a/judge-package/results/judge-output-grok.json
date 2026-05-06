@@ -1,0 +1,1222 @@
+{
+  "judge_model": "grok",
+  "judge_model_version": "grok-4.20",
+  "rows": [
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p01-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p01-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p01-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p01-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p01-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p02-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p02-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p02-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p02-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p02-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p03-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p03-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p03-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p03-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p03-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p03-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p04-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p04-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p04-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p04-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p04-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p05-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p05-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p05-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p05-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p05-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p05-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p06-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p06-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p06-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p06-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p06-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p06-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p07-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p07-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p07-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p07-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p07-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p07-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p08-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p08-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p08-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p08-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p08-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p08-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p09-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p09-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p09-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p09-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p09-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p09-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p10-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p10-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p10-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p10-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p10-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p10-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p11-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p11-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p11-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p11-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p11-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p11-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p12-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p12-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p12-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p12-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p12-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p12-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p13-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p13-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p13-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p13-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p13-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p13-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p14-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p14-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p14-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p14-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p14-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p14-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p15-au-neutral-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p15-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p15-au-ambiguous-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p15-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.85,
+      "conflict_description": "No major conflicts with shared AU locale contract after inspection of au_locale_block and candidate_prompt_block sections.",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "au_locale_block",
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p15-au-adversarial-r1",
+      "rationale": "Identified minor weakness in cultural_register for overly formal phrasing in one label; scores otherwise reflect strong field coverage, AU locale fidelity, no cross-locale leakage, accurate validation intent, good policy compliance and format patterns per rubric_v2. Candidate-a polish pass improved copy_quality and row_group_agreement.",
+      "repetition_index": 1,
+      "row_id": "p15-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 5,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 5,
+        "validation_intent_accuracy": 5
+      },
+      "suggested_correction": "Slightly relax tone in dietary options for more practical AU register.",
+      "variant_label": "candidate-a"
+    }
+  ],
+  "rubric_version": "rubric_v2"
+}

@@ -1,0 +1,234 @@
+{
+  "au_locale_contract_version": "au-locale-contract-v1",
+  "findings": [
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+44",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_date_format",
+      "description": "MM/DD/YYYY where DD/MM/YYYY is expected",
+      "matched_text": "MM/DD/YYYY",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": null,
+      "scope": "prompt_context",
+      "section_id": "candidate_prompt_block",
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Auckland",
+      "prompt_id": "p11-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_zip",
+      "description": "ZIP where Postcode is expected",
+      "matched_text": "ZIP",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+1",
+      "prompt_id": "p11-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "privacy_law_without_au_anchor",
+      "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+      "matched_text": "gdpr",
+      "prompt_id": "p12-au-neutral-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "privacy_law_without_au_anchor",
+      "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+      "matched_text": "GDPR",
+      "prompt_id": "p12-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "NHS",
+      "prompt_id": "p14-au-adversarial-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "foreign_phone_code",
+      "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+      "matched_text": "+64",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Auckland",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "auckland",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Wellington",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "wellington",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Canterbury",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "canterbury",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "Otago",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    },
+    {
+      "check_id": "nhs_or_nz_region",
+      "description": "NHS or NZ-region leakage",
+      "matched_text": "otago",
+      "prompt_id": "p15-au-ambiguous-r1",
+      "scope": "generated_definition",
+      "section_id": null,
+      "severity": "blocking"
+    }
+  ],
+  "generated_output_finding_count": 17,
+  "prompt_context_finding_count": 8,
+  "run_id": "story-6.4.7-au-003-candidate-a",
+  "schema_version": "au-deterministic-checks-v1"
+}

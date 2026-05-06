@@ -1,0 +1,31 @@
+{
+  "baseline_run_id": "story-6.4.6-au-baseline-current",
+  "candidate_count": 1,
+  "candidate_runs": [
+    {
+      "candidate_label": "candidate-a",
+      "completed_count": 45,
+      "diff_dir": "_bmad-output\\eval-runs\\story-6.4.7-au-001\\diffs\\candidate-a",
+      "judge_input_batch": "C:\\wt\\elp\\story-epic6-6.4.7-au-baseline-analyst-loop\\_bmad-output\\eval-runs\\story-6.4.7-au-001\\story-6.4.7-au-001-candidate-a\\judge-package\\judge-input-batch.md",
+      "judge_package_dir": "C:\\wt\\elp\\story-epic6-6.4.7-au-baseline-analyst-loop\\_bmad-output\\eval-runs\\story-6.4.7-au-001\\story-6.4.7-au-001-candidate-a\\judge-package",
+      "run_dir": "_bmad-output\\eval-runs\\story-6.4.7-au-001\\story-6.4.7-au-001-candidate-a",
+      "run_id": "story-6.4.7-au-001-candidate-a",
+      "status": "completed",
+      "system_prompt_addendum_hash": "67b67f85fad5f55bd5fa2acce6af747429588ac936d3ade8042d45495a35bb22"
+    }
+  ],
+  "evidence_folder": "_bmad-output\\eval-runs\\story-6.4.7-au-001",
+  "experiment_id": "story-6.4.7-au-001",
+  "generated_at_utc": "2026-05-05T06:40:11.905209+00:00",
+  "improvement_goal": "strict-au-locale-resolution",
+  "scenario_slice": "au-all",
+  "schema_version": "form-ai-eval-analyst-tracking-row-v1",
+  "selected_prompt_ids": [],
+  "suggested_tracking_status": "Pending judge sessions and candidate comparison review",
+  "target_metrics": [
+    "locale_fidelity",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
+    "policy_compliance"
+  ]
+}

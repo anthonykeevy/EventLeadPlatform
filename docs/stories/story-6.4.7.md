@@ -3,7 +3,7 @@
 **Epic:** 6 - AI Generation & Monetization Engine  
 **Story ID:** 6.4.7  
 **Title:** AU Baseline Analysis And Iterative Prompt Improvement Loop  
-**Status:** Draft / Ready for Analyst  
+**Status:** Complete / Closed  
 **Branch:** `story/epic6-6.4.7-au-baseline-analyst-loop`  
 **PR:** [#84](https://github.com/anthonykeevy/EventLeadPlatform/pull/84) - Draft PR to `master`  
 **Created:** 2026-05-05  
@@ -141,3 +141,13 @@ The story must stop after Tony's decision. Do not start a second loop inside thi
 - `AU-001` is updated in the tracking sheet.
 - Tony's decision is recorded.
 - No code changes are included unless the story is stopped and replaced by a Dev-owned fix story.
+
+---
+
+## 6) Closeout
+
+Story 6.4.7 is closed as an Analyst-owned evaluation and decision story.
+
+- Closeout report: `docs/stories/STORY-6.4.7-CLOSEOUT-REPORT.md`
+- Top performer: `AU-005` at `4.471 / 5` (`89.4%`)
+- Production recommendation: create a follow-up implementation story to promote AU-005's strict AU + publish-ready prompt improvements into production prompt/context sections, using AU-006's lint-clean wording lessons without repeating AU-006's policy, validation, and copy-quality regressions.

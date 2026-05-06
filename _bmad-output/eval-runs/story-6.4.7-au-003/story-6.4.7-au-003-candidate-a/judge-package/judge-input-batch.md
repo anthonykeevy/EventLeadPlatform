@@ -1,0 +1,20346 @@
+# Form AI Judge Input Batch
+
+Run ID: `story-6.4.7-au-003-candidate-a`
+Benchmark set: `prompts-au-v1`
+Rubric version: `rubric_v2`
+
+## Experiment Context
+
+This judge package is for one candidate arm of an Analyst prompt experiment.
+
+```json
+{
+  "baseline_run_id": "story-6.4.6-au-baseline-current",
+  "candidate_hypothesis": "Combining AU-001's explicit strict AU locale enforcement with AU-002's form completeness, validation-intent, and copy-quality guard will retain AU-001's locale gains while recovering broader form-builder quality.",
+  "candidate_label": "candidate-a",
+  "changed_section_id": "candidate_prompt_block",
+  "eval_only": true,
+  "expected_metric_movement": {
+    "copy_quality_score": "increase",
+    "cross_locale_leakage": "increase",
+    "field_coverage_recall": "increase",
+    "format_pattern_accuracy": "increase",
+    "locale_fidelity": "increase",
+    "policy_compliance": "increase",
+    "validation_intent_accuracy": "increase"
+  },
+  "experiment_id": "story-6.4.7-au-003",
+  "improvement_goal": "strict-au-plus-builder-quality",
+  "known_risk_metrics": [
+    "field_label_f1",
+    "row_group_agreement",
+    "cultural_register"
+  ],
+  "scenario_slice": "au-all",
+  "selected_prompt_ids": [],
+  "system_prompt_addendum_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+  "target_metrics": [
+    "locale_fidelity",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
+    "policy_compliance",
+    "field_coverage_recall",
+    "validation_intent_accuracy",
+    "copy_quality_score"
+  ]
+}
+```
+
+Use `rubric_v2.md` and return JSON matching `judge-output-template.json`.
+Set `judge_model_version` to the exact model/version shown in your Cursor session.
+Before assigning scores for each row, identify at least one weakness per row before scoring.
+Use `shared-context-bundle.json` to inspect prompt/context sections. Fill the diagnostic fields for conflicts, likely responsible section IDs, suggested correction, and confidence.
+Judge only the anonymised package content below.
+
+## Row 1: `p01-au-neutral-r1__r01`
+
+- Prompt ID: `p01-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+I need a registration form for our annual sales conference. Capture name, email, phone, dietary requirements, t-shirt size.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p01",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "event-registration",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 8,
+  "duration_ms": 27368,
+  "failure_class": "none",
+  "input_tokens": 3417,
+  "output_tokens": 2955,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "annual-sales-conference-registration",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please complete your details below. We\u2019ll email confirmation and event info to the address you provide.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "helpText": "As you\u2019d like it to appear on your badge",
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send your registration confirmation to this address",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. [SCRUBBED_PHONE]",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "textarea-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Tell us about allergies or special dietary needs",
+            "label": "Dietary requirements",
+            "placeholder": "e.g. vegetarian, gluten-free, no dairy. Leave blank if none.",
+            "tabOrder": 6,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 668
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll provide this size at the event",
+            "label": "T-shirt size",
+            "options": [
+              {
+                "label": "XS",
+                "value": "XS"
+              },
+              {
+                "label": "S",
+                "value": "S"
+              },
+              {
+                "label": "M",
+                "value": "M"
+              },
+              {
+                "label": "L",
+                "value": "L"
+              },
+              {
+                "label": "XL",
+                "value": "XL"
+              },
+              {
+                "label": "XXL",
+                "value": "XXL"
+              },
+              {
+                "label": "Prefer not to say",
+                "value": "prefer_not_to_say"
+              }
+            ],
+            "placeholder": "Select size",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "submit-button-8",
+          "position": {
+            "x": 40,
+            "y": 802
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 8,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Annual Sales Conference \u2014 Registration"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 2: `p01-au-ambiguous-r1__r01`
+
+- Prompt ID: `p01-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+I need a registration form for our annual sales conference. Capture name, email, phone, dietary requirements, t-shirt size. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p01",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "event-registration",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 29058,
+  "failure_class": "none",
+  "input_tokens": 3489,
+  "output_tokens": 3173,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "sales-conference-sydney-registration",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "helpText": "We look forward to seeing you in Sydney.",
+            "label": "Location: Sydney",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide a number we can use for event updates (include country code, e.g. +61).",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "email-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll email your registration confirmation and event updates.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "dropdown-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will provide a conference T-shirt.",
+            "label": "T-shirt size",
+            "options": [
+              {
+                "label": "XS",
+                "value": "XS"
+              },
+              {
+                "label": "S",
+                "value": "S"
+              },
+              {
+                "label": "M",
+                "value": "M"
+              },
+              {
+                "label": "L",
+                "value": "L"
+              },
+              {
+                "label": "XL",
+                "value": "XL"
+              },
+              {
+                "label": "XXL",
+                "value": "XXL"
+              }
+            ],
+            "placeholder": "Select size",
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select any dietary need so we can accommodate your meal.",
+            "label": "Dietary requirements",
+            "options": [
+              {
+                "label": "None",
+                "value": "none"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Halal",
+                "value": "halal"
+              },
+              {
+                "label": "Kosher",
+                "value": "kosher"
+              },
+              {
+                "label": "Other (please specify)",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select an option",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 200,
+            "label": "If other, please describe dietary needs",
+            "placeholder": "Describe any allergies or special requirements",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-9",
+          "position": {
+            "x": 40,
+            "y": 802
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Please review and accept the event terms and our privacy practices.",
+            "label": "Event terms and privacy",
+            "tabOrder": 9,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 946
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Annual Sales Conference \u2014 Sydney Registration"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 3: `p01-au-adversarial-r1__r01`
+
+- Prompt ID: `p01-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+I need a registration form for our annual sales conference. Capture name, email, phone, dietary requirements, t-shirt size. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p01",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "event-registration",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 40263,
+  "failure_class": "none",
+  "input_tokens": 3499,
+  "output_tokens": 4308,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "annual-sales-conference-registration-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send your registration confirmation to this address.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (e.g. +61) so we can contact you if needed.",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Please include Suburb, State and Postcode (Australia).",
+            "label": "Address",
+            "placeholder": "Street address",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "checkbox-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select any that apply.",
+            "label": "Dietary requirements",
+            "options": [
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Halal",
+                "value": "halal"
+              },
+              {
+                "label": "Kosher",
+                "value": "kosher"
+              },
+              {
+                "label": "No special requirements",
+                "value": "none"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-7",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional \u2014 tell us about allergies or specifics.",
+            "label": "Other dietary requirements",
+            "placeholder": "Please describe any other requirements",
+            "tabOrder": 7,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 40,
+            "y": 874
+          },
+          "props": {
+            "height": 110,
+            "label": "T-shirt size",
+            "options": [
+              {
+                "label": "XS",
+                "value": "xs"
+              },
+              {
+                "label": "S",
+                "value": "s"
+              },
+              {
+                "label": "M",
+                "value": "m"
+              },
+              {
+                "label": "L",
+                "value": "l"
+              },
+              {
+                "label": "XL",
+                "value": "xl"
+              },
+              {
+                "label": "XXL",
+                "value": "xxl"
+              }
+            ],
+            "placeholder": "Select a size",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "terms-9",
+          "position": {
+            "x": 40,
+            "y": 1008
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to the event terms and the handling of my personal information under the Privacy Act 1988.",
+            "label": "Agreement",
+            "tabOrder": 9,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 1152
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Annual Sales Conference Registration"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 4: `p02-au-neutral-r1__r01`
+
+- Prompt ID: `p02-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a conference RSVP form with attendee details, session choice, dietary needs, and consent to receive event updates.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p02",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "conference-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 38900,
+  "failure_class": "none",
+  "input_tokens": 3414,
+  "output_tokens": 4142,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "conference-rsvp-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send your ticket and event updates to this address.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (for example +61). May be used for urgent event SMS updates.",
+            "label": "Mobile phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "text-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Organisation",
+            "placeholder": "Company or organisation (optional)",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "radio-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select the main session you plan to attend.",
+            "label": "Session choice",
+            "options": [
+              {
+                "label": "Keynote address",
+                "value": "keynote"
+              },
+              {
+                "label": "Workshop A \u2013 Data & AI",
+                "value": "workshop_a"
+              },
+              {
+                "label": "Workshop B \u2013 Design",
+                "value": "workshop_b"
+              },
+              {
+                "label": "Panel discussion",
+                "value": "panel"
+              },
+              {
+                "label": "Networking lunch",
+                "value": "networking"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick all that apply.",
+            "label": "Dietary requirements",
+            "options": [
+              {
+                "label": "None / No special requirements",
+                "value": "none"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Dairy-free",
+                "value": "dairy_free"
+              },
+              {
+                "label": "Halal",
+                "value": "halal"
+              },
+              {
+                "label": "Kosher",
+                "value": "kosher"
+              },
+              {
+                "label": "Other (please specify below)",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 714
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide details if you selected 'Other' or have allergy information.",
+            "label": "Other dietary requirements",
+            "placeholder": "Please list allergies or specific needs (if any)",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-9",
+          "position": {
+            "x": 40,
+            "y": 1018
+          },
+          "props": {
+            "height": 120,
+            "label": "Consent to receive event updates",
+            "tabOrder": 9,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 1162
+          },
+          "props": {
+            "height": 72,
+            "label": "Submit RSVP",
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Conference RSVP"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 5: `p02-au-ambiguous-r1__r01`
+
+- Prompt ID: `p02-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a conference RSVP form with attendee details, session choice, dietary needs, and consent to receive event updates. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p02",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "conference-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 13,
+  "duration_ms": 38779,
+  "failure_class": "none",
+  "input_tokens": 3486,
+  "output_tokens": 3938,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1662,
+    "width": 960
+  },
+  "formId": "sydney-conference-rsvp",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "helpText": "Select your preferred session and let us know any dietary or accessibility needs.",
+            "label": "Event details",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send confirmation and event updates here.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (e.g. +61) if outside Australia. Used for urgent event notifications only.",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "text-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Organisation",
+            "placeholder": "Company or institution",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-7",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Job title",
+            "placeholder": "Your role",
+            "tabOrder": 7,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select the session you plan to attend. You may update this later if needed.",
+            "label": "Session choice",
+            "options": [
+              {
+                "label": "Keynote & Opening",
+                "value": "keynote_opening"
+              },
+              {
+                "label": "Technical Track A \u2014 AI & Data",
+                "value": "track_a_ai_data"
+              },
+              {
+                "label": "Technical Track B \u2014 Cloud & DevOps",
+                "value": "track_b_cloud"
+              },
+              {
+                "label": "Workshop \u2014 Hands-on (limited places)",
+                "value": "workshop_hands_on"
+              },
+              {
+                "label": "Panel Discussion",
+                "value": "panel_discussion"
+              },
+              {
+                "label": "I will not attend sessions",
+                "value": "no_sessions"
+              }
+            ],
+            "placeholder": "Choose a session",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-9",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Tell us if you have specific dietary needs so we can arrange catering.",
+            "label": "Dietary requirements",
+            "options": [
+              {
+                "label": "No dietary requirements",
+                "value": "none"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Halal",
+                "value": "halal"
+              },
+              {
+                "label": "Kosher",
+                "value": "kosher"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Dairy-free",
+                "value": "dairy_free"
+              },
+              {
+                "label": "Other (please specify)",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select dietary needs",
+            "tabOrder": 9,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-10",
+          "position": {
+            "x": 40,
+            "y": 766
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide full details of allergies or critical dietary needs.",
+            "label": "Dietary details / allergies",
+            "placeholder": "Please list allergies or provide details if you selected 'Other'",
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "textarea-11",
+          "position": {
+            "x": 40,
+            "y": 1070
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional \u2014 we will contact you to discuss how we can assist.",
+            "label": "Accessibility or support needs",
+            "placeholder": "Let us know if you need assistance, e.g. mobility access, dietary support, Auslan interpreter",
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-12",
+          "position": {
+            "x": 40,
+            "y": 1374
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to receive event updates, important information and occasional marketing communications. Communications will be handled in accordance with the Privacy Act 1988 and the Spam Act 2003. See the event terms.",
+            "label": "Consent to receive event updates and marketing",
+            "tabOrder": 12,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-13",
+          "position": {
+            "x": 40,
+            "y": 1518
+          },
+          "props": {
+            "height": 72,
+            "label": "RSVP",
+            "tabOrder": 13,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney Conference RSVP"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 6: `p02-au-adversarial-r1__r01`
+
+- Prompt ID: `p02-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a conference RSVP form with attendee details, session choice, dietary needs, and consent to receive event updates. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p02",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "conference-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 28868,
+  "failure_class": "none",
+  "input_tokens": 3496,
+  "output_tokens": 3025,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "conference-rsvp-au-001",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "We look forward to seeing you. Tell us about any dietary needs and which sessions you'd like to attend.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send your ticket and event updates to this address.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include +61 before your number for Australia.",
+            "label": "Phone number",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode.",
+            "label": "Postal address",
+            "placeholder": "Street address",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the session you'll attend.",
+            "label": "Session choice",
+            "options": [
+              {
+                "label": "Keynote (Main Hall)",
+                "value": "keynote"
+              },
+              {
+                "label": "Workshop A \u2014 Data & AI",
+                "value": "workshop_a"
+              },
+              {
+                "label": "Workshop B \u2014 Product",
+                "value": "workshop_b"
+              },
+              {
+                "label": "Panel \u2014 Industry Trends",
+                "value": "panel"
+              },
+              {
+                "label": "Full day (All sessions)",
+                "value": "full_day"
+              }
+            ],
+            "placeholder": "Select your session",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Tell us about allergies or special dietary needs.",
+            "label": "Dietary requirements",
+            "placeholder": "E.g. vegetarian, gluten-free, severe nut allergy",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-9",
+          "position": {
+            "x": 40,
+            "y": 936
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to receive event updates and communications in accordance with the event terms. Communications may include email and SMS. By consenting you agree to receive messages in line with the Privacy Act 1988 and the Spam Act 2003.",
+            "label": "Consent to receive event updates",
+            "tabOrder": 9,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 72,
+            "label": "RSVP",
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Conference RSVP"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 7: `p03-au-neutral-r1__r01`
+
+- Prompt ID: `p03-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a workshop signup form capturing participant details, skill level, accessibility needs, and preferred workshop stream.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p03",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "workshop-signup",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 32264,
+  "failure_class": "none",
+  "input_tokens": 3412,
+  "output_tokens": 3220,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "workshop-signup-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send your booking confirmation here.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Mobile preferred \u2014 include +61 country code if outside Australia.",
+            "label": "Phone number",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the stream you'd most like to attend.",
+            "label": "Preferred workshop stream",
+            "options": [
+              {
+                "label": "Data science",
+                "value": "data_science"
+              },
+              {
+                "label": "User experience (UX)",
+                "value": "ux"
+              },
+              {
+                "label": "Full\u2011stack development",
+                "value": "fullstack"
+              },
+              {
+                "label": "Leadership & facilitation",
+                "value": "leadership"
+              },
+              {
+                "label": "Other",
+                "value": "other_stream"
+              }
+            ],
+            "placeholder": "Select a stream",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "radio-6",
+          "position": {
+            "x": 424,
+            "y": 292
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select the option that best matches your experience.",
+            "label": "Skill level",
+            "options": [
+              {
+                "label": "Beginner",
+                "value": "beginner"
+              },
+              {
+                "label": "Intermediate",
+                "value": "intermediate"
+              },
+              {
+                "label": "Advanced",
+                "value": "advanced"
+              },
+              {
+                "label": "Prefer not to say",
+                "value": "prefer_not_to_say"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 40,
+            "y": 436
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick any adjustments you require so we can support you on the day.",
+            "label": "Accessibility needs",
+            "options": [
+              {
+                "label": "Wheelchair access",
+                "value": "wheelchair_access"
+              },
+              {
+                "label": "Hearing loop / amplification",
+                "value": "hearing_loop"
+              },
+              {
+                "label": "Auslan interpreter",
+                "value": "auslan"
+              },
+              {
+                "label": "Large print or alternative formats",
+                "value": "large_print"
+              },
+              {
+                "label": "Assistance moving around venue",
+                "value": "mobility_assist"
+              },
+              {
+                "label": "Other (please describe below)",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 580
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide as much detail as you can; we may contact you to discuss arrangements.",
+            "label": "If you selected 'Other', please describe",
+            "placeholder": "Describe any other access requirements or special arrangements we should know about",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 884
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick to receive event updates and occasional news about future workshops. Optional \u2014 you can unsubscribe at any time.",
+            "label": "Event updates and marketing",
+            "options": [
+              {
+                "label": "I agree to receive event updates and marketing by email",
+                "value": "agree_marketing"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 1028
+          },
+          "props": {
+            "height": 72,
+            "label": "Sign up",
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Workshop signup"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 8: `p03-au-ambiguous-r1__r01`
+
+- Prompt ID: `p03-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a workshop signup form capturing participant details, skill level, accessibility needs, and preferred workshop stream. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p03",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "workshop-signup",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 30949,
+  "failure_class": "none",
+  "input_tokens": 3484,
+  "output_tokens": 3288,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "sydney-workshop-signup",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll use this to send event updates and tickets.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code if outside Australia (e.g. +61).",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter Suburb, State and Postcode (Australia).",
+            "label": "Address (optional)",
+            "placeholder": "Suburb, State, Postcode",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the stream you\u2019d most like to attend.",
+            "label": "Preferred workshop stream",
+            "options": [
+              {
+                "label": "Data & AI",
+                "value": "data-ai"
+              },
+              {
+                "label": "Design & UX",
+                "value": "design-ux"
+              },
+              {
+                "label": "Leadership & Facilitation",
+                "value": "leadership"
+              },
+              {
+                "label": "Prototyping & Tools",
+                "value": "prototyping"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "radio-7",
+          "position": {
+            "x": 424,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select your current level for this workshop.",
+            "label": "Skill level",
+            "options": [
+              {
+                "label": "Beginner",
+                "value": "beginner"
+              },
+              {
+                "label": "Intermediate",
+                "value": "intermediate"
+              },
+              {
+                "label": "Advanced",
+                "value": "advanced"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "checkbox-8",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select any support you require; describe details below if needed.",
+            "label": "Accessibility needs",
+            "options": [
+              {
+                "label": "Wheelchair access",
+                "value": "wheelchair"
+              },
+              {
+                "label": "Hearing loop / captioning",
+                "value": "hearing"
+              },
+              {
+                "label": "Accessible seating",
+                "value": "seating"
+              },
+              {
+                "label": "Dietary assistance (catering)",
+                "value": "dietary"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 714
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide any details that will help us make suitable arrangements.",
+            "label": "Accessibility details",
+            "placeholder": "Tell us about any adjustments or support you need (mobility, sensory, dietary, etc.)",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 1018
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By signing up you accept the event terms and how we handle personal information under the Privacy Act 1988.",
+            "label": "I agree to the event terms",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1162
+          },
+          "props": {
+            "height": 72,
+            "label": "Sign up",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney Workshop \u2014 Sign up"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 9: `p03-au-adversarial-r1__r01`
+
+- Prompt ID: `p03-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a workshop signup form capturing participant details, skill level, accessibility needs, and preferred workshop stream. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p03",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "workshop-signup",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 12,
+  "duration_ms": 31442,
+  "failure_class": "none",
+  "input_tokens": 3494,
+  "output_tokens": 3372,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "workshop-signup-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "We\u2019ll use this information to confirm your place and accommodate any needs.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll use this to send confirmation and event updates.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61 for Australia.",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode.",
+            "label": "Postal address",
+            "placeholder": "Street address",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "label": "Skill level",
+            "options": [
+              {
+                "label": "Beginner",
+                "value": "beginner"
+              },
+              {
+                "label": "Intermediate",
+                "value": "intermediate"
+              },
+              {
+                "label": "Advanced",
+                "value": "advanced"
+              }
+            ],
+            "placeholder": "Select your skill level",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 424,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select the stream you\u2019d most like to attend.",
+            "label": "Preferred workshop stream",
+            "options": [
+              {
+                "label": "Data & tools",
+                "value": "data_tools"
+              },
+              {
+                "label": "Design & UX",
+                "value": "design_ux"
+              },
+              {
+                "label": "Research & facilitation",
+                "value": "research_facilitation"
+              }
+            ],
+            "placeholder": "Choose a stream",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Let us know any access requirements so we can accommodate you.",
+            "label": "Accessibility needs (tick all that apply)",
+            "options": [
+              {
+                "label": "Wheelchair access",
+                "value": "wheelchair_access"
+              },
+              {
+                "label": "Assistive listening / hearing support",
+                "value": "assistive_listening"
+              },
+              {
+                "label": "Large print materials",
+                "value": "large_print"
+              },
+              {
+                "label": "Sign language interpreter",
+                "value": "sign_language_interpreter"
+              },
+              {
+                "label": "Other (please describe below)",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-10",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide as much detail as you can to help us plan appropriate support.",
+            "label": "Other accessibility requirements",
+            "placeholder": "Describe any other requirements or details we should know",
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-11",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By signing up you agree to our event terms and privacy practices.",
+            "label": "Terms & privacy",
+            "tabOrder": 11,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-12",
+          "position": {
+            "x": 40,
+            "y": 1224
+          },
+          "props": {
+            "height": 72,
+            "label": "Sign up",
+            "tabOrder": 12,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Workshop sign-up"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 10: `p04-au-neutral-r1__r01`
+
+- Prompt ID: `p04-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a webinar registration form with contact details, organisation, role, timezone, questions for the speaker, and marketing opt-in.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p04",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "webinar-registration",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 33219,
+  "failure_class": "none",
+  "input_tokens": 3417,
+  "output_tokens": 3467,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "webinar-registration-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please register below to reserve your place. We'll send joining instructions and a calendar invite to the email you provide.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send webinar access details to this address.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Optional \u2014 useful for SMS updates about the event.",
+            "label": "Phone (optional)",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "text-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Organisation",
+            "placeholder": "Company or institution",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-7",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Job title / role",
+            "placeholder": "e.g. Marketing Manager",
+            "tabOrder": 7,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Used to display session time in your local zone.",
+            "label": "Timezone",
+            "options": [
+              {
+                "label": "AEDT (UTC+11) \u2014 Sydney (during daylight saving)",
+                "value": "Australia/Sydney"
+              },
+              {
+                "label": "AEST (UTC+10) \u2014 Brisbane / Melbourne (no DST in QLD)",
+                "value": "Australia/Brisbane"
+              },
+              {
+                "label": "ACDT (UTC+10:30) \u2014 Adelaide (during daylight saving)",
+                "value": "Australia/Adelaide"
+              },
+              {
+                "label": "ACST (UTC+9:30) \u2014 Adelaide (standard)",
+                "value": "Australia/Adelaide-standard"
+              },
+              {
+                "label": "AWST (UTC+8) \u2014 Perth",
+                "value": "Australia/Perth"
+              },
+              {
+                "label": "UTC (Coordinated Universal Time)",
+                "value": "UTC"
+              },
+              {
+                "label": "GMT (UTC+0)",
+                "value": "GMT"
+              },
+              {
+                "label": "Other (choose closest)",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select your timezone",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 200,
+            "helpText": "We'll try to address these during Q&A or follow up afterwards.",
+            "label": "Questions for the speaker",
+            "placeholder": "Any questions or topics you'd like the speaker to cover",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-10",
+          "position": {
+            "x": 40,
+            "y": 936
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick to receive event updates and marketing. We will handle your details in line with our privacy policy.",
+            "label": "Marketing & updates",
+            "options": [
+              {
+                "label": "Yes \u2014 send me event updates and related marketing by email",
+                "value": "email_marketing"
+              },
+              {
+                "label": "Yes \u2014 send me SMS updates (where provided)",
+                "value": "sms_updates"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Webinar registration"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 11: `p04-au-ambiguous-r1__r01`
+
+- Prompt ID: `p04-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a webinar registration form with contact details, organisation, role, timezone, questions for the speaker, and marketing opt-in. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p04",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "webinar-registration",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 34982,
+  "failure_class": "none",
+  "input_tokens": 3489,
+  "output_tokens": 3447,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "webinar-sydney-registration",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send your registration confirmation and webinar link to this address.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61 for Australia.",
+            "label": "Phone (optional)",
+            "placeholder": "+61 4XX XXX XXX",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "text-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Organisation",
+            "placeholder": "Company or institution",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-6",
+          "position": {
+            "x": 424,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Job title / role",
+            "placeholder": "e.g. Product Manager",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the timezone you'll attend from. Sydney time is Australia/Sydney (AEST/AEDT).",
+            "label": "Timezone",
+            "options": [
+              {
+                "label": "Australia/Sydney (AEST/AEDT) \u2014 GMT+10 / GMT+11",
+                "value": "Australia/Sydney"
+              },
+              {
+                "label": "Australia/Brisbane \u2014 GMT+10",
+                "value": "Australia/Brisbane"
+              },
+              {
+                "label": "Australia/Adelaide \u2014 GMT+9:30",
+                "value": "Australia/Adelaide"
+              },
+              {
+                "label": "Australia/Perth \u2014 GMT+8",
+                "value": "Australia/Perth"
+              },
+              {
+                "label": "UTC \u2014 Coordinated Universal Time",
+                "value": "UTC"
+              },
+              {
+                "label": "Europe/London \u2014 GMT+0",
+                "value": "Europe/London"
+              },
+              {
+                "label": "Asia/Singapore \u2014 GMT+8",
+                "value": "Asia/Singapore"
+              },
+              {
+                "label": "Other / Prefer not to say",
+                "value": "Other"
+              }
+            ],
+            "placeholder": "Select your timezone",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 560
+          },
+          "props": {
+            "height": 200,
+            "helpText": "We'll collate common themes and share them with the presenter.",
+            "label": "Questions for the speaker",
+            "placeholder": "Any questions or topics you'd like the speaker to cover",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 864
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Receive event updates and occasional offers. You can unsubscribe at any time.",
+            "label": "Marketing opt-in",
+            "options": [
+              {
+                "label": "Yes \u2014 I want to receive event updates and related offers by email",
+                "value": "opt_in_email"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 1008
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Webinar registration \u2014 Sydney"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 12: `p04-au-adversarial-r1__r01`
+
+- Prompt ID: `p04-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a webinar registration form with contact details, organisation, role, timezone, questions for the speaker, and marketing opt-in. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p04",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "webinar-registration",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 12,
+  "duration_ms": 50923,
+  "failure_class": "none",
+  "input_tokens": 3499,
+  "output_tokens": 4921,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1430,
+    "width": 960
+  },
+  "formId": "webinar-registration-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send confirmation and joining details to this address.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code if outside Australia (e.g. +61).",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "text-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Organisation",
+            "placeholder": "Company or organisation",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-6",
+          "position": {
+            "x": 424,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Job title / role",
+            "placeholder": "Your role",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Used to display session time in your local zone.",
+            "label": "Timezone",
+            "options": [
+              {
+                "label": "AEST \u2014 Australia/Sydney (UTC+10 / AEDT UTC+11 when daylight saving)",
+                "value": "Australia/Sydney"
+              },
+              {
+                "label": "ACST \u2014 Australia/Adelaide (UTC+9:30 / ACDT UTC+10:30 when daylight saving)",
+                "value": "Australia/Adelaide"
+              },
+              {
+                "label": "AWST \u2014 Australia/Perth (UTC+8)",
+                "value": "Australia/Perth"
+              },
+              {
+                "label": "AEST \u2014 Australia/Brisbane (UTC+10, no daylight saving)",
+                "value": "Australia/Brisbane"
+              },
+              {
+                "label": "Other / International",
+                "value": "Other"
+              }
+            ],
+            "placeholder": "Select your timezone",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-8",
+          "position": {
+            "x": 40,
+            "y": 560
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide your suburb and postcode to help plan local sessions.",
+            "label": "Postcode",
+            "placeholder": "2000",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 694
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional \u2014 we'll try to cover common questions during the session.",
+            "label": "Questions for the speaker",
+            "placeholder": "Any questions or topics you'd like the speaker to address",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-10",
+          "position": {
+            "x": 40,
+            "y": 998
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick if you want to receive event updates and related offers.",
+            "label": "Marketing opt-in",
+            "options": [
+              {
+                "label": "Yes \u2014 I agree to receive event updates and related marketing",
+                "value": "marketing_opt_in"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "terms-11",
+          "position": {
+            "x": 40,
+            "y": 1142
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to the event terms and the privacy notice (see event terms).",
+            "label": "Agree to event terms",
+            "tabOrder": 11,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-12",
+          "position": {
+            "x": 40,
+            "y": 1286
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 12,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Webinar registration (AU)"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 13: `p05-au-neutral-r1__r01`
+
+- Prompt ID: `p05-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a wedding RSVP form with guest details, attendance, plus-one, meal choice, dietary needs, song request, and message.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p05",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "wedding-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 14,
+  "duration_ms": 44211,
+  "failure_class": "none",
+  "input_tokens": 3418,
+  "output_tokens": 4135,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1796,
+    "width": 960
+  },
+  "formId": "wedding-rsvp-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "We can't wait to celebrate with you. Fill in the details below so we can finalise seating and catering.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "e.g. Emma",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "e.g. Smith",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll use this only for RSVP updates.",
+            "label": "Email (optional)",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include +61 if outside Australia.",
+            "label": "Phone (optional)",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "radio-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 120,
+            "label": "Will you attend?",
+            "options": [
+              {
+                "label": "Accept with pleasure",
+                "value": "accept"
+              },
+              {
+                "label": "Decline with regret",
+                "value": "decline"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick if you will bring a guest.",
+            "label": "Bringing a plus one?",
+            "options": [
+              {
+                "label": "I will bring a plus one",
+                "value": "plus_one_yes"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "text-8",
+          "position": {
+            "x": 40,
+            "y": 508
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Leave blank if you are not bringing a guest.",
+            "label": "Plus-one name (if bringing a guest)",
+            "placeholder": "First and last name",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-9",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select your main course. Required if attending.",
+            "label": "Your meal choice",
+            "options": [
+              {
+                "label": "Beef (Roast eye fillet)",
+                "value": "beef"
+              },
+              {
+                "label": "Fish (Barramundi)",
+                "value": "fish"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select a main course",
+            "tabOrder": 9,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-10",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 110,
+            "helpText": "If bringing a guest, please select their meal.",
+            "label": "Plus-one meal choice",
+            "options": [
+              {
+                "label": "Beef (Roast eye fillet)",
+                "value": "beef"
+              },
+              {
+                "label": "Fish (Barramundi)",
+                "value": "fish"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select a main course for your guest",
+            "tabOrder": 10,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-11",
+          "position": {
+            "x": 40,
+            "y": 910
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Tell us about any allergies or special dietary needs.",
+            "label": "Dietary requirements or allergies",
+            "placeholder": "e.g. gluten intolerance, nut allergy, dairy-free",
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "text-12",
+          "position": {
+            "x": 40,
+            "y": 1214
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll try to play it if possible.",
+            "label": "Song request (optional)",
+            "placeholder": "Song title or artist",
+            "tabOrder": 12,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "textarea-13",
+          "position": {
+            "x": 40,
+            "y": 1348
+          },
+          "props": {
+            "height": 200,
+            "label": "Message for the couple (optional)",
+            "placeholder": "Write a short note, transport needs or well wishes",
+            "tabOrder": 13,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "submit-button-14",
+          "position": {
+            "x": 40,
+            "y": 1652
+          },
+          "props": {
+            "height": 72,
+            "label": "Send RSVP",
+            "tabOrder": 14,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Wedding RSVP"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 14: `p05-au-ambiguous-r1__r01`
+
+- Prompt ID: `p05-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a wedding RSVP form with guest details, attendance, plus-one, meal choice, dietary needs, song request, and message. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p05",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "wedding-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 15,
+  "duration_ms": 42575,
+  "failure_class": "none",
+  "input_tokens": 3490,
+  "output_tokens": 4134,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1950,
+    "width": 960
+  },
+  "formId": "sydney-wedding-rsvp",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Ceremony and reception will be held in Sydney. Please RSVP with your details below.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll use this for RSVP confirmations.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include +61 if supplying an international-format number.",
+            "label": "Phone (optional)",
+            "placeholder": "+61 4XX XXX XXX",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "radio-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 120,
+            "label": "Will you attend?",
+            "options": [
+              {
+                "label": "Yes \u2014 I will attend",
+                "value": "attending"
+              },
+              {
+                "label": "No \u2014 sorry I can't make it",
+                "value": "decline"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 40,
+            "y": 508
+          },
+          "props": {
+            "height": 120,
+            "helpText": "If yes, add their name and meal choice below.",
+            "label": "Bringing a plus one?",
+            "options": [
+              {
+                "label": "Yes, I will bring a plus one",
+                "value": "plus_one"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "text-8",
+          "position": {
+            "x": 40,
+            "y": 652
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Leave blank if not bringing a guest.",
+            "label": "Plus-one full name",
+            "placeholder": "First and last name",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-9",
+          "position": {
+            "x": 424,
+            "y": 652
+          },
+          "props": {
+            "height": 110,
+            "label": "Plus-one meal choice",
+            "options": [
+              {
+                "label": "Chicken",
+                "value": "chicken"
+              },
+              {
+                "label": "Beef",
+                "value": "beef"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Children's meal",
+                "value": "children"
+              }
+            ],
+            "placeholder": "Select meal for your guest",
+            "tabOrder": 9,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-10",
+          "position": {
+            "x": 40,
+            "y": 786
+          },
+          "props": {
+            "height": 110,
+            "label": "Main meal choice",
+            "options": [
+              {
+                "label": "Chicken",
+                "value": "chicken"
+              },
+              {
+                "label": "Beef",
+                "value": "beef"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Children's meal",
+                "value": "children"
+              }
+            ],
+            "placeholder": "Select your meal",
+            "tabOrder": 10,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-11",
+          "position": {
+            "x": 40,
+            "y": 920
+          },
+          "props": {
+            "height": 200,
+            "helpText": "We will pass these to the caterer.",
+            "label": "Any dietary requirements",
+            "placeholder": "Allergies, intolerances or special requirements",
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "text-12",
+          "position": {
+            "x": 40,
+            "y": 1224
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll try to add it to the playlist.",
+            "label": "Song request (optional)",
+            "placeholder": "Artist - Song title",
+            "tabOrder": 12,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "textarea-13",
+          "position": {
+            "x": 40,
+            "y": 1358
+          },
+          "props": {
+            "height": 200,
+            "label": "Message to the couple (optional)",
+            "placeholder": "A short message or well wishes",
+            "tabOrder": 13,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-14",
+          "position": {
+            "x": 40,
+            "y": 1662
+          },
+          "props": {
+            "height": 120,
+            "helpText": "You must agree to the event terms and our privacy handling before submitting.",
+            "label": "Privacy & event terms",
+            "tabOrder": 14,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-15",
+          "position": {
+            "x": 40,
+            "y": 1806
+          },
+          "props": {
+            "height": 72,
+            "label": "Send RSVP",
+            "tabOrder": 15,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney Wedding RSVP"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 15: `p05-au-adversarial-r1__r01`
+
+- Prompt ID: `p05-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a wedding RSVP form with guest details, attendance, plus-one, meal choice, dietary needs, song request, and message. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p05",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "wedding-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 15,
+  "duration_ms": 49533,
+  "failure_class": "none",
+  "input_tokens": 3500,
+  "output_tokens": 5205,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1868,
+    "width": 960
+  },
+  "formId": "wedding-rsvp-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 428
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 492,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll use this for any event updates.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 428
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 492,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61 for Australia.",
+            "label": "Phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Please include Suburb, State and Postcode.",
+            "label": "Address",
+            "placeholder": "Street address",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "radio-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "label": "Will you attend?",
+            "options": [
+              {
+                "label": "Yes, I will attend",
+                "value": "yes"
+              },
+              {
+                "label": "No, I can't attend",
+                "value": "no"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick if you are bringing a guest.",
+            "label": "Bringing a guest?",
+            "options": [
+              {
+                "label": "I will be bringing a guest",
+                "value": "bringing_guest"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "428px"
+          },
+          "style": {
+            "height": 120,
+            "width": 428
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "text-8",
+          "position": {
+            "x": 492,
+            "y": 570
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide if you're bringing a guest.",
+            "label": "Guest's name",
+            "placeholder": "Full name",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "phone-9",
+          "position": {
+            "x": 40,
+            "y": 714
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61.",
+            "label": "Guest phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 9,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-10",
+          "position": {
+            "x": 40,
+            "y": 848
+          },
+          "props": {
+            "height": 110,
+            "label": "Meal choice (your main)",
+            "options": [
+              {
+                "label": "Roast chicken",
+                "value": "chicken"
+              },
+              {
+                "label": "Beef",
+                "value": "beef"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Children's meal",
+                "value": "child"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 428
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-11",
+          "position": {
+            "x": 492,
+            "y": 848
+          },
+          "props": {
+            "height": 110,
+            "label": "Guest's meal choice",
+            "options": [
+              {
+                "label": "Roast chicken",
+                "value": "chicken"
+              },
+              {
+                "label": "Beef",
+                "value": "beef"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Children's meal",
+                "value": "child"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-12",
+          "position": {
+            "x": 40,
+            "y": 982
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Please be specific (for example: gluten-free, nut allergy).",
+            "label": "Dietary requirements",
+            "placeholder": "Allergies, intolerances or special requests",
+            "tabOrder": 12,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "text-13",
+          "position": {
+            "x": 40,
+            "y": 1286
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll try to play it during the reception.",
+            "label": "Song request",
+            "placeholder": "Song title and artist",
+            "tabOrder": 13,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "textarea-14",
+          "position": {
+            "x": 40,
+            "y": 1420
+          },
+          "props": {
+            "height": 200,
+            "label": "Message for the couple",
+            "placeholder": "Write a short message or note",
+            "tabOrder": 14,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "submit-button-15",
+          "position": {
+            "x": 40,
+            "y": 1724
+          },
+          "props": {
+            "height": 72,
+            "label": "Send RSVP",
+            "tabOrder": 15,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Wedding RSVP"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 16: `p06-au-neutral-r1__r01`
+
+- Prompt ID: `p06-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a volunteer signup form with contact details, availability, skills, emergency contact, and code of conduct acknowledgement.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p06",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "volunteer-signup",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 17,
+  "duration_ms": 38062,
+  "failure_class": "none",
+  "input_tokens": 3414,
+  "output_tokens": 4251,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 2084,
+    "width": 960
+  },
+  "formId": "volunteer-signup-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "We will contact successful applicants with shift details. If you have questions, contact the event coordinator.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll use this to confirm shifts and send updates.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Best number to reach you (include +61 country code if outside Australia).",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode.",
+            "label": "Address",
+            "placeholder": "Street address",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select all the times you can volunteer",
+            "label": "Availability",
+            "options": [
+              {
+                "label": "Weekdays \u2014 mornings",
+                "value": "weekdays_mornings"
+              },
+              {
+                "label": "Weekdays \u2014 afternoons",
+                "value": "weekdays_afternoons"
+              },
+              {
+                "label": "Weekdays \u2014 evenings",
+                "value": "weekdays_evenings"
+              },
+              {
+                "label": "Weekends \u2014 mornings",
+                "value": "weekends_mornings"
+              },
+              {
+                "label": "Weekends \u2014 afternoons",
+                "value": "weekends_afternoons"
+              },
+              {
+                "label": "Weekends \u2014 evenings",
+                "value": "weekends_evenings"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "date-8",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use DD/MM/YYYY format.",
+            "label": "Earliest date you can start",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "date"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select any relevant skills or qualifications",
+            "label": "Skills / experience",
+            "options": [
+              {
+                "label": "Event setup / packdown",
+                "value": "setup_packdown"
+              },
+              {
+                "label": "Registration / welcome desk",
+                "value": "registration"
+              },
+              {
+                "label": "First aid / medical",
+                "value": "first_aid"
+              },
+              {
+                "label": "Food service / hospitality",
+                "value": "food_service"
+              },
+              {
+                "label": "Child supervision",
+                "value": "child_supervision"
+              },
+              {
+                "label": "AV / technical support",
+                "value": "av_technical"
+              },
+              {
+                "label": "Driving / logistics",
+                "value": "driving_logistics"
+              },
+              {
+                "label": "Ticketing / scanning",
+                "value": "ticketing"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-10",
+          "position": {
+            "x": 40,
+            "y": 920
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Include certificate numbers or expiry dates if relevant.",
+            "label": "Other skills or notes",
+            "placeholder": "Tell us about licences, certificates, or other relevant experience",
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "text-11",
+          "position": {
+            "x": 40,
+            "y": 1224
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact \u2014 First name",
+            "placeholder": "Given name",
+            "tabOrder": 11,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-12",
+          "position": {
+            "x": 424,
+            "y": 1224
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact \u2014 Last name",
+            "placeholder": "Family name",
+            "tabOrder": 12,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-13",
+          "position": {
+            "x": 40,
+            "y": 1358
+          },
+          "props": {
+            "height": 110,
+            "label": "Relationship to you",
+            "options": [
+              {
+                "label": "Partner / spouse",
+                "value": "partner"
+              },
+              {
+                "label": "Parent",
+                "value": "parent"
+              },
+              {
+                "label": "Sibling",
+                "value": "sibling"
+              },
+              {
+                "label": "Friend",
+                "value": "friend"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 13,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "phone-14",
+          "position": {
+            "x": 424,
+            "y": 1358
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code where relevant.",
+            "label": "Emergency contact \u2014 Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 14,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "textarea-15",
+          "position": {
+            "x": 40,
+            "y": 1492
+          },
+          "props": {
+            "height": 200,
+            "helpText": "This helps us assign suitable roles and make reasonable adjustments.",
+            "label": "Medical conditions or accessibility needs",
+            "placeholder": "Optional \u2014 let us know any medical or access needs",
+            "tabOrder": 15,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-16",
+          "position": {
+            "x": 40,
+            "y": 1796
+          },
+          "props": {
+            "height": 120,
+            "helpText": "You must agree to the Code of Conduct to volunteer.",
+            "label": "Code of conduct acknowledgement",
+            "tabOrder": 16,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-17",
+          "position": {
+            "x": 40,
+            "y": 1940
+          },
+          "props": {
+            "height": 72,
+            "label": "Sign up to volunteer",
+            "tabOrder": 17,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Volunteer sign-up"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 17: `p06-au-ambiguous-r1__r01`
+
+- Prompt ID: `p06-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a volunteer signup form with contact details, availability, skills, emergency contact, and code of conduct acknowledgement. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p06",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "volunteer-signup",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 17,
+  "duration_ms": 54146,
+  "failure_class": "none",
+  "input_tokens": 3486,
+  "output_tokens": 5792,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1780,
+    "width": 960
+  },
+  "formId": "sydney-volunteer-signup",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Thanks for offering your time. Please tell us about yourself, your availability and any relevant skills. We'll contact you with next steps.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will use this for event updates and confirmations.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61",
+            "label": "Mobile phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode",
+            "label": "Home address",
+            "placeholder": "Street address",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select all that apply",
+            "label": "When can you volunteer?",
+            "options": [
+              {
+                "label": "Weekdays (Mon\u2013Fri)",
+                "value": "weekdays"
+              },
+              {
+                "label": "Weeknights",
+                "value": "weeknights"
+              },
+              {
+                "label": "Weekends (Sat\u2013Sun)",
+                "value": "weekends"
+              },
+              {
+                "label": "Mornings (06:00\u201312:00)",
+                "value": "mornings"
+              },
+              {
+                "label": "Afternoons (12:00\u201318:00)",
+                "value": "afternoons"
+              },
+              {
+                "label": "Evenings (18:00\u201322:00)",
+                "value": "evenings"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "date-8",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Earliest date you're available",
+            "label": "Available from",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "date"
+        },
+        {
+          "id": "number-9",
+          "position": {
+            "x": 424,
+            "y": 642
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Typical weekly commitment",
+            "label": "Estimated hours per week",
+            "placeholder": "e.g. 4",
+            "tabOrder": 9,
+            "width": "220px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "number"
+        },
+        {
+          "id": "checkbox-10",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select all that apply",
+            "label": "Skills and experience",
+            "options": [
+              {
+                "label": "Event setup / pack-in",
+                "value": "setup"
+              },
+              {
+                "label": "Front desk / registration",
+                "value": "front_desk"
+              },
+              {
+                "label": "First aid",
+                "value": "first_aid"
+              },
+              {
+                "label": "Crowd control / stewarding",
+                "value": "crowd_control"
+              },
+              {
+                "label": "Food service",
+                "value": "food_service"
+              },
+              {
+                "label": "Photography / media",
+                "value": "photography"
+              },
+              {
+                "label": "Admin / clerical",
+                "value": "admin"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-11",
+          "position": {
+            "x": 40,
+            "y": 920
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Include any certificates (e.g. first aid) or licence numbers if relevant.",
+            "label": "Other skills or qualifications",
+            "placeholder": "Tell us about licences, certificates or other relevant experience",
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "first-name-12",
+          "position": {
+            "x": 40,
+            "y": 1224
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact \u2014 first name",
+            "placeholder": "Given name",
+            "tabOrder": 12,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-13",
+          "position": {
+            "x": 424,
+            "y": 1224
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact \u2014 last name",
+            "placeholder": "Family name",
+            "tabOrder": 13,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-14",
+          "position": {
+            "x": 40,
+            "y": 1358
+          },
+          "props": {
+            "height": 110,
+            "label": "Relationship to you",
+            "placeholder": "e.g. Partner, Parent, Friend",
+            "tabOrder": 14,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "phone-15",
+          "position": {
+            "x": 424,
+            "y": 1358
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Best number to reach them in an emergency",
+            "label": "Emergency contact phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 15,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "terms-16",
+          "position": {
+            "x": 40,
+            "y": 1492
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to abide by the event code of conduct and consent to receive event communications. Information will be handled in accordance with the Privacy Act 1988 and the Spam Act 2003.",
+            "label": "Code of conduct and communications consent",
+            "tabOrder": 16,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-17",
+          "position": {
+            "x": 40,
+            "y": 1636
+          },
+          "props": {
+            "height": 72,
+            "label": "Sign up to volunteer",
+            "tabOrder": 17,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney Volunteer Signup"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 18: `p06-au-adversarial-r1__r01`
+
+- Prompt ID: `p06-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a volunteer signup form with contact details, availability, skills, emergency contact, and code of conduct acknowledgement. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p06",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "volunteer-signup",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 15,
+  "duration_ms": 42754,
+  "failure_class": "none",
+  "input_tokens": 3496,
+  "output_tokens": 4494,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1708,
+    "width": 960
+  },
+  "formId": "volunteer-signup-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll use this to send confirmation and event updates.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (e.g. +61 for Australia).",
+            "label": "Phone number",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode.",
+            "label": "Address",
+            "placeholder": "Street address",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "checkbox-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Choose all times you can help.",
+            "label": "Availability (select all that apply)",
+            "options": [
+              {
+                "label": "Weekday mornings",
+                "value": "weekday_mornings"
+              },
+              {
+                "label": "Weekday afternoons",
+                "value": "weekday_afternoons"
+              },
+              {
+                "label": "Weekday evenings",
+                "value": "weekday_evenings"
+              },
+              {
+                "label": "Weekend mornings",
+                "value": "weekend_mornings"
+              },
+              {
+                "label": "Weekend afternoons",
+                "value": "weekend_afternoons"
+              },
+              {
+                "label": "Weekend evenings",
+                "value": "weekend_evenings"
+              },
+              {
+                "label": "Specific dates (see notes)",
+                "value": "specific_dates"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "date-7",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use DD/MM/YYYY format.",
+            "label": "Available from",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 7,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "date"
+        },
+        {
+          "id": "date-8",
+          "position": {
+            "x": 424,
+            "y": 570
+          },
+          "props": {
+            "height": 110,
+            "label": "Available to",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "date"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 704
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select the skills you can contribute.",
+            "label": "Skills & experience",
+            "options": [
+              {
+                "label": "Event setup / pack down",
+                "value": "setup"
+              },
+              {
+                "label": "Registration desk",
+                "value": "registration"
+              },
+              {
+                "label": "First aid",
+                "value": "first_aid"
+              },
+              {
+                "label": "Food service",
+                "value": "food_service"
+              },
+              {
+                "label": "Equipment / AV",
+                "value": "av"
+              },
+              {
+                "label": "Child supervision",
+                "value": "child_supervision"
+              },
+              {
+                "label": "Driver / logistics",
+                "value": "driver"
+              },
+              {
+                "label": "Other (describe below)",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-10",
+          "position": {
+            "x": 40,
+            "y": 848
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Include certificate names and expiry dates where relevant.",
+            "label": "Other skills, certifications or notes",
+            "placeholder": "e.g. RSA, First Aid certificate, experience notes",
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "text-11",
+          "position": {
+            "x": 40,
+            "y": 1152
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact name",
+            "placeholder": "Full name",
+            "tabOrder": 11,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-12",
+          "position": {
+            "x": 424,
+            "y": 1152
+          },
+          "props": {
+            "height": 110,
+            "label": "Relationship to you",
+            "placeholder": "e.g. Partner, Parent, Friend",
+            "tabOrder": 12,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "phone-13",
+          "position": {
+            "x": 40,
+            "y": 1286
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (e.g. +61).",
+            "label": "Emergency contact phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 13,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "terms-14",
+          "position": {
+            "x": 40,
+            "y": 1420
+          },
+          "props": {
+            "height": 120,
+            "helpText": "You must agree to the event code of conduct to volunteer.",
+            "label": "Code of conduct",
+            "tabOrder": 14,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-15",
+          "position": {
+            "x": 40,
+            "y": 1564
+          },
+          "props": {
+            "height": 72,
+            "label": "Sign up",
+            "tabOrder": 15,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Volunteer signup"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 19: `p07-au-neutral-r1__r01`
+
+- Prompt ID: `p07-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a membership application form with applicant details, membership type, eligibility confirmations, referral source, and terms acknowledgement.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p07",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "membership-application",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 2,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 15,
+  "duration_ms": 73322,
+  "failure_class": "none",
+  "input_tokens": 8589,
+  "output_tokens": 6494,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1620,
+    "width": 960
+  },
+  "formId": "membership-application-form",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Fields marked required must be completed. We'll contact you about your application if further details are needed.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll use this to send membership updates.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include +61 if providing a mobile number.",
+            "label": "Phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "date-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter in DD/MM/YYYY format.",
+            "label": "Date of birth",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "date"
+        },
+        {
+          "id": "address-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide your usual residential address (Suburb, State, Postcode).",
+            "label": "Address",
+            "placeholder": "Street address, Suburb, State, Postcode",
+            "tabOrder": 7,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the option that best fits your situation.",
+            "label": "Membership type",
+            "options": [
+              {
+                "label": "Individual",
+                "value": "individual"
+              },
+              {
+                "label": "Family",
+                "value": "family"
+              },
+              {
+                "label": "Student (concession)",
+                "value": "student"
+              },
+              {
+                "label": "Concession",
+                "value": "concession"
+              },
+              {
+                "label": "Corporate",
+                "value": "corporate"
+              }
+            ],
+            "placeholder": "Select a membership type",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 766
+          },
+          "props": {
+            "height": 120,
+            "label": "I confirm I am aged 18 years or older",
+            "options": [
+              {
+                "label": "I confirm I am aged 18 years or older",
+                "value": "aged_18_plus"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "checkbox-10",
+          "position": {
+            "x": 40,
+            "y": 910
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I confirm I satisfy the eligibility requirements set by the association.",
+            "label": "I meet the membership eligibility criteria",
+            "options": [
+              {
+                "label": "I meet the membership eligibility criteria",
+                "value": "meets_eligibility"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "checkbox-11",
+          "position": {
+            "x": 40,
+            "y": 1054
+          },
+          "props": {
+            "height": 120,
+            "label": "I agree to abide by the association's code of conduct",
+            "options": [
+              {
+                "label": "I agree to abide by the association's code of conduct",
+                "value": "agree_code_of_conduct"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "dropdown-12",
+          "position": {
+            "x": 40,
+            "y": 1198
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select the primary source that referred you.",
+            "label": "How did you hear about us?",
+            "options": [
+              {
+                "label": "Friend or family",
+                "value": "friend_family"
+              },
+              {
+                "label": "Social media",
+                "value": "social_media"
+              },
+              {
+                "label": "Website search",
+                "value": "website_search"
+              },
+              {
+                "label": "Event or fair",
+                "value": "event"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select an option",
+            "tabOrder": 12,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-13",
+          "position": {
+            "x": 424,
+            "y": 1198
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Optional \u2014 only needed if you selected Other.",
+            "label": "If other, please specify",
+            "placeholder": "Tell us where you heard about us",
+            "tabOrder": 13,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "terms-14",
+          "position": {
+            "x": 40,
+            "y": 1332
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By ticking this box you accept the terms and that we may process your personal information for membership purposes.",
+            "label": "I agree to the membership terms and privacy statement and consent to being contacted about my application and membership updates.",
+            "tabOrder": 14,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-15",
+          "position": {
+            "x": 40,
+            "y": 1476
+          },
+          "props": {
+            "height": 72,
+            "label": "Apply for membership",
+            "tabOrder": 15,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Membership Application"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 20: `p07-au-ambiguous-r1__r01`
+
+- Prompt ID: `p07-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a membership application form with applicant details, membership type, eligibility confirmations, referral source, and terms acknowledgement. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p07",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "membership-application",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 15,
+  "duration_ms": 46885,
+  "failure_class": "none",
+  "input_tokens": 3486,
+  "output_tokens": 4477,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "membership-application-sydney",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please complete the form below to apply for membership associated with Sydney. Required fields are marked by validation.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 417,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll use this to send your membership confirmation.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 417,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include +61 country code for Australian numbers.",
+            "label": "Phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "phone"
+        },
+        {
+          "id": "date-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "DD/MM/YYYY \u2014 used to confirm eligibility.",
+            "label": "Date of birth",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "date"
+        },
+        {
+          "id": "address-7",
+          "position": {
+            "x": 417,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use Suburb, State and Postcode for Australian addresses.",
+            "label": "Residential address",
+            "tabOrder": 7,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "label": "Membership type",
+            "options": [
+              {
+                "label": "Individual",
+                "value": "individual"
+              },
+              {
+                "label": "Family",
+                "value": "family"
+              },
+              {
+                "label": "Student",
+                "value": "student"
+              },
+              {
+                "label": "Concession",
+                "value": "concession"
+              },
+              {
+                "label": "Corporate",
+                "value": "corporate"
+              }
+            ],
+            "placeholder": "Select membership type",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 256
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-9",
+          "position": {
+            "x": 320,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "label": "How did you hear about us?",
+            "options": [
+              {
+                "label": "Friend or colleague",
+                "value": "friend"
+              },
+              {
+                "label": "Social media",
+                "value": "social"
+              },
+              {
+                "label": "Search engine",
+                "value": "search"
+              },
+              {
+                "label": "Event or meetup",
+                "value": "event"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Choose an option",
+            "tabOrder": 9,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 256
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-10",
+          "position": {
+            "x": 600,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "label": "If other, please specify",
+            "placeholder": "e.g., local newspaper or community group",
+            "tabOrder": 10,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "checkbox-11",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 120,
+            "label": "I confirm I am at least 18 years of age.",
+            "options": [
+              {
+                "label": "I confirm I am at least 18 years of age",
+                "value": "age_confirm"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "checkbox-12",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 120,
+            "label": "I confirm I reside in, or can commit to participating in activities based in Sydney/New South Wales.",
+            "options": [
+              {
+                "label": "I confirm residency/commitment to Sydney/NSW activities",
+                "value": "residency_confirm"
+              }
+            ],
+            "tabOrder": 12,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "checkbox-13",
+          "position": {
+            "x": 40,
+            "y": 920
+          },
+          "props": {
+            "height": 120,
+            "label": "I declare that the information I have provided is true and correct.",
+            "options": [
+              {
+                "label": "I declare the information is true and correct",
+                "value": "truth_confirm"
+              }
+            ],
+            "tabOrder": 13,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "terms-14",
+          "position": {
+            "x": 40,
+            "y": 1064
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Please review the event terms and privacy policy (link provided) before applying.",
+            "label": "Terms and privacy",
+            "tabOrder": 14,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-15",
+          "position": {
+            "x": 40,
+            "y": 1208
+          },
+          "props": {
+            "height": 72,
+            "helpText": "By submitting you confirm your application will be reviewed and you accept the event terms and privacy policy.",
+            "label": "Apply for membership",
+            "tabOrder": 15,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Membership application \u2014 Sydney"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 21: `p07-au-adversarial-r1__r01`
+
+- Prompt ID: `p07-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a membership application form with applicant details, membership type, eligibility confirmations, referral source, and terms acknowledgement. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p07",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "membership-application",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 19,
+  "duration_ms": 66062,
+  "failure_class": "none",
+  "input_tokens": 3496,
+  "output_tokens": 5630,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 2192,
+    "width": 960
+  },
+  "formId": "membership-application-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Complete the form to apply for membership. Fields marked * are required.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name *",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name *",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will contact you at this address",
+            "label": "Email address *",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61",
+            "label": "Phone number *",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "date-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "DD/MM/YYYY",
+            "label": "Date of birth *",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "date"
+        },
+        {
+          "id": "text-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "label": "Street address *",
+            "placeholder": "Unit, street address",
+            "tabOrder": 7,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-8",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 110,
+            "label": "Suburb *",
+            "placeholder": "Suburb",
+            "tabOrder": 8,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-9",
+          "position": {
+            "x": 424,
+            "y": 632
+          },
+          "props": {
+            "height": 110,
+            "label": "State *",
+            "options": [
+              {
+                "label": "New South Wales (NSW)",
+                "value": "NSW"
+              },
+              {
+                "label": "Victoria (VIC)",
+                "value": "VIC"
+              },
+              {
+                "label": "Queensland (QLD)",
+                "value": "QLD"
+              },
+              {
+                "label": "South Australia (SA)",
+                "value": "SA"
+              },
+              {
+                "label": "Western Australia (WA)",
+                "value": "WA"
+              },
+              {
+                "label": "Tasmania (TAS)",
+                "value": "TAS"
+              },
+              {
+                "label": "Australian Capital Territory (ACT)",
+                "value": "ACT"
+              },
+              {
+                "label": "Northern Territory (NT)",
+                "value": "NT"
+              },
+              {
+                "label": "Other",
+                "value": "OTHER"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-10",
+          "position": {
+            "x": 40,
+            "y": 766
+          },
+          "props": {
+            "height": 110,
+            "helpText": "4-digit Australian postcode",
+            "label": "Postcode *",
+            "placeholder": "4000",
+            "tabOrder": 10,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-11",
+          "position": {
+            "x": 40,
+            "y": 900
+          },
+          "props": {
+            "height": 110,
+            "label": "Membership type *",
+            "options": [
+              {
+                "label": "Standard",
+                "value": "standard"
+              },
+              {
+                "label": "Premium",
+                "value": "premium"
+              },
+              {
+                "label": "Student",
+                "value": "student"
+              },
+              {
+                "label": "Concession",
+                "value": "concession"
+              },
+              {
+                "label": "Lifetime",
+                "value": "lifetime"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "checkbox-12",
+          "position": {
+            "x": 40,
+            "y": 1034
+          },
+          "props": {
+            "height": 120,
+            "label": "I confirm I am at least 18 years old *",
+            "options": [
+              {
+                "label": "Yes, I confirm",
+                "value": "yes_confirm_over_18"
+              }
+            ],
+            "tabOrder": 12,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "checkbox-13",
+          "position": {
+            "x": 40,
+            "y": 1178
+          },
+          "props": {
+            "height": 120,
+            "label": "I currently meet the membership eligibility criteria *",
+            "options": [
+              {
+                "label": "Yes, I meet the criteria",
+                "value": "yes_meet_criteria"
+              }
+            ],
+            "tabOrder": 13,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "checkbox-14",
+          "position": {
+            "x": 40,
+            "y": 1322
+          },
+          "props": {
+            "height": 120,
+            "label": "I agree to abide by the code of conduct *",
+            "options": [
+              {
+                "label": "Yes, I agree",
+                "value": "yes_agree_code"
+              }
+            ],
+            "tabOrder": 14,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "dropdown-15",
+          "position": {
+            "x": 40,
+            "y": 1466
+          },
+          "props": {
+            "height": 110,
+            "label": "How did you hear about us?",
+            "options": [
+              {
+                "label": "Friend or colleague",
+                "value": "friend"
+              },
+              {
+                "label": "Social media",
+                "value": "social"
+              },
+              {
+                "label": "Search engine",
+                "value": "search"
+              },
+              {
+                "label": "Event",
+                "value": "event"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 15,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-16",
+          "position": {
+            "x": 424,
+            "y": 1466
+          },
+          "props": {
+            "height": 110,
+            "label": "If Other, please specify",
+            "placeholder": "Who or where?",
+            "tabOrder": 16,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "textarea-17",
+          "position": {
+            "x": 40,
+            "y": 1600
+          },
+          "props": {
+            "height": 200,
+            "label": "Additional information (optional)",
+            "placeholder": "Tell us anything we should know",
+            "tabOrder": 17,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-18",
+          "position": {
+            "x": 40,
+            "y": 1904
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Opens event terms (company-managed)",
+            "label": "I agree to the event terms and privacy policy *",
+            "tabOrder": 18,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-19",
+          "position": {
+            "x": 40,
+            "y": 2048
+          },
+          "props": {
+            "height": 72,
+            "label": "Apply for membership",
+            "tabOrder": 19,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Membership application"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 22: `p08-au-neutral-r1__r01`
+
+- Prompt ID: `p08-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a trade show booth visit log for collecting lead contact details, company, interest area, buying timeframe, notes, and follow-up consent.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p08",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "trade-show-lead-log",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 37791,
+  "failure_class": "none",
+  "input_tokens": 3420,
+  "output_tokens": 3174,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "trade-show-booth-lead-log",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Use this form to log new leads met at the trade show. Capture contact details, company, interest area, buying timeframe and whether they agree to follow-up.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Surname",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Organisation the lead represents",
+            "label": "Company",
+            "placeholder": "Company or organisation",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code if outside Australia",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "email-6",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Primary product or service they asked about",
+            "label": "Interest area",
+            "options": [
+              {
+                "label": "Product demonstration",
+                "value": "demo"
+              },
+              {
+                "label": "Pricing & budget",
+                "value": "pricing"
+              },
+              {
+                "label": "Technical discussion / integration",
+                "value": "technical"
+              },
+              {
+                "label": "Partnerships / reseller",
+                "value": "partnerships"
+              },
+              {
+                "label": "Support / services",
+                "value": "services"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select interest area",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 424,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "label": "Buying timeframe",
+            "options": [
+              {
+                "label": "Immediately (0-1 month)",
+                "value": "0-1"
+              },
+              {
+                "label": "1\u20133 months",
+                "value": "1-3"
+              },
+              {
+                "label": "3\u20136 months",
+                "value": "3-6"
+              },
+              {
+                "label": "6\u201312 months",
+                "value": "6-12"
+              },
+              {
+                "label": "No immediate plans / long term",
+                "value": "long-term"
+              },
+              {
+                "label": "Undecided / needs follow-up",
+                "value": "undecided"
+              }
+            ],
+            "placeholder": "When do they plan to buy?",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Add any context useful for follow-up (e.g. timeline, budget, blockers).",
+            "label": "Notes",
+            "placeholder": "Key interests, decision makers, next steps and any follow-up action required",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 936
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Required to allow follow-up contact about products and services.",
+            "label": "Consent to be contacted",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 72,
+            "label": "Save lead",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Trade show booth lead log"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 23: `p08-au-ambiguous-r1__r01`
+
+- Prompt ID: `p08-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a trade show booth visit log for collecting lead contact details, company, interest area, buying timeframe, notes, and follow-up consent. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p08",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "trade-show-lead-log",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 12,
+  "duration_ms": 61675,
+  "failure_class": "none",
+  "input_tokens": 3492,
+  "output_tokens": 5273,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1512,
+    "width": 960
+  },
+  "formId": "sydney-booth-leads",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Use this form to record contact details, company, interest area, buying timeframe and consent for follow-up. All data collected will be handled in accordance with our privacy policy.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "label": "Company",
+            "placeholder": "Organisation",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-5",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-6",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (+61 for Australia).",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "checkbox-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 120,
+            "label": "Interest area (select all that apply)",
+            "options": [
+              {
+                "label": "Product demo",
+                "value": "product_demo"
+              },
+              {
+                "label": "Pricing & licensing",
+                "value": "pricing"
+              },
+              {
+                "label": "Technical integration / APIs",
+                "value": "integration"
+              },
+              {
+                "label": "Partnership / reseller",
+                "value": "partnership"
+              },
+              {
+                "label": "Careers / hiring",
+                "value": "careers"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 110,
+            "helpText": "When do they plan to purchase or engage?",
+            "label": "Buying timeframe",
+            "options": [
+              {
+                "label": "Immediate (0\u201330 days)",
+                "value": "immediate"
+              },
+              {
+                "label": "1\u20133 months",
+                "value": "1-3_months"
+              },
+              {
+                "label": "3\u20136 months",
+                "value": "3-6_months"
+              },
+              {
+                "label": "6\u201312 months",
+                "value": "6-12_months"
+              },
+              {
+                "label": "No current plans",
+                "value": "no_plans"
+              }
+            ],
+            "placeholder": "Select timeframe",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Include any follow-up tasks or meeting times.",
+            "label": "Notes / next steps",
+            "placeholder": "Summary of conversation, key needs, agreed next actions",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-10",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick to agree to be contacted about products, services and event updates.",
+            "label": "Follow-up consent",
+            "options": [
+              {
+                "label": "Yes \u2014 contact me about products, services and event updates",
+                "value": "consent_follow_up"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "terms-11",
+          "position": {
+            "x": 40,
+            "y": 1224
+          },
+          "props": {
+            "height": 120,
+            "helpText": "You must accept the event terms and privacy policy to record this lead.",
+            "label": "Event terms & privacy",
+            "tabOrder": 11,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-12",
+          "position": {
+            "x": 40,
+            "y": 1368
+          },
+          "props": {
+            "height": 72,
+            "label": "Save lead",
+            "tabOrder": 12,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney trade show booth lead log"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 24: `p08-au-adversarial-r1__r01`
+
+- Prompt ID: `p08-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a trade show booth visit log for collecting lead contact details, company, interest area, buying timeframe, notes, and follow-up consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p08",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "trade-show-lead-log",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 45309,
+  "failure_class": "none",
+  "input_tokens": 3502,
+  "output_tokens": 3719,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "trade-show-booth-visit-log-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 567,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "label": "Company",
+            "placeholder": "Organisation",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-4",
+          "position": {
+            "x": 567,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "What the lead is most interested in",
+            "label": "Interest area",
+            "options": [
+              {
+                "label": "Hardware",
+                "value": "hardware"
+              },
+              {
+                "label": "Software",
+                "value": "software"
+              },
+              {
+                "label": "Services",
+                "value": "services"
+              },
+              {
+                "label": "Partnership",
+                "value": "partnership"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select interest",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61 for Australia",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "phone"
+        },
+        {
+          "id": "email-6",
+          "position": {
+            "x": 567,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "email"
+        },
+        {
+          "id": "address-7",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode",
+            "label": "Address",
+            "placeholder": "Street address",
+            "tabOrder": 7,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-8",
+          "position": {
+            "x": 567,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "label": "Buying timeframe",
+            "options": [
+              {
+                "label": "Immediate (0\u201330 days)",
+                "value": "immediate"
+              },
+              {
+                "label": "1\u20133 months",
+                "value": "1-3_months"
+              },
+              {
+                "label": "3\u20136 months",
+                "value": "3-6_months"
+              },
+              {
+                "label": "6\u201312 months",
+                "value": "6-12_months"
+              },
+              {
+                "label": "Not sure",
+                "value": "not_sure"
+              }
+            ],
+            "placeholder": "Select timeframe",
+            "tabOrder": 8,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 560
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Include any follow-up actions or key details",
+            "label": "Notes",
+            "placeholder": "Summary of discussion and next steps",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 864
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to be contacted about my inquiry and receive event updates.",
+            "label": "Consent to follow up and marketing",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1008
+          },
+          "props": {
+            "height": 72,
+            "label": "Log lead",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Trade show booth visit log"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 25: `p09-au-neutral-r1__r01`
+
+- Prompt ID: `p09-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a newsletter subscription form with name, email, content interests, frequency preference, and marketing consent.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p09",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "newsletter-subscription",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 6,
+  "duration_ms": 31011,
+  "failure_class": "none",
+  "input_tokens": 3412,
+  "output_tokens": 2575,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "newsletter-subscription-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Optional \u2014 helps us personalise emails.",
+            "label": "First name",
+            "placeholder": "e.g. Alex",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 260
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "email-2",
+          "position": {
+            "x": 324,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll send newsletters to this address.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 2,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "checkbox-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select the topics you want to hear about.",
+            "label": "Content interests",
+            "options": [
+              {
+                "label": "News & updates",
+                "value": "news"
+              },
+              {
+                "label": "Events & workshops",
+                "value": "events"
+              },
+              {
+                "label": "Product releases",
+                "value": "product"
+              },
+              {
+                "label": "Promotions & offers",
+                "value": "promotions"
+              },
+              {
+                "label": "Research & insights",
+                "value": "research"
+              }
+            ],
+            "tabOrder": 3,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "radio-4",
+          "position": {
+            "x": 40,
+            "y": 302
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Choose the cadence that suits you.",
+            "label": "How often would you like to hear from us?",
+            "options": [
+              {
+                "label": "Weekly",
+                "value": "weekly"
+              },
+              {
+                "label": "Fortnightly",
+                "value": "fortnightly"
+              },
+              {
+                "label": "Monthly",
+                "value": "monthly"
+              },
+              {
+                "label": "Occasional (as-needed)",
+                "value": "occasional"
+              }
+            ],
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "terms-5",
+          "position": {
+            "x": 40,
+            "y": 446
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By subscribing you consent to receive emails and other marketing from us. See our privacy information for how we handle your data.",
+            "label": "I agree to receive marketing communications, event updates and related information. I understand I can unsubscribe at any time.",
+            "tabOrder": 5,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-6",
+          "position": {
+            "x": 40,
+            "y": 590
+          },
+          "props": {
+            "height": 72,
+            "label": "Subscribe",
+            "tabOrder": 6,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Newsletter subscription"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 26: `p09-au-ambiguous-r1__r01`
+
+- Prompt ID: `p09-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a newsletter subscription form with name, email, content interests, frequency preference, and marketing consent. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p09",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "newsletter-subscription",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 7,
+  "duration_ms": 51937,
+  "failure_class": "none",
+  "input_tokens": 3484,
+  "output_tokens": 4169,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "sydney-newsletter-signup",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Get curated event news and opportunities delivered to your inbox.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll personalise emails with this name.",
+            "label": "First name",
+            "placeholder": "How you'd like us to address you",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 260
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 324,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send the newsletter to this address.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "checkbox-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Choose all topics you want to hear about.",
+            "label": "Content interests",
+            "options": [
+              {
+                "label": "Workshops & classes",
+                "value": "workshops"
+              },
+              {
+                "label": "Speakers & sessions",
+                "value": "speakers"
+              },
+              {
+                "label": "Networking events",
+                "value": "networking"
+              },
+              {
+                "label": "Volunteer opportunities",
+                "value": "volunteer"
+              },
+              {
+                "label": "Partner offers & promotions",
+                "value": "partner_offers"
+              }
+            ],
+            "tabOrder": 4,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "radio-5",
+          "position": {
+            "x": 40,
+            "y": 374
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Choose a frequency that suits you.",
+            "label": "How often would you like to hear from us?",
+            "options": [
+              {
+                "label": "Weekly",
+                "value": "weekly"
+              },
+              {
+                "label": "Fortnightly",
+                "value": "fortnightly"
+              },
+              {
+                "label": "Monthly",
+                "value": "monthly"
+              },
+              {
+                "label": "Only for major events",
+                "value": "major_only"
+              }
+            ],
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "terms-6",
+          "position": {
+            "x": 40,
+            "y": 518
+          },
+          "props": {
+            "height": 120,
+            "helpText": "You can withdraw consent at any time. See the event terms for how we handle your data under the Privacy Act 1988.",
+            "label": "I agree to receive marketing and event updates",
+            "tabOrder": 6,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-7",
+          "position": {
+            "x": 40,
+            "y": 662
+          },
+          "props": {
+            "height": 72,
+            "label": "Subscribe",
+            "tabOrder": 7,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney events newsletter signup"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 27: `p09-au-adversarial-r1__r01`
+
+- Prompt ID: `p09-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a newsletter subscription form with name, email, content interests, frequency preference, and marketing consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p09",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "newsletter-subscription",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 9,
+  "duration_ms": 44842,
+  "failure_class": "none",
+  "input_tokens": 3494,
+  "output_tokens": 3564,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "newsletter-subscription-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "e.g. Sarah",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "e.g. Nguyen",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll use this to send the newsletter. Provide a valid email address.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Optional. Include country code (e.g. +61) for SMS updates.",
+            "label": "Phone (optional)",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Please include Suburb, State and Postcode (AU).",
+            "label": "Address (optional)",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "checkbox-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Choose the topics you want to receive.",
+            "label": "Content interests",
+            "options": [
+              {
+                "label": "Product updates",
+                "value": "product_updates"
+              },
+              {
+                "label": "Events & webinars",
+                "value": "events_webinars"
+              },
+              {
+                "label": "Blog posts & articles",
+                "value": "blog_posts"
+              },
+              {
+                "label": "Offers & promotions",
+                "value": "offers_promotions"
+              },
+              {
+                "label": "Partner news",
+                "value": "partner_news"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "radio-7",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 120,
+            "label": "How often would you like to hear from us?",
+            "options": [
+              {
+                "label": "Weekly",
+                "value": "weekly"
+              },
+              {
+                "label": "Fortnightly",
+                "value": "fortnightly"
+              },
+              {
+                "label": "Monthly",
+                "value": "monthly"
+              },
+              {
+                "label": "Occasional / as needed",
+                "value": "occasional"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "terms-8",
+          "position": {
+            "x": 40,
+            "y": 714
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to receive marketing communications and event updates.",
+            "label": "Marketing consent",
+            "tabOrder": 8,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-9",
+          "position": {
+            "x": 40,
+            "y": 858
+          },
+          "props": {
+            "height": 72,
+            "label": "Subscribe",
+            "tabOrder": 9,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Newsletter subscription"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 28: `p10-au-neutral-r1__r01`
+
+- Prompt ID: `p10-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a charity donation pledge form with donor details, amount preference, one-off or recurring intent, receipt details, and campaign updates consent.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p10",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "charity-donation-pledge",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 14,
+  "duration_ms": 41182,
+  "failure_class": "none",
+  "input_tokens": 3419,
+  "output_tokens": 3235,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1512,
+    "width": 960
+  },
+  "formId": "charity-donation-pledge-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Your pledge helps fund our programs and services. All donations are processed in AUD.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Enter given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Enter family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send your receipt and programme updates here unless you choose postal.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide a mobile number for urgent contact only. Standard message rates may apply.",
+            "label": "Phone (optional)",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide Suburb, State and Postcode if you prefer a paper receipt or postal updates.",
+            "label": "Postal address (optional)",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select an amount or choose \"Other\" to enter a custom pledge.",
+            "label": "Pledge amount (AUD)",
+            "options": [
+              {
+                "label": "AUD 25",
+                "value": "25"
+              },
+              {
+                "label": "AUD 50",
+                "value": "50"
+              },
+              {
+                "label": "AUD 100",
+                "value": "100"
+              },
+              {
+                "label": "AUD 250",
+                "value": "250"
+              },
+              {
+                "label": "Other amount",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Choose an amount",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "number-8",
+          "position": {
+            "x": 424,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter whole dollars. Minimum AUD 1.",
+            "label": "Custom amount (AUD)",
+            "placeholder": "Enter an amount in AUD",
+            "tabOrder": 8,
+            "width": "220px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "number"
+        },
+        {
+          "id": "radio-9",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Choose whether this is a one-off pledge or a recurring pledge.",
+            "label": "Donation type",
+            "options": [
+              {
+                "label": "One-off",
+                "value": "one-off"
+              },
+              {
+                "label": "Recurring",
+                "value": "recurring"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "dropdown-10",
+          "position": {
+            "x": 424,
+            "y": 632
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Common choices: Monthly, Quarterly or Annually.",
+            "label": "If recurring, frequency",
+            "options": [
+              {
+                "label": "Monthly",
+                "value": "monthly"
+              },
+              {
+                "label": "Quarterly",
+                "value": "quarterly"
+              },
+              {
+                "label": "Annually",
+                "value": "annually"
+              }
+            ],
+            "placeholder": "Select a frequency (optional)",
+            "tabOrder": 10,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "checkbox-11",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick how you'd like to hear about our work. We follow the Spam Act 2003 and will not share your details without consent.",
+            "label": "Campaign updates (optional)",
+            "options": [
+              {
+                "label": "Email updates",
+                "value": "email"
+              },
+              {
+                "label": "SMS updates (+61)",
+                "value": "sms"
+              },
+              {
+                "label": "Postal mail",
+                "value": "post"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "checkbox-12",
+          "position": {
+            "x": 40,
+            "y": 920
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick to receive a donation receipt. Receipts are typically sent by email unless you provide a postal address.",
+            "label": "Send a receipt",
+            "options": [
+              {
+                "label": "I would like a receipt",
+                "value": "receipt_yes"
+              }
+            ],
+            "tabOrder": 12,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-13",
+          "position": {
+            "x": 40,
+            "y": 1064
+          },
+          "props": {
+            "height": 200,
+            "label": "Message, dedication or comment (optional)",
+            "placeholder": "Add a short message or dedicate this pledge in someone's name",
+            "tabOrder": 13,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "submit-button-14",
+          "position": {
+            "x": 40,
+            "y": 1368
+          },
+          "props": {
+            "height": 72,
+            "helpText": "By submitting you confirm your pledge. Our team will contact you to complete payment details if required.",
+            "label": "Pledge donation",
+            "tabOrder": 14,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Charity donation pledge"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 29: `p10-au-ambiguous-r1__r01`
+
+- Prompt ID: `p10-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a charity donation pledge form with donor details, amount preference, one-off or recurring intent, receipt details, and campaign updates consent. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p10",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "charity-donation-pledge",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 17,
+  "duration_ms": 75620,
+  "failure_class": "none",
+  "input_tokens": 3491,
+  "output_tokens": 5547,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1620,
+    "width": 960
+  },
+  "formId": "sydney-donation-pledge",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "All gifts help our work in Sydney and nearby communities. You can choose a one\u2011off gift or set up recurring donations.",
+            "options": [],
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "options": [],
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 428
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 492,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "options": [],
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send your receipt here unless you provide a different receipt email below.",
+            "label": "Email",
+            "options": [],
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 428
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 492,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Optional \u2014 include +61 country code for best contact reliability.",
+            "label": "Phone",
+            "options": [],
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use Suburb, State and Postcode for Australian addresses.",
+            "label": "Address",
+            "options": [],
+            "placeholder": "Street address \u2014 include Suburb, State, Postcode",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose a suggested amount or select Other to enter a custom gift.",
+            "label": "Donation amount (AUD)",
+            "options": [
+              {
+                "label": "AUD 25",
+                "value": "25"
+              },
+              {
+                "label": "AUD 50",
+                "value": "50"
+              },
+              {
+                "label": "AUD 100",
+                "value": "100"
+              },
+              {
+                "label": "AUD 250",
+                "value": "250"
+              },
+              {
+                "label": "Other amount (I will enter below)",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select an amount",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 428
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "number-8",
+          "position": {
+            "x": 492,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter a whole amount in AUD. Minimum AUD 5.",
+            "label": "Other amount (AUD)",
+            "options": [],
+            "placeholder": "Enter amount in AUD (numbers only)",
+            "tabOrder": 8,
+            "width": "220px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "number"
+        },
+        {
+          "id": "radio-9",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 120,
+            "label": "Donation type",
+            "options": [
+              {
+                "label": "One\u2011off",
+                "value": "one-off"
+              },
+              {
+                "label": "Recurring",
+                "value": "recurring"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "dropdown-10",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose how often you'd like to be charged. Required only if you selected Recurring above.",
+            "label": "If recurring, choose frequency",
+            "options": [
+              {
+                "label": "Monthly",
+                "value": "monthly"
+              },
+              {
+                "label": "Quarterly",
+                "value": "quarterly"
+              },
+              {
+                "label": "Annually",
+                "value": "annually"
+              }
+            ],
+            "placeholder": "Select frequency (if Recurring)",
+            "tabOrder": 10,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 428
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "date-11",
+          "position": {
+            "x": 492,
+            "y": 776
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter the date for the first recurring payment (DD/MM/YYYY). Required only for recurring donations.",
+            "label": "First payment date",
+            "options": [],
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 11,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "date"
+        },
+        {
+          "id": "text-12",
+          "position": {
+            "x": 40,
+            "y": 910
+          },
+          "props": {
+            "height": 110,
+            "helpText": "How you want the receipt to appear (individual or organisation).",
+            "label": "Receipt name",
+            "options": [],
+            "placeholder": "Name or organisation for the receipt",
+            "tabOrder": 12,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "checkbox-13",
+          "position": {
+            "x": 40,
+            "y": 1044
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick to send the donation receipt to the email provided above. Uncheck to specify a different receipt email.",
+            "label": "Send receipt to donor email",
+            "options": [
+              {
+                "label": "Send receipt to donor email",
+                "value": "send_to_donor"
+              }
+            ],
+            "tabOrder": 13,
+            "width": "428px"
+          },
+          "style": {
+            "height": 120,
+            "width": 428
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "email-14",
+          "position": {
+            "x": 492,
+            "y": 1044
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Optional \u2014 provide an alternate email to receive the tax/ donation receipt.",
+            "label": "Receipt email (if different)",
+            "options": [],
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 14,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "checkbox-15",
+          "position": {
+            "x": 40,
+            "y": 1188
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick if you'd like to receive campaign updates about our Sydney work. We comply with the Spam Act 2003.",
+            "label": "Campaign updates",
+            "options": [
+              {
+                "label": "Yes \u2014 send me campaign updates by email",
+                "value": "updates_email"
+              },
+              {
+                "label": "Yes \u2014 send me campaign updates by SMS",
+                "value": "updates_sms"
+              }
+            ],
+            "tabOrder": 15,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "terms-16",
+          "position": {
+            "x": 40,
+            "y": 1332
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By submitting you agree to the event terms and our privacy policy. This includes how we handle your personal data under the Privacy Act 1988.",
+            "label": "I agree to the event terms and privacy policy",
+            "options": [],
+            "tabOrder": 16,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-17",
+          "position": {
+            "x": 40,
+            "y": 1476
+          },
+          "props": {
+            "height": 72,
+            "helpText": "You will receive a confirmation and receipt by email.",
+            "label": "Pledge my donation",
+            "options": [],
+            "tabOrder": 17,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney Charity Donation Pledge"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 30: `p10-au-adversarial-r1__r01`
+
+- Prompt ID: `p10-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a charity donation pledge form with donor details, amount preference, one-off or recurring intent, receipt details, and campaign updates consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p10",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "charity-donation-pledge",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 12,
+  "duration_ms": 61412,
+  "failure_class": "none",
+  "input_tokens": 3501,
+  "output_tokens": 4215,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "charity-pledge-form",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Your pledge helps fund essential services and support. Fields marked required must be completed to process your donation.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll email your tax receipt to this address.",
+            "label": "Email for receipt",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include +61 country code, e.g. [SCRUBBED_PHONE]",
+            "label": "Phone (include country code)",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "radio-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 120,
+            "label": "Donation type",
+            "options": [
+              {
+                "label": "One\u2011off",
+                "value": "one_off"
+              },
+              {
+                "label": "Monthly recurring",
+                "value": "monthly"
+              }
+            ],
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose a suggested amount or select Other to enter a custom pledge.",
+            "label": "Pledge amount (AUD)",
+            "options": [
+              {
+                "label": "$20",
+                "value": "20"
+              },
+              {
+                "label": "$50",
+                "value": "50"
+              },
+              {
+                "label": "$100",
+                "value": "100"
+              },
+              {
+                "label": "$250",
+                "value": "250"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select amount",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "number-8",
+          "position": {
+            "x": 40,
+            "y": 508
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter a whole amount in AUD. Minimum $1. Only fill this if you selected Other above.",
+            "label": "Other amount (AUD)",
+            "placeholder": "Enter amount in AUD",
+            "tabOrder": 8,
+            "width": "220px"
+          },
+          "style": {
+            "height": 110,
+            "width": 220
+          },
+          "type": "number"
+        },
+        {
+          "id": "address-9",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide Suburb, State and Postcode only if you want a mailed receipt.",
+            "label": "Postal address",
+            "tabOrder": 9,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "text-10",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 110,
+            "helpText": "If the receipt should be issued to an organisation, enter its name here.",
+            "label": "Organisation (optional, for receipt)",
+            "placeholder": "Organisation name",
+            "tabOrder": 10,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "terms-11",
+          "position": {
+            "x": 40,
+            "y": 910
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to receive campaign updates, newsletters and fundraising communications. Read the event terms.",
+            "label": "Consent to receive campaign updates and marketing",
+            "tabOrder": 11,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-12",
+          "position": {
+            "x": 40,
+            "y": 1054
+          },
+          "props": {
+            "height": 72,
+            "label": "Pledge now",
+            "tabOrder": 12,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Charity donation pledge form"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 31: `p11-au-neutral-r1__r01`
+
+- Prompt ID: `p11-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create an international online event registration form with attendee details, country, timezone, session interest, phone, and consent.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p11",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "intl-online-event",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 58609,
+  "failure_class": "none",
+  "input_tokens": 3415,
+  "output_tokens": 3983,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "international-event-registration",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please complete your details below to register. Fields marked required must be completed.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send your registration confirmation here.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (example shown for Australia) so we can contact international attendees.",
+            "label": "Phone number",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Country",
+            "options": [
+              {
+                "label": "Australia",
+                "value": "AU"
+              },
+              {
+                "label": "United Kingdom",
+                "value": "GB"
+              },
+              {
+                "label": "United States",
+                "value": "US"
+              },
+              {
+                "label": "Canada",
+                "value": "CA"
+              },
+              {
+                "label": "India",
+                "value": "IN"
+              },
+              {
+                "label": "China",
+                "value": "CN"
+              },
+              {
+                "label": "Japan",
+                "value": "JP"
+              },
+              {
+                "label": "Singapore",
+                "value": "SG"
+              },
+              {
+                "label": "Germany",
+                "value": "DE"
+              },
+              {
+                "label": "France",
+                "value": "FR"
+              },
+              {
+                "label": "Brazil",
+                "value": "BR"
+              },
+              {
+                "label": "South Africa",
+                "value": "ZA"
+              },
+              {
+                "label": "New Zealand",
+                "value": "NZ"
+              },
+              {
+                "label": "Other",
+                "value": "OTHER"
+              }
+            ],
+            "placeholder": "Select country",
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Helps us schedule sessions and send calendar invites in your local time.",
+            "label": "Time zone",
+            "options": [
+              {
+                "label": "UTC\u221212:00",
+                "value": "UTC-12:00"
+              },
+              {
+                "label": "UTC\u221208:00 Pacific Time",
+                "value": "UTC-08:00"
+              },
+              {
+                "label": "UTC\u221205:00 Eastern Time",
+                "value": "UTC-05:00"
+              },
+              {
+                "label": "UTC\u00b100:00 London",
+                "value": "UTC+00:00"
+              },
+              {
+                "label": "UTC+01:00 Central Europe",
+                "value": "UTC+01:00"
+              },
+              {
+                "label": "UTC+08:00 Singapore / Beijing",
+                "value": "UTC+08:00"
+              },
+              {
+                "label": "UTC+09:00 Tokyo",
+                "value": "UTC+09:00"
+              },
+              {
+                "label": "UTC+10:00 Australia/Sydney (AEST)",
+                "value": "Australia/Sydney"
+              },
+              {
+                "label": "UTC+11:00 Australia/Sydney (AEDT, daylight savings)",
+                "value": "Australia/Sydney-DST"
+              },
+              {
+                "label": "UTC+12:00",
+                "value": "UTC+12:00"
+              }
+            ],
+            "placeholder": "Select your time zone",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "checkbox-8",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select all that apply.",
+            "label": "Sessions you're interested in",
+            "options": [
+              {
+                "label": "Keynote: Industry outlook",
+                "value": "keynote"
+              },
+              {
+                "label": "Workshop: Product strategy",
+                "value": "workshop_product"
+              },
+              {
+                "label": "Workshop: Technical deep dive",
+                "value": "workshop_tech"
+              },
+              {
+                "label": "Panel: Market trends",
+                "value": "panel_trends"
+              },
+              {
+                "label": "Networking session",
+                "value": "networking"
+              }
+            ],
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional \u2014 let us know if you need assistance so we can accommodate you.",
+            "label": "Accessibility or dietary requirements",
+            "placeholder": "Tell us about any special requirements or accessibility needs.",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 946
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By registering you consent to handling of your information in accordance with the Privacy Act 1988. You may opt out of marketing communications at any time under the Spam Act 2003.",
+            "label": "I agree to receive event communications and updates. I acknowledge that the organiser will collect and use my personal information for event administration and marketing.",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1090
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "International Event Registration"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 32: `p11-au-ambiguous-r1__r01`
+
+- Prompt ID: `p11-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create an international online event registration form with attendee details, country, timezone, session interest, phone, and consent. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p11",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "intl-online-event",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "Auckland",
+    "prompt_id": "p11-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  }
+]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 71068,
+  "failure_class": "none",
+  "input_tokens": 3487,
+  "output_tokens": 4748,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "sydney-online-event-registration",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please provide your details below to register. We'll send joining instructions to the email you provide.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send your registration confirmation and joining details here.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (e.g. +61 for Australia). Used only for urgent event updates.",
+            "label": "Phone number",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Country",
+            "options": [
+              {
+                "label": "Australia",
+                "value": "AU"
+              },
+              {
+                "label": "United States",
+                "value": "US"
+              },
+              {
+                "label": "United Kingdom",
+                "value": "GB"
+              },
+              {
+                "label": "Canada",
+                "value": "CA"
+              },
+              {
+                "label": "New Zealand",
+                "value": "NZ"
+              },
+              {
+                "label": "India",
+                "value": "IN"
+              },
+              {
+                "label": "China",
+                "value": "CN"
+              },
+              {
+                "label": "Japan",
+                "value": "JP"
+              },
+              {
+                "label": "Germany",
+                "value": "DE"
+              },
+              {
+                "label": "France",
+                "value": "FR"
+              },
+              {
+                "label": "Singapore",
+                "value": "SG"
+              },
+              {
+                "label": "Brazil",
+                "value": "BR"
+              },
+              {
+                "label": "South Africa",
+                "value": "ZA"
+              },
+              {
+                "label": "Other",
+                "value": "OTHER"
+              }
+            ],
+            "placeholder": "Select country",
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 424,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Sydney time is UTC+10 (AEST) / UTC+11 (AEDT).",
+            "label": "Timezone",
+            "options": [
+              {
+                "label": "UTC+10:00 Australia/Sydney (AEST/AEDT)",
+                "value": "UTC+10:Australia/Sydney"
+              },
+              {
+                "label": "UTC+12:00 New Zealand",
+                "value": "UTC+12:Pacific/Auckland"
+              },
+              {
+                "label": "UTC+09:00 Japan",
+                "value": "UTC+09:Asia/Tokyo"
+              },
+              {
+                "label": "UTC+08:00 China, Singapore",
+                "value": "UTC+08:Asia/Shanghai"
+              },
+              {
+                "label": "UTC+05:30 India",
+                "value": "UTC+05:30:Asia/Kolkata"
+              },
+              {
+                "label": "UTC+01:00 Central Europe",
+                "value": "UTC+01:Europe/Berlin"
+              },
+              {
+                "label": "UTC+00:00 GMT",
+                "value": "UTC+00:Etc/UTC"
+              },
+              {
+                "label": "UTC-05:00 Eastern (US & Canada)",
+                "value": "UTC-05:America/New_York"
+              },
+              {
+                "label": "UTC-08:00 Pacific (US & Canada)",
+                "value": "UTC-08:America/Los_Angeles"
+              },
+              {
+                "label": "Other / prefer to type",
+                "value": "OTHER"
+              }
+            ],
+            "placeholder": "Select your timezone",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "checkbox-8",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select all that apply",
+            "label": "Which sessions are you interested in?",
+            "options": [
+              {
+                "label": "Keynote \u2014 Opening session",
+                "value": "keynote"
+              },
+              {
+                "label": "Workshop A \u2014 Advanced topics",
+                "value": "workshop_a"
+              },
+              {
+                "label": "Workshop B \u2014 Beginner track",
+                "value": "workshop_b"
+              },
+              {
+                "label": "Panel discussion",
+                "value": "panel"
+              },
+              {
+                "label": "Networking session",
+                "value": "networking"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional \u2014 up to 500 characters.",
+            "label": "Any special requirements or questions?",
+            "placeholder": "Tell us about accessibility needs, timezone notes, or other requests",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 946
+          },
+          "props": {
+            "height": 120,
+            "helpText": "You must agree to proceed. The organiser's event terms apply.",
+            "label": "I agree to the event terms and privacy policy.",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1090
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney online event registration"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 33: `p11-au-adversarial-r1__r01`
+
+- Prompt ID: `p11-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create an international online event registration form with attendee details, country, timezone, session interest, phone, and consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p11",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "intl-online-event",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[
+  {
+    "check_id": "foreign_zip",
+    "description": "ZIP where Postcode is expected",
+    "matched_text": "ZIP",
+    "prompt_id": "p11-au-adversarial-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "foreign_phone_code",
+    "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+    "matched_text": "+1",
+    "prompt_id": "p11-au-adversarial-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "foreign_phone_code",
+    "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+    "matched_text": "+1",
+    "prompt_id": "p11-au-adversarial-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "foreign_phone_code",
+    "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+    "matched_text": "+1",
+    "prompt_id": "p11-au-adversarial-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  }
+]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 83225,
+  "failure_class": "none",
+  "input_tokens": 3497,
+  "output_tokens": 5631,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "intl-event-reg-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "helpText": "As you prefer to be addressed",
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send registration confirmation and updates to this address",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "You asked for +1; this form is AU-localised. Please include country code, e.g. [SCRUBBED_PHONE].",
+            "label": "Phone number",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Country of residence or billing address",
+            "label": "Country",
+            "options": [
+              {
+                "label": "Australia",
+                "value": "AU"
+              },
+              {
+                "label": "United States",
+                "value": "US"
+              },
+              {
+                "label": "United Kingdom",
+                "value": "GB"
+              },
+              {
+                "label": "Canada",
+                "value": "CA"
+              },
+              {
+                "label": "India",
+                "value": "IN"
+              },
+              {
+                "label": "Other",
+                "value": "OTHER"
+              }
+            ],
+            "placeholder": "Select country",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 256
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "dropdown-6",
+          "position": {
+            "x": 320,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose your primary timezone (e.g. UTC+10 AEST)",
+            "label": "Timezone",
+            "options": [
+              {
+                "label": "UTC\u221212",
+                "value": "UTC-12"
+              },
+              {
+                "label": "UTC\u221211",
+                "value": "UTC-11"
+              },
+              {
+                "label": "UTC\u221210",
+                "value": "UTC-10"
+              },
+              {
+                "label": "UTC\u22128 (PST)",
+                "value": "UTC-8"
+              },
+              {
+                "label": "UTC\u22125 (EST)",
+                "value": "UTC-5"
+              },
+              {
+                "label": "UTC\u00b10 (GMT)",
+                "value": "UTC+0"
+              },
+              {
+                "label": "UTC+1",
+                "value": "UTC+1"
+              },
+              {
+                "label": "UTC+2",
+                "value": "UTC+2"
+              },
+              {
+                "label": "UTC+5:30",
+                "value": "UTC+5:30"
+              },
+              {
+                "label": "UTC+8",
+                "value": "UTC+8"
+              },
+              {
+                "label": "UTC+9",
+                "value": "UTC+9"
+              },
+              {
+                "label": "UTC+10 (AEST)",
+                "value": "UTC+10"
+              },
+              {
+                "label": "UTC+11",
+                "value": "UTC+11"
+              },
+              {
+                "label": "UTC+12",
+                "value": "UTC+12"
+              },
+              {
+                "label": "Other / IANA timezone",
+                "value": "OTHER"
+              }
+            ],
+            "placeholder": "Select timezone or UTC offset",
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 256
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-7",
+          "position": {
+            "x": 600,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "You requested 'ZIP'; this form uses the Australian Postcode (4 digits), e.g. 2000.",
+            "label": "Postcode",
+            "placeholder": "e.g. 2000",
+            "tabOrder": 7,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "checkbox-8",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select any sessions you plan to attend",
+            "label": "Session interest",
+            "options": [
+              {
+                "label": "Keynote",
+                "value": "keynote"
+              },
+              {
+                "label": "Workshop A \u2014 Deep dive",
+                "value": "workshop_a"
+              },
+              {
+                "label": "Workshop B \u2014 Hands-on",
+                "value": "workshop_b"
+              },
+              {
+                "label": "Networking session",
+                "value": "networking"
+              },
+              {
+                "label": "Product demo",
+                "value": "demo"
+              }
+            ],
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional \u2014 tell us anything we should know to make your attendance comfortable",
+            "label": "Additional information",
+            "placeholder": "Dietary requirements, accessibility needs, or other notes",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 874
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to the event terms and the handling of my personal information for event administration and updates.",
+            "label": "Agreement",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1018
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "International Event Registration (AU localised)"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 34: `p12-au-neutral-r1__r01`
+
+- Prompt ID: `p12-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create an EU event registration form that needs clear GDPR consent, lawful-basis acknowledgement, data handling notice, and contact details.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p12",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "eu-gdpr-event",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[
+  {
+    "check_id": "privacy_law_without_au_anchor",
+    "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+    "matched_text": "gdpr",
+    "prompt_id": "p12-au-neutral-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  }
+]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 64563,
+  "failure_class": "none",
+  "input_tokens": 3417,
+  "output_tokens": 4308,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "event-registration-eu-gdpr",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "helpText": "We collect personal data to manage registrations, communicate event information and ensure safety. See summary below for your rights and how we use your data.",
+            "label": "Data handling notice",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send your registration confirmation here.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code if outside Australia. Used only for urgent event messages.",
+            "label": "Phone number",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide if you require a postal confirmation or ticket. Use Suburb / State / Postcode format.",
+            "label": "Address",
+            "placeholder": "Street address, Suburb, State, Postcode",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "terms-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Acknowledgement of why we process your personal data.",
+            "label": "Lawful basis for processing",
+            "tabOrder": 7,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "terms-8",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Please consent to event-related processing and your rights.",
+            "label": "Data processing consent",
+            "tabOrder": 8,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 786
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Choose whether you'd like to receive news about future events. Consent is voluntary and can be withdrawn.",
+            "label": "Marketing & updates (optional)",
+            "options": [
+              {
+                "label": "Yes \u2014 email me about future events and offers",
+                "value": "marketing_email"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "paragraph-10",
+          "position": {
+            "x": 40,
+            "y": 930
+          },
+          "props": {
+            "height": 48,
+            "helpText": "You have the right to access, correct, or request deletion of your data. To exercise rights or for questions about data handling, contact the event organiser.",
+            "label": "Your rights & contact",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1002
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Event registration \u2014 Data & consent"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 35: `p12-au-ambiguous-r1__r01`
+
+- Prompt ID: `p12-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create an EU event registration form that needs clear GDPR consent, lawful-basis acknowledgement, data handling notice, and contact details. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p12",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "eu-gdpr-event",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[
+  {
+    "check_id": "privacy_law_without_au_anchor",
+    "description": "GDPR/CCPA-only privacy wording where AU privacy wording is expected",
+    "matched_text": "GDPR",
+    "prompt_id": "p12-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  }
+]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 9,
+  "duration_ms": 72376,
+  "failure_class": "none",
+  "input_tokens": 3489,
+  "output_tokens": 4891,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "sydney-eu-registration",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "We collect the personal data below to manage your registration and attendance. For EU residents we will respect GDPR rights; our lawful basis and data handling summary are described in the terms linked below.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "e.g. Alex",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "e.g. Smith",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will send your registration confirmation to this address.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code if outside Australia; use +61 for Australian numbers.",
+            "label": "Phone (optional)",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use Suburb, State and Postcode (Australia) where applicable.",
+            "label": "Address (optional)",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "paragraph-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 48,
+            "label": "Data handling summary: We process your personal information to manage registration, communications about the event, and safety on the day. For EU residents this processing will be conducted consistent with GDPR; our lawful basis includes consent and legitimate interests where applicable. You can find full details in our event terms.",
+            "tabOrder": 7,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "terms-8",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By registering you consent to the processing of your personal data as described in our event terms and acknowledge the stated lawful basis for processing.",
+            "label": "GDPR consent & lawful-basis acknowledgement",
+            "tabOrder": 8,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-9",
+          "position": {
+            "x": 40,
+            "y": 714
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 9,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney Event \u2014 Registration (EU / GDPR)"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 36: `p12-au-adversarial-r1__r01`
+
+- Prompt ID: `p12-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create an EU event registration form that needs clear GDPR consent, lawful-basis acknowledgement, data handling notice, and contact details. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p12",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "eu-gdpr-event",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 12,
+  "duration_ms": 64731,
+  "failure_class": "none",
+  "input_tokens": 3499,
+  "output_tokens": 4395,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1512,
+    "width": 960
+  },
+  "formId": "eu-event-registration",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "helpText": "We collect and process your personal information to manage your registration and event attendance. See the event terms for full details about retention, access and your rights under the Privacy Act 1988 and related law.",
+            "label": "Data handling notice",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Prefer +61 country code for international callers.",
+            "label": "Phone number",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide Suburb, State and Postcode (AU).",
+            "label": "Postal address",
+            "placeholder": "Street address, Suburb, State, Postcode",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select the ticket you are purchasing.",
+            "label": "Ticket type",
+            "options": [
+              {
+                "label": "General admission",
+                "value": "general"
+              },
+              {
+                "label": "Student / concession",
+                "value": "student"
+              },
+              {
+                "label": "VIP / sponsor",
+                "value": "vip"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide any information we should consider when planning your attendance.",
+            "label": "Accessibility or dietary requirements",
+            "placeholder": "Tell us any access needs or dietary needs we should know about",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-9",
+          "position": {
+            "x": 40,
+            "y": 936
+          },
+          "props": {
+            "height": 120,
+            "helpText": "View the event terms for details on cancellation, liability and how we handle your data.",
+            "label": "I have read and accept the event terms and conditions",
+            "tabOrder": 9,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 120,
+            "helpText": "This consent covers registration, ticketing, onsite check-in and event communications. You can withdraw consent as described in the event terms and privacy notice.",
+            "label": "I consent to the collection and processing of my personal data for event administration under the Privacy Act 1988",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "checkbox-11",
+          "position": {
+            "x": 40,
+            "y": 1224
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick if you would like to receive event updates and promotions (email/SMS).",
+            "label": "Marketing & updates",
+            "options": [
+              {
+                "label": "I agree to receive event updates and promotional messages",
+                "value": "marketing_opt_in"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "428px"
+          },
+          "style": {
+            "height": 120,
+            "width": 428
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "submit-button-12",
+          "position": {
+            "x": 40,
+            "y": 1368
+          },
+          "props": {
+            "height": 72,
+            "label": "Register",
+            "tabOrder": 12,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Event registration \u2014 data consent & contact details"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 37: `p13-au-neutral-r1__r01`
+
+- Prompt ID: `p13-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a US onboarding interest form. Capture contact details and role, but do not invent SSN or TIN fields unless explicitly required.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p13",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "us-pii-onboarding",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 59573,
+  "failure_class": "none",
+  "input_tokens": 3419,
+  "output_tokens": 4008,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "us-onboarding-interest",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please provide your contact details and the role you're interested in. We will contact you with next steps.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 424,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll use this to contact you about onboarding.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 4,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-5",
+          "position": {
+            "x": 424,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code if outside Australia (e.g. +61).",
+            "label": "Phone",
+            "placeholder": "e.g. +61 4XX XXX XXX",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use Suburb, State and Postcode for Australian-format addresses.",
+            "label": "Address",
+            "placeholder": "Street address, Suburb, State, Postcode",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "label": "Role you're interested in",
+            "options": [
+              {
+                "label": "Participant",
+                "value": "participant"
+              },
+              {
+                "label": "Staff / Volunteer",
+                "value": "staff_volunteer"
+              },
+              {
+                "label": "Speaker",
+                "value": "speaker"
+              },
+              {
+                "label": "Vendor / Supplier",
+                "value": "vendor_supplier"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select a role",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional \u2014 helpful for matching you to the right opportunity.",
+            "label": "Tell us about your interest",
+            "placeholder": "Briefly describe why you're interested and any relevant experience",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 936
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick if you agree to receive event updates and marketing communications.",
+            "label": "Updates & marketing",
+            "options": [
+              {
+                "label": "I agree to receive event updates and marketing communications",
+                "value": "agree_marketing"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 72,
+            "label": "Register interest",
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Onboarding interest form \u2014 US applicants"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 38: `p13-au-ambiguous-r1__r01`
+
+- Prompt ID: `p13-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a US onboarding interest form. Capture contact details and role, but do not invent SSN or TIN fields unless explicitly required. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p13",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "us-pii-onboarding",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 11,
+  "duration_ms": 59583,
+  "failure_class": "none",
+  "input_tokens": 3491,
+  "output_tokens": 4005,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "us-onboarding-interest-sydney",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send event updates to this address.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code (e.g. +61) so we can reach you about Sydney logistics.",
+            "label": "Phone number",
+            "placeholder": "+61 4XX XXX XXX",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Role you're interested in",
+            "options": [
+              {
+                "label": "Participant",
+                "value": "participant"
+              },
+              {
+                "label": "Manager / Lead",
+                "value": "manager"
+              },
+              {
+                "label": "Volunteer",
+                "value": "volunteer"
+              },
+              {
+                "label": "Speaker",
+                "value": "speaker"
+              },
+              {
+                "label": "Sponsor",
+                "value": "sponsor"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select a role",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-6",
+          "position": {
+            "x": 424,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "label": "Organisation",
+            "placeholder": "Company or group (optional)",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "address-7",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode. (Event associated with Sydney.)",
+            "label": "Address",
+            "placeholder": "Street address",
+            "tabOrder": 7,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 560
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Tell us what you hope to get from the onboarding.",
+            "label": "Tell us about your interest",
+            "placeholder": "Any goals, availability, or questions (optional)",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 864
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select if you want event updates or other communications.",
+            "label": "Marketing preferences",
+            "options": [
+              {
+                "label": "Event updates by email",
+                "value": "updates_email"
+              },
+              {
+                "label": "Text updates about schedule",
+                "value": "updates_sms"
+              },
+              {
+                "label": "Partner offers (optional)",
+                "value": "partner_offers"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "terms-10",
+          "position": {
+            "x": 40,
+            "y": 1008
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to the event terms and privacy policy.",
+            "label": "Terms & privacy",
+            "tabOrder": 10,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-11",
+          "position": {
+            "x": 40,
+            "y": 1152
+          },
+          "props": {
+            "height": 72,
+            "label": "Register interest",
+            "tabOrder": 11,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "US Onboarding \u2014 Register Interest (Sydney event)"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 39: `p13-au-adversarial-r1__r01`
+
+- Prompt ID: `p13-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a US onboarding interest form. Capture contact details and role, but do not invent SSN or TIN fields unless explicitly required. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p13",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "us-pii-onboarding",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 10,
+  "duration_ms": 55241,
+  "failure_class": "none",
+  "input_tokens": 3501,
+  "output_tokens": 3682,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1400,
+    "width": 960
+  },
+  "formId": "onboarding-interest-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "options": [],
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "options": [],
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will use this to send event updates and confirmations.",
+            "label": "Email address",
+            "options": [],
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code; AU example shown.",
+            "label": "Phone number",
+            "options": [],
+            "placeholder": "e.g. [SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Please include Suburb, State and Postcode.",
+            "label": "Address",
+            "options": [],
+            "placeholder": "Street address",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "dropdown-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the option that best describes your involvement.",
+            "label": "Role",
+            "options": [
+              {
+                "label": "Attendee",
+                "value": "attendee"
+              },
+              {
+                "label": "Speaker",
+                "value": "speaker"
+              },
+              {
+                "label": "Volunteer",
+                "value": "volunteer"
+              },
+              {
+                "label": "Sponsor",
+                "value": "sponsor"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select your role",
+            "tabOrder": 6,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "text-7",
+          "position": {
+            "x": 424,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Optional \u2014 tell us how you plan to be involved.",
+            "label": "If other, please specify",
+            "options": [],
+            "placeholder": "Your role",
+            "tabOrder": 7,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 560
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Optional",
+            "label": "Anything else you'd like us to know?",
+            "options": [],
+            "placeholder": "Availability, interests, accessibility needs, etc.",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-9",
+          "position": {
+            "x": 40,
+            "y": 864
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to the event terms and privacy policy (link provided).",
+            "label": "Agreement",
+            "options": [],
+            "tabOrder": 9,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-10",
+          "position": {
+            "x": 40,
+            "y": 1008
+          },
+          "props": {
+            "height": 72,
+            "label": "Submit interest",
+            "options": [],
+            "tabOrder": 10,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Onboarding interest form"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 40: `p14-au-neutral-r1__r01`
+
+- Prompt ID: `p14-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a UK NHS-adjacent waiver form with participant details, relevant health notes, consent acknowledgement, and emergency contact.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p14",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "uk-nhs-waiver",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 21,
+  "duration_ms": 69208,
+  "failure_class": "none",
+  "input_tokens": 3416,
+  "output_tokens": 4604,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1946,
+    "width": 960
+  },
+  "formId": "waiver-health-emergency-au",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "helpText": "By signing you confirm the information is true to the best of your knowledge and you accept the conditions and release below. Personal and health information will be collected for participant safety and event administration in accordance with the Privacy Act 1988.",
+            "label": "Waiver summary",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "divider-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 20,
+            "tabOrder": 2,
+            "width": "880px"
+          },
+          "style": {
+            "height": 20,
+            "width": 880
+          },
+          "type": "divider"
+        },
+        {
+          "id": "first-name-3",
+          "position": {
+            "x": 40,
+            "y": 140
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 3,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-4",
+          "position": {
+            "x": 384,
+            "y": 140
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "date-5",
+          "position": {
+            "x": 40,
+            "y": 274
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use DD/MM/YYYY format",
+            "label": "Date of birth",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 5,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "date"
+        },
+        {
+          "id": "phone-6",
+          "position": {
+            "x": 40,
+            "y": 408
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use +61 country code for Australian mobile numbers",
+            "label": "Phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "email-7",
+          "position": {
+            "x": 384,
+            "y": 408
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We may contact you about safety or event updates",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "address-8",
+          "position": {
+            "x": 40,
+            "y": 542
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode",
+            "label": "Home address",
+            "tabOrder": 8,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "divider-9",
+          "position": {
+            "x": 40,
+            "y": 676
+          },
+          "props": {
+            "height": 20,
+            "tabOrder": 9,
+            "width": "880px"
+          },
+          "style": {
+            "height": 20,
+            "width": 880
+          },
+          "type": "divider"
+        },
+        {
+          "id": "checkbox-10",
+          "position": {
+            "x": 40,
+            "y": 720
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick items that apply to you so event staff can support you",
+            "label": "Health disclosures (select any that apply)",
+            "options": [
+              {
+                "label": "Allergies",
+                "value": "allergies"
+              },
+              {
+                "label": "Medication required during event",
+                "value": "medication"
+              },
+              {
+                "label": "Mobility support or accessibility needs",
+                "value": "mobility"
+              },
+              {
+                "label": "Chronic medical condition",
+                "value": "chronic_condition"
+              },
+              {
+                "label": "Mental health support needs",
+                "value": "mental_health"
+              },
+              {
+                "label": "None of the above / prefer not to say",
+                "value": "none"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-11",
+          "position": {
+            "x": 40,
+            "y": 864
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide any details emergency responders or event staff should know. Leave blank if none.",
+            "label": "Relevant health information / notes",
+            "placeholder": "e.g. list allergies, medications, mobility or access needs, triggers or other important notes",
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "divider-12",
+          "position": {
+            "x": 40,
+            "y": 1168
+          },
+          "props": {
+            "height": 20,
+            "tabOrder": 12,
+            "width": "880px"
+          },
+          "style": {
+            "height": 20,
+            "width": 880
+          },
+          "type": "divider"
+        },
+        {
+          "id": "first-name-13",
+          "position": {
+            "x": 40,
+            "y": 1212
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact \u2014 First name",
+            "placeholder": "Given name",
+            "tabOrder": 13,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-14",
+          "position": {
+            "x": 384,
+            "y": 1212
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact \u2014 Last name",
+            "placeholder": "Family name",
+            "tabOrder": 14,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-15",
+          "position": {
+            "x": 40,
+            "y": 1346
+          },
+          "props": {
+            "height": 110,
+            "label": "Relationship to participant",
+            "placeholder": "e.g. Parent, Partner, Friend",
+            "tabOrder": 15,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "phone-16",
+          "position": {
+            "x": 384,
+            "y": 1346
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Primary number for emergency contact",
+            "label": "Emergency contact \u2014 Phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 16,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "phone"
+        },
+        {
+          "id": "divider-17",
+          "position": {
+            "x": 40,
+            "y": 1480
+          },
+          "props": {
+            "height": 20,
+            "tabOrder": 17,
+            "width": "880px"
+          },
+          "style": {
+            "height": 20,
+            "width": 880
+          },
+          "type": "divider"
+        },
+        {
+          "id": "terms-18",
+          "position": {
+            "x": 40,
+            "y": 1524
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I confirm the information I have provided is accurate. I consent to the collection and use of my personal and health information for event safety and administration in accordance with the Privacy Act 1988. I accept the event risks and release organisers from liability except where prohibited by law.",
+            "label": "Acknowledgement and release (required)",
+            "tabOrder": 18,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "text-19",
+          "position": {
+            "x": 40,
+            "y": 1668
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Typing your full name is accepted as an electronic signature for this form.",
+            "label": "Full name (signature)",
+            "placeholder": "Type full name to sign",
+            "tabOrder": 19,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "date-20",
+          "position": {
+            "x": 384,
+            "y": 1668
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter today's date",
+            "label": "Date signed",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 20,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "date"
+        },
+        {
+          "id": "submit-button-21",
+          "position": {
+            "x": 40,
+            "y": 1802
+          },
+          "props": {
+            "height": 72,
+            "label": "Submit and accept",
+            "tabOrder": 21,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Participant Waiver & Health Form"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 41: `p14-au-ambiguous-r1__r01`
+
+- Prompt ID: `p14-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a UK NHS-adjacent waiver form with participant details, relevant health notes, consent acknowledgement, and emergency contact. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p14",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "uk-nhs-waiver",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 2,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 20,
+  "duration_ms": 111864,
+  "failure_class": "none",
+  "input_tokens": 9065,
+  "output_tokens": 7334,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 2216,
+    "width": 960
+  },
+  "formId": "sydney-event-waiver",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Event location: Sydney. This form collects participant details, relevant health notes, emergency contact information and consent to event terms and medical treatment if required.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 384,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "text"
+        },
+        {
+          "id": "date-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Use DD/MM/YYYY. We ask age for safety and eligibility checks.",
+            "label": "Date of birth",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "date"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode (Australia).",
+            "label": "Home address",
+            "placeholder": "Street address, unit or building",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "phone-6",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide a number we can contact on the day (+61 for Australia).",
+            "label": "Mobile phone",
+            "placeholder": "+61 4XX XXX XXX",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "email-7",
+          "position": {
+            "x": 384,
+            "y": 498
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will use this for event updates and safety communications.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "divider-8",
+          "position": {
+            "x": 40,
+            "y": 632
+          },
+          "props": {
+            "height": 20,
+            "tabOrder": 8,
+            "width": "880px"
+          },
+          "style": {
+            "height": 20,
+            "width": 880
+          },
+          "type": "divider"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 676
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Provide any conditions organisers should be aware of. This helps us plan support and risk mitigation.",
+            "label": "Medical conditions, allergies or relevant health notes",
+            "placeholder": "e.g. asthma, severe allergies, recent injury \u2014 include triggers and severity",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "textarea-10",
+          "position": {
+            "x": 40,
+            "y": 980
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Include any medications you may need organisers to know about during the event.",
+            "label": "Current medications or mobility aids",
+            "placeholder": "List medications, dosages or aids (e.g. insulin, inhaler, mobility aid).",
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-11",
+          "position": {
+            "x": 40,
+            "y": 1284
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick if you carry emergency medication that organisers should know about.",
+            "label": "I carry an adrenaline auto-injector (EpiPen) or similar",
+            "options": [
+              {
+                "label": "Yes \u2014 I carry an adrenaline auto-injector (EpiPen) or similar",
+                "value": "yes_epipen"
+              },
+              {
+                "label": "No \u2014 I do not carry an adrenaline auto-injector",
+                "value": "no_epipen"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "divider-12",
+          "position": {
+            "x": 40,
+            "y": 1428
+          },
+          "props": {
+            "height": 20,
+            "tabOrder": 12,
+            "width": "880px"
+          },
+          "style": {
+            "height": 20,
+            "width": 880
+          },
+          "type": "divider"
+        },
+        {
+          "id": "text-13",
+          "position": {
+            "x": 40,
+            "y": 1472
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact name",
+            "placeholder": "Full name",
+            "tabOrder": 13,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "dropdown-14",
+          "position": {
+            "x": 384,
+            "y": 1472
+          },
+          "props": {
+            "height": 110,
+            "label": "Relationship to participant",
+            "options": [
+              {
+                "label": "Parent / Guardian",
+                "value": "parent_guardian"
+              },
+              {
+                "label": "Partner / Spouse",
+                "value": "partner"
+              },
+              {
+                "label": "Sibling",
+                "value": "sibling"
+              },
+              {
+                "label": "Friend",
+                "value": "friend"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select relationship",
+            "tabOrder": 14,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "phone-15",
+          "position": {
+            "x": 40,
+            "y": 1606
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Primary number for emergency contact. Include +61 country code for Australian numbers.",
+            "label": "Emergency contact phone",
+            "placeholder": "+61 4XX XXX XXX",
+            "tabOrder": 15,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "email-16",
+          "position": {
+            "x": 384,
+            "y": 1606
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact email (optional)",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 16,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "divider-17",
+          "position": {
+            "x": 40,
+            "y": 1740
+          },
+          "props": {
+            "height": 20,
+            "tabOrder": 17,
+            "width": "880px"
+          },
+          "style": {
+            "height": 20,
+            "width": 880
+          },
+          "type": "divider"
+        },
+        {
+          "id": "checkbox-18",
+          "position": {
+            "x": 40,
+            "y": 1784
+          },
+          "props": {
+            "height": 120,
+            "helpText": "If a medical emergency occurs, I authorise event staff or medical personnel to provide or arrange treatment.",
+            "label": "I consent to emergency medical treatment if required",
+            "options": [
+              {
+                "label": "I consent to emergency medical treatment if required",
+                "value": "consent_medical_treatment"
+              }
+            ],
+            "tabOrder": 18,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "terms-19",
+          "position": {
+            "x": 40,
+            "y": 1928
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By agreeing you accept the organiser's event terms and understand the information handling described in those terms and the event privacy notice.",
+            "label": "I have read and accept the event terms",
+            "tabOrder": 19,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-20",
+          "position": {
+            "x": 40,
+            "y": 2072
+          },
+          "props": {
+            "height": 72,
+            "helpText": "Your responses will be used for event safety and communications in line with the Privacy Act 1988.",
+            "label": "Submit waiver",
+            "tabOrder": 20,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Sydney event \u2014 Participant waiver & health information"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 42: `p14-au-adversarial-r1__r01`
+
+- Prompt ID: `p14-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a UK NHS-adjacent waiver form with participant details, relevant health notes, consent acknowledgement, and emergency contact. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p14",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "uk-nhs-waiver",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "NHS",
+    "prompt_id": "p14-au-adversarial-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  }
+]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 15,
+  "duration_ms": 86623,
+  "failure_class": "none",
+  "input_tokens": 3498,
+  "output_tokens": 5766,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1646,
+    "width": 960
+  },
+  "formId": "au-participant-waiver",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please complete this form so we can manage safety and medical needs during the event. You requested UK NHS-adjacent wording; this form is localised for Australia and uses AU terminology. Personal information is handled in line with the Privacy Act 1988.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "first-name-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 2,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-3",
+          "position": {
+            "x": 384,
+            "y": 96
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 3,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 536
+          },
+          "type": "text"
+        },
+        {
+          "id": "date-4",
+          "position": {
+            "x": 40,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter date as DD/MM/YYYY",
+            "label": "Date of birth",
+            "placeholder": "DD/MM/YYYY",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "date"
+        },
+        {
+          "id": "address-5",
+          "position": {
+            "x": 384,
+            "y": 230
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode",
+            "label": "Home address",
+            "placeholder": "Street address",
+            "tabOrder": 5,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 536
+          },
+          "type": "address"
+        },
+        {
+          "id": "phone-6",
+          "position": {
+            "x": 40,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61",
+            "label": "Phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "email-7",
+          "position": {
+            "x": 384,
+            "y": 364
+          },
+          "props": {
+            "height": 110,
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 536
+          },
+          "type": "email"
+        },
+        {
+          "id": "textarea-8",
+          "position": {
+            "x": 40,
+            "y": 498
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Tell us any information that may affect your participation",
+            "label": "Relevant health information",
+            "placeholder": "Allergies, medications, existing conditions, mobility needs",
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 802
+          },
+          "props": {
+            "height": 120,
+            "label": "Medical consent",
+            "options": [
+              {
+                "label": "I give permission for event staff to provide first aid and seek medical treatment on my behalf if necessary.",
+                "value": "consent_first_aid"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "text-10",
+          "position": {
+            "x": 40,
+            "y": 946
+          },
+          "props": {
+            "height": 110,
+            "label": "Emergency contact name",
+            "placeholder": "Full name",
+            "tabOrder": 10,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "text-11",
+          "position": {
+            "x": 384,
+            "y": 946
+          },
+          "props": {
+            "height": 110,
+            "label": "Relationship",
+            "placeholder": "e.g. Partner, Parent",
+            "tabOrder": 11,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 536
+          },
+          "type": "text"
+        },
+        {
+          "id": "phone-12",
+          "position": {
+            "x": 40,
+            "y": 1080
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code, e.g. +61",
+            "label": "Emergency contact phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 12,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "terms-13",
+          "position": {
+            "x": 40,
+            "y": 1214
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Please review the event terms before agreeing.",
+            "label": "Waiver & event terms",
+            "tabOrder": 13,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "checkbox-14",
+          "position": {
+            "x": 40,
+            "y": 1358
+          },
+          "props": {
+            "height": 120,
+            "label": "Acknowledgement",
+            "options": [
+              {
+                "label": "I confirm the information provided is accurate and I agree to the waiver and event terms.",
+                "value": "ack_agree"
+              }
+            ],
+            "tabOrder": 14,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "submit-button-15",
+          "position": {
+            "x": 40,
+            "y": 1502
+          },
+          "props": {
+            "height": 72,
+            "label": "Submit",
+            "tabOrder": 15,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Participant Waiver & Health Form"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 43: `p15-au-neutral-r1__r01`
+
+- Prompt ID: `p15-au-neutral-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a New Zealand RSVP form with attendee details, NZ phone, region, dietary requirements, accessibility needs, and event updates consent.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p15",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "nz-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "neutral"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 14,
+  "duration_ms": 64562,
+  "failure_class": "none",
+  "input_tokens": 3418,
+  "output_tokens": 4175,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 2120,
+    "width": 960
+  },
+  "formId": "rsvp-event-nz",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "paragraph-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 48,
+            "label": "Please complete your details to confirm attendance. Fields marked required must be completed.",
+            "tabOrder": 1,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "radio-2",
+          "position": {
+            "x": 40,
+            "y": 96
+          },
+          "props": {
+            "height": 120,
+            "label": "Will you attend?",
+            "options": [
+              {
+                "label": "Yes \u2014 I will attend",
+                "value": "yes"
+              },
+              {
+                "label": "No \u2014 I cannot attend",
+                "value": "no"
+              }
+            ],
+            "tabOrder": 2,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "first-name-3",
+          "position": {
+            "x": 40,
+            "y": 240
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 3,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-4",
+          "position": {
+            "x": 424,
+            "y": 240
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-5",
+          "position": {
+            "x": 40,
+            "y": 374
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We will use this to send your RSVP confirmation and event updates.",
+            "label": "Email address",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-6",
+          "position": {
+            "x": 424,
+            "y": 374
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code if outside Australia. For example +61 4XX XXX XXX.",
+            "label": "Phone number",
+            "placeholder": "+61 4XX XXX XXX",
+            "tabOrder": 6,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-7",
+          "position": {
+            "x": 40,
+            "y": 508
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Select the state or territory you are based in, or choose Other / International.",
+            "label": "Region / State",
+            "options": [
+              {
+                "label": "New South Wales",
+                "value": "nsw"
+              },
+              {
+                "label": "Victoria",
+                "value": "vic"
+              },
+              {
+                "label": "Queensland",
+                "value": "qld"
+              },
+              {
+                "label": "South Australia",
+                "value": "sa"
+              },
+              {
+                "label": "Western Australia",
+                "value": "wa"
+              },
+              {
+                "label": "Tasmania",
+                "value": "tas"
+              },
+              {
+                "label": "Australian Capital Territory",
+                "value": "act"
+              },
+              {
+                "label": "Northern Territory",
+                "value": "nt"
+              },
+              {
+                "label": "Other / International",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select your region",
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "number-8",
+          "position": {
+            "x": 40,
+            "y": 642
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter how many people you are registering for (maximum 10).",
+            "label": "Number of attendees (including you)",
+            "placeholder": "1",
+            "tabOrder": 8,
+            "width": "220px"
+          },
+          "style": {
+            "height": 110,
+            "width": 220
+          },
+          "type": "number"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 776
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick any that apply. If none apply, leave blank or use 'No dietary requirements' option.",
+            "label": "Dietary requirements",
+            "options": [
+              {
+                "label": "No dietary requirements",
+                "value": "none"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Dairy-free",
+                "value": "dairy_free"
+              },
+              {
+                "label": "Nut allergy",
+                "value": "nut_allergy"
+              },
+              {
+                "label": "Shellfish allergy",
+                "value": "shellfish_allergy"
+              },
+              {
+                "label": "Halal",
+                "value": "halal"
+              },
+              {
+                "label": "Kosher",
+                "value": "kosher"
+              },
+              {
+                "label": "Other (please specify below)",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-10",
+          "position": {
+            "x": 40,
+            "y": 920
+          },
+          "props": {
+            "height": 200,
+            "label": "If other dietary needs, please specify",
+            "placeholder": "Describe any other dietary requirements or allergies",
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "textarea-11",
+          "position": {
+            "x": 40,
+            "y": 1224
+          },
+          "props": {
+            "height": 200,
+            "helpText": "E.g. mobility access, hearing loop, support person, dietary assistance, etc.",
+            "label": "Accessibility requirements",
+            "placeholder": "Please let us know any accessibility needs so we can support you",
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "textarea-12",
+          "position": {
+            "x": 40,
+            "y": 1528
+          },
+          "props": {
+            "height": 200,
+            "label": "Additional comments",
+            "placeholder": "Anything else we should know?",
+            "tabOrder": 12,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-13",
+          "position": {
+            "x": 40,
+            "y": 1832
+          },
+          "props": {
+            "height": 120,
+            "label": "Consent to receive event updates",
+            "options": [],
+            "tabOrder": 13,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-14",
+          "position": {
+            "x": 40,
+            "y": 1976
+          },
+          "props": {
+            "height": 72,
+            "label": "Submit RSVP",
+            "tabOrder": 14,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "Event RSVP"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 44: `p15-au-ambiguous-r1__r01`
+
+- Prompt ID: `p15-au-ambiguous-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a New Zealand RSVP form with attendee details, NZ phone, region, dietary requirements, accessibility needs, and event updates consent. The event is associated with Sydney.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p15",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "nz-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "ambiguous"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[
+  {
+    "check_id": "foreign_phone_code",
+    "description": "+1, +44, or +64 where +61 or neutral AU guidance is expected",
+    "matched_text": "+64",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "Auckland",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "auckland",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "Wellington",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "wellington",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "Canterbury",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "canterbury",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "Otago",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  },
+  {
+    "check_id": "nhs_or_nz_region",
+    "description": "NHS or NZ-region leakage",
+    "matched_text": "otago",
+    "prompt_id": "p15-au-ambiguous-r1",
+    "scope": "generated_definition",
+    "section_id": null,
+    "severity": "blocking"
+  }
+]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 14,
+  "duration_ms": 96259,
+  "failure_class": "none",
+  "input_tokens": 3490,
+  "output_tokens": 6472,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 1826,
+    "width": 960
+  },
+  "formId": "nz-rsvp-sydney-event",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "helpText": "As shown on your ID",
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 417,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We'll send event updates and your RSVP confirmation here.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 417,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code. Example: [SCRUBBED_PHONE]. If you are in New Zealand, you may use +64 before your number.",
+            "label": "Phone",
+            "placeholder": "[SCRUBBED_PHONE]",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the NZ region you are based in",
+            "label": "Region (New Zealand)",
+            "options": [
+              {
+                "label": "Auckland",
+                "value": "auckland"
+              },
+              {
+                "label": "Wellington",
+                "value": "wellington"
+              },
+              {
+                "label": "Canterbury",
+                "value": "canterbury"
+              },
+              {
+                "label": "Otago",
+                "value": "otago"
+              },
+              {
+                "label": "Waikato",
+                "value": "waikato"
+              },
+              {
+                "label": "Bay of Plenty",
+                "value": "bay_of_plenty"
+              },
+              {
+                "label": "Manawat\u016b-Whanganui",
+                "value": "manawatu_whanganui"
+              },
+              {
+                "label": "Northland",
+                "value": "northland"
+              },
+              {
+                "label": "Southland",
+                "value": "southland"
+              },
+              {
+                "label": "Taranaki",
+                "value": "taranaki"
+              },
+              {
+                "label": "Hawke's Bay",
+                "value": "hawkes_bay"
+              },
+              {
+                "label": "Nelson",
+                "value": "nelson"
+              },
+              {
+                "label": "Gisborne",
+                "value": "gisborne"
+              },
+              {
+                "label": "Marlborough",
+                "value": "marlborough"
+              },
+              {
+                "label": "West Coast",
+                "value": "west_coast"
+              }
+            ],
+            "placeholder": "Select your region",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 353
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 417,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include Suburb, State and Postcode",
+            "label": "Postal address",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 503
+          },
+          "type": "address"
+        },
+        {
+          "id": "radio-7",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 120,
+            "label": "Will you attend?",
+            "options": [
+              {
+                "label": "Yes \u2014 I will attend",
+                "value": "yes"
+              },
+              {
+                "label": "No \u2014 I cannot attend",
+                "value": "no"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "checkbox-8",
+          "position": {
+            "x": 40,
+            "y": 570
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick all that apply",
+            "label": "Dietary requirements",
+            "options": [
+              {
+                "label": "No special requirements",
+                "value": "none"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Halal",
+                "value": "halal"
+              },
+              {
+                "label": "Kosher",
+                "value": "kosher"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 8,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-9",
+          "position": {
+            "x": 40,
+            "y": 714
+          },
+          "props": {
+            "height": 200,
+            "helpText": "Only complete this if you selected 'Other' or have allergies.",
+            "label": "Dietary details",
+            "placeholder": "Please list allergies or specific requirements",
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-10",
+          "position": {
+            "x": 40,
+            "y": 1018
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tick any adjustments or supports you require",
+            "label": "Accessibility needs",
+            "options": [
+              {
+                "label": "Wheelchair access",
+                "value": "wheelchair"
+              },
+              {
+                "label": "Accessible seating",
+                "value": "accessible_seating"
+              },
+              {
+                "label": "Assistive listening",
+                "value": "assistive_listening"
+              },
+              {
+                "label": "Quiet space",
+                "value": "quiet_space"
+              },
+              {
+                "label": "Support person will attend",
+                "value": "support_person"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-11",
+          "position": {
+            "x": 40,
+            "y": 1162
+          },
+          "props": {
+            "height": 200,
+            "helpText": "We may contact you to arrange suitable adjustments.",
+            "label": "Accessibility details",
+            "placeholder": "Describe any support or adjustments you require",
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "paragraph-12",
+          "position": {
+            "x": 40,
+            "y": 1466
+          },
+          "props": {
+            "height": 48,
+            "helpText": "This event is associated with: Sydney, Australia.",
+            "label": "Event location",
+            "tabOrder": 12,
+            "width": "880px"
+          },
+          "style": {
+            "height": 48,
+            "width": 880
+          },
+          "type": "paragraph"
+        },
+        {
+          "id": "terms-13",
+          "position": {
+            "x": 40,
+            "y": 1538
+          },
+          "props": {
+            "height": 120,
+            "helpText": "I agree to receive event updates and accept the event terms and privacy policy.",
+            "label": "Event terms & updates consent",
+            "tabOrder": 13,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-14",
+          "position": {
+            "x": 40,
+            "y": 1682
+          },
+          "props": {
+            "height": 72,
+            "label": "Submit RSVP",
+            "tabOrder": 14,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "RSVP \u2014 New Zealand attendees (Sydney event)"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```
+
+## Row 45: `p15-au-adversarial-r1__r01`
+
+- Prompt ID: `p15-au-adversarial-r1`
+- Repetition: `1`
+- Variant: `candidate-a`
+- EvalRunID: `None`
+- GenerationRunID: `None`
+- Definition source: `metrics.jsonl`
+
+### Prompt
+
+Create a New Zealand RSVP form with attendee details, NZ phone, region, dietary requirements, accessibility needs, and event updates consent. Include ZIP code and +1 phone wording even if that conflicts with the audience locale.
+
+### Prompt Metadata
+
+```json
+{
+  "base_prompt_id": "p15",
+  "benchmark_market": "AU",
+  "benchmark_version": "prompts-au-v1",
+  "foreign_market_cues_reviewed": [
+    "NHS",
+    "UK GDPR",
+    "NZ regions",
+    "ZIP/+1",
+    "+44/+64",
+    "EU lawful basis",
+    "CCPA-only"
+  ],
+  "locale_axis": "AU",
+  "prompt_category": "nz-rsvp",
+  "schema": "prompts-au-v1",
+  "source_market_adaptation": false,
+  "variant": "adversarial"
+}
+```
+
+### Expected AU Signals
+
+```json
+{
+  "address_field_pattern": "Suburb/State/Postcode",
+  "cross_locale_leakage_forbidden": [
+    "ZIP",
+    "MM/DD/YYYY",
+    "+1 (555)"
+  ],
+  "currency": "AUD",
+  "date_format": "DD/MM/YYYY",
+  "name_convention": [
+    "First name|Given name",
+    "Last name|Surname"
+  ],
+  "phone_country_code": "+61"
+}
+```
+
+### Prompt Context Section References
+
+```json
+[
+  {
+    "content_hash": "bbd7c8be8ae77b5445286f233c9c3301a36577d795b67bc49b7d33d2809b0ce5",
+    "section_id": "system_prompt_output_contract"
+  },
+  {
+    "content_hash": "d96fd9c9255dd75cd5a48d9ea4aab7276bd6b10c6d9df8f64cb62e286fd10a16",
+    "section_id": "au_locale_block"
+  },
+  {
+    "content_hash": "9ac128f47d5991793b60e8629c3e40af262b2351620bd415f70f476537b1be08",
+    "section_id": "brand_posture_block"
+  },
+  {
+    "content_hash": "88e524f09560bd1cf0dbefc3f6944c6aaf1d36edf5ca1e760a3e35a67263e176",
+    "section_id": "component_capability_block"
+  },
+  {
+    "content_hash": "0b9842479af084d35469f68bb5f832a77dd1bd33c4ff207b67a72e821044e10f",
+    "section_id": "component_property_cheat_sheet"
+  },
+  {
+    "content_hash": "4a01b0976500be1707eddc4c5e62950cf40688b9831d86338186f682949196ce",
+    "section_id": "consent_legal_guidance"
+  },
+  {
+    "content_hash": "06e09b59be6d3a7aba592fb045eb45bee35144e92e0d98a8440b185ab285f853",
+    "section_id": "context_pack_excerpt"
+  },
+  {
+    "content_hash": "307a153e8b4c1868925bcdee7665214ff446d9a32e4bbe18d649724c44133db2",
+    "section_id": "runtime_layout_context"
+  },
+  {
+    "content_hash": "a800f382aaa9156502121bf9e64b6b3c6cace816068b8206521a00a944fd232c",
+    "section_id": "candidate_prompt_block"
+  }
+]
+```
+
+### Deterministic AU Findings
+
+```json
+[]
+```
+
+### Category A Metrics
+
+```json
+{
+  "attempt_count": 1,
+  "boundary_violation_count": 0,
+  "collision_count": 0,
+  "component_count": 14,
+  "duration_ms": 83570,
+  "failure_class": "none",
+  "input_tokens": 3500,
+  "output_tokens": 5869,
+  "retry_count": 0,
+  "schema_valid": true,
+  "terminal_reason": "validated-success",
+  "total_cost_usd": 0.0
+}
+```
+
+### Generated Definition
+
+```json
+{
+  "canvasSettings": {
+    "gridSize": 8,
+    "height": 2022,
+    "width": 960
+  },
+  "formId": "rsvp-newzealand",
+  "pages": [
+    {
+      "components": [
+        {
+          "id": "first-name-1",
+          "position": {
+            "x": 40,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "First name",
+            "placeholder": "Given name",
+            "tabOrder": 1,
+            "width": "260px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "first-name"
+        },
+        {
+          "id": "text-2",
+          "position": {
+            "x": 424,
+            "y": 24
+          },
+          "props": {
+            "height": 110,
+            "label": "Last name",
+            "placeholder": "Family name",
+            "tabOrder": 2,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "text"
+        },
+        {
+          "id": "email-3",
+          "position": {
+            "x": 40,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "We\u2019ll send confirmation and event updates to this address.",
+            "label": "Email",
+            "placeholder": "[SCRUBBED_EMAIL]",
+            "tabOrder": 3,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "email"
+        },
+        {
+          "id": "phone-4",
+          "position": {
+            "x": 424,
+            "y": 158
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Include country code; for Australia use +61. We may call or SMS about your booking.",
+            "label": "Phone",
+            "placeholder": "+61 4xx xxx xxx",
+            "tabOrder": 4,
+            "width": "320px"
+          },
+          "style": {
+            "height": 110,
+            "width": 320
+          },
+          "type": "phone"
+        },
+        {
+          "id": "dropdown-5",
+          "position": {
+            "x": 40,
+            "y": 292
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Choose the state or territory you live in.",
+            "label": "Region / State",
+            "options": [
+              {
+                "label": "New South Wales (NSW)",
+                "value": "nsw"
+              },
+              {
+                "label": "Victoria (VIC)",
+                "value": "vic"
+              },
+              {
+                "label": "Queensland (QLD)",
+                "value": "qld"
+              },
+              {
+                "label": "Western Australia (WA)",
+                "value": "wa"
+              },
+              {
+                "label": "South Australia (SA)",
+                "value": "sa"
+              },
+              {
+                "label": "Tasmania (TAS)",
+                "value": "tas"
+              },
+              {
+                "label": "Australian Capital Territory (ACT)",
+                "value": "act"
+              },
+              {
+                "label": "Northern Territory (NT)",
+                "value": "nt"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "placeholder": "Select your region",
+            "tabOrder": 5,
+            "width": "360px"
+          },
+          "style": {
+            "height": 110,
+            "width": 360
+          },
+          "type": "dropdown"
+        },
+        {
+          "id": "address-6",
+          "position": {
+            "x": 40,
+            "y": 426
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Provide suburb, state and postcode (AU).",
+            "label": "Address (optional)",
+            "placeholder": "Suburb, State, Postcode",
+            "tabOrder": 6,
+            "width": "600px"
+          },
+          "style": {
+            "height": 110,
+            "width": 600
+          },
+          "type": "address"
+        },
+        {
+          "id": "radio-7",
+          "position": {
+            "x": 40,
+            "y": 560
+          },
+          "props": {
+            "height": 120,
+            "label": "Will you attend?",
+            "options": [
+              {
+                "label": "Yes \u2014 I will attend",
+                "value": "yes"
+              },
+              {
+                "label": "No \u2014 I can\u2019t attend",
+                "value": "no"
+              }
+            ],
+            "tabOrder": 7,
+            "width": "360px"
+          },
+          "style": {
+            "height": 120,
+            "width": 360
+          },
+          "type": "radio"
+        },
+        {
+          "id": "number-8",
+          "position": {
+            "x": 40,
+            "y": 704
+          },
+          "props": {
+            "height": 110,
+            "helpText": "Enter 0 if attending alone. Max 10 additional guests.",
+            "label": "Number of additional guests",
+            "placeholder": "0",
+            "tabOrder": 8,
+            "width": "220px"
+          },
+          "style": {
+            "height": 110,
+            "width": 220
+          },
+          "type": "number"
+        },
+        {
+          "id": "checkbox-9",
+          "position": {
+            "x": 40,
+            "y": 838
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Select any that apply. If you choose 'Other', use the field below to describe.",
+            "label": "Dietary requirements",
+            "options": [
+              {
+                "label": "No dietary requirements",
+                "value": "none"
+              },
+              {
+                "label": "Vegetarian",
+                "value": "vegetarian"
+              },
+              {
+                "label": "Vegan",
+                "value": "vegan"
+              },
+              {
+                "label": "Gluten-free",
+                "value": "gluten_free"
+              },
+              {
+                "label": "Halal",
+                "value": "halal"
+              },
+              {
+                "label": "Kosher",
+                "value": "kosher"
+              },
+              {
+                "label": "Other (please specify)",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 9,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-10",
+          "position": {
+            "x": 40,
+            "y": 982
+          },
+          "props": {
+            "height": 200,
+            "label": "Other dietary requirements",
+            "placeholder": "Please describe any other dietary needs",
+            "tabOrder": 10,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "checkbox-11",
+          "position": {
+            "x": 40,
+            "y": 1286
+          },
+          "props": {
+            "height": 120,
+            "helpText": "Tell us if you need any support to attend (mobility, hearing, vision, quiet space, etc.).",
+            "label": "Accessibility needs",
+            "options": [
+              {
+                "label": "Mobility access (ramps, step-free access)",
+                "value": "mobility"
+              },
+              {
+                "label": "Hearing assistance (hearing loop, captions)",
+                "value": "hearing"
+              },
+              {
+                "label": "Visual assistance (large print, guide)",
+                "value": "visual"
+              },
+              {
+                "label": "Quiet space",
+                "value": "quiet_space"
+              },
+              {
+                "label": "Other (please specify)",
+                "value": "other"
+              }
+            ],
+            "tabOrder": 11,
+            "width": "640px"
+          },
+          "style": {
+            "height": 120,
+            "width": 640
+          },
+          "type": "checkbox"
+        },
+        {
+          "id": "textarea-12",
+          "position": {
+            "x": 40,
+            "y": 1430
+          },
+          "props": {
+            "height": 200,
+            "label": "Accessibility details",
+            "placeholder": "Please describe any accessibility needs or supports required",
+            "tabOrder": 12,
+            "width": "640px"
+          },
+          "style": {
+            "height": 200,
+            "width": 640
+          },
+          "type": "textarea"
+        },
+        {
+          "id": "terms-13",
+          "position": {
+            "x": 40,
+            "y": 1734
+          },
+          "props": {
+            "height": 120,
+            "helpText": "By submitting you consent to receive event updates. We handle your personal information in accordance with the Privacy Act 1988 and the Spam Act 2003. Read the event terms.",
+            "label": "I consent to receive event updates and accept the event terms",
+            "tabOrder": 13,
+            "width": "880px"
+          },
+          "style": {
+            "height": 120,
+            "width": 880
+          },
+          "type": "terms"
+        },
+        {
+          "id": "submit-button-14",
+          "position": {
+            "x": 40,
+            "y": 1878
+          },
+          "props": {
+            "height": 72,
+            "label": "Submit RSVP",
+            "tabOrder": 14,
+            "width": "280px"
+          },
+          "style": {
+            "height": 72,
+            "width": 280
+          },
+          "type": "submit-button"
+        }
+      ],
+      "id": "page-1",
+      "title": "RSVP \u2014 New Zealand event"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "theme": {
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "primaryColor": "#0055FF"
+  }
+}
+```

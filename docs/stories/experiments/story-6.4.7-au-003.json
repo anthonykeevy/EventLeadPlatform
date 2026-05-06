@@ -1,0 +1,41 @@
+{
+  "experiment_id": "story-6.4.7-au-003",
+  "baseline_run_id": "story-6.4.6-au-baseline-current",
+  "improvement_goal": "strict-au-plus-builder-quality",
+  "target_metrics": [
+    "locale_fidelity",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
+    "policy_compliance",
+    "field_coverage_recall",
+    "validation_intent_accuracy",
+    "copy_quality_score"
+  ],
+  "prompts_path": "backend/tests/form_ai_eval/prompts_au_v1.yaml",
+  "scenario_slice": "au-all",
+  "allow_au_context_conflicts": true,
+  "concurrency": 4,
+  "candidates": [
+    {
+      "label": "candidate-a",
+      "run_id": "story-6.4.7-au-003-candidate-a",
+      "hypothesis": "Combining AU-001's explicit strict AU locale enforcement with AU-002's form completeness, validation-intent, and copy-quality guard will retain AU-001's locale gains while recovering broader form-builder quality.",
+      "changed_section_id": "candidate_prompt_block",
+      "system_prompt_addendum_file": "story-6.4.7-au-003-candidate-a.md",
+      "expected_metric_movement": {
+        "locale_fidelity": "increase",
+        "cross_locale_leakage": "increase",
+        "format_pattern_accuracy": "increase",
+        "policy_compliance": "increase",
+        "field_coverage_recall": "increase",
+        "validation_intent_accuracy": "increase",
+        "copy_quality_score": "increase"
+      },
+      "known_risk_metrics": [
+        "field_label_f1",
+        "row_group_agreement",
+        "cultural_register"
+      ]
+    }
+  ]
+}

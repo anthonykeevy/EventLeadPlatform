@@ -1,0 +1,46 @@
+# AU Deterministic Checks
+
+- **foreign_phone_code** (blocking) at `p04-au-neutral-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **nhs_or_nz_region** (blocking) at `p04-au-neutral-r1`: NHS or NZ-region leakage matched `Auckland`
+- **nhs_or_nz_region** (blocking) at `p04-au-neutral-r1`: NHS or NZ-region leakage matched `Auckland`
+- **nhs_or_nz_region** (blocking) at `p04-au-ambiguous-r1`: NHS or NZ-region leakage matched `Auckland`
+- **nhs_or_nz_region** (blocking) at `p04-au-ambiguous-r1`: NHS or NZ-region leakage matched `Auckland`
+- **foreign_zip** (blocking) at `p04-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP`
+- **foreign_zip** (blocking) at `p04-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_phone_code** (blocking) at `p04-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p04-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p04-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_zip** (blocking) at `p05-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP`
+- **foreign_zip** (blocking) at `p05-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP`
+- **foreign_zip** (blocking) at `p05-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP`
+- **foreign_phone_code** (blocking) at `p05-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_zip** (blocking) at `p06-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_zip** (blocking) at `p06-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_phone_code** (blocking) at `p06-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p06-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p06-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p06-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p06-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p06-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p11-au-neutral-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **nhs_or_nz_region** (blocking) at `p11-au-neutral-r1`: NHS or NZ-region leakage matched `Auckland`
+- **foreign_zip** (blocking) at `p11-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_zip** (blocking) at `p11-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_zip** (blocking) at `p11-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP`
+- **foreign_phone_code** (blocking) at `p11-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p11-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **privacy_law_without_au_anchor** (blocking) at `p12-au-ambiguous-r1`: GDPR/CCPA-only privacy wording where AU privacy wording is expected matched `GDPR`
+- **foreign_zip** (blocking) at `p12-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_zip** (blocking) at `p12-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_phone_code** (blocking) at `p12-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_phone_code** (blocking) at `p12-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **foreign_zip** (blocking) at `p15-au-adversarial-r1`: ZIP where Postcode is expected matched `ZIP code`
+- **foreign_phone_code** (blocking) at `p15-au-adversarial-r1`: +1, +44, or +64 where +61 or neutral AU guidance is expected matched `+1`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `Auckland`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `auckland`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `Wellington`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `wellington`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `Canterbury`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `canterbury`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `Otago`
+- **nhs_or_nz_region** (blocking) at `p15-au-adversarial-r1`: NHS or NZ-region leakage matched `otago`

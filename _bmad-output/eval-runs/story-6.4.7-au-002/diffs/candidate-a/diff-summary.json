@@ -1,0 +1,275 @@
+{
+  "advisory_metric_deltas": {
+    "attempt_count": {
+      "baseline_mean": 1.0222222222222221,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": 0.0,
+      "p_value": 1.0,
+      "variant_mean": 1.0222222222222221
+    },
+    "collision_count": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    },
+    "component_count": {
+      "baseline_mean": 12.28888888888889,
+      "decision": "advisory",
+      "delta": 0.37777777777777644,
+      "effect_size": -0.10355092237884898,
+      "p_value": 0.6245904292809132,
+      "variant_mean": 12.666666666666666
+    },
+    "duration_ms": {
+      "baseline_mean": 69570.37777777777,
+      "decision": "advisory",
+      "delta": -31423.199999999997,
+      "effect_size": 2.277146979334467,
+      "p_value": 5.329070518200751e-15,
+      "variant_mean": 38147.177777777775
+    },
+    "input_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 3438.0,
+      "effect_size": -6.567354305755256,
+      "p_value": 6.328271240363392e-15,
+      "variant_mean": 3438.0
+    },
+    "output_tokens": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 4044.7555555555555,
+      "effect_size": -6.294603497225165,
+      "p_value": 9.880984919163893e-15,
+      "variant_mean": 4044.7555555555555
+    },
+    "total_cost_usd": {
+      "baseline_mean": 0.0,
+      "decision": "advisory",
+      "delta": 0.0,
+      "effect_size": null,
+      "p_value": null,
+      "variant_mean": 0.0
+    }
+  },
+  "baseline": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.6-au-baseline-current",
+    "run_id": "story-6.4.6-au-baseline-current",
+    "variant_label": "story-6.4.6-au-baseline-current"
+  },
+  "decision": {
+    "blocked": false,
+    "blocking_reasons": [],
+    "blocking_rows": [],
+    "recommendation": "human-review"
+  },
+  "judge_bias_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": -1.1222222222222222,
+      "delta": 0.4,
+      "variant_mean": -0.7222222222222222
+    },
+    "cross_locale_leakage": {
+      "baseline_mean": 0.14444444444444443,
+      "delta": -1.0,
+      "variant_mean": -0.8555555555555555
+    },
+    "cultural_register": {
+      "baseline_mean": -0.9,
+      "delta": 0.1777777777777778,
+      "variant_mean": -0.7222222222222222
+    },
+    "field_coverage_recall": {
+      "baseline_mean": -1.4333333333333333,
+      "delta": -0.24444444444444446,
+      "variant_mean": -1.6777777777777778
+    },
+    "field_label_f1": {
+      "baseline_mean": -1.0444444444444445,
+      "delta": 0.47777777777777786,
+      "variant_mean": -0.5666666666666667
+    },
+    "format_pattern_accuracy": {
+      "baseline_mean": -0.011111111111111112,
+      "delta": -1.277777777777778,
+      "variant_mean": -1.288888888888889
+    },
+    "locale_fidelity": {
+      "baseline_mean": -0.011111111111111112,
+      "delta": -1.3111111111111111,
+      "variant_mean": -1.3222222222222222
+    },
+    "policy_compliance": {
+      "baseline_mean": -0.7888888888888889,
+      "delta": -0.611111111111111,
+      "variant_mean": -1.4
+    },
+    "row_group_agreement": {
+      "baseline_mean": -1.3555555555555556,
+      "delta": 0.48888888888888893,
+      "variant_mean": -0.8666666666666667
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": -0.7666666666666667,
+      "delta": 0.04444444444444451,
+      "variant_mean": -0.7222222222222222
+    }
+  },
+  "judge_metric_deltas": {
+    "copy_quality_score": {
+      "baseline_mean": 4.122222222222222,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.39999999999999947,
+      "effect_size": 1.1952555589428404,
+      "metric_kind": "continuous",
+      "metric_name": "copy_quality_score",
+      "note": "",
+      "p_value": 1.7928363182928564e-07,
+      "recommended_action": "human-review",
+      "variant_mean": 3.7222222222222223
+    },
+    "cross_locale_leakage": {
+      "baseline_mean": 3.522222222222222,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": 0.3333333333333335,
+      "effect_size": -0.23651744047822756,
+      "metric_kind": "continuous",
+      "metric_name": "cross_locale_leakage",
+      "note": "",
+      "p_value": 0.2652071547031203,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 3.8555555555555556
+    },
+    "cultural_register": {
+      "baseline_mean": 3.9,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.1777777777777776,
+      "effect_size": 0.42948711603255246,
+      "metric_kind": "continuous",
+      "metric_name": "cultural_register",
+      "note": "",
+      "p_value": 0.045036230796944854,
+      "recommended_action": "human-review",
+      "variant_mean": 3.7222222222222223
+    },
+    "field_coverage_recall": {
+      "baseline_mean": 4.433333333333334,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.24444444444444446,
+      "effect_size": -0.8442259986602654,
+      "metric_kind": "continuous",
+      "metric_name": "field_coverage_recall",
+      "note": "",
+      "p_value": 0.00013740016092045337,
+      "recommended_action": "human-review",
+      "variant_mean": 4.677777777777778
+    },
+    "field_label_f1": {
+      "baseline_mean": 4.044444444444444,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.4777777777777774,
+      "effect_size": 0.8754363318577453,
+      "metric_kind": "continuous",
+      "metric_name": "field_label_f1",
+      "note": "",
+      "p_value": 7.586173793938666e-05,
+      "recommended_action": "human-review",
+      "variant_mean": 3.566666666666667
+    },
+    "format_pattern_accuracy": {
+      "baseline_mean": 3.3444444444444446,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.6111111111111112,
+      "effect_size": -0.4805351469594381,
+      "metric_kind": "continuous",
+      "metric_name": "format_pattern_accuracy",
+      "note": "",
+      "p_value": 0.025130174973442387,
+      "recommended_action": "human-review",
+      "variant_mean": 3.9555555555555557
+    },
+    "locale_fidelity": {
+      "baseline_mean": 3.3444444444444446,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.6444444444444444,
+      "effect_size": -0.5773132171170733,
+      "metric_kind": "continuous",
+      "metric_name": "locale_fidelity",
+      "note": "",
+      "p_value": 0.007548230842383652,
+      "recommended_action": "human-review",
+      "variant_mean": 3.988888888888889
+    },
+    "policy_compliance": {
+      "baseline_mean": 3.7888888888888888,
+      "category": "B",
+      "decision": "win",
+      "delta": 0.2777777777777777,
+      "effect_size": -0.6953229323914343,
+      "metric_kind": "continuous",
+      "metric_name": "policy_compliance",
+      "note": "",
+      "p_value": 0.0014102424065595143,
+      "recommended_action": "human-review",
+      "variant_mean": 4.066666666666666
+    },
+    "row_group_agreement": {
+      "baseline_mean": 4.355555555555555,
+      "category": "B",
+      "decision": "regression",
+      "delta": -0.4888888888888885,
+      "effect_size": 1.4870852825547223,
+      "metric_kind": "continuous",
+      "metric_name": "row_group_agreement",
+      "note": "",
+      "p_value": 4.59522198070772e-10,
+      "recommended_action": "human-review",
+      "variant_mean": 3.8666666666666667
+    },
+    "validation_intent_accuracy": {
+      "baseline_mean": 3.7666666666666666,
+      "category": "B",
+      "decision": "inconclusive",
+      "delta": -0.04444444444444429,
+      "effect_size": 0.13133377546624733,
+      "metric_kind": "continuous",
+      "metric_name": "validation_intent_accuracy",
+      "note": "",
+      "p_value": 0.5349515657779276,
+      "recommended_action": "rerun-at-n15",
+      "variant_mean": 3.7222222222222223
+    }
+  },
+  "limitations": [
+    "Only schema_valid regressions and boundary violations are blocking.",
+    "Other deltas are advisory for PM/SM decision.",
+    "Inconclusive Category B results should rerun at n=15."
+  ],
+  "output_files": {
+    "csv": "_bmad-output\\eval-runs\\story-6.4.7-au-002\\diffs\\candidate-a\\diff-details.csv",
+    "json": "_bmad-output\\eval-runs\\story-6.4.7-au-002\\diffs\\candidate-a\\diff-summary.json",
+    "markdown": "_bmad-output\\eval-runs\\story-6.4.7-au-002\\diffs\\candidate-a\\diff-report.md"
+  },
+  "row_alignment": {
+    "extra_in_variant": [],
+    "matched_count": 45,
+    "missing_in_variant": []
+  },
+  "variant": {
+    "path": "_bmad-output\\eval-runs\\story-6.4.7-au-002\\story-6.4.7-au-002-candidate-a",
+    "run_id": "story-6.4.7-au-002-candidate-a",
+    "variant_label": "candidate-a"
+  }
+}

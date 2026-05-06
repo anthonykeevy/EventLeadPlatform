@@ -1,0 +1,56 @@
+{
+  "baseline_run_dir": "_bmad-output\\eval-runs\\story-6.4.6-au-baseline-current",
+  "candidate_runs": [
+    {
+      "candidate_label": "candidate-a",
+      "completed_count": 45,
+      "diff_dir": "_bmad-output\\eval-runs\\story-6.4.7-au-006\\diffs\\candidate-a",
+      "judge_input_batch": "C:\\wt\\elp\\story-epic6-6.4.7-au-baseline-analyst-loop\\_bmad-output\\eval-runs\\story-6.4.7-au-006\\story-6.4.7-au-006-candidate-a\\judge-package\\judge-input-batch.md",
+      "judge_package_dir": "C:\\wt\\elp\\story-epic6-6.4.7-au-baseline-analyst-loop\\_bmad-output\\eval-runs\\story-6.4.7-au-006\\story-6.4.7-au-006-candidate-a\\judge-package",
+      "run_dir": "_bmad-output\\eval-runs\\story-6.4.7-au-006\\story-6.4.7-au-006-candidate-a",
+      "run_id": "story-6.4.7-au-006-candidate-a",
+      "status": "completed",
+      "system_prompt_addendum_hash": "f613338e06cc5fcd40c83e6c84d78232581486626b7d2e208a0e51c8d7b1d820"
+    }
+  ],
+  "config_path": "docs\\stories\\experiments\\story-6.4.7-au-006.json",
+  "experiment_dir": "_bmad-output\\eval-runs\\story-6.4.7-au-006",
+  "generated_at_utc": "2026-05-06T04:01:52.324634+00:00",
+  "schema_version": "form-ai-eval-analyst-experiment-summary-v1",
+  "tracking_payload": {
+    "baseline_run_id": "story-6.4.6-au-baseline-current",
+    "candidate_count": 1,
+    "candidate_runs": [
+      {
+        "candidate_label": "candidate-a",
+        "completed_count": 45,
+        "diff_dir": "_bmad-output\\eval-runs\\story-6.4.7-au-006\\diffs\\candidate-a",
+        "judge_input_batch": "C:\\wt\\elp\\story-epic6-6.4.7-au-baseline-analyst-loop\\_bmad-output\\eval-runs\\story-6.4.7-au-006\\story-6.4.7-au-006-candidate-a\\judge-package\\judge-input-batch.md",
+        "judge_package_dir": "C:\\wt\\elp\\story-epic6-6.4.7-au-baseline-analyst-loop\\_bmad-output\\eval-runs\\story-6.4.7-au-006\\story-6.4.7-au-006-candidate-a\\judge-package",
+        "run_dir": "_bmad-output\\eval-runs\\story-6.4.7-au-006\\story-6.4.7-au-006-candidate-a",
+        "run_id": "story-6.4.7-au-006-candidate-a",
+        "status": "completed",
+        "system_prompt_addendum_hash": "f613338e06cc5fcd40c83e6c84d78232581486626b7d2e208a0e51c8d7b1d820"
+      }
+    ],
+    "evidence_folder": "_bmad-output\\eval-runs\\story-6.4.7-au-006",
+    "experiment_id": "story-6.4.7-au-006",
+    "generated_at_utc": "2026-05-06T04:01:52.324619+00:00",
+    "improvement_goal": "production-style-strict-au-publish-ready",
+    "scenario_slice": "au-all",
+    "schema_version": "form-ai-eval-analyst-tracking-row-v1",
+    "selected_prompt_ids": [],
+    "suggested_tracking_status": "Pending judge sessions and candidate comparison review",
+    "target_metrics": [
+      "locale_fidelity",
+      "cross_locale_leakage",
+      "format_pattern_accuracy",
+      "policy_compliance",
+      "field_coverage_recall",
+      "validation_intent_accuracy",
+      "copy_quality_score",
+      "row_group_agreement",
+      "field_label_f1"
+    ]
+  }
+}

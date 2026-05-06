@@ -1,0 +1,2873 @@
+{
+  "category_b_metrics": [
+    "field_coverage_recall",
+    "field_label_f1",
+    "validation_intent_accuracy",
+    "row_group_agreement",
+    "locale_fidelity",
+    "policy_compliance",
+    "cultural_register",
+    "cross_locale_leakage",
+    "format_pattern_accuracy",
+    "copy_quality_score"
+  ],
+  "control_judge": "gpt5mini",
+  "db_update_status": "not-requested",
+  "primary_judges": [
+    "claude",
+    "grok"
+  ],
+  "row_count": 45,
+  "rows": [
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.5
+      },
+      "judge_agreement_score": 0.92,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p01-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 3.5,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.94,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p01-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 5.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -3.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p01-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p01-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p02-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p02-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p02-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p02-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.5
+      },
+      "judge_agreement_score": 0.94,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p03-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 5.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -2.0,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p03-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 5.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -3.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p03-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p03-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p04-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p04-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p04-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p04-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.5
+      },
+      "judge_agreement_score": 0.94,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p05-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.0,
+        "row_group_agreement": -1.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.9,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p05-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.92,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p05-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p05-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p06-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p06-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p06-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p06-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.94,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p07-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p07-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 5.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -3.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p07-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p07-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p08-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p08-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p08-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p08-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.5,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.94,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p09-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p09-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -1.5,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p09-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p09-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p10-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p10-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.75,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p10-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p10-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p11-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 0.5,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.8,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Deterministic check 'nhs_or_nz_region' (severity: blocking) matched 'Auckland' in the generated definition. Auckland (NZ city/timezone) leaked into an AU-locale international event form.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "au_locale_block"
+          ],
+          "suggested_correction": "Replace 'Pacific/Auckland' timezone option with a neutral UTC+12 label to avoid NZ-region specificity in an AU-locale form."
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p11-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.0,
+        "cross_locale_leakage": 3.5,
+        "cultural_register": 3.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 3.5,
+        "format_pattern_accuracy": 4.0,
+        "locale_fidelity": 3.5,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -0.5,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -1.5,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -0.5,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.72,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "Deterministic checks found 'ZIP' (foreign_zip) and multiple instances of '+1' (foreign_phone_code) \u2014 all blocking severity \u2014 in the generated definition. The model echoed forbidden terms in helpText to explain why it was not using them.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "au_locale_block"
+          ],
+          "suggested_correction": "Remove all forbidden terms (ZIP, +1) from every output field including helpText. Silently substitute AU-correct labels without echoing the adversarial request."
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p11-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p11-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 4.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.5,
+        "cross_locale_leakage": 1.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.5,
+        "locale_fidelity": 1.0,
+        "policy_compliance": 0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.82,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Deterministic check 'privacy_law_without_au_anchor' (blocking) matched 'gdpr' in the generated definition. The formId encodes 'eu-gdpr' and a terms component uses 'Lawful basis for processing' \u2014 GDPR-specific language \u2014 without any Privacy Act 1988 anchor.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "consent_legal_guidance",
+            "au_locale_block"
+          ],
+          "suggested_correction": "Replace GDPR terminology with Privacy Act 1988 equivalents; change formId to omit 'eu-gdpr'; rename 'Lawful basis for processing' to 'Collection notice and consent (Privacy Act 1988)'."
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p12-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 4.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 4.0,
+        "policy_compliance": 3.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.8,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "Deterministic check 'privacy_law_without_au_anchor' (blocking) matched 'GDPR' in the generated definition. GDPR language appears without Privacy Act 1988 anchor for an AU-locale Sydney-associated form.",
+          "conflicting_data_exists": true,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block",
+            "consent_legal_guidance",
+            "au_locale_block"
+          ],
+          "suggested_correction": "Substitute AU Privacy Act 1988 / Australian consent framework for GDPR-specific language; the Sydney cue should reinforce AU compliance requirements."
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p12-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p12-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p12-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.5,
+        "locale_fidelity": 0.0,
+        "policy_compliance": 0.0,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.5
+      },
+      "judge_agreement_score": 0.9,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p13-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 4.5,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 3.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -0.5,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.0,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.92,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p13-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p13-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p13-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 5.0,
+        "field_label_f1": 4.5,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 5.0,
+        "row_group_agreement": 4.5,
+        "validation_intent_accuracy": 4.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": -0.5,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -1.0,
+        "row_group_agreement": -0.5,
+        "validation_intent_accuracy": -0.5
+      },
+      "judge_agreement_score": 0.94,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.9,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p14-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 3.5,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 5.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.5
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -0.5,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": -0.5,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -2.0,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.5
+      },
+      "judge_agreement_score": 0.94,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p14-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 5.0,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.5,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -3.0,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p14-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p14-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.5,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": 0.0,
+        "cross_locale_leakage": 0.0,
+        "cultural_register": 0.0,
+        "field_coverage_recall": 0.5,
+        "field_label_f1": 0.0,
+        "format_pattern_accuracy": 0.0,
+        "locale_fidelity": 0.0,
+        "policy_compliance": -0.5,
+        "row_group_agreement": 0.0,
+        "validation_intent_accuracy": 0.0
+      },
+      "judge_agreement_score": 0.96,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.85,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p15-au-neutral-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-neutral-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -1.0,
+        "cross_locale_leakage": -1.0,
+        "cultural_register": -1.0,
+        "field_coverage_recall": 0.0,
+        "field_label_f1": -1.0,
+        "format_pattern_accuracy": -1.0,
+        "locale_fidelity": -1.0,
+        "policy_compliance": -1.5,
+        "row_group_agreement": -1.0,
+        "validation_intent_accuracy": -1.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p15-au-ambiguous-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-ambiguous-r1__r01",
+      "variant_label": "candidate-a"
+    },
+    {
+      "cross_model_mean": {
+        "copy_quality_score": 4.0,
+        "cross_locale_leakage": 5.0,
+        "cultural_register": 4.0,
+        "field_coverage_recall": 4.0,
+        "field_label_f1": 4.0,
+        "format_pattern_accuracy": 5.0,
+        "locale_fidelity": 5.0,
+        "policy_compliance": 4.5,
+        "row_group_agreement": 4.0,
+        "validation_intent_accuracy": 4.0
+      },
+      "eval_run_id": null,
+      "generation_run_id": null,
+      "gpt5mini_bias_delta": {
+        "copy_quality_score": -2.0,
+        "cross_locale_leakage": -2.0,
+        "cultural_register": -2.0,
+        "field_coverage_recall": -1.0,
+        "field_label_f1": -2.0,
+        "format_pattern_accuracy": -2.0,
+        "locale_fidelity": -2.0,
+        "policy_compliance": -2.5,
+        "row_group_agreement": -2.0,
+        "validation_intent_accuracy": -2.0
+      },
+      "judge_agreement_score": 0.98,
+      "judge_diagnostics": {
+        "claude": {
+          "confidence": 0.8,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "gpt5mini": {
+          "confidence": 0.6,
+          "conflict_description": "",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [],
+          "suggested_correction": ""
+        },
+        "grok": {
+          "confidence": 0.76,
+          "conflict_description": "No major conflicts after inspecting shared-context-bundle.json AU locale contract (Privacy Act 1988, practical plain-English tone, DD/MM/YYYY, +61, Suburb/State/Postcode).",
+          "conflicting_data_exists": false,
+          "likely_responsible_section_ids": [
+            "candidate_prompt_block"
+          ],
+          "suggested_correction": ""
+        }
+      },
+      "judge_models_present": [
+        "claude",
+        "gpt5mini",
+        "grok"
+      ],
+      "prompt_id": "p15-au-adversarial-r1",
+      "repetition_index": 1,
+      "row_id": "p15-au-adversarial-r1__r01",
+      "variant_label": "candidate-a"
+    }
+  ],
+  "rubric_version": "rubric_v2"
+}

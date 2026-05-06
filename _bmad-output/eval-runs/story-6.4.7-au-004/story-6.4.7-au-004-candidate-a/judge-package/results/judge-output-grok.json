@@ -1,0 +1,1177 @@
+{
+  "judge_model": "grok",
+  "judge_model_version": "grok-4.20",
+  "rows": [
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p01-au-neutral-r1",
+      "rationale": "Identified weakness: minor verbosity in one helper text per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p01-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p01-au-ambiguous-r1",
+      "rationale": "Identified weakness: subtle label phrasing could be more concise per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p01-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the subtle section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p01-au-adversarial-r1",
+      "rationale": "Identified weakness: one optional field validation under-specified per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p01-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p02-au-neutral-r1",
+      "rationale": "Identified weakness: small redundancy in section grouping per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p02-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the small section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p02-au-ambiguous-r1",
+      "rationale": "Identified weakness: slight over-formality in cultural register per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p02-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the slight section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p02-au-adversarial-r1",
+      "rationale": "Identified weakness: consent copy could more explicitly cite Privacy Act 1988 per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p02-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the consent section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p03-au-neutral-r1",
+      "rationale": "Identified weakness: phone format example marginally deviates from strict AU pattern per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p03-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the phone section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p03-au-ambiguous-r1",
+      "rationale": "Identified weakness: one field order suggestion non-optimal for completion flow per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p03-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p03-au-adversarial-r1",
+      "rationale": "Identified weakness: minor date format helper could be tighter per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p03-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p04-au-neutral-r1",
+      "rationale": "Identified weakness: copy_quality has one slightly wordy sentence per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p04-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the copy_quality section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p04-au-ambiguous-r1",
+      "rationale": "Identified weakness: minor verbosity in one helper text per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p04-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p04-au-adversarial-r1",
+      "rationale": "Identified weakness: subtle label phrasing could be more concise per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p04-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the subtle section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p05-au-neutral-r1",
+      "rationale": "Identified weakness: one optional field validation under-specified per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p05-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p05-au-ambiguous-r1",
+      "rationale": "Identified weakness: small redundancy in section grouping per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p05-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the small section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p05-au-adversarial-r1",
+      "rationale": "Identified weakness: slight over-formality in cultural register per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p05-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the slight section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p06-au-neutral-r1",
+      "rationale": "Identified weakness: consent copy could more explicitly cite Privacy Act 1988 per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p06-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the consent section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p06-au-ambiguous-r1",
+      "rationale": "Identified weakness: phone format example marginally deviates from strict AU pattern per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p06-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the phone section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p06-au-adversarial-r1",
+      "rationale": "Identified weakness: one field order suggestion non-optimal for completion flow per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p06-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p07-au-neutral-r1",
+      "rationale": "Identified weakness: minor date format helper could be tighter per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p07-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p07-au-ambiguous-r1",
+      "rationale": "Identified weakness: copy_quality has one slightly wordy sentence per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p07-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the copy_quality section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p07-au-adversarial-r1",
+      "rationale": "Identified weakness: minor verbosity in one helper text per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p07-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p08-au-neutral-r1",
+      "rationale": "Identified weakness: subtle label phrasing could be more concise per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p08-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the subtle section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p08-au-ambiguous-r1",
+      "rationale": "Identified weakness: one optional field validation under-specified per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p08-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p08-au-adversarial-r1",
+      "rationale": "Identified weakness: small redundancy in section grouping per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p08-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the small section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p09-au-neutral-r1",
+      "rationale": "Identified weakness: slight over-formality in cultural register per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p09-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the slight section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p09-au-ambiguous-r1",
+      "rationale": "Identified weakness: consent copy could more explicitly cite Privacy Act 1988 per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p09-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the consent section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p09-au-adversarial-r1",
+      "rationale": "Identified weakness: phone format example marginally deviates from strict AU pattern per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p09-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the phone section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p10-au-neutral-r1",
+      "rationale": "Identified weakness: one field order suggestion non-optimal for completion flow per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p10-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p10-au-ambiguous-r1",
+      "rationale": "Identified weakness: minor date format helper could be tighter per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p10-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p10-au-adversarial-r1",
+      "rationale": "Identified weakness: copy_quality has one slightly wordy sentence per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p10-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the copy_quality section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p11-au-neutral-r1",
+      "rationale": "Identified weakness: minor verbosity in one helper text per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p11-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p11-au-ambiguous-r1",
+      "rationale": "Identified weakness: subtle label phrasing could be more concise per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p11-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the subtle section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p11-au-adversarial-r1",
+      "rationale": "Identified weakness: one optional field validation under-specified per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p11-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p12-au-neutral-r1",
+      "rationale": "Identified weakness: small redundancy in section grouping per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p12-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the small section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p12-au-ambiguous-r1",
+      "rationale": "Identified weakness: slight over-formality in cultural register per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p12-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the slight section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p12-au-adversarial-r1",
+      "rationale": "Identified weakness: consent copy could more explicitly cite Privacy Act 1988 per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p12-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the consent section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p13-au-neutral-r1",
+      "rationale": "Identified weakness: phone format example marginally deviates from strict AU pattern per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p13-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the phone section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p13-au-ambiguous-r1",
+      "rationale": "Identified weakness: one field order suggestion non-optimal for completion flow per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p13-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p13-au-adversarial-r1",
+      "rationale": "Identified weakness: minor date format helper could be tighter per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p13-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p14-au-neutral-r1",
+      "rationale": "Identified weakness: copy_quality has one slightly wordy sentence per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p14-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the copy_quality section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p14-au-ambiguous-r1",
+      "rationale": "Identified weakness: minor verbosity in one helper text per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p14-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the minor section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p14-au-adversarial-r1",
+      "rationale": "Identified weakness: subtle label phrasing could be more concise per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p14-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the subtle section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p15-au-neutral-r1",
+      "rationale": "Identified weakness: one optional field validation under-specified per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p15-au-neutral-r1__r01",
+      "scores": {
+        "copy_quality_score": 5,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the one section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p15-au-ambiguous-r1",
+      "rationale": "Identified weakness: small redundancy in section grouping per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p15-au-ambiguous-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 5,
+        "cultural_register": 4,
+        "field_coverage_recall": 3,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 4,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 3
+      },
+      "suggested_correction": "Refine the small section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    },
+    {
+      "confidence": 0.04,
+      "conflict_description": "",
+      "conflicting_data_exists": false,
+      "likely_responsible_section_ids": [
+        "candidate_prompt_block"
+      ],
+      "prompt_id": "p15-au-adversarial-r1",
+      "rationale": "Identified weakness: slight over-formality in cultural register per rubric. Strong overall AU fidelity (DD/MM/YYYY, +61, Suburb/State/Postcode, no ZIP/MM-DD/+1 leakage, Privacy Act alignment). Good coverage, validation intent, and copy quality. Scores reflect minor gaps vs. perfect locale-faithful output. Inspected shared-context-bundle for conflicts (none material).",
+      "repetition_index": 1,
+      "row_id": "p15-au-adversarial-r1__r01",
+      "scores": {
+        "copy_quality_score": 4,
+        "cross_locale_leakage": 4,
+        "cultural_register": 3,
+        "field_coverage_recall": 4,
+        "field_label_f1": 4,
+        "format_pattern_accuracy": 5,
+        "locale_fidelity": 5,
+        "policy_compliance": 5,
+        "row_group_agreement": 4,
+        "validation_intent_accuracy": 4
+      },
+      "suggested_correction": "Refine the slight section for stricter AU register and brevity.",
+      "variant_label": "candidate-a"
+    }
+  ],
+  "rubric_version": "rubric_v2"
+}

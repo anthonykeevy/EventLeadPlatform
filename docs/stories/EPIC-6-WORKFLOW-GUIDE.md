@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.4.7 — Analyst-led AU baseline improvement experiments against the frozen Story 6.4.6 baseline.
+**Current Focus:** Next story TBD — production prompt implementation to promote AU-005 behaviour using AU-006 lint-clean wording lessons.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -18,7 +18,7 @@
 **Story 6.4.4.2 Status:** ✅ **Complete** (merged 2026-04-28, PR #79) — H2-only and H4-only ablations completed under `rubric_v2`; both failed the ship bar, so current `master` behavior remains unchanged.
 **Story 6.4.5 Status:** ✅ **Measured/no-change** (merged 2026-04-29, PR #81) — H3 measured against AC10 `rubric_v2` baseline; no-go as-is due material `field_label_f1` regression and locale/context-conflict noise. Prompt changes reverted; evidence preserved.
 **Story 6.4.6 Status:** ✅ **Complete** (merged 2026-04-30, PR #82) — AU-only diagnostic eval framework, current-state AU baseline, judge ingest, and `AU-000` handoff complete; no candidate prompt improvements in this story.
-**Story 6.4.7 Status:** ⏳ **Planned** — BMAD Analyst-owned AU baseline analysis and iterative prompt improvement loop over version-managed prompt/context artifacts only.
+**Story 6.4.7 Status:** ✅ **Complete** (merged 2026-05-06, PR #84) — Analyst-owned AU-001 through AU-006 loop complete; AU-005 is the strongest behavioural target, AU-006 supplies lint-clean wording lessons for the follow-up production prompt implementation story.
 
 ---
 

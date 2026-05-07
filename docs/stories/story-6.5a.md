@@ -119,6 +119,7 @@ Every selected dropdown value must:
 
 - Story branch pushed to Draft PR #87.
 - All ACs met and verified.
+- **Prerequisite:** `docs/architecture/decision-6.5a-clarification-options-data-model.md` produced by Dimitri, reviewed and approved by Tony.
 - Research & Gap Analysis section completed and included in story documentation (countries, missing reference data, decisions made).
 - New DB-driven API endpoints + reference data seeded for existing countries only.
 - UAT executed with the 10 provided test prompts; results recorded.
@@ -135,6 +136,7 @@ Every selected dropdown value must:
 - `FormAiGenerateRequest` schema
 - Story 6.4.8 production prompt context (migration 072)
 - Existing `PromptTemplateLocaleBlock` seeds for the 11 supported locales
+- **Prerequisite Design Task:** `docs/architecture/decision-6.5a-clarification-options-data-model.md` (Dimitri to produce before Dev implementation)
 
 ---
 

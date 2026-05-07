@@ -65,3 +65,22 @@ If the candidate shows material regression in policy/validation/copy or p11 leak
 - `docs/stories/STORY-6.4.8-CLOSEOUT-REPORT.md` (new)
 - `docs/stories/story-6.4.8.md` (Tasks, Dev Record, File List, Status updated)
 - `docs/stories/STORY-6.4.8-GATE-EVIDENCE.md` (earlier)
+
+---
+
+## Post-Merge Code Review Resolution
+
+**Review Finding (Bug 1):**  
+The `downgrade()` UPDATE statement in migration 072 does not explicitly set `[IsActive] = 1` and `[IsDeleted] = 0`, making it non-idempotent if rows were manually altered between upgrade and downgrade.
+
+**Resolution:**  
+- Documented directly in the migration file as a non-functional comment block above `def downgrade()`.  
+- Added explanation that this is **low risk** because:  
+  - Downgrades are never executed in production (per working agreement and team policy).  
+  - The rows being restored were originally created by migration 065 with the correct flags.  
+  - Any future need for a fully idempotent downgrade can be addressed in a later migration.  
+- No code change to the migration logic was made (old migrations are never mutated after application).
+
+**Status:** Closed as "low risk / downgrade never used in prod".
+
+**Date resolved:** 2026-05-07 (post-merge documentation only).

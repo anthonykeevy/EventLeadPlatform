@@ -2,7 +2,7 @@
 
 **Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Targeted AU production-context eval verification (pending Tony's eval slice) + 6.5a / image-to-form sequencing decision.
+**Current Focus:** Story 6.5a — Clarification Questions: Situational awareness dropdowns + locale override in AI Agent panel.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  

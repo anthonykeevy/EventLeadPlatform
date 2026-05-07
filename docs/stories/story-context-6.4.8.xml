@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.4.8" title="Promote AU-005 Into Production Prompt Context">
+
+  <overview>
+    Convert Story 6.4.7's strongest AU prompt behaviour into the production
+    Form AI prompt/context store. AU-005 is the behaviour target; AU-006 is the
+    lint-clean wording lesson. This story is Dev-owned because it may require a
+    new config seed migration and production prompt assembly verification.
+  </overview>
+
+  <critical-objectives>
+    <item>Implement AU-005 strict AU + publish-ready behaviour in production prompt/context storage via new version-controlled PromptTemplateVersion / PromptTemplateLocaleBlock records only.</item>
+    <item>Use AU-006-style lint-clean conflict wording rather than eval-only forbidden-token overlays.</item>
+    <item>Preserve AU legal/policy specificity, validation intent, field coverage, component specificity, and copy quality.</item>
+    <item>Address p11-style international event/timezone leakage.</item>
+    <item>Verify prompt-context lint, deterministic AU findings, and judge/eval quality against Story 6.4.6 baseline and 6.4.7 expectations.</item>
+    <item>Ensure every prompt change is delivered as immutable DB seed records in a migration; Tony reviews and advances the alembic head.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.4.7">Complete; AU-005 selected as behavioural target, AU-006 selected as lint-clean wording evidence.</story>
+    <story id="6.4.6">Complete; AU diagnostic framework and frozen baseline exist.</story>
+    <story id="6.4.4.1">Complete; config.PromptTemplateLocaleBlock registry and AU seed blocks exist.</story>
+    <doc path="docs/stories/STORY-6.4.7-CLOSEOUT-REPORT.md">Production prompt recommendation and AC hints.</doc>
+    <doc path="docs/stories/STORY-6-AU-EVAL-ITERATION-TRACKING.md">AU-005 and AU-006 row-level results and decisions.</doc>
+    <doc path="docs/FORM-AI-EVAL-HARNESS.md">Harness instructions and eval output contract.</doc>
+    <doc path="docs/FORM-AI-EVAL-JUDGE-WORKFLOW.md">Manual judge package and ingest workflow.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic commands. Create migration files only; Tony reviews the migration, updates the alembic head, and executes.</item>
+    <item>Do NOT mutate old migrations. Add a new migration after current head for config seed updates. All prompts must be version-controlled via new PromptTemplateVersion / PromptTemplateLocaleBlock seed records.</item>
+    <item>Do NOT promote AU-005 literal eval overlay text as-is.</item>
+    <item>Do NOT weaken AU-005 legal/policy specificity, validation intent, or copy quality just to make lint pass.</item>
+    <item>Do NOT run broad six-locale sweeps; AU launch quality is the target.</item>
+    <item>Do NOT touch frontend unless an explicit blocker is raised and approved.</item>
+    <item>Use PowerShell-safe commands; no ampersand chaining.</item>
+    <item>Never edit active prompt text directly in code or DB; all production prompts flow from versioned DB records only.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/service.py"
+          note="Production prompt assembly: _assemble_locale_block, _build_initial_messages, audience locale resolution, generation trace metadata."/>
+    <path file="backend/migrations/versions/063_story_6441_prompt_template_locale_block.py"
+          note="Defines config.PromptTemplateLocaleBlock storage shape."/>
+    <path file="backend/migrations/versions/065_story_6441_seed_locale_blocks_au.py"
+          note="Existing AU locale block seed; create a new follow-up migration rather than editing this file."/>
+    <path file="backend/tests/test_form_ai_locale_assembly.py"
+          note="Focused tests for locale block assembly and fallback behaviour."/>
+    <path file="backend/tests/test_form_ai_locale_resolution.py"
+          note="Focused tests for audience locale and brand posture resolution."/>
+    <path file="backend/tests/test_story_6441_migrations_static.py"
+          note="Static migration checks for locale registry migrations."/>
+    <path file="backend/tests/form_ai_eval/au_locale_contract_v1.json"
+          note="Versioned AU eval contract; update only if production contract wording should be reflected in eval evidence."/>
+    <path file="backend/tests/form_ai_eval/prompts_au_v1.yaml"
+          note="AU benchmark prompt set for production candidate verification."/>
+  </primary-code-paths>
+
+  <evidence-paths>
+    <path file="_bmad-output/eval-runs/story-6.4.6-au-baseline-current/"
+          note="Frozen baseline control."/>
+    <path file="_bmad-output/eval-runs/story-6.4.7-au-005/"
+          note="Best behavioural candidate; target score 4.471/5."/>
+    <path file="_bmad-output/eval-runs/story-6.4.7-au-006/"
+          note="Lint-clean wording lesson; target prompt-context lint 0 and deterministic findings near 3."/>
+  </evidence-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.4.8.md" purpose="Story spec and ACs."/>
+    <file path="docs/stories/story-context-6.4.8.xml" purpose="This context file."/>
+    <file path="docs/stories/STORY-6.4.8-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev execution contract."/>
+    <file path="docs/stories/STORY-6.4.8-UAT-TEST-GUIDE.md" purpose="Human/SM UAT guide."/>
+    <file path="docs/stories/STORY-6.4.8-GATE-EVIDENCE.md" purpose="Automated/eval gate evidence."/>
+    <file path="docs/stories/STORY-6.4.8-CLOSEOUT-REPORT.md" purpose="Required if migration or deferred scope ships."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">Production source updated.</ac>
+    <ac id="2">Migration prepared.</ac>
+    <ac id="3">AU conflict wording lint-clean.</ac>
+    <ac id="4">AU legal/policy specificity preserved.</ac>
+    <ac id="5">Validation and form completeness preserved.</ac>
+    <ac id="6">p11 risk addressed.</ac>
+    <ac id="7">Focused tests green.</ac>
+    <ac id="8">Production candidate eval recorded.</ac>
+    <ac id="9">Judge/eval comparison recorded.</ac>
+    <ac id="10">No frontend touched.</ac>
+    <ac id="11">Evidence docs complete.</ac>
+  </acceptance-mapping>
+
+</story-context>

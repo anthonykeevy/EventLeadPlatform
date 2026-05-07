@@ -3,10 +3,11 @@
 **Epic:** 6 - AI Generation & Monetization Engine  
 **Story ID:** 6.4.8  
 **Title:** Promote AU-005 Into Production Prompt Context  
-**Status:** Draft / Ready for Dev  
+**Status:** Complete (merged 2026-05-07, PR #85)  
 **Branch:** `story/epic6-6.4.8-au-production-prompt-context`  
-**PR:** [#85](https://github.com/anthonykeevy/EventLeadPlatform/pull/85) - Draft PR to `master`  
+**PR:** [#85](https://github.com/anthonykeevy/EventLeadPlatform/pull/85)  
 **Created:** 2026-05-06  
+**Completed:** 2026-05-07 (merged at 2026-05-07T05:19:24Z)  
 **Depends On:** Story 6.4.7 ([PR #84](https://github.com/anthonykeevy/EventLeadPlatform/pull/84)) merged.  
 **Unblocks:** Production AU prompt quality uplift and continuation toward image-to-form / broader AI launch readiness.
 

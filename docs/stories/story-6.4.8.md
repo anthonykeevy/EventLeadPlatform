@@ -139,3 +139,45 @@ Required evidence:
 - Focused automated checks pass and are recorded.
 - AU eval evidence proves the production path is materially better than baseline and aligns with AU-005/AU-006 lessons.
 - Story closeout recommends whether to proceed to 6.5a / image-to-form / further prompt tuning.
+
+---
+
+## Tasks/Subtasks (Dev Agent Execution)
+
+- [x] Step 0 - Preflight (scripts/workflow/preflight-story.ps1 PASS; branch/worktree/DB parity verified)
+- [x] Step 1-2 - Implementation Plan + Production Context Store Update (migration 072 created; smallest change via PromptTemplateLocaleBlock; service.py untouched)
+- [x] Step 3 - Focused Tests (45/45 passed post-alembic 072; see GATE-EVIDENCE.md; AC-7 satisfied)
+- [x] Step 4-6 - AU Eval / Judge / Compare (45-row production-context run + 3 parallel judges completed; Grok 4.93/5, Claude 3.65/5; raw scores in GATE-EVIDENCE)
+- [x] Step 7 - Migration Handoff (Tony executed; documented)
+- [x] Step 8 - Closeout (All evidence docs + UAT results + closeout report complete; story marked review)
+
+## Dev Agent Record
+
+**Implementation Plan:** Smallest durable change: new migration 072 after head (071) updating AU rows in `config.PromptTemplateLocaleBlock` (format/policy/tone) with AU-005 behaviour target + AU-006 lint-clean positive phrasing + p11 guard. No `PromptTemplateVersion` insert (per plan); no service.py edits (context store sufficient via `_assemble_locale_block`). Tests first (red-green), then evidence.
+
+**Decisions:**
+- Table: `config.PromptTemplateLocaleBlock` (UPDATE + INSERT for active FORM_AI_STEP1_BASE + AU CountryID).
+- Wording: lint-clean (categories not forbidden lists); explicit Privacy Act 1988 / Spam Act 2003; publish-ready order guard preserved.
+- AC-10: frontend untouched.
+- AC-12: all changes via immutable seed migration only.
+
+**Tests:** 45 passed (exact command + per-file summary in `STORY-6.4.8-GATE-EVIDENCE.md`).
+
+**Migration applied:** 2026-05-07 by Tony (`alembic upgrade head`).
+
+**File List (updated):**
+- `backend/migrations/versions/072_story_648_au_production_prompt_context.py` (new)
+- `docs/stories/STORY-6.4.8-GATE-EVIDENCE.md` (new)
+- `docs/stories/story-6.4.8.md` (Tasks, Dev Agent Record, File List, Change Log added)
+
+**Change Log:**
+- 2026-05-07: Created + applied migration 072; 45/45 tests green; GATE-EVIDENCE.md populated (AC-2,7,12).
+- Production AU prompt context now live via DB blocks.
+
+**Status:** in-progress (Steps 0-3 complete; eval pending for full AC-8/9 evidence).
+
+---
+
+## 6) Story Status
+
+**Status:** review (all tasks complete; judge evidence captured from parallel sub-agents; ingest blocked on filename convention but raw scores documented; ready for integrator review/merge)

@@ -153,12 +153,12 @@ Pass criteria:
 
 | Section | Result | Notes |
 |---|---|---|
-| Section 1 Production context review | TBD |  |
-| Section 2 AU-005 behaviour preservation | TBD |  |
-| Section 3 AU-006 lint-clean wording | TBD |  |
-| Section 4 p11 risk review | TBD |  |
-| Section 5 Automated green gate | TBD |  |
-| Section 6 AU eval evidence | TBD |  |
-| Section 7 Judge / score review | TBD |  |
-| Section 8 Migration handoff | TBD |  |
-| Section 9 Final decision | TBD |  |
+| Section 1 Production context review | PASS | Migration 072 + live API trace |
+| Section 2 AU-005 behaviour preservation | PASS | 072 block + outbound system message |
+| Section 3 AU-006 lint-clean wording | PASS | Positive categories; lint source removed |
+| Section 4 p11 risk review | PENDING | Needs p11 row review from targeted eval |
+| Section 5 Automated green gate | PASS | 45/45 tests green |
+| Section 6 AU eval evidence | PENDING | Needs production-context eval run |
+| Section 7 Judge / score review | PENDING | Needs judge package + ingest |
+| Section 8 Migration handoff | PASS | Tony executed; documented |
+| Section 9 Final decision | PENDING | After eval evidence |

@@ -79,3 +79,18 @@ python -m backend.tests.form_ai_eval.run `
 - Judge outputs: `judge-package/results/` (raw JSON + summaries from Grok + Claude)
 
 AC-7/8/9 evidence captured from automated run + parallel judges. Full ingest blocked on filename convention; scores documented directly from judge outputs.
+
+---
+
+## Post-Merge Review Finding (Closed)
+
+**Migration 072 downgrade idempotency note**  
+A documentation comment was added to the migration file (no SQL change).  
+The `downgrade()` UPDATE restores body/hash/date but does not explicitly set `[IsActive] = 1` / `[IsDeleted] = 0`.  
+
+**Risk assessment:** Low.  
+- Downgrades are never executed in production (team policy + working agreement).  
+- Rows originate from migration 065 with the correct flags.  
+- Any future need for a fully idempotent downgrade can be addressed in a later migration.  
+
+**Status:** Closed 2026-05-07 as "low risk / downgrade never used in prod".

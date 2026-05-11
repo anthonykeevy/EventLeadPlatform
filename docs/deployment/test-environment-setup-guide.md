@@ -25,87 +25,62 @@ This ensures that when the test environment is deployed, it already contains the
 
 ## 2. Step 1: Correct Seed Company Data (Development Environment)
 
-### 2.1 Create Updated Seed Script
+**Important:** The original platform seed data still contains the old “EventLeads” placeholder values. You must correct this **before** creating any Azure resources.
 
-Create a new file:
+### 2.1 Run the Corrected Seed Script
 
-**Path:** `database/seeds/signal-platforms-seed.sql`
+A dedicated seed script has been created for this purpose:
 
-**Content (replace placeholder values with your real details):**
+**File:** `database/seeds/signal-platforms-seed.sql`
 
-```sql
--- =====================================================================
--- Signal Platforms – Production Seed Data (CompanyID = 1)
--- =====================================================================
+This script safely updates (or inserts) CompanyID = 1 with the correct legal entity details from your ABN Advice Letter:
+- Legal Name: `SIGNAL PLATFORMS PTY LTD`
+- ABN: `23 695 192 511`
+- ACN: `695 192 511`
+- Address: `4 Milburn Pl, St Ives Chase NSW 2075`
+- Default Email: `noreply@signalplatforms.com.au`
+- GST Registered: No (will be updated on production move)
 
-USE [EventLeadPlatform];
-GO
-
-PRINT 'Updating platform company to Signal Platforms...';
-
--- Update existing CompanyID = 1 (or insert if it does not exist)
-IF EXISTS (SELECT 1 FROM [Company] WHERE CompanyID = 1)
-BEGIN
-    UPDATE [Company]
-    SET
-        DisplayName = 'Signal Platforms',
-        LegalEntityName = 'SIGNAL PLATFORMS PTY LTD',
-        BusinessNames = '["Signal Platforms", "Signal Platforms"]',
-        Website = 'https://signalplatforms.com.au',
-        Phone = '+61 2 9215 7100',
-        Industry = 'Software as a Service (SaaS)',
-        UpdatedDate = GETUTCDATE()
-    WHERE CompanyID = 1;
-    PRINT 'CompanyID = 1 updated to Signal Platforms';
-END
-ELSE
-BEGIN
-    INSERT INTO [Company] (CompanyID, DisplayName, LegalEntityName, BusinessNames, Website, Phone, Industry, CreatedDate, CreatedBy, IsDeleted)
-    VALUES (1, 'Signal Platforms', 'SIGNAL PLATFORMS PTY LTD', '["Signal Platforms"]', 'https://signalplatforms.com.au', '+61 2 9215 7100', 'Software as a Service (SaaS)', GETUTCDATE(), 1, 0);
-    PRINT 'CompanyID = 1 created as Signal Platforms';
-END
-GO
-
--- Update Billing Details (replace with your real ABN and address)
-UPDATE [CompanyBillingDetails]
-SET
-    ABN = '12 345 678 901',                    -- ← REPLACE WITH YOUR REAL ABN
-    EntityName = 'SIGNAL PLATFORMS PTY LTD',
-    BillingAddress = 'Level 5, 123 George Street, Sydney NSW 2000, Australia',  -- ← UPDATE
-    BillingEmail = 'billing@signalplatforms.com.au',
-    BillingPhone = '+61 2 9215 7100',
-    TaxInvoiceLegalName = 'SIGNAL PLATFORMS PTY LTD',
-    TaxInvoiceDisplayName = 'Signal Platforms',
-    UpdatedDate = GETUTCDATE()
-WHERE CompanyID = 1;
-PRINT 'Billing details updated';
-
--- Update Organizer Details
-UPDATE [CompanyOrganizerDetails]
-SET
-    PublicProfileName = 'Signal Platforms',
-    LogoUrl = 'https://signalplatforms.com.au/logo.png',  -- ← UPDATE WHEN AVAILABLE
-    BrandColorPrimary = '#0066CC',
-    Description = 'Professional customer engagement form builder for Australian businesses.',
-    ContactEmail = 'hello@signalplatforms.com.au',
-    ContactPhone = '+61 2 9215 7100',
-    UpdatedDate = GETUTCDATE()
-WHERE CompanyID = 1;
-PRINT 'Organizer details updated';
-
-PRINT '✅ Signal Platforms seed data updated successfully.';
-GO
-```
-
-**Action Required**
-- Replace the placeholder ABN, address, phone, and logo URL with your real details.
-- Run the script in your local development database:
+**Run the script:**
 
 ```powershell
 sqlcmd -S localhost -d EventLeadPlatform -i database/seeds/signal-platforms-seed.sql
 ```
 
-- Verify the data looks correct before proceeding.
+### 2.2 Verify the Data
+
+Run these queries to confirm the correction:
+
+```sql
+SELECT CompanyID, CompanyName, LegalEntityName, ABN, ACN, GSTRegistered, Email, Website
+FROM [Company]
+WHERE CompanyID = 1;
+
+SELECT *
+FROM [CompanyBillingDetails]
+WHERE CompanyID = 1;
+```
+
+Expected results:
+- `CompanyName` = “Signal Platforms”
+- `LegalEntityName` = “SIGNAL PLATFORMS PTY LTD”
+- `ABN` = “23695192511”
+- `Email` = “noreply@signalplatforms.com.au”
+
+### 2.3 Update the Alembic Migration (Future-Proofing)
+
+For any future fresh database deployments, the same correction must be applied in the migration system.
+
+See the companion document:
+
+**`docs/deployment/seed-data-correction-instructions.md`**
+
+It contains:
+- The exact diff for `backend/migrations/versions/009_company_validation_architecture.py`
+- Upgrade and downgrade changes
+- Verification steps
+
+**Do not proceed to Azure deployment until the local seed data has been verified.**
 
 ---
 

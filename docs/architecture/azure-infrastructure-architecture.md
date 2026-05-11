@@ -209,15 +209,52 @@ All three capabilities below are achievable on the current architecture without 
 
 ---
 
-## 10. Cost Estimates (AUD, approximate)
+## 10. Detailed Cost Breakdown & Pricing (AUD, approximate – May 2026)
 
-| Tier | App Service | Azure SQL | ACS (emails) | Monthly Total | Use Case |
-|------|-------------|-----------|--------------|---------------|----------|
-| Test-First | B1 / S1 (~$15–40) | Serverless (~$5–15) | Pay-per-email | **$20–80** | Demos & feedback |
-| Early Production | S1 / P1v2 (~$50–120) | S2 / 2 vCore (~$30–80) | Pay-per-email | **$80–250** | 100–200 users |
-| Scaled | P2v3+ or multiple instances | Provisioned vCore | Pay-per-email | $300+ | 1,000+ users |
+### 10.1 Azure Communication Services (ACS) Email – Pay-As-You-Go
 
-Slots add negligible extra cost. Serverless SQL pauses automatically when idle.
+**Pricing (Standard Global Rates)**
+- **$0.00025 USD per email** sent to each recipient
+- **$0.00012 USD per MB** of data transferred (includes headers, body, images, and attachments)
+
+**Realistic Monthly Examples** (assuming average email size of 0.2 MB)
+
+| Monthly Emails | Estimated Cost (USD) | Estimated Cost (AUD) | Notes |
+|----------------|----------------------|----------------------|-------|
+| 1,000          | $0.27                | ~$0.40               | Very light usage |
+| 5,000          | $1.35                | ~$2.00               | Typical early test volume |
+| 10,000         | $2.74                | ~$4.10               | Healthy demo / feedback phase |
+| 50,000         | $13.70               | ~$20.50              | Growing customer base |
+| 100,000        | $27.40               | ~$41.00              | Early production |
+
+**Key Points**
+- No fixed monthly fee for ACS Email.
+- Custom sender domains (your customers’ domains) cost nothing extra.
+- Domain verification (DKIM/SPF/DMARC) is free.
+- Test environment catch-all routing has the same per-email cost.
+
+### 10.2 Full Platform Monthly Cost Estimates (AUD)
+
+| Environment | App Service | Azure SQL | Blob + ACS + Insights | Est. Monthly Total | Recommended For |
+|-------------|-------------|-----------|-----------------------|--------------------|-----------------|
+| **Test-First** | B1 or S1 (~$15–45) | Serverless (~$5–20) | ~$5–15 | **$25–80** | Customer demos & feedback |
+| **Early Production** | S1 / P1v2 (~$55–130) | S2 or 2 vCore (~$35–90) | ~$15–30 | **$105–250** | 100–300 active users |
+| **Scaled** | P2v3+ or 2–4 instances | 4–8 vCore | ~$40+ | **$350–800+** | 1,000–5,000 users |
+
+**Notes on Test Environment**
+- Using **Serverless SQL** + **B1 App Service** + deployment slot keeps the test environment under **$50–70 AUD/month** even with moderate usage.
+- The test slot itself adds almost no extra cost.
+- You can pause the test environment when not in use.
+
+### 10.3 Cost-Saving Recommendations for Test Phase
+
+1. Start with **B1 App Service** + **Serverless General Purpose SQL**.
+2. Use the **test deployment slot** (no extra App Service Plan cost).
+3. Keep ACS in test mode with a catch-all mailbox (still very cheap).
+4. Only move to S1/P1v2 and provisioned SQL when you have paying customers or sustained load.
+5. Monitor spending with Azure Cost Management alerts from day one.
+
+This pricing model fully supports your goal of a low-cost test environment before committing to production spend.
 
 ---
 

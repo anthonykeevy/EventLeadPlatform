@@ -1,0 +1,104 @@
+name: Deploy to Test Environment
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:   # Allows manual trigger from GitHub UI
+
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    environment: test   # Uses the 'test' GitHub Environment and its secrets
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ==========================================
+      # Build Frontend
+      # ==========================================
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      # ==========================================
+      # Prepare Backend + Frontend Bundle
+      # ==========================================
+      - name: Prepare Deployment Package
+        run: |
+          # Copy built frontend into backend so FastAPI can serve it
+          mkdir -p backend/static/frontend
+          cp -r frontend/dist/* backend/static/frontend/
+
+          # Optional: copy root files if your App Service startup needs them
+          # (adjust as needed for your exact structure)
+
+      # ==========================================
+      # Deploy to Azure App Service (Test Slot)
+      # ==========================================
+      - name: Deploy to Azure Web App (Test Slot)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'signalplatforms-test'
+          slot-name: 'test'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_TEST }}
+          package: backend   # Deploy the backend folder (which now contains the frontend build)
+
+      # ==========================================
+      # Optional: Set / Update App Settings after deploy
+      # ==========================================
+      # You can uncomment this section if you prefer to manage
+      # environment variables from the workflow instead of the Azure Portal.
+      #
+      # - name: Configure App Settings (Test Slot)
+      #   uses: azure/CLI@v1
+      #   with:
+      #     azcliversion: 2.57.0
+      #     inlineScript: |
+      #       az webapp config appsettings set \
+      #         --name signalplatforms-test \
+      #         --slot test \
+      #         --resource-group signal-platforms-test-rg \
+      #         --settings \
+      #           ENVIRONMENT=test \
+      #           EMAIL_PROVIDER=acs \
+      #           TEST_MODE=true \
+      #           TEST_CATCHALL_EMAIL=test-inbox@signalplatforms.io \
+      #           EMAIL_FROM=noreply@signalplatforms.com.au \
+      #           EMAIL_FROM_NAME="Signal Platforms"
+
+      # ==========================================
+      # Optional: Run Alembic Migrations
+      # ==========================================
+      # Only enable this after you have tested migrations locally.
+      # Uncomment when ready.
+      #
+      # - name: Run Database Migrations
+      #   run: |
+      #     # This assumes your App Service has the correct DATABASE_URL
+      #     # and you have a startup command or a separate migration step.
+      #     echo "Migrations should be run via a dedicated job or startup script."
+
+    # ==========================================
+    # Post-deployment notification (optional)
+    # ==========================================
+    # You can add Slack / Teams / Email notifications here later.
+
+# Notes for future improvements:
+# - Add a separate job for running tests before deployment
+# - Add approval requirement on the 'test' GitHub Environment
+# - Switch from Publish Profile to Service Principal + OIDC for better security
+# - Add a production deployment job with manual approval gate

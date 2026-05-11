@@ -832,25 +832,25 @@ def upgrade() -> None:
     """)
     
     # ========================================
-    # STEP 9: EventLeads Company Seed Data
+    # STEP 9: Signal Platforms Company Seed Data (Corrected)
     # ========================================
     
     op.execute("""
-        -- EventLeads company setup - handles both dev (existing data) and production (fresh DB)
+        -- Signal Platforms company setup - handles both dev (existing data) and production (fresh DB)
         
-        DECLARE @EventLeadsExists BIT = 0;
+        DECLARE @SignalPlatformsExists BIT = 0;
         DECLARE @CompanyIDOne BIT = 0;
         
-        -- Check if EventLeads company already exists
-        IF EXISTS (SELECT 1 FROM [dbo].[Company] WHERE CompanyName = 'EventLeads')
-            SET @EventLeadsExists = 1;
+        -- Check if Signal Platforms company already exists
+        IF EXISTS (SELECT 1 FROM [dbo].[Company] WHERE CompanyName = 'Signal Platforms')
+            SET @SignalPlatformsExists = 1;
         
         -- Check if CompanyID = 1 exists  
         IF EXISTS (SELECT 1 FROM [dbo].[Company] WHERE CompanyID = 1)
             SET @CompanyIDOne = 1;
         
-        -- Scenario 1: Fresh production database - INSERT EventLeads as CompanyID = 1
-        IF @EventLeadsExists = 0 AND @CompanyIDOne = 0
+        -- Scenario 1: Fresh production database - INSERT Signal Platforms as CompanyID = 1
+        IF @SignalPlatformsExists = 0 AND @CompanyIDOne = 0
         BEGIN
             SET IDENTITY_INSERT [dbo].[Company] ON;
             
@@ -860,55 +860,66 @@ def upgrade() -> None:
                 LegalEntityName,
                 DisplayNameSource,
                 ABN,
+                ACN,
+                ABNStatus,
+                EntityType,
                 GSTRegistered,
-                Phone,
                 Email,
+                Website,
                 CountryID,
-                ParentCompanyID,
                 IsActive
             )
             VALUES (
                 1,
-                'EventLeads',
-                'EventLeads Pty Ltd',
+                'Signal Platforms',
+                'SIGNAL PLATFORMS PTY LTD',
                 'Legal',
-                '00000000000',  -- Placeholder ABN
+                '23695192511',
+                '695192511',
+                'Active',
+                'Australian Private Company',
                 0,
-                NULL,
-                'info@eventlead.com',
+                'noreply@signalplatforms.com.au',
+                'https://signalplatforms.com.au',
                 (SELECT CountryID FROM [ref].[Country] WHERE CountryCode = 'AU'),
-                NULL,
                 1
             );
             
             SET IDENTITY_INSERT [dbo].[Company] OFF;
         END
         
-        -- Scenario 2: Dev database with test data - UPDATE existing CompanyID = 1 to EventLeads
-        IF @EventLeadsExists = 0 AND @CompanyIDOne = 1
+        -- Scenario 2: Dev database with test data - UPDATE existing CompanyID = 1 to Signal Platforms
+        IF @SignalPlatformsExists = 0 AND @CompanyIDOne = 1
         BEGIN
             UPDATE [dbo].[Company]
             SET 
-                CompanyName = 'EventLeads',
-                LegalEntityName = 'EventLeads Pty Ltd',
+                CompanyName = 'Signal Platforms',
+                LegalEntityName = 'SIGNAL PLATFORMS PTY LTD',
+                ABN = '23695192511',
+                ACN = '695192511',
+                ABNStatus = 'Active',
+                EntityType = 'Australian Private Company',
+                GSTRegistered = 0,
+                Email = 'noreply@signalplatforms.com.au',
+                Website = 'https://signalplatforms.com.au',
                 UpdatedDate = GETUTCDATE()
             WHERE CompanyID = 1;
         END
         
-        -- Scenario 3: EventLeads exists but not as CompanyID = 1 - Leave as-is
+        -- Scenario 3: Signal Platforms exists but not as CompanyID = 1 - Leave as-is
         -- (Admin can manually configure validation for the correct company)
     """)
     
     # ========================================
-    # STEP 9: EventLeads Validation Configuration
+    # STEP 9b: Signal Platforms Validation Configuration
     # ========================================
     
     op.execute("""
-        -- Configure EventLeads phone validation rules
+        -- Configure Signal Platforms phone validation rules
         -- ACCEPT: Mobile, Landline, Satellite, Location-independent
         -- REJECT: Toll-free, Local rate, Premium
         
-        DECLARE @EventLeadsID BIGINT = 1;  -- EventLeads CompanyID
+        DECLARE @SignalPlatformsID BIGINT = 1;  -- Signal Platforms CompanyID
         
         -- Get rule IDs for Australian phone types
         DECLARE @MobileLoc BIGINT = (SELECT ValidationRuleID FROM [config].[ValidationRule] WHERE RuleKey = 'PHONE_MOBILE_FORMAT');
@@ -918,28 +929,28 @@ def upgrade() -> None:
         DECLARE @Satellite BIGINT = (SELECT ValidationRuleID FROM [config].[ValidationRule] WHERE RuleKey = 'PHONE_AU_SATELLITE');
         DECLARE @LocationIndep BIGINT = (SELECT ValidationRuleID FROM [config].[ValidationRule] WHERE RuleKey = 'PHONE_AU_LOCATION_INDEP');
         
-        -- Insert EventLeads configuration (only if rules found)
+        -- Insert Signal Platforms configuration (only if rules found)
         IF @MobileLoc IS NOT NULL
         BEGIN
             INSERT INTO [config].[CompanyValidationRule] (CompanyID, ValidationRuleID, IsEnabled, SortOrderOverride)
             VALUES
-                (@EventLeadsID, @MobileLoc, 1, 10),        -- Mobile local (highest priority)
-                (@EventLeadsID, @MobileIntl, 1, 11),       -- Mobile international
-                (@EventLeadsID, @LandlineLoc, 1, 20),      -- Landline local
-                (@EventLeadsID, @LandlineIntl, 1, 21);     -- Landline international
+                (@SignalPlatformsID, @MobileLoc, 1, 10),        -- Mobile local (highest priority)
+                (@SignalPlatformsID, @MobileIntl, 1, 11),       -- Mobile international
+                (@SignalPlatformsID, @LandlineLoc, 1, 20),      -- Landline local
+                (@SignalPlatformsID, @LandlineIntl, 1, 21);     -- Landline international
                 
             -- Add satellite and location-independent if they exist
             IF @Satellite IS NOT NULL
                 INSERT INTO [config].[CompanyValidationRule] (CompanyID, ValidationRuleID, IsEnabled, SortOrderOverride)
-                VALUES (@EventLeadsID, @Satellite, 1, 25);
+                VALUES (@SignalPlatformsID, @Satellite, 1, 25);
                 
             IF @LocationIndep IS NOT NULL
                 INSERT INTO [config].[CompanyValidationRule] (CompanyID, ValidationRuleID, IsEnabled, SortOrderOverride)
-                VALUES (@EventLeadsID, @LocationIndep, 1, 26);
+                VALUES (@SignalPlatformsID, @LocationIndep, 1, 26);
         END
         
         -- NOTE: Toll-free, Local rate, and Premium are NOT inserted
-        -- Therefore EventLeads rejects these number types
+        -- Therefore Signal Platforms rejects these number types
     """)
     
     # ========================================
@@ -1015,8 +1026,8 @@ def downgrade() -> None:
     # STEP 2: Drop CompanyValidationRule table
     op.execute("DROP TABLE IF EXISTS [config].[CompanyValidationRule]")
     
-    # STEP 3: NOW safe to delete EventLeads company (no FK references)
-    op.execute("DELETE FROM [dbo].[Company] WHERE CompanyID = 1 AND CompanyName = 'EventLeads'")
+    # STEP 3: NOW safe to delete Signal Platforms company (no FK references)
+    op.execute("DELETE FROM [dbo].[Company] WHERE CompanyID = 1 AND CompanyName = 'Signal Platforms'")
     
     # STEP 4: Remove display format columns from ValidationRule
     op.execute("""

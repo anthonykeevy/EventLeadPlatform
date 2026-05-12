@@ -8,13 +8,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from typing import Generator
 import logging
 
+from common.database_url import sync_database_url_env
+
 logger = logging.getLogger(__name__)
 
-# Database URL from environment
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "mssql+pyodbc://localhost/EventLeadPlatform?driver=ODBC+Driver+18+for+SQL+Server&Trusted_Connection=Yes&TrustServerCertificate=yes"
-)
+# Normalise DATABASE_URL (ODBC string -> SQLAlchemy, AZURE_SQL_* -> URL) for SQLAlchemy + Alembic
+DATABASE_URL = sync_database_url_env()
 
 # Create SQLAlchemy engine
 engine = create_engine(

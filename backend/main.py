@@ -2,7 +2,11 @@
 EventLead Platform - FastAPI Backend
 Main application entry point
 """
+import os
+from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
+
 load_dotenv()  # Load environment variables from .env file
 
 from fastapi import FastAPI, HTTPException
@@ -47,12 +51,40 @@ from modules.preferences.router import router as preferences_router  # Story 6.4
 # Configure application-wide logging
 configure_logging(log_level="INFO")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Optional Alembic upgrade on startup (Azure demo / test slot)."""
+    flag = (os.getenv("AUTO_MIGRATE_ON_STARTUP") or "").strip().lower()
+    if flag in ("1", "true", "yes"):
+        import logging
+        from pathlib import Path
+
+        from alembic.config import Config
+        from alembic import command
+
+        from common.database_url import sync_database_url_env
+
+        log = logging.getLogger("eventlead.startup")
+        sync_database_url_env()
+        backend_dir = Path(__file__).resolve().parent
+        cfg = Config(str(backend_dir / "alembic.ini"))
+        try:
+            command.upgrade(cfg, "head")
+            log.warning("AUTO_MIGRATE_ON_STARTUP: alembic upgrade head completed")
+        except Exception:
+            log.exception("AUTO_MIGRATE_ON_STARTUP: alembic upgrade failed")
+            raise
+    yield
+
+
 app = FastAPI(
     title="EventLead Platform API",
     version="1.0.0",
     description="Multi-tenant SaaS for event lead collection",
     docs_url="/docs",  # Swagger UI
     redoc_url="/redoc",  # ReDoc
+    lifespan=lifespan,
 )
 
 # Register global exception handler FIRST (catches all unhandled errors)
@@ -75,6 +107,7 @@ app.add_middleware(
         "https://app.signalplatforms.io",  # Production frontend
         "https://signalplatforms.io",  # Production root
         "https://www.signalplatforms.io",  # Production www
+        "https://signalplatforms-test-test.azurewebsites.net",  # Azure App Service (test slot)
         "*"  # Dev convenience; restrict for production deployment
     ],
     allow_credentials=True,
@@ -133,41 +166,24 @@ async def root():
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint for monitoring"""
+    env = os.getenv("ENVIRONMENT") or os.getenv("APP_ENV") or "development"
     return {
         "status": "healthy",
         "service": "EventLead Platform API",
-        "environment": "development"
+        "environment": env,
     }
 
 @app.get("/api/test-database")
 async def test_database():
-    """Test database connection"""
+    """Test database connection using the same SQLAlchemy URL as the app (Azure + local)."""
     try:
-        import pyodbc  # type: ignore
-        # Try to connect to SQL Server
-        conn_str = (
-            "Driver={ODBC Driver 18 for SQL Server};"
-            "Server=localhost;"
-            "Database=master;"  # Use master to test connection
-            "Trusted_Connection=yes;"
-            "TrustServerCertificate=yes;"
-        )
-        conn = pyodbc.connect(conn_str)
-        cursor = conn.cursor()
-        cursor.execute("SELECT @@VERSION")
-        version = cursor.fetchone()[0]
-        conn.close()
-        
-        return {
-            "status": "connected",
-            "database": "SQL Server",
-            "version": version[:100] + "..."  # Truncate long version string
-        }
+        from common.database import test_connection
+
+        if test_connection():
+            return {"status": "connected", "database": "configured engine (SQLAlchemy/pyodbc)"}
+        return {"status": "error", "message": "test_connection returned False"}
     except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return {"status": "error", "message": str(e)}
 
 # 3. Test middleware (simple test)
 print("Registering TestMiddleware...")

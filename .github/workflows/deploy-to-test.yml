@@ -48,18 +48,31 @@ jobs:
           # (adjust as needed for your exact structure)
 
       # ==========================================
-      # Deploy to Azure App Service (Test Slot)
+      # Login to Azure (using publish profile)
+      # ==========================================
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_TEST }}
+
+      # ==========================================
+      # Deploy to Azure App Service (Test Slot) using CLI
+      # This method reliably triggers Oryx when SCM_DO_BUILD_DURING_DEPLOYMENT=true
       # ==========================================
       - name: Deploy to Azure Web App (Test Slot)
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'signalplatforms-test'
-          slot-name: 'test'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_TEST }}
-          package: backend   # Deploy the backend folder (contains the built frontend inside static/frontend)
-          # Force Oryx to run pip install -r requirements.txt on every deploy
-          scm-do-build-during-deployment: true
-          enable-oryx-build: true
+        run: |
+          # Create deployment package (backend folder already contains static/frontend)
+          cd backend
+          zip -r ../backend-deploy.zip . -x "*.pyc" -x "__pycache__/*" -x ".git/*"
+          cd ..
+
+          # Deploy using Azure CLI (forces Oryx build when setting is enabled)
+          az webapp deploy \
+            --resource-group signal-platforms-test-rg \
+            --name signalplatforms-test \
+            --slot test \
+            --src-path backend-deploy.zip \
+            --type zip
 
       # ==========================================
       # Optional: Set / Update App Settings after deploy

@@ -57,7 +57,8 @@ jobs:
           slot-name: 'test'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_TEST }}
           package: backend   # Deploy the backend folder (contains the built frontend inside static/frontend)
-          startup-command: 'uvicorn main:app --host 0.0.0.0 --port 8000'
+          # startup-command removed: not supported with publish-profile auth.
+          # The command is set manually in Azure Portal (test slot → Configuration → General settings)
 
       # ==========================================
       # Optional: Set / Update App Settings after deploy

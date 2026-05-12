@@ -55,7 +55,8 @@ jobs:
           app-name: 'signalplatforms-test'
           slot-name: 'test'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_TEST }}
-          package: backend   # Deploy the backend folder (which now contains the frontend build)
+          package: backend   # Deploy the backend folder (contains the built frontend inside static/frontend)
+          startup-command: 'uvicorn main:app --host 0.0.0.0 --port 8000'
 
       # ==========================================
       # Optional: Set / Update App Settings after deploy

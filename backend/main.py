@@ -190,6 +190,17 @@ except Exception as e:
     import traceback
     print(f"Traceback: {traceback.format_exc()}")
 
+# Serve built frontend (only in production when the files exist)
+try:
+    from fastapi.staticfiles import StaticFiles
+    import os
+    frontend_dir = os.path.join(os.path.dirname(__file__), "static", "frontend")
+    if os.path.isdir(frontend_dir):
+        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+except Exception:
+    # Silently ignore if frontend build is not present (local dev)
+    pass
+
 if __name__ == "__main__":
     import uvicorn
     

@@ -57,8 +57,9 @@ jobs:
           slot-name: 'test'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_TEST }}
           package: backend   # Deploy the backend folder (contains the built frontend inside static/frontend)
-          # startup-command removed: not supported with publish-profile auth.
-          # The command is set manually in Azure Portal (test slot → Configuration → General settings)
+          # Force Oryx to run pip install -r requirements.txt on every deploy
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
 
       # ==========================================
       # Optional: Set / Update App Settings after deploy

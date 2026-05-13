@@ -4,6 +4,7 @@
 # Web Framework  
 fastapi==0.115.7
 uvicorn[standard]==0.34.3
+python-multipart==0.0.20  # Required for FastAPI UploadFile / Form() route registration at import time
 pydantic==2.10.6
 pydantic[email]==2.10.6
 

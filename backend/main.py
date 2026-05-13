@@ -4,6 +4,7 @@ Main application entry point
 """
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -11,6 +12,8 @@ load_dotenv()  # Load environment variables from .env file
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 # Import middleware and exception handlers
 from middleware import RequestLoggingMiddleware, EnhancedRequestLoggingMiddleware, BulletproofRequestLoggingMiddleware, JWTAuthMiddleware, global_exception_handler
@@ -157,15 +160,40 @@ app.include_router(form_ai_router)  # Story 6.2: AI generation + correction loop
 app.include_router(logging_router)  # Frontend logging APIs (/api/v1/logs/*)
 app.include_router(preferences_router)  # Story 6.4: User Preferences (/api/me/preferences)
 
+# -----------------------------------------------------------------------------
+# SPA (Vite build copied to backend/static/frontend during deploy)
+# -----------------------------------------------------------------------------
+_FRONTEND_DIR = Path(__file__).resolve().parent / "static" / "frontend"
+_FRONTEND_INDEX = _FRONTEND_DIR / "index.html"
+_frontend_assets_dir = _FRONTEND_DIR / "assets"
+
+if _frontend_assets_dir.is_dir():
+    app.mount(
+        "/assets",
+        StaticFiles(directory=str(_frontend_assets_dir)),
+        name="frontend_vite_assets",
+    )
+
+
 @app.get("/")
 async def root():
-    """Root endpoint - confirms API is running"""
+    """Serve built SPA shell when deployed; JSON heartbeat otherwise."""
+    if _FRONTEND_INDEX.is_file():
+        return FileResponse(_FRONTEND_INDEX)
     return {
         "message": "EventLead Platform API",
         "status": "running",
         "version": "1.0.0",
-        "docs": "/docs"
+        "docs": "/docs",
     }
+
+
+@app.get("/{spa_path:path}", include_in_schema=False)
+async def spa_client_routes(spa_path: str):
+    """Serve index.html for client-side routing (everything not matched above)."""
+    if _FRONTEND_INDEX.is_file():
+        return FileResponse(_FRONTEND_INDEX)
+    raise HTTPException(status_code=404, detail="Frontend build not present under static/frontend/")
 
 @app.get("/api/health")
 async def health_check():

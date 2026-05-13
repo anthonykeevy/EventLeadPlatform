@@ -83,6 +83,9 @@ jobs:
       # If ${PORT:-8000} is not expanded in your slot, try:
       #   bash -lc 'exec python -m uvicorn main:app --host 0.0.0.0 --port "${PORT:-8000}"'
       #
+      # If cold start (Oryx tarball extract + AUTO_MIGRATE) often exceeds the platform window, set on the slot:
+      #   WEBSITES_CONTAINER_START_TIME_LIMIT = 600
+      #
       # Bare filenames ("startup.txt", "./startup.sh") can fail depending on tarball/cwd/Oryx; inline command avoids that.
       # See: Microsoft Learn → "Configure a custom startup file for Python apps on App Service".
       # ==========================================

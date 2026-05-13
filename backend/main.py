@@ -2,7 +2,10 @@
 EventLead Platform - FastAPI Backend
 Main application entry point
 """
+import asyncio
 import os
+import subprocess
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -55,33 +58,64 @@ from modules.preferences.router import router as preferences_router  # Story 6.4
 configure_logging(log_level="INFO")
 
 
+def _alembic_upgrade_via_subprocess_sync(backend_dir: Path) -> None:
+    """
+    Run `alembic upgrade head` in a child process.
+
+    Keeps ODBC/SQLAlchemy teardown isolated from the uvicorn interpreter. In-process or
+    in-thread migrations have been observed on App Service Linux to finish successfully
+    then leave the parent exiting with uvicorn STARTUP_FAILURE (exit code 3).
+    """
+    result = subprocess.run(
+        [sys.executable, "-m", "alembic", "upgrade", "head"],
+        cwd=str(backend_dir),
+        env=os.environ.copy(),
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"alembic upgrade head failed with exit code {result.returncode}"
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Optional Alembic upgrade on startup (Azure demo / test slot)."""
     flag = (os.getenv("AUTO_MIGRATE_ON_STARTUP") or "").strip().lower()
     if flag in ("1", "true", "yes"):
         import logging
-        from pathlib import Path
-
-        from alembic.config import Config
-        from alembic import command
 
         from common.database_url import sync_database_url_env
 
         log = logging.getLogger("eventlead.startup")
         sync_database_url_env()
         backend_dir = Path(__file__).resolve().parent
-        cfg = Config(str(backend_dir / "alembic.ini"))
         allow_failure = (
             os.getenv("AUTO_MIGRATE_ALLOW_FAILURE") or ""
         ).strip().lower() in ("1", "true", "yes")
+        print(
+            "eventlead.startup: AUTO_MIGRATE_ON_STARTUP alembic upgrade starting",
+            flush=True,
+        )
         try:
-            command.upgrade(cfg, "head")
-            log.warning("AUTO_MIGRATE_ON_STARTUP: alembic upgrade head completed")
+            await asyncio.to_thread(_alembic_upgrade_via_subprocess_sync, backend_dir)
         except Exception:
             log.exception("AUTO_MIGRATE_ON_STARTUP: alembic upgrade failed")
+            print(
+                "eventlead.startup: AUTO_MIGRATE_ON_STARTUP alembic upgrade FAILED",
+                flush=True,
+            )
             if not allow_failure:
                 raise
+        else:
+            try:
+                log.warning("AUTO_MIGRATE_ON_STARTUP: alembic upgrade head completed")
+            except Exception:
+                pass
+            print(
+                "eventlead.startup: AUTO_MIGRATE_ON_STARTUP alembic upgrade completed OK",
+                flush=True,
+            )
     yield
 
 
@@ -188,13 +222,6 @@ async def root():
     }
 
 
-@app.get("/{spa_path:path}", include_in_schema=False)
-async def spa_client_routes(spa_path: str):
-    """Serve index.html for client-side routing (everything not matched above)."""
-    if _FRONTEND_INDEX.is_file():
-        return FileResponse(_FRONTEND_INDEX)
-    raise HTTPException(status_code=404, detail="Frontend build not present under static/frontend/")
-
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint for monitoring"""
@@ -204,6 +231,7 @@ async def health_check():
         "service": "EventLead Platform API",
         "environment": env,
     }
+
 
 @app.get("/api/test-database")
 async def test_database():
@@ -216,6 +244,14 @@ async def test_database():
         return {"status": "error", "message": "test_connection returned False"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@app.get("/{spa_path:path}", include_in_schema=False)
+async def spa_client_routes(spa_path: str):
+    """Serve index.html for client-side routing (everything not matched above)."""
+    if _FRONTEND_INDEX.is_file():
+        return FileResponse(_FRONTEND_INDEX)
+    raise HTTPException(status_code=404, detail="Frontend build not present under static/frontend/")
 
 # 3. Test middleware (simple test)
 print("Registering TestMiddleware...")

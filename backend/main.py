@@ -66,15 +66,42 @@ def _alembic_upgrade_via_subprocess_sync(backend_dir: Path) -> None:
     in-thread migrations have been observed on App Service Linux to finish successfully
     then leave the parent exiting with uvicorn STARTUP_FAILURE (exit code 3).
     """
+    env = os.environ.copy()
+    backend_s = str(backend_dir)
+    prev_pp = env.get("PYTHONPATH", "").strip()
+    env["PYTHONPATH"] = backend_s if not prev_pp else f"{backend_s}{os.pathsep}{prev_pp}"
+
     result = subprocess.run(
         [sys.executable, "-m", "alembic", "upgrade", "head"],
-        cwd=str(backend_dir),
-        env=os.environ.copy(),
+        cwd=backend_s,
+        env=env,
+        capture_output=True,
+        text=True,
         check=False,
     )
+    pieces = []
+    so = (result.stdout or "").strip()
+    se = (result.stderr or "").strip()
+    if so:
+        pieces.extend(["--- alembic stdout ---", so])
+    if se:
+        pieces.extend(["--- alembic stderr ---", se])
+    combined = "\n".join(pieces).strip()
+
+    tail = (
+        "...[truncated]\n" + combined[-12000:] if len(combined) > 12200 else combined
+    )
+
     if result.returncode != 0:
+        shown = tail if tail else "(no subprocess output captured)"
         raise RuntimeError(
-            f"alembic upgrade head failed with exit code {result.returncode}"
+            f"alembic upgrade head failed with exit code {result.returncode}\n{shown}"
+        )
+
+    if tail:
+        print(
+            "eventlead.startup: alembic subprocess output (truncated):\n" + tail,
+            flush=True,
         )
 
 

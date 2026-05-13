@@ -53,19 +53,19 @@ jobs:
           # Copy built frontend into backend so FastAPI can serve it
           mkdir -p backend/static/frontend
           cp -r frontend/dist/* backend/static/frontend/
-          chmod +x backend/startup.sh
 
           # Optional: copy root files if your App Service startup needs them
           # (adjust as needed for your exact structure)
 
       # ==========================================
-      # Azure Portal (test slot) General settings → Startup Command:
-      #   ./startup.sh
-      # (Must begin with ./ so Oryx's /bin/sh invokes the file under the extracted app dir;
-      #  bare "startup.sh" resolves only on PATH and exits 127.)
+      # Azure (test slot) → Configuration → General → Startup Command
       #
-      # Inline alternative (adjust port if your slot differs from the default listener):
+      # RECOMMENDED: paste the FULL command below (same as startup.txt — no dependency on PATH/cwd tricks):
       #   python -m uvicorn main:app --host 0.0.0.0 --port 8000
+      #
+      # Bare filenames ("startup.txt", "./startup.sh") fail with "not found" when that file did not land
+      # inside output.tar.zst (e.g. deploy from commit without them) or Oryx runs the fragment as sh -c PATH-only.
+      # See: Microsoft Learn → "Configure a custom startup file for Python apps on App Service" (paste command or startup.txt contents).
       # ==========================================
 
       # ==========================================

@@ -60,12 +60,15 @@ jobs:
       # ==========================================
       # Azure (test slot) → Configuration → General → Startup Command
       #
-      # RECOMMENDED: paste the FULL command below (same as startup.txt — no dependency on PATH/cwd tricks):
-      #   python -m uvicorn main:app --host 0.0.0.0 --port 8000
+      # RECOMMENDED: paste the FULL command (same logic as startup.txt). Do NOT hardcode port 8000:
+      #   python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+      # App Service Linux sets PORT (often 8000–818x). Binding the wrong port = healthy build but timeouts/502.
       #
-      # Bare filenames ("startup.txt", "./startup.sh") fail with "not found" when that file did not land
-      # inside output.tar.zst (e.g. deploy from commit without them) or Oryx runs the fragment as sh -c PATH-only.
-      # See: Microsoft Learn → "Configure a custom startup file for Python apps on App Service" (paste command or startup.txt contents).
+      # If ${PORT:-8000} is not expanded in your slot, try:
+      #   bash -lc 'exec python -m uvicorn main:app --host 0.0.0.0 --port "${PORT:-8000}"'
+      #
+      # Bare filenames ("startup.txt", "./startup.sh") can fail depending on tarball/cwd/Oryx; inline command avoids that.
+      # See: Microsoft Learn → "Configure a custom startup file for Python apps on App Service".
       # ==========================================
 
       # ==========================================

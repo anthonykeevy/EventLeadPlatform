@@ -3,7 +3,13 @@ name: Deploy to Test Environment
 on:
   push:
     branches: [ develop ]
-  workflow_dispatch:   # Allows manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to deploy (branch name, tag, or full SHA). Default develop.'
+        required: false
+        default: develop
+        type: string
 
 jobs:
   deploy-test:
@@ -13,6 +19,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: >-
+            ${{ github.event_name == 'workflow_dispatch'
+                && github.event.inputs.ref || github.sha }}
 
       # ==========================================
       # Build Frontend
@@ -43,9 +53,14 @@ jobs:
           # Copy built frontend into backend so FastAPI can serve it
           mkdir -p backend/static/frontend
           cp -r frontend/dist/* backend/static/frontend/
+          chmod +x backend/startup.sh
 
           # Optional: copy root files if your App Service startup needs them
           # (adjust as needed for your exact structure)
+
+      # ==========================================
+      # Azure Portal (test slot) General settings → Startup Command: startup.sh
+      # ==========================================
 
       # ==========================================
       # Deploy to Azure App Service (Test Slot)

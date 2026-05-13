@@ -69,12 +69,16 @@ async def lifespan(app: FastAPI):
         sync_database_url_env()
         backend_dir = Path(__file__).resolve().parent
         cfg = Config(str(backend_dir / "alembic.ini"))
+        allow_failure = (
+            os.getenv("AUTO_MIGRATE_ALLOW_FAILURE") or ""
+        ).strip().lower() in ("1", "true", "yes")
         try:
             command.upgrade(cfg, "head")
             log.warning("AUTO_MIGRATE_ON_STARTUP: alembic upgrade head completed")
         except Exception:
             log.exception("AUTO_MIGRATE_ON_STARTUP: alembic upgrade failed")
-            raise
+            if not allow_failure:
+                raise
     yield
 
 

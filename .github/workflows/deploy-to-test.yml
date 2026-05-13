@@ -59,7 +59,13 @@ jobs:
           # (adjust as needed for your exact structure)
 
       # ==========================================
-      # Azure Portal (test slot) General settings → Startup Command: startup.sh
+      # Azure Portal (test slot) General settings → Startup Command:
+      #   ./startup.sh
+      # (Must begin with ./ so Oryx's /bin/sh invokes the file under the extracted app dir;
+      #  bare "startup.sh" resolves only on PATH and exits 127.)
+      #
+      # Inline alternative (adjust port if your slot differs from the default listener):
+      #   python -m uvicorn main:app --host 0.0.0.0 --port 8000
       # ==========================================
 
       # ==========================================

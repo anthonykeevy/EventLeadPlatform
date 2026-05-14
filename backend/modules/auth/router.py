@@ -81,8 +81,8 @@ def _token_fingerprint(token: Optional[str]) -> str:
 # Create router
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-# Get frontend URL from environment
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+# Get frontend URL from environment (no trailing slash — avoids // in email/deeplinks)
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
 
 
 # ============================================================================
@@ -995,8 +995,8 @@ async def password_reset_request(
             # Get email service
             email_service = get_email_service()
             
-            # Get frontend URL for reset link
-            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+            # Get frontend URL for reset link (rstrip avoids // when env has trailing slash)
+            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
             reset_link = f"{frontend_url}/reset-password/confirm?token={token}"
             
             # Send password reset email (async in background)

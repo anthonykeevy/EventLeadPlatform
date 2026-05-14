@@ -57,6 +57,8 @@ jobs:
           cd frontend
           npm ci
 
+      # VITE_API_BASE_URL is unset: SPA ships inside FastAPI and should use same-origin /api.
+      # Set VITE_* only when the UI is hosted on a different hostname than the API.
       - name: Build Frontend
         run: |
           cd frontend

@@ -142,3 +142,31 @@ PRINT 'Signal Platforms seed data correction complete.';
 PRINT 'Please verify the data before deploying to test environment.';
 PRINT '========================================';
 GO
+
+-- =====================================================================
+-- Platform owner onboarding flag (Anthony / UserID 1)
+-- =====================================================================
+-- If migration 073 linked UserID 1 to Signal Platforms but left onboarding false,
+-- the dashboard shows the onboarding modal while POST /companies returns
+-- "User already has an active company". Align DB with completed onboarding.
+-- =====================================================================
+
+UPDATE dbo.[User]
+SET
+    OnboardingComplete = 1,
+    OnboardingStep = 5,
+    UpdatedDate = GETUTCDATE(),
+    UpdatedBy = 1
+WHERE UserID = 1
+  AND IsDeleted = 0
+  AND EXISTS (
+      SELECT 1
+      FROM dbo.[UserCompany] uc
+      INNER JOIN ref.[UserCompanyStatus] ucs ON ucs.UserCompanyStatusID = uc.StatusID
+      WHERE uc.UserID = dbo.[User].UserID
+        AND uc.IsDeleted = 0
+        AND ucs.StatusCode = N'active'
+  );
+
+PRINT '✅ UserID = 1 OnboardingComplete set when active UserCompany exists';
+GO

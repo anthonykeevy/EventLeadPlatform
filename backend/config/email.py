@@ -13,7 +13,7 @@ class EmailConfig:
     Email configuration loaded from environment variables.
     
     Attributes:
-        provider: Email provider ("mailhog" for dev, "smtp" for prod)
+        provider: Email provider ("mailhog", "smtp", or "acs")
         from_email: Default from email address
         from_name: Default from name
         mailhog_host: MailHog SMTP host (dev)
@@ -38,6 +38,9 @@ class EmailConfig:
     smtp_username: Optional[str] = None
     smtp_password: Optional[str] = None
     smtp_use_tls: bool = True
+
+    # Azure Communication Services Email (non-dev / Azure test & prod)
+    azure_communication_connection_string: Optional[str] = None
     
     @classmethod
     def from_env(cls) -> "EmailConfig":
@@ -45,7 +48,7 @@ class EmailConfig:
         Load email configuration from environment variables.
         
         Environment Variables:
-            EMAIL_PROVIDER: "mailhog" or "smtp" (default: "mailhog")
+            EMAIL_PROVIDER: "mailhog", "smtp", or "acs" (default: "mailhog")
             EMAIL_FROM: From email address (default: "noreply@eventlead.com")
             EMAIL_FROM_NAME: From name (default: "EventLead Platform")
             MAILHOG_HOST: MailHog host (default: "localhost")
@@ -55,12 +58,15 @@ class EmailConfig:
             SMTP_USERNAME: SMTP username
             SMTP_PASSWORD: SMTP password
             SMTP_USE_TLS: Use TLS (default: "true")
+            AZURE_COMMUNICATION_CONNECTION_STRING: ACS resource connection string (for EMAIL_PROVIDER=acs)
+            ACS_CONNECTION_STRING: Alternate name for the ACS connection string
         
         Returns:
             EmailConfig instance
             
         Raises:
             ValueError: If SMTP provider selected but required config missing
+            ValueError: If ACS provider selected but connection string missing
         """
         provider = os.getenv("EMAIL_PROVIDER", "mailhog").lower()
         
@@ -84,6 +90,18 @@ class EmailConfig:
                 raise ValueError(
                     "SMTP provider requires SMTP_HOST, SMTP_USERNAME, and SMTP_PASSWORD environment variables"
                 )
+
+        if provider == "acs":
+            acs_conn = (os.getenv("AZURE_COMMUNICATION_CONNECTION_STRING") or os.getenv(
+                "ACS_CONNECTION_STRING",
+                "",
+            )).strip()
+            if not acs_conn:
+                raise ValueError(
+                    "ACS email provider requires AZURE_COMMUNICATION_CONNECTION_STRING "
+                    "(or ACS_CONNECTION_STRING) environment variable"
+                )
+            config.azure_communication_connection_string = acs_conn
         
         return config
 

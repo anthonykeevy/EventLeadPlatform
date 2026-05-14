@@ -144,17 +144,31 @@ PRINT '========================================';
 GO
 
 -- =====================================================================
--- Platform owner onboarding flag (Anthony / UserID 1)
+-- Platform owner: onboarding + system admin (Anthony / UserID 1)
 -- =====================================================================
 -- If migration 073 linked UserID 1 to Signal Platforms but left onboarding false,
 -- the dashboard shows the onboarding modal while POST /companies returns
--- "User already has an active company". Align DB with completed onboarding.
+-- "User already has an active company".
+-- UserRoleID = system_admin sets JWT role to system_admin (Admin Dashboard / "Global admin").
 -- =====================================================================
+
+DECLARE @SystemAdminRole BIGINT = (
+    SELECT TOP (1) ur.UserRoleID
+    FROM ref.[UserRole] ur
+    WHERE ur.RoleCode = N'system_admin' AND ur.IsActive = 1
+    ORDER BY ur.UserRoleID ASC
+);
+
+IF @SystemAdminRole IS NULL
+BEGIN
+    RAISERROR ('signal-platforms-seed: ref.UserRole system_admin is missing', 16, 1);
+END
 
 UPDATE dbo.[User]
 SET
     OnboardingComplete = 1,
     OnboardingStep = 5,
+    UserRoleID = @SystemAdminRole,
     UpdatedDate = GETUTCDATE(),
     UpdatedBy = 1
 WHERE UserID = 1
@@ -168,5 +182,5 @@ WHERE UserID = 1
         AND ucs.StatusCode = N'active'
   );
 
-PRINT '✅ UserID = 1 OnboardingComplete set when active UserCompany exists';
+PRINT '✅ UserID = 1: OnboardingComplete + UserRoleID (system_admin) when active UserCompany exists';
 GO

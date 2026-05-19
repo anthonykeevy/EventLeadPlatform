@@ -4,6 +4,7 @@
 # Web Framework  
 fastapi==0.115.7
 uvicorn[standard]==0.34.3
+python-multipart==0.0.20  # Required for FastAPI UploadFile / Form() route registration at import time
 pydantic==2.10.6
 pydantic[email]==2.10.6
 
@@ -27,6 +28,8 @@ stripe==12.5.0
 # Azure SDKs
 azure-storage-blob==12.25.0
 azure-communication-email==1.0.1b1
+# Required for azure.communication.email.aio (Azure Core async HTTP transport); not always pulled transitively
+aiohttp==3.13.5
 
 # Logging & Monitoring
 structlog==24.4.0

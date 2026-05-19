@@ -11,7 +11,7 @@ from jinja2 import Environment, FileSystemLoader, TemplateNotFound, UndefinedErr
 from common.database import SessionLocal
 from common.request_context import get_current_request_context
 from models.log.email_delivery import EmailDelivery
-from services.email_providers import EmailProvider, MailHogProvider, SMTPProvider
+from services.email_providers import EmailProvider, MailHogProvider, SMTPProvider, ACSEmailProvider
 from services.email_providers.mailhog import TransientEmailError, PermanentEmailError
 from config.email import EmailConfig
 
@@ -492,8 +492,8 @@ def get_email_service() -> EmailService:
     """
     Factory function to create configured EmailService.
     
-    Loads configuration from environment variables and creates
-    appropriate provider (MailHog for dev, SMTP for prod).
+    Loads configuration from environment variables and creates the
+    configured provider (MailHog for local dev, SMTP, or ACS Email).
     
     Returns:
         Configured EmailService instance
@@ -519,6 +519,11 @@ def get_email_service() -> EmailService:
             password=config.smtp_password,
             use_tls=config.smtp_use_tls
         )
+    elif config.provider == "acs":
+        conn = (config.azure_communication_connection_string or "").strip()
+        if not conn:
+            raise ValueError("ACS provider misconfigured: missing connection string")
+        provider = ACSEmailProvider(conn)
     else:
         raise ValueError(f"Unknown email provider: {config.provider}")
     

@@ -90,6 +90,12 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         # Skip authentication for OPTIONS requests (CORS preflight)
         if request.method == "OPTIONS":
             return await call_next(request)
+
+        # Browser navigation / static SPA assets: GET requests outside /api/* do not send Bearer tokens.
+        # API calls remain under /api and stay protected.
+        p = request.url.path
+        if request.method == "GET" and not (p == "/api" or p.startswith("/api/")):
+            return await call_next(request)
         
         is_public = self._is_public_path(request.url.path)
         

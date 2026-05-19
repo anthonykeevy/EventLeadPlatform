@@ -7,15 +7,14 @@
  */
 
 import type { BackgroundDefinition } from '../types/builder.types';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl';
 
 /**
  * Resolve asset ID to content URL per backend contract.
  * Format: {base}/api/assets/{asset_id}/content
  */
 export function resolveAssetContentUrl(assetId: number): string {
-  const base = API_BASE.replace(/\/$/, '');
+  const base = getApiBaseUrl().replace(/\/$/, '');
   return `${base}/api/assets/${assetId}/content`;
 }
 

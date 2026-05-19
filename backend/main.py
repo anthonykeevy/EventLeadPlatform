@@ -2,11 +2,21 @@
 EventLead Platform - FastAPI Backend
 Main application entry point
 """
+import asyncio
+import os
+import subprocess
+import sys
+from contextlib import asynccontextmanager
+from pathlib import Path
+
 from dotenv import load_dotenv
+
 load_dotenv()  # Load environment variables from .env file
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 # Import middleware and exception handlers
 from middleware import RequestLoggingMiddleware, EnhancedRequestLoggingMiddleware, BulletproofRequestLoggingMiddleware, JWTAuthMiddleware, global_exception_handler
@@ -47,12 +57,102 @@ from modules.preferences.router import router as preferences_router  # Story 6.4
 # Configure application-wide logging
 configure_logging(log_level="INFO")
 
+
+def _alembic_upgrade_via_subprocess_sync(backend_dir: Path) -> None:
+    """
+    Run `alembic upgrade head` in a child process.
+
+    Keeps ODBC/SQLAlchemy teardown isolated from the uvicorn interpreter. In-process or
+    in-thread migrations have been observed on App Service Linux to finish successfully
+    then leave the parent exiting with uvicorn STARTUP_FAILURE (exit code 3).
+    """
+    env = os.environ.copy()
+    backend_s = str(backend_dir)
+    prev_pp = env.get("PYTHONPATH", "").strip()
+    env["PYTHONPATH"] = backend_s if not prev_pp else f"{backend_s}{os.pathsep}{prev_pp}"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "alembic", "upgrade", "head"],
+        cwd=backend_s,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    pieces = []
+    so = (result.stdout or "").strip()
+    se = (result.stderr or "").strip()
+    if so:
+        pieces.extend(["--- alembic stdout ---", so])
+    if se:
+        pieces.extend(["--- alembic stderr ---", se])
+    combined = "\n".join(pieces).strip()
+
+    tail = (
+        "...[truncated]\n" + combined[-12000:] if len(combined) > 12200 else combined
+    )
+
+    if result.returncode != 0:
+        shown = tail if tail else "(no subprocess output captured)"
+        raise RuntimeError(
+            f"alembic upgrade head failed with exit code {result.returncode}\n{shown}"
+        )
+
+    if tail:
+        print(
+            "eventlead.startup: alembic subprocess output (truncated):\n" + tail,
+            flush=True,
+        )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Optional Alembic upgrade on startup (Azure demo / test slot)."""
+    flag = (os.getenv("AUTO_MIGRATE_ON_STARTUP") or "").strip().lower()
+    if flag in ("1", "true", "yes"):
+        import logging
+
+        from common.database_url import sync_database_url_env
+
+        log = logging.getLogger("eventlead.startup")
+        sync_database_url_env()
+        backend_dir = Path(__file__).resolve().parent
+        allow_failure = (
+            os.getenv("AUTO_MIGRATE_ALLOW_FAILURE") or ""
+        ).strip().lower() in ("1", "true", "yes")
+        print(
+            "eventlead.startup: AUTO_MIGRATE_ON_STARTUP alembic upgrade starting",
+            flush=True,
+        )
+        try:
+            await asyncio.to_thread(_alembic_upgrade_via_subprocess_sync, backend_dir)
+        except Exception:
+            log.exception("AUTO_MIGRATE_ON_STARTUP: alembic upgrade failed")
+            print(
+                "eventlead.startup: AUTO_MIGRATE_ON_STARTUP alembic upgrade FAILED",
+                flush=True,
+            )
+            if not allow_failure:
+                raise
+        else:
+            try:
+                log.warning("AUTO_MIGRATE_ON_STARTUP: alembic upgrade head completed")
+            except Exception:
+                pass
+            print(
+                "eventlead.startup: AUTO_MIGRATE_ON_STARTUP alembic upgrade completed OK",
+                flush=True,
+            )
+    yield
+
+
 app = FastAPI(
     title="EventLead Platform API",
     version="1.0.0",
     description="Multi-tenant SaaS for event lead collection",
     docs_url="/docs",  # Swagger UI
     redoc_url="/redoc",  # ReDoc
+    lifespan=lifespan,
 )
 
 # Register global exception handler FIRST (catches all unhandled errors)
@@ -75,6 +175,7 @@ app.add_middleware(
         "https://app.signalplatforms.io",  # Production frontend
         "https://signalplatforms.io",  # Production root
         "https://www.signalplatforms.io",  # Production www
+        "https://signalplatforms-test-test.azurewebsites.net",  # Azure App Service (test slot)
         "*"  # Dev convenience; restrict for production deployment
     ],
     allow_credentials=True,
@@ -120,54 +221,64 @@ app.include_router(form_ai_router)  # Story 6.2: AI generation + correction loop
 app.include_router(logging_router)  # Frontend logging APIs (/api/v1/logs/*)
 app.include_router(preferences_router)  # Story 6.4: User Preferences (/api/me/preferences)
 
+# -----------------------------------------------------------------------------
+# SPA (Vite build copied to backend/static/frontend during deploy)
+# -----------------------------------------------------------------------------
+_FRONTEND_DIR = Path(__file__).resolve().parent / "static" / "frontend"
+_FRONTEND_INDEX = _FRONTEND_DIR / "index.html"
+_frontend_assets_dir = _FRONTEND_DIR / "assets"
+
+if _frontend_assets_dir.is_dir():
+    app.mount(
+        "/assets",
+        StaticFiles(directory=str(_frontend_assets_dir)),
+        name="frontend_vite_assets",
+    )
+
+
 @app.get("/")
 async def root():
-    """Root endpoint - confirms API is running"""
+    """Serve built SPA shell when deployed; JSON heartbeat otherwise."""
+    if _FRONTEND_INDEX.is_file():
+        return FileResponse(_FRONTEND_INDEX)
     return {
         "message": "EventLead Platform API",
         "status": "running",
         "version": "1.0.0",
-        "docs": "/docs"
+        "docs": "/docs",
     }
+
 
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint for monitoring"""
+    env = os.getenv("ENVIRONMENT") or os.getenv("APP_ENV") or "development"
     return {
         "status": "healthy",
         "service": "EventLead Platform API",
-        "environment": "development"
+        "environment": env,
     }
+
 
 @app.get("/api/test-database")
 async def test_database():
-    """Test database connection"""
+    """Test database connection using the same SQLAlchemy URL as the app (Azure + local)."""
     try:
-        import pyodbc  # type: ignore
-        # Try to connect to SQL Server
-        conn_str = (
-            "Driver={ODBC Driver 18 for SQL Server};"
-            "Server=localhost;"
-            "Database=master;"  # Use master to test connection
-            "Trusted_Connection=yes;"
-            "TrustServerCertificate=yes;"
-        )
-        conn = pyodbc.connect(conn_str)
-        cursor = conn.cursor()
-        cursor.execute("SELECT @@VERSION")
-        version = cursor.fetchone()[0]
-        conn.close()
-        
-        return {
-            "status": "connected",
-            "database": "SQL Server",
-            "version": version[:100] + "..."  # Truncate long version string
-        }
+        from common.database import test_connection
+
+        if test_connection():
+            return {"status": "connected", "database": "configured engine (SQLAlchemy/pyodbc)"}
+        return {"status": "error", "message": "test_connection returned False"}
     except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/{spa_path:path}", include_in_schema=False)
+async def spa_client_routes(spa_path: str):
+    """Serve index.html for client-side routing (everything not matched above)."""
+    if _FRONTEND_INDEX.is_file():
+        return FileResponse(_FRONTEND_INDEX)
+    raise HTTPException(status_code=404, detail="Frontend build not present under static/frontend/")
 
 # 3. Test middleware (simple test)
 print("Registering TestMiddleware...")
@@ -189,17 +300,6 @@ except Exception as e:
     print(f"ERROR registering BulletproofRequestLoggingMiddleware: {e}")
     import traceback
     print(f"Traceback: {traceback.format_exc()}")
-
-# Serve built frontend (only in production when the files exist)
-try:
-    from fastapi.staticfiles import StaticFiles
-    import os
-    frontend_dir = os.path.join(os.path.dirname(__file__), "static", "frontend")
-    if os.path.isdir(frontend_dir):
-        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
-except Exception:
-    # Silently ignore if frontend build is not present (local dev)
-    pass
 
 if __name__ == "__main__":
     import uvicorn

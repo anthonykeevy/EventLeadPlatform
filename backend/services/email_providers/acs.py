@@ -64,6 +64,31 @@ class ACSEmailProvider(EmailProvider):
         subject = subject or "(no subject)"
         plain = _plain_text_from_html(html_body)
 
+        # Cross-provider contract: `from_name` is the SENDER's display name (matches the
+        # MailHog and SMTP providers, both of which set it on the From: header alongside
+        # `from_email`). The Azure Communication Services Email REST API — and the
+        # azure-communication-email SDK that wraps it — exposes only a bare email string
+        # for `senderAddress` and does NOT carry a per-message sender display name field.
+        # To get a friendly sender name on ACS, configure the display name at the
+        # MailFrom / verified-sender level in the Azure Portal (Communication Services
+        # resource -> Email -> Domain -> MailFrom addresses). We therefore drop `from_name`
+        # silently here (debug-logged) rather than misapply it.
+        #
+        # Historical bug (fixed 2026-05-19): this code previously applied `from_name` to
+        # `recipients.to[0].displayName`, which is the RECIPIENT's display name. The
+        # consequence was that recipients across many email clients rendered as the SENDER's
+        # name (e.g. inbox showed "Acme Notifications <recipient@example.com>"), creating
+        # inconsistent behaviour between ACS and the MailHog/SMTP providers for the same
+        # `send(..., from_name=...)` call shape. The regression test in
+        # test_acs_email_provider.py::test_acs_send_does_not_misapply_from_name_to_recipient
+        # pins the corrected shape.
+        if from_name:
+            logger.debug(
+                "ACS email: ignoring per-message from_name=%r (set the sender display name "
+                "at the ACS Communication Services resource MailFrom configuration instead)",
+                from_name,
+            )
+
         message: MutableMapping[str, Any] = {
             "senderAddress": from_email,
             "content": {
@@ -72,7 +97,10 @@ class ACSEmailProvider(EmailProvider):
                 "plainText": plain,
             },
             "recipients": {
-                "to": [{"address": to, **({"displayName": from_name} if from_name else {})}],
+                # recipients.to[*].displayName is for the RECIPIENT, not the sender. The
+                # cross-provider send() signature does not carry a recipient display name
+                # today, so we omit it and let the recipient render by their bare address.
+                "to": [{"address": to}],
             },
         }
 

@@ -52,3 +52,95 @@ def test_acs_provider_rejects_blank_connection():
     with pytest.raises(ValueError, match="AZURE_COMMUNICATION_CONNECTION_STRING"):
         ACSEmailProvider("")
 
+
+async def test_acs_send_does_not_misapply_from_name_to_recipient(monkeypatch):
+    """Regression for the 2026-05-19 bug: from_name is the SENDER's display name
+    (matches MailHog and SMTP), and ACS does NOT support a per-message sender display
+    name. Previously this code applied from_name to recipients.to[0].displayName, which
+    is the RECIPIENT's display name -- causing inboxes to render the recipient as the
+    sender's name. Pins the corrected message shape.
+    """
+
+    captured: dict = {}
+
+    class _FakePoller:
+        async def result(self):
+            return {"status": "Succeeded"}
+
+    class _FakeClient:
+        async def begin_send(self, message):
+            captured["message"] = message
+            return _FakePoller()
+
+        async def close(self):
+            pass
+
+    provider = ACSEmailProvider(
+        "endpoint=https://sample.australia.communication.azure.com/;accesskey=dummy"
+    )
+    # Bypass _get_client so no real ACS HTTP traffic happens
+    provider._client = _FakeClient()
+
+    ok = await provider.send(
+        to="recipient@example.com",
+        subject="Test",
+        html_body="<p>hello</p>",
+        from_email="noreply@signalplatforms.com.au",
+        from_name="Signal Platforms Notifications",
+    )
+
+    assert ok is True
+    msg = captured["message"]
+
+    # senderAddress is the bare email (ACS limitation; display name lives in
+    # MailFrom resource config, not per-message)
+    assert msg["senderAddress"] == "noreply@signalplatforms.com.au"
+
+    # recipients.to[0] must carry ONLY the recipient address, NOT the sender's
+    # from_name leaking in as the recipient's displayName.
+    recipient = msg["recipients"]["to"][0]
+    assert recipient["address"] == "recipient@example.com"
+    assert "displayName" not in recipient, (
+        "from_name (sender's display name) must NOT be applied to recipient.displayName "
+        "(regression from the 2026-05-19 bug). If you intend to set a RECIPIENT display "
+        "name in future, extend the cross-provider send() signature first; do not reuse "
+        "from_name for that purpose."
+    )
+
+
+async def test_acs_send_works_when_from_name_is_omitted(monkeypatch):
+    """Smoke: omitting from_name is the dominant call path today; ensure that path
+    still produces a well-formed message (senderAddress + recipient address only)."""
+
+    captured: dict = {}
+
+    class _FakePoller:
+        async def result(self):
+            return {"status": "Succeeded"}
+
+    class _FakeClient:
+        async def begin_send(self, message):
+            captured["message"] = message
+            return _FakePoller()
+
+        async def close(self):
+            pass
+
+    provider = ACSEmailProvider(
+        "endpoint=https://sample.australia.communication.azure.com/;accesskey=dummy"
+    )
+    provider._client = _FakeClient()
+
+    ok = await provider.send(
+        to="recipient@example.com",
+        subject="Test",
+        html_body="<p>hello</p>",
+        from_email="noreply@signalplatforms.com.au",
+    )
+
+    assert ok is True
+    msg = captured["message"]
+    assert msg["senderAddress"] == "noreply@signalplatforms.com.au"
+    recipient = msg["recipients"]["to"][0]
+    assert recipient == {"address": "recipient@example.com"}
+

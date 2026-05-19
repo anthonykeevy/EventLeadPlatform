@@ -78,17 +78,31 @@ jobs:
       # ==========================================
       # Azure (test slot) → Configuration → General → Startup Command
       #
-      # RECOMMENDED: paste the FULL command (same logic as startup.txt). Do NOT hardcode port 8000:
-      #   python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
-      # App Service Linux sets PORT (often 8000–818x). Binding the wrong port = healthy build but timeouts/502.
+      # RECOMMENDED (uses the bundled antenv built above — deterministic regardless of Oryx):
+      #   antenv/bin/python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+      #
+      # Why "antenv/bin/python" and not bare "python":
+      #   This workflow bundles backend/antenv into the deploy package as a fallback for when
+      #   Oryx skips its build step (SCM_DO_BUILD_DURING_DEPLOYMENT=false, oryx-manifest already
+      #   present, scale-out without rebuild, etc.). A bare `python -m uvicorn ...` resolves to
+      #   the container's system Python — which has ZERO project dependencies installed — and
+      #   startup fails with `ModuleNotFoundError: No module named 'uvicorn'`, returning 502/timeouts
+      #   to all traffic. Bare `python` only happens to work today because Oryx is auto-activating
+      #   antenv via PATH manipulation; that's brittle and breaks the moment Oryx is disabled.
+      #   Invoking antenv/bin/python directly removes the dependency on Oryx auto-activation.
+      #
+      # App Service Linux sets PORT (often 8000–818x). Do NOT hardcode port 8000:
+      #   binding the wrong port = healthy build but timeouts/502.
       #
       # If ${PORT:-8000} is not expanded in your slot, try:
-      #   bash -lc 'exec python -m uvicorn main:app --host 0.0.0.0 --port "${PORT:-8000}"'
+      #   bash -lc 'exec antenv/bin/python -m uvicorn main:app --host 0.0.0.0 --port "${PORT:-8000}"'
       #
       # If cold start (Oryx tarball extract + AUTO_MIGRATE) often exceeds the platform window, set on the slot:
       #   WEBSITES_CONTAINER_START_TIME_LIMIT = 600
       #
-      # Bare filenames ("startup.txt", "./startup.sh") can fail depending on tarball/cwd/Oryx; inline command avoids that.
+      # Bare filenames ("startup.txt", "./startup.sh") can fail depending on tarball/cwd/Oryx; both have
+      # been updated to invoke antenv/bin/python too, so they're safe alternatives. The inline command
+      # above remains the simplest source-of-truth choice.
       # See: Microsoft Learn → "Configure a custom startup file for Python apps on App Service".
       # ==========================================
 

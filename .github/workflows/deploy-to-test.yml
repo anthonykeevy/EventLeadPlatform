@@ -107,6 +107,116 @@ jobs:
       # ==========================================
 
       # ==========================================
+      # PRE-DEPLOY SMOKE TEST
+      # ------------------------------------------
+      # Runs the EXACT deploy package locally on the CI runner BEFORE pushing to
+      # Azure. Catches deploy-shape bugs (interpreter resolution, missing deps,
+      # port binding, route registration, startup crashes) without consuming a
+      # 20-minute Azure deploy + slot restart cycle per failed attempt.
+      #
+      # WHY IT WORKS: the runner is Ubuntu (matches App Service Linux), the
+      # antenv built two steps above contains the exact dependency set, and we
+      # invoke the same startup command shape (antenv/bin/python -m uvicorn ...)
+      # that Azure will use. The runner's global Python has NO project deps,
+      # so any bug that resolves `python` to the wrong interpreter (e.g. the
+      # original PR #98 antenv bug) fails here with ModuleNotFoundError instead
+      # of in production with a 502.
+      #
+      # CURRENT PROBES:
+      #   * GET /api/health → 200 with valid JSON body
+      #     Validates: app starts, uvicorn binds, public routes serve, JWT
+      #     middleware lets public endpoints through, response shape is sane.
+      #
+      # NOT YET PROBED (intentional — tracked against Epic 6 stories):
+      #   * AI generation readiness (context-pack / prompt registry loading) —
+      #     fixed by Story 6.5a (DB-driven loader replaces filesystem .md path).
+      #     ADD a probe here at GET /api/internal/diagnostics/ai-readiness when
+      #     that endpoint exists. See EPIC-6-STATUS.md row 6.5a.
+      #   * Database connectivity / Alembic migration health — would need a CI
+      #     SQL Server container (not Azure SQL — firewall makes that impossible
+      #     and undesirable from CI). Add when there's a forcing reason.
+      #   * ACS email send paths — cannot be probed without real ACS credentials;
+      #     stays a manual Azure Test slot concern.
+      #
+      # FAILURE SEMANTICS:
+      #   * exit non-zero → Deploy step is skipped (job fails, GitHub goes red,
+      #     no Azure cycle burnt). Fix the bug and re-push.
+      #   * pass → Deploy step runs as before.
+      #
+      # FUTURE: extract this into a reusable composite action under
+      # .github/actions/smoke-test/ once a second deploy workflow exists
+      # (Story 6.11 production deploy will want the same shape).
+      # ==========================================
+      - name: Pre-deploy smoke test (verify package boots + /api/health responds)
+        env:
+          # /api/health is database-free and stateless. We intentionally set NO
+          # DATABASE_URL, ACS connection string, or OpenAI key — if a probe ever
+          # needs them, plumb them through GitHub Actions secrets here. Never
+          # bake real creds into the image.
+          PORT: '8000'
+          ENVIRONMENT: ci-smoke
+        run: |
+          set -e
+          cd backend
+
+          echo "::group::Verify bundled antenv is usable"
+          ls -la antenv/bin/python
+          antenv/bin/python --version
+          antenv/bin/python -c "import uvicorn, fastapi; print('uvicorn:', uvicorn.__version__, 'fastapi:', fastapi.__version__)"
+          echo "::endgroup::"
+
+          echo "::group::Start uvicorn (mirrors backend/startup.txt verbatim)"
+          # If startup.txt changes shape, mirror the change here so the smoke
+          # test stays faithful to what Azure will execute.
+          nohup antenv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000 \
+            > /tmp/uvicorn.log 2>&1 &
+          UVICORN_PID=$!
+          echo "uvicorn pid=$UVICORN_PID"
+          echo "::endgroup::"
+
+          echo "::group::Wait for /api/health (max 45s)"
+          SMOKE_OK=0
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8000/api/health -o /tmp/health.json; then
+              SMOKE_OK=1
+              echo "/api/health responded on attempt $i"
+              echo "--- response body ---"
+              cat /tmp/health.json
+              echo
+              break
+            fi
+            sleep 1
+          done
+          echo "::endgroup::"
+
+          echo "::group::uvicorn log (tail 200 lines)"
+          tail -n 200 /tmp/uvicorn.log || true
+          echo "::endgroup::"
+
+          # Stop uvicorn regardless of outcome
+          kill "$UVICORN_PID" 2>/dev/null || true
+          wait "$UVICORN_PID" 2>/dev/null || true
+
+          if [ "$SMOKE_OK" -ne 1 ]; then
+            echo "::error::Smoke test failed: /api/health did not respond within 45s. Deploy aborted."
+            exit 1
+          fi
+
+          echo "::group::Validate /api/health response body shape"
+          antenv/bin/python - <<'PY'
+          import json, sys
+          with open('/tmp/health.json') as f:
+              body = json.load(f)
+          assert body.get('status') == 'healthy', f"status != 'healthy': {body!r}"
+          assert body.get('service') == 'EventLead Platform API', f"unexpected service: {body!r}"
+          assert body.get('environment') == 'ci-smoke', f"environment did not echo ENVIRONMENT env var: {body!r}"
+          print('health body OK:', body)
+          PY
+          echo "::endgroup::"
+
+          echo "Smoke test passed. Deploy will proceed."
+
+      # ==========================================
       # Deploy to Azure App Service (Test Slot)
       # Using webapps-deploy@v3 which accepts publish profile.
       # The package MUST include backend/antenv (built above) whenever wwwroot lacks oryx-manifest + tarball.

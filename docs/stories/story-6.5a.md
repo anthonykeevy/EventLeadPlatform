@@ -47,11 +47,11 @@ All new reference data will be seeded only for the 11 existing audience locales 
 ### 2.2 AI Agent Panel Enhancements
 
 - Add a new section of dropdown controls in the AI Agent panel for **situational awareness / clarification questions**.
-- Core dropdowns (all populated from database via API):
+- **Three** clarification dropdowns (all populated from database via API; labels use `DisplayName`, persistence uses `Code` per architecture doc §12 / §16):
   1. **Audience Locale** — pre-populated, user can override.
-  2. **Form Purpose / Use Case** — DB-driven, locale-aware options.
-  3. **Target Respondent Type** — DB-driven, locale-aware options.
-  4. One additional high-value dropdown (to be confirmed during implementation, e.g., Industry or Event Category).
+  2. **Form Purpose / Use Case** — DB-driven options.
+  3. **Target Respondent Type** — DB-driven options.
+- A fourth dropdown (e.g. Industry) is **parked until after MVP** (architecture doc §16).
 
 ### 2.3 Data Flow Requirement (Mandatory)
 
@@ -98,12 +98,16 @@ Every selected dropdown value must:
 | New component types | Out of scope |
 | Running Alembic (if migration required) | Tony executes |
 | Hardcoded dropdown options in frontend | All options must come from DB via API |
+| Fourth dropdown (Industry, etc.) | Post-MVP (§16) |
+| Full `PromptAssemblyProfile` for blocks A–I | Registry MVP story (companion architecture doc); 6.5a delivers Block E + `ref.AudienceLocale` |
 
 ---
 
 ## 4) Acceptance Criteria
 
-1. **AC-1** All clarification dropdowns (Locale, Form Purpose, Respondent Type, and one additional) are populated from the database via API (no hardcoded lists).
+**Architecture:** All prompt blocks A–I are database-driven (decision doc §4.1). This story delivers the **clarification tranche** (Block E, three `ref.*` tables, APIs, locale enum removal). Remaining blocks migrate via Prompt Assembly Registry MVP.
+
+1. **AC-1** All **three** clarification dropdowns (Locale, Form Purpose, Respondent Type) are populated from the database via API (no hardcoded lists); UI shows `displayName`, requests persist `code`.
 2. **AC-2** Dropdown options are scoped only to the existing 11 audience locales already seeded in the database.
 3. **AC-3** Obvious gaps in reference data for the current countries are identified and filled during implementation (documented in the story closeout).
 4. **AC-4** Selected values from every dropdown are included in the generation request and injected into the LLM system prompt.

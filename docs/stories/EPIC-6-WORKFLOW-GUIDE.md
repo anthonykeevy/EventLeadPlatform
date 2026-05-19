@@ -1,8 +1,10 @@
 # Epic 6 Workflow Guide — BMAD Method (No Ralf)
 
-**Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
+**Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR** *(now targeting `develop`)*, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Targeted AU production-context eval verification (pending Tony's eval slice) + 6.5a / image-to-form sequencing decision.
+**🚀 Environment Promotion (adopted 2026-05-19):** Worktree (Dev) → `develop` (Azure Test slot, auto-deploy) → `master` (Production, future via Story 6.11). See **§ Environment Promotion Workflow** below for the full rules. **Story PRs now target `develop`, not `master`.**
+
+**Current Focus:** **(1)** Adopt the new Environment Promotion Workflow (this update). **(2)** One-time reconciliation release PR `develop` → `master` to recover the 29 develop-only commits (Azure infra + ACS Email + migrations 073/074 — Tony-owned, pending review). **(3)** Story 6.5a implementation (Dimitri's data-model + prompt-assembly registry architecture approved Rev 9, 2026-05-09; first story to ship under the new flow). **(4)** Targeted AU production-context eval verification (pending Tony's eval slice). **(5)** Story 6.11 — Production Environment + CI/CD — scheduled post-6.10 so production opens with billing live.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -20,6 +22,9 @@
 **Story 6.4.6 Status:** ✅ **Complete** (merged 2026-04-30, PR #82) — AU-only diagnostic eval framework, current-state AU baseline, judge ingest, and `AU-000` handoff complete; no candidate prompt improvements in this story.
 **Story 6.4.7 Status:** ✅ **Complete** (merged 2026-05-06, PR #84) — Analyst-owned AU-001 through AU-006 loop complete; AU-005 is the strongest behavioural target, AU-006 supplies lint-clean wording lessons for the follow-up production prompt implementation story.
 **Story 6.4.8 Status:** ✅ **Complete** (merged 2026-05-07, PR #85) — AU-005 behaviour promoted via migration 072 (PR #86 added downgrade review note). Next step: targeted AU eval verification before resuming 6.5a / image-to-form path.
+**Story 6.5a Status:** 🔄 **Architecture phase complete** (Dimitri Rev 9, 2026-05-09) — data model (`decision-6.5a-clarification-options-data-model.md`) + prompt-assembly registry (`prompt-assembly-registry-architecture.md`) approved. **Draft PR #87** currently targets `master` and will be re-targeted to `develop` (`gh pr edit 87 --base develop`) when the new Environment Promotion Workflow lands. Implementation pending — first story to ship under the new flow.
+**Story 6.11 Status:** ⏳ **Scheduled** (post-6.10) — Production Environment + CI/CD + Manual Approval Gate. Scope per `docs/architecture/azure-infrastructure-architecture.md` §4 + §7. Sequenced last so production opens with billing live (6.6–6.10).
+**Test Environment Status:** ✅ **Live** since 2026-05-14 — Azure App Service test slot `signalplatforms-test`, `develop` branch auto-deploys via `.github/workflows/deploy-to-test.yml`. ACS Email + ODBC URL translator + SPA-from-FastAPI + Alembic-on-startup all validated. **29 commits** (PRs #92–#96 + direct fixes) currently exist only on `develop` and must back-merge to `master` via the one-time reconciliation release PR.
 
 ---
 
@@ -116,11 +121,96 @@ Agents taking a “wrap-up” or “start next story” task should run the same
 This workflow follows the platform-wide Git rules in:
 - `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
 
-**Rules:**
-- **Never work directly on `master`.**
-- **One Draft PR per Story** (opened immediately) → `master`
-- **Implementation on Story branch** — no task branches
-- **Push daily:** no multi-day local-only changes
+**Rules (updated 2026-05-19 for Environment Promotion):**
+- **Never work directly on `master`** or `develop`.
+- **One Draft PR per Story** (opened immediately) → **`develop`** *(was `master`; flipped 2026-05-19 — see Environment Promotion Workflow below)*
+- **Bugfix PRs** also target **`develop`**. The only branch that may target `master` is `develop` itself, via a **release PR**.
+- **Release PRs** (`develop` → `master`) are **SM-drafted, Tony-approved**, opened after per-story QA in the Azure Test environment passes.
+- **Implementation on Story branch** — no task branches.
+- **Push daily:** no multi-day local-only changes.
+
+---
+
+## 🚀 Environment Promotion Workflow (Worktree → Test → Production)
+
+**Adopted:** 2026-05-19. **Mandatory for all stories from this point forward.**
+
+Epic 6 now runs against three environments with explicit promotion gates. This replaces the previous "story PR → master" model, which left Azure-specific bugs (port binding, ODBC URL format, missing deps, broken email) undetected until they hit a real deployment.
+
+### Environment map
+
+| Environment | Branch | Deploy target | Auto-deploy? | Trigger |
+|------|--------|---------------|--------------|---------|
+| **Dev** | `story/epicX-X.X-slug` (worktree) | Local dev (your machine) | Manual | Dev agent runs the app locally |
+| **Test** | `develop` | Azure App Service test slot (`signalplatforms-test`) | ✅ Yes | Push to `develop` → `.github/workflows/deploy-to-test.yml` |
+| **Production** | `master` | Azure App Service production (provisioned by Story 6.11) | 🔜 After Story 6.11 | Push to `master` → `deploy-to-prod.yml` with manual-approval gate on the `production` GitHub Environment |
+
+### Promotion flow
+
+```mermaid
+flowchart LR
+    A["Worktree<br/>story/epicX-X.X-slug<br/>(Dev)"] -->|Story PR| B["develop<br/>(Test slot, Azure)"]
+    B -->|Auto-deploy via<br/>deploy-to-test.yml| T[("Test environment<br/>signalplatforms-test")]
+    T -->|QA passes UAT<br/>against TEST URL| C["Release PR<br/>develop --> master"]
+    C -->|Tony approves| D["master<br/>(Prod, future)"]
+    D -.->|After Story 6.11:<br/>deploy-to-prod.yml<br/>(manual approval gate)| P[("Production environment")]
+```
+
+### Where QA fits (per-story cadence, decided 2026-05-19)
+
+| Phase | Where | Who | What is validated |
+|---|---|---|---|
+| Dev | Worktree (local) | Dev agent | Green CI/CD (unit + integration tests + lint) per existing §🛑 Green CI/CD Rule |
+| Story PR → develop | GitHub | SM + Dev | Branch hygiene, evidence package, scope correctness |
+| Auto-deploy | Azure Test slot | GitHub Actions | Build + deploy success (no manual step) |
+| **🆕 QA in Test (per-story)** | `https://signalplatforms-test.azurewebsites.net` (or the test custom domain when configured) | **Tony + SM** | Run `STORY-6.x-UAT-TEST-GUIDE.md` against the **deployed** Test environment. This is the **only place** we catch deployment-only bugs: env vars, secrets, real ACS email delivery, real Azure SQL, CSP/headers, custom domain TLS, cold-start, real OAuth callbacks. |
+| Release PR `develop` → `master` | GitHub | SM (drafts) → Tony (approves) | Confirms QA-pass evidence; promotes the merged-and-tested code to the production branch |
+| Prod deploy (future, Story 6.11+) | Azure prod | GitHub Actions + manual approval gate | Final cutover with rollback runbook |
+
+### Release PR procedure (SM-owned)
+
+1. **After per-story QA passes** in the Test environment:
+   - Confirm `gh pr view <story-PR-N> --json mergedAt` shows the story PR is merged into `develop`.
+   - Confirm the Test deploy workflow run for that merge is green: `gh run list --workflow=deploy-to-test.yml --branch develop --limit 5`.
+   - Confirm `STORY-6.x-UAT-RESULTS.md` records the QA pass against the **Test URL** (not local dev).
+2. **Open the release PR** (Draft):
+   ```powershell
+   gh pr create --draft --base master --head develop `
+     --title "release: <stories bundled> via Test environment QA" `
+     --body "<release notes — see template below>"
+   ```
+3. **Release PR body must include:**
+   - Bundled stories with PR numbers and one-line scope each.
+   - Link to each `STORY-6.x-UAT-RESULTS.md` confirming QA pass against Test.
+   - New migrations / new Python or npm deps / changed env vars (for Production preflight).
+   - Any one-off scripts environments downstream must run (e.g., when a prior migration was modified retroactively).
+   - Rollback plan: previous master SHA tag (`pre-release-YYYY-MM-DD`).
+4. **SM tags master before merge:** `git tag pre-release-YYYY-MM-DD && git push origin pre-release-YYYY-MM-DD` — known-good rollback point.
+5. **Tony approves and merges via GitHub UI** (preserves audit trail). Master is now caught up. From Story 6.11 onwards, this triggers production deploy.
+6. **Post-merge sync:** SM runs `git fetch origin` in every active worktree and `git switch develop && git pull` on the main checkout so Dev work continues from the latest base. Master and develop should be identical at this moment.
+
+### Hotfix exception (rare)
+
+If a critical production bug needs to bypass Test (e.g., security CVE, P0 outage):
+1. Branch from `master`: `git switch -c bugfix/<date>-<slug>`.
+2. PR → `master` directly with the `-BaseBranch master` override on `new-story.ps1` (or `gh pr create --base master`).
+3. **Immediately cherry-pick or back-merge into `develop`** to prevent re-divergence: `git switch develop; git cherry-pick <commit>; git push`.
+4. Document the bypass reason in the bugfix PR body. Hotfixes should be exceptional, not routine — if you find yourself hotfixing weekly, the QA process needs revisiting.
+
+### One-time reconciliation (May 2026 — historical record)
+
+The first release PR through this process is a **bulk catch-up** to recover the 29 commits currently only on `develop`:
+
+- **PRs:** #92 (ACS Email), #93 (Vite same-origin), #94 (aiohttp dep), #95 (password reset URL fix), #96 (platform owner seed)
+- **Direct commits:** ~10 Azure startup fixes (uvicorn port, ODBC URL, Alembic subprocess, SPA-from-FastAPI, python-multipart, antenv bundling)
+- **New migrations:** 073 (platform owner seed) + 074 (onboarding-complete flag)
+- **Modified migration:** 015 (retroactive User-row insert — environments that already ran 015 need a one-off fix script; see release PR body)
+- **New deps:** `aiohttp==3.13.5`, `python-multipart==0.0.20`
+- **New files:** `backend/common/database_url.py`, `backend/services/email_providers/acs.py`, tests for both, `backend/startup.sh`, `database/seeds/signal-platforms-seed.sql`
+
+Tony will prepare this release PR separately (see discussion record 2026-05-19). After this catch-up, master and develop are aligned and the per-story cadence begins. **PR #87 (Story 6.5a) must be re-targeted from `master` to `develop` (`gh pr edit 87 --base develop`) before its next push, so 6.5a becomes the first story to ship under the new flow.**
+
+---
 
 ## 🇦🇺 AU-First Prompt Evaluation Reset (Mandatory after Story 6.4.5)
 
@@ -350,6 +440,7 @@ This preserves your learning objective (multi-agent experience) without weakenin
 
 | Date | Change | Why |
 |------|--------|-----|
+| **2026-05-19** | **Environment Promotion Workflow adopted.** Story PRs now target **`develop`** (Test slot), promoted to **`master`** (Production) only via SM-drafted release PRs after per-story QA passes against the deployed Azure Test environment. `scripts/git/new-story.ps1` default `-BaseBranch` flipped from `master` to `develop`. New § Environment Promotion Workflow section added with mermaid, QA-in-Test table, release PR procedure, hotfix exception, and a historical record of the one-time reconciliation needed in May 2026 (29 commits stranded on `develop`). Added **Story 6.11 — Production Environment + CI/CD + Manual Approval Gate** to Phase B (post-6.10, so production opens with billing live). Updated **Story 6.5a Status:** architecture phase complete (Dimitri Rev 9, 2026-05-09) — first story to ship under the new flow. **`docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`** PR-naming rules updated in lockstep. | Two parallel tracks (Epic 6 story PRs → `master`; Azure infra fix PRs → `develop`) had silently diverged: master was missing all the fixes that actually make the app run on Azure (ACS Email, port binding, ODBC URL, SPA-from-FastAPI, dependencies). Tony surfaced the concern after deploying `develop` to Azure Test. The new model guarantees nothing reaches `master` without first passing QA against a real Azure deployment, which is the only place deployment-shaped bugs (env vars, secrets, real DB, real email) surface. Per-story cadence chosen over batched releases to match Epic 6's one-story-per-few-days rhythm. |
 | 2026-02-26 | Added explicit Phase 2 execution contract, Phase 3 human merge gate, and Phase 4 reset process | Epic 6 was latest but not final; needed closeout and reset mechanics to avoid drift |
 | 2026-02-26 | Added Story Evidence Contract tied to Green CI/CD output quality | Prevent false-green/hallucinated completion and preserve per-story quality gate |
 | 2026-02-26 | Added Failure Routing Policy with TEA escalation path | Ensure failing gates are routed deterministically instead of deferred silently |

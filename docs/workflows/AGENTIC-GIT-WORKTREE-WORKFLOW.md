@@ -13,16 +13,18 @@ This document is the **single source of truth** for how we work in this repo.
 
 To make sure agents consistently follow Git discipline, **paste the prompt snippet below** into any story/task prompt you run (PM/SM/dev/ralf) until it becomes muscle memory.
 
-### Agent prompt snippet (copy/paste)
+### Agent prompt snippet (copy/paste — updated 2026-05-19)
 
 ```markdown
 Git discipline (mandatory):
-- Do not implement on `master`.
+- Do not implement on `master` or `develop`.
 - If a branch/PR does not exist for this work, STOP and create:
-  - Story branch + Draft PR to `master` (for story/UAT cycle), or
-  - Task branch + PR into story branch (for a fix task)
+  - Story branch + Draft PR to `develop` (for story/UAT cycle), or
+  - Task branch + PR into story branch (for a fix task), or
+  - Bugfix branch + PR to `develop` (hotfix exception: bugfix → master only for P0/CVE)
 - Push at least once per session so no work is local-only.
 - Follow: docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md
+- See: docs/stories/EPIC-6-WORKFLOW-GUIDE.md § Environment Promotion Workflow for the full Worktree → develop (Test) → master (Prod) promotion model.
 ```
 
 ---
@@ -64,9 +66,12 @@ Git discipline (mandatory):
 
 ### PRs
 
-- **Story PR:** `story/*` → `master` (**Draft** immediately)
-- **Task PR:** `task/*` → `story/*`
-- **Bugfix PR:** `bugfix/*` → `master`
+> **Updated 2026-05-19 — Environment Promotion Workflow:** PR targets changed to insert the Azure Test environment between Dev and Production. See full rules in `docs/stories/EPIC-6-WORKFLOW-GUIDE.md` § Environment Promotion Workflow.
+
+- **Story PR:** `story/*` → **`develop`** (**Draft** immediately) *(was `master`)*
+- **Task PR:** `task/*` → `story/*` (unchanged)
+- **Bugfix PR:** `bugfix/*` → **`develop`** *(was `master`)*. Hotfix exception: `bugfix/*` → `master` only for P0 / CVE bypass — cherry-pick to `develop` immediately after.
+- **🆕 Release PR:** `develop` → `master` (SM-drafted, Tony-approved, opened only after per-story QA passes in the Azure Test environment).
 
 ---
 
@@ -158,11 +163,13 @@ flowchart TD
 
 ### 1) Create story branch + Draft PR (immediately)
 
+> **Updated 2026-05-19:** Story branches now branch from and PR to **`develop`** (Test slot), not `master`. The `scripts/git/new-story.ps1` helper defaults to `-BaseBranch develop` automatically.
+
 From the main checkout:
 
 ```powershell
 git fetch origin
-git switch master
+git switch develop
 git pull
 
 git switch -c "story/epic3-3.10-grid-layout"
@@ -172,7 +179,7 @@ git push -u origin HEAD
 Create Draft PR (GitHub CLI recommended):
 
 ```powershell
-gh pr create --draft --base master --head "story/epic3-3.10-grid-layout" --title "epic3: Story 3.10 - Grid Layout" --body "Draft story PR. Tasks will merge into this branch."
+gh pr create --draft --base develop --head "story/epic3-3.10-grid-layout" --title "epic3: Story 3.10 - Grid Layout" --body "Draft story PR. Tasks will merge into this branch. Promoted to master via release PR after QA passes in Azure Test."
 ```
 
 ### 2) Create the story integration worktree
@@ -238,11 +245,16 @@ After merge, delete the task worktree:
 git worktree remove "..\\EventLeadPlatform.wt\\task-3.10-T03-grid-css"
 ```
 
-### 6) Close story (merge to master)
+### 6) Close story (merge to develop, then promote via release PR)
+
+> **Updated 2026-05-19:** Story PRs now merge to `develop`. Promotion to `master` happens through a separate **release PR** (SM-drafted, Tony-approved) after per-story QA passes in the Azure Test environment. See `docs/stories/EPIC-6-WORKFLOW-GUIDE.md` § Environment Promotion Workflow → Release PR procedure.
 
 When all tasks are merged and UAT passes:
 - Finalize story docs + status docs
-- Merge story PR → `master` (**prefer GitHub merge UI or `gh pr merge`** so the PR shows merged and reviews stay auditable)
+- Merge story PR → **`develop`** (**prefer GitHub merge UI or `gh pr merge`** so the PR shows merged and reviews stay auditable)
+- Auto-deploy to Azure Test slot triggers
+- Tony + SM run UAT against the **deployed Test environment** (not local dev)
+- After QA pass: SM opens a **release PR** `develop` → `master` bundling this story (and any others ready)
 - Delete story worktree and branch when safe
 
 **Story merge hygiene (Epic 6 BMAD — also see `docs/stories/EPIC-6-WORKFLOW-GUIDE.md`):**
@@ -264,21 +276,42 @@ When all tasks are merged and UAT passes:
 - Treat as a **new task** under the same story.
 - Create `task/<story>/<Txx>-bugfix-...` branch and follow the same loop.
 
-### Bug found on master (hotfix)
+### Bug found on develop / test environment (normal path)
+
+```powershell
+git switch develop
+git pull
+git switch -c "bugfix/2026-05-14-public-link-403"
+git push -u origin HEAD
+```
+
+Open PR: `bugfix/*` → **`develop`** (promoted to master via the next release PR).
+
+### Bug found on master / production (hotfix — exceptional)
+
+> **Hotfix exception (P0 / CVE only):** When a production-only bug cannot wait for the next release cycle (security CVE, payment outage, data loss).
 
 ```powershell
 git switch master
 git pull
-git switch -c "bugfix/2026-02-02-public-link-403"
+git switch -c "bugfix/2026-05-14-cve-jwt-bypass"
 git push -u origin HEAD
 ```
 
-Open PR: `bugfix/*` → `master`.
+Open PR: `bugfix/*` → `master`. **Immediately after merge**, cherry-pick the fix into `develop` to prevent re-divergence:
 
-**Required artifacts:**
+```powershell
+git switch develop
+git pull
+git cherry-pick <hotfix-commit-sha>
+git push
+```
+
+**Required artifacts (any bugfix):**
 - Repro steps
 - Fix evidence (logs/snapshot)
 - At least one regression check (automated if feasible)
+- **Hotfix-only:** justification for bypassing Test in the PR body, plus the cherry-pick commit reference
 
 ---
 

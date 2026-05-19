@@ -8,7 +8,12 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$Slug,
 
-  [string]$BaseBranch = "master",
+  # Default base is `develop` (Test slot). Story PRs now target develop and are
+  # promoted to master via a release PR after QA in the Azure Test environment.
+  # See: docs/stories/EPIC-6-WORKFLOW-GUIDE.md "Environment Promotion Workflow".
+  # Override with -BaseBranch master only for true hotfixes that must bypass Test
+  # (rare; document in the bugfix PR body).
+  [string]$BaseBranch = "develop",
   [string]$Remote = "origin",
 
   [string]$WorktreeRoot = "..\\EventLeadPlatform.wt",

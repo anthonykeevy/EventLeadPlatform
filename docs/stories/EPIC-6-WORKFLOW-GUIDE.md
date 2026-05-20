@@ -1,8 +1,10 @@
 # Epic 6 Workflow Guide — BMAD Method (No Ralf)
 
-**Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR**, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
+**Workflow:** BMAD method only. **SM** prepares Story artifacts, **runs `./scripts/git/new-story.ps1`**, creates the **Git worktree**, opens the **Draft PR** *(now targeting `develop`)*, and hands the path to Dev; Dev implements via the single-session prompt. No Ralf decomposition or task cycle.
 
-**Current Focus:** Story 6.5a — Clarification Questions: Situational awareness dropdowns + locale override in AI Agent panel.
+**🚀 Environment Promotion (adopted 2026-05-19):** Worktree (Dev) → `develop` (Azure Test slot, auto-deploy) → `master` (Production, future via Story 6.11). See **§ Environment Promotion Workflow** below for the full rules. **Story PRs now target `develop`, not `master`.**
+
+**Current Focus (updated 2026-05-20 after 6.5a re-decomposition):** **(1)** **Story 6.5b — Prompt Assembly Registry Foundation** (Ready for Dev; closes R6 by migrating Block G context-pack into the registry; AC-19 prompt-equivalence diff is Tony's sign-off gate before PR Ready). **(2)** **Story 6.5c — Capability Catalog Cutover** (Pending; depends on 6.5b — `resolve_allowed_components` becomes authoritative for Blocks A/F/I + toolbox; `ref.BrandPosture` replaces enum). **(3)** **Story 6.5d — Clarification Data Plane** (Pending; the original 6.5a content — three `ref.*` tables + Block E + dropdowns + `AudienceLocale` enum elimination — now plugs into the registry from 6.5b). **(4)** Targeted AU production-context eval verification (pending Tony's eval slice). **(5)** **Story 6.11 — Production Environment + CI/CD** — blueprint approved (see § Production Deployment Blueprint below); scheduled post-6.10 so production opens with billing live.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -20,6 +22,9 @@
 **Story 6.4.6 Status:** ✅ **Complete** (merged 2026-04-30, PR #82) — AU-only diagnostic eval framework, current-state AU baseline, judge ingest, and `AU-000` handoff complete; no candidate prompt improvements in this story.
 **Story 6.4.7 Status:** ✅ **Complete** (merged 2026-05-06, PR #84) — Analyst-owned AU-001 through AU-006 loop complete; AU-005 is the strongest behavioural target, AU-006 supplies lint-clean wording lessons for the follow-up production prompt implementation story.
 **Story 6.4.8 Status:** ✅ **Complete** (merged 2026-05-07, PR #85) — AU-005 behaviour promoted via migration 072 (PR #86 added downgrade review note). Next step: targeted AU eval verification before resuming 6.5a / image-to-form path.
+**Story 6.5a Status:** 🔄 **Architecture phase complete** (Dimitri Rev 9, 2026-05-09) — data model (`decision-6.5a-clarification-options-data-model.md`) + prompt-assembly registry (`prompt-assembly-registry-architecture.md`) approved. **Draft PR #87** currently targets `master` and will be re-targeted to `develop` (`gh pr edit 87 --base develop`) when the new Environment Promotion Workflow lands. Implementation pending — first story to ship under the new flow.
+**Story 6.11 Status:** ⏳ **Scheduled** (post-6.10) — Production Environment + CI/CD + Manual Approval Gate. Scope per `docs/architecture/azure-infrastructure-architecture.md` §4 + §7. Sequenced last so production opens with billing live (6.6–6.10).
+**Test Environment Status:** ✅ **Live** since 2026-05-14 — Azure App Service test slot `signalplatforms-test`, `develop` branch auto-deploys via `.github/workflows/deploy-to-test.yml`. ACS Email + ODBC URL translator + SPA-from-FastAPI + Alembic-on-startup all validated. **29 commits** (PRs #92–#96 + direct fixes) currently exist only on `develop` and must back-merge to `master` via the one-time reconciliation release PR.
 
 ---
 
@@ -116,11 +121,265 @@ Agents taking a “wrap-up” or “start next story” task should run the same
 This workflow follows the platform-wide Git rules in:
 - `docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`
 
-**Rules:**
-- **Never work directly on `master`.**
-- **One Draft PR per Story** (opened immediately) → `master`
-- **Implementation on Story branch** — no task branches
-- **Push daily:** no multi-day local-only changes
+**Rules (updated 2026-05-19 for Environment Promotion):**
+- **Never work directly on `master`** or `develop`.
+- **One Draft PR per Story** (opened immediately) → **`develop`** *(was `master`; flipped 2026-05-19 — see Environment Promotion Workflow below)*
+- **Bugfix PRs** also target **`develop`**. The only branch that may target `master` is `develop` itself, via a **release PR**.
+- **Release PRs** (`develop` → `master`) are **SM-drafted, Tony-approved**, opened after per-story QA in the Azure Test environment passes.
+- **Implementation on Story branch** — no task branches.
+- **Push daily:** no multi-day local-only changes.
+
+---
+
+## 🚀 Environment Promotion Workflow (Worktree → Test → Production)
+
+**Adopted:** 2026-05-19. **Mandatory for all stories from this point forward.**
+
+Epic 6 now runs against three environments with explicit promotion gates. This replaces the previous "story PR → master" model, which left Azure-specific bugs (port binding, ODBC URL format, missing deps, broken email) undetected until they hit a real deployment.
+
+### Environment map
+
+| Environment | Branch | Deploy target | Auto-deploy? | Trigger |
+|------|--------|---------------|--------------|---------|
+| **Dev** | `story/epicX-X.X-slug` (worktree) | Local dev (your machine) | Manual | Dev agent runs the app locally |
+| **Test** | `develop` | Azure App Service test slot (`signalplatforms-test`) | ✅ Yes | Push to `develop` → `.github/workflows/deploy-to-test.yml` |
+| **Production** | `master` | Azure App Service production (provisioned by Story 6.11) | 🔜 After Story 6.11 | Push to `master` → `deploy-to-prod.yml` with manual-approval gate on the `production` GitHub Environment |
+
+### Promotion flow
+
+```mermaid
+flowchart LR
+    A["Worktree<br/>story/epicX-X.X-slug<br/>(Dev)"] -->|Story PR| B["develop<br/>(Test slot, Azure)"]
+    B -->|Auto-deploy via<br/>deploy-to-test.yml| T[("Test environment<br/>signalplatforms-test")]
+    T -->|QA passes UAT<br/>against TEST URL| C["Release PR<br/>develop --> master"]
+    C -->|Tony approves| D["master<br/>(Prod, future)"]
+    D -.->|After Story 6.11:<br/>deploy-to-prod.yml<br/>(manual approval gate)| P[("Production environment")]
+```
+
+### Where QA fits (per-story cadence, decided 2026-05-19)
+
+| Phase | Where | Who | What is validated |
+|---|---|---|---|
+| Dev | Worktree (local) | Dev agent | Green CI/CD (unit + integration tests + lint) per existing §🛑 Green CI/CD Rule |
+| Story PR → develop | GitHub | SM + Dev | Branch hygiene, evidence package, scope correctness |
+| Auto-deploy | Azure Test slot | GitHub Actions | Build + deploy success (no manual step) |
+| **🆕 QA in Test (per-story)** | `https://signalplatforms-test.azurewebsites.net` (or the test custom domain when configured) | **Tony + SM** | Run `STORY-6.x-UAT-TEST-GUIDE.md` against the **deployed** Test environment. This is the **only place** we catch deployment-only bugs: env vars, secrets, real ACS email delivery, real Azure SQL, CSP/headers, custom domain TLS, cold-start, real OAuth callbacks. |
+| Release PR `develop` → `master` | GitHub | SM (drafts) → Tony (approves) | Confirms QA-pass evidence; promotes the merged-and-tested code to the production branch |
+| Prod deploy (future, Story 6.11+) | Azure prod | GitHub Actions + manual approval gate | Final cutover with rollback runbook |
+
+### Release PR procedure (SM-owned)
+
+1. **After per-story QA passes** in the Test environment:
+   - Confirm `gh pr view <story-PR-N> --json mergedAt` shows the story PR is merged into `develop`.
+   - Confirm the Test deploy workflow run for that merge is green: `gh run list --workflow=deploy-to-test.yml --branch develop --limit 5`.
+   - Confirm `STORY-6.x-UAT-RESULTS.md` records the QA pass against the **Test URL** (not local dev).
+2. **Open the release PR** (Draft):
+   ```powershell
+   gh pr create --draft --base master --head develop `
+     --title "release: <stories bundled> via Test environment QA" `
+     --body "<release notes — see template below>"
+   ```
+3. **Release PR body must include:**
+   - Bundled stories with PR numbers and one-line scope each.
+   - Link to each `STORY-6.x-UAT-RESULTS.md` confirming QA pass against Test.
+   - New migrations / new Python or npm deps / changed env vars (for Production preflight).
+   - Any one-off scripts environments downstream must run (e.g., when a prior migration was modified retroactively).
+   - Rollback plan: previous master SHA tag (`pre-release-YYYY-MM-DD`).
+4. **SM tags master before merge:** `git tag pre-release-YYYY-MM-DD && git push origin pre-release-YYYY-MM-DD` — known-good rollback point.
+5. **Tony approves and merges via GitHub UI** (preserves audit trail). Master is now caught up. From Story 6.11 onwards, this triggers production deploy.
+6. **Post-merge sync:** SM runs `git fetch origin` in every active worktree and `git switch develop && git pull` on the main checkout so Dev work continues from the latest base. Master and develop should be identical at this moment.
+
+### Hotfix exception (rare)
+
+If a critical production bug needs to bypass Test (e.g., security CVE, P0 outage):
+1. Branch from `master`: `git switch -c bugfix/<date>-<slug>`.
+2. PR → `master` directly with the `-BaseBranch master` override on `new-story.ps1` (or `gh pr create --base master`).
+3. **Immediately cherry-pick or back-merge into `develop`** to prevent re-divergence: `git switch develop; git cherry-pick <commit>; git push`.
+4. Document the bypass reason in the bugfix PR body. Hotfixes should be exceptional, not routine — if you find yourself hotfixing weekly, the QA process needs revisiting.
+
+### Production Deployment Blueprint (Story 6.11)
+
+**Status:** ⏳ Blueprint only. Implementation scheduled post-6.10 so production opens with billing live. This subsection captures the design so the Story 6.11 implementer (Tony + Dev) starts with a finished architecture and can spend the cycle on plumbing, not decisions. Authoritative reference is `EPIC-6-STATUS.md` row 6.11.
+
+#### Design goals
+
+1. **Zero-downtime deploys** via slot-swap (not in-place overwrite — the Test slot's restart-during-deploy pattern is acceptable for Test but not for paying customers).
+2. **Mandatory manual approval** before any code touches live traffic.
+3. **Same smoke gate as Test** (PR #99 pattern), extended with **feature-readiness probes** that run against the deployed slot before the swap.
+4. **<5 min rollback** via slot re-swap (Azure keeps the previous code on the now-idle slot).
+5. **Auditable trail per release**: GitHub Environments + Azure Activity Log + Application Insights deployment markers.
+
+#### Infrastructure to provision
+
+Refer to `docs/architecture/azure-infrastructure-architecture.md` §4 (resource topology) + §7 (CI/CD pipeline). Net-new resources for Story 6.11:
+
+- App Service Plan + Web App `signalplatforms-prod` (P1V3 minimum for prod traffic and slot swap support)
+- **Two deployment slots** under `signalplatforms-prod`: default `production` (serves live traffic) + `staging` (deploy target)
+- Azure SQL DB `EventLeadPlatformProd` on a separate logical server (isolates prod backups, perf, and blast radius from Test)
+- Key Vault `kv-eventlead-prod` with App Service managed identity granted `get` on secrets
+- ACS Email verified sender domain `signalplatforms.com.au` with prod-grade MailFrom configured
+- Application Insights bound to both slots (separate connection strings)
+- Custom domain `app.signalplatforms.io` bound to **production slot only** (Cloudflare DNS + App Service-managed cert)
+
+#### Slot architecture (zero-downtime)
+
+```
+            ┌────────────────────────────────────────┐
+            │   App Service: signalplatforms-prod    │
+            │                                        │
+   USERS ──>│   ┌──────────────┐    ┌─────────────┐  │
+            │   │  production  │    │   staging   │  │
+            │   │ slot (live)  │<──>│ slot (idle) │  │
+            │   │              │swap│             │  │
+            │   └──────────────┘    └─────────────┘  │
+            │           ▲                  ▲         │
+            └───────────│──────────────────│─────────┘
+                        │                  │
+              after manual                 │
+              approval, slot           deploy-to-prod
+              swap promotes            .yml deploys
+              staging → prod           here FIRST
+```
+
+The swap operation is atomic at the Azure load balancer level (~30s). Azure pre-warms the staging slot before the swap, so the first request hitting the newly-promoted code is never a cold-start request.
+
+#### `deploy-to-prod.yml` workflow
+
+Triggers:
+- `on: push: branches: [master]` — normal release flow (release PR `develop` → `master` lands, this fires)
+- `on: workflow_dispatch:` with `ref` input — hotfix promotion or rollback re-deploy
+
+GitHub Environment: `production` (configured at repo Settings → Environments) with **required reviewer = Tony** and **deployment branches restricted to `master`** (prevents accidental prod deploys from feature branches).
+
+Step sequence (mirrors `deploy-to-test.yml` from PRs #98/#99 with key prod-only additions in **bold**):
+
+1. Checkout `master` HEAD (or `workflow_dispatch` input ref).
+2. Setup Python 3.12, build Linux `antenv` (identical to Test).
+3. Build frontend (`npx vite build`, identical to Test).
+4. Prepare deployment package (`backend/` with `static/frontend/`; identical to Test).
+5. **Pre-deploy smoke test** on CI runner — identical to Test (PR #99). Catches deploy-shape bugs in <60s before any Azure resources are touched.
+6. Deploy to **`staging` slot** (NOT `production` directly):
+   ```yaml
+   - uses: azure/webapps-deploy@v3
+     with:
+       app-name: signalplatforms-prod
+       slot-name: staging
+       package: backend
+   ```
+7. **Wait for staging slot to be healthy**: poll `https://signalplatforms-prod-staging.azurewebsites.net/api/health` until 200 (max 5 min).
+8. **Post-deploy smoke against the staging slot's real URL** — proves Azure-side init succeeded (env vars, secrets, prod DB connection, ACS, custom-domain bindings on prod slot didn't break staging). This is the first time the code touches a prod-like environment.
+9. **Run feature-readiness probes against staging slot** (`/api/internal/readiness/<feature>` — see pattern below). Any 5xx or feature-not-ready response fails the workflow before any traffic shift.
+10. **🛑 MANUAL APPROVAL GATE** — GitHub Environment `production` pauses the workflow. Tony receives a notification with a link to the run, reviews the smoke + readiness output in the workflow log, clicks ✅ Approve (or ❌ Reject). This is the irrevocable "ship to live traffic" decision.
+11. **Atomic slot swap** (~30s):
+    ```yaml
+    - run: az webapp deployment slot swap
+            --resource-group <rg>
+            --name signalplatforms-prod
+            --slot staging
+            --target-slot production
+    ```
+12. **Post-swap verify**: hit `https://app.signalplatforms.io/api/health`, assert response includes the deployed SHA matching this workflow run (Application Insights deployment marker is also emitted at this point).
+
+#### Smoke-test extension: feature-readiness probes
+
+PR #99 proved the local-runner smoke pattern in Test. Story 6.11 extends it with **internal readiness endpoints** that the workflow probes against the staging slot before the swap:
+
+- **`/api/internal/readiness/ai-context`** — returns 200 only if the Story 6.5a prompt registry is loaded and contains rows. (Resolves R6 from the 2026-05-19 release PR — the `context-pack-load-failed` AI bug would have been caught here before any prod swap.)
+- **`/api/internal/readiness/stripe`** — confirms `STRIPE_SECRET_KEY` is present and `stripe.PaymentIntent.list(limit=1)` returns without auth error (added during the billing stories 6.6–6.10).
+- **`/api/internal/readiness/email`** — confirms `EMAIL_PROVIDER=acs` resolves, the ACS connection string is valid, and the sender domain matches `EMAIL_FROM` (uses ACS's send-status endpoint, not a real email).
+
+These probes are **internal only** — bind to a workflow-token header or restrict by source IP. They are NOT public health checks.
+
+The pattern: **every story that adds a feature gated by external config adds a readiness probe in the same PR.** This way the prod smoke gate grows naturally and catches "I forgot to set the env var" bugs in CI instead of after the swap.
+
+#### Manual approval gate
+
+Configure at repo level (GitHub Settings → Environments → `production`):
+
+- **Required reviewers:** Tony (initially); add a deputy when available so prod deploys aren't blocked by holidays.
+- **Wait timer:** 0 — the human approval is the only gate.
+- **Deployment branches:** `master` only.
+
+When step 10 fires, the workflow shows "Waiting for approval from <reviewer>" in the Actions UI. The approver gets a GitHub notification + email. They open the run, scroll through smoke output + readiness probes + post-deploy smoke results, then approve or reject in the workflow UI. Approving unblocks step 11; rejecting aborts (staging slot keeps the new code but production stays untouched).
+
+#### Rollback strategy
+
+| Scenario | Action | Recovery time |
+|---|---|---|
+| Post-swap regression noticed within minutes (staging still holds previous prod code) | Re-swap: `az webapp deployment slot swap --slot production --target-slot staging` | <2 min |
+| Post-swap regression noticed AFTER staging has been overwritten by a later deploy | `workflow_dispatch` deploy-to-prod with `ref = <previous-master-tag>`, then approve + swap | 20-30 min (full deploy cycle) |
+| Catastrophic data corruption | Azure SQL point-in-time restore (DB) + slot re-swap (code) | 30-60 min |
+
+The `Release PR procedure` (above) already tags `pre-release-YYYY-MM-DD` on master before each merge. For production cutovers, that tag becomes the rollback target. **Story 6.11 must add `docs/runbooks/PROD-ROLLBACK-RUNBOOK.md`** with the exact commands and a Tony-tested dry-run.
+
+#### Slot-sticky vs swappable app settings
+
+When configuring app settings on the prod slot, mark them according to whether they should swap with code:
+
+| Setting type | Slot-sticky? | Examples |
+|---|---|---|
+| **Slot-bound** (do NOT swap with code) | ✅ Yes | `WEBSITES_PORT`, `EMAIL_FROM`, custom domain hostnames, slot-specific Application Insights connection string |
+| **Code-bound** (SWAP with code) | ❌ No | Deployed SHA, code version stamp, feature flags |
+| **Secrets** (do NOT swap; come from Key Vault) | ✅ Yes | DB connection, ACS connection string, Stripe secret key, JWT signing key |
+
+Misconfiguring this category is the #1 source of "swap broke prod" Azure horror stories; Story 6.11's ACs should explicitly call out a slot-stickiness audit step.
+
+#### Story 6.11 task list (preview)
+
+- [ ] Provision App Service Plan + Web App `signalplatforms-prod` (P1V3+)
+- [ ] Add `staging` deployment slot
+- [ ] Provision Azure SQL DB `EventLeadPlatformProd` (separate logical server)
+- [ ] Set up Key Vault + managed-identity access
+- [ ] Configure prod slot app settings as `@Microsoft.KeyVault(...)` references (no plain-text secrets in App Service config)
+- [ ] Configure slot-stickiness per the table above
+- [ ] Bind `app.signalplatforms.io` to production slot only
+- [ ] Verify ACS sender domain (SPF/DKIM) + configure prod MailFrom
+- [ ] Bind Application Insights to both slots
+- [ ] Create GitHub Environment `production` (required reviewer = Tony, deployment branches = `master`)
+- [ ] Add GitHub secrets: `AZURE_WEBAPP_PUBLISH_PROFILE_PROD`, `AZURE_CREDENTIALS_PROD`
+- [ ] Write `.github/workflows/deploy-to-prod.yml` (start from `deploy-to-test.yml`; add steps 7–12 above)
+- [ ] Implement `/api/internal/readiness/{ai-context, stripe, email}` endpoints
+- [ ] **Dry-run**: deploy a no-op commit to staging, run all gates, approve, swap, verify, then re-swap back. Validates the entire pipeline before first real release.
+- [ ] Publish `docs/runbooks/PROD-ROLLBACK-RUNBOOK.md`
+- [ ] First production cutover: release PR carries the billing-complete code; SM publishes go-live checklist
+
+#### Acceptance criteria preview
+
+Full ACs land in `docs/stories/story-6.11.md` when the story opens. Preview:
+
+1. Push to `master` triggers `deploy-to-prod.yml`; deploy lands on staging slot only.
+2. Pre-deploy CI smoke gates the Azure deploy (same as Test).
+3. Post-deploy smoke + readiness probes against the staging slot gate the swap.
+4. Workflow pauses for manual approval on the `production` GitHub Environment.
+5. Swap is atomic; the production URL serves no 5xx during the swap window (measured via Application Insights synthetic monitor).
+6. Rollback via slot re-swap completes in <2 min and is documented in the run summary.
+7. App Insights records the deployed SHA as a custom property for both slots.
+8. `docs/runbooks/PROD-ROLLBACK-RUNBOOK.md` exists and has been dry-run validated.
+
+#### What Test taught us that Production inherits
+
+| Lesson learned in Test (2026-05) | Inherited by Prod (Story 6.11) |
+|---|---|
+| Bare `python` in startup scripts fails when Oryx skips venv activation (PR #98) | Prod's `startup.txt` + `startup.sh` use `antenv/bin/python` from day one |
+| Long Azure deploy/validate cycles hide deploy-shape bugs (PR #99) | Prod inherits the pre-deploy smoke step + adds a second post-deploy smoke against the deployed slot |
+| File-system path resolution differs between local dev and Azure (R6 / context-pack bug) | Story 6.5a moves prompt context to DB; readiness probe gates the prod swap if the registry isn't loaded |
+| `from_name` cross-provider contract is fragile under different SDK shapes (PR #100) | Email readiness probe verifies ACS resource config before swap, not just env-var presence |
+| Slot test environment uses single in-place deploy → restart downtime is acceptable for Test but not Prod | Prod uses two-slot architecture and atomic swap |
+
+### One-time reconciliation (May 2026 — historical record)
+
+The first release PR through this process is a **bulk catch-up** to recover the 29 commits currently only on `develop`:
+
+- **PRs:** #92 (ACS Email), #93 (Vite same-origin), #94 (aiohttp dep), #95 (password reset URL fix), #96 (platform owner seed)
+- **Direct commits:** ~10 Azure startup fixes (uvicorn port, ODBC URL, Alembic subprocess, SPA-from-FastAPI, python-multipart, antenv bundling)
+- **New migrations:** 073 (platform owner seed) + 074 (onboarding-complete flag)
+- **Modified migration:** 015 (retroactive User-row insert — environments that already ran 015 need a one-off fix script; see release PR body)
+- **New deps:** `aiohttp==3.13.5`, `python-multipart==0.0.20`
+- **New files:** `backend/common/database_url.py`, `backend/services/email_providers/acs.py`, tests for both, `backend/startup.sh`, `database/seeds/signal-platforms-seed.sql`
+
+Tony will prepare this release PR separately (see discussion record 2026-05-19). After this catch-up, master and develop are aligned and the per-story cadence begins. **PR #87 (Story 6.5a) must be re-targeted from `master` to `develop` (`gh pr edit 87 --base develop`) before its next push, so 6.5a becomes the first story to ship under the new flow.**
+
+---
 
 ## 🇦🇺 AU-First Prompt Evaluation Reset (Mandatory after Story 6.4.5)
 
@@ -350,6 +609,8 @@ This preserves your learning objective (multi-agent experience) without weakenin
 
 | Date | Change | Why |
 |------|--------|-----|
+| **2026-05-19 (amendment)** | **Story 6.11 Production Deployment Blueprint added** to § Environment Promotion Workflow, between "Hotfix exception" and "One-time reconciliation". Captures the production design end-to-end so Story 6.11 implementation is plumbing, not decisions: design goals (zero-downtime, manual approval, smoke gate parity with Test, <5 min rollback), two-slot architecture diagram, `deploy-to-prod.yml` 12-step sequence (with prod-only post-deploy smoke + readiness probes against the staging slot before the swap), manual-approval-gate config, rollback strategy table, slot-stickiness rules for app settings, task-list preview, AC preview, and a "What Test taught us that Production inherits" table that maps each lesson from PRs #98/#99/#100/R6 to the prod design. `EPIC-6-STATUS.md` row 6.11 amended to point at this subsection as the authoritative blueprint. | Today's release-PR work and Tony's CI-check question in Stage D made clear that Story 6.11 needs a written-down design before the cycle opens — otherwise it will replay the same "discover by failing in Azure" pattern that cost two weeks during Test bring-up. Capture the lessons-learned while they're fresh and have the Story 6.11 implementer (Tony + Dev) inherit them by reference. |
+| **2026-05-19** | **Environment Promotion Workflow adopted.** Story PRs now target **`develop`** (Test slot), promoted to **`master`** (Production) only via SM-drafted release PRs after per-story QA passes against the deployed Azure Test environment. `scripts/git/new-story.ps1` default `-BaseBranch` flipped from `master` to `develop`. New § Environment Promotion Workflow section added with mermaid, QA-in-Test table, release PR procedure, hotfix exception, and a historical record of the one-time reconciliation needed in May 2026 (29 commits stranded on `develop`). Added **Story 6.11 — Production Environment + CI/CD + Manual Approval Gate** to Phase B (post-6.10, so production opens with billing live). Updated **Story 6.5a Status:** architecture phase complete (Dimitri Rev 9, 2026-05-09) — first story to ship under the new flow. **`docs/workflows/AGENTIC-GIT-WORKTREE-WORKFLOW.md`** PR-naming rules updated in lockstep. | Two parallel tracks (Epic 6 story PRs → `master`; Azure infra fix PRs → `develop`) had silently diverged: master was missing all the fixes that actually make the app run on Azure (ACS Email, port binding, ODBC URL, SPA-from-FastAPI, dependencies). Tony surfaced the concern after deploying `develop` to Azure Test. The new model guarantees nothing reaches `master` without first passing QA against a real Azure deployment, which is the only place deployment-shaped bugs (env vars, secrets, real DB, real email) surface. Per-story cadence chosen over batched releases to match Epic 6's one-story-per-few-days rhythm. |
 | 2026-02-26 | Added explicit Phase 2 execution contract, Phase 3 human merge gate, and Phase 4 reset process | Epic 6 was latest but not final; needed closeout and reset mechanics to avoid drift |
 | 2026-02-26 | Added Story Evidence Contract tied to Green CI/CD output quality | Prevent false-green/hallucinated completion and preserve per-story quality gate |
 | 2026-02-26 | Added Failure Routing Policy with TEA escalation path | Ensure failing gates are routed deterministically instead of deferred silently |

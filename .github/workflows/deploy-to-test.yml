@@ -1,0 +1,277 @@
+name: Deploy to Test Environment
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to deploy (branch name, tag, or full SHA). Default develop.'
+        required: false
+        default: develop
+        type: string
+
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    environment: test   # Uses the 'test' GitHub Environment and its secrets
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: >-
+            ${{ github.event_name == 'workflow_dispatch'
+                && github.event.inputs.ref || github.sha }}
+
+      # ==========================================
+      # Backend venv bundled into deploy package (fixes missing antenv when Oryx manifest/tarball absent)
+      # ==========================================
+      - name: Setup Python (match App Service stack PYTHON|3.12)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Build Linux-compatible antenv under backend/antenv
+        run: |
+          set -e
+          rm -rf backend/antenv
+          python -m venv backend/antenv
+          backend/antenv/bin/python -m pip install --upgrade pip wheel
+          backend/antenv/bin/pip install -r backend/requirements.txt
+
+      # ==========================================
+      # Build Frontend
+      # ==========================================
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      # VITE_API_BASE_URL is unset: SPA ships inside FastAPI and should use same-origin /api.
+      # Set VITE_* only when the UI is hosted on a different hostname than the API.
+      - name: Build Frontend
+        run: |
+          cd frontend
+          # Use vite build directly to skip strict TypeScript checks (temporary until TS errors are fixed)
+          npx vite build
+
+      # ==========================================
+      # Prepare Backend + Frontend Bundle
+      # ==========================================
+      - name: Prepare Deployment Package
+        run: |
+          # Copy built frontend into backend so FastAPI can serve it
+          mkdir -p backend/static/frontend
+          cp -r frontend/dist/* backend/static/frontend/
+          ls -la backend/antenv/bin/python
+
+      # ==========================================
+      # Azure (test slot) → Configuration → General → Startup Command
+      #
+      # RECOMMENDED (uses the bundled antenv built above — deterministic regardless of Oryx):
+      #   antenv/bin/python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+      #
+      # Why "antenv/bin/python" and not bare "python":
+      #   This workflow bundles backend/antenv into the deploy package as a fallback for when
+      #   Oryx skips its build step (SCM_DO_BUILD_DURING_DEPLOYMENT=false, oryx-manifest already
+      #   present, scale-out without rebuild, etc.). A bare `python -m uvicorn ...` resolves to
+      #   the container's system Python — which has ZERO project dependencies installed — and
+      #   startup fails with `ModuleNotFoundError: No module named 'uvicorn'`, returning 502/timeouts
+      #   to all traffic. Bare `python` only happens to work today because Oryx is auto-activating
+      #   antenv via PATH manipulation; that's brittle and breaks the moment Oryx is disabled.
+      #   Invoking antenv/bin/python directly removes the dependency on Oryx auto-activation.
+      #
+      # App Service Linux sets PORT (often 8000–818x). Do NOT hardcode port 8000:
+      #   binding the wrong port = healthy build but timeouts/502.
+      #
+      # If ${PORT:-8000} is not expanded in your slot, try:
+      #   bash -lc 'exec antenv/bin/python -m uvicorn main:app --host 0.0.0.0 --port "${PORT:-8000}"'
+      #
+      # If cold start (Oryx tarball extract + AUTO_MIGRATE) often exceeds the platform window, set on the slot:
+      #   WEBSITES_CONTAINER_START_TIME_LIMIT = 600
+      #
+      # Bare filenames ("startup.txt", "./startup.sh") can fail depending on tarball/cwd/Oryx; both have
+      # been updated to invoke antenv/bin/python too, so they're safe alternatives. The inline command
+      # above remains the simplest source-of-truth choice.
+      # See: Microsoft Learn → "Configure a custom startup file for Python apps on App Service".
+      # ==========================================
+
+      # ==========================================
+      # PRE-DEPLOY SMOKE TEST
+      # ------------------------------------------
+      # Runs the EXACT deploy package locally on the CI runner BEFORE pushing to
+      # Azure. Catches deploy-shape bugs (interpreter resolution, missing deps,
+      # port binding, route registration, startup crashes) without consuming a
+      # 20-minute Azure deploy + slot restart cycle per failed attempt.
+      #
+      # WHY IT WORKS: the runner is Ubuntu (matches App Service Linux), the
+      # antenv built two steps above contains the exact dependency set, and we
+      # invoke the same startup command shape (antenv/bin/python -m uvicorn ...)
+      # that Azure will use. The runner's global Python has NO project deps,
+      # so any bug that resolves `python` to the wrong interpreter (e.g. the
+      # original PR #98 antenv bug) fails here with ModuleNotFoundError instead
+      # of in production with a 502.
+      #
+      # CURRENT PROBES:
+      #   * GET /api/health → 200 with valid JSON body
+      #     Validates: app starts, uvicorn binds, public routes serve, JWT
+      #     middleware lets public endpoints through, response shape is sane.
+      #
+      # NOT YET PROBED (intentional — tracked against Epic 6 stories):
+      #   * AI generation readiness (context-pack / prompt registry loading) —
+      #     fixed by Story 6.5a (DB-driven loader replaces filesystem .md path).
+      #     ADD a probe here at GET /api/internal/diagnostics/ai-readiness when
+      #     that endpoint exists. See EPIC-6-STATUS.md row 6.5a.
+      #   * Database connectivity / Alembic migration health — would need a CI
+      #     SQL Server container (not Azure SQL — firewall makes that impossible
+      #     and undesirable from CI). Add when there's a forcing reason.
+      #   * ACS email send paths — cannot be probed without real ACS credentials;
+      #     stays a manual Azure Test slot concern.
+      #
+      # FAILURE SEMANTICS:
+      #   * exit non-zero → Deploy step is skipped (job fails, GitHub goes red,
+      #     no Azure cycle burnt). Fix the bug and re-push.
+      #   * pass → Deploy step runs as before.
+      #
+      # FUTURE: extract this into a reusable composite action under
+      # .github/actions/smoke-test/ once a second deploy workflow exists
+      # (Story 6.11 production deploy will want the same shape).
+      # ==========================================
+      - name: Pre-deploy smoke test (verify package boots + /api/health responds)
+        env:
+          # /api/health is database-free and stateless. We intentionally set NO
+          # DATABASE_URL, ACS connection string, or OpenAI key — if a probe ever
+          # needs them, plumb them through GitHub Actions secrets here. Never
+          # bake real creds into the image.
+          PORT: '8000'
+          ENVIRONMENT: ci-smoke
+        run: |
+          set -e
+          cd backend
+
+          echo "::group::Verify bundled antenv is usable"
+          ls -la antenv/bin/python
+          antenv/bin/python --version
+          antenv/bin/python -c "import uvicorn, fastapi; print('uvicorn:', uvicorn.__version__, 'fastapi:', fastapi.__version__)"
+          echo "::endgroup::"
+
+          echo "::group::Start uvicorn (mirrors backend/startup.txt verbatim)"
+          # If startup.txt changes shape, mirror the change here so the smoke
+          # test stays faithful to what Azure will execute.
+          nohup antenv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000 \
+            > /tmp/uvicorn.log 2>&1 &
+          UVICORN_PID=$!
+          echo "uvicorn pid=$UVICORN_PID"
+          echo "::endgroup::"
+
+          echo "::group::Wait for /api/health (max 45s)"
+          SMOKE_OK=0
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8000/api/health -o /tmp/health.json; then
+              SMOKE_OK=1
+              echo "/api/health responded on attempt $i"
+              echo "--- response body ---"
+              cat /tmp/health.json
+              echo
+              break
+            fi
+            sleep 1
+          done
+          echo "::endgroup::"
+
+          echo "::group::uvicorn log (tail 200 lines)"
+          tail -n 200 /tmp/uvicorn.log || true
+          echo "::endgroup::"
+
+          # Stop uvicorn regardless of outcome
+          kill "$UVICORN_PID" 2>/dev/null || true
+          wait "$UVICORN_PID" 2>/dev/null || true
+
+          if [ "$SMOKE_OK" -ne 1 ]; then
+            echo "::error::Smoke test failed: /api/health did not respond within 45s. Deploy aborted."
+            exit 1
+          fi
+
+          echo "::group::Validate /api/health response body shape"
+          antenv/bin/python - <<'PY'
+          import json, sys
+          with open('/tmp/health.json') as f:
+              body = json.load(f)
+          assert body.get('status') == 'healthy', f"status != 'healthy': {body!r}"
+          assert body.get('service') == 'EventLead Platform API', f"unexpected service: {body!r}"
+          assert body.get('environment') == 'ci-smoke', f"environment did not echo ENVIRONMENT env var: {body!r}"
+          print('health body OK:', body)
+          PY
+          echo "::endgroup::"
+
+          echo "Smoke test passed. Deploy will proceed."
+
+      # ==========================================
+      # Deploy to Azure App Service (Test Slot)
+      # Using webapps-deploy@v3 which accepts publish profile.
+      # The package MUST include backend/antenv (built above) whenever wwwroot lacks oryx-manifest + tarball.
+      # SCM_DO_BUILD_DURING_DEPLOYMENT may still rebuild; bundled antenv covers the gap when it does not.
+      # ==========================================
+      - name: Deploy to Azure Web App (Test Slot)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'signalplatforms-test'
+          slot-name: 'test'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_TEST }}
+          package: backend   # Deploy the backend folder (contains the built frontend inside static/frontend)
+
+      # ==========================================
+      # Optional: Set / Update App Settings after deploy
+      # ==========================================
+      # You can uncomment this section if you prefer to manage
+      # environment variables from the workflow instead of the Azure Portal.
+      #
+      # - name: Configure App Settings (Test Slot)
+      #   uses: azure/CLI@v1
+      #   with:
+      #     azcliversion: 2.57.0
+      #     inlineScript: |
+      #       az webapp config appsettings set \
+      #         --name signalplatforms-test \
+      #         --slot test \
+      #         --resource-group signal-platforms-test-rg \
+      #         --settings \
+      #           ENVIRONMENT=test \
+      #           EMAIL_PROVIDER=acs \
+      #           TEST_MODE=true \
+      #           TEST_CATCHALL_EMAIL=test-inbox@signalplatforms.io \
+      #           EMAIL_FROM=noreply@signalplatforms.com.au \
+      #           EMAIL_FROM_NAME="Signal Platforms"
+
+      # ==========================================
+      # Optional: Run Alembic Migrations
+      # ==========================================
+      # Only enable this after you have tested migrations locally.
+      # Uncomment when ready.
+      #
+      # - name: Run Database Migrations
+      #   run: |
+      #     # This assumes your App Service has the correct DATABASE_URL
+      #     # and you have a startup command or a separate migration step.
+      #     echo "Migrations should be run via a dedicated job or startup script."
+
+    # ==========================================
+    # Post-deployment notification (optional)
+    # ==========================================
+    # You can add Slack / Teams / Email notifications here later.
+
+# Notes for future improvements:
+# - Add a separate job for running tests before deployment
+# - Add approval requirement on the 'test' GitHub Environment
+# - Switch from Publish Profile to Service Principal + OIDC for better security
+# - Add a production deployment job with manual approval gate

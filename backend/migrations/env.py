@@ -34,8 +34,10 @@ target_metadata = None
 
 
 def get_url():
-    """Get database URL from environment variable or config"""
-    return os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+    """Get database URL from environment (with ODBC-string normalisation)."""
+    from common.database_url import sync_database_url_env
+
+    return sync_database_url_env()
 
 
 def run_migrations_offline() -> None:

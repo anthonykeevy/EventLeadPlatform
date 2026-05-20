@@ -3,9 +3,12 @@ import type {
   PublicFormSubmissionResponse,
 } from '../types/publicSubmission.types'
 import type { PublicValidationEventRequest } from '../types/telemetry.types'
+import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-const PUBLIC_SUBMISSION_ENDPOINT = `${API_BASE_URL.replace(/\/$/, '')}/api/public/forms`
+function publicFormsBaseUrl(): string {
+  const prefix = getApiBaseUrl().replace(/\/$/, '')
+  return `${prefix}/api/public/forms`
+}
 
 export interface PublicUrlDnsValidationResponse {
   isValid: boolean
@@ -23,7 +26,7 @@ export async function submitPublicFormSubmission(
     throw new Error('Public submission token is required.')
   }
 
-  const response = await fetch(`${PUBLIC_SUBMISSION_ENDPOINT}/${token}/submissions`, {
+  const response = await fetch(`${publicFormsBaseUrl()}/${token}/submissions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -48,7 +51,7 @@ export async function submitPublicValidationTelemetry(
     throw new Error('Public submission token is required.')
   }
 
-  const response = await fetch(`${PUBLIC_SUBMISSION_ENDPOINT}/${token}/telemetry/validation`, {
+  const response = await fetch(`${publicFormsBaseUrl()}/${token}/telemetry/validation`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -81,7 +84,7 @@ export async function uploadPublicFormAttachment(
   formData.append('componentId', params.componentId)
   formData.append('clientSessionId', params.clientSessionId)
 
-  const response = await fetch(`${PUBLIC_SUBMISSION_ENDPOINT}/${token}/attachments`, {
+  const response = await fetch(`${publicFormsBaseUrl()}/${token}/attachments`, {
     method: 'POST',
     body: formData,
     ...init,
@@ -103,7 +106,7 @@ export async function validatePublicUrlDns(
     throw new Error('Public submission token is required.')
   }
 
-  const response = await fetch(`${PUBLIC_SUBMISSION_ENDPOINT}/${token}/validate-url-dns`, {
+  const response = await fetch(`${publicFormsBaseUrl()}/${token}/validate-url-dns`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

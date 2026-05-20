@@ -1,5 +1,5 @@
 import { useEffect, useState, Suspense, lazy } from 'react'
-import { Routes, Route, Link, Navigate } from 'react-router-dom'
+import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './features/auth'
 import { UXProvider, LoadingSpinner, PageLoadingSpinner, useToastNotifications } from './features/ux'
@@ -59,6 +59,28 @@ interface HealthStatus {
   status: string
   service: string
   environment: string
+}
+
+/**
+ * Collapse duplicate leading slashes and duplicate segments (e.g. //reset-password/confirm from
+ * FRONTEND_URL with trailing slash + email template path). React Router won't match those URLs.
+ */
+function NormalizeBrowserPathname() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const segments = location.pathname.split('/').filter(Boolean)
+    const normalized = segments.length === 0 ? '/' : `/${segments.join('/')}`
+    if (normalized !== location.pathname) {
+      navigate(
+        { pathname: normalized, search: location.search, hash: location.hash },
+        { replace: true },
+      )
+    }
+  }, [location.pathname, location.search, location.hash, navigate])
+
+  return null
 }
 
 function HomePage() {
@@ -260,6 +282,7 @@ function App() {
         <ThemeProvider>
           <UXProvider>
             <OfflineIndicator />
+            <NormalizeBrowserPathname />
             <Suspense fallback={<PageLoadingSpinner message="Loading page..." />}>
               <Routes>
                 <Route path="/" element={<HomePage />} />

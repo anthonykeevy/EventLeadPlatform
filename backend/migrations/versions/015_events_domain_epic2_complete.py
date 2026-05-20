@@ -18,6 +18,32 @@ depends_on = None
 
 def upgrade():
     """Create Events domain tables for Epic 2 - Complete Event Management System"""
+
+    # Epic-1 schemas do not seed dbo.[User]; this revision's reference data FK-links CreatedBy.
+    # Ensure at least one user exists (identity usually yields UserID=1 — but do not rely on it).
+    op.execute("""
+        IF NOT EXISTS (SELECT 1 FROM dbo.[User])
+        BEGIN
+            INSERT INTO dbo.[User] (
+                Email,
+                PasswordHash,
+                FirstName,
+                LastName,
+                StatusID,
+                IsEmailVerified,
+                UpdatedDate
+            )
+            VALUES (
+                N'migration.seed@internal.eventlead.invalid',
+                N'MIGRATION_ONLY_NOT_FOR_LOGIN',
+                N'Migration',
+                N'Seed',
+                (SELECT TOP 1 UserStatusID FROM ref.[UserStatus] WHERE StatusCode = N'active' ORDER BY SortOrder),
+                1,
+                GETUTCDATE()
+            );
+        END
+    """)
     
     # Create EventType reference table
     op.create_table('EventType',
@@ -183,40 +209,41 @@ def upgrade():
     op.create_index('IX_Event_Recurring', 'Event', ['IsRecurring', 'RecurrencePatternID', 'IsDeleted'], schema='dbo')
     
     # Seed reference data for EventType
-    op.execute("""
+    seed_author = "(SELECT TOP 1 UserID FROM dbo.[User] ORDER BY UserID)"
+    op.execute(f"""
         INSERT INTO ref.EventType (TypeCode, TypeName, TypeDescription, IsActive, SortOrder, CreatedBy) VALUES
-        ('TRADE_SHOW', 'Trade Show', 'Industry trade shows and exhibitions', 1, 1, 1),
-        ('CONFERENCE', 'Conference', 'Professional conferences and conventions', 1, 2, 1),
-        ('EXPO', 'Expo', 'Public exhibitions and expositions', 1, 3, 1),
-        ('COMMUNITY', 'Community Event', 'Local community events and meetups', 1, 4, 1),
-        ('JOB_FAIR', 'Job Fair', 'Career and job fair events', 1, 5, 1),
-        ('PRODUCT_LAUNCH', 'Product Launch', 'Product launch and announcement events', 1, 6, 1),
-        ('WORKSHOP', 'Workshop', 'Educational workshops and training', 1, 7, 1),
-        ('SEMINAR', 'Seminar', 'Professional seminars and presentations', 1, 8, 1),
-        ('OTHER', 'Other', 'Other types of events', 1, 9, 1)
+        ('TRADE_SHOW', 'Trade Show', 'Industry trade shows and exhibitions', 1, 1, {seed_author}),
+        ('CONFERENCE', 'Conference', 'Professional conferences and conventions', 1, 2, {seed_author}),
+        ('EXPO', 'Expo', 'Public exhibitions and expositions', 1, 3, {seed_author}),
+        ('COMMUNITY', 'Community Event', 'Local community events and meetups', 1, 4, {seed_author}),
+        ('JOB_FAIR', 'Job Fair', 'Career and job fair events', 1, 5, {seed_author}),
+        ('PRODUCT_LAUNCH', 'Product Launch', 'Product launch and announcement events', 1, 6, {seed_author}),
+        ('WORKSHOP', 'Workshop', 'Educational workshops and training', 1, 7, {seed_author}),
+        ('SEMINAR', 'Seminar', 'Professional seminars and presentations', 1, 8, {seed_author}),
+        ('OTHER', 'Other', 'Other types of events', 1, 9, {seed_author})
     """)
     
     # Seed reference data for EventStatus
-    op.execute("""
+    op.execute(f"""
         INSERT INTO ref.EventStatus (StatusCode, StatusName, StatusDescription, StatusColor, StatusIcon, IsActive, SortOrder, CreatedBy) VALUES
-        ('DRAFT', 'Draft', 'Event is being created and edited', '#FFA500', 'draft-icon', 1, 1, 1),
-        ('PENDING_REVIEW', 'Pending Review', 'Event submitted for public review', '#FFC107', 'pending-icon', 1, 2, 1),
-        ('PUBLISHED', 'Published', 'Event is live and accepting forms', '#28A745', 'published-icon', 1, 3, 1),
-        ('COMPLETED', 'Completed', 'Event has finished', '#17A2B8', 'completed-icon', 1, 4, 1),
-        ('CANCELLED', 'Cancelled', 'Event has been cancelled', '#DC3545', 'cancelled-icon', 1, 5, 1),
-        ('REJECTED', 'Rejected', 'Event rejected during review', '#6C757D', 'rejected-icon', 1, 6, 1),
-        ('ARCHIVED', 'Archived', 'Event has been archived', '#6C757D', 'archived-icon', 1, 7, 1)
+        ('DRAFT', 'Draft', 'Event is being created and edited', '#FFA500', 'draft-icon', 1, 1, {seed_author}),
+        ('PENDING_REVIEW', 'Pending Review', 'Event submitted for public review', '#FFC107', 'pending-icon', 1, 2, {seed_author}),
+        ('PUBLISHED', 'Published', 'Event is live and accepting forms', '#28A745', 'published-icon', 1, 3, {seed_author}),
+        ('COMPLETED', 'Completed', 'Event has finished', '#17A2B8', 'completed-icon', 1, 4, {seed_author}),
+        ('CANCELLED', 'Cancelled', 'Event has been cancelled', '#DC3545', 'cancelled-icon', 1, 5, {seed_author}),
+        ('REJECTED', 'Rejected', 'Event rejected during review', '#6C757D', 'rejected-icon', 1, 6, {seed_author}),
+        ('ARCHIVED', 'Archived', 'Event has been archived', '#6C757D', 'archived-icon', 1, 7, {seed_author})
     """)
     
     # Seed reference data for RecurrencePattern
-    op.execute("""
+    op.execute(f"""
         INSERT INTO ref.RecurrencePattern (PatternCode, PatternName, PatternDescription, PatternFormula, IsActive, SortOrder, CreatedBy) VALUES
-        ('NONE', 'No Recurrence', 'One-time event', NULL, 1, 1, 1),
-        ('DAILY', 'Daily', 'Event occurs every day', 'ADD_DAYS(1)', 1, 2, 1),
-        ('WEEKLY', 'Weekly', 'Event occurs every week', 'ADD_WEEKS(1)', 1, 3, 1),
-        ('MONTHLY', 'Monthly', 'Event occurs every month', 'ADD_MONTHS(1)', 1, 4, 1),
-        ('YEARLY', 'Yearly', 'Event occurs every year', 'ADD_YEARS(1)', 1, 5, 1),
-        ('CUSTOM', 'Custom', 'Custom recurrence pattern', NULL, 1, 6, 1)
+        ('NONE', 'No Recurrence', 'One-time event', NULL, 1, 1, {seed_author}),
+        ('DAILY', 'Daily', 'Event occurs every day', 'ADD_DAYS(1)', 1, 2, {seed_author}),
+        ('WEEKLY', 'Weekly', 'Event occurs every week', 'ADD_WEEKS(1)', 1, 3, {seed_author}),
+        ('MONTHLY', 'Monthly', 'Event occurs every month', 'ADD_MONTHS(1)', 1, 4, {seed_author}),
+        ('YEARLY', 'Yearly', 'Event occurs every year', 'ADD_YEARS(1)', 1, 5, {seed_author}),
+        ('CUSTOM', 'Custom', 'Custom recurrence pattern', NULL, 1, 6, {seed_author})
     """)
 
 

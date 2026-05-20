@@ -10,7 +10,7 @@ it's the R6 fix migration.
 
 Snippet sources (verbatim from backend/modules/form_ai/service.py
 *before* the renderer wires in - see git blame at base commit cb339ed):
-  * Block A: lines 1879-1881 of service.py (role + JSON-only contract).
+  * Block A: JSON-only contract (internal Story 6.3.1 preamble removed per UAT).
   * Block B: _CONSENT_GUIDANCE_BLOCK (the production default returned by
     _active_consent_guidance_block() when FORM_AI_EVAL_PROMPT_SHRINK_MODE
     is unset or 'h2-h4'). Eval-only modes 'baseline' and 'h4' would use
@@ -58,7 +58,6 @@ depends_on = None
 # ---------------------------------------------------------------------------
 
 BLOCK_A_DEFAULT = (
-    "You generate an EventLead semantic form plan for Story 6.3.1.\n"
     "Output a single JSON object only. No markdown or prose.\n"
     "Return FormSemanticPlan only; do not output any coordinates, "
     "pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"

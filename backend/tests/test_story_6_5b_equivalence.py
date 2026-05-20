@@ -100,7 +100,6 @@ def _build_canonical_assembly(
 
 
 _BLOCK_A_MARKERS = [
-    "You generate an EventLead semantic form plan for Story 6.3.1.",
     "Output a single JSON object only. No markdown or prose.",
     "Return FormSemanticPlan only;",
     "do not output any coordinates",

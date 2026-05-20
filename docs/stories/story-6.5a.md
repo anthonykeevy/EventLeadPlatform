@@ -1,185 +1,121 @@
-# Story 6.5a - Clarification Questions: Situational Awareness Dropdowns + Locale Override in AI Agent Panel
+# Story 6.5a — Architecture Phase: Clarification Data Plane + Prompt Assembly Registry Design
 
-**Epic:** 6 - AI Generation & Monetization Engine  
-**Story ID:** 6.5a  
-**Title:** Clarification Questions: Situational Awareness Dropdowns + Locale Override in AI Agent Panel  
-**Status:** Draft / Ready for Dev  
-**Branch:** `story/epic6-6.5a-clarification-questions`  
-**PR:** [#87](https://github.com/anthonykeevy/EventLeadPlatform/pull/87) - Draft PR to `master`  
-**Created:** 2026-05-07  
-**Depends On:** Story 6.4.8 (AU production prompt context) merged.  
-**Unblocks:** Improved AI Agent panel for multi-locale form design and better clarification UX.
-
----
-
-## 1) Goal
-
-Extend the AI Agent panel (introduced and polished in Story 6.4) with **situational awareness clarification questions** presented as dropdowns. 
-
-The panel must:
-- Pre-populate the audience locale based on the current context (user/company/event).
-- Allow the user to explicitly override the locale when they are designing a form for a customer or event in a **different locale** from their own.
-
-This provides the AI with better situational context for generating accurate, locale-appropriate forms while giving users explicit control.
+**Epic:** 6 — AI Generation & Monetization Engine
+**Story ID:** 6.5a
+**Title:** Architecture Phase — Clarification Data Plane + Prompt Assembly Registry Design (Dimitri-led)
+**Status:** ✅ **Complete (Architecture Phase)** — Rev 9 approved 2026-05-09; companion registry doc landed; implementation decomposed into 6.5b / 6.5c / 6.5d
+**Branch:** `story/epic6-6.5a-clarification-questions`
+**PR:** [#87](https://github.com/anthonykeevy/EventLeadPlatform/pull/87) — Draft, currently to `develop` (will be **closed and superseded** when the architecture-closeout + 6.5b draft PR opens — see §6 below)
+**Worktree:** `C:\wt\elp\story-epic6-6.5a-clarification-questions`
+**Created:** 2026-05-07
+**Closed:** 2026-05-20 (architecture phase only; implementation continues under 6.5b / 6.5c / 6.5d)
 
 ---
 
-## 2) In Scope
+## 1) What Story 6.5a Set Out to Do
 
-### 2.1 Research Summary (included for Dev context)
+The original 6.5a brief was *"add clarification-question dropdowns to the AI Agent panel."* When Dimitri (Data Domain Architect) reviewed the brief against the existing locale architecture, the work expanded into a full data-plane redesign covering:
 
-**Existing Countries with Locale Data (from Story 6.4.4.1 seeds + PromptTemplateLocaleBlock):**
-- AU, NZ, UK, US, CA, IE, DE, INTL_ONLINE, APAC, EU, NEUTRAL
+- A `ref.AudienceLocale` registry to eliminate the `AudienceLocale` enum.
+- Two new `ref.*` tables for Form Purpose and Respondent Type.
+- A new prompt block ("Block E") for clarification context.
+- A platform-wide rule that every prompt block (A–I) must be database-driven.
+- A companion **Prompt Assembly Registry** schema so all the other blocks (A, B, C, F, G, I) eventually move from Python string literals into versioned DB rows.
 
-**Identified Gaps for Current Countries (to be filled in this story):**
-- Many countries have only basic `format`/`policy`/`tone` blocks; missing richer situational guidance (e.g., common event types, industry-specific consent wording, typical respondent expectations).
-- No dedicated reference data yet for **Form Purpose** or **Respondent Type** — these will be new DB-driven dropdowns.
-- Limited help text / examples per locale for the new dropdowns.
-- No API surface yet to serve these clarification options filtered by locale.
-
-**New Reference Data to Introduce (scoped only to existing countries above):**
-- `ref.FormPurpose` (or equivalent lookup) with locale-aware display names and prompt hints.
-- `ref.RespondentType` with locale-aware labels.
-- Optional locale-specific overrides or additional context for the above.
-
-All new reference data will be seeded only for the 11 existing audience locales listed above. No expansion to new countries.
-
-### 2.2 AI Agent Panel Enhancements
-
-- Add a new section of dropdown controls in the AI Agent panel for **situational awareness / clarification questions**.
-- **Three** clarification dropdowns (all populated from database via API; labels use `DisplayName`, persistence uses `Code` per architecture doc §12 / §16):
-  1. **Audience Locale** — pre-populated, user can override.
-  2. **Form Purpose / Use Case** — DB-driven options.
-  3. **Target Respondent Type** — DB-driven options.
-- A fourth dropdown (e.g. Industry) is **parked until after MVP** (architecture doc §16).
-
-### 2.3 Data Flow Requirement (Mandatory)
-
-Every selected dropdown value must:
-- Be retrieved from the database via a new or extended API endpoint.
-- Be included in the `FormAiGenerateRequest` (or runtime context).
-- Be injected into the LLM system prompt (similar to how `locale_block` and `brand_posture_block` are currently injected in `_build_initial_messages`).
-- Appear in `GenerationRun` trace metadata for auditability.
-
-### 2.2 Locale Handling
-
-- Locale dropdown is **pre-populated** from the existing audience locale resolution logic (Event → Company → User → AppSetting → fallback AU).
-- The dropdown must allow the user to **change/override** the locale at generation time.
-- When overridden, the selected locale becomes the authoritative `audienceLocale` for that generation request (passed through to `generate_form_definition`).
-- The override is **per-generation** (not persisted as a permanent company preference unless explicitly designed that way in a later story).
-
-### 2.3 Integration with Existing Flow
-
-- The new dropdowns feed into the existing `FormAiGenerateRequest` (or a small extension of it).
-- The selected values are included in the runtime context or as explicit parameters to the prompt assembly.
-- No breaking changes to the current generation path.
-
-### 2.4 Schema / Data Model
-
-- Minor schema additions if needed to support the new clarification fields in the request or trace metadata.
-- Ensure the values are captured in `GenerationRun` / trace for auditability.
-
-### 2.5 UX / Accessibility
-
-- Dropdowns follow existing AI Agent panel styling and patterns.
-- Clear labels and help text explaining why the information helps the AI (e.g., "Helps generate the right date formats, phone patterns, and legal wording").
-- Mobile-friendly.
+That work landed as two architecture documents — see §2. They are the actual deliverable of Story 6.5a.
 
 ---
 
-## 3) Out of Scope (for this story)
+## 2) Deliverable (Architecture Documents)
 
-| Item | Reason / Future Home |
-|------|----------------------|
-| Persisting locale override as Company default | Separate settings story |
-| Full multi-locale prompt sweep or new countries | Still AU-first; only existing 11 locales in scope |
-| Image-to-form or style intent | 6.5b series |
-| PII detection or clarification | 6.5c |
-| New component types | Out of scope |
-| Running Alembic (if migration required) | Tony executes |
-| Hardcoded dropdown options in frontend | All options must come from DB via API |
-| Fourth dropdown (Industry, etc.) | Post-MVP (§16) |
-| Full `PromptAssemblyProfile` for blocks A–I | Registry MVP story (companion architecture doc); 6.5a delivers Block E + `ref.AudienceLocale` |
+| Doc | Owner | Status | Purpose |
+|-----|-------|--------|---------|
+| [`decision-6.5a-clarification-options-data-model.md`](../architecture/decision-6.5a-clarification-options-data-model.md) | Dimitri | **Rev 9 — Approved (2026-05-09)** | Authoritative decision doc for the clarification data plane: `ref.AudienceLocale` (incl. `ClarificationSummary`), `ref.FormPurpose`, `ref.RespondentType`, three reference APIs, Company/Form/GenerationRun schema additions, Block E injection mechanics, locked product decisions (§16) |
+| [`prompt-assembly-registry-architecture.md`](../architecture/prompt-assembly-registry-architecture.md) | Dimitri | Companion — landed | Full prompt tree (blocks A–I), `PromptAssemblyProfile*` / `PromptSection*` schema, catalog resolver, toolbox alignment, variant-level versioning. §2.7 is the authoritative post-implementation per-block source map; §10 is the sequencing/handoff |
+
+Both documents live in `docs/architecture/` on this branch and will merge to `develop` as part of the architecture-closeout PR (see §6).
 
 ---
 
-## 4) Acceptance Criteria
+## 3) Key Decisions Locked in This Phase
 
-**Architecture:** All prompt blocks A–I are database-driven (decision doc §4.1). This story delivers the **clarification tranche** (Block E, three `ref.*` tables, APIs, locale enum removal). Remaining blocks migrate via Prompt Assembly Registry MVP.
+All decisions are reproduced from `decision-6.5a-clarification-options-data-model.md` §16; this section is a quick index so the implementation stories don't have to re-litigate them.
 
-1. **AC-1** All **three** clarification dropdowns (Locale, Form Purpose, Respondent Type) are populated from the database via API (no hardcoded lists); UI shows `displayName`, requests persist `code`.
-2. **AC-2** Dropdown options are scoped only to the existing 11 audience locales already seeded in the database.
-3. **AC-3** Obvious gaps in reference data for the current countries are identified and filled during implementation (documented in the story closeout).
-4. **AC-4** Selected values from every dropdown are included in the generation request and injected into the LLM system prompt.
-5. **AC-5** Locale override works correctly and is reflected in the generated form content.
-6. **AC-6** Focused backend tests cover the new API endpoints, request schema, and prompt injection.
-7. **AC-7** UAT includes the 10 provided test prompts (see Section 7) executed in the frontend; dropdown selections visibly affect output.
-8. **AC-8** No regressions when dropdowns are left at default values.
-9. **AC-9** Help text explains the purpose of each dropdown and how it influences the AI.
-
----
-
-## 5) Definition of Done
-
-- Story branch pushed to Draft PR #87.
-- All ACs met and verified.
-- **Prerequisite:** `docs/architecture/decision-6.5a-clarification-options-data-model.md` produced by Dimitri, reviewed and approved by Tony.
-- Research & Gap Analysis section completed and included in story documentation (countries, missing reference data, decisions made).
-- New DB-driven API endpoints + reference data seeded for existing countries only.
-- UAT executed with the 10 provided test prompts; results recorded.
-- Story closeout report created with UAT results and gap-filling summary.
-- EPIC-6-STATUS.md and EPIC-6-WORKFLOW-GUIDE.md updated.
-- No Alembic commands run by agent (if a migration is needed).
+| # | Topic | Decision |
+|---|-------|----------|
+| 1 | 4th clarification dropdown (Industry) | **Parked until after MVP** — three dropdowns only |
+| 2 | Localised `PromptHint` sidecars (`*Locale` tables) | **Post-MVP** — English-only `PromptHint` on base tables for MVP |
+| 3 | `DisplayName` column length | Keep `nvarchar(28)`; review in UI before adding any long-label column |
+| 4 | E1 audience summary line | **Option B** — `ClarificationSummary` stored per locale on `ref.AudienceLocale`, injected verbatim |
+| 5 | Panel labels vs persistence | UI shows `DisplayName`; DB / API persistence uses stable `Code` |
+| 6 | All prompt blocks DB-driven | **Yes (platform rule)** — clarification (E) closes in 6.5d; remaining blocks (A/B/C/F/G/I) close via 6.5b + 6.5c |
 
 ---
 
-## 6) Evidence & References
+## 4) Implementation Decomposition (Sets the Roadmap)
 
-- AI Agent panel from Story 6.4
-- Locale resolution logic in `backend/modules/form_ai/service.py` (`_resolve_audience_locale`)
-- `FormAiGenerateRequest` schema
-- Story 6.4.8 production prompt context (migration 072)
-- Existing `PromptTemplateLocaleBlock` seeds for the 11 supported locales
-- **Prerequisite Design Task:** `docs/architecture/decision-6.5a-clarification-options-data-model.md` (Dimitri to produce before Dev implementation)
+The original 6.5a brief — "add dropdowns" — has been re-decomposed into **three implementation stories**, sequenced so the R6 blocker (`context-pack-load-failed` in Test, carried forward from PR #101) is cleared first:
 
----
+| Order | Story | Title | Why this order |
+|-------|-------|-------|----------------|
+| 1 | **6.5b** | **Prompt Assembly Registry Foundation** | Delivers the registry schema + renderer and migrates the "stored prose" blocks (A, B, C, G, I) from code into DB. **Block G migration closes R6** (the file-based context-pack load that fails on Azure). Without this, 6.5d UAT cannot run in Test. |
+| 2 | **6.5c** | **Capability Catalog Cutover** | Makes `resolve_allowed_components` authoritative for Blocks A/F/I AND the frontend toolbox; replaces `brandPosture` enum with `ref.BrandPosture`. Isolates the highest-risk single cutover into its own story so it can be validated in Test on its own. |
+| 3 | **6.5d** | **Clarification Data Plane** | The original "add dropdowns" work — three `ref.*` tables + APIs + Block E (now plugging into the registry from 6.5b) + frontend dropdowns + `AudienceLocale` enum elimination. |
 
-## 7) UAT Test Prompts (Frontend Verification)
+**Why three packages instead of two:** isolating the toolbox/capability cutover (6.5c) into its own story keeps each PR mid-sized, makes the Test-environment UAT focused, and gives us a clean rollback boundary if the toolbox cutover misbehaves. R6 closes after 6.5b regardless of the decomposition.
 
-The following 10 prompts should be used during UAT. For each prompt, the tester changes one or more dropdowns and verifies that the generated form reflects the selected values (especially locale-specific formatting, legal wording, field labels, and tone).
-
-1. "Create a registration form for a tech conference in Sydney"  
-   (Test: AU locale + Event Registration purpose + Attendee respondent type)
-
-2. "Build a feedback form for our annual member survey"  
-   (Test: NZ locale + Feedback purpose + Member respondent type)
-
-3. "I need a waiver form for a school sports day in Auckland"  
-   (Test: NZ locale + Waiver purpose + Parent/Guardian respondent type)
-
-4. "Create a lead capture form for a trade show in London"  
-   (Test: UK locale + Lead Capture purpose + Visitor respondent type)
-
-5. "Make a contact form for a US-based charity event"  
-   (Test: US locale + Contact/Lead purpose + Donor respondent type)
-
-6. "Registration form for a corporate training session in Toronto"  
-   (Test: CA locale + Training/Professional Development purpose + Employee respondent type)
-
-7. "Feedback form for a music festival in Dublin"  
-   (Test: IE locale + Event Feedback purpose + Attendee respondent type)
-
-8. "Create a consent form for a research study in Berlin"  
-   (Test: DE locale + Research/Consent purpose + Participant respondent type)
-
-9. "Lead generation form for an international online webinar"  
-   (Test: INTL_ONLINE locale + Webinar/Online Event purpose + Global Attendee respondent type)
-
-10. "Build a simple event registration form for a community group in Melbourne, but the audience is actually in Singapore"  
-    (Test: Explicit locale override to a non-AU value while user context is AU)
-
-**Expected UAT Evidence:** For each of the 10 prompts, capture before/after screenshots or generation traces showing that changing the dropdown values altered locale-specific elements (date format, phone pattern, legal references, tone, field labels) in the output.
+Stories 6.5b/c/d will be drafted in `docs/stories/story-6.5b.md`, `story-6.5c.md`, `story-6.5d.md` as each one becomes the imminent next story (avoids rewriting them as requirements evolve). Forward-planning rows in `EPIC-6-STATUS.md` describe each one in one line.
 
 ---
 
-**Next:** Dev implements in the worktree at `C:\wt\elp\story-epic6-6.5a-clarification-questions`.
+## 5) Speculative Story Renumbering (Triggered by This Decomposition)
+
+The new 6.5b / 6.5c / 6.5d slots collide with previously-pending speculative stories that hadn't started. To preserve their descriptive suffixes, they shift down one letter:
+
+| Old ID | New ID | Description (unchanged) |
+|--------|--------|--------------------------|
+| 6.5b-vision | **6.5e-vision** | Image-to-Form Vision Path |
+| 6.5b-style | **6.5f-style** | Style Intent Resolver |
+| 6.5c | **6.5g-PII** | PII Detection Layers |
+| 6.5d | **6.5h-fonts** | Google Fonts Directive (conditional) |
+
+The renumbering is reflected in `EPIC-6-STATUS.md`. No work was in flight on any of these.
+
+---
+
+## 6) PR #87 Disposition
+
+Per the re-decomposition decision (Tony, 2026-05-20):
+
+- **PR #87** (current title: "Story 6.5a — Clarification Questions"; current target: `develop`) is being **closed as superseded**.
+- A new PR opens from the same branch (`story/epic6-6.5a-clarification-questions`) to `develop` with title and body reflecting the architecture-closeout + 6.5b-draft scope — see §7.
+- Rationale: cleaner audit trail. PR #87's body describes the original "add dropdowns" scope; that no longer matches what's being merged.
+
+---
+
+## 7) Architecture-Closeout PR Contents
+
+When the new architecture-closeout PR opens, it carries:
+
+| File | Change |
+|------|--------|
+| `docs/architecture/decision-6.5a-clarification-options-data-model.md` | Add (Dimitri Rev 9) |
+| `docs/architecture/prompt-assembly-registry-architecture.md` | Add (companion) |
+| `docs/stories/story-6.5a.md` | This file — repurposed as closed Architecture Phase story |
+| `docs/stories/story-6.5b.md` | New — Registry Foundation, Ready for Dev |
+| `docs/stories/EPIC-6-STATUS.md` | Update: 6.5a → ✅ Architecture Complete; add 6.5b/c/d rows; rename speculative 6.5b/c/d → 6.5e/f/g/h; add R6-resolved-by-6.5b note |
+
+No production code changes in this PR — pure architecture + planning deliverable. Implementation begins in 6.5b on a new branch.
+
+---
+
+## 8) Closeout Notes
+
+- The original 6.5a story body has been preserved in git history (the long-form ACs / scope tables from the draft are recoverable via `git log` on this file).
+- The architecture work fully supersedes the original draft; nothing in the Rev 1 draft is being lost — content has either moved to 6.5d (clarification data plane), 6.5b (registry foundation), or post-MVP backlog.
+- **R6 carry-forward** from PR #101 (`context-pack-load-failed`) is now formally owned by 6.5b (closes when Block G migrates to DB).
+- No EPIC-6-WORKFLOW-GUIDE.md change required — the new stories ship under the already-documented Environment Promotion Workflow.
+
+---
+
+**Next:** Story 6.5b — Prompt Assembly Registry Foundation. See `story-6.5b.md`.

@@ -1,8 +1,8 @@
 # Story 6.5b - Migration Handoff (Tony executes)
 
-**Status:** Dev complete. Awaiting Tony to execute the migration set + run the local validation flow + sign off the AC-19 equivalence diff.
+**Status:** ✅ Complete (2026-05-20). Tony executed migrations 078–083 on LocalDB; PR #104 merged; Azure Test R6 verification green.
 
-**PR:** [#104 — Story 6.5b Prompt Assembly Registry Foundation](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) (Draft → develop).
+**PR:** [#104](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) — merged to `develop`. Migration **083** (Block A trim) ships in the SM closeout housekeeping PR if not already on `develop`.
 
 **Branch:** `story/epic6-6.5b-registry-foundation` (worktree at `C:\wt\elp\story-epic6-6.5b-registry-foundation`).
 

@@ -65,7 +65,6 @@ from modules.form_ai.prompt_assembly import canonical_seeds as seeds  # noqa: E4
 
 
 _LEGACY_BLOCK_A = (
-    "You generate an EventLead semantic form plan for Story 6.3.1.\n"
     "Output a single JSON object only. No markdown or prose.\n"
     "Return FormSemanticPlan only; do not output any coordinates, "
     "pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"
@@ -192,11 +191,11 @@ def _build_initial_messages_legacy(
 # pieces. Order matches the *current emission order* in
 # ``_build_initial_messages``.
 _BLOCK_MARKERS: List[Tuple[str, str]] = [
-    ("A", "You generate an EventLead semantic form plan for Story 6.3.1."),
+    ("A", "Output a single JSON object only. No markdown or prose."),
     ("B", "## CONSENT & LEGAL ACKNOWLEDGEMENTS"),
     ("I", "REQUIRED ROOT KEYS (exact, case-sensitive):"),
-    # Block G's seeded prose starts with the trimmed STORY-6.2 H1 marker.
-    ("G", "# AI Form Generation Context Pack"),
+    # Block G seeded prose starts with the trimmed STORY-6.2 H1 (migration 081).
+    ("G", "# STORY-6.2 AI Context Pack"),
     ("D_HEADER", "## LOCALE AND BRAND POSTURE"),
     ("C", "Brand posture:"),
 ]
@@ -252,6 +251,16 @@ def _git_head_sha() -> str:
         return "unknown"
 
 
+_SOURCE_CHANGE_LINE: Dict[str, str] = {
+    "A": "A: Python literal in `service._build_initial_messages` → `config.PromptSectionVariant` (Block A / ROLE_CONTRACT).",
+    "B": "B: `service._active_consent_guidance_block()` → `config.PromptSectionVariant` (Block B / SAFETY).",
+    "C": "C: `BRAND_POSTURE_PROMPTS` dict / `_render_brand_posture_block` → four `PromptSectionVariant` rows (Block C).",
+    "G": "G: on-disk `STORY-6.2-AI-CONTEXT-PACK.md` via `_load_context_pack()` → `PromptSectionVariant` (Block G / FEW_SHOT, migration 081).",
+    "I": "I: Python literal tail in `service._build_initial_messages` → `config.PromptSectionVariant` (Block I / JSON_OUTPUT).",
+    "D_HEADER": "D: unchanged this story — `_assemble_locale_block` (not registry-migrated in 6.5b).",
+}
+
+
 def _format_block_panel(code: str, old: str, new: str, verdict: str) -> str:
     icon = {
         "IDENTICAL": "OK",
@@ -259,53 +268,69 @@ def _format_block_panel(code: str, old: str, new: str, verdict: str) -> str:
         "CONTENT": "FAIL",
     }.get(verdict, "??")
 
-    body_lines: List[str] = [f"### Block {code} - verdict: {verdict} [{icon}]", ""]
+    old_stripped = old.rstrip("\n")
+    new_stripped = new.rstrip("\n")
+    old_len = len(old_stripped)
+    new_len = len(new_stripped)
+
+    body_lines: List[str] = [
+        f"### Block {code} — verdict: {verdict} [{icon}]",
+        "",
+        f"**Source change:** {_SOURCE_CHANGE_LINE.get(code, code)}",
+        "",
+    ]
 
     if verdict == "IDENTICAL":
-        body_lines.extend(
-            [
-                "Bytes are identical between OLD (literal) and NEW (registry).",
-                "",
-                "<details><summary>OLD == NEW (click to expand)</summary>",
-                "",
-                "```text",
-                old.rstrip("\n"),
-                "```",
-                "",
-                "</details>",
-                "",
-            ]
+        body_lines.append(
+            "Bytes are identical between OLD (pre-6.5b literal path) and NEW (post-6.5b registry path)."
         )
-        return "\n".join(body_lines)
+    elif verdict == "WHITESPACE":
+        body_lines.append(
+            "Only whitespace differs between OLD and NEW (newline count / trailing spaces)."
+        )
+    else:
+        body_lines.append("**CONTENT delta** — must be resolved before AC-19 sign-off.")
 
-    diff = "\n".join(
-        difflib.unified_diff(
-            old.splitlines(),
-            new.splitlines(),
-            fromfile=f"OLD/Block-{code}",
-            tofile=f"NEW/Block-{code}",
-            lineterm="",
-        )
-    )
     body_lines.extend(
         [
-            "OLD (pre-6.5b literal):",
+            "",
+            f"#### OLD (pre-6.5b) — {old_len:,} chars",
+            "",
             "```text",
-            old.rstrip("\n"),
+            old_stripped or "(empty — block marker not found in legacy system message)",
             "```",
             "",
-            "NEW (post-6.5b registry):",
-            "```text",
-            new.rstrip("\n"),
-            "```",
+            f"#### NEW (post-6.5b registry) — {new_len:,} chars",
             "",
-            "Unified diff:",
-            "```diff",
-            diff,
+            "```text",
+            new_stripped or "(empty — block marker not found in registry system message)",
             "```",
             "",
         ]
     )
+
+    if verdict not in ("IDENTICAL",) and old_stripped and new_stripped:
+        diff = "\n".join(
+            difflib.unified_diff(
+                old_stripped.splitlines(),
+                new_stripped.splitlines(),
+                fromfile=f"OLD/Block-{code}",
+                tofile=f"NEW/Block-{code}",
+                lineterm="",
+            )
+        )
+        if diff:
+            body_lines.extend(
+                [
+                    "#### Unified diff",
+                    "",
+                    "```diff",
+                    diff,
+                    "```",
+                    "",
+                ]
+            )
+
     return "\n".join(body_lines)
 
 
@@ -457,6 +482,19 @@ def render_report(
         f"- Postures covered: {', '.join(r['posture'] for r in rows)}",
         f"- Audience locale: {rows[0]['audience_locale']}",
         f"- User prompt: `{rows[0]['user_prompt']}`",
+        "",
+        "## How to read this report",
+        "",
+        "For each brand posture below, every in-scope block (A, B, C, G, I) shows **two**",
+        "fenced panels:",
+        "",
+        "- **OLD (pre-6.5b)** — system message slice from the legacy literal / file-read path",
+        "  (inlined in this script as `_build_initial_messages_legacy`).",
+        "- **NEW (post-6.5b)** — same slice from `_build_initial_messages` using the registry",
+        "  (`RenderedAssembly` built from `canonical_seeds` + migration-081 Block G prose).",
+        "",
+        "Character counts are shown in each heading. When verdict is `IDENTICAL`, both panels",
+        "contain the same bytes; they are still listed separately so you can review evidence.",
         "",
         "## Summary",
         "",

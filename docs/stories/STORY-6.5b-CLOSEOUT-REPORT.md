@@ -2,10 +2,9 @@
 
 **Story:** 6.5b — Prompt Assembly Registry Foundation (Closes R6)  
 **Date:** 2026-05-20  
-**Status:** Dev complete — ready for Tony's UAT (migration execution + equivalence-diff sign-off + Test verification of R6 closure).  
-**PR:** [#104 — Story 6.5b Prompt Assembly Registry Foundation](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) (Draft → develop).  
-**Base commit:** `cb339ed` (origin/develop).  
-**HEAD at closeout:** `e1d9fbb` (final dev commit + push pending — see § Definition of Done).
+**Status:** ✅ **Complete** (2026-05-20) — Tony UAT green (LocalDB + Azure Test); R6 closed on Test.  
+**PR:** [#104 — Story 6.5b Prompt Assembly Registry Foundation](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) — **merged to `develop`**.  
+**Base commit:** `cb339ed` (origin/develop at story start).
 
 ---
 
@@ -15,9 +14,9 @@ Story 6.5b stands up the **Prompt Assembly Registry**: four `config.*` tables (`
 
 `backend/modules/form_ai/service.py::_build_initial_messages` now consumes a `RenderedAssembly` produced by `_resolve_rendered_assembly`. `_load_context_pack()` is **deleted**. `dbo.GenerationRun` gains `PromptAssemblyRegistryVersionID BIGINT` (FK) and `PromptVariantSnapshot NVARCHAR(MAX)` for replayability.
 
-**Key achievement:** the AC-19 prompt-equivalence diff (`docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md`) is **PASS** across all four brand postures — the new registry-driven system message is byte-identical to the old literal-based system message for unchanged inputs. Hard gate satisfied (Tony sign-off pending).
+**Key achievement:** the AC-19 prompt-equivalence diff (`docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md`) is **PASS** across all four brand postures with Tony sign-off (separate OLD/NEW panels per block).
 
-**R6 (`context-pack-load-failed` on Azure Test) is functionally closed:** the migration that seeds Block G inlines the trimmed context-pack content as a Python string literal at migration time; runtime no longer touches the markdown file. Status flips ✅ on the EPIC-6 status board after Tony deploys to Azure Test and confirms the terminal reason is gone.
+**R6 (`context-pack-load-failed` on Azure Test) is closed:** verified on deployed Test after PR #104 merge — international registration prompt, `validated-success`, no context-pack or assembly-resolution terminal reasons.
 
 ---
 
@@ -26,7 +25,7 @@ Story 6.5b stands up the **Prompt Assembly Registry**: four `config.*` tables (`
 | Artefact | Path | Result |
 |----------|------|--------|
 | Preflight | `docs/stories/STORY-6.5b-PREFLIGHT.md` | PASS |
-| Migrations | `backend/migrations/versions/078_…` → `082_…` | Created; Tony executes |
+| Migrations | `backend/migrations/versions/078_…` → `083_…` | Created; Tony executed (LocalDB + Test) |
 | Schema models | `backend/models/config/prompt_*.py` | New |
 | Resolver / renderer | `backend/modules/form_ai/prompt_assembly/` | New |
 | Service integration | `backend/modules/form_ai/service.py` | `_load_context_pack` removed; new `_resolve_rendered_assembly` + audit-column persistence |
@@ -34,10 +33,10 @@ Story 6.5b stands up the **Prompt Assembly Registry**: four `config.*` tables (`
 | Form AI regression suite | `tests/test_form_ai_*.py`, `tests/test_story_63_context_pack_path.py` | 26 pass + 7 pre-existing baseline failures (unchanged at `cb339ed`) |
 | AC-19 prompt-equivalence diff | `docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` | **PASS — IDENTICAL × 5 blocks × 4 postures = 20/20 IDENTICAL** |
 | Gate evidence | `docs/stories/STORY-6.5b-GATE-EVIDENCE.md` | Complete |
-| UAT results template | `docs/stories/STORY-6.5b-UAT-RESULTS.md` | Awaiting Tony |
+| UAT results | `docs/stories/STORY-6.5b-UAT-RESULTS.md` | **PASS** — LocalDB Round 1 + Azure Test Round 2 (2026-05-20) |
 | Migration handoff | `docs/stories/STORY-6.5b-MIGRATION-HANDOFF.md` | Complete (verification SELECTs + smoke test included) |
 | Banner on Block G source | `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md` | Documentation-only banner added |
-| EPIC-6 status / workflow updates | `docs/stories/EPIC-6-STATUS.md`, `EPIC-6-WORKFLOW-GUIDE.md` | 6.5b → 🟡 Ready for UAT; 6.5a → ✅ Closed (Architecture Phase); R6 → Resolved by 6.5b (pending Test verification) |
+| EPIC-6 status / workflow updates | `docs/stories/EPIC-6-STATUS.md`, `docs/stories/EPIC-6-WORKFLOW-GUIDE.md` | 6.5b → ✅ Complete (PR #104); Current Focus → 6.5c; R6 closed on Test |
 
 ---
 
@@ -65,22 +64,21 @@ Story 6.5b stands up the **Prompt Assembly Registry**: four `config.*` tables (`
 | `context-pack-load-failed` terminal reason possible | Yes | No (no file read happens) |
 | Tests guarding R6 | None | `test_assembly_does_not_read_context_pack_from_disk`, `test_block_g_migration_081_does_not_read_context_pack_at_runtime`, `test_canonical_seeds_match_migration_075_byte_for_byte` (3 new tests, all PASS) |
 
-R6 entry on `EPIC-6-STATUS.md` is marked **Resolved by 6.5b** (pending verification on the deployed Test environment).
+R6 is **closed** — verified on Azure Test after PR #104 merge (2026-05-20). See `STORY-6.5b-UAT-RESULTS.md` Round 2.
+
+**Post-merge note:** Migration `083_story_6_5b_trim_block_a_role_contract.py` (Block A preamble trim per UAT feedback) was applied on LocalDB during UAT but was not in the merged PR #104 commit; it ships in the SM closeout housekeeping PR to `develop`.
 
 ---
 
-## 5. Pending work (Tony)
+## 5. Tony execution record (complete)
 
-See `STORY-6.5b-MIGRATION-HANDOFF.md` for full procedure. Summary:
+See `STORY-6.5b-MIGRATION-HANDOFF.md` and `STORY-6.5b-UAT-RESULTS.md`. Summary:
 
-1. `alembic current` → `alembic upgrade head` against LocalDB (078 → 082).
-2. Run verification SELECTs from § 2 of the handoff doc.
-3. Smoke-test via uvicorn + frontend; generate an AU form; confirm no `context-pack-load-failed`.
-4. Verify `dbo.GenerationRun.PromptAssemblyRegistryVersionID` populated post-generation.
-5. Tick three sign-off checkboxes on `STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md`.
-6. `gh pr ready 104` to flip Draft → Ready.
-7. Merge PR to `develop`; wait for CI/CD deploy to Test slot; verify R6 closed there.
-8. Flip `EPIC-6-STATUS.md` row 6.5b to ✅ Complete (post-Test verification).
+1. ✅ `alembic upgrade head` on LocalDB (072 → **083**).
+2. ✅ Verification SELECTs + smoke test (GenerationRun **163**, `validated-success`).
+3. ✅ AC-19 equivalence diff signed off (`STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md`).
+4. ✅ PR #104 merged to `develop` (`mergedAt` 2026-05-20T04:30:52Z).
+5. ✅ Azure Test deploy + R6 verification (no `context-pack-load-failed`).
 
 ---
 
@@ -106,14 +104,14 @@ Per `EPIC-6-WORKFLOW-GUIDE.md`, the natural next story is **6.5c — Capability 
 - Reconcile registry table naming (`PromptAssemblyRegistry*` ↔ architecture's `PromptAssemblyProfile*`).
 - Likely move Block D into the registry too (currently `_assemble_locale_block` produces it inside `_build_initial_messages`).
 
-6.5c **depends on** 6.5b being merged + R6 verified resolved on Test, so the natural sequence is: Tony UAT → merge → Test verification → SM kicks off 6.5c worktree.
+6.5c is **unblocked** — 6.5b merged and R6 verified on Test. SM can open the 6.5c worktree + story pack next.
 
 ---
 
 ## 8. Definition of Done
 
-- [x] Story branch worktree at `C:\wt\elp\story-epic6-6.5b-registry-foundation` (PR #104, Draft → develop).
-- [x] All registry schema + seed migrations created (078 → 082) with verification SELECTs documented.
+- [x] Story branch merged via PR #104 to `develop` (2026-05-20).
+- [x] All registry schema + seed migrations created (078 → **083**) with verification SELECTs documented.
 - [x] Resolver + renderer modules implemented with focused test coverage (15 tests).
 - [x] `_build_initial_messages` integrated with new pipeline; `_load_context_pack` deleted.
 - [x] `dbo.GenerationRun` extended with audit columns; persistence wires them up.
@@ -123,9 +121,8 @@ Per `EPIC-6-WORKFLOW-GUIDE.md`, the natural next story is **6.5c — Capability 
 - [x] Banner added to `STORY-6.2-AI-CONTEXT-PACK.md`.
 - [x] Migration handoff doc + UAT results template authored.
 - [x] Gate evidence + closeout report authored.
-- [ ] **Pending Tony:** Final dev commit + push of all uncommitted work (model files, migrations, service.py, tests, docs) to PR #104. _(Currently uncommitted in the worktree — see `git status` snapshot in GATE-EVIDENCE § 8.)_
-- [ ] **Pending Tony:** `alembic upgrade head` on LocalDB; smoke test; sign off equivalence diff; `gh pr ready 104`.
-- [ ] **Pending Tony:** Merge PR; verify R6 closed on Azure Test; flip status board to ✅ Complete.
+- [x] Tony UAT complete (LocalDB + Azure Test).
+- [x] PR #104 merged; status board updated (housekeeping PR lands doc sync + migration 083 to `develop`).
 
 ---
 
@@ -178,4 +175,4 @@ docs/stories/story-6.5b.md (Status field flip will be the closeout commit)
 
 ---
 
-**Agent closeout note:** All autonomous engineering work for 6.5b is complete. The remaining items are inherently human: Tony executes Alembic + signs off the equivalence diff + runs the deployed-Test verification. No design decisions blocked. PR #104 carries the full chain of evidence above. Recommend Tony commit + push the uncommitted dev work as a single commit titled `feat(epic6/6.5b): prompt assembly registry foundation [closes R6]` once they've reviewed the staged changes locally.
+**Closeout decision:** Story **6.5b Complete**. **Next story:** 6.5c — Capability Catalog Cutover (`resolve_allowed_components` authoritative + Block F migration + `ref.BrandPosture`).

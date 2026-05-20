@@ -55,6 +55,11 @@ _EXPECTED_CHAIN = [
         "082",
         "081",
     ),
+    (
+        "083_story_6_5b_trim_block_a_role_contract.py",
+        "083",
+        "082",
+    ),
 ]
 
 

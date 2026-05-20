@@ -2,9 +2,9 @@
 
 **Date:** 2026-05-20  
 **Branch:** `story/epic6-6.5b-registry-foundation` (worktree `C:\wt\elp\story-epic6-6.5b-registry-foundation`)  
-**PR:** [#104](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) (Draft → develop)  
-**Base commit:** `cb339ed` (origin/develop)  
-**HEAD at evidence capture:** `e1d9fbb` (commit + push of dev work pending)
+**PR:** [#104](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) — **merged to `develop`** (2026-05-20T04:30:52Z)  
+**Base commit:** `cb339ed` (origin/develop at story start)  
+**Merge commit on `develop`:** `1375e72`
 
 ---
 
@@ -30,7 +30,7 @@
 | AC-16 | Historical Story 6.2 prompt-eval helper neutralised (R6 obsoletes its file-based context-pack tightening). | `backend/scripts/story_6_2_prompt_eval.py::_tighten_context_pack` returns `RuntimeError` shim |
 | AC-17 | `STORY-6.2-AI-CONTEXT-PACK.md` carries a "documentation only" banner pointing at the registry. | `docs/stories/STORY-6.2-AI-CONTEXT-PACK.md` (banner at top) |
 | AC-18 | `EPIC-6-STATUS.md` row 6.5b moved to "Ready for UAT"; `EPIC-6-WORKFLOW-GUIDE.md` Current Focus updated; R6 marked "Resolved by 6.5b" pending Test verification. | `docs/stories/EPIC-6-STATUS.md`, `docs/stories/EPIC-6-WORKFLOW-GUIDE.md` |
-| **AC-19** | **Prompt-equivalence diff is byte-identical for unchanged inputs across all four brand postures.** | **`docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` — verdict: PASS (5/5 in-scope blocks IDENTICAL × 4 postures = 20/20 IDENTICAL).** Tony sign-off pending. |
+| **AC-19** | **Prompt-equivalence diff is byte-identical for unchanged inputs across all four brand postures.** | **`docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` — verdict: PASS (20/20 IDENTICAL).** Tony sign-off **done** (2026-05-20). |
 
 ---
 
@@ -138,9 +138,9 @@ From `docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` (commit `e1d9fbb`, gen
 
 **Verdict: PASS.** No `WHITESPACE` and no `CONTENT` deltas in any in-scope block across any posture. `D_HEADER` is also `IDENTICAL` for all four postures (Block D moves into the registry in 6.5c, so equivalence here is incidental but reassuring).
 
-### 3.3 Tony sign-off (pending)
+### 3.3 Tony sign-off (complete)
 
-The three checkboxes at the top of `STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` are unticked; Tony to confirm and tick during UAT, then PR Draft → Ready.
+All three checkboxes at the top of `STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` are ticked (2026-05-20). PR #104 merged to `develop`.
 
 ---
 
@@ -176,15 +176,14 @@ See `docs/stories/STORY-6.5b-MIGRATION-HANDOFF.md` for:
 
 | Item | Owner | Status |
 |------|-------|--------|
-| Run `alembic upgrade head` against LocalDB (078 → 082) | Tony | Pending |
-| Run verification SELECTs from migration handoff doc | Tony | Pending |
-| Local smoke test: uvicorn + frontend, generate AU form, confirm no `context-pack-load-failed` | Tony | Pending |
-| Confirm `dbo.GenerationRun.PromptAssemblyRegistryVersionID` populated post-generation | Tony | Pending |
-| Tick three sign-off checkboxes on `STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` | Tony | Pending |
-| `gh pr ready 104` (Draft → Ready for review) | Tony | Pending |
-| Merge PR #104 into `develop`; CI/CD deploys to Azure Test | Tony | Pending |
-| Verify R6 resolved on deployed Test environment (no `context-pack-load-failed`) | Tony | Pending |
-| Flip `EPIC-6-STATUS.md` row 6.5b → ✅ Complete (post-Test verification) | Tony | Pending |
+| Run `alembic upgrade head` against LocalDB (072 → 083) | Tony | **Done** (2026-05-20, head `083` incl. Block A trim) |
+| Run verification SELECTs from migration handoff doc | Tony | Partial — agent confirmed 8 variants + resolver OK; Tony to confirm Block G len/marker in SSMS |
+| Local smoke test: uvicorn + frontend, generate form draft, confirm no `context-pack-load-failed` | Tony | **Done** (2026-05-20; GenerationRunID **163**, `validated-success`) |
+| Confirm `dbo.GenerationRun.PromptAssemblyRegistryVersionID` populated post-generation | Tony | **Done** (`PromptAssemblyRegistryVersionID`=1, `SnapshotLen`=130) |
+| Tick three sign-off checkboxes on `STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` | Tony | **Done** |
+| Merge PR #104 into `develop`; CI/CD deploys to Azure Test | Tony | **Done** (2026-05-20) |
+| Verify R6 resolved on deployed Test environment (no `context-pack-load-failed`) | Tony | **Done** — `validated-success` on Test |
+| Flip `EPIC-6-STATUS.md` row 6.5b → ✅ Complete | Tony | **Done** |
 
 ---
 
@@ -206,6 +205,7 @@ backend/migrations/versions/079_story_6_5b_seed_form_ai_v1_profile.py
 backend/migrations/versions/080_story_6_5b_seed_variants_a_b_c_i.py
 backend/migrations/versions/081_story_6_5b_seed_block_g_context_pack.py
 backend/migrations/versions/082_story_6_5b_generation_run_assembly_audit.py
+backend/migrations/versions/083_story_6_5b_trim_block_a_role_contract.py
 backend/models/config/prompt_assembly_registry.py
 backend/models/config/prompt_assembly_registry_version.py
 backend/models/config/prompt_section.py

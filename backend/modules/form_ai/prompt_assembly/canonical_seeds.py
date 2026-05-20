@@ -34,7 +34,6 @@ from typing import Dict, Optional
 
 
 BLOCK_A_DEFAULT = (
-    "You generate an EventLead semantic form plan for Story 6.3.1.\n"
     "Output a single JSON object only. No markdown or prose.\n"
     "Return FormSemanticPlan only; do not output any coordinates, "
     "pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"

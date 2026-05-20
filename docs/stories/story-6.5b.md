@@ -3,9 +3,9 @@
 **Epic:** 6 — AI Generation & Monetization Engine
 **Story ID:** 6.5b
 **Title:** Prompt Assembly Registry Foundation — `PromptAssemblyProfile*` schema + renderer + migrate stored-prose Blocks A/B/C/G/I to DB
-**Status:** Ready for UAT *(Dev complete 2026-05-20; AC-19 prompt-equivalence diff PASS pending Tony sign-off + alembic execution + Test environment R6 verification — see `STORY-6.5b-CLOSEOUT-REPORT.md`)*
-**Branch:** `story/epic6-6.5b-registry-foundation`
-**PR:** [#104](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) (Draft → develop)
+**Status:** ✅ **Complete** (2026-05-20) — merged to `develop` via PR #104; LocalDB + Azure Test UAT green; R6 (`context-pack-load-failed`) verified resolved on Test. See `STORY-6.5b-CLOSEOUT-REPORT.md`, `STORY-6.5b-UAT-RESULTS.md`.
+**Branch:** `story/epic6-6.5b-registry-foundation` *(merged)*
+**PR:** [#104](https://github.com/SignalPlatforms/EventLeadPlatform/pull/104) — merged to `develop`
 **Created:** 2026-05-20
 **Depends On:**
 - Story 6.5a Architecture Phase merged to `develop` (architecture docs + roadmap update)

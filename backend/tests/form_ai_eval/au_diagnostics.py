@@ -121,7 +121,19 @@ def build_context_sections(
         brand_posture,
         db_session,
     )
-    context_pack = form_ai_service._trim_context_pack_for_prompt(form_ai_service._load_context_pack())
+    # Story 6.5b - Block G is now resolved from the registry rather than
+    # an on-disk markdown file. The eval harness does the same resolution
+    # the runtime path does (with a canonical-seed fallback when no DB
+    # session is supplied), so the diagnostic section keeps printing the
+    # exact bytes the LLM saw.
+    rendered_assembly = form_ai_service._resolve_rendered_assembly(
+        db_session,
+        brand_posture=brand_posture,
+        brand_heritage_origin=brand_heritage_origin,
+        audience_locale=audience_locale,
+        context_pack=None,
+    )
+    context_pack = rendered_assembly["G"]
     capability_block = form_ai_service._build_capability_prompt_block(capability_snapshot)
     runtime_block = form_ai_service._build_runtime_context_block(runtime_context_for_prompt)
     candidate_block = (candidate_prompt_block or "").strip()

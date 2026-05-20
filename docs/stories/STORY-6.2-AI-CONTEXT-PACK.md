@@ -1,8 +1,23 @@
+> **Documentation only - runtime source moved 2026-05-20 (Story 6.5b)**
+>
+> This file is preserved for reference. The runtime source for the AI form-generation
+> few-shot context pack (Block G in the prompt assembly tree) is now
+> `config.PromptSectionVariant` seeded by migration `081_story_6_5b_seed_block_g_context_pack.py`
+> against registry `FORM_AI_V1`. Update the registry via a new
+> `PromptSectionVariant` row (or a new `PromptAssemblyRegistryVersion`); do **not** edit this file
+> expecting a runtime effect. See `docs/architecture/prompt-assembly-registry-architecture.md`
+> for the architecture and `docs/stories/story-6.5b.md` for the migration history.
+>
+> **R6 closure:** moving Block G to the registry eliminates the on-disk file
+> read in `service.py::_load_context_pack` that caused the
+> `context-pack-load-failed` failure on the deployed Test environment.
+
 # STORY-6.2 AI Context Pack
 
 **Context Pack Version:** 1.3  
 **Last Updated:** 2026-04-02  
-**Owner:** SM Agent
+**Owner:** SM Agent  
+**Runtime status (post-Story-6.5b):** _Documentation only._ Runtime source is `config.PromptSectionVariant` (variant `DEFAULT` for `SectionCode='G'` under registry `FORM_AI_V1`).
 
 ---
 

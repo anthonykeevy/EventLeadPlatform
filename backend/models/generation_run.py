@@ -3,6 +3,7 @@ GenerationRun Model (dbo.GenerationRun)
 Per-request Form AI execution metadata for replay and audit.
 """
 from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, ForeignKey, func
+from sqlalchemy.dialects.mssql import NVARCHAR
 from sqlalchemy.orm import relationship
 
 from common.database import Base
@@ -27,6 +28,13 @@ class GenerationRun(Base):
         ForeignKey("config.PromptAssemblyProfile.PromptAssemblyProfileID"),
         nullable=True,
     )
+    # Story 6.5b - prompt assembly registry version + per-block variant snapshot.
+    PromptAssemblyRegistryVersionID = Column(
+        BigInteger,
+        ForeignKey("config.PromptAssemblyRegistryVersion.PromptAssemblyRegistryVersionID"),
+        nullable=True,
+    )
+    PromptVariantSnapshot = Column(NVARCHAR(length=None), nullable=True)
     CapabilityPolicyVersionID = Column(
         BigInteger,
         ForeignKey("config.CapabilityPolicyVersion.CapabilityPolicyVersionID"),
@@ -61,6 +69,7 @@ class GenerationRun(Base):
     form = relationship("Form", foreign_keys=[FormID])
     prompt_template_version = relationship("PromptTemplateVersion")
     prompt_assembly_profile = relationship("PromptAssemblyProfile")
+    prompt_assembly_registry_version = relationship("PromptAssemblyRegistryVersion")
     capability_policy_version = relationship("CapabilityPolicyVersion")
     component_capability_snapshot = relationship("ComponentCapabilitySnapshot")
     width_class_policy_version = relationship("WidthClassPolicyVersion")

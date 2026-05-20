@@ -7,7 +7,6 @@ import time
 import uuid
 import hashlib
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple
 
 import httpx
@@ -52,6 +51,17 @@ from .semantic_validator import (
     SemanticPlanValidationResult,
     validate_semantic_plan,
 )
+from .prompt_assembly import (
+    REGISTRY_CODE_FORM_AI_V1,
+    RenderedAssembly,
+    render_prompt_assembly,
+    resolve_prompt_assembly,
+)
+from .prompt_assembly.canonical_seeds import (
+    BLOCK_A_DEFAULT,
+    BLOCK_I_DEFAULT,
+    render_canonical_brand_posture_block,
+)
 
 # Fallback used when AppSetting row is absent or DB is unreachable on startup.
 _DEFAULT_RETRIES_FALLBACK = 2
@@ -89,8 +99,6 @@ _COUNTRY_CODE_TO_LOCALE = {
 }
 
 MAX_SYSTEM_CORRECTION_ATTEMPTS = _DEFAULT_RETRIES_FALLBACK  # kept for backward compat
-_ROOT_PATH = Path(__file__).resolve().parents[3]
-CONTEXT_PACK_PATH = _ROOT_PATH / "docs" / "stories" / "STORY-6.2-AI-CONTEXT-PACK.md"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -103,11 +111,12 @@ class ProviderCompletion:
     transport: str
 
 
-def _load_context_pack() -> str:
-    try:
-        return CONTEXT_PACK_PATH.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise RuntimeError("context-pack-load-failed") from exc
+# Story 6.5b - the on-disk context pack file (`docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`)
+# is no longer read at runtime. Block G's content is now seeded into
+# `config.PromptSectionVariant` by migration 081 and resolved via
+# `prompt_assembly.resolver.resolve_prompt_assembly`. The legacy helper
+# `_load_context_pack()` was removed (it is the change that closes R6 -
+# `context-pack-load-failed` on the deployed Test environment).
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -1846,9 +1855,102 @@ def _trim_context_pack_for_prompt(context_pack: str) -> str:
     return context_pack[:index].rstrip()
 
 
+def _normalise_brand_posture_for_assembly(
+    brand_posture: Optional[str],
+    brand_heritage_origin: Optional[str],
+) -> str:
+    """Story 6.5b - resolver/renderer-friendly posture normalisation.
+
+    Mirrors the legacy ``_render_brand_posture_block`` fallback rules so
+    Block C resolution yields byte-equivalent output:
+      * ``None`` / unrecognised string -> ``"local"``.
+      * ``"heritage"`` without an ``origin`` -> ``"local"`` (renderer
+        cannot meaningfully substitute ``{heritageOrigin}``).
+    """
+    posture = _normalise_brand_posture(brand_posture) or "local"
+    if posture == "heritage":
+        origin = _normalise_heritage_origin(brand_heritage_origin)
+        if not origin:
+            return "local"
+    return posture
+
+
+def _build_canonical_rendered_assembly(
+    *,
+    context_pack: Optional[str],
+    brand_posture: Optional[str],
+    brand_heritage_origin: Optional[str],
+) -> RenderedAssembly:
+    """Build a fallback RenderedAssembly from canonical_seeds + literals.
+
+    Used exclusively when ``_build_initial_messages`` is invoked without
+    a DB session (legacy test fixtures that pre-date the registry). The
+    fallback uses ``_active_consent_guidance_block()`` for Block B so
+    eval-mode env-flag tests still see the legacy / h2 toggle behaviour;
+    Block G uses the caller-supplied ``context_pack`` (after the
+    existing trim helper) so legacy tests stay byte-identical to before
+    Story 6.5b. Production never enters this branch - migrations 078-081
+    seed the registry and ``generate_form_definition`` always passes a
+    ``rendered_assembly`` resolved from the DB.
+    """
+    block_g = _trim_context_pack_for_prompt(context_pack or "")
+    block_c = render_canonical_brand_posture_block(brand_posture, brand_heritage_origin)
+    sections: Dict[str, str] = {
+        "A": BLOCK_A_DEFAULT,
+        "B": _active_consent_guidance_block(),
+        "I": BLOCK_I_DEFAULT,
+        "G": block_g,
+        "C": block_c,
+    }
+    return RenderedAssembly(
+        registry_code=REGISTRY_CODE_FORM_AI_V1,
+        registry_version_id=0,  # zero = canonical-seed fallback (not a real registry row)
+        version_number=0,
+        sections=sections,
+        variant_ids={"A": 0, "B": 0, "C": 0, "G": 0, "I": 0},
+    )
+
+
+def _resolve_rendered_assembly(
+    db_session: Optional[Session],
+    *,
+    brand_posture: Optional[str],
+    brand_heritage_origin: Optional[str],
+    audience_locale: Optional[str],
+    context_pack: Optional[str],
+) -> RenderedAssembly:
+    """Resolve the active FORM_AI_V1 assembly from the registry.
+
+    Falls back to canonical seeds when no DB session is present (test
+    fixtures). When a DB session is present but the registry cannot
+    resolve, the underlying LookupError / RuntimeError propagates to
+    the caller (``generate_form_definition`` translates that into a
+    terminal ``prompt-assembly-resolution-failed`` response - the
+    Story 6.5b analogue of the legacy ``context-pack-load-failed``).
+    """
+    if db_session is None:
+        return _build_canonical_rendered_assembly(
+            context_pack=context_pack,
+            brand_posture=brand_posture,
+            brand_heritage_origin=brand_heritage_origin,
+        )
+    posture = _normalise_brand_posture_for_assembly(brand_posture, brand_heritage_origin)
+    resolved = resolve_prompt_assembly(
+        db_session,
+        REGISTRY_CODE_FORM_AI_V1,
+        brand_posture=posture,
+        audience_locale=audience_locale,
+    )
+    origin = _normalise_heritage_origin(brand_heritage_origin) or ""
+    return render_prompt_assembly(
+        resolved,
+        placeholders={"heritageOrigin": origin},
+    )
+
+
 def _build_initial_messages(
     prompt: str,
-    context_pack: str,
+    context_pack: Optional[str] = None,
     runtime_context: Optional[Dict[str, Any]] = None,
     *,
     system_prompt_addendum: str | None = None,
@@ -1857,14 +1959,41 @@ def _build_initial_messages(
     brand_posture: Optional[str] = None,
     brand_heritage_origin: Optional[str] = None,
     db_session: Optional[Session] = None,
+    rendered_assembly: Optional[RenderedAssembly] = None,
 ) -> List[Dict[str, str]]:
+    """Build the system + user messages sent to the LLM.
+
+    Story 6.5b: Blocks A/B/C/G/I are sourced from the Prompt Assembly
+    Registry (``config.PromptAssemblyRegistry`` + descendants). The
+    caller may pass a pre-resolved ``rendered_assembly`` to avoid a
+    second DB round-trip (production path - see
+    ``generate_form_definition``); otherwise the function resolves it
+    from ``db_session``. When both ``rendered_assembly`` and
+    ``db_session`` are absent (legacy test fixtures), a canonical-seed
+    fallback is used so existing test assertions continue to pass
+    byte-identically.
+
+    Out-of-scope blocks for 6.5b - Block D (locale via
+    ``_assemble_locale_block``), Block F (capability via
+    ``_build_capability_prompt_block``), Block H (user prompt), the
+    horizontal-stacked layout nudge, the runtime-context block, and
+    the system-prompt addendum - keep their existing paths. They will
+    migrate into the registry in 6.5c / 6.5d.
+    """
+    if rendered_assembly is None:
+        rendered_assembly = _resolve_rendered_assembly(
+            db_session,
+            brand_posture=brand_posture,
+            brand_heritage_origin=brand_heritage_origin,
+            audience_locale=audience_locale,
+            context_pack=context_pack,
+        )
+
     runtime_context_block = _build_runtime_context_block(runtime_context)
     capability_block = _build_capability_prompt_block(capability_snapshot_json)
     locale_block = _assemble_locale_block(audience_locale or "AU", brand_posture, db_session)
-    brand_posture_block = _render_brand_posture_block(brand_posture, brand_heritage_origin)
-    prompt_context_pack = _trim_context_pack_for_prompt(context_pack)
 
-    # Story 6.3.1 (UAT round 6) — Phase 2 LLM nudge for horizontal-stacked
+    # Story 6.3.1 (UAT round 6) - Phase 2 LLM nudge for horizontal-stacked
     # layout. ``resolve_layout_mode`` returns the legacy
     # ``"vertical-packed"`` for any non-horizontal request, in which case
     # ``layout_mode_block`` is empty and the prompt is unchanged.
@@ -1875,45 +2004,25 @@ def _build_initial_messages(
         else ""
     )
 
+    block_a = rendered_assembly["A"]
+    block_b = rendered_assembly["B"]
+    block_c = rendered_assembly["C"]
+    block_g = rendered_assembly["G"]
+    block_i = rendered_assembly["I"]
+
     system_body = (
-        "You generate an EventLead semantic form plan for Story 6.3.1.\n"
-        "Output a single JSON object only. No markdown or prose.\n"
-        "Return FormSemanticPlan only; do not output any coordinates, pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"
-        "\n"
-        + _active_consent_guidance_block()
+        block_a
+        + "\n"
+        + block_b
         + (layout_mode_block + "\n" if layout_mode_block else "")
         + "\n"
-        + "REQUIRED ROOT KEYS (exact, case-sensitive):\n"
-        "  - semanticPlanVersion: must be the string \"1.0\" (do NOT use the story number).\n"
-        "  - formId: short slug or id (string).\n"
-        "  - title: form title (string).\n"
-        "  - components: array of component intents (see below).\n"
-        "Do NOT add any other root keys.\n"
-        "\n"
-        "EACH COMPONENT (object):\n"
-        "  - componentType (required), label, placeholder, helpText, section, rowGroup,\n"
-        "  - widthIntent: one of \"compact\" | \"half\" | \"full\".\n"
-        "    This is a HINT, not a final width. The deterministic compiler picks\n"
-        "    the actual pixel width from a per-type tier table and may shrink the\n"
-        "    component further (or wrap it onto its own row) so the layout fits\n"
-        "    the canvas. Treat widthIntent as a maximum cap: use \"compact\" when\n"
-        "    the field's content is short (e.g. zip, age, state code), \"full\"\n"
-        "    only when you genuinely want the field to span the row.\n"
-        "    Use rowGroup to indicate which fields you'd like packed side-by-side;\n"
-        "    the compiler decides whether they actually fit.\n"
-        "  - options: array of {label,value} for dropdown/radio,\n"
-        "  - validationIntent: an OBJECT (not an array) with any of these boolean/number keys:\n"
-        "      required, email, phone, url, minLength, maxLength, min, max, pattern.\n"
-        "    Example: \"validationIntent\": { \"required\": true, \"email\": true }.\n"
-        "    NEVER emit validationIntent as a list of strings (e.g. [\"required\",\"email\"]).\n"
-        "\n"
-        "Use only Story 6.2/6.3.1 supported component catalog and single-page constraints.\n\n"
+        + block_i
         + (capability_block + "\n\n" if capability_block else "")
-        + f"{prompt_context_pack}"
+        + block_g
         + "\n\n## LOCALE AND BRAND POSTURE\n"
         + locale_block
         + "\n"
-        + brand_posture_block
+        + block_c
         + ("\n\n" + runtime_context_block if runtime_context_block else "")
     )
     if system_prompt_addendum and system_prompt_addendum.strip():
@@ -3078,6 +3187,31 @@ def _resolve_brand_posture(
     return {"resolved": "local", "heritageOrigin": explicit_origin, "source": "fallback"}
 
 
+def _build_prompt_variant_snapshot(
+    rendered_assembly: Optional[RenderedAssembly],
+) -> Optional[str]:
+    """Story 6.5b - serialise the resolved variant ids for replayability.
+
+    Stored on ``dbo.GenerationRun.PromptVariantSnapshot`` (NVARCHAR(MAX)
+    JSON). Lets us replay a historical run against the exact A/B/C/G/I
+    variants it was generated with even after the registry rolls
+    forward. Returns ``None`` when the rendered assembly came from the
+    canonical-seed fallback (registry_version_id == 0) - those rows
+    aren't in the registry and shouldn't claim a snapshot.
+    """
+    if rendered_assembly is None:
+        return None
+    if not rendered_assembly.registry_version_id:
+        return None
+    payload = {
+        "registryCode": rendered_assembly.registry_code,
+        "registryVersionId": rendered_assembly.registry_version_id,
+        "versionNumber": rendered_assembly.version_number,
+        "variantIds": dict(rendered_assembly.variant_ids),
+    }
+    return _safe_json_dumps(payload)
+
+
 def _persist_generation_run_and_artifacts(
     *,
     db_session: Optional[Session],
@@ -3093,6 +3227,7 @@ def _persist_generation_run_and_artifacts(
     compile_input_plans: Optional[List[Dict[str, Any]]] = None,
     brand_posture: Optional[str] = None,
     brand_heritage_origin: Optional[str] = None,
+    rendered_assembly: Optional[RenderedAssembly] = None,
 ) -> Optional[int]:
     """Persist a GenerationRun + its artifacts. Returns the GenerationRunID
     on success (or None if no DB session was available, or persistence
@@ -3144,6 +3279,8 @@ def _persist_generation_run_and_artifacts(
                     FormID,
                     PromptTemplateVersionID,
                     PromptAssemblyProfileID,
+                    PromptAssemblyRegistryVersionID,
+                    PromptVariantSnapshot,
                     CapabilityPolicyVersionID,
                     ComponentCapabilitySnapshotID,
                     WidthClassPolicyVersionID,
@@ -3167,6 +3304,8 @@ def _persist_generation_run_and_artifacts(
                     :form_id,
                     :prompt_template_version_id,
                     :prompt_assembly_profile_id,
+                    :prompt_assembly_registry_version_id,
+                    :prompt_variant_snapshot,
                     :capability_policy_version_id,
                     :component_capability_snapshot_id,
                     :width_class_policy_version_id,
@@ -3190,6 +3329,17 @@ def _persist_generation_run_and_artifacts(
                 "form_id": resolved_form_id,
                 "prompt_template_version_id": governance_versions.get("promptTemplateVersionId"),
                 "prompt_assembly_profile_id": governance_versions.get("promptAssemblyProfileId"),
+                "prompt_assembly_registry_version_id": (
+                    rendered_assembly.registry_version_id
+                    if rendered_assembly is not None
+                    and rendered_assembly.registry_version_id
+                    else None
+                ),
+                "prompt_variant_snapshot": (
+                    _build_prompt_variant_snapshot(rendered_assembly)
+                    if rendered_assembly is not None
+                    else None
+                ),
                 "capability_policy_version_id": governance_versions.get("capabilityPolicyVersionId"),
                 "component_capability_snapshot_id": governance_versions.get(
                     "componentCapabilitySnapshotId"
@@ -3670,6 +3820,14 @@ def generate_form_definition(
     )
     correction_cap = max(0, min(correction_cap, 10))
 
+    # Story 6.5b - declared early so ``_finalize`` (closure below) can
+    # forward it to the GenerationRun persistence helper. Stays ``None``
+    # until ``_resolve_rendered_assembly`` succeeds; if resolution
+    # itself fails ``_finalize`` is still called and persists the run
+    # without registry-version columns set (which is the correct audit
+    # behaviour for a pre-execution failure).
+    rendered_assembly: Optional[RenderedAssembly] = None
+
     def _finalize(response: FormAiGenerateResponse) -> FormAiGenerateResponse:
         run_id = _persist_generation_run_and_artifacts(
             db_session=db_session,
@@ -3685,6 +3843,7 @@ def generate_form_definition(
             compile_input_plans=compile_input_plans,
             brand_posture=brand_resolution.get("resolved"),
             brand_heritage_origin=brand_resolution.get("heritageOrigin"),
+            rendered_assembly=rendered_assembly,
         )
         # Story 6.3.1 UAT round 5 — surface the persisted run id so the
         # frontend can call ``/remeasure`` with DOM heights for a refined
@@ -3700,11 +3859,28 @@ def generate_form_definition(
         }
         return response
 
+    # Story 6.5b - resolve the prompt assembly from the registry once per
+    # request. Replaces the legacy ``_load_context_pack`` round-trip to
+    # ``docs/stories/STORY-6.2-AI-CONTEXT-PACK.md``, which closes R6.
+    # Resolution failures (missing ``FORM_AI_V1`` registry, no active
+    # version, missing variant) surface as the terminal reason
+    # ``prompt-assembly-resolution-failed`` - the 6.5b analogue of the
+    # legacy ``context-pack-load-failed`` terminal.
     try:
-        context_pack = _load_context_pack()
-    except RuntimeError:
+        rendered_assembly = _resolve_rendered_assembly(
+            db_session,
+            brand_posture=brand_resolution.get("resolved"),
+            brand_heritage_origin=brand_resolution.get("heritageOrigin"),
+            audience_locale=locale_resolution.get("resolved") or "AU",
+            context_pack=None,
+        )
+    except (LookupError, RuntimeError) as exc:
+        LOGGER.exception(
+            "form_ai.prompt_assembly.resolution_failed: %s",
+            exc,
+        )
         trace = _build_trace_metadata(
-            terminal_reason="context-pack-load-failed",
+            terminal_reason="prompt-assembly-resolution-failed",
             attempts=[],
             correction_cap=correction_cap,
             last_validation=None,
@@ -3739,7 +3915,6 @@ def generate_form_definition(
 
     messages = _build_initial_messages(
         prompt=prompt,
-        context_pack=context_pack,
         runtime_context=runtime_context_for_prompt,
         system_prompt_addendum=system_prompt_addendum,
         capability_snapshot_json=capability_snapshot_for_prompt,
@@ -3747,6 +3922,7 @@ def generate_form_definition(
         brand_posture=brand_resolution.get("resolved"),
         brand_heritage_origin=brand_resolution.get("heritageOrigin"),
         db_session=db_session,
+        rendered_assembly=rendered_assembly,
     )
     last_validation: AttemptValidationSummary | None = None
     last_valid_definition: Dict[str, Any] | None = None

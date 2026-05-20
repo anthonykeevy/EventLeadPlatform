@@ -11,6 +11,11 @@ from .component_capability_snapshot import ComponentCapabilitySnapshot
 from .component_validation_contract import ComponentValidationContract
 from .width_class_policy_version import WidthClassPolicyVersion
 from .prompt_assembly_profile import PromptAssemblyProfile
+from .prompt_assembly_registry import PromptAssemblyRegistry
+from .prompt_assembly_registry_version import PromptAssemblyRegistryVersion
+from .prompt_section import PromptSection
+from .prompt_section_variant import PromptSectionVariant
+from .prompt_section_data import PromptSectionData
 
 __all__ = [
     "AppSetting",
@@ -22,5 +27,10 @@ __all__ = [
     "ComponentValidationContract",
     "WidthClassPolicyVersion",
     "PromptAssemblyProfile",
+    "PromptAssemblyRegistry",
+    "PromptAssemblyRegistryVersion",
+    "PromptSection",
+    "PromptSectionVariant",
+    "PromptSectionData",
 ]
 

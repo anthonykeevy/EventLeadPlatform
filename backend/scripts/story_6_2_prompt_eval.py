@@ -12,7 +12,15 @@ BACKEND_ROOT = REPO_ROOT / "backend"
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from modules.form_ai.service import CONTEXT_PACK_PATH, generate_form_definition
+from modules.form_ai.service import generate_form_definition
+
+# Story 6.5b: ``CONTEXT_PACK_PATH`` and ``_load_context_pack`` were removed
+# when Block G migrated into ``config.PromptSectionVariant``. This historical
+# Story 6.2 prompt-quality evaluation harness still references the
+# *concept* of the context pack via ``_tighten_context_pack``; that function
+# now raises so anyone re-running the script under 6.5b+ gets a clear
+# pointer to the registry-driven workflow rather than a confusing
+# ``ImportError``.
 
 UAT_RESULTS_PATH = REPO_ROOT / "docs" / "stories" / "STORY-6.2-UAT-RESULTS.md"
 
@@ -65,19 +73,21 @@ def _usability_proxy(status: str, attempts: int) -> int:
 
 
 def _tighten_context_pack(cycle: int) -> str:
-    marker = f"## Cycle {cycle} Quality Addendum"
-    rule_block = (
-        f"\n{marker}\n\n"
-        "1. Keep exactly one page in `pages`.\n"
-        "2. Prefer y-spacing >= 80 between stacked controls to reduce collisions.\n"
-        "3. Keep x >= 20 and widths <= canvas width - 40.\n"
-        "4. Always include `theme`, `canvasSettings`, and `schemaVersion`.\n"
+    """Pre-6.5b helper that mutated the on-disk context pack between cycles.
+
+    Block G (FEW_SHOT) is now stored in ``config.PromptSectionVariant`` -
+    runtime tightening must add a new variant or new registry version,
+    not edit a markdown file. This shim exists so the pre-6.5b harness
+    fails fast with a clear pointer if anyone re-runs it as-is.
+    """
+    raise RuntimeError(
+        "story_6_2_prompt_eval._tighten_context_pack is no longer supported "
+        "after Story 6.5b: Block G now lives in config.PromptSectionVariant. "
+        "Tighten the prompt by seeding a new PromptSectionVariant row "
+        "(or a new PromptAssemblyRegistryVersion) instead of mutating the "
+        "on-disk context pack. See "
+        "docs/architecture/prompt-assembly-registry-architecture.md."
     )
-    current = CONTEXT_PACK_PATH.read_text(encoding="utf-8")
-    if marker in current:
-        return "addendum already present"
-    CONTEXT_PACK_PATH.write_text(current + rule_block, encoding="utf-8")
-    return "context pack tightened"
 
 
 def run_cycle(cycle_number: int) -> Tuple[List[PromptResult], dict]:

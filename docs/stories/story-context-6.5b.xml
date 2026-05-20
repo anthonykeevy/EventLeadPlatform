@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.5b" title="Prompt Assembly Registry Foundation (Closes R6)">
+
+  <overview>
+    Stand up the Prompt Assembly Registry (PromptAssemblyProfile*, PromptSection*,
+    PromptSectionVariant*, PromptSectionData) with variant-level versioning, and
+    migrate the five "stored prose" blocks (A ROLE_CONTRACT, B SAFETY, C BRAND_POSTURE
+    with four variants, G FEW_SHOT, I JSON_OUTPUT) from Python string literals into
+    seeded DB variants. The renderer/orchestrator wraps these blocks inside the existing
+    _build_initial_messages path so the assembled prompt remains functionally
+    equivalent to today's output for unchanged inputs. Block G migration moves the
+    on-disk STORY-6.2-AI-CONTEXT-PACK.md content into PromptSectionVariant.PromptSnippet
+    and deletes _load_context_pack(), which is the change that closes R6 (the
+    `context-pack-load-failed` failure on Azure where the markdown file lives outside
+    the deployed backend/ package).
+
+    No frontend change. AC-19 introduces a pre-merge prompt-equivalence diff gate
+    that requires Tony's explicit sign-off ("no behavioural degradation") before the
+    Draft PR moves to Ready. Iteration runs locally (uvicorn + LocalDB) per the §5a
+    Local Validation Flow in story-6.5b.md.
+  </overview>
+
+  <critical-objectives>
+    <item>Implement registry schema per prompt-assembly-registry-architecture.md §3 and §8.1 (variant-level versioning).</item>
+    <item>Build Python resolve_prompt_assembly() + render_prompt_assembly() per architecture §4 + §5; no SP this story (hybrid Python-first per §5.4).</item>
+    <item>Seed FORM_AI_V1 PromptAssemblyProfile + PromptSection rows for A/B/C/G/I + variants matching current production prose.</item>
+    <item>Block G variant content = current STORY-6.2-AI-CONTEXT-PACK.md (post-trim semantics preserved). Closes R6.</item>
+    <item>Wire _build_initial_messages to call the renderer for A/B/C/G/I; leave D (locale), E (clarification), F (capability), H (user) on their existing paths unchanged this story.</item>
+    <item>Delete _load_context_pack() (or replace with deprecation-raising shim) — no runtime file reads for the context pack.</item>
+    <item>Extend dbo.GenerationRun with PromptAssemblyProfileVersionID and variant-ID columns (or JSON snapshot) for full replayability.</item>
+    <item>Produce the AC-19 prompt-equivalence diff: pull latest successful GenerationRun, re-assemble via both old code path and new renderer, emit STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md with per-block verdicts. Get Tony sign-off before PR Ready.</item>
+    <item>Verify R6 resolved in Test environment after develop deploy (UAT prompt 1, AC-13).</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.5a">Complete (Architecture Phase). Two architecture docs landed on develop via PR #103 (cb339ed). See story-6.5a.md for the decomposition rationale.</story>
+    <story id="6.4.8">Complete; migration 072 promoted AU-005 prompt context. New migrations start at 073.</story>
+    <story id="6.4.4.1">Complete; config.PromptTemplateLocaleBlock registry (used by Block D — not touched this story).</story>
+    <doc path="docs/architecture/prompt-assembly-registry-architecture.md">Authoritative. §2.7 (post-impl per-block sources), §3 (registry schema), §5 (renderer contract), §8 (variant versioning), §10 (sequencing/handoff).</doc>
+    <doc path="docs/architecture/decision-6.5a-clarification-options-data-model.md">Companion. §4.1 (all-blocks-DB-driven platform rule). Clarification (Block E) is out of scope this story (Story 6.5d).</doc>
+    <doc path="docs/stories/story-6.5b.md">Spec — 19 ACs, §5a Local Validation Flow, §7 Planned Migration Set, §8 Carry-forward Backlog.</doc>
+    <doc path="docs/stories/STORY-6.5b-SINGLE-SESSION-DEV-PROMPT.md">Dev execution contract.</doc>
+    <doc path="docs/stories/STORY-6.5b-UAT-TEST-GUIDE.md">Tony + SM UAT script.</doc>
+    <doc path="docs/stories/STORY-6.2-AI-CONTEXT-PACK.md">Source for Block G seed content. After this story it becomes documentation-only with a banner; the runtime source becomes PromptSectionVariant.PromptSnippet.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic commands. Create migration files only; Tony reviews and executes. Migrations start at 073_.</item>
+    <item>Do NOT mutate existing migrations. Each new migration must have a working downgrade().</item>
+    <item>Do NOT change the runtime behaviour of D (locale), E (clarification), F (component capability), or H (user prompt) in this story. They remain on their existing paths in _build_initial_messages.</item>
+    <item>Do NOT introduce ref.BrandPosture or replace the brandPosture enum (deferred to Story 6.5c). Block C variant selection still keys off the existing enum.</item>
+    <item>Do NOT change the frontend. The AI Agent panel sees zero diff in API contract.</item>
+    <item>Do NOT delete the file docs/stories/STORY-6.2-AI-CONTEXT-PACK.md from the repo. Add a documentation-only banner pointing to the migration that seeds Block G; the file stays for reference.</item>
+    <item>Do NOT mark the PR Ready until Tony signs off the AC-19 prompt-equivalence diff. Block G content delta is expected (it's the same prose, just from DB); all other blocks should be character-identical to the current path for the same inputs.</item>
+    <item>Use PowerShell-safe commands (no '&&' chaining; use ';' if you must chain).</item>
+    <item>Honour the Green CI/CD rule: full pytest summary with final pass/fail count before commit. Anti-hallucination protocol applies.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_ai/service.py"
+          note="_build_initial_messages (wraps renderer), _load_context_pack (DELETE), _trim_context_pack_for_prompt (move into renderer or drop), _ROOT_PATH + CONTEXT_PACK_PATH (DELETE — no longer needed)."/>
+    <path file="backend/models/config/prompt_assembly_profile.py"
+          note="Existing model — verify/extend to match architecture §3."/>
+    <path file="backend/models/config/prompt_template.py"
+          note="Referenced (Block D still uses this). Do not change."/>
+    <path file="backend/models/config/prompt_template_version.py"
+          note="Same pattern as PromptAssemblyProfileVersion. Use as reference."/>
+    <path file="backend/migrations/versions/"
+          note="New migrations start at 073_. Latest existing is 072_story_648_au_production_prompt_context.py."/>
+    <path file="backend/scripts/"
+          note="Add story_6_5b_prompt_equivalence_diff.py here (per AC-19)."/>
+    <path file="docs/stories/STORY-6.2-AI-CONTEXT-PACK.md"
+          note="Source of Block G seed content. Add documentation-only banner at top after migration is in place."/>
+  </primary-code-paths>
+
+  <evidence-paths>
+    <path file="docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md"
+          note="Produced by the AC-19 helper script. Per-block side-by-side (old code path vs new renderer) with verdicts. Tony sign-off lives here."/>
+    <path file="docs/stories/STORY-6.5b-GATE-EVIDENCE.md"
+          note="Full pytest summary, equivalence-test pass, _load_context_pack removal grep, migration files listed."/>
+    <path file="docs/stories/STORY-6.5b-UAT-RESULTS.md"
+          note="Per-section UAT results from STORY-6.5b-UAT-TEST-GUIDE.md, including R6-resolved verification against deployed Test."/>
+    <path file="docs/stories/STORY-6.5b-CLOSEOUT-REPORT.md"
+          note="Mandatory (schema migrations + GenerationRun API surface change). TL;DR, AC matrix, architecture sketch (renderer hand-off diagram), what this unlocks (6.5c / 6.5d), carry-forward backlog, risks, green gates, hygiene, decision."/>
+  </evidence-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.5b.md" purpose="Story spec and ACs (already on develop)."/>
+    <file path="docs/stories/story-context-6.5b.xml" purpose="This context file."/>
+    <file path="docs/stories/STORY-6.5b-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev execution contract."/>
+    <file path="docs/stories/STORY-6.5b-UAT-TEST-GUIDE.md" purpose="Tony + SM UAT guide."/>
+    <file path="docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md" purpose="AC-19 deliverable — Tony sign-off gate."/>
+    <file path="docs/stories/STORY-6.5b-GATE-EVIDENCE.md" purpose="Green CI/CD gate evidence."/>
+    <file path="docs/stories/STORY-6.5b-UAT-RESULTS.md" purpose="UAT section results."/>
+    <file path="docs/stories/STORY-6.5b-CLOSEOUT-REPORT.md" purpose="Mandatory — schema migrations + API surface change."/>
+  </required-artifacts>
+
+  <acceptance-mapping>
+    <ac id="1">Registry tables exist per arch §3 + variant-versioning per §8.1.</ac>
+    <ac id="2">FORM_AI_V1 PromptAssemblyProfile + active Version seeded.</ac>
+    <ac id="3">Five PromptSection rows seeded (A/B/C/G/I) in SortOrder.</ac>
+    <ac id="4">Each section has ≥1 PromptSectionVariant seeded; Block C has 4 (one per posture).</ac>
+    <ac id="5">Block G variant matches current STORY-6.2-AI-CONTEXT-PACK.md (post-trim).</ac>
+    <ac id="6">GenerationRun extended with PromptAssemblyProfileVersionID + variant IDs.</ac>
+    <ac id="7">Alembic migrations authored (073_+); each reversible.</ac>
+    <ac id="8">resolve_prompt_assembly() returns ordered (section, variant) list honouring versioning.</ac>
+    <ac id="9">render_prompt_assembly() functionally equivalent to today's _build_initial_messages output for A/B/C/G/I.</ac>
+    <ac id="10">_build_initial_messages invokes renderer for in-scope blocks; D/E/F/H unchanged.</ac>
+    <ac id="11">_load_context_pack() deleted (or deprecation-raising shim).</ac>
+    <ac id="12">Eval harness baseline still green.</ac>
+    <ac id="13">R6 verified resolved in Test (UAT prompt 1 succeeds, no context-pack-load-failed).</ac>
+    <ac id="14">GenerationRun row from Test UAT contains expected variant IDs (SQL-verifiable).</ac>
+    <ac id="15">Backend tests cover resolver, renderer hydration, equivalence, no-file-read.</ac>
+    <ac id="16">STORY-6.2-AI-CONTEXT-PACK.md gets documentation-only banner.</ac>
+    <ac id="17">STORY-6.5b-CLOSEOUT-REPORT.md committed.</ac>
+    <ac id="18">EPIC-6-STATUS.md row 6.5b flipped to ✅; R6 marked Resolved by 6.5b.</ac>
+    <ac id="19">Pre-merge prompt-equivalence diff produced and Tony-signed-off before PR moves Draft → Ready.</ac>
+  </acceptance-mapping>
+
+</story-context>

@@ -154,18 +154,100 @@ For the same inputs (same `companyId`, `countryId`, `audienceLocale`, `brandPost
 17. **AC-17** Closeout report committed at `docs/stories/STORY-6.5b-CLOSEOUT-REPORT.md` covering migration log, R6 verification evidence, and the equivalence-test result.
 18. **AC-18** `EPIC-6-STATUS.md` row 6.5b flipped to ✅; R6 row marked **Resolved by 6.5b**.
 
+### Pre-Merge Prompt-Equivalence Diff (Tony Sign-off Gate)
+19. **AC-19** **Prompt-equivalence diff produced and signed off before PR Ready-for-Review.**
+
+    Rationale: 6.5b has no frontend change, so Tony cannot eyeball the AI Agent panel for regressions. Instead, Dev produces a deterministic side-by-side diff that proves the new assembled prompt is functionally equivalent to today's.
+
+    **Implementation:**
+
+    1. Dev writes a small helper script `backend/scripts/story_6_5b_prompt_equivalence_diff.py` (or `.ps1` / TS — Dev's call) that:
+       - Selects the **most recent successful generation** from the current system. Suggested query (Dev confirms exact column names):
+         ```sql
+         SELECT TOP 1 GenerationRunID, CompanyID, CountryID, AudienceLocale, BrandPosture, RequestPayload
+         FROM dbo.GenerationRun
+         WHERE TerminalReason IS NULL  -- successful
+         ORDER BY CreatedUtc DESC;
+         ```
+       - Recovers the inputs (audienceLocale, brandPosture, user prompt, eventId/companyId context) from that row plus the linked `log.ApiRequest` payload.
+       - **Path A — Old prompt**: re-assembles via the current `_build_initial_messages` code path (pre-renderer) for the same inputs. Captures the resulting prompt string verbatim.
+       - **Path B — New prompt**: re-assembles via the new `render_prompt_assembly()` for the same inputs against the seeded registry. Captures the resulting prompt string verbatim.
+       - **Does not call the LLM** in either path — pure assembly only.
+       - Produces a structured Markdown report `docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` with:
+         - **Header**: `GenerationRunID`, inputs (audienceLocale, brandPosture, user prompt excerpt), commit SHA, run timestamp.
+         - **Per-block panel** for each block A–I:
+           - Block name + section code.
+           - `OLD` snippet (from Path A).
+           - `NEW` snippet (from Path B).
+           - **Source change**: e.g., "A: code literal → `PromptSectionVariant.PromptSnippet` (ID 5)", or "D: unchanged (still `PromptTemplateLocaleBlock`)", or "G: file read → `PromptSectionVariant.PromptSnippet` (ID 9) — **R6 fix point**".
+           - **Diff verdict**: ✅ Identical / ⚠️ Whitespace-only / 🔴 Content delta (with the exact diff if 🔴).
+         - **Summary table**: 9 rows (blocks A–I), each with verdict and source-change one-liner.
+         - **Top-level verdict**: ✅ No behavioural regression / ⚠️ Cosmetic only / 🔴 Investigation required.
+
+    2. Dev runs the script against a local environment with the new migrations applied, commits the resulting Markdown to the story branch, and pings Tony for sign-off.
+
+    3. **Tony reviews the diff and approves "no behavioural degradation" before the PR is moved from Draft → Ready for Review.** If the verdict is 🔴 or ⚠️ with non-trivial content delta, Dev investigates and re-runs until the verdict is ✅ (or Tony explicitly accepts the delta).
+
+    4. The same script is re-run **after** UAT prompt 1 succeeds in Test (AC-13) to confirm Test-environment behaviour matches local — diff file updated with both rows in the header.
+
 ---
 
 ## 5) Definition of Done
 
-- Story branch pushed; new Draft PR (→ `develop`) marked **Ready for Review**.
-- All 18 ACs met and verified.
+- Story branch pushed; new Draft PR (→ `develop`) marked **Ready for Review** **only after Tony signs off the prompt-equivalence diff (AC-19)**.
+- All 19 ACs met and verified.
 - Migration files prepared, executed by Tony, recorded in the migration log; downgrades verified locally.
 - CI pre-deploy smoke (PR #99 pattern) green on the PR; auto-deploy to Test succeeds.
 - **R6 verified resolved in Test** (UAT prompt 1 produces successful generation).
 - Equivalence test green; eval harness baseline still green.
+- Prompt-equivalence diff report (`docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md`) committed with Tony's sign-off recorded.
 - `EPIC-6-STATUS.md` updated; closeout report committed.
 - No Alembic commands run by the agent (Tony executes; agent provides exact commands).
+
+---
+
+## 5a) Local Validation Flow (Avoid Azure Cycle Time)
+
+6.5b has no frontend change, which means **every iteration can be validated locally without waiting for an Azure deploy**. This is critical for the prompt-equivalence diff (AC-19) where Tony may want multiple iterations before sign-off.
+
+### Local stack required
+
+| Component | Local equivalent | Notes |
+|-----------|------------------|-------|
+| Backend | `uvicorn backend.main:app --reload` | Same `/api/form-ai/generate` Azure exposes |
+| Database | SQL Server LocalDB (or whichever the project uses for dev) | Apply migrations 073→078 locally first; Tony executes Alembic |
+| AI provider | OpenAI / Azure OpenAI via `.env` | Real generation responses, billable to dev key |
+| Email | MailHog (already wired) | Not exercised by 6.5b |
+| Frontend (optional) | `cd frontend && npm run dev` against local backend | Only needed if Dev wants UI to drive the API; not required for AC-19 since the equivalence script runs headless |
+
+### Iteration loop (no Azure)
+
+```
+1. Edit code in worktree
+2. Restart uvicorn (or rely on --reload)
+3. Run the equivalence script: python backend/scripts/story_6_5b_prompt_equivalence_diff.py
+4. Review the generated docs/stories/STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md
+5. If diff verdict is 🔴 or ⚠️ unexpected, fix and go back to step 1
+6. When verdict is ✅, commit + push → Tony reviews diff in GitHub
+7. After Tony signs off, mark PR Ready for Review → CI smoke → auto-deploy to Test
+8. Re-run equivalence script against Test (or smoke-check UAT prompt 1) for AC-13 / AC-14
+```
+
+### What you do NOT need Azure for
+
+- Schema correctness (Alembic upgrade + downgrade locally)
+- Resolver / renderer behaviour
+- Block-by-block equivalence to the current `_build_initial_messages` output
+- R6 conceptual fix (no file read remains)
+- Eval harness regression baseline
+
+### What you DO need Azure for (final gate only)
+
+- Verifying R6 is gone in the **actual** Test environment (AC-13) — proves the deploy package no longer needs the MD file
+- UAT against the deployed Test infrastructure (release blocker)
+- App Insights / log lineage check in production-equivalent infra
+
+**Net effect:** Azure deploy becomes a release gate, not an iteration tool. If Dev needs N iterations to land the renderer cleanly, all N happen locally in seconds-to-minutes rather than 20-minute Azure round-trips.
 
 ---
 

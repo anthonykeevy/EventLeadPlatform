@@ -6,9 +6,9 @@
 
 **Date:** 2026-05-20  
 
-**Status:** LocalDB UAT **Pass** (§1–§6); Azure Test §7 pending post-merge. Implementation on branch; commit/push pending.  
+**Status:** ✅ **Complete** (2026-05-21) — LocalDB + Azure Test UAT pass; Tony sign-off.  
 
-**PR:** [#106](https://github.com/anthonykeevy/EventLeadPlatform/pull/106) — Draft → `develop`
+**PR:** [#106](https://github.com/anthonykeevy/EventLeadPlatform/pull/106) — **merged to `develop`** (2026-05-21)
 
 
 
@@ -142,7 +142,7 @@ This is **not a 6.5c regression** — it exposes pre-existing misalignment betwe
 
 | §6 Automated gates | Pass | 35/35 focused pytest |
 
-| §7 Azure Test | Pending | After merge + deploy |
+| §7 Azure Test | Pass | Test slot deploy; full reload; all checks passed 2026-05-21 |
 
 
 
@@ -162,7 +162,7 @@ This is **not a 6.5c regression** — it exposes pre-existing misalignment betwe
 
 | Full pytest integration drift (`BrandPostureID`) | Pre-existing; 6.5c logic covered by focused suite |
 
-| Azure Test not yet run | §7 pending; repeat §2–§3 after deploy |
+| Azure Test deploy quirks (stopped prod slot URL, stale refresh tokens) | Use `signalplatforms-test-test.azurewebsites.net`; full site reload after deploy |
 
 
 
@@ -186,11 +186,11 @@ This is **not a 6.5c regression** — it exposes pre-existing misalignment betwe
 
 - [x] Closeout report (this document)
 
-- [ ] Implementation committed/pushed to PR #106
+- [x] Implementation committed/pushed to PR #106
 
-- [ ] Azure Test §7 sign-off
+- [x] Azure Test §7 sign-off (Tony, 2026-05-21)
 
-- [ ] PR marked Ready + merge
+- [x] PR merged to `develop`
 
 
 
@@ -198,5 +198,5 @@ This is **not a 6.5c regression** — it exposes pre-existing misalignment betwe
 
 
 
-**Agent closeout note:** LocalDB validation complete. Remaining: commit/push branch work, Azure Test §7 after deploy, final PR sign-off.
+**Agent closeout note:** Story 6.5c complete. Unblocks Story 6.5d (Clarification Data Plane). Follow-up: seed missing `FormBuilderComponent` rows (`rating`, etc.) — see §3 catalog drift.
 

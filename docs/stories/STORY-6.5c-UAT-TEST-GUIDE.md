@@ -210,13 +210,17 @@ After merge to `develop` and deploy:
 
 
 
-- Repeat Sections 2–3 on `signalplatforms-test`.
+- Repeat Sections 2–3 on Azure Test slot (`https://signalplatforms-test-test.azurewebsites.net`).
 
 - Confirm catalog alignment holds in deployed Test.
 
 
 
-**Section 7 Final:** _Pending_ — Tony to confirm after worktree merge and Azure Test deploy.
+**Section 7 Final:** **Pass**
+
+
+
+**Evidence (2026-05-21):** PR #106 merged to `develop`; auto-deploy to Test slot. Migrations 084–086 applied on startup (log stream). Tony: full site reload (clears stale refresh token), all UAT checks passed on deployed Test — toolbox ↔ init, AI ↔ toolbox alignment confirmed.
 
 
 
@@ -244,9 +248,9 @@ After merge to `develop` and deploy:
 
 | 6 Automated gates | **Pass** | 35/35 focused pytest; gate evidence updated |
 
-| 7 Azure Test | _Pending_ | After merge + deploy to Test |
+| 7 Azure Test | **Pass** | PR #106 merged; Test slot deploy; full reload + UAT 2026-05-21 |
 
 
 
-**Final:** _Pending Azure Test (§7)_ — LocalDB UAT **Pass** for §1–§6.
+**Final:** **Pass** — LocalDB + Azure Test UAT complete (Tony sign-off 2026-05-21).
 

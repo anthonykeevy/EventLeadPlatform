@@ -3,9 +3,9 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.5c  
 **Title:** Capability Catalog Cutover — `resolve_allowed_components` authoritative + Block F registry + `ref.BrandPosture` + toolbox alignment  
-**Status:** Ready for UAT (LocalDB §1–§6 Pass; Azure §7 pending)  
-**Branch:** `story/epic6-6.5c-capability-catalog-cutover`  
-**PR:** [#106](https://github.com/anthonykeevy/EventLeadPlatform/pull/106) — Draft → `develop`  
+**Status:** ✅ Complete (2026-05-21)  
+**Branch:** `story/epic6-6.5c-capability-catalog-cutover` (merged)  
+**PR:** [#106](https://github.com/anthonykeevy/EventLeadPlatform/pull/106) — merged to `develop`  
 **Created:** 2026-05-20  
 **Depends On:**
 - Story 6.5b merged to `develop` (PR #104 + housekeeping PR #105) — Prompt Assembly Registry foundation, migrations `078`–`083`

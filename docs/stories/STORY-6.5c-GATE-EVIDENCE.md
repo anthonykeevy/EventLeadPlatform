@@ -126,11 +126,11 @@ Failures cluster in MSSQL integration tests (`test_story_1_11_*`, `test_story_62
 
 
 
-## UAT (LocalDB)
+## UAT
 
 
 
-See `STORY-6.5c-UAT-TEST-GUIDE.md` — §1–§6 **Pass**; §7 Azure Test pending post-merge deploy.
+See `STORY-6.5c-UAT-TEST-GUIDE.md` — **All sections Pass** (LocalDB + Azure Test, Tony sign-off 2026-05-21).
 
 
 

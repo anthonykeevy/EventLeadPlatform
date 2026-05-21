@@ -2,7 +2,7 @@
 Company Model (dbo.Company)
 Core business entity representing companies/organizations
 """
-from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, func, ForeignKey
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, func, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from common.database import Base
 
@@ -67,6 +67,7 @@ class Company(Base):
     DefaultTermsAssetID = Column(BigInteger, ForeignKey('dbo.Asset.AssetID'), nullable=True)  # Story 5.7
     BrandPosture = Column(String(40), nullable=True)
     BrandHeritageOrigin = Column(String(5), nullable=True)
+    BrandPostureID = Column(Integer, ForeignKey("ref.BrandPosture.BrandPostureID"), nullable=True)
     
     # Status
     IsActive = Column(Boolean, nullable=False, default=True)

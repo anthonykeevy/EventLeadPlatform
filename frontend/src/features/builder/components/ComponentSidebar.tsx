@@ -5,16 +5,13 @@ import { useBuilderStore } from '../stores/useBuilderStore';
 import type { GlobalStyles } from '../types/builder.types';
 
 export const ComponentSidebar: React.FC = () => {
-  // Story 5.2 T05: Use Init API components when available, else full ComponentRegistry
+  // Story 5.2 T05: Use Init API components when available; empty until init loads
   const initComponents = useBuilderStore(state => state.initComponents);
   const baseComponents = Object.values(ComponentRegistry);
   const allowedTypes = initComponents?.map(c => c.componentCode) ?? null;
-  // Story 6.2.1: Always surface newly introduced components even if the
-  // persisted Init API catalog has not been uplifted yet.
-  const story621ForceInclude = new Set(['url', 'rating', 'paragraph', 'file-upload']);
   const components = allowedTypes
-    ? baseComponents.filter(c => allowedTypes.includes(c.type) || story621ForceInclude.has(c.type))
-    : baseComponents;
+    ? baseComponents.filter(c => allowedTypes.includes(c.type))
+    : [];
   
   // Get global styles from the store to pass to preview components
   const globalStyles = useBuilderStore(state => state.formDefinition?.globalStyles);

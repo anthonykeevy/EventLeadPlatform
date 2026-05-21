@@ -32,6 +32,7 @@ from .asset_type import AssetType
 from .form_defaults_schema_version import FormDefaultsSchemaVersion
 from .user_preference_category import UserPreferenceCategory
 from .user_preference_key import UserPreferenceKey
+from .brand_posture import BrandPosture
 
 __all__ = [
     "Country",
@@ -64,5 +65,6 @@ __all__ = [
     "FormDefaultsSchemaVersion",
     "UserPreferenceCategory",
     "UserPreferenceKey",
+    "BrandPosture",
 ]
 

@@ -33,7 +33,7 @@ class PromptSection(Base):
             name="UQ_PromptSection_Version_SectionCode",
         ),
         CheckConstraint(
-            "DataStructureType IN ('Prose', 'Json', 'Snapshot', 'Refs')",
+            "DataStructureType IN ('Prose', 'Json', 'Snapshot', 'Refs', 'DynamicComponentCatalog')",
             name="CK_PromptSection_DataStructureType",
         ),
         {"schema": "config"},
@@ -49,7 +49,7 @@ class PromptSection(Base):
     DisplayName = Column(NVARCHAR(length=200), nullable=False)
     SortOrder = Column(Integer, nullable=False)
     IsRequired = Column(Boolean, nullable=False, default=True)
-    DataStructureType = Column(NVARCHAR(length=20), nullable=False)
+    DataStructureType = Column(NVARCHAR(length=30), nullable=False)
     Heading = Column(NVARCHAR(length=200), nullable=True)
 
     CreatedUtc = Column(DateTime, nullable=False, server_default=func.getutcdate())

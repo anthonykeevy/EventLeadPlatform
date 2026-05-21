@@ -161,6 +161,17 @@ Each API returns: `{ items: [...], defaultCode, resolvedDefault }` using Company
 
 ---
 
+## 4b) Recommended chat workflow (Tony clarity)
+
+| Phase | Chat | Actor | Outcome |
+|-------|------|-------|---------|
+| **A — Architecture** | **Separate** chat (optional: Dimitri + architect agents) | Tony + data/architect | Approve `decision-external-data-feed-components.md` v2 (§9 closed); **no implementation** |
+| **B — Implementation** | **New** chat in worktree `C:\wt\elp\story-epic6-6.5d-clarification-component-platform` | `@bmad-agent-bmm-dev` | Track A + B per dev prompt |
+
+**Not recommended:** one chat that both finalizes architecture and implements — context drift, mixed roles, and harder review. SM default: **sign-off doc first, then Dev chat.**
+
+---
+
 ## 5) Local validation flow
 
 1. Tony: `alembic upgrade head` (from `086` → new head).

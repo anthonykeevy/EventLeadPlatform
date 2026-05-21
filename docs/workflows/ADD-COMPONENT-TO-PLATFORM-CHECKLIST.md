@@ -44,6 +44,8 @@ Skip if component is fully offline (e.g. plain `text`, manual `address`).
 - [ ] `ref.ComponentType.RequiresNetwork = 1` (or agreed JSON metadata).
 - [ ] `FallbackComponentCode` set (e.g. `address-lookup-au` → `address`).
 - [ ] Backend **proxy** routes; no browser → third party.
+- [ ] **Cache** via same pattern as `cache.ABRSearch` (`ExternalFeedCacheService` / `cache.AddressSearch` per decision §3).
+- [ ] **`deliveryMode`** + field map (`decomposed` / `concatenated` / `both`) per decision §5.
 - [ ] `Form.RequiresOfflineCapable` (or agreed flag) filters EDF in resolver + init + AI + validator.
 - [ ] Init returns `requiresNetwork` / `fallbackComponentCode` for properties + toolbox badge.
 - [ ] `COMPONENT-FRAMEWORK-GUIDE.md` inventory row updated.

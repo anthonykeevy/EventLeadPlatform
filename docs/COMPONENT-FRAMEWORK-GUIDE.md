@@ -252,7 +252,8 @@ For divider: `type: 'placeholder'` renders a simple line placeholder.
 | Catalog | `ref.ComponentType.RequiresNetwork = 1`, set `FallbackComponentCode` |
 | Offline forms | When `Form.RequiresOfflineCapable`, resolver omits EDF codes; toolbox + AI + validator match |
 | UI | Show “Online lookup” on toolbox/properties when `requiresNetwork` from init |
-| Submit | Store structured fields + provider ref id — not full API JSON |
+| Submit | Multi-field `resolvedFields`; `deliveryMode` = decomposed / concatenated / both (see decision §5) |
+| Cache | All provider calls via proxy + `cache.*` table (ABR pattern) — never uncached hot path in production |
 
 **Authoritative design:** `docs/architecture/decision-external-data-feed-components.md`  
 **Handoffs:** `docs/architecture/au-address-lookup-geoscape-handoff.md`, `docs/architecture/abr-company-lookup-builder-handoff.md`

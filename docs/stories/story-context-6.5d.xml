@@ -11,7 +11,8 @@
 
   <critical-objectives>
     <item>Seed global backlog: rating, url, file-upload, paragraph, address.</item>
-    <item>Seed Country-scoped address-lookup-au (AU only); negative test for non-AU.</item>
+    <item>Seed Country-scoped address-lookup-au + company-lookup-abr (EDF pair, AU only).</item>
+    <item>decision-external-data-feed-components.md approved before Track A code.</item>
     <item>verify_component_catalog_alignment.py registered in EPIC-6-SM-TOOLS-REGISTRY.md.</item>
     <item>ref.AudienceLocale, ref.FormPurpose, ref.RespondentType + §11 seeds.</item>
     <item>Three ref APIs with resolved default chain (Company → Form → request).</item>
@@ -25,7 +26,9 @@
     <story id="6.5c">Complete. resolve_allowed_components, Block F, init-only toolbox.</story>
     <doc path="docs/architecture/decision-6.5a-clarification-options-data-model.md">Rev 9 — §11 seeds, §12 schema.</doc>
     <doc path="docs/architecture/prompt-assembly-registry-architecture.md">§2.7 Block E.</doc>
-    <doc path="docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md">Mandatory for every new component.</doc>
+    <doc path="docs/architecture/decision-external-data-feed-components.md">EDF pattern — architect sign-off gate.</doc>
+    <doc path="docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md">Mandatory before framework rendering docs.</doc>
+    <doc path="docs/COMPONENT-FRAMEWORK-GUIDE.md">Agent read order + EDF inventory.</doc>
     <doc path="docs/stories/STORY-6.5c-CLOSEOUT-REPORT.md">§3 catalog gap list.</doc>
   </dependencies>
 

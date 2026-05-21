@@ -1,7 +1,7 @@
 # ABR Company Lookup — Form Builder Handoff
 
 **Requested by:** Tony (2026-05-21)  
-**Status:** **Carry-forward** `g-65d-abr-builder-component` — implement in 6.5d if capacity after Track A.1 + B; else Story 6.5d.1  
+**Status:** **Mandatory in Story 6.5d Track A** — implement with `address-lookup-au` under `decision-external-data-feed-components.md`  
 **Provider:** Already live for **onboarding** (`ref.Country.CompanyValidationProvider = 'ABR'`)
 
 ---

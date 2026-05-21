@@ -16,7 +16,7 @@ You are implementing **Story 6.5d — Clarification Data Plane + Component Catal
 1. Seed **missing** `FormBuilderComponent` rows: `rating`, `url`, `file-upload`, `paragraph`, `address` (global).
 2. Add **AU** Country-scoped online address component (`address-lookup-au` — **GeoScape/PSMA**; read `docs/architecture/au-address-lookup-geoscape-handoff.md`).
 3. **Offline-capable forms:** exclude network-dependent components from resolver/init/AI/validator; fallback = manual `address`.
-4. *(Stretch)* ABR company lookup component — `docs/architecture/abr-company-lookup-builder-handoff.md` / `g-65d-abr-builder-component`.
+4. **`company-lookup-abr`** — same EDF pattern; `docs/architecture/abr-company-lookup-builder-handoff.md`.
 5. Implement `backend/scripts/verify_component_catalog_alignment.py` + tests; register in `EPIC-6-SM-TOOLS-REGISTRY.md`.
 6. Follow **`docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md`** for every new type (incl. §0 connectivity).
 7. Trim Block G / prompt prose so LLM is not told to emit ghost types.
@@ -47,7 +47,15 @@ You are implementing **Story 6.5d — Clarification Data Plane + Component Catal
 
 ---
 
-## Step 0 — Preflight
+## Step 0 — Architecture gate (Track A — do not skip)
+
+1. Read `docs/architecture/decision-external-data-feed-components.md`.
+2. Confirm Tony/architect closed §8 open questions (or document agreed defaults in closeout).
+3. Do **not** start EDF migrations until approved.
+
+---
+
+## Step 0b — Preflight
 
 ```powershell
 .\scripts\workflow\preflight-story.ps1 `

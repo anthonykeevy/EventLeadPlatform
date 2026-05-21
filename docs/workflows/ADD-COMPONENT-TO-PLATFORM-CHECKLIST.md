@@ -8,6 +8,15 @@ After Story 6.5c, **the only authoritative list of buildable component types** i
 
 Use this checklist for **every** new or restored component type.
 
+**Agent read order:** This checklist **before** `COMPONENT-FRAMEWORK-GUIDE.md` / `COMPONENT-FRAMEWORK-REFERENCE.md` (rendering docs alone caused ghost types in 6.2.x → fixed in 6.5d).
+
+| Also read when… | Document |
+|-----------------|----------|
+| Third-party API at runtime | `docs/architecture/decision-external-data-feed-components.md` (**architect sign-off**) |
+| GeoScape AU address | `docs/architecture/au-address-lookup-geoscape-handoff.md` |
+| ABR company search | `docs/architecture/abr-company-lookup-builder-handoff.md` |
+| Debugging | `docs/AGENT-LOGGING-GUIDE.md` |
+
 ---
 
 ## 0. Decide scope (Global / Country / Company) and connectivity
@@ -17,7 +26,7 @@ Use this checklist for **every** new or restored component type.
 | Does this component call a **third-party API** at runtime? | Mark `RequiresNetwork` (or equivalent) on catalog/ref metadata. |
 | Can the customer require **offline** form operation? | If yes, resolver must **omit** network-dependent codes for that form; document fallback component (e.g. `address` vs `address-lookup-au`). |
 
-**First instances (Story 6.5d):** `address-lookup-au` (GeoScape), future `company-lookup-abr` (ABR).
+**First instances (Story 6.5d):** `address-lookup-au` (GeoScape), `company-lookup-abr` (ABR) — implement **both** under [decision-external-data-feed-components.md](../architecture/decision-external-data-feed-components.md).
 
 | Scope | When to use | Example |
 |-------|-------------|---------|
@@ -27,10 +36,26 @@ Use this checklist for **every** new or restored component type.
 
 ---
 
+## 0a. External Data Feed (EDF) — if RequiresNetwork
+
+Skip if component is fully offline (e.g. plain `text`, manual `address`).
+
+- [ ] Architect decision approved: `decision-external-data-feed-components.md` (§8 open questions closed).
+- [ ] `ref.ComponentType.RequiresNetwork = 1` (or agreed JSON metadata).
+- [ ] `FallbackComponentCode` set (e.g. `address-lookup-au` → `address`).
+- [ ] Backend **proxy** routes; no browser → third party.
+- [ ] `Form.RequiresOfflineCapable` (or agreed flag) filters EDF in resolver + init + AI + validator.
+- [ ] Init returns `requiresNetwork` / `fallbackComponentCode` for properties + toolbox badge.
+- [ ] `COMPONENT-FRAMEWORK-GUIDE.md` inventory row updated.
+- [ ] UAT: online form shows EDF; offline-capable form hides EDF, shows fallback.
+
+---
+
 ## 1. Reference data (`ref.ComponentType`)
 
 - [ ] Row exists in `ref.ComponentType` with `ComponentTypeCode` = canonical `ComponentCode` (kebab-case, stable).
 - [ ] `IsActive = 1`, correct `Category` for toolbox grouping.
+- [ ] EDF: `RequiresNetwork` + `FallbackComponentCode` per architecture decision.
 
 ---
 
@@ -105,14 +130,15 @@ Story 6.5d delivers `backend/scripts/verify_component_catalog_alignment.py` — 
 
 ---
 
-## AU online address (`address-lookup-au`) — Story 6.5d reference implementation
+## Story 6.5d reference implementations (EDF pair)
 
-This story uses this checklist end-to-end for:
+Apply checklist + EDF section for **both**:
 
-- **Country-scoped** row `address-lookup-au` (AU `CountryID` only).
-- Wired autocomplete behaviour per existing `address` renderer + AU provider config (Dev to confirm provider/env vars).
-- Proves Country ∪ Global catalog pattern from architecture §2.3.
+1. **`address-lookup-au`** — Country-scoped AU; GeoScape handoff; fallback `address`.
+2. **`company-lookup-abr`** — Country-scoped AU; ABR handoff; reuse onboarding client.
+
+Proves shared EDF pattern for future network-dependent components.
 
 ---
 
-*Process version 1.0 — Story 6.5d.*
+*Process version 1.1 — Story 6.5d (EDF + framework cross-links).*

@@ -16,7 +16,7 @@
 
 - `scripts/workflow/preflight-story.ps1` — **PASS** (`docs/stories/STORY-6.5c-PREFLIGHT.md`)
 
-- PR [#106](https://github.com/anthonykeevy/EventLeadPlatform/pull/106) — Draft → `develop`
+- PR [#106](https://github.com/anthonykeevy/EventLeadPlatform/pull/106) — **merged** to `develop` (2026-05-21); closeout [#107](https://github.com/anthonykeevy/EventLeadPlatform/pull/107)
 
 - Worktree: `C:\wt\elp\story-epic6-6.5c-capability-catalog-cutover`
 

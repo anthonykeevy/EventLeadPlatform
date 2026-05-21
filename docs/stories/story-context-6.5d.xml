@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.5d" title="Clarification Data Plane + Component Catalog Completion">
+
+  <overview>
+    Two tracks in one story (Tony-approved): (A) close 6.5c catalog drift by seeding missing
+    FormBuilderComponent rows, adding AU address-lookup-au, publishing ADD-COMPONENT checklist,
+    and verify_component_catalog_alignment.py; (B) implement clarification ref tables, APIs,
+    Block E registry injection, Company/Form/GenerationRun persistence, and API-driven AI panel
+    dropdowns — eliminating AudienceLocale enums from the generation path.
+  </overview>
+
+  <critical-objectives>
+    <item>Seed global backlog: rating, url, file-upload, paragraph, address.</item>
+    <item>Seed Country-scoped address-lookup-au (AU only); negative test for non-AU.</item>
+    <item>verify_component_catalog_alignment.py registered in EPIC-6-SM-TOOLS-REGISTRY.md.</item>
+    <item>ref.AudienceLocale, ref.FormPurpose, ref.RespondentType + §11 seeds.</item>
+    <item>Three ref APIs with resolved default chain (Company → Form → request).</item>
+    <item>Block E (E1/E2/E3) in Prompt Assembly Registry; renderer injects clarification prose.</item>
+    <item>Delete AudienceLocale enum from backend schemas and frontend generation client.</item>
+    <item>STORY-6.5d-IMPLEMENTATION-FRICTION-LOG.md completed at closeout.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.5b">Complete. Registry resolver/renderer.</story>
+    <story id="6.5c">Complete. resolve_allowed_components, Block F, init-only toolbox.</story>
+    <doc path="docs/architecture/decision-6.5a-clarification-options-data-model.md">Rev 9 — §11 seeds, §12 schema.</doc>
+    <doc path="docs/architecture/prompt-assembly-registry-architecture.md">§2.7 Block E.</doc>
+    <doc path="docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md">Mandatory for every new component.</doc>
+    <doc path="docs/stories/STORY-6.5c-CLOSEOUT-REPORT.md">§3 catalog gap list.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic. Migrations start at 087_ (head 086 after 6.5c).</item>
+    <item>Do NOT add Industry dropdown (architecture §16 defer).</item>
+    <item>Do NOT implement Company Settings brand posture UI (g-6441).</item>
+    <item>last-name component out of scope unless Tony expands.</item>
+    <item>PowerShell-safe commands only.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/migrations/versions/039_form_defaults_component_catalog.py" note="Pattern for seeding FormBuilderComponent."/>
+    <path file="backend/modules/form_builder/component_catalog.py" note="resolve_allowed_components — extend, do not fork."/>
+    <path file="backend/modules/form_ai/prompt_assembly/resolver.py" note="Block E variant selection."/>
+    <path file="backend/modules/form_ai/prompt_assembly/renderer.py" note="Clarification prose injection."/>
+    <path file="backend/modules/form_ai/schemas.py" note="Remove AudienceLocale enum from generation path."/>
+    <path file="frontend/src/features/builder/registry/ComponentRegistry.tsx" note="address renderer; wire address-lookup-au."/>
+    <path file="frontend/src/features/form-ai/" note="AI Agent panel dropdowns from ref APIs."/>
+    <path file="backend/scripts/verify_component_catalog_alignment.py" note="New — four-consumer alignment gate."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.5d.md" purpose="Story spec."/>
+    <file path="docs/stories/story-context-6.5d.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.5d-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev contract."/>
+    <file path="docs/stories/STORY-6.5d-UAT-TEST-GUIDE.md" purpose="Tony + SM UAT."/>
+    <file path="docs/stories/STORY-6.5d-IMPLEMENTATION-FRICTION-LOG.md" purpose="Dev friction — mandatory closeout."/>
+    <file path="docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md" purpose="Component registration process."/>
+    <file path="docs/stories/EPIC-6-SM-TOOLS-REGISTRY.md" purpose="SM tool index."/>
+    <file path="docs/stories/STORY-6.5d-GATE-EVIDENCE.md" purpose="Pytest evidence."/>
+    <file path="docs/stories/STORY-6.5d-CLOSEOUT-REPORT.md" purpose="Mandatory closeout."/>
+  </required-artifacts>
+
+</story-context>

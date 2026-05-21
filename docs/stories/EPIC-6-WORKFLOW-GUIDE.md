@@ -4,7 +4,7 @@
 
 **🚀 Environment Promotion (adopted 2026-05-19):** Worktree (Dev) → `develop` (Azure Test slot, auto-deploy) → `master` (Production, future via Story 6.11). See **§ Environment Promotion Workflow** below for the full rules. **Story PRs now target `develop`, not `master`.**
 
-**Current Focus (updated 2026-05-21 — Story 6.5c Complete):** **(1)** **Story 6.5d — Clarification Data Plane** (Next — three `ref.*` tables + Block E + AI panel dropdowns + `AudienceLocale` enum elimination; plugs into registry from 6.5b/6.5c). **(2)** Targeted AU production-context eval verification (pending Tony's eval slice). **(3)** **Story 6.11 — Production Environment + CI/CD** — blueprint approved (see § Production Deployment Blueprint below); scheduled post-6.10 so production opens with billing live. **Tech debt:** seed missing `FormBuilderComponent` catalog rows (`rating`, etc.) — see `STORY-6.5c-CLOSEOUT-REPORT.md` §3.
+**Current Focus (updated 2026-05-21 — Story 6.5c Complete):** **(1)** **Story 6.5d — Clarification + Component Platform** (Next — PR [#109](https://github.com/anthonykeevy/EventLeadPlatform/pull/109): catalog backlog + AU `address-lookup-au` + `ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` + clarification `ref.*` + Block E + API dropdowns). **(2)** Targeted AU production-context eval verification (pending Tony's eval slice). **(3)** **Story 6.11 — Production Environment + CI/CD** — blueprint approved (see § Production Deployment Blueprint below); scheduled post-6.10 so production opens with billing live.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -64,6 +64,8 @@ Use this to avoid stale roadmap/workflow docs and wrong PR numbers (common gap p
 | 6 | `STORY-6.x-CLOSEOUT-REPORT.md` present per the mandatory criteria above (API change / migration / deferred scope); otherwise optional but recommended for audit trail. | Dev |
 | 7 | **Date-stamp parity** — Both **`Completed`** in `story-6.x.md` and the merge date in `EPIC-6-STATUS.md` must equal the GitHub **`mergedAt`** date (UTC) for the story PR. Confirm via `gh pr view <N> --json mergedAt,state` before stamping. If "dev complete" and "merged" dates differ, record both explicitly (e.g. *Dev complete: 2026-04-15 / Merged: 2026-04-23 (PR #64)*) — never quietly use the dev-complete date as the merge date. | Dev |
 | 8 | **Worktree retired** — After PR merge confirmed and any local artefacts harvested, prune the merged worktree: `git worktree remove "<path>"`. Keeps `git worktree list` clean and avoids stale-DB-pointing IDE windows from previous stories. | Dev / Human |
+| 9 | **`STORY-6.x-IMPLEMENTATION-FRICTION-LOG.md`** — Dev fills what took multiple attempts; SM reviews at closeout to amend workflow or register tools in `EPIC-6-SM-TOOLS-REGISTRY.md`. | Dev + SM |
+| 10 | **Component catalog changes** — If story adds/changes `FormBuilderComponent`, confirm `docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` satisfied and alignment script passes. | Dev |
 
 **Merge discipline:** Prefer **merge via GitHub** (or `gh pr merge`) so the PR shows **merged** and history matches `master`. Local fast-forward-only merges without updating the PR confuse “is PR #N closed?” checks.
 
@@ -76,6 +78,17 @@ Before merge sign-off, SM must run an explicit stale-field pass against the stor
 3. Confirm `story-6.x.md`, `STORY-6.x-CLOSEOUT-REPORT.md`, `EPIC-6-STATUS.md`, and this guide agree on: status, PR number, next focus, and carry-forward items.
 4. Confirm mandatory evidence artifacts exist for the story type (baseline, capability audit, rubric ADR, hypothesis evidence, canvas contract, etc.).
 5. Only after the stale-field pass is clean should SM say "merge-ready".
+
+### SM closeout workflow retrospective (mandatory at every story closeout)
+
+After Dev delivers closeout + friction log, SM runs this **before** merge sign-off:
+
+1. Read `STORY-6.x-IMPLEMENTATION-FRICTION-LOG.md` — any item with "multiple goes" → candidate for `EPIC-6-SM-TOOLS-REGISTRY.md` or checklist amendment.
+2. Scan this guide + `AGENTIC-GIT-WORKTREE-WORKFLOW.md` for steps that blocked Dev (Alembic handoff, worktree locks, develop checkout conflicts, stale status docs).
+3. Record 1–3 **barrier reductions** in the SM closeout chat summary (e.g. new script, doc link, story split).
+4. If the same manual step appears in **two** stories, open a tooling task or extend `scripts/workflow/*` — do not rely on memory.
+
+Goal: reduce Epic 6 friction over time; Dev evaluates their own retries via the friction log so SM can prioritize automation.
 
 ### SM post-merge reset (mandatory before next story)
 
@@ -419,6 +432,10 @@ To prevent technical debt accumulation and AI Hallucinations regarding test stat
 ---
 
 ## 🧰 Workflow Automation Toolkit (Mandatory for Epic 6+)
+
+**Tool index:** `docs/stories/EPIC-6-SM-TOOLS-REGISTRY.md` — SM maintains this list; Dev registers new scripts in the same PR as the story that introduces them.
+
+**Component registration:** `docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` — mandatory whenever seeding or changing `FormBuilderComponent` (introduced Story 6.5d).
 
 Use the workflow scripts to reduce repetitive agent overhead and keep evidence consistent:
 

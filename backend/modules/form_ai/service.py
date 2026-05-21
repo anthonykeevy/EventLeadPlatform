@@ -62,6 +62,16 @@ from .prompt_assembly.canonical_seeds import (
     BLOCK_I_DEFAULT,
     render_canonical_brand_posture_block,
 )
+from modules.form_builder.component_catalog import (
+    ResolvedComponentCatalog,
+    resolve_allowed_components,
+)
+from modules.form_builder.service import resolve_country_id
+from .capability_prompt import (
+    build_capability_prompt_block,
+    build_capability_prompt_block_from_catalog,
+    capability_type_summary,
+)
 
 # Fallback used when AppSetting row is absent or DB is unreachable on startup.
 _DEFAULT_RETRIES_FALLBACK = 2
@@ -942,36 +952,8 @@ def _build_runtime_footprint_map(
 def _capability_type_summary(
     capability_snapshot_json: Optional[Dict[str, Any]],
 ) -> List[Tuple[str, List[str]]]:
-    """Return [(componentType, [allowed width classes])] from the active snapshot.
-
-    Empty list when the snapshot is missing or malformed; callers should treat
-    that as "no allow-list known" (e.g. legacy DB-empty governance) and fall
-    back to permissive behaviour.
-    """
-    if not isinstance(capability_snapshot_json, dict):
-        return []
-    components = capability_snapshot_json.get("components")
-    if not isinstance(components, list):
-        return []
-    summary: List[Tuple[str, List[str]]] = []
-    for row in components:
-        if not isinstance(row, dict):
-            continue
-        component_type = str(row.get("type", "")).strip()
-        if not component_type:
-            continue
-        width_classes_raw = row.get("widthClasses")
-        if isinstance(width_classes_raw, list):
-            widths = [
-                str(item).strip()
-                for item in width_classes_raw
-                if isinstance(item, (str, int, float)) and str(item).strip()
-            ]
-        else:
-            widths = []
-        summary.append((component_type, widths))
-    summary.sort(key=lambda pair: pair[0])
-    return summary
+    """Backward-compatible alias for :func:`capability_type_summary`."""
+    return capability_type_summary(capability_snapshot_json)
 
 
 def _filter_runtime_context_to_capability(
@@ -1021,31 +1003,8 @@ def _filter_runtime_context_to_capability(
 def _build_capability_prompt_block(
     capability_snapshot_json: Optional[Dict[str, Any]],
 ) -> str:
-    """Render an "ALLOWED COMPONENT TYPES" block for the system prompt.
-
-    Lists each registered ``componentType`` with its allowed ``widthIntent``
-    values so the LLM can self-constrain on the first attempt — eliminating
-    the most common cause of correction-loop usage observed in UAT. The widths
-    here are the *vocabulary* the compiler will accept as a hint; the final
-    pixel width is decided by the deterministic compiler's tier table.
-    """
-    summary = _capability_type_summary(capability_snapshot_json)
-    if not summary:
-        return ""
-    lines = ["ALLOWED COMPONENT TYPES (snapshot-authoritative; do NOT invent others):"]
-    for component_type, widths in summary:
-        if widths:
-            lines.append(
-                f"  - {component_type} (allowed widthIntent hints: {', '.join(widths)})"
-            )
-        else:
-            lines.append(f"  - {component_type}")
-    lines.append(
-        "If the user asks for a feature that isn't in this list "
-        "(e.g. signature capture, payment collection), use the closest registered type "
-        "and put a brief explanation in helpText."
-    )
-    return "\n".join(lines)
+    """Backward-compatible alias for :func:`build_capability_prompt_block`."""
+    return build_capability_prompt_block(capability_snapshot_json)
 
 
 def _build_runtime_context_block(runtime_context: Optional[Dict[str, Any]]) -> str:
@@ -1918,6 +1877,7 @@ def _resolve_rendered_assembly(
     brand_heritage_origin: Optional[str],
     audience_locale: Optional[str],
     context_pack: Optional[str],
+    component_catalog: Optional[ResolvedComponentCatalog] = None,
 ) -> RenderedAssembly:
     """Resolve the active FORM_AI_V1 assembly from the registry.
 
@@ -1945,6 +1905,7 @@ def _resolve_rendered_assembly(
     return render_prompt_assembly(
         resolved,
         placeholders={"heritageOrigin": origin},
+        component_catalog=component_catalog,
     )
 
 
@@ -1960,6 +1921,7 @@ def _build_initial_messages(
     brand_heritage_origin: Optional[str] = None,
     db_session: Optional[Session] = None,
     rendered_assembly: Optional[RenderedAssembly] = None,
+    component_catalog: Optional[ResolvedComponentCatalog] = None,
 ) -> List[Dict[str, str]]:
     """Build the system + user messages sent to the LLM.
 
@@ -1987,10 +1949,13 @@ def _build_initial_messages(
             brand_heritage_origin=brand_heritage_origin,
             audience_locale=audience_locale,
             context_pack=context_pack,
+            component_catalog=component_catalog,
         )
 
     runtime_context_block = _build_runtime_context_block(runtime_context)
-    capability_block = _build_capability_prompt_block(capability_snapshot_json)
+    capability_block = rendered_assembly.get("F") or _build_capability_prompt_block(
+        capability_snapshot_json
+    )
     locale_block = _assemble_locale_block(audience_locale or "AU", brand_posture, db_session)
 
     # Story 6.3.1 (UAT round 6) - Phase 2 LLM nudge for horizontal-stacked
@@ -2820,6 +2785,90 @@ def _coerce_form_id(runtime_context: Optional[Dict[str, Any]]) -> Optional[int]:
     return None
 
 
+def _resolve_catalog_country_id(
+    db_session: Session,
+    company_id: int,
+    runtime_context: Optional[Dict[str, Any]],
+    audience_locale: Optional[str],
+) -> Optional[int]:
+    """Resolve CountryID the same way as form-builder init where possible."""
+    form_id = _coerce_form_id(runtime_context)
+    if form_id is not None:
+        row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 form_row.[EventID], form_row.[CompanyID]
+                FROM [dbo].[Form] form_row
+                WHERE form_row.[FormID] = :form_id
+                  AND form_row.[IsDeleted] = 0
+                """
+            ),
+            {"form_id": form_id},
+        ).fetchone()
+        if row and row[0] is not None and row[1] == company_id:
+            try:
+                return resolve_country_id(db_session, company_id, int(row[0]))
+            except ValueError:
+                pass
+
+    locale = _normalise_audience_locale(audience_locale)
+    country_code = _LOCALE_TO_COUNTRY_CODE.get(locale or "")
+    if country_code:
+        country_id = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 [CountryID]
+                FROM [ref].[Country]
+                WHERE [CountryCode] = :country_code
+                  AND [IsDeleted] = 0
+                """
+            ),
+            {"country_code": country_code},
+        ).scalar_one_or_none()
+        if country_id is not None:
+            return int(country_id)
+
+    company_country = db_session.execute(
+        text(
+            """
+            SELECT TOP 1 [CountryID]
+            FROM [dbo].[Company]
+            WHERE [CompanyID] = :company_id
+              AND [IsDeleted] = 0
+            """
+        ),
+        {"company_id": company_id},
+    ).scalar_one_or_none()
+    return int(company_country) if company_country is not None else None
+
+
+def _resolve_component_catalog(
+    db_session: Optional[Session],
+    company_id: Optional[int],
+    runtime_context: Optional[Dict[str, Any]],
+    audience_locale: Optional[str],
+) -> Optional[ResolvedComponentCatalog]:
+    if db_session is None or company_id is None:
+        return None
+    country_id = _resolve_catalog_country_id(
+        db_session,
+        company_id,
+        runtime_context,
+        audience_locale,
+    )
+    return resolve_allowed_components(db_session, company_id, country_id)
+
+
+def _capability_json_for_request(
+    component_catalog: Optional[ResolvedComponentCatalog],
+    legacy_snapshot_json: Optional[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """Prefer resolver output; legacy snapshot is fallback when catalog unavailable."""
+    if component_catalog is not None and component_catalog.components:
+        return component_catalog.to_capability_json()
+    return legacy_snapshot_json
+
+
 def _summarise_provider_usage(attempts: List[Dict[str, Any]]) -> Dict[str, Any]:
     def sum_field(field: str) -> Optional[int]:
         values = [item.get(field) for item in attempts if item.get(field) is not None]
@@ -3157,22 +3206,34 @@ def _resolve_brand_posture(
             row = db_session.execute(
                 text(
                     """
-                    SELECT TOP 1 [BrandPosture], [BrandHeritageOrigin]
-                    FROM [dbo].[Company]
-                    WHERE [CompanyID] = :company_id
-                      AND [IsDeleted] = 0
+                    SELECT TOP 1
+                        bp.[Code],
+                        c.[BrandPosture],
+                        c.[BrandHeritageOrigin]
+                    FROM [dbo].[Company] c
+                    LEFT JOIN [ref].[BrandPosture] bp
+                        ON bp.[BrandPostureID] = c.[BrandPostureID]
+                       AND bp.[IsActive] = 1
+                    WHERE c.[CompanyID] = :company_id
+                      AND c.[IsDeleted] = 0
                     """
                 ),
                 {"company_id": actor_company_id},
             ).fetchone()
             if row:
-                company_posture = _normalise_brand_posture(row[0])
-                company_origin = _normalise_heritage_origin(row[1])
+                ref_code = row[0]
+                legacy_code = row[1]
+                company_posture = _normalise_brand_posture(ref_code or legacy_code)
+                company_origin = _normalise_heritage_origin(row[2])
                 if company_posture:
                     return {
                         "resolved": company_posture,
                         "heritageOrigin": explicit_origin or company_origin,
-                        "source": "Company.BrandPosture",
+                        "source": (
+                            "ref.BrandPosture"
+                            if ref_code
+                            else "Company.BrandPosture"
+                        ),
                     }
         setting_posture = _normalise_brand_posture(
             _get_app_setting_value(db_session, "form_ai.default_brand_posture")
@@ -3820,6 +3881,27 @@ def generate_form_definition(
     )
     correction_cap = max(0, min(correction_cap, 10))
 
+    component_catalog = _resolve_component_catalog(
+        db_session,
+        actor_company_id,
+        runtime_context,
+        locale_resolution.get("resolved"),
+    )
+    resolved_capability_json = _capability_json_for_request(
+        component_catalog,
+        governance_versions.get("componentCapabilitySnapshotJson"),
+    )
+    if resolved_capability_json is not None:
+        governance_versions = {
+            **governance_versions,
+            "componentCapabilitySnapshotJson": resolved_capability_json,
+        }
+    if component_catalog is not None:
+        governance_versions = {
+            **governance_versions,
+            "resolvedComponentCatalogHash": component_catalog.catalog_hash(),
+        }
+
     # Story 6.5b - declared early so ``_finalize`` (closure below) can
     # forward it to the GenerationRun persistence helper. Stays ``None``
     # until ``_resolve_rendered_assembly`` succeeds; if resolution
@@ -3873,6 +3955,7 @@ def generate_form_definition(
             brand_heritage_origin=brand_resolution.get("heritageOrigin"),
             audience_locale=locale_resolution.get("resolved") or "AU",
             context_pack=None,
+            component_catalog=component_catalog,
         )
     except (LookupError, RuntimeError) as exc:
         LOGGER.exception(
@@ -3900,29 +3983,21 @@ def generate_form_definition(
             draftHasValidationIssues=False,
         ))
 
-    # Filter the runtime palette to types the active capability snapshot
-    # actually registers. The frontend builds ``componentFootprints`` from the
-    # toolbox DOM, which can advertise types the snapshot doesn't accept; that
-    # was the dominant cause of UAT failures (the LLM used ``rating`` /
-    # ``file-upload`` / ``first-name``, the semantic gate rejected them, and
-    # the only correction round-trip was wasted relabelling them).
-    capability_snapshot_for_prompt = governance_versions.get(
-        "componentCapabilitySnapshotJson"
-    )
     runtime_context_for_prompt = _filter_runtime_context_to_capability(
-        runtime_context, capability_snapshot_for_prompt
+        runtime_context, resolved_capability_json
     )
 
     messages = _build_initial_messages(
         prompt=prompt,
         runtime_context=runtime_context_for_prompt,
         system_prompt_addendum=system_prompt_addendum,
-        capability_snapshot_json=capability_snapshot_for_prompt,
+        capability_snapshot_json=resolved_capability_json,
         audience_locale=locale_resolution.get("resolved") or "AU",
         brand_posture=brand_resolution.get("resolved"),
         brand_heritage_origin=brand_resolution.get("heritageOrigin"),
         db_session=db_session,
         rendered_assembly=rendered_assembly,
+        component_catalog=component_catalog,
     )
     last_validation: AttemptValidationSummary | None = None
     last_valid_definition: Dict[str, Any] | None = None
@@ -4220,9 +4295,7 @@ def generate_form_definition(
         # ============================================================
         gate_result: SemanticPlanValidationResult = validate_semantic_plan(
             semantic_plan,
-            capability_snapshot_json=governance_versions.get(
-                "componentCapabilitySnapshotJson"
-            ),
+            capability_snapshot_json=resolved_capability_json,
             validation_contracts=governance_versions.get("validationContracts"),
         )
         if not gate_result.valid:

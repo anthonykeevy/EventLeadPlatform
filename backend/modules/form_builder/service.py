@@ -8,10 +8,11 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
-from sqlalchemy import text, select
+from sqlalchemy import select
 
 from models.event import Event
 from models.company import Company
+from modules.form_builder.component_catalog import resolve_allowed_components
 from modules.form_defaults.service import resolve_merged_defaults
 
 
@@ -43,50 +44,9 @@ def get_allowed_components(
     company_id: int,
     country_id: Optional[int],
 ) -> List[Dict[str, Any]]:
-    """
-    Load components: Global ∪ Country(country_id) ∪ Company(company_id).
-    Returns list of component dicts with componentCode, displayName, etc.
-    """
-    q = text("""
-        SELECT
-            fbc.ComponentCode,
-            fbc.DisplayName,
-            ct.Category,
-            fbc.SortOrder,
-            fbc.PropertiesSchemaJSON,
-            fbc.StructureJSON,
-            fbc.DefaultGridLayoutVerticalJSON,
-            fbc.DefaultGridLayoutHorizontalJSON,
-            fbc.ValidationConfigJSON
-        FROM [dbo].[FormBuilderComponent] fbc
-        JOIN [ref].[ComponentType] ct ON fbc.ComponentTypeID = ct.ComponentTypeID
-        JOIN [ref].[ComponentScope] cs ON fbc.ComponentScopeID = cs.ComponentScopeID
-        WHERE fbc.IsActive = 1 AND fbc.IsDeleted = 0
-        AND (
-            (cs.ScopeCode = 'Global' AND fbc.CountryID IS NULL AND fbc.CompanyID IS NULL)
-            OR (cs.ScopeCode = 'Country' AND fbc.CountryID = :country_id AND :country_id IS NOT NULL)
-            OR (cs.ScopeCode = 'Company' AND fbc.CompanyID = :company_id)
-        )
-        ORDER BY fbc.SortOrder, fbc.DisplayName
-    """)
-    result = db.execute(
-        q,
-        {"company_id": company_id, "country_id": country_id}
-    ).fetchall()
-    components = []
-    for row in result:
-        components.append({
-            "componentCode": row.ComponentCode,
-            "displayName": row.DisplayName,
-            "category": row.Category,
-            "sortOrder": row.SortOrder or 0,
-            "propertiesSchema": json.loads(row.PropertiesSchemaJSON) if row.PropertiesSchemaJSON else None,
-            "structure": json.loads(row.StructureJSON) if row.StructureJSON else None,
-            "defaultGridLayoutVertical": json.loads(row.DefaultGridLayoutVerticalJSON) if row.DefaultGridLayoutVerticalJSON else None,
-            "defaultGridLayoutHorizontal": json.loads(row.DefaultGridLayoutHorizontalJSON) if row.DefaultGridLayoutHorizontalJSON else None,
-            "validationConfig": json.loads(row.ValidationConfigJSON) if row.ValidationConfigJSON else None,
-        })
-    return components
+    """Thin wrapper over :func:`resolve_allowed_components` for init API shape."""
+    catalog = resolve_allowed_components(db, company_id, country_id)
+    return [component.to_init_dict() for component in catalog.components]
 
 
 def filter_default_grid_layouts_by_components(

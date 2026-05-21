@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.5c" title="Capability Catalog Cutover">
+
+  <overview>
+    Single authoritative component catalog via resolve_allowed_components(company_id,
+    country_id), consumed by form-builder init (toolbox), Form AI Blocks A/F/I, and
+    the semantic validator. Migrate Block F into the Prompt Assembly Registry as a
+    GENERATED section. Replace brandPosture enum path with ref.BrandPosture for Block C
+    variant selection. Highest-risk story in the 6.5 decomposition — alignment bugs
+    surface as "AI invented a type not in the toolbox."
+  </overview>
+
+  <critical-objectives>
+    <item>One resolver implementation; get_allowed_components delegates to it.</item>
+    <item>Form AI stops using ComponentCapabilitySnapshot for allowed-type lists.</item>
+    <item>Block F in registry with DynamicComponentCatalog hydration at render time.</item>
+    <item>Blocks A/I contract fragments list same componentType codes as Block F.</item>
+    <item>Frontend toolbox palette built only from POST /api/form-builder/init components[].</item>
+    <item>ref.BrandPosture seeded; Block C variant selection uses ref codes.</item>
+    <item>AC-15 catalog alignment proof: toolbox = prompt = validator for AU fixture.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.5b">Complete (PR #104/#105). Registry resolver/renderer in backend/modules/form_ai/prompt_assembly/.</story>
+    <doc path="docs/architecture/prompt-assembly-registry-architecture.md">§2.5, §2.6, §2.7, §8.3.</doc>
+    <doc path="docs/stories/story-6.5c.md">Spec and ACs.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic. Migrations start at 084_.</item>
+    <item>Do NOT implement Block E / clarification dropdowns (6.5d).</item>
+    <item>Do NOT break 6.5b registry paths for Blocks A/B/C/G/I prose.</item>
+    <item>PowerShell-safe commands only.</item>
+    <item>Green CI/CD before UAT request.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/modules/form_builder/service.py" note="get_allowed_components, build_init_payload — refactor to catalog resolver."/>
+    <path file="backend/modules/form_builder/router.py" note="POST /api/form-builder/init."/>
+    <path file="backend/modules/form_ai/service.py" note="_build_capability_prompt_block, snapshot load, _build_initial_messages / _resolve_rendered_assembly."/>
+    <path file="backend/modules/form_ai/prompt_assembly/renderer.py" note="Extend for DynamicComponentCatalog / Block F."/>
+    <path file="backend/modules/form_ai/prompt_assembly/resolver.py" note="Block C + ref.BrandPosture variant selection."/>
+    <path file="backend/tests/test_form_ai_prompt_capabilities.py" note="Extend for resolver-backed blocks."/>
+    <path file="frontend/src/features/form-builder/" note="Toolbox must consume init components only (discover exact files during implementation)."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.5c.md" purpose="Story spec."/>
+    <file path="docs/stories/story-context-6.5c.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.5c-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev contract."/>
+    <file path="docs/stories/STORY-6.5c-UAT-TEST-GUIDE.md" purpose="Tony + SM UAT."/>
+    <file path="docs/stories/STORY-6.5c-GATE-EVIDENCE.md" purpose="Pytest evidence."/>
+    <file path="docs/stories/STORY-6.5c-CLOSEOUT-REPORT.md" purpose="Mandatory closeout."/>
+  </required-artifacts>
+
+</story-context>

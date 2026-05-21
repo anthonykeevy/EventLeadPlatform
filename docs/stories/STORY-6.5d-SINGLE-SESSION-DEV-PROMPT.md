@@ -14,10 +14,12 @@ You are implementing **Story 6.5d — Clarification Data Plane + Component Catal
 ### Track A — Component platform
 
 1. Seed **missing** `FormBuilderComponent` rows: `rating`, `url`, `file-upload`, `paragraph`, `address` (global).
-2. Add **AU** Country-scoped online address component (`address-lookup-au` — confirm canonical code in closeout).
-3. Implement `backend/scripts/verify_component_catalog_alignment.py` + tests; register in `EPIC-6-SM-TOOLS-REGISTRY.md`.
-4. Follow **`docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md`** for every new type.
-5. Trim Block G / prompt prose so LLM is not told to emit ghost types.
+2. Add **AU** Country-scoped online address component (`address-lookup-au` — **GeoScape/PSMA**; read `docs/architecture/au-address-lookup-geoscape-handoff.md`).
+3. **Offline-capable forms:** exclude network-dependent components from resolver/init/AI/validator; fallback = manual `address`.
+4. *(Stretch)* ABR company lookup component — `docs/architecture/abr-company-lookup-builder-handoff.md` / `g-65d-abr-builder-component`.
+5. Implement `backend/scripts/verify_component_catalog_alignment.py` + tests; register in `EPIC-6-SM-TOOLS-REGISTRY.md`.
+6. Follow **`docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md`** for every new type (incl. §0 connectivity).
+7. Trim Block G / prompt prose so LLM is not told to emit ghost types.
 
 ### Track B — Clarification data plane
 
@@ -37,7 +39,10 @@ You are implementing **Story 6.5d — Clarification Data Plane + Component Catal
 4. `docs/architecture/decision-6.5a-clarification-options-data-model.md`
 5. `docs/architecture/prompt-assembly-registry-architecture.md` — §2.7
 6. `docs/stories/STORY-6.5c-CLOSEOUT-REPORT.md` — §3
-7. `backend/modules/form_builder/component_catalog.py`
+7. `docs/architecture/au-address-lookup-geoscape-handoff.md`
+8. `docs/architecture/abr-company-lookup-builder-handoff.md` *(if stretch)*
+9. `docs/AGENT-LOGGING-GUIDE.md` + `docs/stories/EPIC-6-SM-TOOLS-REGISTRY.md`
+10. `backend/modules/form_builder/component_catalog.py`
 8. `backend/migrations/versions/039_form_defaults_component_catalog.py`
 
 ---

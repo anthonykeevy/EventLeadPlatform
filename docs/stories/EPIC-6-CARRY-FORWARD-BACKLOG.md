@@ -20,6 +20,7 @@
 | `g-6441-native-speaker-review` | Locale block seeds for DE/JP/FR cultural dimensions are present as native-review stubs; production prompt wording for these markets needs native-speaker review before exposure. | **P2 content** | 6.4.4.1 | Locale expansion story | MVP runtime exposes AU/NZ/UK/US/CA/IE/INTL/EU; DE cultural dimensions are seeded for future extension. |
 | `g-6441-per-form-locale-dropdown` | Builder currently passes nullable locale/posture fields and relies on backend resolution. Add per-form locale and brand posture override UX later. | **P3 UX** | 6.4.4.1 | Builder settings story | No UI redesign in 6.4.4.1 by constraint. |
 | `g-65-catalog-drift` | Seed missing `FormBuilderComponent` rows (`rating`, `url`, `file-upload`, `paragraph`, `address`) + AU `address-lookup-au`; formal add-component checklist; alignment automation. | **P1 catalog** | 6.5c closeout §3 | **Story 6.5d** (Track A) | Absorbed into 6.5d scope 2026-05-21; remove row when 6.5d merges. |
+| `g-65d-abr-builder-component` | **ABR company lookup** form builder component (AU); reuse `abr_client` + onboarding search UX; same offline-exclusion rule as address lookup. Handoff: `docs/architecture/abr-company-lookup-builder-handoff.md`. | **P2 product** | Tony 2026-05-21 | **Story 6.5d stretch** or **6.5d.1** | Onboarding already has full ABR stack; builder component is wiring + catalog only. |
 
 ---
 

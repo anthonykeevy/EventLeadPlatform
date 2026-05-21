@@ -10,7 +10,14 @@ Use this checklist for **every** new or restored component type.
 
 ---
 
-## 0. Decide scope (Global / Country / Company)
+## 0. Decide scope (Global / Country / Company) and connectivity
+
+| Question | Action |
+|----------|--------|
+| Does this component call a **third-party API** at runtime? | Mark `RequiresNetwork` (or equivalent) on catalog/ref metadata. |
+| Can the customer require **offline** form operation? | If yes, resolver must **omit** network-dependent codes for that form; document fallback component (e.g. `address` vs `address-lookup-au`). |
+
+**First instances (Story 6.5d):** `address-lookup-au` (GeoScape), future `company-lookup-abr` (ABR).
 
 | Scope | When to use | Example |
 |-------|-------------|---------|

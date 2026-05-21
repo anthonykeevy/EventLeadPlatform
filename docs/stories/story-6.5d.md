@@ -62,8 +62,21 @@ Restore types that exist in **renderer** and/or historical `ComponentCapabilityS
 |----------|--------|
 | `ComponentCode` | `address-lookup-au` (or `address-lookup` + country scope — Dev picks one canonical code; document in closeout) |
 | Scope | **Country** — AU `CountryID` only |
-| Behaviour | Online autocomplete (extend existing `address` runtime; wire AU provider/config env vars) |
+| Behaviour | Online autocomplete via **GeoScape/PSMA** (see `docs/architecture/au-address-lookup-geoscape-handoff.md`; working reference in JobTrackerDB) |
 | Proof | Appears in init for AU event; **absent** for non-AU country fixture |
+| **Offline forms** | **First network-dependent component.** When customer requires form to run **offline**, exclude from catalog/resolver/AI/validator; keep manual `address` as fallback. |
+
+**Dev handoff:** `docs/architecture/au-address-lookup-geoscape-handoff.md` (API base `https://api.psma.com.au`, env `GEOSCAPE_API_KEY`).
+
+### 2.2b ABR company lookup (stretch / carry-forward)
+
+| Property | Value |
+|----------|--------|
+| `ComponentCode` | `company-lookup-abr` (suggested) |
+| Scope | **Country** — AU |
+| Behaviour | Reuse onboarding ABR search (`abr_client.py`, `companies/router.py`) — see `docs/architecture/abr-company-lookup-builder-handoff.md` |
+| Priority | Implement **after** Track A.1 + B if gate green; else `g-65d-abr-builder-component` |
+| **Offline forms** | Same exclusion rule as `address-lookup-au` |
 
 ### 2.3 Formal process + automation
 
@@ -126,6 +139,8 @@ Each API returns: `{ items: [...], defaultCode, resolvedDefault }` using Company
 | **Catalog** |
 | AC-1 | Migration seeds global components: `rating`, `url`, `file-upload`, `paragraph`, `address` (minimum set above). |
 | AC-2 | Migration seeds **Country-scoped** `address-lookup-au` (AU only); verified absent for non-AU fixture. |
+| AC-2b | Offline-capable form context **excludes** `address-lookup-au` (and any `RequiresNetwork` types); manual `address` remains available. |
+| AC-2c | *(Stretch)* `company-lookup-abr` seeded + wired OR documented deferral to `g-65d-abr-builder-component`. |
 | AC-3 | `verify_component_catalog_alignment.py` passes for AU + global fixtures; registered in `EPIC-6-SM-TOOLS-REGISTRY.md`. |
 | AC-4 | `ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` reviewed; closeout confirms each new component satisfied checklist §1–7. |
 | AC-5 | Block G / context prose does not instruct disallowed ghost types for seeded markets. |

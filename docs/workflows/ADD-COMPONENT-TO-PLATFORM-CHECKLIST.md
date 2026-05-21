@@ -40,12 +40,13 @@ Use this checklist for **every** new or restored component type.
 
 Skip if component is fully offline (e.g. plain `text`, manual `address`).
 
-- [ ] Architect decision approved: `decision-external-data-feed-components.md` (§8 open questions closed).
-- [ ] `ref.ComponentType.RequiresNetwork = 1` (or agreed JSON metadata).
+- [ ] Architect decision approved: `decision-external-data-feed-components.md` (Status: Approved).
+- [ ] `ref.ComponentType.RequiresNetwork = 1` + `FallbackComponentCode` set on type row.
 - [ ] `FallbackComponentCode` set (e.g. `address-lookup-au` → `address`).
 - [ ] Backend **proxy** routes; no browser → third party.
 - [ ] **Cache** via same pattern as `cache.ABRSearch` (`ExternalFeedCacheService` / `cache.AddressSearch` per decision §3).
 - [ ] **`deliveryMode`** + field map (`decomposed` / `concatenated` / `both`) per decision §5.
+- [ ] **Edge-case toggles** per decision **§11** wired in Properties Panel + runtime validation (`allowManualFallback`, delivery instructions, trading-as, etc.).
 - [ ] `Form.RequiresOfflineCapable` (or agreed flag) filters EDF in resolver + init + AI + validator.
 - [ ] Init returns `requiresNetwork` / `fallbackComponentCode` for properties + toolbox badge.
 - [ ] `COMPONENT-FRAMEWORK-GUIDE.md` inventory row updated.

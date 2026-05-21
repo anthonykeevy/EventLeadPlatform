@@ -1,7 +1,7 @@
 # ABR Company Lookup — Form Builder Handoff
 
 **Requested by:** Tony (2026-05-21)  
-**Status:** **Mandatory in Story 6.5d Track A** — implement with `address-lookup-au` under `decision-external-data-feed-components.md`  
+**Status:** **Mandatory in Story 6.5d Track A** — implement with `address-lookup-au` under [decision-external-data-feed-components.md](./decision-external-data-feed-components.md) (Approved)  
 **Provider:** Already live for **onboarding** (`ref.Country.CompanyValidationProvider = 'ABR'`)
 
 ---
@@ -38,6 +38,9 @@
 3. `ComponentRegistry` runtime + preview
 4. Four-consumer alignment + `verify_component_catalog_alignment.py`
 5. Block G prose — only mention if catalog includes the code for AU non-offline forms
+6. **Properties Panel toggles** — implement all `company-lookup-abr` switches in decision doc **§11.3** (manual fallback, trading-as, ABN rules, inactive-ABN handling).
+
+**Reference UX:** `frontend/src/features/companies/components/SmartCompanySearch.tsx` (no-results / error → manual).
 
 ---
 

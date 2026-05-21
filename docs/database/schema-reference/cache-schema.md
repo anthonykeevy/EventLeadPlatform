@@ -1,7 +1,7 @@
 # `cache` Schema - External API Cache
 
 **Schema Purpose:** Cache for external API results (safe to delete/rebuild)  
-**Table Count:** 1  
+**Table Count:** 2 (Story 6.5d adds `AddressSearch`)  
 **Retention:** 30-90 days, then delete  
 **Backup Priority:** LOW (can be rebuilt from source APIs)  
 **Write Volume:** Medium
@@ -25,9 +25,10 @@ The `cache` schema stores results from external API calls to improve performance
 
 | # | Table | Purpose | Cache Duration | API Cost Savings |
 |---|-------|---------|----------------|------------------|
-| 1 | `ABRSearch` | ABR (Australian Business Register) API results | 90 days | ~$0.10 per search avoided |
+| 1 | `ABRSearch` | ABR (Australian Business Register) API results | 30 days (env `ABR_CACHE_TTL_DAYS`) | Reduces ABR API calls |
+| 2 | `AddressSearch` | GeoScape/PSMA predictive search + resolve (Story 6.5d) | Search: 1 day; Resolve: 30 days (env) | Reduces PSMA credit usage |
 
-**Future Cache Tables (Not in Epic 1):**
+**Future Cache Tables:**
 - `Geocoding` - Address geocoding results (Google Maps API)
 - `EmailValidation` - Email validation API results (ZeroBounce, Hunter.io)
 - `CreditCardValidation` - Card BIN lookup results (Stripe)
@@ -128,6 +129,31 @@ GROUP BY SearchType;
 ```
 
 **Full SQL Definition:** See `docs/DATABASE-REBUILD-PLAN-EPIC-1-2025-10-16.md` (Section: cache.ABRSearch)
+
+---
+
+## 2. `cache.AddressSearch` - GeoScape/PSMA API Results Cache (Story 6.5d)
+
+**Purpose:** Cache AU address predictive search and resolve responses for `address-lookup-au` EDF component.
+
+**Primary Key:** Composite `(OperationType, CacheKey, ResultIndex)`
+
+| Column | Purpose |
+|--------|---------|
+| `OperationType` | `Search` (predictive query) or `Resolve` (`psmaAddressId`) |
+| `CacheKey` | Normalized search query or PSMA address id |
+| `ResultIndex` | 0-based index for multi-match search results |
+| `Line1`, `Line2`, `Suburb`, `State`, `Postcode` | Extracted structured lines (resolve) |
+| `FormattedAddress` | Single-line display value |
+| `PsmaAddressId` | Provider reference |
+| `FullResponse` | Complete API JSON |
+| `SearchDate`, `ExpiresAt` | UTC timestamps; TTL from env (Search: 1d, Resolve: 30d default) |
+| `HitCount`, `LastHitAt` | Cost analytics (same pattern as `ABRSearch`) |
+| `IsDeleted` | Soft delete for cleanup jobs |
+
+**Compliance note:** Browser/client must not cache GeoScape responses. Server cache is internal cost-control only; confirm TTL against PSMA subscription terms before production scale.
+
+**Authoritative design:** `docs/architecture/decision-external-data-feed-components.md` §9.3–9.4
 
 ---
 

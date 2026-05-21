@@ -1,7 +1,7 @@
 # AU Address Lookup (GeoScape / PSMA) — Dev Handoff
 
 **Story:** 6.5d Track A (`address-lookup-au`)  
-**Status:** Reference — implementation lives in EventLeadPlatform; working prototype in **JobTrackerDB**  
+**Status:** Reference — routes and flags per [decision-external-data-feed-components.md](./decision-external-data-feed-components.md) (Approved)  
 **Provider:** GeoScape / PSMA (`ref.Country.AddressValidationProvider = 'Geoscape'` in seed data)
 
 ---
@@ -39,12 +39,15 @@
 
 ## EventLeadPlatform wiring (6.5d scope)
 
-1. **Backend module** — e.g. `backend/modules/address_lookup/` or extend `form_builder` with thin routes:
-   - `GET /api/address-au/search?q=&limit=`
-   - `POST /api/address-au/validate` (optional if search+select is enough)
-2. **Reuse patterns** from `backend/modules/companies/abr_client.py` (httpx, timeout, structured errors, cache table optional).
+1. **Backend module** — `backend/modules/external_feed/` (or sibling) with thin routes per [decision-external-data-feed-components.md](./decision-external-data-feed-components.md) §3.2:
+   - `GET /api/external-feed/address-au/search?q=&limit=`
+   - `POST /api/external-feed/address-au/resolve` `{ "psmaAddressId": "..." }`
+2. **Reuse patterns** from `backend/modules/companies/abr_client.py` (httpx, timeout, structured errors) + **`cache.AddressSearch`** via `AddressCacheService` (mandatory — not optional).
 3. **Frontend** — extend `ComponentRegistry` for `address-lookup-au`: debounced search, pick suggestion, map PSMA id → structured lines.
 4. **Catalog** — Country-scoped `FormBuilderComponent` row (AU only); see `ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md`.
+5. **Properties Panel toggles** — implement all `address-lookup-au` switches in decision doc **§11.2** (manual fallback, delivery instructions, unit line, strict validation).
+
+**Reference UX:** Mirror `SmartCompanySearch` no-results / error panels; reuse onboarding manual-entry copy where possible.
 
 ---
 
@@ -59,10 +62,11 @@
 
 | Task | Notes |
 |------|--------|
-| Model flag | e.g. `Form.RequiresOfflineCapable` or existing publish/offline setting — confirm with schema; do not invent without checking `Form` / publish settings. |
-| Resolver filter | When offline flag true, omit codes with `RequiresNetwork = true` (new column on `ref.ComponentType` or `FormBuilderComponent.PropertiesSchemaJSON`). |
+| Model flag | **`Form.RequiresOfflineCapable`** (BIT, default 0) — approved in EDF decision §9.2. |
+| Resolver filter | When `RequiresOfflineCapable = 1`, omit codes where `ref.ComponentType.RequiresNetwork = 1`. |
 | AI / validator | Same filter as init toolbox (four-consumer alignment). |
 | UAT | Form marked offline-capable → AU lookup absent; manual `address` present. |
+| Edge-case UAT | §11.2 toggles: manual fallback, delivery instructions, strict validation |
 
 Document chosen flag name in `STORY-6.5d-CLOSEOUT-REPORT.md`.
 

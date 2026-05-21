@@ -33,25 +33,28 @@ You are implementing **Story 6.5d — Clarification Data Plane + Component Catal
 
 ## Read First
 
-1. `docs/stories/story-6.5d.md`
-2. `docs/stories/story-context-6.5d.xml`
-3. `docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md`
-4. `docs/architecture/decision-6.5a-clarification-options-data-model.md`
-5. `docs/architecture/prompt-assembly-registry-architecture.md` — §2.7
-6. `docs/stories/STORY-6.5c-CLOSEOUT-REPORT.md` — §3
-7. `docs/architecture/au-address-lookup-geoscape-handoff.md`
-8. `docs/architecture/abr-company-lookup-builder-handoff.md` *(if stretch)*
-9. `docs/AGENT-LOGGING-GUIDE.md` + `docs/stories/EPIC-6-SM-TOOLS-REGISTRY.md`
+1. `docs/architecture/decision-external-data-feed-components.md` — **Approved**; §9 resolved; **§11 Properties Panel toggles (mandatory for EDF)**
+2. `docs/stories/story-6.5d.md`
+3. `docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` — incl. §0a EDF + §11 edge cases
+4. `docs/architecture/au-address-lookup-geoscape-handoff.md`
+5. `docs/architecture/abr-company-lookup-builder-handoff.md` — **mandatory** (same story as address)
+6. `docs/architecture/decision-6.5a-clarification-options-data-model.md`
+7. `docs/architecture/prompt-assembly-registry-architecture.md` — §2.7 Block E
+8. `docs/stories/STORY-6.5c-CLOSEOUT-REPORT.md` — §3
+9. `docs/stories/story-context-6.5d.xml`
 10. `backend/modules/form_builder/component_catalog.py`
-8. `backend/migrations/versions/039_form_defaults_component_catalog.py`
+11. `docs/AGENT-LOGGING-GUIDE.md` + `docs/stories/EPIC-6-SM-TOOLS-REGISTRY.md`
 
 ---
 
-## Step 0 — Architecture gate (Track A — do not skip)
+## Step 0 — Architecture gate (Track A — **cleared 2026-05-21**)
 
-1. Read `docs/architecture/decision-external-data-feed-components.md`.
-2. Confirm Tony/architect closed §8 open questions (or document agreed defaults in closeout).
-3. Do **not** start EDF migrations until approved.
+Architecture sign-off complete. Proceed with EDF implementation per:
+
+- `decision-external-data-feed-components.md` (Approved, §9 + **§11**)
+- Handoffs + checklist updated
+
+Implement all §11.2 / §11.3 Properties Panel toggles; runtime validation reads instance props.
 
 ---
 
@@ -88,7 +91,7 @@ Cover: migration list (`087+`), component seeds vs AU address scope, alignment s
 
 ## Step 3 — Track B (clarification)
 
-- Ref tables + seeds per architecture §11.
+- Ref tables + seeds per `decision-6.5a-clarification-options-data-model.md` §11 (not EDF §11).
 - Read APIs + resolution helper (Company → Form → request).
 - Registry Block E migrations + resolver/renderer.
 - Schema migrations for Company/Form/GenerationRun.

@@ -122,3 +122,6 @@ node_modules/
 
 # TypeScript output
 frontend/tsc-out.txt
+
+# Understand-Anything (local analysis artifacts — do not commit)
+.understand-anything/

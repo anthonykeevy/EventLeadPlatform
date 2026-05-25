@@ -33,6 +33,9 @@ from .form_defaults_schema_version import FormDefaultsSchemaVersion
 from .user_preference_category import UserPreferenceCategory
 from .user_preference_key import UserPreferenceKey
 from .brand_posture import BrandPosture
+from .audience_locale import AudienceLocale
+from .form_purpose import FormPurpose
+from .respondent_type import RespondentType
 
 __all__ = [
     "Country",
@@ -66,5 +69,8 @@ __all__ = [
     "UserPreferenceCategory",
     "UserPreferenceKey",
     "BrandPosture",
+    "AudienceLocale",
+    "FormPurpose",
+    "RespondentType",
 ]
 

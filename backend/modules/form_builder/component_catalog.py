@@ -141,6 +141,10 @@ _CATALOG_QUERY = text(
         OR (cs.ScopeCode = 'Country' AND fbc.CountryID = :country_id AND :country_id IS NOT NULL)
         OR (cs.ScopeCode = 'Company' AND fbc.CompanyID = :company_id)
     )
+    AND (
+        :requires_offline_capable = 0
+        OR ISNULL(ct.RequiresNetwork, 0) = 0
+    )
     ORDER BY fbc.SortOrder, fbc.DisplayName
     """
 )
@@ -150,11 +154,21 @@ def resolve_allowed_components(
     db: Session,
     company_id: int,
     country_id: Optional[int],
+    *,
+    requires_offline_capable: bool = False,
 ) -> ResolvedComponentCatalog:
-    """Load components: Global ∪ Country(country_id) ∪ Company(company_id)."""
+    """Load components: Global ∪ Country(country_id) ∪ Company(company_id).
+
+    When ``requires_offline_capable`` is true, exclude rows whose
+    ``ref.ComponentType.RequiresNetwork`` is set (Story 6.5d EDF offline rule).
+    """
     rows = db.execute(
         _CATALOG_QUERY,
-        {"company_id": company_id, "country_id": country_id},
+        {
+            "company_id": company_id,
+            "country_id": country_id,
+            "requires_offline_capable": 1 if requires_offline_capable else 0,
+        },
     ).fetchall()
 
     components: List[ResolvedComponent] = []

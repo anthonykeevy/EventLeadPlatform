@@ -15,6 +15,7 @@ from typing import Dict, Mapping, Optional
 
 from modules.form_builder.component_catalog import ResolvedComponentCatalog
 from modules.form_ai.capability_prompt import build_capability_prompt_block_from_catalog
+from modules.reference.clarification import ResolvedClarificationContext
 
 from .resolver import ResolvedAssembly, ResolvedSection
 
@@ -63,12 +64,41 @@ def _hydrate_dynamic_component_catalog(
     return f"{dynamic_list}\n\n{shell}"
 
 
+def _hydrate_refs_section(
+    section: ResolvedSection,
+    clarification: ResolvedClarificationContext,
+) -> str:
+    heading = (section.heading or "").strip()
+    if section.section_code == "E1":
+        body = clarification.e1_summary
+    elif section.section_code == "E2":
+        body = clarification.e2_hint
+    elif section.section_code == "E3":
+        body = clarification.e3_hint
+    else:
+        body = section.snippet.strip()
+    if heading and body:
+        return f"## {heading}\n{body}"
+    if body:
+        return body
+    return heading
+
+
 def _hydrate_section(
     section: ResolvedSection,
     placeholders: Mapping[str, str],
     *,
     component_catalog: Optional[ResolvedComponentCatalog] = None,
+    clarification: Optional[ResolvedClarificationContext] = None,
 ) -> str:
+    if section.data_structure_type == "Refs":
+        if clarification is None:
+            raise RuntimeError(
+                f"PromptSection {section.section_code!r} requires Refs hydration "
+                "but no clarification context was supplied."
+            )
+        return _hydrate_refs_section(section, clarification)
+
     if section.data_structure_type == "DynamicComponentCatalog":
         if component_catalog is None:
             raise RuntimeError(
@@ -109,6 +139,7 @@ def render_prompt_assembly(
     *,
     placeholders: Optional[Mapping[str, str]] = None,
     component_catalog: Optional[ResolvedComponentCatalog] = None,
+    clarification: Optional[ResolvedClarificationContext] = None,
 ) -> RenderedAssembly:
     """Hydrate a resolved assembly into a per-block dict of strings."""
     effective_placeholders: Mapping[str, str] = placeholders or {}
@@ -121,6 +152,7 @@ def render_prompt_assembly(
             section,
             effective_placeholders,
             component_catalog=component_catalog,
+            clarification=clarification,
         )
         variant_ids[section.section_code] = section.variant_id
 

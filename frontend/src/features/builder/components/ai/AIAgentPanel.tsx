@@ -10,6 +10,12 @@ import {
   OpenAiTransportMode,
   remeasureAiDefinition,
 } from "../../api/aiFormGenerationApi";
+import {
+  ClarificationRefItem,
+  fetchAudienceLocales,
+  fetchFormPurposes,
+  fetchRespondentTypes,
+} from "../../api/clarificationRefApi";
 import { useBuilderStore, selectAuthoredPages } from "../../stores/useBuilderStore";
 import { DEVICE_DIMENSIONS, FormComponent, FormDefinition } from "../../types/builder.types";
 import { getCompanyTermsAssets } from "../../../dashboard/api/companyAssetsApi";
@@ -228,6 +234,14 @@ export const AIAgentPanel: React.FC = () => {
     string | null
   >(null);
 
+  const [audienceLocales, setAudienceLocales] = React.useState<ClarificationRefItem[]>([]);
+  const [formPurposes, setFormPurposes] = React.useState<ClarificationRefItem[]>([]);
+  const [respondentTypes, setRespondentTypes] = React.useState<ClarificationRefItem[]>([]);
+  const [audienceLocaleCode, setAudienceLocaleCode] = React.useState<string | null>(null);
+  const [formPurposeCode, setFormPurposeCode] = React.useState<string | null>(null);
+  const [respondentTypeCode, setRespondentTypeCode] = React.useState<string | null>(null);
+  const [clarificationLoadError, setClarificationLoadError] = React.useState<string | null>(null);
+
   // Story 6.4 AC-2/3: replace-form warning modal state
   const [showReplaceWarning, setShowReplaceWarning] = React.useState(false);
   const [dontShowAgain, setDontShowAgain] = React.useState(false);
@@ -243,6 +257,40 @@ export const AIAgentPanel: React.FC = () => {
       abortControllerRef.current?.abort();
     };
   }, []);
+
+  React.useEffect(() => {
+    const formIdNumeric = formDefinition?.formId
+      ? Number.parseInt(String(formDefinition.formId), 10)
+      : undefined;
+    const formId = Number.isFinite(formIdNumeric) ? formIdNumeric : undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [locales, purposes, respondents] = await Promise.all([
+          fetchAudienceLocales(formId),
+          fetchFormPurposes(formId),
+          fetchRespondentTypes(formId),
+        ]);
+        if (cancelled) return;
+        setAudienceLocales(locales.items);
+        setFormPurposes(purposes.items);
+        setRespondentTypes(respondents.items);
+        setAudienceLocaleCode(locales.resolvedDefault.code);
+        setFormPurposeCode(purposes.resolvedDefault.code);
+        setRespondentTypeCode(respondents.resolvedDefault.code);
+        setClarificationLoadError(null);
+      } catch (error) {
+        if (!cancelled) {
+          setClarificationLoadError(
+            error instanceof Error ? error.message : "Failed to load clarification options."
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [formDefinition?.formId]);
 
   // Story 6.4 AC-1: hydrate prompt from DB-backed lastPrompt on mount
   const promptHydratedRef = React.useRef(false);
@@ -430,7 +478,9 @@ export const AIAgentPanel: React.FC = () => {
 
     return {
       formId: formDefinition.formId,
-      audienceLocale: null,
+      audienceLocale: audienceLocaleCode,
+      formPurposeCode,
+      respondentTypeCode,
       brandPosture: null,
       brandHeritageOrigin: null,
       canvas: {
@@ -455,7 +505,14 @@ export const AIAgentPanel: React.FC = () => {
       termsDefaults,
       componentFootprints: Array.from(mergedFootprints.values()),
     };
-  }, [formContext, formDefinition, previewMode]);
+  }, [
+    formContext,
+    formDefinition,
+    previewMode,
+    audienceLocaleCode,
+    formPurposeCode,
+    respondentTypeCode,
+  ]);
 
   const relayoutFromRenderedHeights = React.useCallback(
     async (definition: FormDefinition): Promise<FormDefinition | null> => {
@@ -692,6 +749,9 @@ export const AIAgentPanel: React.FC = () => {
       const generationOptions: AiGenerationOptions = {
         openaiTransport,
         systemPromptAddendum: sectioned.addendum,
+        audienceLocale: audienceLocaleCode,
+        formPurposeCode,
+        respondentTypeCode,
       };
       const response = await generateAiDefinition(
         trimmed,
@@ -840,6 +900,9 @@ export const AIAgentPanel: React.FC = () => {
     relayoutFromRenderedHeights,
     saveDraft,
     setAiAgentSettings,
+    audienceLocaleCode,
+    formPurposeCode,
+    respondentTypeCode,
   ]);
 
   // Story 6.4 AC-2/3/4: entry point for Generate button click
@@ -942,6 +1005,61 @@ export const AIAgentPanel: React.FC = () => {
           placeholder="Example: Create a registration form with name, email, phone, and consent checkbox."
           className="w-full min-h-[140px] rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
         />
+
+        <div className="space-y-2" data-testid="ai-clarification-dropdowns">
+          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+            Clarification context
+          </p>
+          {clarificationLoadError && (
+            <p className="text-[11px] text-rose-600 dark:text-rose-400">{clarificationLoadError}</p>
+          )}
+          <label className="block text-[11px] text-gray-600 dark:text-gray-400">
+            Audience locale
+            <select
+              className="mt-0.5 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1.5 text-sm"
+              value={audienceLocaleCode ?? ""}
+              onChange={(e) => setAudienceLocaleCode(e.target.value || null)}
+              disabled={audienceLocales.length === 0}
+            >
+              {audienceLocales.map((row) => (
+                <option key={row.code} value={row.code}>
+                  {row.flagEmoji ? `${row.flagEmoji} ` : ""}
+                  {row.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-[11px] text-gray-600 dark:text-gray-400">
+            Form purpose
+            <select
+              className="mt-0.5 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1.5 text-sm"
+              value={formPurposeCode ?? ""}
+              onChange={(e) => setFormPurposeCode(e.target.value || null)}
+              disabled={formPurposes.length === 0}
+            >
+              {formPurposes.map((row) => (
+                <option key={row.code} value={row.code}>
+                  {row.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-[11px] text-gray-600 dark:text-gray-400">
+            Respondent type
+            <select
+              className="mt-0.5 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1.5 text-sm"
+              value={respondentTypeCode ?? ""}
+              onChange={(e) => setRespondentTypeCode(e.target.value || null)}
+              disabled={respondentTypes.length === 0}
+            >
+              {respondentTypes.map((row) => (
+                <option key={row.code} value={row.code}>
+                  {row.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <div className="flex gap-2">
           <button

@@ -67,6 +67,7 @@ from modules.form_builder.component_catalog import (
     resolve_allowed_components,
 )
 from modules.form_builder.service import resolve_country_id
+from modules.reference.clarification import resolve_clarification_context
 from .capability_prompt import (
     build_capability_prompt_block,
     build_capability_prompt_block_from_catalog,
@@ -192,7 +193,10 @@ def _invalidate_locale_block_cache() -> None:
     _LOCALE_BLOCK_CACHE.clear()
 
 
-def _normalise_audience_locale(value: Optional[str]) -> Optional[str]:
+def _normalise_audience_locale(
+    value: Optional[str],
+    db_session: Optional[Session] = None,
+) -> Optional[str]:
     if value is None:
         return None
     candidate = str(value).strip().upper()
@@ -200,6 +204,20 @@ def _normalise_audience_locale(value: Optional[str]) -> Optional[str]:
         return None
     if candidate == "GB":
         candidate = "UK"
+    if db_session is not None:
+        row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 [Code]
+                FROM [ref].[AudienceLocale]
+                WHERE [Code] = :code AND [IsActive] = 1
+                """
+            ),
+            {"code": candidate},
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"Unsupported audience locale: {value}")
+        return str(row.Code)
     if candidate not in _AUDIENCE_LOCALES:
         raise ValueError(f"Unsupported audience locale: {value}")
     return candidate
@@ -1878,6 +1896,10 @@ def _resolve_rendered_assembly(
     audience_locale: Optional[str],
     context_pack: Optional[str],
     component_catalog: Optional[ResolvedComponentCatalog] = None,
+    form_purpose_code: Optional[str] = None,
+    respondent_type_code: Optional[str] = None,
+    company_id: Optional[int] = None,
+    form_id: Optional[int] = None,
 ) -> RenderedAssembly:
     """Resolve the active FORM_AI_V1 assembly from the registry.
 
@@ -1895,17 +1917,28 @@ def _resolve_rendered_assembly(
             brand_heritage_origin=brand_heritage_origin,
         )
     posture = _normalise_brand_posture_for_assembly(brand_posture, brand_heritage_origin)
+    clarification = resolve_clarification_context(
+        db_session,
+        company_id=company_id,
+        form_id=form_id,
+        audience_locale_code=audience_locale,
+        form_purpose_code=form_purpose_code,
+        respondent_type_code=respondent_type_code,
+    )
     resolved = resolve_prompt_assembly(
         db_session,
         REGISTRY_CODE_FORM_AI_V1,
         brand_posture=posture,
-        audience_locale=audience_locale,
+        audience_locale=clarification.audience_locale_code,
+        form_purpose=clarification.form_purpose_code,
+        respondent_type=clarification.respondent_type_code,
     )
     origin = _normalise_heritage_origin(brand_heritage_origin) or ""
     return render_prompt_assembly(
         resolved,
         placeholders={"heritageOrigin": origin},
         component_catalog=component_catalog,
+        clarification=clarification,
     )
 
 
@@ -1952,6 +1985,12 @@ def _build_initial_messages(
             component_catalog=component_catalog,
         )
 
+    clarification_block = ""
+    for section_code in ("E1", "E2", "E3"):
+        snippet = rendered_assembly.get(section_code)
+        if snippet and snippet.strip():
+            clarification_block += snippet.strip() + "\n\n"
+
     runtime_context_block = _build_runtime_context_block(runtime_context)
     capability_block = rendered_assembly.get("F") or _build_capability_prompt_block(
         capability_snapshot_json
@@ -1987,6 +2026,7 @@ def _build_initial_messages(
         + "\n\n## LOCALE AND BRAND POSTURE\n"
         + locale_block
         + "\n"
+        + (clarification_block if clarification_block else "")
         + block_c
         + ("\n\n" + runtime_context_block if runtime_context_block else "")
     )
@@ -2856,7 +2896,26 @@ def _resolve_component_catalog(
         runtime_context,
         audience_locale,
     )
-    return resolve_allowed_components(db_session, company_id, country_id)
+    form_id = _coerce_form_id(runtime_context)
+    requires_offline = False
+    if form_id is not None:
+        row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 [RequiresOfflineCapable]
+                FROM [dbo].[Form]
+                WHERE [FormID] = :form_id AND [IsDeleted] = 0
+                """
+            ),
+            {"form_id": form_id},
+        ).fetchone()
+        requires_offline = bool(row.RequiresOfflineCapable) if row else False
+    return resolve_allowed_components(
+        db_session,
+        company_id,
+        country_id,
+        requires_offline_capable=requires_offline,
+    )
 
 
 def _capability_json_for_request(
@@ -3111,7 +3170,7 @@ def _resolve_audience_locale(
     runtime_context: Optional[Dict[str, Any]],
     db_session: Optional[Session],
 ) -> Dict[str, Optional[str]]:
-    explicit = _normalise_audience_locale(requested_locale)
+    explicit = _normalise_audience_locale(requested_locale, db_session)
     if explicit:
         return {"resolved": explicit, "source": "request.audienceLocale"}
 
@@ -3289,6 +3348,9 @@ def _persist_generation_run_and_artifacts(
     brand_posture: Optional[str] = None,
     brand_heritage_origin: Optional[str] = None,
     rendered_assembly: Optional[RenderedAssembly] = None,
+    audience_locale_code: Optional[str] = None,
+    form_purpose_code: Optional[str] = None,
+    respondent_type_code: Optional[str] = None,
 ) -> Optional[int]:
     """Persist a GenerationRun + its artifacts. Returns the GenerationRunID
     on success (or None if no DB session was available, or persistence
@@ -3354,6 +3416,9 @@ def _persist_generation_run_and_artifacts(
                     FirstShotValid,
                     BrandPosture,
                     BrandHeritageOrigin,
+                    AudienceLocaleCode,
+                    FormPurposeCode,
+                    RespondentTypeCode,
                     IsReplayable,
                     CreatedBy
                 )
@@ -3379,6 +3444,9 @@ def _persist_generation_run_and_artifacts(
                     :first_shot_valid,
                     :brand_posture,
                     :brand_heritage_origin,
+                    :audience_locale_code,
+                    :form_purpose_code,
+                    :respondent_type_code,
                     :is_replayable,
                     :created_by
                 )
@@ -3421,6 +3489,9 @@ def _persist_generation_run_and_artifacts(
                 ),
                 "brand_posture": brand_posture,
                 "brand_heritage_origin": brand_heritage_origin,
+                "audience_locale_code": audience_locale_code,
+                "form_purpose_code": form_purpose_code,
+                "respondent_type_code": respondent_type_code,
                 "is_replayable": True,
                 "created_by": actor_user_id,
             },
@@ -3849,6 +3920,8 @@ def generate_form_definition(
     actor_user_id: Optional[int] = None,
     actor_company_id: Optional[int] = None,
     audience_locale: Optional[str] = None,
+    form_purpose_code: Optional[str] = None,
+    respondent_type_code: Optional[str] = None,
     brand_posture: Optional[str] = None,
     brand_heritage_origin: Optional[str] = None,
 ) -> FormAiGenerateResponse:
@@ -3860,6 +3933,23 @@ def generate_form_definition(
     # Story 6.3.1 UAT round 5 — captured per-attempt for /remeasure replay.
     compile_input_plans: List[Dict[str, Any]] = []
     governance_versions = _resolve_runtime_governance_versions(db_session)
+    form_id_for_clarification = _coerce_form_id(runtime_context)
+    clarification_for_request = None
+    try:
+        if db_session is not None:
+            clarification_for_request = resolve_clarification_context(
+                db_session,
+                company_id=actor_company_id,
+                form_id=form_id_for_clarification,
+                audience_locale_code=audience_locale,
+                form_purpose_code=form_purpose_code,
+                respondent_type_code=respondent_type_code,
+            )
+            if audience_locale is None:
+                audience_locale = clarification_for_request.audience_locale_code
+    except Exception:
+        clarification_for_request = None
+
     locale_resolution = _resolve_audience_locale(
         audience_locale,
         actor_user_id,
@@ -3926,6 +4016,17 @@ def generate_form_definition(
             brand_posture=brand_resolution.get("resolved"),
             brand_heritage_origin=brand_resolution.get("heritageOrigin"),
             rendered_assembly=rendered_assembly,
+            audience_locale_code=locale_resolution.get("resolved"),
+            form_purpose_code=(
+                clarification_for_request.form_purpose_code
+                if clarification_for_request is not None
+                else form_purpose_code
+            ),
+            respondent_type_code=(
+                clarification_for_request.respondent_type_code
+                if clarification_for_request is not None
+                else respondent_type_code
+            ),
         )
         # Story 6.3.1 UAT round 5 — surface the persisted run id so the
         # frontend can call ``/remeasure`` with DOM heights for a refined
@@ -3937,6 +4038,15 @@ def generate_form_definition(
             **(response.meta or {}),
             "locale": locale_resolution,
             "brand": brand_resolution,
+            "clarification": (
+                {
+                    "audienceLocaleCode": clarification_for_request.audience_locale_code,
+                    "formPurposeCode": clarification_for_request.form_purpose_code,
+                    "respondentTypeCode": clarification_for_request.respondent_type_code,
+                }
+                if clarification_for_request is not None
+                else None
+            ),
             "provider_usage": _summarise_provider_usage(provider_usage_attempts),
         }
         return response
@@ -3956,6 +4066,10 @@ def generate_form_definition(
             audience_locale=locale_resolution.get("resolved") or "AU",
             context_pack=None,
             component_catalog=component_catalog,
+            form_purpose_code=form_purpose_code,
+            respondent_type_code=respondent_type_code,
+            company_id=actor_company_id,
+            form_id=form_id_for_clarification,
         )
     except (LookupError, RuntimeError) as exc:
         LOGGER.exception(

@@ -44,6 +44,7 @@ async def form_builder_init(
             db=db,
             company_id=body.companyId,
             event_id=body.eventId,
+            form_id=body.formId,
         )
         return FormBuilderInitResponse(**payload)
     except ValueError as e:

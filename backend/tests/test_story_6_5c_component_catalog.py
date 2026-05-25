@@ -80,7 +80,7 @@ def test_get_allowed_components_delegates_to_resolver(monkeypatch):
     )
     monkeypatch.setattr(
         "modules.form_builder.service.resolve_allowed_components",
-        lambda db, company_id, country_id: catalog,
+        lambda db, company_id, country_id, **kwargs: catalog,
     )
     db = MagicMock()
     result = get_allowed_components(db, company_id=7, country_id=2)

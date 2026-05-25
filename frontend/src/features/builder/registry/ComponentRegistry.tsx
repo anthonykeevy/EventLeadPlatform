@@ -25,6 +25,8 @@ import { getDefaultStructure } from '../utils/structureDefaults';
 import { UniversalFieldShell } from '../components/UniversalFieldShell';
 import { getRenderersForComponent } from '../utils/componentRenderers';
 import { ObjectRenderers } from '../utils/objectRenderers';
+import { AddressLookupAuRuntime } from '../components/edf/AddressLookupAuRuntime';
+import { CompanyLookupAbrRuntime } from '../components/edf/CompanyLookupAbrRuntime';
 
 // ---------- Toolbox preview helpers (no hooks) ----------
 const FIRST_NAME_STRUCTURE: ComponentStructure = {
@@ -127,6 +129,8 @@ export interface RuntimeComponentProps {
     token: string;
     clientSessionId: string;
   };
+  /** Preview/production artboard CSS scale (portaled EDF UI must match). */
+  artboardScale?: number;
 }
 
 const FileUploadRuntimeComponent: React.FC<RuntimeComponentProps> = ({
@@ -1095,6 +1099,111 @@ export const ComponentRegistry: Partial<Record<ComponentType, ComponentDefinitio
         />
       )
     },
+  },
+
+  'address-lookup-au': {
+    type: 'address-lookup-au',
+    label: 'Address Lookup (AU)',
+    icon: <MapPin size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'Address',
+      placeholder: 'Start typing your address...',
+      required: false,
+      exportName: 'address',
+      deliveryMode: 'decomposed',
+      concatenationTemplate: '{{line1}}, {{suburb}} {{state}} {{postcode}}',
+      enabledOutputFields: ['line1', 'suburb', 'state', 'postcode'],
+      allowManualFallback: true,
+      requireValidatedAddress: false,
+      editableAfterResolve: true,
+      showUnitField: true,
+      allowDeliveryInstructions: false,
+      requireDeliveryInstructions: false,
+      deliveryInstructionsLabel: 'Delivery instructions',
+      deliveryInstructionsExportName: 'address_instructions',
+      showPoBoxHelperText: true,
+      validation: { maxLength: 120 },
+    },
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+      ],
+      defaultLayout: 'vertical',
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'address-lookup-au',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Address (AU lookup)',
+        placeholder: 'Search address…',
+        exportName: 'address',
+        validation: { maxLength: 120 },
+      },
+    }),
+    runtimeComponent: AddressLookupAuRuntime,
+  },
+
+  'company-lookup-abr': {
+    type: 'company-lookup-abr',
+    label: 'Company Lookup (ABR)',
+    icon: <MapPin size={18} />,
+    category: 'input',
+    defaultProps: {
+      label: 'Company',
+      placeholder: 'Search by ABN, ACN, or name…',
+      required: false,
+      exportName: 'company',
+      deliveryMode: 'decomposed',
+      enabledOutputFields: ['legalEntityName', 'abn', 'entityType'],
+      allowManualFallback: true,
+      requireAbn: false,
+      requireAbnWhenManual: false,
+      autoSelectSingleResult: true,
+      allowTradingAs: true,
+      tradingAsLabel: 'Trading as (optional)',
+      tradingAsExportName: 'company_tradingAs',
+      showBusinessNamesInResults: true,
+      editableLegalNameAfterResolve: false,
+      warnOnInactiveAbn: true,
+      blockOnInactiveAbn: false,
+      validation: { maxLength: 200 },
+    },
+    structure: {
+      objects: [
+        { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+        { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+        { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+      ],
+      defaultLayout: 'vertical',
+    },
+    previewComponent: makeToolboxPreview({
+      type: 'company-lookup-abr',
+      structure: {
+        objects: [
+          { id: 'label', type: 'label', archetype: 'PrimaryLabel', required: true, order: 1 },
+          { id: 'input', type: 'input', archetype: 'InputControl', required: true, order: 2, features: { textLengthIndicator: {} } },
+          { id: 'validation', type: 'validation', archetype: 'HelperText', required: false, order: 3, conditional: { type: 'validation' } },
+        ],
+        defaultLayout: 'vertical',
+      },
+      props: {
+        label: 'Company (ABR)',
+        placeholder: 'Search company…',
+        exportName: 'company',
+        validation: { maxLength: 200 },
+      },
+    }),
+    runtimeComponent: CompanyLookupAbrRuntime,
   },
 
   // Address Field (Placeholder for future autocomplete)

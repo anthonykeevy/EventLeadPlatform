@@ -330,6 +330,15 @@ class CompanySearchResult(BaseModel):
     entity_type: Optional[str] = Field(None, description="Entity type (e.g., 'Australian Private Company')")
     business_address: Optional[str] = Field(None, description="Primary business address")
     status: Optional[str] = Field(None, description="Entity status (Active, Cancelled, etc.)")
+    business_names: Optional[list[str]] = Field(
+        None, description="Registered business / trading names from ABR"
+    )
+    matched_name: Optional[str] = Field(
+        None, description="Business name that matched the search query, if different from legal name"
+    )
+    match_type: Optional[str] = Field(
+        None, description="How the result matched: legal, business_name, etc."
+    )
     
     class Config:
         json_schema_extra = {

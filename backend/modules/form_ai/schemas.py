@@ -3,28 +3,26 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
-AudienceLocaleEnum = Literal[
-    "AU",
-    "NZ",
-    "UK",
-    "US",
-    "CA",
-    "IE",
-    "DE",
-    "INTL_ONLINE",
-    "APAC",
-    "EU",
-    "NEUTRAL",
-]
 BrandPostureEnum = Literal["local", "heritage", "neutral", "transcreate"]
 
 
 class FormAiGenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=3, max_length=4000)
     runtimeContext: Optional["FormAiRuntimeContext"] = None
-    audienceLocale: Optional[AudienceLocaleEnum] = Field(
+    audienceLocale: Optional[str] = Field(
         default=None,
-        description="Audience locale controlling field shape, validation, compliance, and format guidance.",
+        max_length=30,
+        description="Audience locale code from ref.AudienceLocale (data-driven).",
+    )
+    formPurposeCode: Optional[str] = Field(
+        default=None,
+        max_length=50,
+        description="Form purpose code from ref.FormPurpose.",
+    )
+    respondentTypeCode: Optional[str] = Field(
+        default=None,
+        max_length=50,
+        description="Respondent type code from ref.RespondentType.",
     )
     brandPosture: Optional[BrandPostureEnum] = Field(
         default=None,
@@ -106,7 +104,9 @@ class FormAiRuntimeTermsDefaults(BaseModel):
 
 class FormAiRuntimeContext(BaseModel):
     formId: Optional[str] = None
-    audienceLocale: Optional[AudienceLocaleEnum] = None
+    audienceLocale: Optional[str] = Field(default=None, max_length=30)
+    formPurposeCode: Optional[str] = Field(default=None, max_length=50)
+    respondentTypeCode: Optional[str] = Field(default=None, max_length=50)
     brandPosture: Optional[BrandPostureEnum] = None
     brandHeritageOrigin: Optional[str] = Field(default=None, min_length=2, max_length=2)
     canvas: Optional[FormAiRuntimeCanvasContext] = None

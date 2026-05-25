@@ -27,25 +27,16 @@ export interface AttemptTraceEntry {
 
 /** Request + env resolution: sync = one response body; stream = SSE. Auto uses FORM_AI_OPENAI_TRANSPORT on the server (default sync). */
 export type OpenAiTransportMode = "auto" | "sync" | "stream";
-export type AudienceLocale =
-  | "AU"
-  | "NZ"
-  | "UK"
-  | "US"
-  | "CA"
-  | "IE"
-  | "DE"
-  | "INTL_ONLINE"
-  | "APAC"
-  | "EU"
-  | "NEUTRAL";
 export type BrandPosture = "local" | "heritage" | "neutral" | "transcreate";
 
 export interface AiGenerationOptions {
   openaiTransport?: OpenAiTransportMode;
   maxSystemCorrectionAttempts?: number;
   systemPromptAddendum?: string;
-  audienceLocale?: AudienceLocale | null;
+  /** ref.AudienceLocale.Code — loaded from API only (Story 6.5d). */
+  audienceLocale?: string | null;
+  formPurposeCode?: string | null;
+  respondentTypeCode?: string | null;
   brandPosture?: BrandPosture | null;
   brandHeritageOrigin?: string | null;
 }
@@ -82,9 +73,14 @@ export interface AiFormGenerationResponse {
   userMessage: string;
   meta?: {
     locale?: {
-      resolved?: AudienceLocale | null;
+      resolved?: string | null;
       source?: string | null;
     };
+    clarification?: {
+      audienceLocaleCode?: string | null;
+      formPurposeCode?: string | null;
+      respondentTypeCode?: string | null;
+    } | null;
     brand?: {
       resolved?: BrandPosture | null;
       heritageOrigin?: string | null;
@@ -161,7 +157,9 @@ export interface RuntimeTermsDefaults {
 
 export interface AiRuntimeContext {
   formId?: string;
-  audienceLocale?: AudienceLocale | null;
+  audienceLocale?: string | null;
+  formPurposeCode?: string | null;
+  respondentTypeCode?: string | null;
   brandPosture?: BrandPosture | null;
   brandHeritageOrigin?: string | null;
   canvas?: RuntimeCanvasContext;
@@ -190,6 +188,9 @@ export async function generateAiDefinition(
       maxSystemCorrectionAttempts,
       systemPromptAddendum,
       audienceLocale = runtimeContext?.audienceLocale ?? null,
+      formPurposeCode = runtimeContext?.formPurposeCode ?? options.formPurposeCode ?? null,
+      respondentTypeCode =
+        runtimeContext?.respondentTypeCode ?? options.respondentTypeCode ?? null,
       brandPosture = runtimeContext?.brandPosture ?? null,
       brandHeritageOrigin = runtimeContext?.brandHeritageOrigin ?? null,
     } = options;
@@ -199,6 +200,8 @@ export async function generateAiDefinition(
         prompt,
         runtimeContext,
         audienceLocale,
+        formPurposeCode,
+        respondentTypeCode,
         brandPosture,
         brandHeritageOrigin,
         openaiTransport,

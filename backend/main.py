@@ -11,7 +11,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from .env file
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -51,6 +51,8 @@ from modules.forms.readiness_router import router as forms_readiness_router  # S
 from modules.forms.publish_request_router import router as publish_request_router  # Story 5.6: Publish Request Workflow
 from modules.form_validate.router import router as form_validate_router  # Story 6.1: Static DefinitionJSON validator
 from modules.form_ai.router import router as form_ai_router  # Story 6.2: AI generation with validator retries
+from modules.reference.router import router as reference_router  # Story 6.5d: clarification ref APIs
+from modules.external_feed.router import router as external_feed_router  # Story 6.5d: EDF proxies
 from modules.logging.router import router as logging_router  # Frontend dev logging ingestion/query
 from modules.preferences.router import router as preferences_router  # Story 6.4: User Preferences
 
@@ -218,6 +220,8 @@ app.include_router(form_schema_router)  # Story 5.3: DefinitionJSON schema from 
 app.include_router(publish_request_router)  # Story 5.6: Publish request create, list pending
 app.include_router(form_validate_router)  # Story 6.1: schema + boundary + collision validation
 app.include_router(form_ai_router)  # Story 6.2: AI generation + correction loop
+app.include_router(reference_router)  # Story 6.5d: audience-locales / form-purposes / respondent-types
+app.include_router(external_feed_router)  # Story 6.5d: address-au + company-abr proxies
 app.include_router(logging_router)  # Frontend logging APIs (/api/v1/logs/*)
 app.include_router(preferences_router)  # Story 6.4: User Preferences (/api/me/preferences)
 

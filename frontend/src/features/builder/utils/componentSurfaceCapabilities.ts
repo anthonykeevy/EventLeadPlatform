@@ -320,6 +320,20 @@ const OVERRIDES: Partial<Record<ComponentType, Partial<Record<ComponentSurface, 
       objectResizeHandles: { inputWidthHandle: true },
     },
   },
+  'address-lookup-au': {
+    toolbox: { textLengthIndicator: { enabled: true, showBar: true, showLabel: true } },
+    canvas: {
+      textLengthIndicator: { enabled: true, showBar: true, showLabel: true },
+      objectResizeHandles: { inputWidthHandle: true },
+    },
+  },
+  'company-lookup-abr': {
+    toolbox: { textLengthIndicator: { enabled: true, showBar: true, showLabel: true } },
+    canvas: {
+      textLengthIndicator: { enabled: true, showBar: true, showLabel: true },
+      objectResizeHandles: { inputWidthHandle: true },
+    },
+  },
   textarea: {
     // Toolbox: suppress crowded guides
     toolbox: { textLengthIndicator: { enabled: false, showBar: false, showLabel: false, showTextareaLineEstimate: false } },

@@ -295,6 +295,9 @@ function getConflictDefinitions(componentType: string): ConflictDefinition[] {
         case 'textarea':
         case 'first-name':
         case 'url':
+        case 'address':
+        case 'address-lookup-au':
+        case 'company-lookup-abr':
             return TEXT_CONFLICTS;
         case 'email':
             return EMAIL_CONFLICTS;
@@ -395,7 +398,7 @@ export function validateRuleConsistency(
     }
     
     // Text-specific consistency checks
-    if (['text', 'textarea', 'first-name', 'url'].includes(componentType)) {
+    if (['text', 'textarea', 'first-name', 'url', 'address', 'address-lookup-au', 'company-lookup-abr'].includes(componentType)) {
         if (validation.minLength !== undefined && validation.maxLength !== undefined) {
             if (validation.minLength > validation.maxLength) {
                 warnings.push('Minimum length cannot be greater than maximum length');
@@ -465,6 +468,9 @@ export function getAvailableRules(componentType: string): RuleMetadata[] {
         case 'text':
         case 'textarea':
         case 'first-name':
+        case 'address':
+        case 'address-lookup-au':
+        case 'company-lookup-abr':
             rules.push(
                 { key: 'minLength', displayName: 'Min Length', description: 'Minimum characters required', category: 'length', inputType: 'number', min: 0 },
                 { key: 'maxLength', displayName: 'Max Length', description: 'Maximum characters allowed', category: 'length', inputType: 'number', min: 0 },

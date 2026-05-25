@@ -19,7 +19,9 @@ export type ComponentType =
   | 'radio'
   | 'checkbox'
   | 'date'
-  | 'address'         // Address with autocomplete (placeholder for future)
+  | 'address'         // Manual address (offline-safe)
+  | 'address-lookup-au' // GeoScape AU lookup (Story 6.5d EDF)
+  | 'company-lookup-abr' // ABR company lookup (Story 6.5d EDF)
   | 'rating'          // Rating selector (stars, numbers, emoji)
   | 'file-upload'     // File attachment(s) via public upload API (Story 6.2.2)
   | 'first-name'      // POC component
@@ -675,6 +677,32 @@ export interface ComponentProps {
     decomposeAddress?: boolean;
     /** Address subfield mappings for export */
     addressExportMapping?: AddressExportMapping;
+
+    // ═══════════════════════════════════════════════════════════════
+    // EXTERNAL DATA FEED (Story 6.5d — address-lookup-au, company-lookup-abr)
+    // ═══════════════════════════════════════════════════════════════
+    deliveryMode?: 'decomposed' | 'concatenated';
+    concatenationTemplate?: string;
+    enabledOutputFields?: string[];
+    allowManualFallback?: boolean;
+    requireValidatedAddress?: boolean;
+    editableAfterResolve?: boolean;
+    showUnitField?: boolean;
+    allowDeliveryInstructions?: boolean;
+    requireDeliveryInstructions?: boolean;
+    deliveryInstructionsLabel?: string;
+    deliveryInstructionsExportName?: string;
+    showPoBoxHelperText?: boolean;
+    requireAbn?: boolean;
+    requireAbnWhenManual?: boolean;
+    autoSelectSingleResult?: boolean;
+    allowTradingAs?: boolean;
+    tradingAsLabel?: string;
+    tradingAsExportName?: string;
+    showBusinessNamesInResults?: boolean;
+    editableLegalNameAfterResolve?: boolean;
+    warnOnInactiveAbn?: boolean;
+    blockOnInactiveAbn?: boolean;
     
     /** Allow additional properties for extensibility */
     [key: string]: unknown;

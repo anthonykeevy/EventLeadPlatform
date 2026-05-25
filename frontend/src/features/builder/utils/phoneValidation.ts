@@ -104,15 +104,26 @@ export function validatePhone(
 
     const cleanValue = value.trim();
 
-    // Check if country code is required
-    if (config.countryCodeRequired && !cleanValue.startsWith('+')) {
+    // Only enforce + prefix when the rule is explicitly enabled (not merely truthy).
+    if (config.countryCodeRequired === true && !cleanValue.startsWith('+')) {
         errors.push('Country code is required (e.g., +1 for US)');
         return result;
     }
 
+    const defaultCountry =
+        config.defaultCountry ||
+        (config.allowedCountries?.length === 1
+            ? (config.allowedCountries[0] as CountryCode)
+            : config.countryCodeRequired !== true
+              ? ('AU' as CountryCode)
+              : undefined);
+
     try {
-        // Try to parse the phone number
-        const phoneNumber = parsePhoneNumber(cleanValue, config.defaultCountry);
+        // Parse with default country so national formats (e.g. 04…) work when + is not required.
+        const phoneNumber = parsePhoneNumber(
+            cleanValue,
+            cleanValue.startsWith('+') ? undefined : defaultCountry
+        );
 
         if (!phoneNumber) {
             errors.push('Invalid phone number format');

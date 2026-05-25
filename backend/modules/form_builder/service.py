@@ -8,7 +8,7 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from models.event import Event
 from models.company import Company
@@ -39,13 +39,38 @@ def resolve_country_id(db: Session, company_id: int, event_id: int) -> Optional[
     return company.CountryID if company.CountryID is not None else None
 
 
+def _form_requires_offline_capable(db: Session, form_id: Optional[int]) -> bool:
+    if form_id is None:
+        return False
+    row = db.execute(
+        text(
+            """
+            SELECT TOP 1 [RequiresOfflineCapable]
+            FROM [dbo].[Form]
+            WHERE [FormID] = :form_id AND [IsDeleted] = 0
+            """
+        ),
+        {"form_id": form_id},
+    ).fetchone()
+    if row is None:
+        return False
+    return bool(row.RequiresOfflineCapable)
+
+
 def get_allowed_components(
     db: Session,
     company_id: int,
     country_id: Optional[int],
+    *,
+    form_id: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """Thin wrapper over :func:`resolve_allowed_components` for init API shape."""
-    catalog = resolve_allowed_components(db, company_id, country_id)
+    catalog = resolve_allowed_components(
+        db,
+        company_id,
+        country_id,
+        requires_offline_capable=_form_requires_offline_capable(db, form_id),
+    )
     return [component.to_init_dict() for component in catalog.components]
 
 
@@ -66,6 +91,8 @@ def build_init_payload(
     db: Session,
     company_id: int,
     event_id: int,
+    *,
+    form_id: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Build full init payload: context, merged defaults, components, definitionJSON skeleton.
@@ -73,7 +100,7 @@ def build_init_payload(
     """
     country_id = resolve_country_id(db, company_id, event_id)
     merged = resolve_merged_defaults(db, company_id)
-    components = get_allowed_components(db, company_id, country_id)
+    components = get_allowed_components(db, company_id, country_id, form_id=form_id)
     allowed_codes = [c["componentCode"] for c in components]
 
     dgl = filter_default_grid_layouts_by_components(merged, allowed_codes)

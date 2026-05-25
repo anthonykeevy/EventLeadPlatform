@@ -4,7 +4,7 @@
 
 **🚀 Environment Promotion (adopted 2026-05-19):** Worktree (Dev) → `develop` (Azure Test slot, auto-deploy) → `master` (Production, future via Story 6.11). See **§ Environment Promotion Workflow** below for the full rules. **Story PRs now target `develop`, not `master`.**
 
-**Current Focus (updated 2026-05-21 — Story 6.5c Complete):** **(1)** **Story 6.5d — Clarification + Component Platform** (Next — PR [#109](https://github.com/anthonykeevy/EventLeadPlatform/pull/109): catalog backlog + AU `address-lookup-au` + `ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` + clarification `ref.*` + Block E + API dropdowns). **(2)** Targeted AU production-context eval verification (pending Tony's eval slice). **(3)** **Story 6.11 — Production Environment + CI/CD** — blueprint approved (see § Production Deployment Blueprint below); scheduled post-6.10 so production opens with billing live.
+**Current Focus (updated 2026-05-25 — Story 6.5d Dev complete):** **(1)** **SM closeout audit + merge PR [#109](https://github.com/anthonykeevy/EventLeadPlatform/pull/109)** (catalog + clarification + EDF runtime). **(2)** Azure Test UAT (A1–B2) post-merge. **(3)** **Story 6.5e-vision** or targeted AU production-context eval per roadmap. **(4)** **Story 6.11 — Production Environment + CI/CD** — blueprint approved; scheduled post-6.10.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  

@@ -60,7 +60,7 @@ def test_catalog_alignment_init_prompt_validator_codes_match(monkeypatch):
     catalog = _au_catalog()
     monkeypatch.setattr(
         "modules.form_builder.service.resolve_allowed_components",
-        lambda db, company_id, country_id: catalog,
+        lambda db, company_id, country_id, **kwargs: catalog,
     )
 
     init_codes = {

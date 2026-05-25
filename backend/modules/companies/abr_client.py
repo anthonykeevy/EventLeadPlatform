@@ -297,13 +297,32 @@ class ABRClient:
             # Extract ACN (ASICNumber) - for companies only (Story 1.19)
             acn = self._get_xml_text(entity_element, ".//ASICNumber")
             
-            # Try multiple locations for company name (different for ABN vs Name search)
-            legal_name = (
+            # GST registration
+            ns = "{http://abr.business.gov.au/ABRXMLSearch/}"
+
+            main_legal = (
                 self._get_xml_text(entity_element, ".//mainName/organisationName") or
-                self._get_xml_text(entity_element, ".//businessName/organisationName") or
                 self._get_xml_text(entity_element, ".//legalName/fullName") or
                 self._get_xml_text(entity_element, ".//legalName/organisationName")
             )
+
+            business_names: list[str] = []
+            for bn_elem in entity_element.findall(f".//{ns}businessName"):
+                bn = self._get_xml_text(bn_elem, "./organisationName")
+                if bn and bn not in business_names:
+                    business_names.append(bn)
+
+            business_name_first = business_names[0] if business_names else None
+            legal_name = main_legal or business_name_first
+
+            matched_name: Optional[str] = None
+            match_type = "legal"
+            if business_name_first and main_legal and business_name_first != main_legal:
+                matched_name = business_name_first
+                match_type = "business_name"
+            elif business_name_first and not main_legal:
+                matched_name = business_name_first
+                match_type = "business_name"
             
             logger.debug(f"Extracted from ABR: ABN={abn}, ACN={acn}, Name={legal_name}")
             
@@ -326,7 +345,6 @@ class ABRClient:
             logger.debug(f"Entity type: {entity_type}, ABN status: {abn_status}")
             
             # GST registration
-            ns = "{http://abr.business.gov.au/ABRXMLSearch/}"
             gst_element = entity_element.find(f".//{ns}goodsAndServicesTax")
             gst_registered = False
             if gst_element is not None:
@@ -354,7 +372,10 @@ class ABRClient:
                 "gst_registered": gst_registered,
                 "entity_type": entity_type,  # Story 1.19: Return actual entity type or None
                 "business_address": business_address,
-                "status": abn_status  # Story 1.19: Return actual status or None
+                "status": abn_status,  # Story 1.19: Return actual status or None
+                "business_names": business_names,
+                "matched_name": matched_name,
+                "match_type": match_type,
             }
             
         except Exception as e:

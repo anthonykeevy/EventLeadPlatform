@@ -35,6 +35,9 @@ REGISTRY_CODE_FORM_AI_V1 = "FORM_AI_V1"
 # (locale -> D, clarification -> E) plug into the same shape.
 _SECTION_AXIS = {
     "C": "brand_posture",
+    "E1": "audience_locale",
+    "E2": "form_purpose",
+    "E3": "respondent_type",
 }
 
 
@@ -155,7 +158,9 @@ def _pick_variant(
     section_rows: List[Mapping],
     *,
     brand_posture: Optional[str],
-    audience_locale: Optional[str],  # noqa: ARG001 (forward-compat for 6.5c)
+    audience_locale: Optional[str],
+    form_purpose: Optional[str] = None,
+    respondent_type: Optional[str] = None,
 ) -> Optional[Mapping]:
     """Pick the winning variant row for a section.
 
@@ -169,6 +174,12 @@ def _pick_variant(
     axis_value: Optional[str] = None
     if axis == "brand_posture" and brand_posture:
         axis_value = brand_posture
+    elif axis == "audience_locale" and audience_locale:
+        axis_value = audience_locale
+    elif axis == "form_purpose" and form_purpose:
+        axis_value = form_purpose
+    elif axis == "respondent_type" and respondent_type:
+        axis_value = respondent_type
 
     if axis_value:
         for row in section_rows:
@@ -188,6 +199,8 @@ def resolve_prompt_assembly(
     *,
     brand_posture: Optional[str] = None,
     audience_locale: Optional[str] = None,
+    form_purpose: Optional[str] = None,
+    respondent_type: Optional[str] = None,
 ) -> ResolvedAssembly:
     """Resolve the active assembly for a registry code.
 
@@ -248,6 +261,8 @@ def resolve_prompt_assembly(
             variants,
             brand_posture=brand_posture,
             audience_locale=audience_locale,
+            form_purpose=form_purpose,
+            respondent_type=respondent_type,
         )
         if winner is None:
             if bool(meta["IsRequired"]):

@@ -52,6 +52,23 @@ Skip if component is fully offline (e.g. plain `text`, manual `address`).
 - [ ] `COMPONENT-FRAMEWORK-GUIDE.md` inventory row updated.
 - [ ] UAT: online form shows EDF; offline-capable form hides EDF, shows fallback.
 
+### 0b. EDF runtime parity (mandatory — lessons from Story 6.5d UAT)
+
+Catalog seed + registry stub is **not sufficient** for network-dependent components. Before marking an EDF component done:
+
+- [ ] **Properties ↔ runtime wiring:** Every toggle in `PropertiesSchemaJSON` is read in the runtime component (grep `component.props.<name>`). *Failure mode:* `allowManualFallback` saved but ignored.
+- [ ] **All floating UI uses `EdfAnchorPortal`:** Lookup dropdowns, manual-entry panels, warnings — anything extending beyond the field box. Published forms use absolute positioning; inline overlays are painted over by later fields.
+- [ ] **Scaled preview parity:** Test on `PublicFormArtboard` (CSS `transform: scale()`). Portaled UI must use `contentScale` / anchor auto-scale so typography matches in-form fields.
+- [ ] **Panel states:** Loading, zero results, API error, and manual fallback (if enabled) each open/close correctly; zero results must not require `results.length > 0` to show the panel.
+- [ ] **Manual fallback path (if applicable):** Enter → confirm (“Use this company” or equivalent) → display committed value → edit → submit. Inspect `FormSubmission.AnswersJSON` for structured payload (`validationSource`, resolved fields).
+- [ ] **Controlled state:** No `useEffect` that calls `onChange` on every keystroke (causes infinite loops). Use handlers + external-sync ref pattern.
+- [ ] **Validation UX:** Errors only after submit trigger via `error` prop — not always-on help text styled as errors. Register empty/value rules in `validationEngine` / `edfFieldValue` for lookup types.
+- [ ] **Reset behaviour:** After kiosk/public reset, lookup fields clear; auto-select does not repopulate. Consider `key={componentId-sessionId}` remount if needed.
+- [ ] **Inactive / block flags:** If properties include warn/block on external status (e.g. inactive ABN), test dropdown badges, post-select banner, and submit blocking.
+- [ ] **AI generate smoke:** Explicitly prompt for the EDF type in UAT — LLM may otherwise emit plain `text` fields even when the type is catalog-resident.
+
+**Reference implementations:** `frontend/src/features/builder/components/edf/CompanyLookupAbrRuntime.tsx`, `AddressLookupAuRuntime.tsx`, `EdfAnchorPortal.tsx`.
+
 ---
 
 ## 1. Reference data (`ref.ComponentType`)
@@ -144,4 +161,4 @@ Proves shared EDF pattern for future network-dependent components.
 
 ---
 
-*Process version 1.1 — Story 6.5d (EDF + framework cross-links).*
+*Process version 1.2 — Story 6.5d closeout (EDF runtime parity §0b).*

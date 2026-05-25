@@ -210,6 +210,8 @@ export function getComponentDimensions(
         'radio': 80,
         'textarea': 150,
         'address': 100,
+        'address-lookup-au': 100,
+        'company-lookup-abr': 100,
         'terms': 60,
     };
     

@@ -381,6 +381,8 @@ export function createInputRenderer(): ObjectRenderer {
                 'textarea': 500,
                 // Address is variable; pick a conservative default for design-time guidance.
                 'address': 120,
+                'address-lookup-au': 120,
+                'company-lookup-abr': 200,
             };
             maxLength = defaultMaxLengthMap[component.type];
         }

@@ -23,7 +23,7 @@ function ManualFallbackLink({ manualFallback }: { manualFallback: ManualFallback
     <button
       type="button"
       onClick={manualFallback.onActivate}
-      className="mt-2 text-sm font-medium underline hover:opacity-80 text-left"
+      className="mt-2 text-sm font-medium underline hover:opacity-80 text-left text-inherit"
     >
       {manualFallback.label}
     </button>

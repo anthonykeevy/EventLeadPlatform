@@ -13,6 +13,7 @@ import { useDebouncedLookup } from '../../hooks/useDebouncedLookup';
 import { EdfLookupResultsPanel } from './EdfLookupResultsPanel';
 import { CompactCompanyLookupResults } from './CompactCompanyLookupResults';
 import { EdfAnchorPortal } from './EdfAnchorPortal';
+import { useEdfOverlayRegister } from './EdfOverlayContext';
 import { buildManualCompanyValue, CompanyManualEntryPanel } from './CompanyManualEntryPanel';
 import { isInactiveAbnStatus } from './abnStatusUtils';
 
@@ -315,6 +316,8 @@ export const CompanyLookupAbrRuntime: React.FC<RuntimeComponentProps> = ({
   const showManualCommittedHint =
     !manualMode && resolved?.validationSource === 'manual' && hasActiveSelection;
 
+  useEdfOverlayRegister(component.id, showResults || manualMode);
+
   const resultsPanel = showResults ? (
     <EdfLookupResultsPanel
       isLoading={isLoading}
@@ -342,12 +345,13 @@ export const CompanyLookupAbrRuntime: React.FC<RuntimeComponentProps> = ({
 
   return (
     <div style={fieldStyles.containerStyle} className="w-full">
+      <div ref={anchorRef} className="relative w-full">
       <label style={fieldStyles.labelStyle}>
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
 
-      <div ref={anchorRef} className="relative w-full">
+      <div className="relative w-full">
         {manualMode ? (
           <p style={{ ...fieldStyles.helpTextStyle, margin: 0 }}>
             Manual entry open — fill in below, then choose &ldquo;Use this company&rdquo;.
@@ -415,6 +419,7 @@ export const CompanyLookupAbrRuntime: React.FC<RuntimeComponentProps> = ({
             )}
           </>
         )}
+      </div>
       </div>
 
       <EdfAnchorPortal open={showResults} anchorRef={anchorRef} minWidth={240} contentScale={artboardScale}>

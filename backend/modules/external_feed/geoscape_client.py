@@ -61,8 +61,10 @@ class GeoScapeClient:
         self.api_key = api_key or os.getenv("GEOSCAPE_API_KEY", "").strip()
         if not self.api_key:
             raise RuntimeError(
-                "GEOSCAPE_API_KEY is not configured. Add it to backend/.env and restart "
-                "uvicorn (e.g. cd backend; python -m uvicorn main:app --reload)."
+                "GEOSCAPE_API_KEY is not configured. Set the Application Setting / environment "
+                "variable GEOSCAPE_API_KEY on the API host (local: backend/.env then restart "
+                "uvicorn; Azure Test: App Service Configuration → restart the app). "
+                "Changing .env on your PC does not affect the Test slot."
             )
 
     def _headers(self) -> Dict[str, str]:

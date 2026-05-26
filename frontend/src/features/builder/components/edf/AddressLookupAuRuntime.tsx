@@ -13,6 +13,8 @@ import { DEFAULT_GLOBAL_STYLES } from '../../types/builder.types';
 import { useDebouncedLookup } from '../../hooks/useDebouncedLookup';
 import { EdfLookupResultsPanel } from './EdfLookupResultsPanel';
 import { EdfAnchorPortal } from './EdfAnchorPortal';
+import { useEdfOverlayRegister } from './EdfOverlayContext';
+import { EDF_LOOKUP_RESULT_ROW_CLASS } from './edfLookupStyles';
 
 export const AddressLookupAuRuntime: React.FC<RuntimeComponentProps> = ({
   component,
@@ -116,6 +118,13 @@ export const AddressLookupAuRuntime: React.FC<RuntimeComponentProps> = ({
     inputText.trim().length >= 2 &&
     (isLoading || !!searchError || suggestions.length > 0);
 
+  useEdfOverlayRegister(component.id, showResults);
+
+  const resultRowStyle: React.CSSProperties = {
+    fontFamily: fieldStyles.computed.fontFamily,
+    fontSize: fieldStyles.computed.fontSize,
+  };
+
   const label = component.props.label || 'Address';
   const placeholder = component.props.placeholder || 'Start typing your address…';
   const displayError = error;
@@ -136,7 +145,8 @@ export const AddressLookupAuRuntime: React.FC<RuntimeComponentProps> = ({
           type="button"
           disabled={disabled || !!resolvingId}
           onClick={() => handleSelect(item)}
-          className="w-full text-left px-3 py-2 text-sm leading-snug border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-teal-50 dark:hover:bg-teal-900/20 focus:outline-none focus:bg-teal-50 dark:focus:bg-teal-900/20 truncate"
+          className={`${EDF_LOOKUP_RESULT_ROW_CLASS} text-sm truncate`}
+          style={resultRowStyle}
           title={item.label}
         >
           {item.label}
@@ -147,11 +157,12 @@ export const AddressLookupAuRuntime: React.FC<RuntimeComponentProps> = ({
 
   return (
     <div style={fieldStyles.containerStyle} className="w-full">
+      <div ref={anchorRef} className="relative w-full">
       <label style={fieldStyles.labelStyle}>
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      <div ref={anchorRef} className="relative">
+      <div className="relative">
         <input
           ref={inputRef as React.RefObject<HTMLInputElement>}
           type="text"
@@ -174,6 +185,7 @@ export const AddressLookupAuRuntime: React.FC<RuntimeComponentProps> = ({
         {resolvingId && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400 pointer-events-none" />
         )}
+      </div>
       </div>
 
       <EdfAnchorPortal open={showResults} anchorRef={anchorRef} contentScale={artboardScale}>

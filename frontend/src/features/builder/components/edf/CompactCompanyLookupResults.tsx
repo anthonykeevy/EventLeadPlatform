@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CompanySearchResult } from '../../../companies/api/companiesApi';
 import { abnStatusPresentation } from './abnStatusUtils';
+import { EDF_LOOKUP_RESULT_ROW_CLASS } from './edfLookupStyles';
 
 interface CompactCompanyLookupResultsProps {
   results: CompanySearchResult[];
@@ -46,7 +47,7 @@ export const CompactCompanyLookupResults: React.FC<CompactCompanyLookupResultsPr
             key={`${result.abn ?? 'na'}-${index}`}
             type="button"
             onClick={() => onSelect(result)}
-            className="w-full text-left px-3 py-2 leading-snug border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-teal-50 dark:hover:bg-teal-900/20 focus:outline-none focus:bg-teal-50 dark:focus:bg-teal-900/20 text-gray-900 dark:text-gray-100"
+            className={EDF_LOOKUP_RESULT_ROW_CLASS}
             style={resultStyle}
             title={primary}
           >

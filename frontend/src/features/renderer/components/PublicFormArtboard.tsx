@@ -11,6 +11,8 @@ import type { ValidationContext } from '../../builder/types/validationRule.types
 import { evaluateRules } from '../../logic-engine/evaluateRules'
 import type { ComponentRuntimeState } from '../../logic-engine/types'
 import { ComponentErrorBoundary } from './ComponentErrorBoundary'
+import { EdfOverlayProvider } from '../../builder/components/edf/EdfOverlayContext'
+import { FormFieldShell } from './FormFieldShell'
 import type {
   PublicFormSubmissionRequest,
   PublicOutboxItem,
@@ -952,6 +954,7 @@ export const PublicFormArtboard: React.FC<{
             height: canvasHeight * scale,
           }}
         >
+          <EdfOverlayProvider>
           <div
             style={{
               width: canvasWidth,
@@ -1133,8 +1136,9 @@ export const PublicFormArtboard: React.FC<{
               const height = c.style?.height != null ? `${c.style.height}px` : undefined
 
               return (
-                <div
+                <FormFieldShell
                   key={c.id}
+                  componentId={c.id}
                   style={{
                     position: 'absolute',
                     left: `${left}px`,
@@ -1176,11 +1180,12 @@ export const PublicFormArtboard: React.FC<{
                       artboardScale={scale}
                     />
                   </ComponentErrorBoundary>
-                </div>
+                </FormFieldShell>
               )
             })}
             </div>
           </div>
+          </EdfOverlayProvider>
         </div>
       </div>
 

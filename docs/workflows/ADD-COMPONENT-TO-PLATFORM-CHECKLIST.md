@@ -57,7 +57,9 @@ Skip if component is fully offline (e.g. plain `text`, manual `address`).
 Catalog seed + registry stub is **not sufficient** for network-dependent components. Before marking an EDF component done:
 
 - [ ] **Properties ↔ runtime wiring:** Every toggle in `PropertiesSchemaJSON` is read in the runtime component (grep `component.props.<name>`). *Failure mode:* `allowManualFallback` saved but ignored.
-- [ ] **All floating UI uses `EdfAnchorPortal`:** Lookup dropdowns, manual-entry panels, warnings — anything extending beyond the field box. Published forms use absolute positioning; inline overlays are painted over by later fields.
+- [ ] **All floating UI uses `EdfAnchorPortal`:** Lookup dropdowns, manual-entry panels, API error panels — anything extending beyond the field box. Published forms use absolute positioning; later fields overlap visually without portal + lift.
+- [ ] **`useEdfOverlayRegister` + `FormFieldShell`:** While overlay is open, the owning field wrapper z-index lifts (`EdfOverlayProvider` in `PublicFormArtboard`). Register `showResults || manualMode` (include error state).
+- [ ] **Anchor wraps label + input:** `anchorRef` on the full field block so the portal positions below the entire component.
 - [ ] **Scaled preview parity:** Test on `PublicFormArtboard` (CSS `transform: scale()`). Portaled UI must use `contentScale` / anchor auto-scale so typography matches in-form fields.
 - [ ] **Panel states:** Loading, zero results, API error, and manual fallback (if enabled) each open/close correctly; zero results must not require `results.length > 0` to show the panel.
 - [ ] **Manual fallback path (if applicable):** Enter → confirm (“Use this company” or equivalent) → display committed value → edit → submit. Inspect `FormSubmission.AnswersJSON` for structured payload (`validationSource`, resolved fields).
@@ -66,6 +68,7 @@ Catalog seed + registry stub is **not sufficient** for network-dependent compone
 - [ ] **Reset behaviour:** After kiosk/public reset, lookup fields clear; auto-select does not repopulate. Consider `key={componentId-sessionId}` remount if needed.
 - [ ] **Inactive / block flags:** If properties include warn/block on external status (e.g. inactive ABN), test dropdown badges, post-select banner, and submit blocking.
 - [ ] **AI generate smoke:** Explicitly prompt for the EDF type in UAT — LLM may otherwise emit plain `text` fields even when the type is catalog-resident.
+- [ ] **Portaled UI theme contrast:** Floating EDF UI renders via `EdfAnchorPortal` on `document.body` — it does **not** inherit inline colours from the field input. Every text/background pair needs explicit light **and** `dark:` Tailwind classes (see `edfLookupStyles.ts`). UAT with account **Dark Theme** enabled on `<html class="dark">`, not only the form builder canvas.
 
 **Reference implementations:** `frontend/src/features/builder/components/edf/CompanyLookupAbrRuntime.tsx`, `AddressLookupAuRuntime.tsx`, `EdfAnchorPortal.tsx`.
 

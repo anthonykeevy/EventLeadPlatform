@@ -12,7 +12,7 @@ from modules.companies.router import smart_company_search
 from modules.companies.schemas import SmartSearchRequest
 
 from . import address_cache_service
-from .geoscape_client import GeoScapeClient
+from .geoscape_client import GeoScapeClient, geoscape_api_key_configured
 
 
 router = APIRouter(prefix="/api/external-feed", tags=["External Feed"])
@@ -68,6 +68,15 @@ def _map_geoscape_resolve(payload: Dict[str, Any], psma_id: str) -> Dict[str, An
         },
         "validationSource": "geoscape",
     }
+
+
+@router.get("/address-au/status")
+async def address_au_status(
+    current_user: Optional[CurrentUser] = Depends(get_current_user_optional),
+) -> Dict[str, bool]:
+    """Non-secret probe for UAT — confirms GEOSCAPE_API_KEY is visible to the API process."""
+    _ = current_user
+    return {"configured": geoscape_api_key_configured()}
 
 
 @router.get("/address-au/search")

@@ -72,6 +72,13 @@ python scripts/get_database_schema.py -o docs/database-schema.md
 | `check_uat_forms_504_813.py` | 6.5c | UAT form replay diagnostics |
 | `verify_component_catalog_alignment.py` | **6.5d** | After any `FormBuilderComponent` change; proves init = resolver = prompt = validator |
 
+**Run after Tony applies migrations:**
+
+```powershell
+cd backend
+python scripts/verify_component_catalog_alignment.py
+```
+
 ---
 
 ## Integration handoff docs (external / cross-project)
@@ -87,6 +94,8 @@ python scripts/get_database_schema.py -o docs/database-schema.md
 
 | Idea | Trigger | Owner |
 |------|---------|-------|
+| `verify_edf_props_wired.py` | 6.5d UAT: property saved in builder but ignored at runtime (`allowManualFallback`) | **Story 6.5e-vision Track 0** — diff PropertiesSchemaJSON vs runtime reads per EDF `ComponentCode` |
+| Catalog alignment in CI | Post-migration drift between four consumers | Extend `run-green-gate.ps1` or deploy workflow after `alembic upgrade head` on Test |
 | `alembic_head_report.ps1` | Tony asks "what migrations are pending?" | SM doc only — **never run Alembic in agent** |
 | Local deploy smoke (uvicorn + health) | Pre-push gate optional | Consider extending `run-green-gate.ps1` |
 | Friction log aggregator | Parse `STORY-*-IMPLEMENTATION-FRICTION-LOG.md` across stories | Post-Epic 6 retro |
@@ -102,4 +111,4 @@ python scripts/get_database_schema.py -o docs/database-schema.md
 
 ---
 
-*Last updated: 2026-05-21 (Tony: agent logging + database reference tools; GeoScape/ABR handoffs).*
+*Last updated: 2026-05-28 (6.5d closeout: `verify_component_catalog_alignment.py` usage; planned `verify_edf_props_wired.py` for 6.5e Track 0).*

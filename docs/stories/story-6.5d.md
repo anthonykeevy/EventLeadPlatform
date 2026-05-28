@@ -3,10 +3,10 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.5d  
 **Title:** Clarification dropdowns + Block E registry + catalog backlog + AU address-lookup + component registration process  
-**Status:** ✅ **Dev complete — Ready for SM review / merge** (2026-05-25)  
-**Branch:** `story/epic6-6.5d-clarification-component-platform`  
-**PR:** [#109](https://github.com/anthonykeevy/EventLeadPlatform/pull/109) — Draft → `develop`  
-**Completed (dev):** 2026-05-25 · **Merged:** pending PR #109  
+**Status:** ✅ **Complete** (2026-05-25 merged; Azure Test UAT 2026-05-26)  
+**Branch:** `story/epic6-6.5d-clarification-component-platform` *(archived)*  
+**PRs:** [#109](https://github.com/anthonykeevy/EventLeadPlatform/pull/109) (story/docs), [#111](https://github.com/anthonykeevy/EventLeadPlatform/pull/111) (implementation), [#112](https://github.com/anthonykeevy/EventLeadPlatform/pull/112) (EDF Test UAT), [#113](https://github.com/anthonykeevy/EventLeadPlatform/pull/113) (closeout) → `develop`  
+**Completed:** 2026-05-25 *(PR #109 `mergedAt`)* · **Doc closeout:** 2026-05-28 *(PR #113)*  
 **Created:** 2026-05-21  
 **Size:** L–XL (two tracks; single story per product decision)
 

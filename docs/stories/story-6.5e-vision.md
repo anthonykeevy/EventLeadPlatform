@@ -3,9 +3,10 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.5e-vision *(was 6.5b-vision — renamed 2026-05-20)*  
 **Title:** Track 0 — component platform hardening (6.5d follow-through) + Track 1 — screenshot/photo → `FormSemanticPlan`  
-**Status:** 📋 **Ready for SM pack** (worktree not opened)  
-**Branch:** `story/epic6-6.5e-vision-image-to-form` *(planned)*  
-**PR:** TBD — Draft → `develop`  
+**Status:** 🔄 **In progress — SM pack complete; Dev implementation**  
+**Branch:** `story/epic6-6.5e-vision-image-to-form`  
+**Worktree:** `C:\wt\elp\story-epic6-6.5e-vision-image-to-form`  
+**PR:** [#116](https://github.com/anthonykeevy/EventLeadPlatform/pull/116) — Draft → `develop`  
 **Created:** 2026-05-28  
 **Size:** L (Track 0: S · Track 1: M per ideation brief)
 
@@ -92,7 +93,25 @@ Per ideation brief: screenshot/photo input → vision model → `FormSemanticPla
 
 ---
 
-## 4) References
+## 4) SM story pack (Dev handoff)
+
+| Artifact | Path |
+|----------|------|
+| Context | `story-context-6.5e-vision.xml` |
+| Dev prompt | `STORY-6.5e-vision-SINGLE-SESSION-DEV-PROMPT.md` |
+| UAT guide | `STORY-6.5e-vision-UAT-TEST-GUIDE.md` |
+| UAT results | `STORY-6.5e-vision-UAT-RESULTS.md` |
+| Gate evidence | `STORY-6.5e-vision-GATE-EVIDENCE.md` |
+| Friction log | `STORY-6.5e-vision-IMPLEMENTATION-FRICTION-LOG.md` |
+| Checklist audit template | `STORY-6.5e-COMPONENT-CHECKLIST-AUDIT-TEMPLATE.md` |
+| Canvas contract | `STORY-6.5b-CANVAS-PRESERVATION-CONTRACT.md` |
+| Feasibility | `STORY-6.5-FEASIBILITY-NOTES.md` |
+
+**Dev entry:** Open worktree in Cursor → `@bmad-agent-bmm-dev` with `STORY-6.5e-vision-SINGLE-SESSION-DEV-PROMPT.md`.
+
+---
+
+## 5) References
 
 - `STORY-6.5d-CLOSEOUT-REPORT.md` §6 — checklist improvements  
 - `STORY-6.5d-IMPLEMENTATION-FRICTION-LOG.md` — automation candidates  

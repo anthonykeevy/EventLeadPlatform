@@ -4,7 +4,7 @@
 
 **🚀 Environment Promotion (adopted 2026-05-19):** Worktree (Dev) → `develop` (Azure Test slot, auto-deploy) → `master` (Production, future via Story 6.11). See **§ Environment Promotion Workflow** below for the full rules. **Story PRs now target `develop`, not `master`.**
 
-**Current Focus (updated 2026-05-28 — Story 6.5d Complete):** **(1)** **Release PR `develop` → `master`** — reconcile ~38 commits (6.5b–6.5d + Epic 6 Test track) before production; tag `pre-release-2026-05-28`. **(2)** **Story 6.5e-vision** — Track 0 component-platform hardening (6.5d follow-through) then image-to-form path; SM runs `new-story.ps1`. **(3)** **Story 6.11 — Production Environment + CI/CD** — scheduled post-6.10.
+**Current Focus (updated 2026-05-28 — Story 6.5e-vision opened):** **(1)** **Story 6.5e-vision** — Dev implements in worktree `C:\wt\elp\story-epic6-6.5e-vision-image-to-form` (Track 0 platform hardening → Track 1 image-to-form). **(2)** Tony opens worktree folder in Cursor for `@bmad-agent-bmm-dev`. **(3)** **Story 6.11** — Production Environment + CI/CD — scheduled post-6.10.
 **Story 6.2.1 Status:** ✅ Complete (merged 2026-03-30, PR #54)  
 **Story 6.2.2 Status:** ✅ Complete (merged 2026-03-31, PR #55)  
 **Story 6.3 Status:** ✅ **Closed (Learning)** — closed after UAT findings; see `STORY-6.3-CLOSEOUT-REPORT.md` (2026-04-15)  
@@ -26,6 +26,7 @@
 **Story 6.5b Status:** ✅ **Complete** (2026-05-20, PR #104 + #105 merged to `develop`) — Prompt Assembly Registry foundation; **R6 closed** on Azure Test. Evidence: `STORY-6.5b-UAT-RESULTS.md`, `STORY-6.5b-PROMPT-EQUIVALENCE-DIFF.md` (AC-19 PASS, Tony sign-off).  
 **Story 6.5c Status:** ✅ **Complete** (2026-05-21, PR #106 + #107 merged to `develop`) — Capability catalog cutover; toolbox = init = AI ALLOWED = validator. LocalDB + Azure Test UAT pass. Evidence: `STORY-6.5c-UAT-TEST-GUIDE.md`, `STORY-6.5c-CLOSEOUT-REPORT.md`.
 **Story 6.5d Status:** ✅ **Complete** (2026-05-25 merged PR #109; impl #111/#112; closeout #113; Azure Test UAT 2026-05-26) — Clarification data plane + catalog completion + EDF runtime. Evidence: `STORY-6.5d-CLOSEOUT-REPORT.md`, `STORY-6.5d-UAT-RESULTS.md`.
+**Story 6.5e-vision Status:** 🔄 **In progress** (2026-05-28 — SM pack; worktree + Draft PR) — Track 0 checklist/props script; Track 1 vision path. Evidence: `STORY-6.5e-vision-SINGLE-SESSION-DEV-PROMPT.md`.
 **Story 6.11 Status:** ⏳ **Scheduled** (post-6.10) — Production Environment + CI/CD + Manual Approval Gate. Scope per `docs/architecture/azure-infrastructure-architecture.md` §4 + §7. Sequenced last so production opens with billing live (6.6–6.10).
 **Test Environment Status:** ✅ **Live** since 2026-05-14 — Azure App Service test slot `signalplatforms-test`, `develop` branch auto-deploys via `.github/workflows/deploy-to-test.yml`. ACS Email + ODBC URL translator + SPA-from-FastAPI + Alembic-on-startup all validated. **`develop` is ahead of `master`** (~38 commits through Story 6.5d as of 2026-05-28) — reconcile via **release PR `develop` → `master`** (Tony approves; no production deploy until Story 6.11).
 

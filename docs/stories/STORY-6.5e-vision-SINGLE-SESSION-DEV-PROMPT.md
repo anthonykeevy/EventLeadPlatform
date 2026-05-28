@@ -4,7 +4,7 @@ You are implementing **Story 6.5e-vision — Component Platform Hardening + Imag
 
 **Worktree:** `C:\wt\elp\story-epic6-6.5e-vision-image-to-form`  
 **Branch:** `story/epic6-6.5e-vision-image-to-form`  
-**PR:** Draft → `develop` *(URL in story-6.5e-vision.md after SM push)*  
+**PR:** [#116](https://github.com/anthonykeevy/EventLeadPlatform/pull/116) — Draft → `develop`  
 **Base:** `develop` at head **095** (Alembic); `master` reconciled 2026-05-28 (PR #115)
 
 ---

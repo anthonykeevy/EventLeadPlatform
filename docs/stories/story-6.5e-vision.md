@@ -6,7 +6,7 @@
 **Status:** 🔄 **In progress — SM pack complete; Dev implementation**  
 **Branch:** `story/epic6-6.5e-vision-image-to-form`  
 **Worktree:** `C:\wt\elp\story-epic6-6.5e-vision-image-to-form`  
-**PR:** Draft → `develop` *(URL updated after push — see below)*  
+**PR:** [#116](https://github.com/anthonykeevy/EventLeadPlatform/pull/116) — Draft → `develop`  
 **Created:** 2026-05-28  
 **Size:** L (Track 0: S · Track 1: M per ideation brief)
 

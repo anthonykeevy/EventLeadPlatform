@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.5e-vision" title="Component Platform Hardening + Image-to-Form Vision Path">
+
+  <overview>
+    Two tracks in one story (Tony-approved, same pattern as 6.5d).
+    Track 0 closes 6.5d process gaps: checklist v1.3 (§0c), verify_edf_props_wired.py,
+    per-component closeout matrix template, optional EDF polish and AI EDF prompt hints.
+    Track 1 adds multimodal image input → FormSemanticPlan → existing deterministic compiler
+    (6.3.1 path unchanged from semantic plan onward). Uses GPT-5 mini vision; registry-backed
+    prompt blocks; canvas dimensions preserved on replace (feasibility §2.6).
+  </overview>
+
+  <critical-objectives>
+    <item>Track 0: ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md at v1.3 with §0c shipped.</item>
+    <item>Track 0: verify_edf_props_wired.py + tests; EPIC-6-SM-TOOLS-REGISTRY.md updated.</item>
+    <item>Track 0: STORY-6.x-COMPONENT-CHECKLIST-AUDIT template for AC-4 matrix at closeout.</item>
+    <item>Track 1: Image attach UX in AI Agent panel; generate with vision when image present.</item>
+    <item>Track 1: Backend multimodal path produces valid FormSemanticPlan; validator + compiler unchanged.</item>
+    <item>Track 1: Registry Block for vision / layout tier map (no hardcoded vision constants in service.py).</item>
+    <item>Track 1: Canvas preservation contract documented (STORY-6.5b-CANVAS-PRESERVATION-CONTRACT.md).</item>
+    <item>Track 1: generation_source=image on GenerationRun; low-confidence uses 6.5d clarification (Block E).</item>
+    <item>STORY-6.5e-vision-IMPLEMENTATION-FRICTION-LOG.md completed at closeout.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.5d">Complete. Catalog, EDF pair, clarification Block E, checklist v1.2 §0b.</story>
+    <story id="6.5c">Complete. resolve_allowed_components, init-only toolbox.</story>
+    <story id="6.5b">Complete. Prompt Assembly Registry.</story>
+    <story id="6.3.1">Complete. FormSemanticPlan + deterministic compiler + remeasure.</story>
+    <doc path="docs/stories/STORY-6.5-FEASIBILITY-NOTES.md">Image-to-form feasibility (GPT-5 mini vision, canvas preservation, endpoint sketch).</doc>
+    <doc path="docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md">v1.3 target — read before framework rendering docs.</doc>
+    <doc path="docs/architecture/prompt-assembly-registry-architecture.md">New registry sections for vision blocks.</doc>
+    <doc path="docs/stories/STORY-6.5d-CLOSEOUT-REPORT.md">§6 checklist improvements + EDF lessons.</doc>
+    <doc path="docs/stories/EPIC-6-CARRY-FORWARD-BACKLOG.md">g-65e-* and g-65d-* items absorbed here.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do NOT run Alembic. Tony executes migrations (likely 096+ for vision metadata).</item>
+    <item>Track 0 BEFORE Track 1 — no vision code until props-wiring script + checklist v1.3 land.</item>
+    <item>Do NOT implement full PII detection layers (Story 6.5g-PII). MVP: optional is_mock_data checkbox + storage stub only if PM agrees in dev plan.</item>
+    <item>Do NOT implement 6.5f-style (style intent) or 6.5h-fonts in this story.</item>
+    <item>Stay on GPT-5 mini for vision unless UAT fails bar — then image-only model fallback per feasibility §3.1.</item>
+    <item>Text-only generate path must not regress (6.5b/6.5d regression tests green).</item>
+    <item>PowerShell-safe commands only.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="backend/scripts/verify_edf_props_wired.py" note="Track 0 — new."/>
+    <path file="backend/scripts/verify_component_catalog_alignment.py" note="Track 0 — keep passing."/>
+    <path file="backend/modules/form_ai/service.py" note="Track 1 — branch multimodal vs text; reuse generate_form_definition tail."/>
+    <path file="backend/modules/form_ai/schemas.py" note="Track 1 — optional image ref / generation_source on request."/>
+    <path file="backend/modules/form_ai/router.py" note="Track 1 — extend /generate or add /generate-from-image per dev plan."/>
+    <path file="backend/modules/form_ai/prompt_assembly/resolver.py" note="Track 1 — vision / tier-map registry sections."/>
+    <path file="backend/modules/form_ai/prompt_assembly/renderer.py" note="Track 1 — inject vision block."/>
+    <path file="frontend/src/features/builder/components/ai/AIAgentPanel.tsx" note="Track 1 — image upload UI (separate from dev-only JSON replay)."/>
+    <path file="frontend/src/features/builder/api/aiFormGenerationApi.ts" note="Track 1 — multipart or base64 transport."/>
+    <path file="frontend/src/features/builder/components/edf/CompanyLookupAbrRuntime.tsx" note="Track 0 — props wiring reference for script."/>
+    <path file="backend/tests/test_story_6_5e_*.py" note="Track 0 + Track 1 focused tests."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.5e-vision.md" purpose="Story spec."/>
+    <file path="docs/stories/story-context-6.5e-vision.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.5e-vision-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev contract."/>
+    <file path="docs/stories/STORY-6.5e-vision-UAT-TEST-GUIDE.md" purpose="Tony + SM UAT."/>
+    <file path="docs/stories/STORY-6.5e-vision-GATE-EVIDENCE.md" purpose="Pytest evidence."/>
+    <file path="docs/stories/STORY-6.5e-vision-IMPLEMENTATION-FRICTION-LOG.md" purpose="Mandatory closeout."/>
+    <file path="docs/stories/STORY-6.5e-COMPONENT-CHECKLIST-AUDIT-TEMPLATE.md" purpose="Track 0 closeout matrix."/>
+    <file path="docs/stories/STORY-6.5b-CANVAS-PRESERVATION-CONTRACT.md" purpose="Track 1 canvas rules."/>
+    <file path="docs/stories/STORY-6.5-FEASIBILITY-NOTES.md" purpose="Vision architecture reference."/>
+  </required-artifacts>
+
+</story-context>

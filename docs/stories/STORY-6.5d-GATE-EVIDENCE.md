@@ -1,7 +1,7 @@
 # Story 6.5d — Gate Evidence
 
-**Date:** 2026-05-25  
-**Branch:** `story/epic6-6.5d-clarification-component-platform`  
+**Date:** 2026-05-26  
+**Branch:** `develop` (merged via PRs #109, #111, #112)  
 **Alembic (Tony executes):** `086` → `095`
 
 ## Automated checks
@@ -16,8 +16,8 @@
 | Guide | Result |
 |-------|--------|
 | `STORY-6.5d-UAT-TEST-GUIDE.md` | Track A, Track B, Regression **Pass** (local, 2026-05-25) |
-| `STORY-6.5d-UAT-RESULTS.md` | Tony sign-off recorded |
-| Azure Test | Pending post-merge |
+| `STORY-6.5d-UAT-RESULTS.md` | **Pass** — local + Azure Test (2026-05-26) |
+| Azure Test | **Pass** — deploy [#111](https://github.com/anthonykeevy/EventLeadPlatform/pull/111), UAT fixes [#112](https://github.com/anthonykeevy/EventLeadPlatform/pull/112) |
 
 ## Architecture gate
 
@@ -26,5 +26,6 @@
 
 ## Notes
 
-- Full `pytest` suite not re-run after EDF UAT fixes — recommend CI on PR #109 before merge.
-- EDF runtime UAT (portal scale, manual ABR, submit payload) validated manually; not in automated suite yet.
+- EDF runtime UAT (portal layering, dark theme, GeoScape on Test) validated manually on Azure Test 2026-05-26.
+- Checklist §0b (EDF runtime parity + portaled theme contrast) updated in T02.
+- Story ready for SM sign-off; production promotion via `develop` → `master` release PR when scheduled.

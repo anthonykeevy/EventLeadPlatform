@@ -72,6 +72,15 @@ Catalog seed + registry stub is **not sufficient** for network-dependent compone
 
 **Reference implementations:** `frontend/src/features/builder/components/edf/CompanyLookupAbrRuntime.tsx`, `AddressLookupAuRuntime.tsx`, `EdfAnchorPortal.tsx`.
 
+### 0c. Global / non-EDF new components (mandatory — Story 6.5e Track 0)
+
+Skip for EDF-only touch-ups. When seeding or restoring a **non-network** type (`rating`, `url`, `file-upload`, `paragraph`, `address`, etc.):
+
+- [ ] **Per-component closeout row** in story closeout: `ComponentCode` × checklist §1–7 (AC-4 matrix) — not a narrative summary only.
+- [ ] **Published-form submit smoke:** drag type → fill/sample → submit → inspect `FormSubmission.AnswersJSON` shape.
+- [ ] **`validationEngine` / export:** if type has special validation or decomposed export, register rules (§5).
+- [ ] **Scaled preview:** if the type uses any overlay (rare for global types), same portal/scale rules as §0b.
+
 ---
 
 ## 1. Reference data (`ref.ComponentType`)
@@ -164,4 +173,4 @@ Proves shared EDF pattern for future network-dependent components.
 
 ---
 
-*Process version 1.2 — Story 6.5d closeout (EDF runtime parity §0b).*
+*Process version 1.3 — Story 6.5e Track 0 target (§0c global-component smoke; v1.2 §0b EDF parity unchanged).*

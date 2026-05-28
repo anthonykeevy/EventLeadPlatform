@@ -1,10 +1,10 @@
 # Story 6.5d — Closeout Report
 
 **Story:** Clarification Data Plane + Component Catalog Completion  
-**Date:** 2026-05-25  
-**Status:** ✅ **Dev complete — Ready for SM review / merge** (PR [#109](https://github.com/anthonykeevy/EventLeadPlatform/pull/109) Draft → `develop`)  
-**Dev complete:** 2026-05-25 · **Merged:** pending PR #109  
-**Worktree:** `C:\wt\elp\story-epic6-6.5d-clarification-component-platform`
+**Date:** 2026-05-26  
+**Status:** ✅ **Complete — merged to `develop`, Azure Test UAT passed**  
+**Merged PRs:** [#109](https://github.com/anthonykeevy/EventLeadPlatform/pull/109) (story/docs), [#111](https://github.com/anthonykeevy/EventLeadPlatform/pull/111) (T01 implementation), [#112](https://github.com/anthonykeevy/EventLeadPlatform/pull/112) (T02 EDF Test UAT fixes)  
+**Worktree:** `C:\wt\elp\story-epic6-6.5d-clarification-component-platform` (archived — use `develop` for follow-on work)
 
 ---
 
@@ -41,7 +41,7 @@ Story 6.5d delivered **two tracks** in one PR:
 | Focused pytest | 6.5d + 6.5c regression | **11/11 PASS** (2026-05-25) |
 | Catalog alignment | `verify_component_catalog_alignment.py` | **PASS** — 21 codes |
 | Gate evidence | `STORY-6.5d-GATE-EVIDENCE.md` | Updated |
-| UAT | `STORY-6.5d-UAT-RESULTS.md` | Track A, Track B, Regression **Pass** (local) |
+| UAT | `STORY-6.5d-UAT-RESULTS.md` | **Pass** — local (2026-05-25) + Azure Test (2026-05-26) |
 | Friction log | `STORY-6.5d-IMPLEMENTATION-FRICTION-LOG.md` | Complete |
 
 ---
@@ -74,6 +74,7 @@ alembic upgrade head
 | `GET /api/ref/audience-locales?formId=` | Clarification dropdown + resolved default |
 | `GET /api/ref/form-purposes?formId=` | Form purpose list + default |
 | `GET /api/ref/respondent-types?formId=` | Respondent type list + default |
+| `GET /api/external-feed/address-au/status` | Non-secret probe — `GEOSCAPE_API_KEY` configured (T02) |
 | `GET /api/external-feed/address-au/search?q=` | GeoScape proxy (requires `GEOSCAPE_API_KEY`) |
 | `POST /api/external-feed/address-au/resolve` | PSMA id → structured lines + cache |
 | `POST /api/external-feed/company-abr/search` | ABR smart-search proxy |
@@ -88,7 +89,7 @@ Initial implementation landed catalog seeds, proxy APIs, and registry runtimes. 
 
 | Item | What we had to do |
 |------|-------------------|
-| Floating UI layering | Published forms use absolute positioning; inline dropdowns/panels were painted over by later fields. Generalized **`EdfAnchorPortal`** (portaled to `document.body`, z-index 10000) for all EDF overlays. |
+| Floating UI layering | Published forms use absolute positioning; inline dropdowns/panels were painted over by later fields. **`EdfAnchorPortal`** → dedicated `#edf-overlay-root` on `body`; **`EdfOverlayProvider`** + **`FormFieldShell`** lift owning field z-index while overlay open (T02 [#112](https://github.com/anthonykeevy/EventLeadPlatform/pull/112)). |
 | Scaled preview/runtime | `PublicFormArtboard` applies `transform: scale()`; portaled UI rendered at browser 1:1 scale. Added **`artboardScale`** prop + **auto-detect scale** from anchor `offsetWidth` vs `getBoundingClientRect()`. |
 | Validation display | Runtime rendered `helpText` with error styling by default. Errors now only via `error` prop after submit trigger; **`edfFieldValue` / `validationEngine`** empty checks for lookup types. |
 | Form reset | Company field repopulated after submit reset (auto-select). **`skipAutoSelectRef`** + **`key={componentId-sessionId}`** remount on session rotate. |
@@ -110,6 +111,7 @@ Initial implementation landed catalog seeds, proxy APIs, and registry runtimes. 
 | Item | What we had to do |
 |------|-------------------|
 | Portal parity | Address dropdown moved to **`EdfAnchorPortal`** with `contentScale` (same scale fix as company). |
+| Dark theme (portaled UI) | Address result rows lacked `dark:text-*` while panel used `dark:bg-gray-900`. Shared **`edfLookupStyles.ts`** with company lookup (T02). |
 | Manual fallback | **Not implemented** — only company has manual-entry UI. Fallback remains plain `address` component per architecture. |
 
 ### Submission proof (Tony UAT)
@@ -151,7 +153,7 @@ See **`docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` §0b** (added in t
 | Track A A1–A5 | **Pass** | Catalog + alignment script; A4 needs explicit AU component prompt |
 | Track B B1–B5 | **Pass** | GenerationRun 170–171 store clarification codes |
 | Regression R1–R3 | **Pass** | Init-only toolbox; Block C; registry generate |
-| Azure Test | Pending | Post-merge to `develop` |
+| Azure Test | **Pass** | 2026-05-26 after [#111](https://github.com/anthonykeevy/EventLeadPlatform/pull/111) + [#112](https://github.com/anthonykeevy/EventLeadPlatform/pull/112) |
 
 Full detail: `STORY-6.5d-UAT-RESULTS.md`.
 
@@ -163,7 +165,7 @@ Full detail: `STORY-6.5d-UAT-RESULTS.md`.
 |----|-------------|----------|----------------|
 | `g-65d-address-manual-fallback` | Address lookup manual entry UI (company pattern exists; address still uses plain `address` fallback only). | P3 | Future EDF story or 6.5d follow-up task |
 | `g-65d-editable-legal-name` | `editableLegalNameAfterResolve` property not implemented on `company-lookup-abr`. | P3 | EDF polish task |
-| `g-65d-azure-uat` | Repeat A1–B2 on `signalplatforms-test` after merge. | P1 pre-prod | Tony post-merge |
+| `g-65d-azure-uat` | Repeat A1–B2 on `signalplatforms-test` after merge. | **Done** | Azure Test UAT 2026-05-26 — see `STORY-6.5d-UAT-RESULTS.md` |
 
 **Resolved this story:** `g-65-catalog-drift` (absorbed by 6.5d Track A).
 
@@ -176,7 +178,7 @@ Full detail: `STORY-6.5d-UAT-RESULTS.md`.
 | EDF components underestimated vs checklist | §0b EDF runtime parity added to checklist; friction log documents pattern |
 | AI omits AU EDF types without explicit prompt | Document in generate UX / few-shot examples; Block G already catalog-aligned |
 | Portaled UI scale regressions | Auto-detect anchor scale in `EdfAnchorPortal` |
-| Full pytest not re-run post-UAT fixes | CI on PR #109; recommend full `pytest` before merge |
+| Full pytest not re-run post-UAT fixes | CI on PRs #111/#112; focused tests green at implementation time |
 
 ---
 
@@ -190,9 +192,11 @@ Full detail: `STORY-6.5d-UAT-RESULTS.md`.
 - [x] Local UAT sign-off (`STORY-6.5d-UAT-RESULTS.md`)
 - [x] Gate evidence + friction log + closeout report (this document)
 - [x] Checklist §0b EDF runtime parity amendment
-- [ ] PR #109 merged to `develop`
-- [ ] Azure Test UAT (post-merge)
+- [x] PR #109 merged to `develop` (story/docs)
+- [x] PR #111 merged to `develop` (T01 implementation)
+- [x] PR #112 merged to `develop` (T02 Test UAT fixes)
+- [x] Azure Test UAT (2026-05-26)
 
 ---
 
-*Dev closeout — Story 6.5d — 2026-05-25.*
+*Story closeout — 6.5d — 2026-05-26 (local + Azure Test UAT complete).*

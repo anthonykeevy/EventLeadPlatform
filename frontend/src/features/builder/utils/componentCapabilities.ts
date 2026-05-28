@@ -76,6 +76,8 @@ export function getComponentCapabilities(type: ComponentType): ComponentCapabili
     case 'email':
     case 'url':
     case 'address':
+    case 'address-lookup-au':
+    case 'company-lookup-abr':
     case 'text':
     case 'textarea':
       return TEXT_INPUT_CAPABILITIES;

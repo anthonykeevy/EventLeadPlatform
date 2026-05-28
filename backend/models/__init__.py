@@ -95,6 +95,11 @@ from .config import (
     ComponentValidationContract,
     WidthClassPolicyVersion,
     PromptAssemblyProfile,
+    PromptAssemblyRegistry,
+    PromptAssemblyRegistryVersion,
+    PromptSection,
+    PromptSectionVariant,
+    PromptSectionData,
 )
 
 # Audit tables (audit schema)
@@ -212,6 +217,11 @@ __all__ = [
     "ComponentValidationContract",
     "WidthClassPolicyVersion",
     "PromptAssemblyProfile",
+    "PromptAssemblyRegistry",
+    "PromptAssemblyRegistryVersion",
+    "PromptSection",
+    "PromptSectionVariant",
+    "PromptSectionData",
     
     # Audit tables (audit)
     "ActivityLog",

@@ -9,6 +9,11 @@ class FormBuilderInitRequest(BaseModel):
     """Body for POST /api/form-builder/init."""
     companyId: int = Field(..., ge=1, description="Company ID")
     eventId: int = Field(..., ge=1, description="Event ID")
+    formId: Optional[int] = Field(
+        default=None,
+        ge=1,
+        description="Optional form ID for offline-capable catalog filtering",
+    )
 
 
 class FormBuilderInitContext(BaseModel):

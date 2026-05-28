@@ -293,7 +293,7 @@ export const ValidationSection: React.FC<ValidationSectionProps> = ({
         return true;
     }).length;
 
-    const isTextType = ['text', 'textarea', 'first-name'].includes(componentType);
+    const isTextType = ['text', 'textarea', 'first-name', 'address', 'address-lookup-au', 'company-lookup-abr'].includes(componentType);
     const isNumberType = componentType === 'number';
     const isEmailType = componentType === 'email';
     const isUrlType = componentType === 'url';
@@ -959,8 +959,13 @@ export const ValidationSection: React.FC<ValidationSectionProps> = ({
 
                                 <PropertyToggle
                                     label={<RuleLabel label="Country Code Required" ruleKey="countryCodeRequired" />}
-                                    checked={validation.countryCodeRequired ?? false}
-                                    onChange={(checked) => onValidationChange({ countryCodeRequired: checked || undefined })}
+                                    checked={validation.countryCodeRequired === true}
+                                    onChange={(checked) =>
+                                        onValidationChange({
+                                            countryCodeRequired: checked ? true : false,
+                                            ...(checked ? {} : { allowedCountries: undefined }),
+                                        })
+                                    }
                                     helpText="Must include +XX country prefix"
                                 />
                             </CollapsibleTier>

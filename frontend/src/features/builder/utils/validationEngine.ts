@@ -22,6 +22,11 @@ import { getCountryConfig } from '../data/validationRuleSeed';
 import { validatePhone } from './phoneValidation';
 import { isFreeEmailProvider } from '../data/freeEmailProviders';
 import { isDisposableEmailDomain } from '../data/disposableEmailDomains';
+import {
+    extractEdfDisplayText,
+    isEdfFieldValueEmpty,
+    isEdfLookupComponentType,
+} from './edfFieldValue';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTO-SANITIZATION (AUTO-FIX) FUNCTIONS
@@ -492,6 +497,24 @@ function validateUrl(
 // PHONE VALIDATION
 // ═══════════════════════════════════════════════════════════════════════════
 
+function resolvePhoneDefaultCountry(
+    rules: ValidationRules,
+    context?: ValidationContext
+): string | undefined {
+    const fromContext = context?.countryCode?.trim().toUpperCase();
+    if (fromContext && /^[A-Z]{2}$/.test(fromContext)) {
+        return fromContext;
+    }
+    if (rules.allowedCountries?.length === 1) {
+        return rules.allowedCountries[0];
+    }
+    // National format (04…) requires a default region when country code is not required.
+    if (rules.countryCodeRequired !== true) {
+        return 'AU';
+    }
+    return undefined;
+}
+
 function validatePhoneNumber(
     value: string,
     rules: ValidationRules,
@@ -499,20 +522,26 @@ function validatePhoneNumber(
 ): ValidationError[] {
     const errors: ValidationError[] = [];
 
-    // Use the phone validation utility
+    if (rules.phone === false) {
+        return errors;
+    }
+
     const result = validatePhone(value, {
-        countryCodeRequired: rules.countryCodeRequired,
+        countryCodeRequired: rules.countryCodeRequired === true,
         allowedCountries: rules.allowedCountries,
         mobileOnly: rules.mobileOnly,
-        defaultCountry: context?.countryCode as string,
+        defaultCountry: resolvePhoneDefaultCountry(rules, context),
     });
 
     if (!result.isValid) {
         for (const error of result.errors) {
+            const isCountryCodeError = error.includes('Country code is required');
             errors.push({
-                ruleKey: 'phone',
+                ruleKey: isCountryCodeError ? 'countryCodeRequired' : 'phone',
                 message: error,
-                messageKey: 'validation.phone.format',
+                messageKey: isCountryCodeError
+                    ? 'validation.phone.countryCodeRequired'
+                    : 'validation.phone.format',
             });
         }
     }
@@ -679,8 +708,12 @@ export function validateField(
     };
 
     // Handle required check first
-    const isEmpty = value === undefined || value === null || value === '';
-    
+    const isEmpty =
+        value === undefined ||
+        value === null ||
+        value === '' ||
+        (isEdfLookupComponentType(componentType) && isEdfFieldValueEmpty(value));
+
     if (rules.required && isEmpty) {
         result.isValid = false;
         result.errors.push({
@@ -746,6 +779,16 @@ export function validateField(
         case 'date':
             errors = validateDate(processedValue as string, rules, context);
             break;
+
+        case 'address-lookup-au':
+        case 'company-lookup-abr': {
+            const textValue = extractEdfDisplayText(processedValue);
+            const { sanitizedValue, fixes } = applyAutoFixes(textValue, rules, componentType);
+            result.sanitizedValue = sanitizedValue;
+            result.autoFixesApplied = fixes;
+            errors = validateText(sanitizedValue, rules, context);
+            break;
+        }
 
         default:
             // Generic text validation for unknown types

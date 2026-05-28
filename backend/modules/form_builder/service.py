@@ -8,10 +8,11 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
-from sqlalchemy import text, select
+from sqlalchemy import select, text
 
 from models.event import Event
 from models.company import Company
+from modules.form_builder.component_catalog import resolve_allowed_components
 from modules.form_defaults.service import resolve_merged_defaults
 
 
@@ -38,55 +39,39 @@ def resolve_country_id(db: Session, company_id: int, event_id: int) -> Optional[
     return company.CountryID if company.CountryID is not None else None
 
 
+def _form_requires_offline_capable(db: Session, form_id: Optional[int]) -> bool:
+    if form_id is None:
+        return False
+    row = db.execute(
+        text(
+            """
+            SELECT TOP 1 [RequiresOfflineCapable]
+            FROM [dbo].[Form]
+            WHERE [FormID] = :form_id AND [IsDeleted] = 0
+            """
+        ),
+        {"form_id": form_id},
+    ).fetchone()
+    if row is None:
+        return False
+    return bool(row.RequiresOfflineCapable)
+
+
 def get_allowed_components(
     db: Session,
     company_id: int,
     country_id: Optional[int],
+    *,
+    form_id: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
-    """
-    Load components: Global ∪ Country(country_id) ∪ Company(company_id).
-    Returns list of component dicts with componentCode, displayName, etc.
-    """
-    q = text("""
-        SELECT
-            fbc.ComponentCode,
-            fbc.DisplayName,
-            ct.Category,
-            fbc.SortOrder,
-            fbc.PropertiesSchemaJSON,
-            fbc.StructureJSON,
-            fbc.DefaultGridLayoutVerticalJSON,
-            fbc.DefaultGridLayoutHorizontalJSON,
-            fbc.ValidationConfigJSON
-        FROM [dbo].[FormBuilderComponent] fbc
-        JOIN [ref].[ComponentType] ct ON fbc.ComponentTypeID = ct.ComponentTypeID
-        JOIN [ref].[ComponentScope] cs ON fbc.ComponentScopeID = cs.ComponentScopeID
-        WHERE fbc.IsActive = 1 AND fbc.IsDeleted = 0
-        AND (
-            (cs.ScopeCode = 'Global' AND fbc.CountryID IS NULL AND fbc.CompanyID IS NULL)
-            OR (cs.ScopeCode = 'Country' AND fbc.CountryID = :country_id AND :country_id IS NOT NULL)
-            OR (cs.ScopeCode = 'Company' AND fbc.CompanyID = :company_id)
-        )
-        ORDER BY fbc.SortOrder, fbc.DisplayName
-    """)
-    result = db.execute(
-        q,
-        {"company_id": company_id, "country_id": country_id}
-    ).fetchall()
-    components = []
-    for row in result:
-        components.append({
-            "componentCode": row.ComponentCode,
-            "displayName": row.DisplayName,
-            "category": row.Category,
-            "sortOrder": row.SortOrder or 0,
-            "propertiesSchema": json.loads(row.PropertiesSchemaJSON) if row.PropertiesSchemaJSON else None,
-            "structure": json.loads(row.StructureJSON) if row.StructureJSON else None,
-            "defaultGridLayoutVertical": json.loads(row.DefaultGridLayoutVerticalJSON) if row.DefaultGridLayoutVerticalJSON else None,
-            "defaultGridLayoutHorizontal": json.loads(row.DefaultGridLayoutHorizontalJSON) if row.DefaultGridLayoutHorizontalJSON else None,
-            "validationConfig": json.loads(row.ValidationConfigJSON) if row.ValidationConfigJSON else None,
-        })
-    return components
+    """Thin wrapper over :func:`resolve_allowed_components` for init API shape."""
+    catalog = resolve_allowed_components(
+        db,
+        company_id,
+        country_id,
+        requires_offline_capable=_form_requires_offline_capable(db, form_id),
+    )
+    return [component.to_init_dict() for component in catalog.components]
 
 
 def filter_default_grid_layouts_by_components(
@@ -106,6 +91,8 @@ def build_init_payload(
     db: Session,
     company_id: int,
     event_id: int,
+    *,
+    form_id: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Build full init payload: context, merged defaults, components, definitionJSON skeleton.
@@ -113,7 +100,7 @@ def build_init_payload(
     """
     country_id = resolve_country_id(db, company_id, event_id)
     merged = resolve_merged_defaults(db, company_id)
-    components = get_allowed_components(db, company_id, country_id)
+    components = get_allowed_components(db, company_id, country_id, form_id=form_id)
     allowed_codes = [c["componentCode"] for c in components]
 
     dgl = filter_default_grid_layouts_by_components(merged, allowed_codes)

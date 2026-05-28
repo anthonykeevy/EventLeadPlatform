@@ -4,9 +4,15 @@ import { useBackgroundImageUrl } from '../../builder/hooks/useBackgroundImageUrl
 import { isBackgroundFullyOffCanvas } from '../../builder/utils/backgroundPlacementUtils'
 import { ComponentRegistry } from '../../builder/registry/ComponentRegistry'
 import { validateField } from '../../builder/utils/validationEngine'
+import { isEdfFieldValueEmpty, isEdfLookupComponentType } from '../../builder/utils/edfFieldValue'
+import { isInactiveAbnStatus } from '../../builder/components/edf/abnStatusUtils'
+import type { CompanyAbrResolvedValue } from '../../builder/api/externalFeedApi'
+import type { ValidationContext } from '../../builder/types/validationRule.types'
 import { evaluateRules } from '../../logic-engine/evaluateRules'
 import type { ComponentRuntimeState } from '../../logic-engine/types'
 import { ComponentErrorBoundary } from './ComponentErrorBoundary'
+import { EdfOverlayProvider } from '../../builder/components/edf/EdfOverlayContext'
+import { FormFieldShell } from './FormFieldShell'
 import type {
   PublicFormSubmissionRequest,
   PublicOutboxItem,
@@ -147,6 +153,8 @@ export const PublicFormArtboard: React.FC<{
   countdownSeconds?: number
   /** Scale mode: contain = fit inside viewport (may show borders), cover = fill viewport (no borders). */
   scaleMode?: 'contain' | 'cover'
+  /** ISO country for phone/date parsing (e.g. AU). */
+  defaultCountryCode?: string
 }> = ({
   definition,
   onSubmissionDeferred,
@@ -161,6 +169,7 @@ export const PublicFormArtboard: React.FC<{
   autoResetSeconds,
   countdownSeconds,
   scaleMode = 'contain',
+  defaultCountryCode,
 }) => {
   const pages = selectAuthoredPages(definition)
   const page = pages[0]
@@ -360,6 +369,29 @@ export const PublicFormArtboard: React.FC<{
     })
   }, [rules, values, componentsById, baseStateById])
 
+  const validationContext = React.useMemo((): ValidationContext | undefined => {
+    const code = (defaultCountryCode?.trim().toUpperCase() || 'AU');
+    if (!/^[A-Z]{2}$/.test(code)) return undefined;
+    return { countryCode: code };
+  }, [defaultCountryCode])
+
+  const fieldValidationMessage = (
+    component: FormComponent,
+    validation: NonNullable<FormComponent['props']['validation']>,
+    result: ReturnType<typeof validateField>
+  ): string | undefined => {
+    if (result.isValid || result.errors.length === 0) return undefined;
+    const first = result.errors[0];
+    if (first.ruleKey === 'countryCodeRequired') {
+      return (
+        validation.customError ||
+        component.props.validationMessage ||
+        first.message
+      );
+    }
+    return first.message || validation.customError || component.props.validationMessage;
+  }
+
   // Validation messages for all validation criteria (non-required)
   const validationMessages: FieldErrorMap = React.useMemo(() => {
     const next: FieldErrorMap = {}
@@ -386,14 +418,17 @@ export const PublicFormArtboard: React.FC<{
         componentType = 'date'
       }
 
-      const result = validateField(valueForValidation, effectiveRules, componentType)
-      if (!result.isValid && result.errors.length > 0) {
-        const customMessage = c.props.validationMessage || validation.customError
-        next[c.id] = customMessage || result.errors[0].message
-      }
+      const result = validateField(
+        valueForValidation,
+        effectiveRules,
+        componentType,
+        validationContext
+      )
+      const message = fieldValidationMessage(c, validation, result)
+      if (message) next[c.id] = message
     }
     return next
-  }, [components, stateById, values])
+  }, [components, stateById, values, validationContext])
 
   const computeErrors = React.useCallback((includeRequired: boolean) => {
     if (!includeRequired) return {}
@@ -409,8 +444,24 @@ export const PublicFormArtboard: React.FC<{
         v === undefined ||
         (typeof v === 'string' && v.trim().length === 0) ||
         (Array.isArray(v) && v.length === 0) ||
+        (isEdfLookupComponentType(c.type) && isEdfFieldValueEmpty(v)) ||
         (isDate && getDateValueString(v, c.props.dateParts).length === 0)
       if (isEmpty) next[c.id] = 'This field is required.'
+    }
+    for (const c of components) {
+      const runtime = stateById[c.id]
+      if (!runtime?.visible) continue
+      if (c.type !== 'company-lookup-abr' || !c.props.blockOnInactiveAbn) continue
+      const v = values[c.id] as CompanyAbrResolvedValue | undefined
+      if (
+        v &&
+        typeof v === 'object' &&
+        v.validationSource === 'abr' &&
+        isInactiveAbnStatus(v.abnStatus)
+      ) {
+        next[c.id] =
+          'This ABN is not Active on the Australian Business Register. Select an Active company or use manual entry if allowed.'
+      }
     }
     return next
   }, [components, stateById, values, validationMessages])
@@ -436,7 +487,8 @@ export const PublicFormArtboard: React.FC<{
         valueForValidation === null ||
         valueForValidation === undefined ||
         (typeof valueForValidation === 'string' && valueForValidation.trim().length === 0) ||
-        (Array.isArray(valueForValidation) && valueForValidation.length === 0)
+        (Array.isArray(valueForValidation) && valueForValidation.length === 0) ||
+        (isEdfLookupComponentType(c.type) && isEdfFieldValueEmpty(valueForValidation))
 
       if (runtime.required && isEmpty) {
         failures.push({
@@ -457,7 +509,12 @@ export const PublicFormArtboard: React.FC<{
       if (isDate && typeof valueForValidation === 'string' && valueForValidation.length === 0) continue
 
       const effectiveRules = { ...validation, required: false }
-      const result = validateField(valueForValidation, effectiveRules, componentType)
+      const result = validateField(
+        valueForValidation,
+        effectiveRules,
+        componentType,
+        validationContext
+      )
       if (!result.isValid) {
         for (const error of result.errors) {
           failures.push({
@@ -472,8 +529,30 @@ export const PublicFormArtboard: React.FC<{
       }
     }
 
+    for (const c of components) {
+      const runtime = stateById[c.id]
+      if (!runtime?.visible) continue
+      if (c.type !== 'company-lookup-abr' || !c.props.blockOnInactiveAbn) continue
+      const v = values[c.id] as CompanyAbrResolvedValue | undefined
+      if (
+        v &&
+        typeof v === 'object' &&
+        v.validationSource === 'abr' &&
+        isInactiveAbnStatus(v.abnStatus)
+      ) {
+        failures.push({
+          componentId: c.id,
+          componentType: c.type,
+          ruleType: 'blockOnInactiveAbn',
+          ruleCode: 'validation.company.abnInactive',
+          errorCategory: 'pattern',
+          valueDiagnostics: getValueDiagnostics(v),
+        })
+      }
+    }
+
     return failures
-  }, [components, stateById, values])
+  }, [components, stateById, values, validationContext])
 
   const errors: FieldErrorMap = React.useMemo(() => {
     if (!showValidation) return {}
@@ -875,6 +954,7 @@ export const PublicFormArtboard: React.FC<{
             height: canvasHeight * scale,
           }}
         >
+          <EdfOverlayProvider>
           <div
             style={{
               width: canvasWidth,
@@ -1056,8 +1136,9 @@ export const PublicFormArtboard: React.FC<{
               const height = c.style?.height != null ? `${c.style.height}px` : undefined
 
               return (
-                <div
+                <FormFieldShell
                   key={c.id}
+                  componentId={c.id}
                   style={{
                     position: 'absolute',
                     left: `${left}px`,
@@ -1075,6 +1156,7 @@ export const PublicFormArtboard: React.FC<{
                     }
                   >
                     <RuntimeComp
+                      key={`${c.id}-${clientSessionId}`}
                       component={c}
                       value={values[c.id]}
                       onChange={v => setValue(c.id, v)}
@@ -1095,13 +1177,15 @@ export const PublicFormArtboard: React.FC<{
                           ? { token, clientSessionId }
                           : undefined
                       }
+                      artboardScale={scale}
                     />
                   </ComponentErrorBoundary>
-                </div>
+                </FormFieldShell>
               )
             })}
             </div>
           </div>
+          </EdfOverlayProvider>
         </div>
       </div>
 

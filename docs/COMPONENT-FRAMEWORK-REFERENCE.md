@@ -4,7 +4,11 @@
 
 **Design objective:** The component framework was designed with the objective to **move defaults to the database**. Frontend structures (globalStyles, theme, defaultGridLayoutsByComponent, etc.) were built to validate the data shape; the intent is to drive these from Global → Company → Form defaults in the database. A **Component Catalog** (multi-country, multi-company) will deliver components + schemas per form context. See [Inheritance Model & Data Defaults](#-inheritance-model--data-defaults-for-components) below, `docs/stories/STORY-5.2-DATA-SCHEMA.md`, and `docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md`.
 
-> **Quick Reference:** [Component Framework Guide](./COMPONENT-FRAMEWORK-GUIDE.md) - Concise implementation guide for agents (read this first for any component work).
+> **Quick Reference:** [Component Framework Guide](./COMPONENT-FRAMEWORK-GUIDE.md) - Concise implementation guide for agents (**read first** for any component work).
+>
+> **Platform registration (mandatory since 6.5c):** [Add Component Checklist](./workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md) — catalog seed + init + AI + validator. Renderer-only changes without catalog rows are **incomplete**.
+>
+> **External data feed components:** [decision-external-data-feed-components.md](./architecture/decision-external-data-feed-components.md) — network-dependent lookups (address, ABR, future feeds).
 
 ## 🧭 Quick Start (Agents & Developers)
 
@@ -57,6 +61,43 @@ This document is intended to be a **single source of truth** for how components 
 - **Step 2**: Identify the layer (styles vs spacing vs layout vs constraints).
 - **Step 3**: Confirm the feature is allowed on that surface (`componentSurfaceCapabilities`).
 - **Step 4**: Confirm the component isn’t using ad-hoc margins/padding that bypass the layout engine.
+
+## 🌐 External Data Feed Components (EDF) — Platform + UI
+
+**Added:** 2026-05-21 (Story 6.5d). Applies to any component that calls a **third-party API** at runtime via **backend proxy** (not browser-direct).
+
+### Definition of done (EDF)
+
+An EDF component is **not done** when `ComponentRegistry.tsx` renders. It is done when:
+
+1. `ref.ComponentType` + `dbo.FormBuilderComponent` seeded (see checklist).
+2. `RequiresNetwork` / fallback code set per [decision-external-data-feed-components.md](./architecture/decision-external-data-feed-components.md).
+3. Backend proxy routes implemented and env vars documented.
+4. Init payload exposes `requiresNetwork` (+ fallback) for properties/toolbox UI.
+5. `resolve_allowed_components()` excludes EDF when form is offline-capable.
+6. Form AI + semantic validator use the same allowed set (6.5c four-consumer rule).
+7. `verify_component_catalog_alignment.py` passes for online and offline fixtures.
+8. Framework GUIDE inventory row + UAT in `STORY-6.5d-UAT-TEST-GUIDE.md`.
+
+### Story 6.5d instances
+
+| Code | Handoff |
+|------|---------|
+| `address-lookup-au` | [au-address-lookup-geoscape-handoff.md](./architecture/au-address-lookup-geoscape-handoff.md) |
+| `company-lookup-abr` | [abr-company-lookup-builder-handoff.md](./architecture/abr-company-lookup-builder-handoff.md) |
+
+### UI contract (builder)
+
+- Toolbox card: visual badge when `component.requiresNetwork === true` (from init).
+- Properties panel: show provider name, debounce, “requires internet at event” help text.
+- Runtime/public: debounced search → select → resolve; degrade gracefully on API timeout (user can switch to fallback component type at design time, not runtime swap).
+
+### Related database (catalog authority)
+
+- **Not** documented in depth here — see `docs/stories/COMPONENT-CATALOG-SCHEMA-DESIGN.md`, `backend/modules/form_builder/component_catalog.py`.
+- Agent logging for API failures: `docs/AGENT-LOGGING-GUIDE.md`.
+
+---
 
 ## 📏 Spacing Model (Framework Contract)
 

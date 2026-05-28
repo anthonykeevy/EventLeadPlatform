@@ -19,6 +19,7 @@ import { UrlPropertiesSection } from './properties/UrlPropertiesSection';
 import { FileUploadPropertiesSection } from './properties/FileUploadPropertiesSection';
 import { RatingPropertiesSection } from './properties/RatingPropertiesSection';
 import { DividerPropertiesSection } from './properties/DividerPropertiesSection';
+import { ExternalFeedPropertiesSection } from './properties/ExternalFeedPropertiesSection';
 import GridLayoutSection from './properties/GridLayoutSection';
 import { LogicPanel } from './logic/LogicPanel';
 import { AIAgentPanel } from './ai/AIAgentPanel';
@@ -28,12 +29,15 @@ import { AIAgentPanel } from './ai/AIAgentPanel';
  * Defines which component types can match with each other
  */
 const TYPE_COMPATIBILITY: Record<string, string[]> = {
-    'text': ['text', 'email', 'phone', 'first-name', 'textarea'],
+    'text': ['text', 'email', 'phone', 'first-name', 'textarea', 'address', 'address-lookup-au', 'company-lookup-abr'],
     'email': ['email', 'text'],
     'url': ['url', 'text'],
     'phone': ['phone', 'text'],
     'first-name': ['first-name', 'text'],
     'textarea': ['textarea', 'text'],
+    'address': ['address', 'text', 'address-lookup-au'],
+    'address-lookup-au': ['address-lookup-au', 'address', 'text'],
+    'company-lookup-abr': ['company-lookup-abr', 'text'],
     'number': ['number'],
     'date': ['date'],
     'checkbox': ['checkbox'],
@@ -157,6 +161,12 @@ export const PropertiesPanel: React.FC = () => {
             
             // Get current validation from STATE (not from closure)
             const currentValidation = currentComponent.props.validation || {};
+            const mergedValidation: Record<string, unknown> = { ...currentValidation, ...updates };
+            for (const [key, val] of Object.entries(updates)) {
+                if (val === undefined) {
+                    delete mergedValidation[key];
+                }
+            }
             
             // Update the component in the state tree
             const updateComponentInList = (components: typeof activePage.components): typeof activePage.components => {
@@ -166,7 +176,7 @@ export const PropertiesPanel: React.FC = () => {
                             ...comp,
                             props: {
                                 ...comp.props,
-                                validation: { ...currentValidation, ...updates },
+                                validation: mergedValidation,
                             },
                         };
                     }
@@ -645,6 +655,22 @@ export const PropertiesPanel: React.FC = () => {
                 {/* Rating Properties Section - for rating component */}
                 {selectedComponent.type === 'rating' && (
                     <RatingPropertiesSection
+                        props={selectedComponent.props}
+                        onPropsChange={handlePropsChange}
+                    />
+                )}
+
+                {selectedComponent.type === 'address-lookup-au' && (
+                    <ExternalFeedPropertiesSection
+                        variant="address-lookup-au"
+                        props={selectedComponent.props}
+                        onPropsChange={handlePropsChange}
+                    />
+                )}
+
+                {selectedComponent.type === 'company-lookup-abr' && (
+                    <ExternalFeedPropertiesSection
+                        variant="company-lookup-abr"
                         props={selectedComponent.props}
                         onPropsChange={handlePropsChange}
                     />

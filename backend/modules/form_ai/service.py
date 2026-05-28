@@ -7,7 +7,6 @@ import time
 import uuid
 import hashlib
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple
 
 import httpx
@@ -52,6 +51,28 @@ from .semantic_validator import (
     SemanticPlanValidationResult,
     validate_semantic_plan,
 )
+from .prompt_assembly import (
+    REGISTRY_CODE_FORM_AI_V1,
+    RenderedAssembly,
+    render_prompt_assembly,
+    resolve_prompt_assembly,
+)
+from .prompt_assembly.canonical_seeds import (
+    BLOCK_A_DEFAULT,
+    BLOCK_I_DEFAULT,
+    render_canonical_brand_posture_block,
+)
+from modules.form_builder.component_catalog import (
+    ResolvedComponentCatalog,
+    resolve_allowed_components,
+)
+from modules.form_builder.service import resolve_country_id
+from modules.reference.clarification import resolve_clarification_context
+from .capability_prompt import (
+    build_capability_prompt_block,
+    build_capability_prompt_block_from_catalog,
+    capability_type_summary,
+)
 
 # Fallback used when AppSetting row is absent or DB is unreachable on startup.
 _DEFAULT_RETRIES_FALLBACK = 2
@@ -89,8 +110,6 @@ _COUNTRY_CODE_TO_LOCALE = {
 }
 
 MAX_SYSTEM_CORRECTION_ATTEMPTS = _DEFAULT_RETRIES_FALLBACK  # kept for backward compat
-_ROOT_PATH = Path(__file__).resolve().parents[3]
-CONTEXT_PACK_PATH = _ROOT_PATH / "docs" / "stories" / "STORY-6.2-AI-CONTEXT-PACK.md"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -103,11 +122,12 @@ class ProviderCompletion:
     transport: str
 
 
-def _load_context_pack() -> str:
-    try:
-        return CONTEXT_PACK_PATH.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise RuntimeError("context-pack-load-failed") from exc
+# Story 6.5b - the on-disk context pack file (`docs/stories/STORY-6.2-AI-CONTEXT-PACK.md`)
+# is no longer read at runtime. Block G's content is now seeded into
+# `config.PromptSectionVariant` by migration 081 and resolved via
+# `prompt_assembly.resolver.resolve_prompt_assembly`. The legacy helper
+# `_load_context_pack()` was removed (it is the change that closes R6 -
+# `context-pack-load-failed` on the deployed Test environment).
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -173,7 +193,10 @@ def _invalidate_locale_block_cache() -> None:
     _LOCALE_BLOCK_CACHE.clear()
 
 
-def _normalise_audience_locale(value: Optional[str]) -> Optional[str]:
+def _normalise_audience_locale(
+    value: Optional[str],
+    db_session: Optional[Session] = None,
+) -> Optional[str]:
     if value is None:
         return None
     candidate = str(value).strip().upper()
@@ -181,6 +204,20 @@ def _normalise_audience_locale(value: Optional[str]) -> Optional[str]:
         return None
     if candidate == "GB":
         candidate = "UK"
+    if db_session is not None:
+        row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 [Code]
+                FROM [ref].[AudienceLocale]
+                WHERE [Code] = :code AND [IsActive] = 1
+                """
+            ),
+            {"code": candidate},
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"Unsupported audience locale: {value}")
+        return str(row.Code)
     if candidate not in _AUDIENCE_LOCALES:
         raise ValueError(f"Unsupported audience locale: {value}")
     return candidate
@@ -933,36 +970,8 @@ def _build_runtime_footprint_map(
 def _capability_type_summary(
     capability_snapshot_json: Optional[Dict[str, Any]],
 ) -> List[Tuple[str, List[str]]]:
-    """Return [(componentType, [allowed width classes])] from the active snapshot.
-
-    Empty list when the snapshot is missing or malformed; callers should treat
-    that as "no allow-list known" (e.g. legacy DB-empty governance) and fall
-    back to permissive behaviour.
-    """
-    if not isinstance(capability_snapshot_json, dict):
-        return []
-    components = capability_snapshot_json.get("components")
-    if not isinstance(components, list):
-        return []
-    summary: List[Tuple[str, List[str]]] = []
-    for row in components:
-        if not isinstance(row, dict):
-            continue
-        component_type = str(row.get("type", "")).strip()
-        if not component_type:
-            continue
-        width_classes_raw = row.get("widthClasses")
-        if isinstance(width_classes_raw, list):
-            widths = [
-                str(item).strip()
-                for item in width_classes_raw
-                if isinstance(item, (str, int, float)) and str(item).strip()
-            ]
-        else:
-            widths = []
-        summary.append((component_type, widths))
-    summary.sort(key=lambda pair: pair[0])
-    return summary
+    """Backward-compatible alias for :func:`capability_type_summary`."""
+    return capability_type_summary(capability_snapshot_json)
 
 
 def _filter_runtime_context_to_capability(
@@ -1012,31 +1021,8 @@ def _filter_runtime_context_to_capability(
 def _build_capability_prompt_block(
     capability_snapshot_json: Optional[Dict[str, Any]],
 ) -> str:
-    """Render an "ALLOWED COMPONENT TYPES" block for the system prompt.
-
-    Lists each registered ``componentType`` with its allowed ``widthIntent``
-    values so the LLM can self-constrain on the first attempt — eliminating
-    the most common cause of correction-loop usage observed in UAT. The widths
-    here are the *vocabulary* the compiler will accept as a hint; the final
-    pixel width is decided by the deterministic compiler's tier table.
-    """
-    summary = _capability_type_summary(capability_snapshot_json)
-    if not summary:
-        return ""
-    lines = ["ALLOWED COMPONENT TYPES (snapshot-authoritative; do NOT invent others):"]
-    for component_type, widths in summary:
-        if widths:
-            lines.append(
-                f"  - {component_type} (allowed widthIntent hints: {', '.join(widths)})"
-            )
-        else:
-            lines.append(f"  - {component_type}")
-    lines.append(
-        "If the user asks for a feature that isn't in this list "
-        "(e.g. signature capture, payment collection), use the closest registered type "
-        "and put a brief explanation in helpText."
-    )
-    return "\n".join(lines)
+    """Backward-compatible alias for :func:`build_capability_prompt_block`."""
+    return build_capability_prompt_block(capability_snapshot_json)
 
 
 def _build_runtime_context_block(runtime_context: Optional[Dict[str, Any]]) -> str:
@@ -1846,9 +1832,119 @@ def _trim_context_pack_for_prompt(context_pack: str) -> str:
     return context_pack[:index].rstrip()
 
 
+def _normalise_brand_posture_for_assembly(
+    brand_posture: Optional[str],
+    brand_heritage_origin: Optional[str],
+) -> str:
+    """Story 6.5b - resolver/renderer-friendly posture normalisation.
+
+    Mirrors the legacy ``_render_brand_posture_block`` fallback rules so
+    Block C resolution yields byte-equivalent output:
+      * ``None`` / unrecognised string -> ``"local"``.
+      * ``"heritage"`` without an ``origin`` -> ``"local"`` (renderer
+        cannot meaningfully substitute ``{heritageOrigin}``).
+    """
+    posture = _normalise_brand_posture(brand_posture) or "local"
+    if posture == "heritage":
+        origin = _normalise_heritage_origin(brand_heritage_origin)
+        if not origin:
+            return "local"
+    return posture
+
+
+def _build_canonical_rendered_assembly(
+    *,
+    context_pack: Optional[str],
+    brand_posture: Optional[str],
+    brand_heritage_origin: Optional[str],
+) -> RenderedAssembly:
+    """Build a fallback RenderedAssembly from canonical_seeds + literals.
+
+    Used exclusively when ``_build_initial_messages`` is invoked without
+    a DB session (legacy test fixtures that pre-date the registry). The
+    fallback uses ``_active_consent_guidance_block()`` for Block B so
+    eval-mode env-flag tests still see the legacy / h2 toggle behaviour;
+    Block G uses the caller-supplied ``context_pack`` (after the
+    existing trim helper) so legacy tests stay byte-identical to before
+    Story 6.5b. Production never enters this branch - migrations 078-081
+    seed the registry and ``generate_form_definition`` always passes a
+    ``rendered_assembly`` resolved from the DB.
+    """
+    block_g = _trim_context_pack_for_prompt(context_pack or "")
+    block_c = render_canonical_brand_posture_block(brand_posture, brand_heritage_origin)
+    sections: Dict[str, str] = {
+        "A": BLOCK_A_DEFAULT,
+        "B": _active_consent_guidance_block(),
+        "I": BLOCK_I_DEFAULT,
+        "G": block_g,
+        "C": block_c,
+    }
+    return RenderedAssembly(
+        registry_code=REGISTRY_CODE_FORM_AI_V1,
+        registry_version_id=0,  # zero = canonical-seed fallback (not a real registry row)
+        version_number=0,
+        sections=sections,
+        variant_ids={"A": 0, "B": 0, "C": 0, "G": 0, "I": 0},
+    )
+
+
+def _resolve_rendered_assembly(
+    db_session: Optional[Session],
+    *,
+    brand_posture: Optional[str],
+    brand_heritage_origin: Optional[str],
+    audience_locale: Optional[str],
+    context_pack: Optional[str],
+    component_catalog: Optional[ResolvedComponentCatalog] = None,
+    form_purpose_code: Optional[str] = None,
+    respondent_type_code: Optional[str] = None,
+    company_id: Optional[int] = None,
+    form_id: Optional[int] = None,
+) -> RenderedAssembly:
+    """Resolve the active FORM_AI_V1 assembly from the registry.
+
+    Falls back to canonical seeds when no DB session is present (test
+    fixtures). When a DB session is present but the registry cannot
+    resolve, the underlying LookupError / RuntimeError propagates to
+    the caller (``generate_form_definition`` translates that into a
+    terminal ``prompt-assembly-resolution-failed`` response - the
+    Story 6.5b analogue of the legacy ``context-pack-load-failed``).
+    """
+    if db_session is None:
+        return _build_canonical_rendered_assembly(
+            context_pack=context_pack,
+            brand_posture=brand_posture,
+            brand_heritage_origin=brand_heritage_origin,
+        )
+    posture = _normalise_brand_posture_for_assembly(brand_posture, brand_heritage_origin)
+    clarification = resolve_clarification_context(
+        db_session,
+        company_id=company_id,
+        form_id=form_id,
+        audience_locale_code=audience_locale,
+        form_purpose_code=form_purpose_code,
+        respondent_type_code=respondent_type_code,
+    )
+    resolved = resolve_prompt_assembly(
+        db_session,
+        REGISTRY_CODE_FORM_AI_V1,
+        brand_posture=posture,
+        audience_locale=clarification.audience_locale_code,
+        form_purpose=clarification.form_purpose_code,
+        respondent_type=clarification.respondent_type_code,
+    )
+    origin = _normalise_heritage_origin(brand_heritage_origin) or ""
+    return render_prompt_assembly(
+        resolved,
+        placeholders={"heritageOrigin": origin},
+        component_catalog=component_catalog,
+        clarification=clarification,
+    )
+
+
 def _build_initial_messages(
     prompt: str,
-    context_pack: str,
+    context_pack: Optional[str] = None,
     runtime_context: Optional[Dict[str, Any]] = None,
     *,
     system_prompt_addendum: str | None = None,
@@ -1857,14 +1953,51 @@ def _build_initial_messages(
     brand_posture: Optional[str] = None,
     brand_heritage_origin: Optional[str] = None,
     db_session: Optional[Session] = None,
+    rendered_assembly: Optional[RenderedAssembly] = None,
+    component_catalog: Optional[ResolvedComponentCatalog] = None,
 ) -> List[Dict[str, str]]:
-    runtime_context_block = _build_runtime_context_block(runtime_context)
-    capability_block = _build_capability_prompt_block(capability_snapshot_json)
-    locale_block = _assemble_locale_block(audience_locale or "AU", brand_posture, db_session)
-    brand_posture_block = _render_brand_posture_block(brand_posture, brand_heritage_origin)
-    prompt_context_pack = _trim_context_pack_for_prompt(context_pack)
+    """Build the system + user messages sent to the LLM.
 
-    # Story 6.3.1 (UAT round 6) — Phase 2 LLM nudge for horizontal-stacked
+    Story 6.5b: Blocks A/B/C/G/I are sourced from the Prompt Assembly
+    Registry (``config.PromptAssemblyRegistry`` + descendants). The
+    caller may pass a pre-resolved ``rendered_assembly`` to avoid a
+    second DB round-trip (production path - see
+    ``generate_form_definition``); otherwise the function resolves it
+    from ``db_session``. When both ``rendered_assembly`` and
+    ``db_session`` are absent (legacy test fixtures), a canonical-seed
+    fallback is used so existing test assertions continue to pass
+    byte-identically.
+
+    Out-of-scope blocks for 6.5b - Block D (locale via
+    ``_assemble_locale_block``), Block F (capability via
+    ``_build_capability_prompt_block``), Block H (user prompt), the
+    horizontal-stacked layout nudge, the runtime-context block, and
+    the system-prompt addendum - keep their existing paths. They will
+    migrate into the registry in 6.5c / 6.5d.
+    """
+    if rendered_assembly is None:
+        rendered_assembly = _resolve_rendered_assembly(
+            db_session,
+            brand_posture=brand_posture,
+            brand_heritage_origin=brand_heritage_origin,
+            audience_locale=audience_locale,
+            context_pack=context_pack,
+            component_catalog=component_catalog,
+        )
+
+    clarification_block = ""
+    for section_code in ("E1", "E2", "E3"):
+        snippet = rendered_assembly.get(section_code)
+        if snippet and snippet.strip():
+            clarification_block += snippet.strip() + "\n\n"
+
+    runtime_context_block = _build_runtime_context_block(runtime_context)
+    capability_block = rendered_assembly.get("F") or _build_capability_prompt_block(
+        capability_snapshot_json
+    )
+    locale_block = _assemble_locale_block(audience_locale or "AU", brand_posture, db_session)
+
+    # Story 6.3.1 (UAT round 6) - Phase 2 LLM nudge for horizontal-stacked
     # layout. ``resolve_layout_mode`` returns the legacy
     # ``"vertical-packed"`` for any non-horizontal request, in which case
     # ``layout_mode_block`` is empty and the prompt is unchanged.
@@ -1875,45 +2008,26 @@ def _build_initial_messages(
         else ""
     )
 
+    block_a = rendered_assembly["A"]
+    block_b = rendered_assembly["B"]
+    block_c = rendered_assembly["C"]
+    block_g = rendered_assembly["G"]
+    block_i = rendered_assembly["I"]
+
     system_body = (
-        "You generate an EventLead semantic form plan for Story 6.3.1.\n"
-        "Output a single JSON object only. No markdown or prose.\n"
-        "Return FormSemanticPlan only; do not output any coordinates, pixel widths, x/y positions, style blocks, or final DefinitionJSON.\n"
-        "\n"
-        + _active_consent_guidance_block()
+        block_a
+        + "\n"
+        + block_b
         + (layout_mode_block + "\n" if layout_mode_block else "")
         + "\n"
-        + "REQUIRED ROOT KEYS (exact, case-sensitive):\n"
-        "  - semanticPlanVersion: must be the string \"1.0\" (do NOT use the story number).\n"
-        "  - formId: short slug or id (string).\n"
-        "  - title: form title (string).\n"
-        "  - components: array of component intents (see below).\n"
-        "Do NOT add any other root keys.\n"
-        "\n"
-        "EACH COMPONENT (object):\n"
-        "  - componentType (required), label, placeholder, helpText, section, rowGroup,\n"
-        "  - widthIntent: one of \"compact\" | \"half\" | \"full\".\n"
-        "    This is a HINT, not a final width. The deterministic compiler picks\n"
-        "    the actual pixel width from a per-type tier table and may shrink the\n"
-        "    component further (or wrap it onto its own row) so the layout fits\n"
-        "    the canvas. Treat widthIntent as a maximum cap: use \"compact\" when\n"
-        "    the field's content is short (e.g. zip, age, state code), \"full\"\n"
-        "    only when you genuinely want the field to span the row.\n"
-        "    Use rowGroup to indicate which fields you'd like packed side-by-side;\n"
-        "    the compiler decides whether they actually fit.\n"
-        "  - options: array of {label,value} for dropdown/radio,\n"
-        "  - validationIntent: an OBJECT (not an array) with any of these boolean/number keys:\n"
-        "      required, email, phone, url, minLength, maxLength, min, max, pattern.\n"
-        "    Example: \"validationIntent\": { \"required\": true, \"email\": true }.\n"
-        "    NEVER emit validationIntent as a list of strings (e.g. [\"required\",\"email\"]).\n"
-        "\n"
-        "Use only Story 6.2/6.3.1 supported component catalog and single-page constraints.\n\n"
+        + block_i
         + (capability_block + "\n\n" if capability_block else "")
-        + f"{prompt_context_pack}"
+        + block_g
         + "\n\n## LOCALE AND BRAND POSTURE\n"
         + locale_block
         + "\n"
-        + brand_posture_block
+        + (clarification_block if clarification_block else "")
+        + block_c
         + ("\n\n" + runtime_context_block if runtime_context_block else "")
     )
     if system_prompt_addendum and system_prompt_addendum.strip():
@@ -2711,6 +2825,109 @@ def _coerce_form_id(runtime_context: Optional[Dict[str, Any]]) -> Optional[int]:
     return None
 
 
+def _resolve_catalog_country_id(
+    db_session: Session,
+    company_id: int,
+    runtime_context: Optional[Dict[str, Any]],
+    audience_locale: Optional[str],
+) -> Optional[int]:
+    """Resolve CountryID the same way as form-builder init where possible."""
+    form_id = _coerce_form_id(runtime_context)
+    if form_id is not None:
+        row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 form_row.[EventID], form_row.[CompanyID]
+                FROM [dbo].[Form] form_row
+                WHERE form_row.[FormID] = :form_id
+                  AND form_row.[IsDeleted] = 0
+                """
+            ),
+            {"form_id": form_id},
+        ).fetchone()
+        if row and row[0] is not None and row[1] == company_id:
+            try:
+                return resolve_country_id(db_session, company_id, int(row[0]))
+            except ValueError:
+                pass
+
+    locale = _normalise_audience_locale(audience_locale)
+    country_code = _LOCALE_TO_COUNTRY_CODE.get(locale or "")
+    if country_code:
+        country_id = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 [CountryID]
+                FROM [ref].[Country]
+                WHERE [CountryCode] = :country_code
+                  AND [IsDeleted] = 0
+                """
+            ),
+            {"country_code": country_code},
+        ).scalar_one_or_none()
+        if country_id is not None:
+            return int(country_id)
+
+    company_country = db_session.execute(
+        text(
+            """
+            SELECT TOP 1 [CountryID]
+            FROM [dbo].[Company]
+            WHERE [CompanyID] = :company_id
+              AND [IsDeleted] = 0
+            """
+        ),
+        {"company_id": company_id},
+    ).scalar_one_or_none()
+    return int(company_country) if company_country is not None else None
+
+
+def _resolve_component_catalog(
+    db_session: Optional[Session],
+    company_id: Optional[int],
+    runtime_context: Optional[Dict[str, Any]],
+    audience_locale: Optional[str],
+) -> Optional[ResolvedComponentCatalog]:
+    if db_session is None or company_id is None:
+        return None
+    country_id = _resolve_catalog_country_id(
+        db_session,
+        company_id,
+        runtime_context,
+        audience_locale,
+    )
+    form_id = _coerce_form_id(runtime_context)
+    requires_offline = False
+    if form_id is not None:
+        row = db_session.execute(
+            text(
+                """
+                SELECT TOP 1 [RequiresOfflineCapable]
+                FROM [dbo].[Form]
+                WHERE [FormID] = :form_id AND [IsDeleted] = 0
+                """
+            ),
+            {"form_id": form_id},
+        ).fetchone()
+        requires_offline = bool(row.RequiresOfflineCapable) if row else False
+    return resolve_allowed_components(
+        db_session,
+        company_id,
+        country_id,
+        requires_offline_capable=requires_offline,
+    )
+
+
+def _capability_json_for_request(
+    component_catalog: Optional[ResolvedComponentCatalog],
+    legacy_snapshot_json: Optional[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """Prefer resolver output; legacy snapshot is fallback when catalog unavailable."""
+    if component_catalog is not None and component_catalog.components:
+        return component_catalog.to_capability_json()
+    return legacy_snapshot_json
+
+
 def _summarise_provider_usage(attempts: List[Dict[str, Any]]) -> Dict[str, Any]:
     def sum_field(field: str) -> Optional[int]:
         values = [item.get(field) for item in attempts if item.get(field) is not None]
@@ -2953,7 +3170,7 @@ def _resolve_audience_locale(
     runtime_context: Optional[Dict[str, Any]],
     db_session: Optional[Session],
 ) -> Dict[str, Optional[str]]:
-    explicit = _normalise_audience_locale(requested_locale)
+    explicit = _normalise_audience_locale(requested_locale, db_session)
     if explicit:
         return {"resolved": explicit, "source": "request.audienceLocale"}
 
@@ -3048,22 +3265,34 @@ def _resolve_brand_posture(
             row = db_session.execute(
                 text(
                     """
-                    SELECT TOP 1 [BrandPosture], [BrandHeritageOrigin]
-                    FROM [dbo].[Company]
-                    WHERE [CompanyID] = :company_id
-                      AND [IsDeleted] = 0
+                    SELECT TOP 1
+                        bp.[Code],
+                        c.[BrandPosture],
+                        c.[BrandHeritageOrigin]
+                    FROM [dbo].[Company] c
+                    LEFT JOIN [ref].[BrandPosture] bp
+                        ON bp.[BrandPostureID] = c.[BrandPostureID]
+                       AND bp.[IsActive] = 1
+                    WHERE c.[CompanyID] = :company_id
+                      AND c.[IsDeleted] = 0
                     """
                 ),
                 {"company_id": actor_company_id},
             ).fetchone()
             if row:
-                company_posture = _normalise_brand_posture(row[0])
-                company_origin = _normalise_heritage_origin(row[1])
+                ref_code = row[0]
+                legacy_code = row[1]
+                company_posture = _normalise_brand_posture(ref_code or legacy_code)
+                company_origin = _normalise_heritage_origin(row[2])
                 if company_posture:
                     return {
                         "resolved": company_posture,
                         "heritageOrigin": explicit_origin or company_origin,
-                        "source": "Company.BrandPosture",
+                        "source": (
+                            "ref.BrandPosture"
+                            if ref_code
+                            else "Company.BrandPosture"
+                        ),
                     }
         setting_posture = _normalise_brand_posture(
             _get_app_setting_value(db_session, "form_ai.default_brand_posture")
@@ -3076,6 +3305,31 @@ def _resolve_brand_posture(
             }
 
     return {"resolved": "local", "heritageOrigin": explicit_origin, "source": "fallback"}
+
+
+def _build_prompt_variant_snapshot(
+    rendered_assembly: Optional[RenderedAssembly],
+) -> Optional[str]:
+    """Story 6.5b - serialise the resolved variant ids for replayability.
+
+    Stored on ``dbo.GenerationRun.PromptVariantSnapshot`` (NVARCHAR(MAX)
+    JSON). Lets us replay a historical run against the exact A/B/C/G/I
+    variants it was generated with even after the registry rolls
+    forward. Returns ``None`` when the rendered assembly came from the
+    canonical-seed fallback (registry_version_id == 0) - those rows
+    aren't in the registry and shouldn't claim a snapshot.
+    """
+    if rendered_assembly is None:
+        return None
+    if not rendered_assembly.registry_version_id:
+        return None
+    payload = {
+        "registryCode": rendered_assembly.registry_code,
+        "registryVersionId": rendered_assembly.registry_version_id,
+        "versionNumber": rendered_assembly.version_number,
+        "variantIds": dict(rendered_assembly.variant_ids),
+    }
+    return _safe_json_dumps(payload)
 
 
 def _persist_generation_run_and_artifacts(
@@ -3093,6 +3347,10 @@ def _persist_generation_run_and_artifacts(
     compile_input_plans: Optional[List[Dict[str, Any]]] = None,
     brand_posture: Optional[str] = None,
     brand_heritage_origin: Optional[str] = None,
+    rendered_assembly: Optional[RenderedAssembly] = None,
+    audience_locale_code: Optional[str] = None,
+    form_purpose_code: Optional[str] = None,
+    respondent_type_code: Optional[str] = None,
 ) -> Optional[int]:
     """Persist a GenerationRun + its artifacts. Returns the GenerationRunID
     on success (or None if no DB session was available, or persistence
@@ -3144,6 +3402,8 @@ def _persist_generation_run_and_artifacts(
                     FormID,
                     PromptTemplateVersionID,
                     PromptAssemblyProfileID,
+                    PromptAssemblyRegistryVersionID,
+                    PromptVariantSnapshot,
                     CapabilityPolicyVersionID,
                     ComponentCapabilitySnapshotID,
                     WidthClassPolicyVersionID,
@@ -3156,6 +3416,9 @@ def _persist_generation_run_and_artifacts(
                     FirstShotValid,
                     BrandPosture,
                     BrandHeritageOrigin,
+                    AudienceLocaleCode,
+                    FormPurposeCode,
+                    RespondentTypeCode,
                     IsReplayable,
                     CreatedBy
                 )
@@ -3167,6 +3430,8 @@ def _persist_generation_run_and_artifacts(
                     :form_id,
                     :prompt_template_version_id,
                     :prompt_assembly_profile_id,
+                    :prompt_assembly_registry_version_id,
+                    :prompt_variant_snapshot,
                     :capability_policy_version_id,
                     :component_capability_snapshot_id,
                     :width_class_policy_version_id,
@@ -3179,6 +3444,9 @@ def _persist_generation_run_and_artifacts(
                     :first_shot_valid,
                     :brand_posture,
                     :brand_heritage_origin,
+                    :audience_locale_code,
+                    :form_purpose_code,
+                    :respondent_type_code,
                     :is_replayable,
                     :created_by
                 )
@@ -3190,6 +3458,17 @@ def _persist_generation_run_and_artifacts(
                 "form_id": resolved_form_id,
                 "prompt_template_version_id": governance_versions.get("promptTemplateVersionId"),
                 "prompt_assembly_profile_id": governance_versions.get("promptAssemblyProfileId"),
+                "prompt_assembly_registry_version_id": (
+                    rendered_assembly.registry_version_id
+                    if rendered_assembly is not None
+                    and rendered_assembly.registry_version_id
+                    else None
+                ),
+                "prompt_variant_snapshot": (
+                    _build_prompt_variant_snapshot(rendered_assembly)
+                    if rendered_assembly is not None
+                    else None
+                ),
                 "capability_policy_version_id": governance_versions.get("capabilityPolicyVersionId"),
                 "component_capability_snapshot_id": governance_versions.get(
                     "componentCapabilitySnapshotId"
@@ -3210,6 +3489,9 @@ def _persist_generation_run_and_artifacts(
                 ),
                 "brand_posture": brand_posture,
                 "brand_heritage_origin": brand_heritage_origin,
+                "audience_locale_code": audience_locale_code,
+                "form_purpose_code": form_purpose_code,
+                "respondent_type_code": respondent_type_code,
                 "is_replayable": True,
                 "created_by": actor_user_id,
             },
@@ -3638,6 +3920,8 @@ def generate_form_definition(
     actor_user_id: Optional[int] = None,
     actor_company_id: Optional[int] = None,
     audience_locale: Optional[str] = None,
+    form_purpose_code: Optional[str] = None,
+    respondent_type_code: Optional[str] = None,
     brand_posture: Optional[str] = None,
     brand_heritage_origin: Optional[str] = None,
 ) -> FormAiGenerateResponse:
@@ -3649,6 +3933,23 @@ def generate_form_definition(
     # Story 6.3.1 UAT round 5 — captured per-attempt for /remeasure replay.
     compile_input_plans: List[Dict[str, Any]] = []
     governance_versions = _resolve_runtime_governance_versions(db_session)
+    form_id_for_clarification = _coerce_form_id(runtime_context)
+    clarification_for_request = None
+    try:
+        if db_session is not None:
+            clarification_for_request = resolve_clarification_context(
+                db_session,
+                company_id=actor_company_id,
+                form_id=form_id_for_clarification,
+                audience_locale_code=audience_locale,
+                form_purpose_code=form_purpose_code,
+                respondent_type_code=respondent_type_code,
+            )
+            if audience_locale is None:
+                audience_locale = clarification_for_request.audience_locale_code
+    except Exception:
+        clarification_for_request = None
+
     locale_resolution = _resolve_audience_locale(
         audience_locale,
         actor_user_id,
@@ -3670,6 +3971,35 @@ def generate_form_definition(
     )
     correction_cap = max(0, min(correction_cap, 10))
 
+    component_catalog = _resolve_component_catalog(
+        db_session,
+        actor_company_id,
+        runtime_context,
+        locale_resolution.get("resolved"),
+    )
+    resolved_capability_json = _capability_json_for_request(
+        component_catalog,
+        governance_versions.get("componentCapabilitySnapshotJson"),
+    )
+    if resolved_capability_json is not None:
+        governance_versions = {
+            **governance_versions,
+            "componentCapabilitySnapshotJson": resolved_capability_json,
+        }
+    if component_catalog is not None:
+        governance_versions = {
+            **governance_versions,
+            "resolvedComponentCatalogHash": component_catalog.catalog_hash(),
+        }
+
+    # Story 6.5b - declared early so ``_finalize`` (closure below) can
+    # forward it to the GenerationRun persistence helper. Stays ``None``
+    # until ``_resolve_rendered_assembly`` succeeds; if resolution
+    # itself fails ``_finalize`` is still called and persists the run
+    # without registry-version columns set (which is the correct audit
+    # behaviour for a pre-execution failure).
+    rendered_assembly: Optional[RenderedAssembly] = None
+
     def _finalize(response: FormAiGenerateResponse) -> FormAiGenerateResponse:
         run_id = _persist_generation_run_and_artifacts(
             db_session=db_session,
@@ -3685,6 +4015,18 @@ def generate_form_definition(
             compile_input_plans=compile_input_plans,
             brand_posture=brand_resolution.get("resolved"),
             brand_heritage_origin=brand_resolution.get("heritageOrigin"),
+            rendered_assembly=rendered_assembly,
+            audience_locale_code=locale_resolution.get("resolved"),
+            form_purpose_code=(
+                clarification_for_request.form_purpose_code
+                if clarification_for_request is not None
+                else form_purpose_code
+            ),
+            respondent_type_code=(
+                clarification_for_request.respondent_type_code
+                if clarification_for_request is not None
+                else respondent_type_code
+            ),
         )
         # Story 6.3.1 UAT round 5 — surface the persisted run id so the
         # frontend can call ``/remeasure`` with DOM heights for a refined
@@ -3696,15 +4038,46 @@ def generate_form_definition(
             **(response.meta or {}),
             "locale": locale_resolution,
             "brand": brand_resolution,
+            "clarification": (
+                {
+                    "audienceLocaleCode": clarification_for_request.audience_locale_code,
+                    "formPurposeCode": clarification_for_request.form_purpose_code,
+                    "respondentTypeCode": clarification_for_request.respondent_type_code,
+                }
+                if clarification_for_request is not None
+                else None
+            ),
             "provider_usage": _summarise_provider_usage(provider_usage_attempts),
         }
         return response
 
+    # Story 6.5b - resolve the prompt assembly from the registry once per
+    # request. Replaces the legacy ``_load_context_pack`` round-trip to
+    # ``docs/stories/STORY-6.2-AI-CONTEXT-PACK.md``, which closes R6.
+    # Resolution failures (missing ``FORM_AI_V1`` registry, no active
+    # version, missing variant) surface as the terminal reason
+    # ``prompt-assembly-resolution-failed`` - the 6.5b analogue of the
+    # legacy ``context-pack-load-failed`` terminal.
     try:
-        context_pack = _load_context_pack()
-    except RuntimeError:
+        rendered_assembly = _resolve_rendered_assembly(
+            db_session,
+            brand_posture=brand_resolution.get("resolved"),
+            brand_heritage_origin=brand_resolution.get("heritageOrigin"),
+            audience_locale=locale_resolution.get("resolved") or "AU",
+            context_pack=None,
+            component_catalog=component_catalog,
+            form_purpose_code=form_purpose_code,
+            respondent_type_code=respondent_type_code,
+            company_id=actor_company_id,
+            form_id=form_id_for_clarification,
+        )
+    except (LookupError, RuntimeError) as exc:
+        LOGGER.exception(
+            "form_ai.prompt_assembly.resolution_failed: %s",
+            exc,
+        )
         trace = _build_trace_metadata(
-            terminal_reason="context-pack-load-failed",
+            terminal_reason="prompt-assembly-resolution-failed",
             attempts=[],
             correction_cap=correction_cap,
             last_validation=None,
@@ -3724,29 +4097,21 @@ def generate_form_definition(
             draftHasValidationIssues=False,
         ))
 
-    # Filter the runtime palette to types the active capability snapshot
-    # actually registers. The frontend builds ``componentFootprints`` from the
-    # toolbox DOM, which can advertise types the snapshot doesn't accept; that
-    # was the dominant cause of UAT failures (the LLM used ``rating`` /
-    # ``file-upload`` / ``first-name``, the semantic gate rejected them, and
-    # the only correction round-trip was wasted relabelling them).
-    capability_snapshot_for_prompt = governance_versions.get(
-        "componentCapabilitySnapshotJson"
-    )
     runtime_context_for_prompt = _filter_runtime_context_to_capability(
-        runtime_context, capability_snapshot_for_prompt
+        runtime_context, resolved_capability_json
     )
 
     messages = _build_initial_messages(
         prompt=prompt,
-        context_pack=context_pack,
         runtime_context=runtime_context_for_prompt,
         system_prompt_addendum=system_prompt_addendum,
-        capability_snapshot_json=capability_snapshot_for_prompt,
+        capability_snapshot_json=resolved_capability_json,
         audience_locale=locale_resolution.get("resolved") or "AU",
         brand_posture=brand_resolution.get("resolved"),
         brand_heritage_origin=brand_resolution.get("heritageOrigin"),
         db_session=db_session,
+        rendered_assembly=rendered_assembly,
+        component_catalog=component_catalog,
     )
     last_validation: AttemptValidationSummary | None = None
     last_valid_definition: Dict[str, Any] | None = None
@@ -4044,9 +4409,7 @@ def generate_form_definition(
         # ============================================================
         gate_result: SemanticPlanValidationResult = validate_semantic_plan(
             semantic_plan,
-            capability_snapshot_json=governance_versions.get(
-                "componentCapabilitySnapshotJson"
-            ),
+            capability_snapshot_json=resolved_capability_json,
             validation_contracts=governance_versions.get("validationContracts"),
         )
         if not gate_result.valid:

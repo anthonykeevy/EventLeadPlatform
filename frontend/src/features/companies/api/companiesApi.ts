@@ -23,6 +23,9 @@ interface BackendSearchResult {
   entity_type: string | null
   business_address: string | null
   status: string | null
+  business_names?: string[] | null
+  matched_name?: string | null
+  match_type?: string | null
 }
 
 interface BackendSearchResponse {
@@ -52,6 +55,9 @@ export interface CompanySearchResult {
   entityType: string | null
   businessAddress: string | null
   status: string | null
+  businessNames?: string[] | null
+  matchedName?: string | null
+  matchType?: string | null
 }
 
 export interface CompanySearchResponse {
@@ -81,7 +87,10 @@ function transformSearchResult(backendResult: BackendSearchResult): CompanySearc
     gstRegistered: backendResult.gst_registered,
     entityType: backendResult.entity_type,
     businessAddress: backendResult.business_address,
-    status: backendResult.status
+    status: backendResult.status,
+    businessNames: backendResult.business_names ?? null,
+    matchedName: backendResult.matched_name ?? null,
+    matchType: backendResult.match_type ?? null,
   }
 }
 

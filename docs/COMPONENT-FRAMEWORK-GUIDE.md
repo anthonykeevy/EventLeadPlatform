@@ -2,7 +2,23 @@
 
 **Purpose:** Concise guide for agents implementing component features. Read this before any component-related work.
 
-**Last Updated:** 2026-01-12 (Implementation Complete)
+**Last Updated:** 2026-05-21 (External Data Feed + platform registration read order)
+
+---
+
+## Read this first (agents — mandatory order)
+
+Component work has **two tracks**. Skipping either causes half implementations (e.g. Story 6.2.x renderers without `FormBuilderComponent` seeds).
+
+| Order | Track | Document |
+|-------|--------|----------|
+| 1 | **Platform registration** (catalog, AI, validator, offline) | `docs/workflows/ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md` |
+| 2 | **External data feed** (if third-party API at runtime) | `docs/architecture/decision-external-data-feed-components.md` — **architect-approved before coding** |
+| 3 | **Rendering & props** (this guide) | Below |
+| 4 | **Deep reference** (resize, surfaces, spacing) | `docs/COMPONENT-FRAMEWORK-REFERENCE.md` — use TOC; do not read end-to-end |
+| 5 | **Diagnostics** | `docs/AGENT-LOGGING-GUIDE.md` |
+
+After Story 6.5c, **toolbox codes come only from** `POST /api/form-builder/init`. A row in this guide’s inventory is **not** enough to ship.
 
 ---
 
@@ -52,7 +68,9 @@
 | `date` | input | Date/time capture | `dateType`, `pickerStyle`, `dateFormat`, `dateParts` | Supports `dateType`: `"date"` \| `"time"` \| `"datetime"` |
 | `checkbox` | input | Multi-select options | `options`, `minSelections`, `maxSelections` | Checkbox list with optional per-option extra text |
 | `radio` | input | Single-select options | `options`, `optionsDirection` | Radio list with one selected value |
-| `address` | input | Address capture shell | `enableAutocomplete`, `decomposeAddress`, `validation.maxLength` | Text-style address field, autocomplete-ready |
+| `address` | input | Address capture shell (offline-safe) | `enableAutocomplete`, `decomposeAddress`, `validation.maxLength` | Manual / offline-friendly; use when form is offline-capable |
+| `address-lookup-au` | input (**EDF**) | AU online address via GeoScape/PSMA | EDF props + decompose lines | **Requires network**; excluded when `Form.RequiresOfflineCapable`; fallback = `address` |
+| `company-lookup-abr` | input (**EDF**) | AU company search via ABR | EDF props + entity fields | **Requires network**; reuse onboarding ABR stack; fallback = manual fields |
 | `rating` | input | UI rating selector | `ratingMax`, `ratingStyle`, `ratingLabels` | Renders stars, numbers, or emoji scale (UI shell only) |
 | `file-upload` | input | Anonymous file attach via public upload API | `accept`, `acceptedFileTypes`, `maxFileSizeBytes` / `maxFileSizeMb`, `allowMultiple`, `maxFiles` | Two-phase flow: `POST /api/public/forms/{token}/attachments` then submit answers as attachment UUID string(s); company download `GET /api/forms/{formId}/attachments/{attachmentId}/content` (Story 6.2.2) |
 | `terms` | action/legal | Terms acceptance checkbox + link | `termsLinkText`, `termsUrl`, `termsContent`, `required` | Horizontal checkbox + linked terms content |
@@ -224,6 +242,24 @@ For divider: `type: 'placeholder'` renders a simple line placeholder.
 
 ---
 
+## External Data Feed (EDF) components
+
+**Class:** Components that call **platform-proxied** third-party APIs (autocomplete / resolve). First instances: `address-lookup-au`, `company-lookup-abr`.
+
+| Concern | Rule |
+|---------|------|
+| Browser | Never call GeoScape/ABR directly — use backend routes |
+| Catalog | `ref.ComponentType.RequiresNetwork = 1`, set `FallbackComponentCode` |
+| Offline forms | When `Form.RequiresOfflineCapable`, resolver omits EDF codes; toolbox + AI + validator match |
+| UI | Show “Online lookup” on toolbox/properties when `requiresNetwork` from init |
+| Submit | Multi-field `resolvedFields`; `deliveryMode` = decomposed / concatenated / both (see decision §5) |
+| Cache | All provider calls via proxy + `cache.*` table (ABR pattern) — never uncached hot path in production |
+
+**Authoritative design:** `docs/architecture/decision-external-data-feed-components.md`  
+**Handoffs:** `docs/architecture/au-address-lookup-geoscape-handoff.md`, `docs/architecture/abr-company-lookup-builder-handoff.md`
+
+---
+
 ## Golden Rules
 
 1. **No ad-hoc margins/padding** - Use layout engine, not inline hacks
@@ -231,6 +267,7 @@ For divider: `type: 'placeholder'` renders a simple line placeholder.
 3. **Canvas = Runtime** - If it looks different, it's a bug
 4. **Width overrides are px** - Return `undefined` for auto-sizing, number for fixed
 5. **Check capabilities before showing UI** - Don't show controls for unsupported features
+6. **Register before render** - New `ComponentCode` → checklist + migration + four-consumer alignment, not only `ComponentRegistry.tsx`
 
 ---
 

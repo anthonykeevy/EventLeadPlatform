@@ -2,7 +2,7 @@
 
 **Story:** Customer-Facing Beta Landing Page  
 **Branch:** `story/epic6-6.5e-landing-page`  
-**PR:** TBD  
+**PR:** [#117](https://github.com/anthonykeevy/EventLeadPlatform/pull/117)  
 **Status:** Pending implementation
 
 ---

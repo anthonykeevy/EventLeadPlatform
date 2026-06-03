@@ -4,7 +4,7 @@ You are implementing **Story 6.5e Landing — Customer-Facing Beta Landing Page*
 
 **Worktree:** `C:\wt\elp\story-epic6-6.5e-landing-page`  
 **Branch:** `story/epic6-6.5e-landing-page`  
-**PR:** TBD — Draft -> `develop`  
+**PR:** [#117](https://github.com/anthonykeevy/EventLeadPlatform/pull/117) — Draft -> `develop`  
 **Base:** `develop`
 
 ---

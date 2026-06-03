@@ -1,7 +1,7 @@
 # Story 6.5e Landing — UAT Test Guide
 
 **Story:** Customer-Facing Beta Landing Page  
-**PR:** TBD — Draft -> `develop`  
+**PR:** [#117](https://github.com/anthonykeevy/EventLeadPlatform/pull/117) — Draft -> `develop`  
 **Tester:** Tony  
 **Environment:** Local first; Azure Test after merge to `develop`
 

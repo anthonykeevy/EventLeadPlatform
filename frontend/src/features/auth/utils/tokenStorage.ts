@@ -9,9 +9,9 @@
  * - Token expiration is tracked separately for auto-refresh logic
  */
 
-const ACCESS_TOKEN_KEY = 'eventlead_access_token'
-const REFRESH_TOKEN_KEY = 'eventlead_refresh_token'
-const TOKEN_EXPIRY_KEY = 'eventlead_token_expiry'
+export const ACCESS_TOKEN_KEY = 'eventlead_access_token'
+export const REFRESH_TOKEN_KEY = 'eventlead_refresh_token'
+export const TOKEN_EXPIRY_KEY = 'eventlead_token_expiry'
 
 export interface StoredTokens {
   accessToken: string

@@ -170,65 +170,81 @@ async def list_my_companies(
     - Company Admins and Company Users see all events for their company
     - Company Viewers only see events where they have form access
     
-    System Admins: Returns ALL companies in the platform (bypasses company membership filtering)
+    System Admins with an active UserCompany use the same fast membership list as other users.
+    System Admins without membership fall back to the full platform company list (slow; admin tooling only).
     """
     try:
-        # System Admins see ALL companies, not just ones they belong to
+        enriched_companies = None
+
+        # System admins who belong to a company (e.g. Signal Platforms) must not load every
+        # company on the platform — that 50s+ response breaks the dashboard proxy/UI.
         if current_user.role == "system_admin":
-            # Get all active companies
-            all_companies = db.execute(
-                select(Company).where(Company.IsDeleted == False)
-                .order_by(Company.CompanyName.asc())
-            ).scalars().all()
-            
-            result = []
-            from modules.events.event_company_service import get_company_events
-            
-            for company in all_companies:
-                # Get all events for this company (System Admins see all events)
-                # 1. Get events from relationships (Modern flow + Participants)
-                company_events = await get_company_events(
-                    db=db,
-                    company_id=company.CompanyID,
-                    active_only=True,
-                    include_participant=True,
-                    user_id=None,  # System Admin bypasses form access filtering
-                    user_role="system_admin"
+            enriched_companies = await get_user_companies_with_relationship_context(
+                db, current_user.user_id
+            )
+            if not enriched_companies:
+                all_companies = db.execute(
+                    select(Company).where(Company.IsDeleted == False)
+                    .order_by(Company.CompanyName.asc())
+                ).scalars().all()
+
+                result = []
+                from modules.events.event_company_service import get_company_events
+
+                for company in all_companies:
+                    try:
+                        company_events = await get_company_events(
+                            db=db,
+                            company_id=company.CompanyID,
+                            active_only=True,
+                            include_participant=True,
+                            user_id=None,
+                            user_role="system_admin",
+                        )
+                        legacy_events = await get_events(
+                            db=db,
+                            company_id=company.CompanyID,
+                            filters=None,
+                        )
+                        unique_event_ids = {e.EventID for e in company_events}
+                        unique_event_ids.update(e.EventID for e in legacy_events)
+                        event_count = len(unique_event_ids)
+                    except Exception as exc:
+                        logger.error(
+                            "Platform company list: event count failed CompanyID=%s: %s",
+                            company.CompanyID,
+                            exc,
+                        )
+                        event_count = 0
+
+                    result.append(UserCompanyInfo(
+                        company_id=company.CompanyID,
+                        company_name=company.CompanyName,
+                        role="system_admin",
+                        is_primary=False,
+                        joined_at=company.CreatedDate,
+                        joined_via=None,
+                        relationship=None,
+                        event_count=event_count,
+                    ))
+
+                logger.info(
+                    "System admin %s viewing all %s companies (no UserCompany membership)",
+                    current_user.user_id,
+                    len(result),
                 )
-                
-                # 2. Get directly owned events (Legacy flow)
-                legacy_events = await get_events(
-                    db=db,
-                    company_id=company.CompanyID,
-                    filters=None
-                )
-                
-                # 3. Merge unique events to get accurate count
-                # Use a set to deduplicate events that might appear in both lists (rare but possible)
-                unique_event_ids = set()
-                for e in company_events:
-                    unique_event_ids.add(e.EventID)
-                for e in legacy_events:
-                    unique_event_ids.add(e.EventID)
-                
-                event_count = len(unique_event_ids)
-                
-                result.append(UserCompanyInfo(
-                    company_id=company.CompanyID,
-                    company_name=company.CompanyName,
-                    role="system_admin",  # System Admin role for all companies
-                    is_primary=False,  # System Admin doesn't have a "primary" company
-                    joined_at=company.CreatedDate,  # Use company creation date
-                    joined_via=None,  # System Admin doesn't "join" companies
-                    relationship=None,  # No relationship context for System Admin
-                    event_count=event_count
-                ))
-            
-            logger.info(f"System Admin {current_user.user_id} viewing all {len(result)} companies")
-            return result
-        
-        # Regular users: Get companies they belong to
-        enriched_companies = await get_user_companies_with_relationship_context(db, current_user.user_id)
+                return result
+
+            logger.info(
+                "System admin %s using membership company list (%s companies)",
+                current_user.user_id,
+                len(enriched_companies),
+            )
+
+        if enriched_companies is None:
+            enriched_companies = await get_user_companies_with_relationship_context(
+                db, current_user.user_id
+            )
         
         # Get user's role for each company to apply correct event filtering
         from models.ref.user_company_role import UserCompanyRole

@@ -123,11 +123,12 @@ export function useFontDetails(fontFamilyId: number | null) {
 /**
  * Hook to fetch font details by family name
  */
-export function useFontDetailsByName(familyName: string | null) {
+export function useFontDetailsByName(familyName: string | null | undefined) {
+    const normalizedName = (familyName ?? '').trim();
     return useQuery({
-        queryKey: fontQueryKeys.byName(familyName ?? ''),
-        queryFn: () => fontsApi.getByName(familyName!),
-        enabled: familyName !== null && familyName.length > 0,
+        queryKey: fontQueryKeys.byName(normalizedName),
+        queryFn: () => fontsApi.getByName(normalizedName),
+        enabled: normalizedName.length > 0,
         staleTime: 5 * 60 * 1000,
         gcTime: 30 * 60 * 1000,
     });

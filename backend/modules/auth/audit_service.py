@@ -44,6 +44,7 @@ def log_auth_event(
         - PASSWORD_RESET_REQUEST: Password reset requested
         - PASSWORD_RESET_COMPLETE: Password reset completed
         - TOKEN_REFRESH: JWT token refreshed
+        - TOKEN_REFRESH_FAILED: Refresh rejected (see Reason.failure_reason)
     """
     # Try to get request context
     request_id = None

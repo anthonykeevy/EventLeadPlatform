@@ -122,3 +122,6 @@ node_modules/
 
 # TypeScript output
 frontend/tsc-out.txt
+
+# Local landing demo seed output (tokens/IDs; regenerate via seed_landing_demo_forms.py)
+backend/seed_data/landing_demo/manifest.local.json

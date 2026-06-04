@@ -6,7 +6,7 @@ import os
 import logging
 import hashlib
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -37,6 +37,7 @@ from modules.auth.token_service import (
     validate_token,
     mark_token_used,
     store_refresh_token,
+    revoke_all_user_refresh_tokens,
     validate_refresh_token,
     generate_password_reset_token,
     validate_password_reset_token,
@@ -77,6 +78,62 @@ def _token_fingerprint(token: Optional[str]) -> str:
         return hashlib.sha256(token.encode("utf-8")).hexdigest()[:12]
     except Exception:
         return "unavailable"
+
+
+def _log_refresh_failure(
+    db: Session,
+    request: Request,
+    failure_reason: str,
+    *,
+    user_id: Optional[int] = None,
+    email: Optional[str] = None,
+    token_fingerprint: Optional[str] = None,
+    extra: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Persist structured refresh failure to log.AuthEvent."""
+    details: Dict[str, Any] = {"failure_reason": failure_reason}
+    if email:
+        details["email"] = email
+    if token_fingerprint:
+        details["token_fingerprint"] = token_fingerprint
+    if extra:
+        details.update(extra)
+    try:
+        log_auth_event(
+            db=db,
+            user_id=user_id,
+            event_type="TOKEN_REFRESH_FAILED",
+            success=False,
+            details=details,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+        )
+    except Exception:
+        logger.exception("Failed to persist TOKEN_REFRESH_FAILED auth event")
+
+
+def _fail_refresh(
+    db: Session,
+    request: Request,
+    failure_reason: str,
+    detail: str,
+    *,
+    user_id: Optional[int] = None,
+    email: Optional[str] = None,
+    token: Optional[str] = None,
+    extra: Optional[Dict[str, Any]] = None,
+) -> None:
+    _log_refresh_failure(
+        db,
+        request,
+        failure_reason,
+        user_id=user_id,
+        email=email,
+        token_fingerprint=_token_fingerprint(token),
+        extra=extra,
+    )
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)
+
 
 # Create router
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -581,7 +638,14 @@ async def login(
     
     refresh_token = create_refresh_token(db=db, user_id=user.UserID)
     
-    # 7. Store refresh token in database (expiry read from config per Story 1.13)
+    # 7. Revoke stale refresh tokens, then store the new one (single active session per login)
+    revoked_count = revoke_all_user_refresh_tokens(db, user.UserID)
+    if revoked_count:
+        logger.info(
+            "Revoked %s refresh token(s) on login: user_id=%s",
+            revoked_count,
+            user.UserID,
+        )
     store_refresh_token(db, user.UserID, refresh_token)
     logger.info(
         "Issued refresh token fingerprint: user_id=%s fingerprint=%s",
@@ -746,11 +810,15 @@ async def refresh_token_endpoint(
             logger.warning(
                 "Invalid refresh token JWT: %s fingerprint=%s",
                 str(e),
-                _token_fingerprint(request_data.refresh_token)
+                _token_fingerprint(request_data.refresh_token),
             )
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired refresh token"
+            _fail_refresh(
+                db,
+                request,
+                "jwt_invalid",
+                "Invalid or expired refresh token",
+                token=request_data.refresh_token,
+                extra={"jwt_error": str(e)},
             )
         
         # 2. Verify token type
@@ -758,11 +826,22 @@ async def refresh_token_endpoint(
             logger.warning(
                 "Invalid token type for refresh: type=%s fingerprint=%s",
                 payload.get("type"),
-                _token_fingerprint(request_data.refresh_token)
+                _token_fingerprint(request_data.refresh_token),
             )
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token type. Expected refresh token."
+            user_id_for_log: Optional[int] = None
+            try:
+                user_id_for_log = extract_user_id(payload)
+            except Exception:
+                pass
+            _fail_refresh(
+                db,
+                request,
+                "invalid_token_type",
+                "Invalid token type. Expected refresh token.",
+                user_id=user_id_for_log,
+                email=payload.get("email"),
+                token=request_data.refresh_token,
+                extra={"token_type": payload.get("type")},
             )
         
         # 3. Validate token in database
@@ -772,46 +851,62 @@ async def refresh_token_endpoint(
             diagnostic_token = db.query(UserRefreshToken).filter(
                 UserRefreshToken.Token == request_data.refresh_token
             ).first()
+            failure_reason = "refresh_token_not_in_database"
+            log_user_id: Optional[int] = None
+            log_extra: Dict[str, Any] = {}
 
             if not diagnostic_token:
                 logger.warning(
                     "Refresh token not found in database: fingerprint=%s",
-                    _token_fingerprint(request_data.refresh_token)
+                    _token_fingerprint(request_data.refresh_token),
                 )
             else:
+                log_user_id = int(diagnostic_token.UserID)
+                log_extra["token_id"] = diagnostic_token.UserRefreshTokenID
                 now = datetime.utcnow()
                 if diagnostic_token.ExpiresAt < now:
+                    failure_reason = "refresh_token_expired"
+                    log_extra["expires_at"] = diagnostic_token.ExpiresAt.isoformat()
                     logger.warning(
                         "Refresh token expired: user_id=%s expires_at=%s fingerprint=%s",
                         diagnostic_token.UserID,
                         diagnostic_token.ExpiresAt,
-                        _token_fingerprint(request_data.refresh_token)
+                        _token_fingerprint(request_data.refresh_token),
                     )
                 elif diagnostic_token.IsUsed:
+                    failure_reason = "refresh_token_already_used"
                     logger.warning(
                         "Refresh token already used: user_id=%s token_id=%s fingerprint=%s",
                         diagnostic_token.UserID,
                         diagnostic_token.UserRefreshTokenID,
-                        _token_fingerprint(request_data.refresh_token)
+                        _token_fingerprint(request_data.refresh_token),
                     )
                 elif diagnostic_token.IsRevoked:
+                    failure_reason = "refresh_token_revoked"
                     logger.warning(
                         "Refresh token revoked: user_id=%s token_id=%s fingerprint=%s",
                         diagnostic_token.UserID,
                         diagnostic_token.UserRefreshTokenID,
-                        _token_fingerprint(request_data.refresh_token)
+                        _token_fingerprint(request_data.refresh_token),
                     )
                 else:
+                    failure_reason = "refresh_token_unknown_validation_failure"
                     logger.warning(
                         "Refresh token failed validation for unknown reason: user_id=%s token_id=%s fingerprint=%s",
                         diagnostic_token.UserID,
                         diagnostic_token.UserRefreshTokenID,
-                        _token_fingerprint(request_data.refresh_token)
+                        _token_fingerprint(request_data.refresh_token),
                     )
 
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired refresh token"
+            _fail_refresh(
+                db,
+                request,
+                failure_reason,
+                "Invalid or expired refresh token",
+                user_id=log_user_id,
+                email=payload.get("email"),
+                token=request_data.refresh_token,
+                extra=log_extra or None,
             )
         
         # 4. Get fresh user data
@@ -829,11 +924,20 @@ async def refresh_token_endpoint(
                 user_id,
                 payload.get("email"),
                 user.IsEmailVerified if user else None,
-                user.status.StatusName if user and user.status else None
+                user.status.StatusName if user and user.status else None,
             )
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found, inactive, or email not verified"
+            _fail_refresh(
+                db,
+                request,
+                "user_inactive_or_unverified",
+                "User not found, inactive, or email not verified",
+                user_id=user_id,
+                email=payload.get("email"),
+                token=request_data.refresh_token,
+                extra={
+                    "is_email_verified": user.IsEmailVerified if user else None,
+                    "status": user.status.StatusName if user and user.status else None,
+                },
             )
         
         # 5. Get updated role/company info

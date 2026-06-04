@@ -56,6 +56,10 @@ if (apiClient && apiClient.interceptors && apiClient.interceptors.response) {
           return Promise.reject(error)
         }
 
+        if (originalRequest.url?.includes('/api/public/')) {
+          return Promise.reject(error)
+        }
+
         originalRequest._retry = true
 
         try {
@@ -70,12 +74,10 @@ if (apiClient && apiClient.interceptors && apiClient.interceptors.response) {
           originalRequest.headers.Authorization = `Bearer ${tokenResponse.access_token}`
           return apiClient(originalRequest)
         } catch (refreshError) {
-          // Refresh failed - keep session state but notify for retry
-          window.dispatchEvent(new CustomEvent('eventlead:refresh-failed', {
-            detail: {
-              status: (refreshError as AxiosError | undefined)?.response?.status || 0
-            }
-          }))
+          const refreshStatus = (refreshError as AxiosError | undefined)?.response?.status
+          if (refreshStatus === 401) {
+            window.dispatchEvent(new CustomEvent('eventlead:session-expired'))
+          }
           return Promise.reject(refreshError)
         }
       }

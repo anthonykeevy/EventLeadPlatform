@@ -3,9 +3,9 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.5e-landing  
 **Title:** Replace the developer-friendly test-system homepage with a customer-facing beta landing page  
-**Status:** 📋 Ready for Dev kickoff  
+**Status:** ✅ Implementation pushed — merge PR to `develop`, then Azure Test UAT (A–E)  
 **Branch:** `story/epic6-6.5e-landing-page`  
-**PR:** [#117](https://github.com/anthonykeevy/EventLeadPlatform/pull/117) — Draft → `develop`  
+**PR:** TBD (implementation; story pack/docs via #117) → `develop`  
 **Created:** 2026-06-03  
 **Size:** M  
 

@@ -14,9 +14,9 @@ import { WEIGHT_LABELS, getWeightLabel } from '../../../api/fontTypes';
 
 interface FontWeightControlProps {
     label: string;
-    value: number;
+    value: number | string;
     onChange: (weight: number) => void;
-    fontFamily: string;  // Font family name to look up details
+    fontFamily?: string | null;  // Font family name to look up details
     disabled?: boolean;
 }
 
@@ -30,8 +30,14 @@ export const FontWeightControl: React.FC<FontWeightControlProps> = ({
     fontFamily,
     disabled = false,
 }) => {
+    const safeFontFamily = (fontFamily ?? '').trim();
+    const numericValue =
+        typeof value === 'number' && Number.isFinite(value)
+            ? value
+            : parseInt(String(value ?? ''), 10) || 400;
+
     // Fetch font details to determine if variable and get available weights
-    const { data: fontDetails, isLoading } = useFontDetailsByName(fontFamily);
+    const { data: fontDetails, isLoading } = useFontDetailsByName(safeFontFamily);
 
     // Determine if font is variable
     const isVariable = fontDetails?.is_variable_font ?? false;
@@ -40,30 +46,45 @@ export const FontWeightControl: React.FC<FontWeightControlProps> = ({
 
     // Get available weights for static fonts
     const availableWeights = useMemo(() => {
-        if (!fontDetails?.variants) return [400]; // Default fallback
-        
+        const variants = fontDetails?.variants;
+        if (!Array.isArray(variants) || variants.length === 0) {
+            return [400];
+        }
+
         // Extract unique weights from non-italic variants
-        const weights = fontDetails.variants
+        const weights = variants
             .filter(v => !v.is_italic)
             .map(v => v.weight)
-            .filter((w, i, arr) => arr.indexOf(w) === i) // Unique
+            .filter((w): w is number => typeof w === 'number' && Number.isFinite(w))
+            .filter((w, i, arr) => arr.indexOf(w) === i)
             .sort((a, b) => a - b);
-        
+
         return weights.length > 0 ? weights : [400];
     }, [fontDetails]);
 
     // Ensure current value is valid for static fonts
     const effectiveValue = useMemo(() => {
-        if (isVariable) return value;
+        if (isVariable) return numericValue;
         
         // For static fonts, snap to nearest available weight
-        if (!availableWeights.includes(value)) {
+        if (!availableWeights.includes(numericValue)) {
             return availableWeights.reduce((prev, curr) =>
-                Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+                Math.abs(curr - numericValue) < Math.abs(prev - numericValue) ? curr : prev
             );
         }
-        return value;
-    }, [value, isVariable, availableWeights]);
+        return numericValue;
+    }, [numericValue, isVariable, availableWeights]);
+
+    if (!safeFontFamily) {
+        return (
+            <SimpleWeightSelect
+                label={label}
+                value={numericValue}
+                onChange={onChange}
+                disabled={disabled}
+            />
+        );
+    }
 
     // Handle slider change for variable fonts
     const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {

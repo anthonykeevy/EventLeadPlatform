@@ -8,7 +8,7 @@
 
 | # | Area | What happened | Impact | Follow-up |
 |---|---|---|---|---|
-| 1 | TBD | Pending implementation | TBD | TBD |
+| 1 | Git / PR | PR #117 merged docs-only; implementation lived in worktree uncommitted until follow-up push | Delayed Azure Test landing UAT | Always push implementation before marking Ready for UAT |
 
 ---
 

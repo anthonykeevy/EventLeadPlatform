@@ -19,10 +19,19 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import axios from 'axios'
 import { useNavigate, useLocation } from 'react-router-dom'
 import type { User, AuthState, LoginCredentials, SignupData } from '../types/auth.types'
 import * as authApi from '../api/authApi'
 import * as tokenStorage from '../utils/tokenStorage'
+import { isPublicAuthPassiveRoute, isActiveAuthRoute } from '../utils/authRouteMode'
+import {
+  tryClaimAuthRefreshLeader,
+  isAuthRefreshLeader,
+  renewAuthRefreshLeaderHeartbeat,
+  releaseAuthRefreshLeader,
+  LEADER_HEARTBEAT_INTERVAL_MS,
+} from '../utils/refreshCoordinator'
 import { unsavedWorkTracker } from '../../../utils/unsavedWorkTracker'
 import { AuthChangeBanner } from '../../../components/AuthChangeBanner'
 import { SessionExpiredModal } from '../components/SessionExpiredModal'
@@ -40,6 +49,10 @@ interface AuthContextValue extends AuthState {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+function isRefreshAuthFailure(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 401
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -66,12 +79,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logoutRef = useRef<(() => void) | null>(null)
   const refreshTokenRef = useRef<(() => Promise<void>) | null>(null)
   const scheduleTokenRefreshRef = useRef<(() => void) | null>(null)
+  const notifySessionExpiredRef = useRef<(() => void) | null>(null)
+
+  const notifySessionExpired = useCallback(() => {
+    if (!navigator.onLine) {
+      return
+    }
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current)
+      refreshTimeoutRef.current = null
+    }
+    setShowSessionExpired(true)
+  }, [])
+
+  useEffect(() => {
+    notifySessionExpiredRef.current = notifySessionExpired
+  }, [notifySessionExpired])
   
   /**
    * AC-1.9.3: Auto-refresh access token before expiration
    * Refresh token 5 minutes (300 seconds) before expiry
    */
   const scheduleTokenRefresh = useCallback(() => {
+    if (isPublicAuthPassiveRoute(location.pathname)) {
+      return
+    }
+    if (!isAuthRefreshLeader() && !tryClaimAuthRefreshLeader()) {
+      return
+    }
+
     // Clear existing timeout
     if (refreshTimeoutRef.current) {
       clearTimeout(refreshTimeoutRef.current)
@@ -88,6 +124,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshIn = Math.max(0, timeUntilExpiry - refreshBuffer) * 1000
     
     refreshTimeoutRef.current = setTimeout(async () => {
+      if (!isAuthRefreshLeader() && !tryClaimAuthRefreshLeader()) {
+        if (scheduleTokenRefreshRef.current) {
+          scheduleTokenRefreshRef.current()
+        }
+        return
+      }
+
       // Don't attempt token refresh when offline - preserve session state
       if (!navigator.onLine) {
         console.log('🌐 Offline: Skipping scheduled token refresh - preserving session')
@@ -106,15 +149,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('Auto-refresh failed:', error)
-        console.log('🔄 Refresh failed - will retry in 60s')
-        refreshTimeoutRef.current = setTimeout(() => {
-          if (scheduleTokenRefreshRef.current) {
-            scheduleTokenRefreshRef.current()
-          }
-        }, 60000)
+        if (isRefreshAuthFailure(error)) {
+          notifySessionExpiredRef.current?.()
+        }
       }
     }, refreshIn)
-  }, [])
+  }, [location.pathname])
   
   // Store scheduleTokenRefresh function in ref for use in refreshToken
   useEffect(() => {
@@ -332,23 +372,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Token refresh failed:', error)
-      if (navigator.onLine) {
-        console.log('🔄 Refresh failed - will retry in 60s')
-        if (refreshTimeoutRef.current) {
-          clearTimeout(refreshTimeoutRef.current)
-        }
-        refreshTimeoutRef.current = setTimeout(() => {
-          if (refreshTokenRef.current) {
-            refreshTokenRef.current().catch((retryError) => {
-              console.error('Retry refresh failed:', retryError)
-            })
-          }
-        }, 60000)
-      } else {
+      if (isRefreshAuthFailure(error)) {
+        notifySessionExpired()
+      } else if (!navigator.onLine) {
         console.log('🌐 Offline: Preserving session despite refresh failure')
       }
     }
-  }, [])
+  }, [notifySessionExpired])
   
   // Store refreshToken function in ref for use in scheduleTokenRefresh
   useEffect(() => {
@@ -485,6 +515,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    */
   useEffect(() => {
     const initializeAuth = async () => {
+      const passiveRoute = isPublicAuthPassiveRoute(location.pathname)
       const tokens = tokenStorage.getStoredTokens()
       
       if (!tokens) {
@@ -516,8 +547,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
           console.error('Failed to refresh expired token on init:', error)
           setState(prev => ({ ...prev, isLoading: false }))
+          if (!passiveRoute && isRefreshAuthFailure(error)) {
+            notifySessionExpired()
+          }
           return
         }
+      }
+
+      if (passiveRoute) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+        }))
+        return
       }
       
       try {
@@ -535,9 +577,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         scheduleTokenRefresh()
       } catch (error) {
         console.error('Failed to restore session:', error)
-        // Only clear tokens and logout when online
+        // Only clear tokens and logout when online on active (protected) routes
         // When offline, preserve state to allow continued work
-        if (navigator.onLine) {
+        if (navigator.onLine && !passiveRoute) {
           tokenStorage.clearTokens()
           setState({
             user: null,
@@ -575,23 +617,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     window.addEventListener('eventlead:session-expired', handleSessionExpired)
 
-    const handleRefreshFailed = () => {
-      if (!navigator.onLine) {
-        return
-      }
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current)
-      }
-      refreshTimeoutRef.current = setTimeout(() => {
-        if (refreshTokenRef.current) {
-          refreshTokenRef.current().catch((error) => {
-            console.error('Refresh retry failed:', error)
-          })
-        }
-      }, 60000)
-    }
-    window.addEventListener('eventlead:refresh-failed', handleRefreshFailed)
-    
     // Cleanup on unmount
     return () => {
       if (refreshTimeoutRef.current) {
@@ -599,9 +624,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('eventlead:session-expired', handleSessionExpired)
-      window.removeEventListener('eventlead:refresh-failed', handleRefreshFailed)
     }
-  }, [scheduleTokenRefresh])
+  }, [scheduleTokenRefresh, location.pathname, notifySessionExpired])
+
+  /**
+   * Phase 1: one tab runs proactive refresh timers (builder/dashboard), not preview tabs.
+   */
+  useEffect(() => {
+    if (!isActiveAuthRoute(location.pathname)) {
+      return
+    }
+
+    tryClaimAuthRefreshLeader()
+    renewAuthRefreshLeaderHeartbeat()
+    if (scheduleTokenRefreshRef.current) {
+      scheduleTokenRefreshRef.current()
+    }
+
+    const heartbeatId = window.setInterval(() => {
+      if (isAuthRefreshLeader()) {
+        renewAuthRefreshLeaderHeartbeat()
+      } else if (tryClaimAuthRefreshLeader() && scheduleTokenRefreshRef.current) {
+        scheduleTokenRefreshRef.current()
+      }
+    }, LEADER_HEARTBEAT_INTERVAL_MS)
+
+    const onBeforeUnload = () => {
+      releaseAuthRefreshLeader()
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+
+    return () => {
+      window.clearInterval(heartbeatId)
+      window.removeEventListener('beforeunload', onBeforeUnload)
+    }
+  }, [location.pathname])
   
   /**
    * Story 1.16 Enhanced: Multi-tab synchronization
@@ -638,7 +695,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               const currentTime = Math.floor(Date.now() / 1000)
               const expiresIn = Math.max(0, tokens.expiresAt - currentTime)
               tokenStorage.storeTokens(tokens.accessToken, tokens.refreshToken, expiresIn, { suppressEvent: true })
-              if (scheduleTokenRefreshRef.current) {
+              if (
+                isActiveAuthRoute(location.pathname) &&
+                scheduleTokenRefreshRef.current
+              ) {
                 scheduleTokenRefreshRef.current()
               }
             }
@@ -707,7 +767,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (tokens?.accessToken && tokens?.refreshToken && tokens?.expiresAt) {
         broadcastAuthChange({ type: 'TOKENS_UPDATED', tokens })
-        if (scheduleTokenRefreshRef.current) {
+        if (
+          isActiveAuthRoute(location.pathname) &&
+          scheduleTokenRefreshRef.current
+        ) {
           scheduleTokenRefreshRef.current()
         }
       }

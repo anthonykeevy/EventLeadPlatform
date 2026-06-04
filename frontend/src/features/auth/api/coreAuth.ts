@@ -6,6 +6,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios'
 import { LoginCredentials, SignupData, TokenResponse } from '../types/auth.types'
 import { getAccessToken, getRefreshToken, clearTokens } from '../utils/tokenStorage'
+import { coordinatedRefreshAccessToken } from '../utils/refreshCoordinator'
 
 import { getApiBaseUrl } from '../../../lib/apiBaseUrl'
 
@@ -102,51 +103,55 @@ export async function loginUser(credentials: LoginCredentials): Promise<TokenRes
 }
 
 export async function refreshAccessToken(): Promise<TokenResponse> {
-  const attemptRefresh = async (token: string): Promise<TokenResponse> => {
-    const response = await coreAuthClient.post<{
-      success: boolean
-      message: string
-      data: {
-        access_token: string
-        token_type: string
-        expires_in: number
-      }
-    }>('/api/auth/refresh', {
-      refresh_token: token,
-    })
-    
-    return {
-      access_token: response.data.data.access_token,
-      refresh_token: token,
-      token_type: response.data.data.token_type,
-      expires_in: response.data.data.expires_in,
-    }
-  }
+  return coordinatedRefreshAccessToken(async () => {
+    const attemptRefresh = async (token: string): Promise<TokenResponse> => {
+      const response = await coreAuthClient.post<{
+        success: boolean
+        message: string
+        data: {
+          access_token: string
+          token_type: string
+          expires_in: number
+        }
+      }>('/api/auth/refresh', {
+        refresh_token: token,
+      })
 
-  const initialRefreshToken = getRefreshToken()
-  
-  if (!initialRefreshToken) {
-    throw new Error('No refresh token available')
-  }
-  
-  try {
-    return await attemptRefresh(initialRefreshToken)
-  } catch (error) {
-    const latestRefreshToken = getRefreshToken()
-    const shouldRetry = axios.isAxiosError(error) && error.response?.status === 401
-      && latestRefreshToken
-      && latestRefreshToken !== initialRefreshToken
-
-    if (shouldRetry) {
-      try {
-        return await attemptRefresh(latestRefreshToken)
-      } catch (retryError) {
-        throw formatAuthError(retryError)
+      return {
+        access_token: response.data.data.access_token,
+        refresh_token: token,
+        token_type: response.data.data.token_type,
+        expires_in: response.data.data.expires_in,
       }
     }
 
-    throw formatAuthError(error)
-  }
+    const initialRefreshToken = getRefreshToken()
+
+    if (!initialRefreshToken) {
+      throw new Error('No refresh token available')
+    }
+
+    try {
+      return await attemptRefresh(initialRefreshToken)
+    } catch (error) {
+      const latestRefreshToken = getRefreshToken()
+      const shouldRetry =
+        axios.isAxiosError(error) &&
+        error.response?.status === 401 &&
+        latestRefreshToken &&
+        latestRefreshToken !== initialRefreshToken
+
+      if (shouldRetry) {
+        try {
+          return await attemptRefresh(latestRefreshToken)
+        } catch (retryError) {
+          throw formatAuthError(retryError)
+        }
+      }
+
+      throw formatAuthError(error)
+    }
+  })
 }
 
 export async function logoutUser(): Promise<void> {

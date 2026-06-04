@@ -2,7 +2,7 @@
 
 **Story:** Customer-Facing Beta Landing Page  
 **Branch:** `story/epic6-6.5e-landing-page`  
-**PR:** TBD (implementation follow-up to docs-only #117) → `develop`  
+**PR:** [#118](https://github.com/anthonykeevy/EventLeadPlatform/pull/118) → `develop` (implementation; docs via #117)  
 **Status:** Implementation committed; ready to merge → Azure Test UAT
 
 ---

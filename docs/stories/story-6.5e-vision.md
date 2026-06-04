@@ -3,11 +3,13 @@
 **Epic:** 6 — AI Generation & Monetization Engine  
 **Story ID:** 6.5e-vision *(was 6.5b-vision — renamed 2026-05-20)*  
 **Title:** Track 0 — component platform hardening (6.5d follow-through) + Track 1 — screenshot/photo → `FormSemanticPlan`  
-**Status:** 📋 **Ready for SM pack** (worktree not opened)  
+**Status:** ⏸️ **Deferred** (worktree not opened)  
 **Branch:** `story/epic6-6.5e-vision-image-to-form` *(planned)*  
 **PR:** TBD — Draft → `develop`  
 **Created:** 2026-05-28  
 **Size:** L (Track 0: S · Track 1: M per ideation brief)
+
+**Pause note (2026-06-03):** Deferred while customer discovery is active. The next Epic 6 story is `story-6.5e-landing-page.md`, which supports customer discovery and beta account creation before more Form Builder / image-to-form investment.
 
 **Depends On:**
 - Story 6.5d ✅ — catalog alignment, EDF reference pair, clarification plane, `ADD-COMPONENT-TO-PLATFORM-CHECKLIST.md`

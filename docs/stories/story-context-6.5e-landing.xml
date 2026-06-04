@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story="6.5e-landing" title="Customer-Facing Beta Landing Page">
+
+  <overview>
+    Replace the developer-friendly Test system root page with a customer-facing beta landing page
+    that explains EventLead in customer language, routes visitors to account creation, supports
+    customer discovery follow-up, and is structured for SEO/AEO without overstating production
+    readiness or partially shipped capabilities.
+  </overview>
+
+  <critical-objectives>
+    <item>Root route "/" must become customer-facing, not developer/test-environment-facing.</item>
+    <item>Primary CTA "Create an account" routes to "/signup" and is visible above the fold.</item>
+    <item>Secondary CTA "See example forms" routes to a safe in-page use-case/examples section unless public examples exist.</item>
+    <item>Use discovery-aligned positioning: customer engagement forms, operational lens, platform lens, Personas A/B/C.</item>
+    <item>Include beta trust wording before account creation; do not promise production readiness or automatic migration.</item>
+    <item>Remove public exposure of API docs, database test, MailHog, backend health, package versions, and local-only instructions from root.</item>
+    <item>Add SEO/AEO basics: page title, meta description, one H1, logical H2s, crawlable FAQ, useful alt text; JSON-LD if feasible.</item>
+    <item>Use safe fake visuals/examples only; no internal records, test users, secrets, or developer screenshots.</item>
+  </critical-objectives>
+
+  <dependencies>
+    <story id="6.5d">Complete. AI/Form Builder foundation is stable enough to pause speculative vision work.</story>
+    <doc path="docs/LANDING-PAGE-BRIEF.md">Primary product brief and copy source.</doc>
+    <doc path="docs/customer-discovery/README.md">Scope reframe, personas, operational/platform lens.</doc>
+    <doc path="docs/customer-discovery/PROGRAM-STATUS.md">Current sequencing: discovery primary, landing page next, Form Builder vision deferred.</doc>
+    <doc path="docs/customer-discovery/feature-resonance-scorecard.md">Honest built/planned feature language.</doc>
+    <doc path="docs/customer-discovery/tenancy-sharing-and-dashboards.md">Platform-lens language and partial-feature boundaries.</doc>
+    <doc path="docs/customer-discovery/mvp-scope-fix-candidates.md">Beta, production, and trust-risk context.</doc>
+  </dependencies>
+
+  <constraints>
+    <item>Do not run Alembic; this story should not require migrations.</item>
+    <item>Do not implement image-to-form, new Form Builder capabilities, billing, Stripe, or production infrastructure.</item>
+    <item>Do not create privacy/compliance/enterprise claims unless already verified.</item>
+    <item>Do not expose dev-only routes or environment diagnostics on the public root page.</item>
+    <item>PowerShell-safe commands only.</item>
+  </constraints>
+
+  <primary-code-paths>
+    <path file="frontend/src/App.tsx" note="Root route currently defines developer-oriented HomePage; replace/extract."/>
+    <path file="frontend/src/features/auth/components/SignupForm.tsx" note="CTA target is /signup; do not change auth flow unless necessary."/>
+    <path file="frontend/src/features/auth/components/LoginForm.tsx" note="Login can remain available but secondary to account creation."/>
+    <path file="frontend/src/features/marketing/" note="Preferred home for new landing page component(s) if created."/>
+    <path file="frontend/index.html" note="Check whether static title/meta should be updated or runtime metadata is enough."/>
+    <path file="frontend/src/" note="Add targeted tests near the landing component if existing test setup supports it."/>
+  </primary-code-paths>
+
+  <required-artifacts>
+    <file path="docs/stories/story-6.5e-landing-page.md" purpose="Story spec."/>
+    <file path="docs/stories/story-context-6.5e-landing.xml" purpose="This file."/>
+    <file path="docs/stories/STORY-6.5e-LANDING-SINGLE-SESSION-DEV-PROMPT.md" purpose="Dev contract."/>
+    <file path="docs/stories/STORY-6.5e-LANDING-UAT-TEST-GUIDE.md" purpose="Tony + SM UAT."/>
+    <file path="docs/stories/STORY-6.5e-LANDING-GATE-EVIDENCE.md" purpose="Build/lint/test evidence."/>
+    <file path="docs/stories/STORY-6.5e-LANDING-IMPLEMENTATION-FRICTION-LOG.md" purpose="Dev friction log."/>
+  </required-artifacts>
+
+</story-context>

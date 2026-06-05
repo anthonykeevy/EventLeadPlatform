@@ -3,7 +3,7 @@
 **Story:** Customer-Facing Beta Landing Page  
 **Branch:** `story/epic6-6.5e-landing-page`  
 **PR:** [#118](https://github.com/anthonykeevy/EventLeadPlatform/pull/118) → `develop` (implementation; docs via #117)  
-**Status:** Implementation committed; ready to merge → Azure Test UAT
+**Status:** ✅ Complete — local + Azure Test UAT pass (see `STORY-6.5e-LANDING-CLOSEOUT-REPORT.md`)
 
 ---
 
@@ -44,7 +44,9 @@
 | D — SEO/AEO/accessibility | **Pass** | |
 | E — Safety scan | **Pass** | |
 | **Decision** | **Pass (local)** | Eight builder demo forms deferred; in-page mock tiles only |
-| Azure Test (post-merge) | Pending | Repeat A, C, E + `/signup` on test URL per UAT guide |
+| Azure Test A/B/C/E | **Pass** | Tony, 2026-06-04; signup + login CTAs work |
+| Azure Test D | Not re-run | Covered in local UAT |
+| **Out-of-scope (CF-1)** | Logged | Background image upload fails on Test — see closeout §4 |
 
 ---
 

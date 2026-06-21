@@ -4,7 +4,7 @@ How the engineering skills should consume this repo's domain documentation when 
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root — the project's ubiquitous language (glossary). Created lazily by `/grill-with-docs` and `/domain-modeling`; does not exist yet.
+- **`CONTEXT.md`** at the repo root — the project's ubiquitous language (glossary).
 - **`docs/architecture/decisions/`** — BMAD Architecture Decision Records (ADR-001 through ADR-004 and successors). Read ADRs that touch the area you're about to work in.
 - **`docs/architecture/`** — supplementary architecture docs (handoffs, capsule inventory, story-specific decisions). Check here when an ADR doesn't cover the topic.
 
@@ -16,7 +16,7 @@ Single-context repo with BMAD architecture layout:
 
 ```
 /
-├── CONTEXT.md                         ← domain glossary (to be created)
+├── CONTEXT.md                         ← domain glossary
 ├── docs/
 │   ├── architecture/
 │   │   ├── decisions/
@@ -43,3 +43,11 @@ If the concept you need isn't in the glossary yet, that's a signal — either yo
 If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
 
 > _Contradicts ADR-002 (backend abstraction layer) — but worth reopening because…_
+
+## Known domain vs schema drift
+
+When `CONTEXT.md` and the database disagree, **follow the glossary** for language and treat the schema as legacy unless a story explicitly changes it.
+
+| Glossary rule | Legacy schema / code | Notes |
+|---------------|----------------------|-------|
+| Every form header belongs to exactly one Event | `dbo.Form.EventID` is nullable | Epic 2 allowed "general forms" without an Event; UI create flow now requires an Event. Do not design new features around eventless form headers. |

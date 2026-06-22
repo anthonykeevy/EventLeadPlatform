@@ -63,3 +63,42 @@ _Avoid_: account, member (without company qualifier)
 **Company membership**:
 A User's relationship to a Company — including role (e.g. Company Admin, Company User, Company Viewer) and membership status. Permissions are evaluated in this context, not from the User alone.
 _Avoid_: user role (ambiguous — prefer the full membership role name)
+
+### Builder (form definition authoring)
+
+**Canvas**:
+The screen area in the Builder that mimics where the Form will appear — Users drag Components from the Toolbox and place them freely on the Canvas.
+_Avoid_: page (without qualifier), artboard alone
+
+**Toolbox**:
+The palette of catalog Component types available to add to a Form — compact previews, not the live Form.
+_Avoid_: sidebar (implementation detail), component list
+
+**Component**:
+A typed instance on the form canvas (catalog type, props, structure) — a grid-based container that holds one or more objects. Identified in `FormDefinition` by component id and `type` (e.g. email, rating).
+_Avoid_: field (without type), widget (generic)
+
+**Object**:
+One layout/render unit inside a Component — e.g. label, input, validation, action, divider. Objects are positioned by grid layout and rendered through UniversalFieldShell.
+_Avoid_: component (the container is the Component), DOM node
+
+**Grid layout**:
+The structure that defines how objects are arranged inside a Component — rows, columns, gaps, and cell assignments mapping grid coordinates to object ids. The canonical v3 layout system; not used for Canvas placement.
+_Avoid_: object layout (legacy v1 — being removed), canvas layout
+
+**Surface**:
+Where a Component is rendered in the Builder framework — one of three: **Toolbox** (palette preview), **Canvas** (authoring WYSIWYG), or **Runtime** (live Form without builder chrome). The same Component definition; behaviour and chrome differ by surface.
+_Avoid_: mode (ambiguous), view alone
+
+**Runtime**:
+The surface where the Form is shown to respondents — preview or production — with builder-only visuals removed. Same Component definitions as Canvas, rendered through the public Form path.
+_Avoid_: canvas, preview alone (preview is a kind of runtime)
+
+**Structure**:
+The catalog-defined skeleton of a Component type — which objects exist (label, input, validation, …) and their default layout metadata from the registry. Not user-edited per instance.
+_Avoid_: props, grid layout (grid config is props or defaults, not structure)
+
+**Props**:
+Per-instance Component settings on the Canvas — values, style overrides, validation, and grid layout overrides. Edited in the properties panel; may inherit from global or company defaults.
+_Avoid_: structure (skeleton), definition alone
+
